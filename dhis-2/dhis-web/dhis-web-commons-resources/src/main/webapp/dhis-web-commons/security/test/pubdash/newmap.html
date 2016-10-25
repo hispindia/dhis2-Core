@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script src="http://dhis2-cdn.org/v221/openlayers/OpenLayers.js"></script>
+<script src="http://dhis2-cdn.org/v221/plugin/map.js"></script>
+<link rel="stylesheet" href="http://dhis2-cdn.org/v221/ext/resources/css/ext-plugin-gray.css" />
+<script src="http://dhis2-cdn.org/v221/ext/ext-all.js"></script>
+<script src="http://dhis2-cdn.org/v221/plugin/table.js"></script>
+  <script   src="https://code.jquery.com/jquery-3.0.0.min.js"    crossorigin="true"></script>
+  <script src="showmap.js"></script>
+<script type="text/javascript" src="html2canvas.js"></script>
+
+
+</head>
+
+<body>
+
+
+
+<div id="map">
+
+</div>
+
+
+<div id="canvas">
+
+</div>
+
+<input id="btn-Preview-Image" type="button" value="Preview"/>
+<input id="btn-Preview-Image" onclick="window.open('newmap.html?deid='+deid+'&peid='+peid+'&orgid='+orgid+'&orgname='+orgname)"style="vertical-align:middle" type="button" value="Generate Chart"/>
+    <a id="btn-Convert-Html2Image" href="#">Download</a>
+    <a id="btnExport" >Export to Excel</a>
+	  <div id="previewImage">
+    </div>
+<script>
+var base = 'http://hospdev.hispindia.org/dhis_searo/';
+
+Ext.onReady( function() {
+  Ext.Ajax.request({
+    url: base + "dhis-web-commons-security/login.action?authOnly=true",
+    method: 'POST',
+    params: { j_username: "admin", j_password: "district" },
+    success: setLinks
+  });
+});
+
+
+  function filterParams(){
+
+    var query = decodeURIComponent(window.location.search);
+    console.log("query"+ query);
+	query = query.substring(1);
+    var params = query.split("&");
+    for (var i=0;i<params.length;i++) {
+      var param = params[i].split("=");
+      switch(param[0]) {
+        case "deid":
+          deid = param[1];
+
+          break;
+        case "peid":
+          peid = param[1];
+          break;
+        case "orgid":
+          orgid = param[1];
+          break;
+        case "orgname":
+          orgname = param[1];
+          break;
+      }
+    }
+  }
+
+  $(document).ready(function(){
+
+
+     
+    filterParams();
+
+    console.log(deid);
+    console.log(peid);
+    console.log(peid);
+    console.log(orgid);
+	console.log(orgname);
+   //showmap(deid,peid,orgid,orgname);
+	
+var element = $("#map"); // global variable
+var getCanvas; // global variable
+ success: setLinks
+});
+
+    function setLinks() {
+
+		  DHIS.getMap({
+  "mapViews": [
+    {
+      "columns": [
+        {
+          "dimension": "dx",
+          "items": [
+            {
+              "id": "VG82v0dFGeP"
+            }
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "dimension": "ou",
+          "items": [
+            {
+              "id": "GY9dLYENyOU"
+            }
+          ]
+        }
+      ],
+      "filters": [
+        {
+          "dimension": "pe",
+          "items": [
+            {
+              "id": "2012"
+            }
+          ]
+        }
+      ],
+      "layer": "thematic1",
+      "method": 3,
+      "hidden": false
+    }
+  ],
+  "url": "http://hospdev.hispindia.org/dhis_searo",
+  "el": "map"
+});
+}
+
+ 
+</script>
+</body>
+
+</html>

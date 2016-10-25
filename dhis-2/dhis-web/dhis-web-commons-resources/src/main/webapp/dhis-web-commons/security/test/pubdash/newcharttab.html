@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+
+
+  <link rel="stylesheet" href="//dhis2-cdn.org/v221/ext/resources/css/ext-plugin-gray.css" />
+  <script src="//dhis2-cdn.org/v221/ext/ext-all.js"></script>
+  <script src="//dhis2-cdn.org/v221/plugin/table.js"></script>
+  <script src="//dhis2-cdn.org/v221/plugin/chart.js"></script>
+  <script   src="https://code.jquery.com/jquery-3.0.0.min.js"    crossorigin="true"></script>
+  <script src="showchart.js"></script>
+<script type="text/javascript" src="html2canvas.js"></script>
+
+
+</head>
+
+<body>
+
+
+
+<div id="chart1" style="width:680px; height:400px; vertical-align: top;  display: inline-block; padding: 10px;">
+
+</div>
+
+
+<div id="canvas">
+
+</div>
+<input id="btn-Preview-k" onclick="window.open('newtab.html?arr='+encodeURIComponent(JSON.stringify(arr))+'&peid='+peid+'&orgid='+orgid+'&orgname='+orgname)"style="vertical-align:middle" type="button" value="Generate Table"/>
+<input id="btn-Preview-Image" type="button" value="Preview"/>
+    <a id="btn-Convert-Html2Image" href="#">Download</a>
+	  <div id="previewImage">
+    </div>
+<script>
+  function filterParams(){
+
+    var query = decodeURIComponent(window.location.search);
+    //var query = decodeURIComponent("http://180.151.233.59:20092/test/newtab.html?arr=[{%22id%22:%22;OFhn35sUfSB;A049qT5clp5;qT2W96IdBC7;AWDDPPMOl2U%22,%22name%22:%22;Health%20worker%20density%20and%20distribution;Output%20training%20institutions;Headcount%20ratio%20of%20catastrophic%20health%20expenditure;Adolescents%2010-19%20yrs%20(%)%22}]");
+    //var query = decodeURIComponent("http://180.151.233.59:20092/test/newtab.html?arr=[{%22id%22:%22;OFhn35sUfSB;A049qT5clp5;qT2W96IdBC7;AWDDPPMOl2U%22,%22name%22:%22;Health%20worker%20density%20and%20distribution;Output%20training%20institutions;Headcount%20ratio%20of%20catastrophic%20health%20expenditure;Adolescents%2010-19%20yrs%20(%)%22}]&peid=;2015;2013;2012;2011&orgid=;sCU6B2ZOTYr;GY9dLYENyOU;AFkkfLBwuHc;sQeCnfgIko4&orgname=BangladeshBhutanDPR%20KoreaIndia");
+    console.log("query"+ query);
+	query = query.substring(1);
+    var params = query.split("&");
+    for (var i=0;i<params.length;i++) {
+      var param = params[i].split("=");
+      switch(param[0]) {
+        case "arr":
+          arr = JSON.parse(param[1]);
+
+          break;
+        case "peid":
+          peid = param[1];
+          break;
+        case "orgid":
+          orgid = param[1];
+          break;
+        case "orgname":
+          orgname = param[1];
+          break;
+      }
+    }
+  }
+
+  $(document).ready(function(){
+
+    console.log("values arr ");
+    filterParams();
+    console.log(arr);
+    console.log(peid);
+    console.log(orgid);console.log(orgname);
+    showchart(arr,peid,orgid,orgname);
+	
+var element = $("#chart1"); // global variable
+var getCanvas; // global variable
+ 
+    $("#btn-Preview-Image").on('click', function () {
+         html2canvas(element, {
+         onrendered: function (canvas) {
+                $("#previewImage").append(canvas);
+                getCanvas = canvas;
+             }
+         });
+    });
+
+	$("#btn-Convert-Html2Image").on('click', function () {
+    var imgageData = getCanvas.toDataURL("image/png");
+    // Now browser starts downloading it instead of just showing it
+    var newData = imgageData.replace(/^data:image\/png/, "data:application/octet-stream");
+    $("#btn-Convert-Html2Image").attr("download", "your_pic_name.png").attr("href", newData);
+	});
+
+});
+
+    
+
+ 
+</script>
+</body>
+
+</html>
