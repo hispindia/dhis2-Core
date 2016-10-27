@@ -30,6 +30,8 @@
     <module>dhis-web-apps</module>
 	<!-- India Module -->
 	<module>dhis-web-maintenance-in</module>
+	<module>dhis-web-reports-national</module>
+	
     <module>dhis-web-portal</module>
   </modules>
 
