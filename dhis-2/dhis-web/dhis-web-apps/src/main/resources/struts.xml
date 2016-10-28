@@ -95,5 +95,12 @@
 			<result name="success" type="redirect">index.html</result>
 		</action>
 	</package>
-
+	
+	<!--  for INDIA Module -->
+    <!-- dhis-web-reports-app -->
+	<package name="dhis-web-reports-app" extends="dhis-web-commons" namespace="/dhis-web-reports-app">
+		<action name="index" class="org.hisp.dhis.commons.action.NoAction">
+			<result name="success" type="redirect">index.html</result>
+		</action>
+    </package> 
 </struts>
