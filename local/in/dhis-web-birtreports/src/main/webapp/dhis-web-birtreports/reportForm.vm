@@ -1,0 +1,257 @@
+
+<script type="text/javascript">
+
+		var tempOrgUnitGroupNameMap = new Object();
+		
+		#foreach( $orgUnit in $orgUnitList )
+			
+			var orgUnitUid = ""+"$orgUnit.getUid()";
+			//tempOrgUnitGroupNameMap[orgUnitUid] = "$orgUnitGroupNameMap.get( orgUnitUid )";        
+			tempOrgUnitGroupNameMap["$orgUnit.getUid()"] = '$orgUnitGroupNameMap.get( "$orgUnit.getUid()" )';
+			//tempOrgUnitGroupNameMap["$orgUnit.getUid()"] = "ABCDEF"; 
+        		
+   		#end
+		
+	function formValidations()
+	{
+	    		
+		var reportList = document.getElementById("selectedReportId");
+        var reportIndex = reportList.selectedIndex;
+        if( reportList.options[reportIndex].value == null || reportList.options[reportIndex].value== "-1" )
+        {
+            showWarningMessage( "Please Select Report" );
+            return false; 
+        }		
+		
+		var reportFormatList = document.getElementById("selectedReportFormat");
+        var reportFormatIndex = reportFormatList.selectedIndex;
+        
+		if( reportFormatList.options[reportFormatIndex].value == null || reportFormatList.options[reportFormatIndex].value== "-1" )
+        {
+            showWarningMessage( "Please Select Report Format" );
+            return false; 
+        }
+		
+		
+		
+        var startDateValue = $('#startDate').val();
+        var endDateValue = $('#endDate').val();
+        var orgunitIdValue = $('#orgUnitUid').val();
+                                                        
+        if( startDateValue == null || startDateValue== "" ) 
+		{
+			showWarningMessage("Please Select Start Date"); 
+			return false;
+		}
+		
+		else if( endDateValue == null || endDateValue=="" ) 
+		{
+			showWarningMessage( "Please Select End Date" ); 
+			return false;
+		}
+		
+        else if( startDateValue > endDateValue )
+		{
+			showWarningMessage( "Starte Date is Greaterthan End Date" ); 
+			return false;
+		}
+        else if( orgunitIdValue == null || orgunitIdValue == "" ) 
+		{
+			showWarningMessage("Please Select OrganisationUnit"); 
+			return false;
+		}
+		
+		
+		/*
+		
+		var startPeriodList = document.getElementById("selectedPeriodId");
+	    var startPeriodIndex = startPeriodList.selectedIndex;
+	    
+	    if( startPeriodList.options[startPeriodIndex].value == null || startPeriodList.options[startPeriodIndex].value== "-1" ) 
+		{ 
+			showWarningMessage( "Please Select Period" );
+			return false; 
+		}
+		*/	
+		
+	    return redirectTorptDesign();
+	}
+
+	
+    function redirectTorptDesign()
+    {
+		var period = $('#selectedPeriodId').val();
+	    
+		//var startPeriod = period.split(":")[0];
+		//var endPeriod = period.split(":")[1];
+
+		var startPeriod = $('#startDate').val();
+		var endPeriod = $('#endDate').val();
+		
+		var reportList = document.getElementById("selectedReportId");
+        var reportIndex = reportList.selectedIndex;
+		
+		var reportFormat =  $('#selectedReportFormat').val();
+		
+		var rprDesign = reportList.options[reportIndex].value;
+		
+        var orgunit = $('#treeSelectedId').val();
+		
+		//var orgUnitId = selectionTreeSelection.getSelectedUid()[0];
+		
+		var orgUnitId = $('#orgUnitUid').val();
+				
+		var orgUnitGroupName = tempOrgUnitGroupNameMap[orgUnitId];
+		
+		//alert( rprDesign )
+
+		//window.location.href = "http://localhost:8090/birt/run?__report=C:/Program Files/Apache Software Foundation/Tomcat 7.0/webapps/birt/report/"+rprDesign+"&__format="+reportFormat+"&startDate="+startPeriod+"&endDate="+endPeriod+"&orgUnit="+orgunit;
+	
+		
+		var birtReportURL = "http://192.168.0.21:8092/birt_ippf/run?__report=/home/ccem/tomcat_ippf/webapps/birt_ippf/report/Nepal Reports/"+rprDesign+"&__format="+reportFormat+"&startDate="+startPeriod+"&endDate="+endPeriod+"&orgUnit="+orgUnitId;
+		window.location.href =  birtReportURL;
+		
+
+		
+		
+		
+		/*
+		if( rprDesign == "MATERNAL_HEALTH_1")
+		{
+
+			var birtReportURL = "http://192.168.0.21:8092/birt_ippf/run?__report=/home/ccem/tomcat_ippf/webapps/birt_ippf/report/Nepal Reports/Government VCT Report_MA.rptdesign&__format="+reportFormat+"&startDate="+startPeriod+"&endDate="+endPeriod+"&orgUnit="+orgUnitId;
+			window.location.href =  birtReportURL;
+			
+			
+
+			if( orgUnitGroupName == "Health Center")
+			{
+				var birtReportURL = "http://192.168.0.21:8092/birt_ippf/run?__report=/home/ccem/tomcat_ippf/webapps/birt_ippf/report/Nepal Reports/4453_nepa-govt_VCT.rptdesign&__format="+reportFormat+"&startDate="+startPeriod+"&endDate="+endPeriod+"&orgUnit="+orgUnitId;
+				window.location.href =  birtReportURL;
+			}
+			
+			
+		}
+
+		else if( rprDesign == "MATERNAL_HEALTH_2")
+		{
+
+			var birtReportURL = "http://192.168.0.21:8092/birt_ippf/run?__report=/home/ccem/tomcat_ippf/webapps/birt_ippf/report/Nepal Reports/Government VCT Report_Branch.rptdesign&__format="+reportFormat+"&startDate="+startPeriod+"&endDate="+endPeriod+"&orgUnit="+orgUnitId;
+			window.location.href =  birtReportURL;
+			
+			
+		}
+
+		else if( rprDesign == "MATERNAL_HEALTH_3")
+		{
+
+			var birtReportURL = "http://192.168.0.21:8092/birt_ippf/run?__report=/home/ccem/tomcat_ippf/webapps/birt_ippf/report/Nepal Reports/Government VCT Report_Clinic.rptdesign&__format="+reportFormat+"&startDate="+startPeriod+"&endDate="+endPeriod+"&orgUnit="+orgUnitId;
+			window.location.href =  birtReportURL;
+			
+			
+		}
+
+		*/
+		
+
+		
+	    return true;
+    }
+
+</script>
+
+<h3>$i18n.getString( "report_management" )</h3>
+
+<form id="generateReportForm" name="generateReportForm" method="Get" action="#" onsubmit="return formValidations()" >
+	<table>
+		
+		<tr style="display:none;">
+			<td class="NormalB">
+   			    <select id="periodTypeId" name="periodTypeId" style="width:200px; display:none">
+					<option value="$periodTypeName">$periodTypeName</option>
+				</select>
+    		</td>
+       	</tr>
+		
+        <tr>
+			<td class="NormalB">OrganisationUnit</td>
+			<td>
+				<input type="text" name="ouNameTB" id="ouNameTB" style="width:215px" disabled>
+				<input type="hidden" name="orgUnitUid" id="orgUnitUid">	
+			</td>
+		</tr>
+		
+		<tr>
+			<td><label for="report">$i18n.getString( "report" )</label></td>
+			<td>
+				<select id="selectedReportId" name="selectedReportId" style="width:220px" >
+					<option value="-1">[$i18n.getString( "select" )]</option>
+					<!--
+					<option value="MATERNAL_HEALTH_1">Government VCT Report MA</option>
+					<option value="MATERNAL_HEALTH_2">Government VCT Report Branch</option>
+					<option value="MATERNAL_HEALTH_3">Government VCT Report Clinic</option>
+					<option value="-1" >SAR SS Report</option>
+					-->
+				</select>
+			</td>
+		</tr>	
+		
+		<tr>
+			<td><label for="outputFormat">$i18n.getString( "output_type" )</label></td>
+	    	<td>
+				<select id="selectedReportFormat" name="selectedReportFormat" style="width:220px" >
+					<option value="-1">[$i18n.getString( "select" )]</option>
+                    <option value="pdf">PDF</option>
+                    <option value="xls_spudsoft">XLS</option>       
+				</select>
+            </td>
+		</tr>
+		
+		<tr>
+			<td><label for="startDate">$i18n.getString( 'start_date' ) ($i18n.getString( "format.date.label" ))</label></td>
+            <td><input type="text" id="startDate" name="startDate" onChange="if(!isDate( this.value )) this.value='';" style="width:215px" class="{validate:{required:true,dateISO:true}}" /></td>			
+		</tr>
+
+		<tr>
+			<td><label for="endDate">$i18n.getString( 'end_date' ) ($i18n.getString( "format.date.label" ))</label></td>
+			<td><input type="text" id="endDate" name="endDate" onChange="if(!isDate( this.value )) this.value='';"  style="width:215px" class="{validate:{required:true,dateISO:true}}" /></td>
+		</tr>		
+		
+		<tr style="display:none;">
+			<td><label for="selectedPeriodId">$i18n.getString( "period" )</label></td>
+			<td>
+				<select id="selectedPeriodId" name="selectedPeriodId" style="width:220px" >
+					<option value="-1">[$i18n.getString( "select" )]</option>
+						#foreach( $period in $periods )
+							<!--<option value="$period.isoDate">$encoder.htmlEncode( $period.name )</option>-->
+							#set( $periodId =  $period.getStartDateString() + ':' + $period.getEndDateString() )
+							<option value="$periodId">$encoder.htmlEncode( $period.name )</option>
+						#end
+				</select>
+				<br>
+				<input type="button" id="prevButton"  style="width:75px" value="$i18n.getString( 'prev_year' )" title="$i18n.getString('earlier_periods')" onclick="getAvailablePeriodsTemp('$periodTypeName', 'selectedPeriodId', '-1' )" >
+				<input type="button" id="nextButton"  style="width:75px" value="$i18n.getString( 'next_year' )" title="$i18n.getString('later_periods')" onclick="getAvailablePeriodsTemp( '$periodTypeName', 'selectedPeriodId', '1' )" >
+			</td>
+		</tr>	
+
+		<tr>
+			<td>&nbsp;</td>
+			<td>
+				<input type="button" id="generate" name="generate" value="$i18n.getString( 'generate' )" style="width:10em" onclick="formValidations()" />
+            
+			</td>
+			<td>
+				<input type="hidden" name="ouIDTB" id="ouIDTB">
+				<input type="hidden" name="reportTypeNameTB" id="reportTypeNameTB" value="$reportTypeName">
+      		</td>
+		</tr>	
+	
+	</table>
+
+</form>
+
+<script type="text/javascript"> 
+    jQuery( function(){
+            datePickerInRange( "startDate", "endDate", false, false );
+    });     
+</script>

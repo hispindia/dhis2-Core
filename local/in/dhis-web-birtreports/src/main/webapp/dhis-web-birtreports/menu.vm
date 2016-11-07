@@ -1,0 +1,23 @@
+<!--<h2>Birt Reports Engine</h2>-->
+	
+<a href="index.action"><h2>Birt Reports Engine</h2></a>
+
+#parse( "/dhis-web-commons/ouwt/orgunittreesearch.vm" )
+
+<script type="text/javascript">
+
+	function orgUnitHasBeenSelected( orgUnitIds )
+	{
+		document.generateReportForm.ouIDTB.value = orgUnitIds;
+
+		reportTypeName = document.generateReportForm.reportTypeNameTB.value;
+
+		if(orgUnitIds != null && orgUnitIds != "" )
+		{
+			getReports( orgUnitIds, reportTypeName);
+		}
+	}
+
+	selection.setListenerFunction( orgUnitHasBeenSelected );
+
+</script>
