@@ -1,0 +1,549 @@
+<!DOCTYPE HTML>
+<html class="loginPage">
+<head>
+    <!--For Page Automatic refresh
+    <meta http-equiv="refresh" content="30" >-->
+    <title>Punjab Health Transparency Portal</title>
+    <link rel="icon" href="./img/logo1n.png" type="image/x-icon">
+
+    <meta name="description" content="DHIS 2">
+    <meta name="keywords" content="DHIS 2">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <!--<script type="text/javascript" src="../javascripts/jQuery/jquery.min.js"></script>-->
+    <script type="text/javascript" src="login.js"></script>
+    <!--<link type="text/css" rel="stylesheet" href="../css/widgets.css">-->
+    <!--<link type="text/css" rel="stylesheet" href="../css/login.css">-->
+    <!--<link type="text/css" rel="stylesheet" href="../../api/files/style/external" />-->
+    <script src="//dhis2-cdn.org/v221/ext/ext-all.js"></script>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <!--<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">-->
+
+    <!--<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>-->
+
+    <!--Bootstrap Select Library-->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
+
+    <!-- (Optional) Latest compiled and minified JavaScript translation files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/i18n/defaults-*.min.js"></script>
+
+    <!--W3schools-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/style.min.css">
+    <link rel="stylesheet" href="css/rating.min.css">
+
+</head>
+
+<body class="loginPage">
+<!--Header--->
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header" >
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4><span class="glyphicon glyphicon-lock"></span> Login</h4>
+            </div>
+            <div class="modal-body" >
+
+                <div id="loginField">
+                    <div id="loginArea">
+                        <div id="bannerArea">
+                            <img src="./img/logo.png" style="border:none">
+                        </div>
+
+                        <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">
+                            <div>
+                                <div id="signInLabel">Sign in</div>
+                                <div><input type="text" autofocus="autofocus" id="j_username" name="j_username" placeholder="Username"></div>
+                                <div><input type="password" id="j_password" name="j_password" autocomplete="off" placeholder="Password"></div>
+                            </div>
+                            <div id="submitDiv">
+                                <input id="submit" class="button" type="submit" value="Sign in">
+                            </div>
+                            #if( $keyAccountRecovery )
+                            <div style="padding-bottom: 10px">
+                                <a id="forgotPasswordLink" href="recovery.action">Forgot password?</a>
+                            </div>
+                            #end
+                            #if( $keyConfig.selfRegistrationAllowed() )
+                            <div style="padding-bottom: 10px">
+                                <a id="createAccountLink" href="account.action">Create an account</a>
+                            </div>
+                            #end
+                        </form>
+                        #if( $keyOpenIdProvider )
+                        <form id="openIdLoginForm" action="../../dhis-web-commons-security/openid.action" method="post">
+                              <input name="openid_identifier" type="hidden" value="$keyOpenIdProvider"/>
+                            <div id="submitDiv">
+                                #if( $keyOpenIdProviderLabel )
+                                <input style="width: 269px;" id="submit" class="button" type="submit" value="$keyOpenIdProviderLabel">
+                                #else
+                                <input style="width: 269px;" id="submit" class="button" type="submit" value="Sign in with OpenID">
+                                #end
+                            </div>
+                        </form>
+                        #end
+                        #if( $failed == true )
+                        <div id="loginMessage">Wrong username or password</div>
+                        #end
+                        #if ( $keyApplicationNotification )
+                        <div id="notificationArea">$!{keyApplicationNotification}</div>
+                        #end
+                        <!--[if lte IE 8]>
+                        <div id="notificationArea" style="color: white; background-color: red;">$i18n.getString( "unsupported_browser" )</div>
+                        <![endif]-->
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+</body>
+
+<style>
+    div.container {
+        width: 100%;
+        border: 1px solid gray;
+    }
+
+    header{
+        padding: 1em;
+        color: white;
+        background-color: Teal;
+        clear: left;
+        text-align: center;
+        height:120px;
+    }
+    footer {
+        position:fixed;
+        padding: 1em;
+        height:50px;
+        color: white;
+        background-color:Teal;
+        bottom:0px;
+        left:0px;
+        text-align: center;
+        right:0px;
+        margin-bottom:0px;
+    }
+    nav {
+        float: left;
+        max-width: 300px;
+        margin: 0;
+        padding: 1em;
+    }
+
+    nav ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    nav ul a {
+        text-decoration: none;
+    }
+
+    #content {
+        margin-left: 250px;
+        border-left: 1px solid gray;
+        padding: 1em;
+        overflow: hidden;
+    }
+
+    #side1,#side2{
+        border-radius:5px;
+        border: 1px solid grey;
+        background-color: teal;
+        padding-top: 50px;
+        padding-right: 60px;
+        padding-bottom: 50px;
+        padding-left: 60px;
+    }
+</style>
+
+<script type="text/javascript">
+    var orgid;
+    var divele;
+var servicename,serviceid;
+    var name=[],address=[],pincode=[],village=[],mobile=[],owner=[],special=[];
+    var toAdd,spec=[],specialjoin;
+    $(document)
+            .ready(function() {
+                $('.ui.selection.dropdown').dropdown();
+                $('.ui.menu .ui.dropdown').dropdown({
+                    on: 'hover'
+                });
+
+
+
+                Ext.Ajax.request({
+                    url: base + "dhis-web-commons-security/login.action",
+                    method: "POST",
+                    params: {j_username: "admin", j_password: "district"},
+
+                });
+                $.getJSON("http://localhost:8080/dhis/api/dataElementGroups/yQIx7LcjQIY.json?fields=dataElements[id,name,code]", function (data) {
+
+                    $.each(data.dataElements, function (index, item) {
+                        $('#drop2').append(
+                                $('<option></option>').val(item.id).html(item.name).text(item.name)
+                        );
+//
+                    });
+
+
+
+
+                });
+                $.getJSON("http://localhost:8080/dhis/api/organisationUnitGroups/mH15ENlpG4v.json?fields=organisationUnits[id,name,code]", function (data) {
+                    $.each(data.organisationUnits, function (index, item) {
+                        $('#drop1').append(
+                                $('<option></option>').val(item.id).html(item.name).text(item.name)
+                        );
+//
+                    });
+
+
+
+
+                });
+
+                $("#drop1").change(function () {
+
+
+                    orgid = $(this).find("option:selected").val();
+                    alert(orgid);
+
+                    jQuery('#sel').html('');
+                });
+                $("#drop2").change(function () {
+                    jQuery('#sel').html('');
+
+                    serviceid = $(this).find("option:selected").val();
+                    servicename = $(this).find("option:selected").text();
+                    alert(servicename);
+                    generatefilterrecord();
+                });
+
+            });
+
+    function generaterecord() {
+//        $( ".sel" ).empty();
+        jQuery('#sel').html('');
+        $(".w3-card-4").remove();
+        var name=[],address=[],pincode=[],village=[],mobile=[],owner=[],special=[];
+        var toAdd,spec=[],specialjoin;
+        alert(orgid);
+
+        //"http://localhost:8080/dhis/api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:20161026&dimension=ou:" +orgid+"&dimension=KOhqEw0UKxA&dimension=l8VDWUvIHmv&dimension=Iso0i5CcVg5&dimension=wcmHow1kcBi&dimension=xjJR4dTmn4p&dimension=UXQ92IoVAEV&dimension=pqVIj8NyTXb&dimension=Bcg4mZFD8gO&dimension=g7vyRbNim1K&dimension=FPBP3KXepIQ&dimension=vp4t6koDmZB&dimension=XEiMcaGi6vv&dimension=mKUqJtDn41L&dimension=G6QYTm3JoNo&dimension=p2MQZL84eNu&dimension=lKQPhgCfuvz&dimension=L11XujC9xzh&dimension=XBO6pg9y1m8&dimension=t035HNWxNZU&dimension=tx0G6s6nBiC&dimension=sCypRhH8brf&displayProperty=NAME
+        $.getJSON("http://localhost:8080/dhis/api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:20161026&dimension=ou:" +orgid+"&dimension=KOhqEw0UKxA&dimension=l8VDWUvIHmv&dimension=Iso0i5CcVg5&dimension=wcmHow1kcBi&dimension=xjJR4dTmn4p&dimension=UXQ92IoVAEV&dimension=pqVIj8NyTXb&dimension=Bcg4mZFD8gO&dimension=g7vyRbNim1K&dimension=FPBP3KXepIQ&dimension=vp4t6koDmZB&dimension=XEiMcaGi6vv&dimension=mKUqJtDn41L&dimension=G6QYTm3JoNo&dimension=p2MQZL84eNu&dimension=lKQPhgCfuvz&dimension=L11XujC9xzh&dimension=XBO6pg9y1m8&dimension=t035HNWxNZU&dimension=tx0G6s6nBiC&dimension=sCypRhH8brf&displayProperty=NAME", function (data) {
+            var metaNames = data.metaData.names;
+//            var services=data.metaData.names[]
+
+            for (var i = 0; i < data.rows.length; i++) {
+                name.push(data.rows[i][9]);
+                address.push(data.rows[i][8]);
+                pincode.push(data.rows[i][12]);
+                village.push(data.rows[i][11]);
+                mobile.push(data.rows[i][14]);
+                owner.push(data.rows[i][19]);
+                if (data.rows[i][20] == "1")
+                    special.push(data.headers[20].column);
+
+                if (data.rows[i][21] == "1")
+                    special.push(data.headers[21].column);
+                if (data.rows[i][22] == "1")
+                    special.push(data.headers[22].column);
+                if (data.rows[i][23] == "1")
+                    special.push(data.headers[23].column);
+                if (data.rows[i][24] == "1")
+                    special.push(data.headers[24].column);
+                if (data.rows[i][25] == "1")
+                    special.push(data.headers[25].column);
+                if (data.rows[i][26] == "1")
+                    special.push(data.headers[26].column);
+                if (data.rows[i][27] == "1")
+                    special.push(data.headers[27].column);
+                if (data.rows[i][28] == "1")
+                    special.push(data.headers[28].column);
+
+                specialjoin = special.join();
+                spec.push(specialjoin);
+                specialjoin = "";
+                special = [];
+
+            }
+
+
+            for (var i = 0; i < name.length; i++) {
+
+                obj = new constructor_obj(document.body,name[i],address[i], pincode[i],village[i],mobile[i],owner[i],spec[i]);
+            }
+
+        });
+
+
+
+
+    }
+
+    function generatefilterrecord() {
+//        $( ".sel" ).empty();
+        jQuery('#sel').html('');
+        $(".w3-card-4").remove();
+        var name=[],address=[],pincode=[],village=[],mobile=[],owner=[],special=[];
+        var toAdd,spec=[],specialjoin;
+        alert(orgid);
+
+        //"http://localhost:8080/dhis/api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:20161026&dimension=ou:" +orgid+"&dimension=KOhqEw0UKxA&dimension=l8VDWUvIHmv&dimension=Iso0i5CcVg5&dimension=wcmHow1kcBi&dimension=xjJR4dTmn4p&dimension=UXQ92IoVAEV&dimension=pqVIj8NyTXb&dimension=Bcg4mZFD8gO&dimension=g7vyRbNim1K&dimension=FPBP3KXepIQ&dimension=vp4t6koDmZB&dimension=XEiMcaGi6vv&dimension=mKUqJtDn41L&dimension=G6QYTm3JoNo&dimension=p2MQZL84eNu&dimension=lKQPhgCfuvz&dimension=L11XujC9xzh&dimension=XBO6pg9y1m8&dimension=t035HNWxNZU&dimension=tx0G6s6nBiC&dimension=sCypRhH8brf&displayProperty=NAME
+        $.getJSON("http://localhost:8080/dhis/api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:20161026&dimension=ou:" +orgid+"&dimension=KOhqEw0UKxA&dimension=wcmHow1kcBi&dimension=xjJR4dTmn4p&dimension=pqVIj8NyTXb&dimension=XEiMcaGi6vv&dimension="+serviceid+"&displayProperty=NAME", function (data) {
+            console.log(serviceid);
+            console.log("http://localhost:8080/dhis/api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:20161026&dimension=ou:" +orgid+"&dimension=KOhqEw0UKxA&dimension=wcmHow1kcBi&dimension=xjJR4dTmn4p&dimension=pqVIj8NyTXb&dimension=XEiMcaGi6vv&dimension="+serviceid+"&displayProperty=NAME");
+            var metaNames = data.metaData.names;
+            var headlength=Number(data.headers.length-1);
+            console.log(headlength);
+//            var services=data.metaData.names[]
+            for (var i = 0; i < data.rows.length; i++) {
+                if (data.rows[i][headlength] == "1") {
+                    name.push(data.rows[i][5]);
+                    address.push(data.rows[i][8]);
+                    pincode.push(data.rows[i][10]);
+                    village.push(data.rows[i][9]);
+                    mobile.push(data.rows[i][11]);
+                    owner.push(data.rows[i][12]);
+                    special.push(servicename)
+
+                    specialjoin = special.join();
+                    spec.push(specialjoin);
+                    specialjoin = "";
+                    special = [];
+
+
+                    toAdd = document.createDocumentFragment();
+                }
+                else
+                {
+
+                }
+
+            }
+
+
+            for (var i = 0; i < name.length; i++) {
+
+
+                obj = new constructor_obj(document.body,name[i],address[i], pincode[i],village[i],mobile[i],owner[i],spec[i]);
+            }
+            div.remove();
+        });
+
+    }
+
+    // A simple constructor function
+    //parent ==> html parent object to add the info
+    function constructor_obj(parent, title, address, pincode,village,mobile,owner, specs) {
+
+        this.parent = parent;
+        this.title = title;
+        this.address = address;
+        this.pincode = pincode;
+        this.village = village;
+        this.mobile = mobile;
+        this.owner = owner;
+        this.specs = specs;
+
+        var div = document.createElement('div');
+        var divrating=document.createElement('divrating');
+        div.id = 'sel';
+        div.style = "width:auto";
+        div.className = "w3-card-4";
+        div.innerHTML = '\
+  <div class="w3-card-4" style="width:auto">\
+<div class="w3-container">\
+    <h1 class="title"><b>Dr. Abc</b></h1>\
+</div>\
+<div class="w3-container">\
+    <h2 class="specialty">Specialty :<b> Physiotherapist</b></h2>\
+    <hr>\
+    <p class="address">Address :<b> Marketing and Advertising. Seeking a new job and new opportunities.</b></p>\
+      <p class="pincode">Fee Details:500-600rs</p>\
+      <p class="village">Fee Details:500-600rs</p>\
+      <p class="mobile">Fee Details:500-600rs</p>\
+      <p class="owner">Fee Details:500-600rs</p>\
+      \
+</div>\
+<button class="w3-btn-block w3-dark-grey">More Details</button>\
+  ';
+        this.parent.appendChild(div);
+        this.parent.appendChild(divrating);
+        div.getElementsByClassName('title')[0].innerHTML = this.title;
+        div.getElementsByClassName('specialty')[0].innerHTML = this.specs;
+        div.getElementsByClassName('address')[0].innerHTML = this.address;
+        div.getElementsByClassName('pincode')[0].innerHTML = this.pincode;
+        div.getElementsByClassName('village')[0].innerHTML = this.village;
+        div.getElementsByClassName('mobile')[0].innerHTML = this.mobile;
+        div.getElementsByClassName('owner')[0].innerHTML = this.owner;
+
+    }
+
+</script>
+<style></style>
+<script>
+
+</script>
+
+<script src="js/dist/rating.min.js"></script>
+<script src="js/lib/githubicons.js"></script>
+<script src="js/lib/carbonad.js"></script>
+<script>
+
+</script>
+<script>
+    var base = "../../";
+    var url=base+"dhis-web-commons-security/login.action";
+    Ext.onReady( function() {
+
+        Ext.Ajax.request({
+            url: base + "dhis-web-commons-security/login.action",
+            method: "POST",
+            params: {j_username: "admin", j_password: "district"},
+
+        });
+
+
+        $.post(url, {
+            'j_username': 'admin',
+            'j_password': 'district'
+        }, function (data, status, xhr) {
+            //console.log(data);
+            //console.log(status);
+            //console.log(xhr);
+
+
+
+        });
+        (function() {
+
+            'use strict';
+
+            // SHOP ELEMENT
+            var shop = document.querySelector('#shop');
+
+            // DUMMY DATA
+            var data = [
+                {
+
+                    rating: 3
+                }
+            ];
+
+            // INITIALIZE
+            (function init() {
+                for (var i = 0; i < data.length; i++) {
+                    addRatingWidget(buildShopItem(data[i]), data[i]);
+                }
+            })();
+
+            // BUILD SHOP ITEM
+            function buildShopItem(data) {
+                var shopItem = document.createElement('div');
+
+                var html = '<div class="c-shop-item__img"></div>' +
+                        '<ul class="c-rating"></ul>' +
+                        '</div>';
+
+                shopItem.classList.add('c-shop-item');
+                shopItem.innerHTML = html;
+                shop.appendChild(shopItem);
+
+                return shopItem;
+            }
+
+            // ADD RATING WIDGET
+            function addRatingWidget(shopItem, data) {
+                var ratingElement = shopItem.querySelector('.c-rating');
+                var currentRating = data.rating;
+                var maxRating = 5;
+                var callback = function(rating) { alert(rating); };
+                var r = rating(ratingElement, currentRating, maxRating, callback);
+            }
+
+        })();
+
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-34160351-1', 'auto');
+        ga('send', 'pageview');
+</script>
+
+});
+
+<div class="container">
+
+    <header class="w3-hover-shadow ">
+        <div style="float:left; width:100px;">
+            <img src="img/plogo.PNG" height="100px";></img>
+        </div>
+        <div style="display:inline-block;margin:0 auto;width:auto;">
+            <h2>Punjab Health Transparency Portal</h2>
+        </div>
+        <div style="float:right;width:autopx;">
+            <ul style="list-style-type:none;">
+                <li class="w3-btn w3-hover-white">Programmes</li>
+                <li class="w3-btn w3-hover-white">Speciality</li>
+                <!--<li class="w3-btn w3-hover-white">Feedback</li>-->
+
+                <li class="w3-btn w3-hover-white" id="b1" class="button12" data-toggle="modal" data-target="#myModal"><b>DHIS2 Login</b></li>
+
+            </ul>
+        </div>
+    </header>
+</div>
+
+<div style="text-align: center">
+    <select id="drop1" class="selectpicker "  data-live-search="true">
+        <option value="all" disabled selected hidden>Please Select</option>
+        <option value="wSslG6mcGXl">Select Entire State (Punjab)</option>>
+    </select>
+
+    <select id="drop2" class="selectpicker "  data-live-search="true">
+        <option disabled selected hidden>Select Speciality</option>>
+    </select>
+
+    <button class="w3-btn" onclick="generaterecord();">Search </button>
+</div>
+<!--<div id="sel" style="text-align: center"></div>-->
+<div>
+    <footer>
+        <div>
+            <p>Punjab Health Transparency Portal</p>
+        </div>
+    </footer>
+</div>
+
+</html>
