@@ -207,7 +207,7 @@
                 <li class="w3-btn"><a onclick="window.location.reload()" target="_blank" style="color:#fff">Home</a></li>
                 <li class="w3-btn"><a href="http://pbhealth.gov.in/" target="_blank" style="color:#fff"> Punjab Health Department</a></li>
                 <!--<li class="w3-btn w3-hover-who1"><a href="http://www.pbhealth.gov.in/phsc.htm">Punjab DGHS</a></li>-->
-                <li class="w3-btn" id="b1" class="button12" data-toggle="modal"  style="color:#fff" data-target="#myModal"><b>Register Facility</b></li>
+                <li class="w3-btn" id="b1" class="button12" data-toggle="modal"  style="color:#fff" data-target="#myModal"><b>Register Facility/Login</b></li>
             </ul>
         </div>
     </header>
@@ -220,17 +220,25 @@
             <option value="wSslG6mcGXl">Select Entire State (Punjab)</option>
         </select>
 
-        <select id="drop_ownership"  class="selectpicker"  multiple="true" data-live-search="true">
-            <option value="all1">Select All</option>
+        <select id="drophospital" class="selectpicker" data-live-search="true" >
+            <option value="all" disabled selected hidden>Search By Hospital</option>
         </select>
 
         <select id="drop2"  class="selectpicker"  data-live-search="true">
             <option disabled selected hidden>Select Speciality</option>
         </select>
 
-        <!--  <select id="drop-super" class="w3-btn w3-teal"  data-live-search="true">
-              <option disabled selected hidden>Select Super Speciality</option>>
-          </select>-->
+        <select id="drop_ownership"  class="selectpicker"  multiple="true" data-live-search="true">
+            <option disabled selected hidden>Select Ownership</option>
+            <option value="all1">Select All</option>
+        </select>
+
+        <select id="droptype"  class="selectpicker"  multiple="true" data-live-search="true">
+            <option disabled selected hidden>Select Type of Health Facility</option>
+        </select>
+
+
+        </select>
         <button  class="w3-btn" onclick="generaterecord();">Search </button>
     </div>
     </br>
@@ -240,11 +248,12 @@
             <tr>
                 <td><div style="width: 650px">
                     <h3 style="text-align: center; margin-top: 5%">About Us</h3>
-                    <p style="text-align:justify; margin-left: 10px">The government of Punjab is pleased to announce the launch of the “Punjab Health Facility Portal” where all public and private health facilities are invited to self-report on the various services they provide in their respective health facilities. This information will be made available to citizens through this transparency portal to allow them to make more informed choices of what health services they can access from where. In this way, the Punjab Government seeks to strengthen its health services delivery, improve citizen satisfaction, and identify gaps in service delivery which they can seek to fill.
-                        </br></br>We request you to partner with the State to make this important venture a resounding success. For this, you are requested to self-register by clicking on “Register Facility” button. Please note this portal will be dynamic and allow for changes to be made as they take place in future.</p>
+                    <p style="text-align:justify; margin-left: 50px">The Government of Punjab is pleased to announce the launch of the “Punjab Health Facility Portal” where all public and private health facilities are invited to self-report on the various health services delivery they provide in their respective health facilities. This information will be made available to citizens through this portal to allow them to make more informed choices of what health services they can access from where. In view of that, Punjab Government seeks to identify gaps and strengthen its health services delivery and improve citizen satisfaction.
+                        </br></br>We request you to partner with the State to make this important venture a resounding success. For this, you are requested to self-register by clicking on “Register Facility/Login” button. Please note this portal will be dynamic and allow for changes to be made as they take place in future.
+                        </br></br>We hope that citizens of state find this portal useful and provide feedback regarding services.</p>
                 </div></td>
                 <td>
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1750772.7212624417!2d74.27996482023067!3d31.012930230614476!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391964aa569e7355%3A0x8fbd263103a38861!2sPunjab!5e0!3m2!1sen!2sin!4v1478332283034" width="800" height="350"  frameborder="0" style="border:0;margin-top: 5%" allowfullscreen> </iframe></td>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1750772.7212624417!2d74.27996482023067!3d31.012930230614476!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391964aa569e7355%3A0x8fbd263103a38861!2sPunjab!5e0!3m2!1sen!2sin!4v1478332283034" width="600" height="350"  frameborder="0" style="border:0;margin-top: 5%" allowfullscreen> </iframe></td>
                 <!--<div id="table1"></div>-->
             </tr>
         </table>
@@ -302,6 +311,7 @@
     });
 
 
+
     $.getJSON("../../api/optionSets/dGdSkUKNC0I.json?fields=options[id,name]", function (data) {
         $.each(data.options, function (index, item) {
             $('#drop_ownership').append($('<option></option>').val(item.id).html(item.name).text(item.name)
@@ -312,6 +322,13 @@
     $.getJSON("../../api/dataElementGroups/yQIx7LcjQIY.json?fields=dataElements[id,name,code]", function (data) {
         $.each(data.dataElements, function (index, item) {
             $('#drop2').append($('<option></option>').val(item.id).html(item.name).text(item.name)
+            );
+        });
+    });
+
+    $.getJSON("../../api/dataElementGroups/y1WarsbVwrv.json?fields=dataElements[id,name]", function (data) {
+        $.each(data.dataElements, function (index, item) {
+            $('#droptype').append($('<option></option>').val(item.id).html(item.name).text(item.name)
             );
         });
     });
@@ -328,7 +345,12 @@
 
     $("#drop1").change(function () {
         orgid = $(this).find("option:selected").val();
-//                    alert(orgid);
+        $.getJSON("../../api/organisationUnits/"+orgid+".json?fields=children[id,name]&paging=false", function (data) {
+            $.each(data.children, function (index, item) {
+                $('#drophospital').append($('<option></option>').val(item.id).html(item.name).text(item.name)
+                );
+            });
+        });
 
         jQuery('#sel').html('');
     });
@@ -360,52 +382,92 @@
     function generaterecord() {
         jQuery('#sel').html('');
         $(".w3-card-4").remove();
-        var name=[],address=[],pincode=[],village=[],mobile=[],owner=[],special=[];
-        var toAdd,spec=[],specialjoin;
+        var addressjoin="",name=[],address=[],pincode=[],village=[],mobile=[],special=[],notspecial=[],hfacilities=[],nothfacilities=[],schemes=[],notschemes=[],contactpname=[],contactpnumber=[];
+        var toAdd,spec=[],email=[],specialjoin,notspecialjoin,notspec=[],owner=[],notowner=[],hfacilitiesjoin,nothfacilitiesjoin,schemesjoin,notschemesjoin,hfschemes=[],nothfschemes=[];
         //    alert(orgid);
 
 
-        $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:20161026&dimension=ou:" +orgid+"&dimension=KOhqEw0UKxA&dimension=l8VDWUvIHmv&dimension=Iso0i5CcVg5&dimension=wcmHow1kcBi&dimension=xjJR4dTmn4p&dimension=UXQ92IoVAEV&dimension=pqVIj8NyTXb&dimension=Bcg4mZFD8gO&dimension=g7vyRbNim1K&dimension=FPBP3KXepIQ&dimension=vp4t6koDmZB&dimension=XEiMcaGi6vv&dimension=mKUqJtDn41L&dimension=G6QYTm3JoNo&dimension=p2MQZL84eNu&dimension=lKQPhgCfuvz&dimension=L11XujC9xzh&dimension=XBO6pg9y1m8&dimension=t035HNWxNZU&dimension=tx0G6s6nBiC&dimension=sCypRhH8brf&displayProperty=NAME", function (data) {
+        $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=mKUqJtDn41L&dimension=G6QYTm3JoNo&dimension=p2MQZL84eNu&dimension=lKQPhgCfuvz&dimension=L11XujC9xzh&dimension=XBO6pg9y1m8&dimension=ttLEYvjxCse&dimension=eFpqq53Zifj&dimension=x2SMBBm0P7T&dimension=sIeFKRWtZrn&dimension=l1f67ipP6mj&dimension=I3jAOh6ZIMk&dimension=DfbzQg5LTlm&dimension=IlBOWfRZyUc&dimension=t035HNWxNZU&dimension=tx0G6s6nBiC&dimension=LRb9HlmAbc6&dimension=vvzIfRasrJd&dimension=akM0bMRwfV4&dimension=dO49PmdQpvT&dimension=BZ0xteKZNid&dimension=OYAHA8Vhc3G&dimension=qNBCYtrkaD7&dimension=Bv5Fu3onViS&dimension=ALMaYK2pMhL&dimension=g7tngXzv2Zz&dimension=QeEQe0ERs9X&dimension=sFKV5EA9U6t&dimension=DeWJ6TcLBGn&dimension=MZ8si8FHS0T&dimension=uyyl3x9jwQa&dimension=bfL2zXyQtrA&dimension=AEQRulqMjQB&dimension=lWsun2ZATjI&dimension=hEZYkang3cp&dimension=szDQ40J4DTm&dimension=bxGjTYnbgcB&dimension=JOOdfW6RCCD&dimension=TaudXwrGaVC&dimension=KPpV7WAdys5&dimension=sCypRhH8brf&dimension=IYOefLkrEZk&dimension=epW5qI95Cno&dimension=gJoAOIEKG9M&dimension=snsCxRbqdHP&dimension=Guub32IStl2&dimension=U0rv5FWWeeo&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs&dimension=rD7PJQN4TTe&dimension=nvGzrdrt48l&dimension=UmlIjjErp1p&dimension=UfCxf82vB7J&dimension=tC8Ad3DuScJ&dimension=jXCd8k2841l&dimension=RkP5neDLbHv&dimension=avHST8wLPnX&dimension=txl9e6UJFP4&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
             console.log("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:20161026&dimension=ou:" +orgid+"&dimension=KOhqEw0UKxA&dimension=l8VDWUvIHmv&dimension=Iso0i5CcVg5&dimension=wcmHow1kcBi&dimension=xjJR4dTmn4p&dimension=UXQ92IoVAEV&dimension=pqVIj8NyTXb&dimension=Bcg4mZFD8gO&dimension=g7vyRbNim1K&dimension=FPBP3KXepIQ&dimension=vp4t6koDmZB&dimension=XEiMcaGi6vv&dimension=mKUqJtDn41L&dimension=G6QYTm3JoNo&dimension=p2MQZL84eNu&dimension=lKQPhgCfuvz&dimension=L11XujC9xzh&dimension=XBO6pg9y1m8&dimension=t035HNWxNZU&dimension=tx0G6s6nBiC&dimension=sCypRhH8brf&displayProperty=NAME");
             var metaNames = data.metaData.names;
 
             for (var i = 0; i < data.rows.length; i++) {
-                name.push(data.rows[i][9]);
-                address.push(data.rows[i][8]);
-                pincode.push(data.rows[i][12]);
+                name.push(data.rows[i][8]);
+                address.push(data.rows[i][9]);
+                pincode.push(data.rows[i][10]);
                 village.push(data.rows[i][11]);
-                mobile.push(data.rows[i][14]);
-                owner.push(data.rows[i][19]);
-                if (data.rows[i][20] == "1")
-                    special.push(data.headers[20].column);
-                if (data.rows[i][21] == "1")
-                    special.push(data.headers[21].column);
-                if (data.rows[i][22] == "1")
-                    special.push(data.headers[22].column);
-                if (data.rows[i][23] == "1")
-                    special.push(data.headers[23].column);
-                if (data.rows[i][24] == "1")
-                    special.push(data.headers[24].column);
-                if (data.rows[i][25] == "1")
-                    special.push(data.headers[25].column);
-                if (data.rows[i][26] == "1")
-                    special.push(data.headers[26].column);
-                if (data.rows[i][27] == "1")
-                    special.push(data.headers[27].column);
-                if (data.rows[i][28] == "1")
-                    special.push(data.headers[28].column);
+                mobile.push(data.rows[i][12]);
+
+                addressjoin=address+village+pincode+mobile;
+
+                email.push(data.rows[i][13]);
+                contactpname.push(data.rows[i][61]);
+                contactpnumber.push(data.rows[i][62]);
+
+
+                for(var j=14;j<61;j++)
+                {
+                    if (data.rows[i][j] == "1")
+                        special.push(data.headers[j].column);
+                    else
+                    {
+                        notspecial.push(data.headers[j].column);
+                    }
+                }
+
+                for(var j=63;j<72;j++)
+                {
+                    if (data.rows[i][j] == "1")
+                        hfacilities.push(data.headers[j].column);
+                    else
+                    {
+                        nothfacilities.push(data.headers[j].column);
+                    }
+                }
+                for(var j=72;j<78;j++)
+                {
+                    if (data.rows[i][j] == "1")
+                        schemes.push(data.headers[j].column);
+                    else
+                    {
+                        notschemes.push(data.headers[j].column);
+                    }
+                }
 
                 specialjoin = special.join();
-                spec.push(specialjoin);
-                specialjoin = "";
-                special = [];
+                notspecialjoin = notspecial.join();
+                hfacilitiesjoin = hfacilities.join();
+                nothfacilitiesjoin = nothfacilities.join();
+                schemesjoin = schemes.join();
+                notschemesjoin = notschemes.join();
 
+                spec.push(specialjoin);
+                notspec.push(notspecialjoin);
+                owner.push(hfacilitiesjoin);
+                notowner.push(nothfacilitiesjoin);
+                hfschemes.push(schemesjoin);
+                nothfschemes.push(notschemesjoin);
+
+                specialjoin = "";
+                notspecialjoin = "";
+                hfacilitiesjoin = "";
+                nothfacilitiesjoin = "";
+                schemesjoin = "";
+                notschemesjoin = "";
+
+                special = [];
+                notspecial = [];
+                hfacilities = [];
+                nothfacilities = [];
+                schemes = [];
+                notschemes = [];
+                addressjoin="";
             }
 
 
             for (var i = 0; i < name.length; i++) {
 
-                obj = new constructor_obj(document.body,name[i],address[i], pincode[i],village[i],mobile[i],owner[i],spec[i]);
+                obj = new constructor_obj(document.body,name[i],addressjoin,spec[i] ,owner[i],contactpname[i],contactpnumber[i],email[i],hfschemes[i],nothfschemes[i]);
             }
 
         });
@@ -420,9 +482,8 @@
         //  alert(orgid);
 
         //"../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:20161026&dimension=ou:" +orgid+"&dimension=KOhqEw0UKxA&dimension=l8VDWUvIHmv&dimension=Iso0i5CcVg5&dimension=wcmHow1kcBi&dimension=xjJR4dTmn4p&dimension=UXQ92IoVAEV&dimension=pqVIj8NyTXb&dimension=Bcg4mZFD8gO&dimension=g7vyRbNim1K&dimension=FPBP3KXepIQ&dimension=vp4t6koDmZB&dimension=XEiMcaGi6vv&dimension=mKUqJtDn41L&dimension=G6QYTm3JoNo&dimension=p2MQZL84eNu&dimension=lKQPhgCfuvz&dimension=L11XujC9xzh&dimension=XBO6pg9y1m8&dimension=t035HNWxNZU&dimension=tx0G6s6nBiC&dimension=sCypRhH8brf&displayProperty=NAME
-        $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:20161026&dimension=ou:" +orgid+"&dimension=KOhqEw0UKxA&dimension=wcmHow1kcBi&dimension=xjJR4dTmn4p&dimension=pqVIj8NyTXb&dimension=XEiMcaGi6vv&dimension="+serviceid+"&displayProperty=NAME", function (data) {
-            console.log(serviceid);
-            console.log("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:20161026&dimension=ou:" +orgid+"&dimension=KOhqEw0UKxA&dimension=wcmHow1kcBi&dimension=xjJR4dTmn4p&dimension=pqVIj8NyTXb&dimension=XEiMcaGi6vv&dimension="+serviceid+"&displayProperty=NAME");
+        $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=mKUqJtDn41L&dimension=G6QYTm3JoNo&dimension=p2MQZL84eNu&dimension=lKQPhgCfuvz&dimension=L11XujC9xzh&dimension=XBO6pg9y1m8&dimension=ttLEYvjxCse&dimension=eFpqq53Zifj&dimension=x2SMBBm0P7T&dimension=sIeFKRWtZrn&dimension=l1f67ipP6mj&dimension=I3jAOh6ZIMk&dimension=DfbzQg5LTlm&dimension=IlBOWfRZyUc&dimension=t035HNWxNZU&dimension=tx0G6s6nBiC&dimension=LRb9HlmAbc6&dimension=vvzIfRasrJd&dimension=akM0bMRwfV4&dimension=dO49PmdQpvT&dimension=BZ0xteKZNid&dimension=OYAHA8Vhc3G&dimension=qNBCYtrkaD7&dimension=Bv5Fu3onViS&dimension=ALMaYK2pMhL&dimension=g7tngXzv2Zz&dimension=QeEQe0ERs9X&dimension=sFKV5EA9U6t&dimension=DeWJ6TcLBGn&dimension=MZ8si8FHS0T&dimension=uyyl3x9jwQa&dimension=bfL2zXyQtrA&dimension=AEQRulqMjQB&dimension=lWsun2ZATjI&dimension=hEZYkang3cp&dimension=szDQ40J4DTm&dimension=bxGjTYnbgcB&dimension=JOOdfW6RCCD&dimension=TaudXwrGaVC&dimension=KPpV7WAdys5&dimension=sCypRhH8brf&dimension=IYOefLkrEZk&dimension=epW5qI95Cno&dimension=gJoAOIEKG9M&dimension=snsCxRbqdHP&dimension=Guub32IStl2&dimension=U0rv5FWWeeo&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs&dimension=rD7PJQN4TTe&dimension=nvGzrdrt48l&dimension=UmlIjjErp1p&dimension=UfCxf82vB7J&dimension=tC8Ad3DuScJ&dimension=jXCd8k2841l&dimension=RkP5neDLbHv&dimension=avHST8wLPnX&dimension=txl9e6UJFP4&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
+
             var metaNames = data.metaData.names;
             var headlength=Number(data.headers.length-1);
             console.log(headlength);
@@ -461,43 +522,50 @@
 
     // A simple constructor function
     //parent ==> html parent object to add the info
-    function constructor_obj(parent, title, address, pincode,village,mobile,owner, specs) {
+    //constructor_obj(document.body,name[i],addressjoin[i],spec[i] ,owner[i],contactpname[i],contactpnumber[i],email[i],hfschemes[i],nothfschemes[i]);
+
+    function constructor_obj(parent, title, address,spec,owner,contactpname,contactpnumber, email,hfschemes,nothfschemes) {
 
         this.parent = parent;
         this.title = title;
         this.address = address;
-        this.pincode = pincode;
-        this.village = village;
-        this.mobile = mobile;
-        this.owner = owner;
-        this.specs = specs;
+        this.spec = spec;
+        this.contactpname = contactpname;
+        this.contactpnumber = contactpnumber;
+        this.email = email;
+        this.hfschemes = hfschemes;
+        this.nothfschemes = nothfschemes;
         var div = document.createElement('div');
         div.id = 'sel';
         div.style = "width:auto;"
         div.innerHTML = '\
              <div class="w3-card-4" id="test1">\
                 <div class="">\
-                    <h1 class="title"><b>Dr. Abc</b></h1>\
-                    <button class="w3-btn-block w3-dark-grey" onclick="myfunc('+mobile+')">More Details</button>\
+                    Hospital Name<h1 class="title"><b></b></h1>\
+                <label>Address </label>         <h3 class="address"></h3>\
+                     <button class="w3-btn-block w3-dark-grey" onclick="myfunc('+contactpnumber+')">More Details</button>\
                 </div>\
-                <div class="noDisplay" id="'+mobile+'">\
-                    <h2 class="specialty">Specialty :<b> Physiotherapist</b></h2>\
+                <div class="noDisplay" id="'+contactpnumber+'">\
+                    <h2 class="specialty"></h2>\
                     <hr>\
-                    <p class="address">Address :<b> Marketing and Advertising. Seeking a new job and new opportunities.</b></p>\
-                      <p class="pincode">Fee Details:500-600rs</p>\
-                      <p class="village">Fee Details:500-600rs</p>\
-                      <p class="mobile">Fee Details:500-600rs</p>\
-                      <p class="owner">Fee Details:500-600rs</p>\
+                          <p class="owner"><h1>\
+                       <p class="contactperson"></p>\
+                      <p class="contactpnumber"></p>\
+                      <p class="email"></p>\
+                      <p class="hfschemes"></p>\
+                      <p class="nothfschemes"></p>\
              </div>\
   ';
         this.parent.appendChild(div);
         div.getElementsByClassName('title')[0].innerHTML = this.title;
-        div.getElementsByClassName('specialty')[0].innerHTML = this.specs;
         div.getElementsByClassName('address')[0].innerHTML = this.address;
-        div.getElementsByClassName('pincode')[0].innerHTML = this.pincode;
-        div.getElementsByClassName('village')[0].innerHTML = this.village;
-        div.getElementsByClassName('mobile')[0].innerHTML = this.mobile;
+        div.getElementsByClassName('specialty')[0].innerHTML = this.spec;
+        div.getElementsByClassName('contactperson')[0].innerHTML = this.contactpname;
+        div.getElementsByClassName('contactpnumber')[0].innerHTML = this.contactpnumber;
+        div.getElementsByClassName('email')[0].innerHTML = this.email;
         div.getElementsByClassName('owner')[0].innerHTML = this.owner;
+        div.getElementsByClassName('nothfschemes')[0].innerHTML = this.nothfschemes;
+        div.getElementsByClassName('hfschemes')[0].innerHTML = this.hfschemes;
         this.parent="";
 
     }

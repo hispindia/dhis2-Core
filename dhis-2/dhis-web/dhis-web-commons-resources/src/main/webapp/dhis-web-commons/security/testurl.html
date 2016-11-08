@@ -4,16 +4,34 @@
     <!-- jQuery -->
     <script src="js/jquery-2.1.3.js"></script>
     <script src="js/angular.min.js"></script>
-
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <!--<script type="text/javascript" src="../javascripts/jQuery/jquery.min.js"></script>-->
-    <!--<link type="text/css" rel="stylesheet" href="../css/widgets.css">-->
-    <!--<link type="text/css" rel="stylesheet" href="../css/login.css">-->
-    <!--<link type="text/css" rel="stylesheet" href="../../api/files/style/external" />-->
     <script src="//dhis2-cdn.org/v221/ext/ext-all.js"></script>
 
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+    <title>User Registration</title>
 
+    <style>
+        #footer{
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            padding: 1rem;
+            background-color:#2978B3;
+            text-align: center;}
+        header{
+            background-color:#2978B3;
+        }
+        #formHeader{
+            background-color:#2978B3;
+        }
+
+        body{
+            background-color:#E5E3E3;
+        }
+    </style>
 
 </head>
 
@@ -24,52 +42,56 @@
     var orgid;
     $(document)
             .ready(function() {
-                debugger
-                Ext.Ajax.request({
-                    url: "../../" + "dhis-web-commons-security/login.action",
-                    method: "POST",
-                    params: {j_username: "admin", j_password: "district"},
+                var header = {
 
-                });
+                    "Authorization": "Basic " + btoa( "admin" + ':' + "district" )
 
-                $.getJSON("../../api/organisationUnitGroups/mH15ENlpG4v.json?fields=organisationUnits[id,name,code]", function (data) {
-                    $.each(data.organisationUnits, function (index, item) {
-                        $('#drop1').append(
-                                $('<option></option>').val(item.id).html(item.name).text(item.name)
-                        );
+                };
+
+                $.ajax({
+                    async : false,
+                    type: "GET",
+                    dataType: "json",
+                    contentType: "application/json",
+                    header : header,
+                    url: '../../api/organisationUnitGroups/mH15ENlpG4v.json?fields=organisationUnits[id,name,code]',
+                    success: function(response){
+                        $.each(response.organisationUnits, function (index, item) {
+                            $('#drop1').append(
+                                    $('<option></option>').val(item.id).html(item.name).text(item.name)
+                            );
 //
-                    });
+                        });
 
+                    },
+                    error: function(response){
 
-
-
+                    }
                 });
 
                 $("#drop1").change(function () {
-
-
                     orgid = $(this).find("option:selected").val();
-                    //   alert(orgid);
 
                     jQuery('#sel').html('');
+
+
                 });
 
             });
 
 
     function submitdata(){
-        //alert(orgid);
-        debugger
         var orgname=document.getElementById("hospital").value;
         var password=document.getElementById("password").value;
         var username=document.getElementById("username").value;
-
         var header = {
 
             "Authorization": "Basic " + btoa( "admin" + ':' + "district" )
 
         };
+
         var orgunit = {
+
             name:"OU-"+orgname,
             code : orgname,
             parent:{
@@ -79,26 +101,6 @@
             shortName: "OU-"+orgname,
             phoneNumber : "98566"
         }
-
-        $.ajax({
-            type: "POST",
-            dataType: "json",
-            contentType: "application/json",
-            header : header,
-            url: '../../api/organisationUnits/',
-            data: JSON.stringify(orgunit),
-            success: function(response){
-                var orgid=response.response.lastImported;
-                alert(orgid);
-                assignprogram(orgid);
-                createUser(orgid);
-
-            },
-            error: function(response){
-
-            }
-        });
-
         var user = {
             firstName:username,
             surname : username,
@@ -116,12 +118,34 @@
                 id:orgid
             }]
         }
+        $.ajax({
+            async : false,
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json",
+            header : header,
+            url: '../../api/organisationUnits/',
+            data: JSON.stringify(orgunit),
+            success: function(response){
+                var orgid=response.response.lastImported;
+
+                assignprogram(orgid);
+                createUser(orgid);
+
+            },
+            error: function(response){
+
+            }
+        });
+
+
 
 
 
         function  assignprogram(orgid)
         {
             $.ajax({
+                async : false,
                 type: "POST",
                 dataType: "json",
                 contentType: "application/json",
@@ -140,6 +164,7 @@
         function  createUser(orgid)
         {
             $.ajax({
+                async : false,
                 type: "POST",
                 dataType: "json",
                 contentType: "application/json",
@@ -147,10 +172,11 @@
                 url: '../../api/users/',
                 data: JSON.stringify(user),
                 success: function(response){
-                    debugger
+                    alert("User Successfully Registered, Please Login to Continue");
+
                 },
                 error: function(response){
-                    debugger
+
 
                 }
             });
@@ -160,22 +186,42 @@
 
 
     }
+
+
+
+
 </script>
 
-<div style="text-align: center">
-    <select id="drop1"  >
-        <option value="all" disabled selected hidden>Please Select Parent</option>
-    </select>
-    <form action="">
-        User Name<br>
-        <input type="text"  id="username">
-        <br>   Password<br>
-        <input type="password"id="password">
-        <br>   Hospital Name<br>
-        <input type="text"  id="hospital">
-        <br>
-        <br>
-        <input type="submit" value="Submit" id="submit" onclick="submitdata()">
+
+<header class="w3-card" >
+    <h1 style="color:#fff; text-align:center;  font-weight: bold;">Punjab Health Facility Portal</h1>
+</header>
+
+</br>
+<div class="w3-card-4" style="margin-left:400px; background-color:white; margin-right:400px;">
+
+    <div id="formHeader" class="w3-container">
+        <h2 style="color:white; font-weight: bold; text-align:center">Registration Form</h2>
+    </div>
+    <form style="margin-left:10px; margin-right:10px;">
+        <p>
+            <select class="w3-select w3-border" name="option" id="drop1">
+                <option value="" disabled selected>Please Select Youy District</option>
+            </select>
+        <p>
+            <label>User Name</label>
+            <input class="w3-input" type="text" id="username"></p>
+        <p>
+            <label>Password</label>
+            <input class="w3-input" type="password" id="password"></p>
+        <p>
+            <label>Hospital Name</label>
+            <input class="w3-input" type="text" id="hospital"></p>
+        <p style="padding:20px; text-align:center"><button class="w3-btn" id="submit" onclick="submitdata()" style="background-color:#2978B3">Register</button></p>
     </form>
 </div>
+<footer class="w3-container" id="footer">
+    <h5 style="color:white">Disclaimer</h5>
+    <p></p>
+    </footer>
 </html>
