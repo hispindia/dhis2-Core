@@ -1,0 +1,59 @@
+
+<h2>Data Integration</h2>
+<ul>
+    <li>Data Import</li>
+    <ul>
+        <li>
+            <a href = "excelImportForm.action">Data Import From Excel</a>
+			<a href = "completeDataSetRegistrationForm.action">Complete Dataset</a>
+        </li>
+<!--        <li>
+            <a href = "portalDataImportForm.action">Data Import From Portal</a>
+        </li>
+        <li>
+            <a href = "tcsDataImportForm.action">Import XML From TNHMIS</a>
+        </li>
+-->        
+    </ul>        
+ </ul>       
+<ul>
+     <li>Downloads</li>
+     <ul>   
+		<li>
+            <a href = "../dhis-web-reporting/displayViewDocumentForm.action">Download Reporting Format</a>
+			<!--
+			<a href = "exportExcelFile.action?fileType=CBD_SRH_NSRH_FPAN.xls" target="_blank">Format for CBD Reporting</a>
+            <a href = "exportExcelFile.action?fileType=HIVAIDS.xls" target="_blank">Format for SRH-HIV/AIDS Services</a>
+            <a href = "exportExcelFile.action?fileType=Infertility.xls" target="_blank">Format for SRH-Subfertility/Infertility Services</a>
+            <a href = "exportExcelFile.action?fileType=Obstetric.xls" target="_blank">Format for SRH-Obstetric Services</a>
+            <a href = "exportExcelFile.action?fileType=Urology.xls" target="_blank">Format for SRH-Urology Services</a>
+			<a href = "exportExcelFile.action?fileType=STIRTI.xls" target="_blank">Format for SRH-STI/RTI Services</a>
+			<a href = "exportExcelFile.action?fileType=Stocks.xls" target="_blank">Format for SRH-Contraception Stocks.xls Services</a>
+			<a href = "exportExcelFile.action?fileType=Paediartic.xls" target="_blank">Format for SRH-Paediartic Services</a>
+			<a href = "exportExcelFile.action?fileType=Specialised.xls" target="_blank">Format for SRH-Specialised Services</a>
+			<a href = "exportExcelFile.action?fileType=Othersrh.xls" target="_blank">Format for SRH-Other Services</a>
+			-->
+        </li>		
+		
+		
+		<!--
+		<li>
+            <a href = "exportExcelFile.action?fileType=phc" target="_blank">Format for PHC/CHC/DH/SDH</a>
+        </li>
+		<li>
+            <a href = "exportExcelFile.action?fileType=private" target="_blank">Format for Private</a>
+        </li>
+        <li>
+            <a href = "exportExcelFile.action?fileType=sc" target="_blank">Format for SC</a>
+        </li>
+        <li>
+            <a href = "exportExcelFile.action?fileType=sopphc" target="_blank">SOP PHC 22-10-2012</a>
+        </li>
+        <li>
+            <a href = "exportExcelFile.action?fileType=sopsc" target="_blank">SOP SC 22-10-2012</a>
+        </li>
+		-->
+		
+		
+     </ul>   
+</ul>
