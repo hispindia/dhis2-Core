@@ -72,6 +72,25 @@
       <result name="success" type="outputStreamResult"></result>
       <result name="input" type="velocity">/dhis-web-dataentry/validationResult.vm</result>
     </action>
+	
+	<!--  For IPPF -->
+
+	<!-- Get Closing balance --> 
+    <action name="getClosingBal" class="org.hisp.dhis.de.action.GetClosingBalancAction">
+      <result name="success" type="velocity-json">/dhis-web-dataentry/status.vm</result>
+      <param name="onExceptionReturn">plainTextError</param>
+      <param name="requiredAuthorities">F_DATAVALUE_ADD,F_DATAVALUE_UPDATE,F_DATAVALUE_DELETE</param>
+    </action>
+	
+	<!--  for Complete data set and disable dataEntry for lower level -->
+    <action name="registerCompleteDataSet" class="org.hisp.dhis.commons.action.NoAction">
+      <param name="requiredAuthorities">F_COMPLETE_REGISTER</param>
+    </action>
+	
+	<!--  for In Complete data set and enable dataEntry for Upper level -->
+    <action name="undoCompleteDataSet" class="org.hisp.dhis.commons.action.NoAction">
+      <param name="requiredAuthorities">F_UNDO_REGISTER</param>
+    </action>
 
   </package>
 </struts>
