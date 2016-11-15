@@ -87,7 +87,7 @@
                 <!--  Tracker capture -->
                 <artifactItem>
                   <groupId>org.hisp.dhis</groupId>
-                  <artifactId>dhis-app-tracker-capture</artifactId>
+                  <artifactId>dhis-app-tracker-capture-msf-2.24</artifactId>
                   <version>${apps.version}</version>
                   <overWrite>true</overWrite>
                   <outputDirectory>${project.build.directory}/${project.artifactId}/dhis-web-tracker-capture</outputDirectory>
