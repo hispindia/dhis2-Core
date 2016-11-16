@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Punjab Portal</title>
+	<script src="lib/constants.js"></script>
+
+<style>
+#footer{
+
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 1rem;
+  background-color:#2978B3;
+  text-align: center;
+  }
+  header
+  {
+  background-color:#2978B3;
+  }
+  #formHeader
+  {
+   background-color:#2978B3;
+   }  
+  body
+  {
+   background-color:#E5E3E3;
+   }
+	.rating 
+	{
+		  unicode-bidi: bidi-override;
+		  direction: rtl;
+		  text-align: center;
+	}
+	 .rating > span
+		{
+		  display: inline-block;
+		  position: relative;
+		  width: 1.1em;
+		}
+		.rating > span:hover,
+		.rating > span:hover ~ span {
+		  color: transparent;
+		}
+		.rating > span:hover:before,
+		.rating > span:hover ~ span:before {
+		   content: "\2605";
+		   position: absolute;
+		   left: 0;
+		   color: gold;
+		}
+</style>
+</head>
+<script>
+
+	var query = decodeURIComponent(window.location.search);
+	var ouid;
+	var title;
+	query = query.substring(1);
+	var params = query.split("&");
+	for (var i=0;i<params.length;i++) {
+		var param = params[i].split("=");
+		switch(param[0]) {
+			case "ouid":
+				ouid = param[1];
+
+
+		}
+	}
+
+//	document.getElementById('#facility').innerHTML=title;
+
+
+	function saveRating(){
+		var name =document.getElementById("name").value;
+		var email =document.getElementById("email").value;
+		var phone =document.getElementById("phone").value;
+		var person =document.getElementById("person").value;
+		var services =document.getElementById("services").value;
+		var rating =document.getElementById("rating").value;
+		var comments =document.getElementById("comments").value;
+
+		var ou=ouid;
+		var dataValues = [];
+		dataValues.push({dataElement : Name , value : name});
+		dataValues.push({dataElement : Email  , value : email});
+		dataValues.push({dataElement : Phone  , value : phone});
+		dataValues.push({dataElement : whoRecieved  , value : person});
+		dataValues.push({dataElement : servicesAvailed  , value : services});
+		dataValues.push({dataElement : Ratingvalue  , value : rating});
+		dataValues.push({dataElement : CommentsValue  , value : comments});
+
+		var eventDate = "2016-02-15";
+
+		var event = {
+			program : program,
+			programStage : programStage,
+			eventDate:eventDate,
+			dataValues : dataValues,
+			orgUnit : ou
+		}
+
+
+		$.ajax({
+			async : true,
+			type: "POST",
+			dataType: "json",
+			contentType: "application/json",
+			url: '../../api/events',
+			data : JSON.stringify(event),
+			success: function(response){
+            alert("Thank you for Your Valuable Feedback!");
+				window.close();
+			},
+			error: function(response){
+				alert("Ohh....please fill out all details!");
+			}
+		});
+
+	}
+	</script>
+<body>
+<header class="w3-card" >
+  <h1 style="color:#fff; text-align:center;  font-weight: bold;">Punjab Health Facility Portal</h1>
+</header>
+
+</br>
+<div class="w3-card-4" style="margin-left:400px; background-color:white; margin-right:400px;">
+
+<div id="formHeader" class="w3-container">
+  <h2 style="color:white; font-weight: bold; text-align:center">Feedback Form</h2>
+</div>
+	<hr>
+	<table>
+		<!--<tr>-->
+			<!--<td>-->
+				<!--<label style="margin-left: 10px">Facility Filling for:</label>-->
+			<!--</td>-->
+			<!--<td>-->
+				<!--<h2 class="name" type="text" id="facility"></h2>-->
+			<!--</td>-->
+		<!--</tr>-->
+		<tr>
+			<td style="width: 51%">
+				<label style="margin-left: 10px">Name:</label>
+			</td>
+			<td style="width: 40%">
+				<input class="w3-input" type="text" id="name">
+			</td>
+		</tr>
+		<tr>
+			<td style="width: 51%">
+				<label style="margin-left: 10px">Email:</label>
+			</td>
+			<td  style="width: 40%">
+				<input class="w3-input" type="email" id="email">
+			</td>
+		</tr>
+		<tr>
+			<td style="width: 51%">
+				<label style="margin-left: 10px">Phone:</label>
+			</td>
+			<td  style="width: 40%">
+				<input class="w3-input" type="number" maxlength="10" id="phone">
+			</td>
+		</tr>
+		<tr>
+			<td style="width: 51%">
+				<label style="margin-left: 10px">Who received services in this facility?</label>
+			</td>
+			<td  style="width: 40%">
+				<select id="person">
+					<option disabled selected hidden>Please Select</option>
+					<option value="self">Self</option>
+					<option value="fmember">Family Member</option>
+					<option value="friend">Friend or Relative</option>
+				</select>
+			</td>
+		</tr>
+
+		<tr>
+			<td style="width: 51%">
+				<label style="margin-left: 10px">What services did you avail :-</label>
+			</td>
+			<td  style="width: 40%">
+				<select id="services">
+					<option disabled selected hidden>Please Select</option>
+					<option value="outpatient">Outpatient</option>
+					<option value="inpatient">Inpatient</option>
+					<option value="diagnostics">Diagnostics</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td style="width: 51%">
+				<label style="margin-left: 10px">Please give your overall rating(1-5)</label>
+			</td>
+			<td  style="width: 40%">
+				<select id="rating">
+					<option disabled selected hidden>Please Select</option>
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td style="width: 51%">
+				<label style="margin-left: 10px">Additional Comments</label>
+			</td>
+			<td  style="width: 40%">
+				<input class="w3-input" type="text" id="comments">
+			</td>
+		</tr>
+
+
+		</table>
+	<hr>
+
+  <p style="padding:20px; text-align:center"><button class="w3-btn" style="background-color:#2978B3" onclick="saveRating()">Submit</button></p>
+</div>
+</body>
+</html>
