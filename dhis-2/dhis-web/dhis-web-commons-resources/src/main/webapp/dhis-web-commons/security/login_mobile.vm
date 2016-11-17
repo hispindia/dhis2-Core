@@ -7,62 +7,26 @@
     <meta name="description" content="DHIS 2">
     <meta name="keywords" content="DHIS 2">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <!--<script type="text/javascript" src="../javascripts/jQuery/jquery.min.js"></script>-->
-    <script type="text/javascript" src="login.js"></script>
-    <!--<link type="text/css" rel="stylesheet" href="../css/widgets.css">-->
-    <!--<link type="text/css" rel="stylesheet" href="../css/login.css">-->
-    <!--<link type="text/css" rel="stylesheet" href="../../api/files/style/external" />-->
+
+    <script src="lib/js/jquerymin.js"></script>
+
     <script src="//dhis2-cdn.org/v221/ext/ext-all.js"></script>
+    <link rel="stylesheet" href="lib/css/bootstrapmin.css" integrity="" crossorigin="anonymous" />
+    <link rel="stylesheet"  href="lib/css/bootstrapthememin.css" integrity="" crossorigin="anonymous" />
+    <script src="lib/js/bootstrapmin.js"  ></script>
+    <script src="lib/js/bootstrapselectmin.js" ></script>
+    <link rel="stylesheet" href="lib/css/bootstrap-selectmin.css" />
 
-    <link rel="stylesheet" href="http://dhis2-cdn.org/v223/ext/resources/css/ext-plugin-gray.css" />
-    <script src="http://dhis2-cdn.org/v223/ext/ext-all.js"></script>
-    <script src="http://dhis2-cdn.org/v223/plugin/table.js"></script>
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
-
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-    <!--<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">-->
-
-    <!--<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>-->
-
-    <!--Bootstrap Select Library-->
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css">
-
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
-
-    <!-- (Optional) Latest compiled and minified JavaScript translation files -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/i18n/defaults-*.min.js"></script>
-
-    <!--W3schools-->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="w3.css">
-
-    <link rel="stylesheet" type="text/css" href="styles.css">
-    <script src="js/dist/rating.min.js"></script>
-    <link rel="stylesheet" href="css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/style.min.css">
-    <link rel="stylesheet" href="css/rating.min.css">
+    <link rel="stylesheet" href="lib/css/w3.css">
+    <link rel="stylesheet" href="lib/css/style.css">
 
     <style>
-        div.container {
-            width: 100%;
-            border: 1px solid gray;
-        }
-
-        header{
+        #header{
             padding: 1em;
             color: white;
             background-color: #2978B3;
-            clear: left;
-            text-align: center;
-            height:120px;
+            height:auto;
+            width:100%;
         }
         nav {
             float: left;
@@ -79,32 +43,12 @@
         nav ul a {
             text-decoration: none;
         }
-
-        #content {
-            margin-left: 250px;
-            border-left: 1px solid gray;
-            padding: 1em;
-            overflow: hidden;
-        }
-
-        #side1,#side2{
-            border-radius:5px;
-            border: 1px solid grey;
-            background-color: teal;
-            padding-top: 50px;
-            padding-right: 60px;
-            padding-bottom: 50px;
-            padding-left: 60px;
-        }
         #test1 {
             margin-left: 120px;
             margin-right : 120px;
             padding: 1em;
-            overflow: hidden;
             margin-bottom: 10px;
         }
-
-
         .noDisplay{
             display: none;
         }
@@ -116,9 +60,18 @@
             bottom: 0px;
             background-color: #2978B3;
         }
+        h2{
+            font-family: "Arial";
+            font-size: 100%;
+        } h1{
+              font-family: "Arial";
+              font-size: 250%;
+          }
+        p{
+            font-family:  "Arial";
+            font-size: 100%;
+        }
     </style>
-
-
 </head>
 
 <body>
@@ -147,7 +100,7 @@
                                 <div><input type="password" id="j_password" name="j_password" autocomplete="off" placeholder="Password"></div>
                             </div>
                             <div style="padding-bottom: 10px">
-                                <a id="createAccountLink" href="testurl.html">Create an account</a>
+                                <a id="createAccountLink" target="_blank" href="lib/controllers/register.html">Create an account</a>
                             </div>
                             <div id="submitDiv">
                                 <input id="submit" class="button" type="submit" value="Sign in">
@@ -193,322 +146,83 @@
 
     </div>
 </div>
-<div >
-    <!--Header -->
-    <header class="w3-hover-shadow ">
-        <div style="float:left; width:100px;">
-            <img src="img/Punjab_logo.png" height="100px";>
-        </div>
-        <div style="display:inline-block;margin:0 auto;width:auto;">
-            <h2 style="color:#fff">Punjab Health Facility Portal</h2>
-        </div>
-        <div style="float:right">
-            <ul style="list-style-type:none;">
-                <li class="w3-btn"><a onclick="window.location.reload()" target="_blank" style="color:#fff">Home</a></li>
-                <li class="w3-btn"><a href="http://pbhealth.gov.in/" target="_blank" style="color:#fff"> Punjab Health Department</a></li>
-                <!--<li class="w3-btn w3-hover-who1"><a href="http://www.pbhealth.gov.in/phsc.htm">Punjab DGHS</a></li>-->
-                <li class="w3-btn" id="b1" class="button12" data-toggle="modal"  style="color:#fff" data-target="#myModal"><b>Register Facility</b></li>
-            </ul>
-        </div>
-    </header>
+<!--Header -->
+<div id="header">
+    <table>
+        <tr>
+            <td rowspan="2">
+                <img src="img/Punjab_logo.png" width="80px">
+            </td>
+            <td>
+                <h3 style="color:#fff">Punjab Health Facility Portal</h3>
+            </td>
 
-
-    <!--DropDown Bar-->
-    <div style="text-align: center">
+            <td>
+                <ul style="list-style-type:none;">
+                    <li class="w3-btn"><a onclick="window.location.reload()" target="_blank" style="color:#fff">Home</a></li>
+                    <li class="w3-btn"><a href="http://pbhealth.gov.in/" target="_blank" style="color:#fff"> Punjab Health Department</a></li>
+                    <!--<li class="w3-btn w3-hover-who1"><a href="http://www.pbhealth.gov.in/phsc.htm">Punjab DGHS</a></li>-->
+                    <li class="w3-btn" id="b1" class="button12" data-toggle="modal"  style="color:#fff" data-target="#myModal"><b>Register Facility/Login</b></li>
+                </ul>
+            </td>
+        </tr>
+    </table>
+</div>
+<!--DropDown Bar-->
+<div  class="w3-row " style="text-align:center; padding-top: 20px">
+    <div class="w3-col w3-container" style="width:30%">
         <select id="drop1" class="selectpicker"  data-live-search="true" >
-            <option value="all" disabled selected hidden>Please Select</option>
+            <option value="" disabled selected hidden>Please Select State/District</option>
             <option value="wSslG6mcGXl">Select Entire State (Punjab)</option>
         </select>
-
-        <select id="drop_ownership"  class="selectpicker"  multiple="true" data-live-search="true">
-            <option value="all1">Select All</option>
-        </select>
-
-        <select id="drop2"  class="selectpicker"  data-live-search="true">
-            <option disabled selected hidden>Select Speciality</option>
-        </select>
-
-        <!--  <select id="drop-super" class="w3-btn w3-teal"  data-live-search="true">
-              <option disabled selected hidden>Select Super Speciality</option>>
-          </select>-->
-        <button  class="w3-btn" onclick="generaterecord();">Search </button>
     </div>
-    </br>
-
-    <div id="content1">
-        <table>
-            <tr>
-                <td><div style="width: 650px">
-                    <h3 style="text-align: center; margin-top: 5%">About Us</h3>
-                    <p style="text-align:justify; margin-left: 10px">The government of Punjab is pleased to announce the launch of the “Punjab Health Facility Portal” where all public and private health facilities are invited to self-report on the various services they provide in their respective health facilities. This information will be made available to citizens through this transparency portal to allow them to make more informed choices of what health services they can access from where. In this way, the Punjab Government seeks to strengthen its health services delivery, improve citizen satisfaction, and identify gaps in service delivery which they can seek to fill.
-                        </br></br>We request you to partner with the State to make this important venture a resounding success. For this, you are requested to self-register by clicking on “Register Facility” button. Please note this portal will be dynamic and allow for changes to be made as they take place in future.</p>
-                </div></td>
-                <td>
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1750772.7212624417!2d74.27996482023067!3d31.012930230614476!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391964aa569e7355%3A0x8fbd263103a38861!2sPunjab!5e0!3m2!1sen!2sin!4v1478332283034" width="800" height="350"  frameborder="0" style="border:0;margin-top: 5%" allowfullscreen> </iframe></td>
-                <!--<div id="table1"></div>-->
-            </tr>
-        </table>
+    <div class="w3-col w3-container" style="width:30%">
+        <select id="drophospital" class="selectpicker" data-live-search="true" >
+            <option value="all" disabled selected hidden>Search by Hospital Name</option>
+        </select>
+    </div>
+    <div class="w3-col w3-container" style="width:30%">
+        <select id="drop2"  class="selectpicker"  data-live-search="true">
+            <option disabled selected hidden>Search by speciality</option>
+        </select>
+    </div>
+</div>
+<div class="w3-row" style="padding-top: 10px">
+    <div class="w3-col w3-container" style="margin-left:170px; width:33%">
+        <select id="drop_ownership"  class="selectpicker"   data-live-search="true">
+            <option value="" disabled selected hidden>Search by Ownership</option>
+        </select>
+    </div>
+    <div class="w3-col w3-container" style="width:20%">
+        <select id="droptype"  class="selectpicker"  data-live-search="true">
+            <option disabled selected hidden>Type of Health Facility</option>
+        </select>
     </div>
 </div>
 
+<div id="content1">
+    <table>
+        <tr>
+            <td style="width: 500px">
+                <h3 style="text-align: center; margin-top: 5%">About Us</h3>
+                <p style="text-align:justify; margin-left: 50px">The Government of Punjab is pleased to announce the launch of the “Punjab Health Facility Portal” where all public and private health facilities are invited to self-report on the various health services they provide in their respective health facilities. This information will be made available to citizens through this portal to allow them to make more informed choices of what health services they can access from where. The information will help the Punjab Government to identify gaps and strengthen health services delivery and improve citizen satisfaction.
+                    </br></br>We request you to partner with the State to make this important venture a resounding success. For this, healthcare providers are requested to self-register by clicking on “Register Facility/Login” button. Please note this portal will be dynamic and allow for changes to be made as they take place in future. Users of health facilities are requested to provide feedback.
+                    </br></br>We hope that citizens of state find this portal useful and provide feedback regarding services.</p>
+            </td>
+            <td>
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1750772.7212624417!2d74.27996482023067!3d31.012930230614476!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391964aa569e7355%3A0x8fbd263103a38861!2sPunjab!5e0!3m2!1sen!2sin!4v1478332283034"  style="border: 0;margin-top: 5%;height: 400px;width: 500px;padding-right: 10px;padding-left: 10px;" allowfullscreen> </iframe>
+            </td>
+        </tr>
+    </table>
+</div>
+
 <div id="footer">
-    <p style="text-align: center; color: #fff">Disclaimer: Please note the responsibility for the correctness of information provided lies completely with the providers of the information. The government is only responsible for the compilation ad dissemination of this information through the medium of this portal.</p>
+    <p style="text-align: center; color: #fff">Disclaimer: The responsibility for the correctness of data in the portal is the responsibility of the facility which has self-registered the data. The Government is only responsible for the dissemination of this information through this portal.</p>
 </div>
 
 </body>
 
 <!-- Login Script -->
-
-<script>
-
-    var base = "../../";
-    var url=base+"dhis-web-commons-security/login.action";
-    Ext.onReady( function() {
-
-        Ext.Ajax.request({
-            url: base + "dhis-web-commons-security/login.action",
-            method: "POST",
-            params: {j_username: "admin", j_password: "district"},
-
-        });
-
-        $.post(url, {
-            'j_username': 'admin',
-            'j_password': 'district'
-        }, function (data, status, xhr) {
-
-        });
-
-    });
-</script>
-
-<script type="text/javascript">
-    var orgid;
-    var divele;
-    var servicename,serviceid;
-    var name=[],address=[],pincode=[],village=[],mobile=[],owner=[],special=[];
-    var toAdd,spec=[],specialjoin;
-    $(document)
-            .ready(function() {
-
-
-            });
-
-    Ext.Ajax.request({
-        url: base + "dhis-web-commons-security/login.action",
-        method: "POST",
-        params: {j_username: "admin", j_password: "district"},
-
-    });
-
-
-    $.getJSON("../../api/optionSets/dGdSkUKNC0I.json?fields=options[id,name]", function (data) {
-        $.each(data.options, function (index, item) {
-            $('#drop_ownership').append($('<option></option>').val(item.id).html(item.name).text(item.name)
-            );
-        });
-    });
-
-    $.getJSON("../../api/dataElementGroups/yQIx7LcjQIY.json?fields=dataElements[id,name,code]", function (data) {
-        $.each(data.dataElements, function (index, item) {
-            $('#drop2').append($('<option></option>').val(item.id).html(item.name).text(item.name)
-            );
-        });
-    });
-
-
-
-    $.getJSON("../../api/organisationUnitGroups/mH15ENlpG4v.json?fields=organisationUnits[id,name,code]", function (data) {
-        $.each(data.organisationUnits, function (index, item) {
-            $('#drop1').append($('<option></option>').val(item.id).html(item.name).text(item.name)
-            );
-        });
-    });
-
-
-    $("#drop1").change(function () {
-        orgid = $(this).find("option:selected").val();
-//                    alert(orgid);
-
-        jQuery('#sel').html('');
-    });
-
-    $("#drop_ownership").change(function () {
-        serviceid = $(this).find("option:selected").val();
-        if(serviceid=="all1")
-        {
-            $('#drop_ownership').selectpicker('selectAll');
-
-        }
-
-
-    });
-
-    $("#drop2").change(function () {
-
-        jQuery('#sel').html('');
-
-        serviceid = $(this).find("option:selected").val();
-        servicename = $(this).find("option:selected").text();
-
-//                    alert(servicename);
-        generatefilterrecord();
-    });
-
-
-
-    function generaterecord() {
-        jQuery('#sel').html('');
-        $(".w3-card-4").remove();
-        var name=[],address=[],pincode=[],village=[],mobile=[],owner=[],special=[];
-        var toAdd,spec=[],specialjoin;
-        //    alert(orgid);
-
-
-        $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:20161026&dimension=ou:" +orgid+"&dimension=KOhqEw0UKxA&dimension=l8VDWUvIHmv&dimension=Iso0i5CcVg5&dimension=wcmHow1kcBi&dimension=xjJR4dTmn4p&dimension=UXQ92IoVAEV&dimension=pqVIj8NyTXb&dimension=Bcg4mZFD8gO&dimension=g7vyRbNim1K&dimension=FPBP3KXepIQ&dimension=vp4t6koDmZB&dimension=XEiMcaGi6vv&dimension=mKUqJtDn41L&dimension=G6QYTm3JoNo&dimension=p2MQZL84eNu&dimension=lKQPhgCfuvz&dimension=L11XujC9xzh&dimension=XBO6pg9y1m8&dimension=t035HNWxNZU&dimension=tx0G6s6nBiC&dimension=sCypRhH8brf&displayProperty=NAME", function (data) {
-            console.log("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:20161026&dimension=ou:" +orgid+"&dimension=KOhqEw0UKxA&dimension=l8VDWUvIHmv&dimension=Iso0i5CcVg5&dimension=wcmHow1kcBi&dimension=xjJR4dTmn4p&dimension=UXQ92IoVAEV&dimension=pqVIj8NyTXb&dimension=Bcg4mZFD8gO&dimension=g7vyRbNim1K&dimension=FPBP3KXepIQ&dimension=vp4t6koDmZB&dimension=XEiMcaGi6vv&dimension=mKUqJtDn41L&dimension=G6QYTm3JoNo&dimension=p2MQZL84eNu&dimension=lKQPhgCfuvz&dimension=L11XujC9xzh&dimension=XBO6pg9y1m8&dimension=t035HNWxNZU&dimension=tx0G6s6nBiC&dimension=sCypRhH8brf&displayProperty=NAME");
-            var metaNames = data.metaData.names;
-
-            for (var i = 0; i < data.rows.length; i++) {
-                name.push(data.rows[i][9]);
-                address.push(data.rows[i][8]);
-                pincode.push(data.rows[i][12]);
-                village.push(data.rows[i][11]);
-                mobile.push(data.rows[i][14]);
-                owner.push(data.rows[i][19]);
-                if (data.rows[i][20] == "1")
-                    special.push(data.headers[20].column);
-                if (data.rows[i][21] == "1")
-                    special.push(data.headers[21].column);
-                if (data.rows[i][22] == "1")
-                    special.push(data.headers[22].column);
-                if (data.rows[i][23] == "1")
-                    special.push(data.headers[23].column);
-                if (data.rows[i][24] == "1")
-                    special.push(data.headers[24].column);
-                if (data.rows[i][25] == "1")
-                    special.push(data.headers[25].column);
-                if (data.rows[i][26] == "1")
-                    special.push(data.headers[26].column);
-                if (data.rows[i][27] == "1")
-                    special.push(data.headers[27].column);
-                if (data.rows[i][28] == "1")
-                    special.push(data.headers[28].column);
-
-                specialjoin = special.join();
-                spec.push(specialjoin);
-                specialjoin = "";
-                special = [];
-
-            }
-
-
-            for (var i = 0; i < name.length; i++) {
-
-                obj = new constructor_obj(document.body,name[i],address[i], pincode[i],village[i],mobile[i],owner[i],spec[i]);
-            }
-
-        });
-        $("#content1").hide();
-    }
-
-    function generatefilterrecord() {
-        jQuery('#sel').html('');
-        $(".w3-card-4").remove();
-        var name=[],address=[],pincode=[],village=[],mobile=[],owner=[],special=[];
-        var toAdd,spec=[],specialjoin;
-        //  alert(orgid);
-
-        //"../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:20161026&dimension=ou:" +orgid+"&dimension=KOhqEw0UKxA&dimension=l8VDWUvIHmv&dimension=Iso0i5CcVg5&dimension=wcmHow1kcBi&dimension=xjJR4dTmn4p&dimension=UXQ92IoVAEV&dimension=pqVIj8NyTXb&dimension=Bcg4mZFD8gO&dimension=g7vyRbNim1K&dimension=FPBP3KXepIQ&dimension=vp4t6koDmZB&dimension=XEiMcaGi6vv&dimension=mKUqJtDn41L&dimension=G6QYTm3JoNo&dimension=p2MQZL84eNu&dimension=lKQPhgCfuvz&dimension=L11XujC9xzh&dimension=XBO6pg9y1m8&dimension=t035HNWxNZU&dimension=tx0G6s6nBiC&dimension=sCypRhH8brf&displayProperty=NAME
-        $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:20161026&dimension=ou:" +orgid+"&dimension=KOhqEw0UKxA&dimension=wcmHow1kcBi&dimension=xjJR4dTmn4p&dimension=pqVIj8NyTXb&dimension=XEiMcaGi6vv&dimension="+serviceid+"&displayProperty=NAME", function (data) {
-            console.log(serviceid);
-            console.log("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:20161026&dimension=ou:" +orgid+"&dimension=KOhqEw0UKxA&dimension=wcmHow1kcBi&dimension=xjJR4dTmn4p&dimension=pqVIj8NyTXb&dimension=XEiMcaGi6vv&dimension="+serviceid+"&displayProperty=NAME");
-            var metaNames = data.metaData.names;
-            var headlength=Number(data.headers.length-1);
-            console.log(headlength);
-//            var services=data.metaData.names[]
-            for (var i = 0; i < data.rows.length; i++) {
-                if (data.rows[i][headlength] == "1") {
-                    name.push(data.rows[i][5]);
-                    address.push(data.rows[i][8]);
-                    pincode.push(data.rows[i][10]);
-                    village.push(data.rows[i][9]);
-                    mobile.push(data.rows[i][11]);
-                    owner.push(data.rows[i][12]);
-                    special.push(servicename)
-
-                    specialjoin = special.join();
-                    spec.push(specialjoin);
-                    specialjoin = "";
-                    special = [];
-
-
-                    toAdd = document.createDocumentFragment();
-                }
-                else
-                {
-
-                }
-
-            }
-            for (var i = 0; i < name.length; i++) {
-                obj = new constructor_obj(document.body,name[i],address[i], pincode[i],village[i],mobile[i],owner[i],spec[i]);
-            }
-
-        });
-        $("#content1").hide();
-    }
-
-    // A simple constructor function
-    //parent ==> html parent object to add the info
-    function constructor_obj(parent, title, address, pincode,village,mobile,owner, specs) {
-
-        this.parent = parent;
-        this.title = title;
-        this.address = address;
-        this.pincode = pincode;
-        this.village = village;
-        this.mobile = mobile;
-        this.owner = owner;
-        this.specs = specs;
-        var div = document.createElement('div');
-        div.id = 'sel';
-        div.style = "width:auto;"
-        div.innerHTML = '\
-             <div class="w3-card-4" id="test1">\
-                <div class="">\
-                    <h1 class="title"><b>Dr. Abc</b></h1>\
-                    <button class="w3-btn-block w3-dark-grey" onclick="myfunc('+mobile+')">More Details</button>\
-                </div>\
-                <div class="noDisplay" id="'+mobile+'">\
-                    <h2 class="specialty">Specialty :<b> Physiotherapist</b></h2>\
-                    <hr>\
-                    <p class="address">Address :<b> Marketing and Advertising. Seeking a new job and new opportunities.</b></p>\
-                      <p class="pincode">Fee Details:500-600rs</p>\
-                      <p class="village">Fee Details:500-600rs</p>\
-                      <p class="mobile">Fee Details:500-600rs</p>\
-                      <p class="owner">Fee Details:500-600rs</p>\
-             </div>\
-  ';
-        this.parent.appendChild(div);
-        div.getElementsByClassName('title')[0].innerHTML = this.title;
-        div.getElementsByClassName('specialty')[0].innerHTML = this.specs;
-        div.getElementsByClassName('address')[0].innerHTML = this.address;
-        div.getElementsByClassName('pincode')[0].innerHTML = this.pincode;
-        div.getElementsByClassName('village')[0].innerHTML = this.village;
-        div.getElementsByClassName('mobile')[0].innerHTML = this.mobile;
-        div.getElementsByClassName('owner')[0].innerHTML = this.owner;
-        this.parent="";
-
-    }
-
-
-    function myfunc(thiz){
-//      var div = $("#"+thiz)[0];
-//              div.className="";
-        $("#"+thiz).slideToggle("slow");
-    }
-
-</script>
+<script src="lib/scriptcontroller.js"></script>
 
 </html>
