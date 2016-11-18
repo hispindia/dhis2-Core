@@ -44,15 +44,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Morten Olav Hansen <mortenoh@gmail.com>
  */
 @Transactional
-public class DefaultCollectionService implements CollectionService
+public class DefaultCollectionService
+    implements CollectionService
 {
     @Autowired
     private IdentifiableObjectManager manager;
@@ -76,7 +77,6 @@ public class DefaultCollectionService implements CollectionService
     @SuppressWarnings( "unchecked" )
     public void addCollectionItems( IdentifiableObject object, String propertyName, List<IdentifiableObject> objects ) throws Exception
     {
-        List<IdentifiableObject> items = new ArrayList<>();
         Schema schema = schemaService.getDynamicSchema( object.getClass() );
 
         if ( !aclService.canUpdate( currentUserService.getCurrentUser(), object ) )
@@ -93,22 +93,17 @@ public class DefaultCollectionService implements CollectionService
 
         if ( !property.isCollection() || !property.isIdentifiableObject() )
         {
-            throw new WebMessageException( WebMessageUtils.conflict( "Only adds within identifiable collection are allowed." ) );
+            throw new WebMessageException( WebMessageUtils.conflict( "Only identifiable object collections can be added to." ) );
         }
 
-        for ( IdentifiableObject o : objects )
+        Collection<String> itemCodes = objects.stream().map( IdentifiableObject::getUid ).collect( Collectors.toList() );
+
+        if ( itemCodes.isEmpty() )
         {
-            IdentifiableObject item = manager.getNoAcl( (Class<? extends IdentifiableObject>) property.getItemKlass(), o.getUid() );
-
-            if ( item != null )
-            {
-                items.add( item );
-            }
-            else
-            {
-                throw new WebMessageException( WebMessageUtils.notFound( "Collection " + propertyName + " does not have an item with ID: " + o.getUid() ) );
-            }
+            return;
         }
+
+        List<? extends IdentifiableObject> items = manager.get( ((Class<? extends IdentifiableObject>) property.getItemKlass()), itemCodes );
 
         manager.refresh( object );
 
@@ -154,7 +149,6 @@ public class DefaultCollectionService implements CollectionService
     @SuppressWarnings( "unchecked" )
     public void delCollectionItems( IdentifiableObject object, String propertyName, List<IdentifiableObject> objects ) throws Exception
     {
-        List<IdentifiableObject> items = new ArrayList<>();
         Schema schema = schemaService.getDynamicSchema( object.getClass() );
 
         if ( !aclService.canUpdate( currentUserService.getCurrentUser(), object ) )
@@ -171,22 +165,17 @@ public class DefaultCollectionService implements CollectionService
 
         if ( !property.isCollection() || !property.isIdentifiableObject() )
         {
-            throw new WebMessageException( WebMessageUtils.conflict( "Only adds within identifiable collection are allowed." ) );
+            throw new WebMessageException( WebMessageUtils.conflict( "Only identifiable object collections can be removed from." ) );
         }
 
-        for ( IdentifiableObject o : objects )
+        Collection<String> itemCodes = objects.stream().map( IdentifiableObject::getUid ).collect( Collectors.toList() );
+
+        if ( itemCodes.isEmpty() )
         {
-            IdentifiableObject item = manager.getNoAcl( (Class<? extends IdentifiableObject>) property.getItemKlass(), o.getUid() );
-
-            if ( item != null )
-            {
-                items.add( item );
-            }
-            else
-            {
-                throw new WebMessageException( WebMessageUtils.notFound( "Collection " + propertyName + " does not have an item with ID: " + o.getUid() ) );
-            }
+            return;
         }
+
+        List<? extends IdentifiableObject> items = manager.get( ((Class<? extends IdentifiableObject>) property.getItemKlass()), itemCodes );
 
         manager.refresh( object );
 
@@ -243,7 +232,7 @@ public class DefaultCollectionService implements CollectionService
 
         if ( !property.isCollection() || !property.isIdentifiableObject() )
         {
-            throw new WebMessageException( WebMessageUtils.conflict( "Only adds within identifiable collection are allowed." ) );
+            throw new WebMessageException( WebMessageUtils.conflict( "Only identifiable collections are allowed to be cleared." ) );
         }
 
         Collection<IdentifiableObject> collection = (Collection<IdentifiableObject>) property.getGetterMethod().invoke( object );
