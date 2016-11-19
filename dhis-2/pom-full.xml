@@ -17,9 +17,19 @@
 
 	<modules>
 		<module>dhis-api</module>
+		
+		<!--<module>../local/in/dhis-in-api</module>-->
+		
 		<module>dhis-services</module>
+		
 		<module>dhis-support</module>
+		<!--
+		<module>../local/in/dhis-in-services/dhis-in-service-configuration</module>
+		<module>../local/in/dhis-in-services/dhis-in-service-reports</module>
+		-->
+		
 		<module>dhis-web</module>
+		<!--<module>../local/in/dhis-web-maintenance-rbf</module>-->
 	</modules>
 
 </project>
