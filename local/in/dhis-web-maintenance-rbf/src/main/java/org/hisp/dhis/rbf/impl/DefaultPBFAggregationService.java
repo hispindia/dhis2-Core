@@ -183,6 +183,7 @@ public class DefaultPBFAggregationService
                                             " where td.orgunitgroupid=sag1.orgunitgroupid " + 
                                             " and td.datasetid=sag1.datasetid " +
                                             " and td.organisationunitid in ("+ orgUnitBranchIds +") ";
+                    System.out.println( "Query is --- " + query );
                     
                     SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
                     while ( rs.next() )
@@ -242,7 +243,7 @@ public class DefaultPBFAggregationService
                     " AND dv.value != null GROUP BY dv.sourceid, dv.periodid";
             
             
-            //System.out.println( "Query is --- " + query );
+            System.out.println( "Query is --- " + query );
             
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
             while ( rs.next() )
