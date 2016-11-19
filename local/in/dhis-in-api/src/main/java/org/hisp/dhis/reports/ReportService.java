@@ -34,10 +34,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.hisp.dhis.dataelement.DataElement;
+import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
+import org.hisp.dhis.dataset.DataSet;
+import org.hisp.dhis.datavalue.DataValue;
 import org.hisp.dhis.indicator.Indicator;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodType;
+import org.hisp.dhis.program.Program;
 
 public interface ReportService
 {
@@ -70,7 +74,18 @@ public interface ReportService
     Collection<Report_in> getReportsByPeriodAndReportType( PeriodType periodType, String reportType );
 
     Collection<Report_in> getReportsByPeriodSourceAndReportType( PeriodType periodType, OrganisationUnit source, String reportType );
+	
+    // get Patients List ByOrgUnit
+    
+    //Collection<Patient> getPatientByOrgUnit( OrganisationUnit organisationUnit );
+    
+    // get Programs List ByOrgUnit
+    Collection<Program> getProgramsByOrgUnit( OrganisationUnit organisationUnit );
 
+    // get Patients List By OrgUnit and Program
+    
+    //Collection<Patient> getPatientByOrgUnitAndProgram( OrganisationUnit organisationUnit, Program program );
+	
     // -------------------------------------------------------------------------
     // Report_in Design
     // -------------------------------------------------------------------------
@@ -107,13 +122,22 @@ public interface ReportService
     
     List<Report_inDesign> getReportDesign( String fileName );
     
+    
+    List<Report_inDesign> getReportDesignForGlobalSetting( String fileName );
+    
+    List<Report_inDesign> getReportDesignForTracker( String fileName );
+    
+    List<Report_inDesign> getReportDesignForHeader( String fileName );
+    
+    
+
     List<Report_inDesign> getDistrictFeedbackReportDesign( String fileName );
     
-    String getResultDataValue( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit , String reportModelTB );
+    //String getResultDataValue( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit , String reportModelTB );
     
     String getIndividualResultDataValue( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit, String reportModelTB );
     
-    String getResultIndicatorValue( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit );
+    //String getResultIndicatorValue( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit );
     
     String getIndividualResultIndicatorValue( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit );
     
@@ -127,7 +151,7 @@ public interface ReportService
 
     String getSurveyDesc( String formula );
 
-    String getResultDataValueFromAggregateTable( String formula, Collection<Integer> periodIds, OrganisationUnit organisationUnit , String reportModelTB );
+    //String getResultDataValueFromAggregateTable( String formula, Collection<Integer> periodIds, OrganisationUnit organisationUnit , String reportModelTB );
 
     String getAggCountForTextData( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit );
     
@@ -143,7 +167,7 @@ public interface ReportService
     
     String getDataelementIdsAsString( List<Indicator> indicatorList );
 
-    String getResultDataValueFromAggregateTable( String formula, String periodIdsByComma, Integer orgunitId );
+    //String getResultDataValueFromAggregateTable( String formula, String periodIdsByComma, Integer orgunitId );
     
     Map<String, String> getResultDataValueFromAggregateTable( Integer orgunitId, String dataElmentIdsByComma, String periodIdsByComma );
     
@@ -156,6 +180,12 @@ public interface ReportService
     Map<String, String> getResultDataValueFromAggregateTableByPeriodAgg( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma );
 
     Map<String, String> getAggDataFromDataValueTableByDeAndPeriodwise( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma );
+    
+    Map<String, String> getAggDataFromDataValueTableByDeAndOrgUnitwise( String orgUnitIdsByComma, String dataElmentIdsByComma, String startDate, String endDate );
+    
+    Map<String, String> getAggDataFromDataValueTableByDeAndOrgUnitwise( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma );
+    
+    Map<String, String> getCapturedDataFromDataValueTableByDeAndOrgUnitwise( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma );
     
     Map<String, String> getDataFromDataValueTable( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma );
     
@@ -183,4 +213,32 @@ public interface ReportService
     String getDataelementIdsByStype( List<Report_inDesign> reportDesignList, String sType );
     
     Map<String, String> getAggNonNumberDataFromDataValueTable( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma );
+    
+    //
+    String getResultDataValueForOrgUnitGroupMember( String formula, String childOrgUnitsByComma ,Date startDate, Date endDate ,String reportModelTB );
+    
+    Integer getDataCountFromDataValueTable( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma );
+    
+    Map<String, String> getBatchDataFromDataValueTable( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma );
+    
+    List<Report_inDesign> getHeaderInfo( String fileName );
+    
+    String getTextDataFromDataValueTable( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma );
+	
+    Map<String, String> getResultDataFromDataValueTable( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma );
+    
+    // Get Data value for Latest Period
+    
+    DataValue getLatestDataValue( DataElement dataElement, DataElementCategoryOptionCombo optionCombo, OrganisationUnit organisationUnit );
+    
+    // Methods for Lock Exception
+    void deleteLockException( String orgUnitIdsByComma, String periodIdsByComma, String dataSetIdsByComma );
+    void createBatchLockExceptions( String insertQuery );
+    Boolean getLockException( Integer organisationUnitId, Integer periodId, Integer dataSetId );
+    void deleteLockException( DataSet dataSet, Period period, OrganisationUnit organisationUnit );
+    
+    
+    // methods for getting Data from data value for GOI Monthly Report
+    Map<String, String> getDataFromDataValueTableForGoiMonthly( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma );
+    
 }

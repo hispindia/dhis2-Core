@@ -29,39 +29,57 @@ package org.hisp.dhis.reports;
 
 import java.util.Collection;
 
+import org.hisp.dhis.dataelement.DataElement;
+import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
+import org.hisp.dhis.dataset.DataSet;
+import org.hisp.dhis.datavalue.DataValue;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
+import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodType;
 
-public interface ReportStore
+public interface ReportStore 
 {
-    String ID = ReportStore.class.getName();
-
+        String ID = ReportStore.class.getName();
+        
     // -------------------------------------------------------------------------
     // Report_in
     // -------------------------------------------------------------------------
 
-    int addReport( Report_in report );
+        int addReport( Report_in report );
+        
+        void updateReport( Report_in report );
+        
+        void deleteReport( Report_in report );
+        
+        Report_in getReport( int id );
+        
+        Report_in getReportByName( String name );
+        
+        Collection<Report_in> getReportBySource( OrganisationUnit source );
+        
+        Collection<Report_in> getReportBySourceAndReportType( OrganisationUnit source, String reportType  );
+        
+        Collection<Report_in> getAllReports();
+        
+        Collection<Report_in> getReportsByReportType( String reportType );
+        
+        Collection<Report_in> getReportsByPeriodType( PeriodType periodType );
+        
+        Collection<Report_in> getReportsByPeriodAndReportType( PeriodType periodType, String reportType );
 
-    void updateReport( Report_in report );
-
-    void deleteReport( Report_in report );
-
-    Report_in getReport( int id );
-
-    Report_in getReportByName( String name );
-
-    Collection<Report_in> getReportBySource( OrganisationUnit source );
+        Collection<Report_in> getReportsByPeriodSourceAndReportType( PeriodType periodType, OrganisationUnit source, String reportType );
+		
+	// getPatientByOrgUnit
+	//Collection<Patient> getPatientByOrgUnit( OrganisationUnit organisationUnit );
     
-    Collection<Report_in> getReportBySourceAndReportType( OrganisationUnit source, String reportType  );
+	// get Patients List By OrgUnit and Program
+	//Collection<Patient> getPatientByOrgUnitAndProgram( OrganisationUnit organisationUnit, Program program );
 
-    Collection<Report_in> getAllReports();
+	// Get Data value for Latest Period
+	    
+	DataValue getLatestDataValue( DataElement dataElement, DataElementCategoryOptionCombo optionCombo, OrganisationUnit organisationUnit );
+	
+	// Methods for delete Lock Exception
+	void deleteLockException( DataSet dataSet, Period period, OrganisationUnit organisationUnit );
 
-    Collection<Report_in> getReportsByReportType( String reportType );
-
-    Collection<Report_in> getReportsByPeriodType( PeriodType periodType );
-
-    Collection<Report_in> getReportsByPeriodAndReportType( PeriodType periodType, String reportType );
-
-    Collection<Report_in> getReportsByPeriodSourceAndReportType( PeriodType periodType, OrganisationUnit source,
-        String reportType );
 }

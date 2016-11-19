@@ -211,5 +211,4 @@ public class Report_inDesign implements Serializable
     public static final String E_PERIOD_MONTH = "PERIOD-MONTH";
     public static final String E_PERIOD_YEAR = "PERIOD-YEAR";
     
-    
 }
