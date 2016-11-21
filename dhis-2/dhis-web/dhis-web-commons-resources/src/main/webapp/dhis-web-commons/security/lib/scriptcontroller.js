@@ -22,7 +22,18 @@ Ext.onReady( function() {
 
         "Authorization": "Basic " + btoa( "homepage" + ':' + "Homepage123" )
 
+
     };
+
+    Ext.Ajax.request({
+        url: "dhis-web-commons-security/login.action?authOnly=true",
+        method: 'POST',
+        params: { j_username: "homepage", j_password: "Homepage123" }
+       
+    });
+
+
+
 
     $.ajax({
         async : false,
@@ -128,15 +139,15 @@ Ext.onReady( function() {
     $("#drop1").change(function () {
         $('#drophospital').prop('selectedIndex',0);
         orgid = $(this).find("option:selected").val();
-        generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
+        //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
         jQuery('#sel').html('');
     });
 
     $("#drophospital").change(function () {
         hospital = $(this).find("option:selected").val();
         orgid=hospital;
-        generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
-        jQuery('#sel').html('');
+        //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
+        //jQuery('#sel').html('');
     });
 
     $("#drop_ownership").change(function () {
@@ -147,24 +158,23 @@ Ext.onReady( function() {
             $('#drop_ownership').selectpicker('selectAll');
 
         }
-        generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
+        //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
         defowner="XEiMcaGi6vv";
 
 
     });
 
     $("#drop2").change(function () {
-
         jQuery('#sel').html('');
         defservice=$(this).find("option:selected").val()+":IN:1";
 
-        generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
+        //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
 
 
     })
     $("#droptype").change(function () {
         defhealthfacility=$(this).find("option:selected").val()+":IN:1";
-        generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
+        //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
     });
 
 
@@ -197,6 +207,15 @@ function myJoin(array){
     return result.substr(0,result.length-2);
 }
 function generatefilterrecord(orgid,defservice,defowner,defhealthfacility) {
+    $('#drop2').val('');
+    $('#drophospital').val('');
+    $('#drop_ownership').val('');
+    $('#droptype').val('');
+    $('#drop2').selectpicker('refresh');
+    $('#drophospital').selectpicker('refresh');
+    $('#drop_ownership').selectpicker('refresh');
+    $('#droptype').selectpicker('refresh');
+
     var analyticsMap = [
 
         {
