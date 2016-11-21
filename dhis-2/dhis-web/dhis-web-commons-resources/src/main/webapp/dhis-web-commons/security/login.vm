@@ -22,11 +22,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="lib/css/w3.css">
     <link rel="stylesheet" href="lib/css/style.css">
-   
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDFu2CFbhDqUWB0lHUPAb2_w4-jWMMcRlY&callback=initMap"
+            type="text/javascript"></script>
+    <link href="//fonts.googleapis.com/css?family=Roboto:400" rel="stylesheet">
+
+    <link rel="stylesheet" href="//dhis2-cdn.org/v221/ext/resources/css/ext-plugin-gray.css" />
+    <script src="//dhis2-cdn.org/v221/ext/ext-all.js"></script>
+    <script src="//dhis2-cdn.org/v221/openlayers/OpenLayers.js"></script>
+    <script src="//dhis2-cdn.org/v221/plugin/map.js"></script>
+
 
 
 </head>
+<style type="text/css">
+    .map {
+        border: 0;
+        margin: 10px;
+    }
 
+    .map.wide {
+        width: 900px;
+        height: 500px;
+    }
+
+
+</style>
 <body>
 <!-- Modal -->
 <div class="modal fade" id="myModal" role="dialog">
@@ -58,9 +78,37 @@
                             <div id="submitDiv">
                                 <input id="submit" class="button" type="submit" value="Sign in">
                             </div>
-                                                                                </form>
-                                                                                                <!--[if lte IE 8]>
-                        <div id="notificationArea" style="color: white; background-color: red;">Please upgrade your browser. Internet Explorer version 8 and earlier is not supported.</div>
+                            #if( $keyAccountRecovery )
+                            <div style="padding-bottom: 10px">
+                                <a id="forgotPasswordLink" href="recovery.action">Forgot password?</a>
+                            </div>
+                            #end
+                            #if( $keyConfig.selfRegistrationAllowed() )
+                            <!--<div style="padding-bottom: 10px">-->
+                            <!--<a id="createAccountLink" href="account.action">Create an account</a>-->
+                            <!--</div>-->
+                            #end
+                        </form>
+                        #if( $keyOpenIdProvider )
+                        <form id="openIdLoginForm" action="../../dhis-web-commons-security/openid.action" method="post">
+                            <input name="openid_identifier" type="hidden" value="$keyOpenIdProvider"/>
+                            <div id="submitDiv">
+                                #if( $keyOpenIdProviderLabel )
+                                <input style="width: 269px;" id="submit" class="button" type="submit" value="$keyOpenIdProviderLabel">
+                                #else
+                                <input style="width: 269px;" id="submit" class="button" type="submit" value="Sign in with OpenID">
+                                #end
+                            </div>
+                        </form>
+                        #end
+                        #if( $failed == true )
+                        <div id="loginMessage">Wrong username or password</div>
+                        #end
+                        #if ( $keyApplicationNotification )
+                        <div id="notificationArea">$!{keyApplicationNotification}</div>
+                        #end
+                        <!--[if lte IE 8]>
+                        <div id="notificationArea" style="color: white; background-color: red;">$i18n.getString( "unsupported_browser" )</div>
                         <![endif]-->
                     </div>
                 </div>
@@ -120,7 +168,7 @@
                 </select>
 
             </div>
-            <button type="button" onclick="generatefilterrecord(orgid,defservice,defowner,defhealthfacility);">Go</button>
+            <button type="button" onclick="generatefilterrecord(orgid,defservice,defavial,defowner,defhealthfacility);">Go</button>
         </div>
     </div>
     </br>
@@ -135,7 +183,8 @@
                         </br></br>We hope that citizens of state find this portal useful and provide feedback regarding services.</p>
                 </div></td>
                 <td>
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1750772.7212624417!2d74.27996482023067!3d31.012930230614476!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391964aa569e7355%3A0x8fbd263103a38861!2sPunjab!5e0!3m2!1sen!2sin!4v1478332283034" width="600" height="350"  frameborder="0" style="border:0;margin-top: 5%" allowfullscreen> </iframe></td>
+                    <div id="mapA1" class="map wide"></div>
+                    <!--<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1750772.7212624417!2d74.27996482023067!3d31.012930230614476!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391964aa569e7355%3A0x8fbd263103a38861!2sPunjab!5e0!3m2!1sen!2sin!4v1478332283034" width="600" height="350"  frameborder="0" style="border:0;margin-top: 5%" allowfullscreen> </iframe></td>-->
             </tr>
         </table>
     </div>

@@ -24,14 +24,25 @@ Ext.onReady( function() {
 
 
     };
+    var base = 'http://192.168.0.28:29012/pbportal_test';
 
     Ext.Ajax.request({
         url: "dhis-web-commons-security/login.action?authOnly=true",
         method: 'POST',
-        params: { j_username: "homepage", j_password: "Homepage123" }
-       
+        params: { j_username: "homepage", j_password: "Homepage123" },
+        success: setLinks
+
     });
 
+    function setLinks() {
+
+        DHIS.getMap({
+            url: base,
+            el: 'mapA1',
+            id: 'NPgj5nSfT5v'
+        });
+
+    }
 
 
 
