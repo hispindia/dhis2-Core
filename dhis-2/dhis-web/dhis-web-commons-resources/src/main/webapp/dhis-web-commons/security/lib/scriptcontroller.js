@@ -39,7 +39,8 @@ Ext.onReady( function() {
         DHIS.getMap({
             url: base,
             el: 'mapA1',
-            id: 'NPgj5nSfT5v'
+            id: 'NPgj5nSfT5v',
+			baseLayer:'none'
         });
 
     }
