@@ -24,7 +24,7 @@ Ext.onReady( function() {
 
 
     };
-    var base = 'http://192.168.0.28:29012/pbportal_test';
+    var base = 'http://192.168.0.28:29012/pbportal_test/';
 
     Ext.Ajax.request({
         url: "dhis-web-commons-security/login.action?authOnly=true",
