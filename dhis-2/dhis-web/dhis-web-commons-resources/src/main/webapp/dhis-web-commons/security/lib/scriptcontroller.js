@@ -39,7 +39,7 @@ Ext.onReady( function() {
         DHIS.getMap({
             url: base,
             el: 'mapA1',
-            id: 'NPgj5nSfT5v',
+            id: 'b3vK3s9jBO1',
 			baseLayer:'none'
         });
 
@@ -707,6 +707,7 @@ function generatefilterrecord(orgid,defservice,defowner,defhealthfacility) {
         }
     });
     $("#content1").hide();
+    $("#mapA1").hide();
 }
 
 // A simple constructor function
