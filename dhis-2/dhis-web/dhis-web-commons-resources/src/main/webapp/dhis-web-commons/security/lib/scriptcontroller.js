@@ -6,6 +6,7 @@ var orgid="wSslG6mcGXl";
 var ouid=[];
 var filterhospital,service,owner,healthfacility;
 var hospital;
+var defavail="avHST8wLPnX&dimension=jXCd8k2841l&dimension=txl9e6UJFP4";
 var defservice="BZ0xteKZNid&dimension=OYAHA8Vhc3G&dimension=qNBCYtrkaD7&dimension=Bv5Fu3onViS&dimension=g7tngXzv2Zz&dimension=mKUqJtDn41L&dimension=G6QYTm3JoNo&dimension=DfbzQg5LTlm&dimension=vvzIfRasrJd&dimension=QeEQe0ERs9X&dimension=sFKV5EA9U6t&dimension=x2SMBBm0P7T&dimension=DeWJ6TcLBGn&dimension=MZ8si8FHS0T&dimension=uyyl3x9jwQa&dimension=bfL2zXyQtrA&dimension=XBO6pg9y1m8&dimension=AEQRulqMjQB&dimension=hEZYkang3cp&dimension=lWsun2ZATjI&dimension=ALMaYK2pMhL&dimension=p2MQZL84eNu&dimension=LRb9HlmAbc6&dimension=sCypRhH8brf&dimension=L11XujC9xzh&dimension=szDQ40J4DTm&dimension=KPpV7WAdys5&dimension=tx0G6s6nBiC&dimension=epW5qI95Cno&dimension=lKQPhgCfuvz&dimension=l1f67ipP6mj&dimension=I3jAOh6ZIMk&dimension=bxGjTYnbgcB&dimension=ttLEYvjxCse&dimension=JOOdfW6RCCD&dimension=TaudXwrGaVC&dimension=gJoAOIEKG9M&dimension=snsCxRbqdHP&dimension=eFpqq53Zifj&dimension=U0rv5FWWeeo&dimension=VDigKipZYu1&dimension=Guub32IStl2&dimension=sIeFKRWtZrn&dimension=IYOefLkrEZk&dimension=t035HNWxNZU&dimension=IlBOWfRZyUc&dimension=dO49PmdQpvT&dimension=akM0bMRwfV4";
 // var defowner="EwolVkPAKN6&dimension=aI5XEAH8PkC&dimension=VozTuKA0GP1";
 var defowner="XEiMcaGi6vv";
@@ -17,35 +18,93 @@ var name=[],address=[],pincode=[],village=[],mobile=[],owner=[],special=[];
 var toAdd,spec=[],specialjoin;
 Ext.onReady( function() {
 
-
     var header = {
 
         "Authorization": "Basic " + btoa( "homepage" + ':' + "Homepage123" )
 
-
     };
-    var base = 'http://192.168.0.28:29012/pbportal_test/';
+    //var base = 'http://localhost:8080/demodhis/';
 
     Ext.Ajax.request({
         url: "dhis-web-commons-security/login.action?authOnly=true",
         method: 'POST',
         params: { j_username: "homepage", j_password: "Homepage123" },
-        success: setLinks
-
+        success:setLinks()
     });
 
     function setLinks() {
 
-        DHIS.getMap({
-            url: base,
-            el: 'mapA1',
-            id: 'b3vK3s9jBO1',
-			baseLayer:'none'
-        });
+        var map =L.map('map').setView([31.1471, 75.3412], 8);
 
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+
+        L.marker([30.14182,74.19844]).addTo(map).bindPopup('Abohar SDH').openPopup();
+        L.marker([31.84398305,74.76307782]).addTo(map).bindPopup('Ajnala SDH').openPopup();
+        L.marker([31.63286684,74.87905499]).addTo(map).bindPopup('Amritsar DH').openPopup();
+        L.marker([31.23911142,76.49470665]).addTo(map).bindPopup('Anandpur Sahib SDH').openPopup();
+        L.marker([31.55747995,75.26604862]).addTo(map).bindPopup('Baba Bakala SDH').openPopup();
+        L.marker([30.0667157,74.65523599]).addTo(map).bindPopup('Badal SDH').openPopup();
+        L.marker([31.0759360441769,76.2937775969546]).addTo(map).bindPopup('Balachaur SDH').openPopup();
+        L.marker([30.37550547,75.54520121]).addTo(map).bindPopup('Barnala DH').openPopup();
+        L.marker([31.80871582,75.21504738]).addTo(map).bindPopup('Batala SDH').openPopup();
+        L.marker([30.195269,74.948875]).addTo(map).bindPopup('Bathinda DH').openPopup();
+        L.marker([31.80801415,75.66609161]).addTo(map).bindPopup('Dasuya SDH').openPopup();
+        L.marker([30.58493912,76.84537522]).addTo(map).bindPopup('Dera Bassi SDH').openPopup();
+        L.marker([30.36701341,75.86064861]).addTo(map).bindPopup('Dhuri SDH').openPopup();
+        L.marker([30.67916,74.76056]).addTo(map).bindPopup('Faridkot DH').openPopup();
+        L.marker([30.64654063,76.39065742]).addTo(map).bindPopup('Fatehgarh Sahib DH').openPopup();
+        L.marker([30.40692,74.02465]).addTo(map).bindPopup('Fazilka DH').openPopup();
+        L.marker([30.95201,74.60811]).addTo(map).bindPopup('Ferozpur DH').openPopup();
+        L.marker([31.2133338,76.15022645]).addTo(map).bindPopup('Garhshankar SDH').openPopup();
+        L.marker([30.21606572,74.64781269]).addTo(map).bindPopup('Gidderbaha SDH').openPopup();
+        L.marker([32.04073,75.40306]).addTo(map).bindPopup('Gurdaspur DH').openPopup();
+        L.marker([31.52922237,75.89993167]).addTo(map).bindPopup('Hoshiarpur DH').openPopup();
+        L.marker([30.81121602,75.477995]).addTo(map).bindPopup('Jagraon SDH').openPopup();
+        L.marker([31.3262145,75.57351424]).addTo(map).bindPopup('Jalandhar DH').openPopup();
+        L.marker([31.37516702,75.38252558]).addTo(map).bindPopup('Kapurthala DH').openPopup();
+        L.marker([31.42239039,75.10375804]).addTo(map).bindPopup('Khadoor Sahib SDH').openPopup();
+        L.marker([30.70351313,76.22276782]).addTo(map).bindPopup('Khanna SDH').openPopup();
+        L.marker([30.75275677,76.63298919]).addTo(map).bindPopup('Kharar SDH').openPopup();
+        L.marker([30.584712,74.819477]).addTo(map).bindPopup('Kot Kapura SDH').openPopup();
+        L.marker([30.90672481,75.86081254]).addTo(map).bindPopup('Ludhiana DH').openPopup();
+        L.marker([30.51947437,75.87631838]).addTo(map).bindPopup('Malerkotla SDH').openPopup();
+        L.marker([30.18659814,74.4952944]).addTo(map).bindPopup('Malout SDH').openPopup();
+        L.marker([30.66815731,76.29482029]).addTo(map).bindPopup('Mandi Gobindgarh SDH').openPopup();
+        L.marker([29.9854766666666,75.4028283333333]).addTo(map).bindPopup('Mansa DH').openPopup();
+        L.marker([30.8115504023731,75.1687670480491]).addTo(map).bindPopup('Moga DH').openPopup();
+        L.marker([31.95013172,75.61338068]).addTo(map).bindPopup('Mukerian SDH').openPopup();
+        L.marker([31.21798862,75.19219881]).addTo(map).bindPopup('Sultanpur Lodhi SDH').openPopup();
+        L.marker([30.1379447,75.80376698]).addTo(map).bindPopup('Sunam SDH').openPopup();
+        L.marker([29.98855225,75.08340907]).addTo(map).bindPopup('Talwandi Sabo SDH').openPopup();
+        L.marker([30.30710418,75.37256897]).addTo(map).bindPopup('Tappa SDH').openPopup();
+        L.marker([31.45811,74.92324]).addTo(map).bindPopup('Tarn Taran DH').openPopup();
+        L.marker([30.9689826,74.99135592]).addTo(map).bindPopup('Zira SDH').openPopup();
+        L.marker([29.9252016666666,75.5579733333333]).addTo(map).bindPopup('Bhudlada SDH').openPopup();
+        L.marker([30.12685385,74.79407916]).addTo(map).bindPopup('Ghudda SDH').openPopup();
+        L.marker([29.82178179,75.87980863]).addTo(map).bindPopup('Moonak SDH').openPopup();
+        L.marker([30.46327,74.53723]).addTo(map).bindPopup('Muktsar DH').openPopup();
+        L.marker([30.37233541,76.14592193]).addTo(map).bindPopup('Nabha SDH').openPopup();
+        L.marker([31.12822406,75.47563157]).addTo(map).bindPopup('Nakodar SDH').openPopup();
+        L.marker([32.28217178,75.65333879]).addTo(map).bindPopup('Pathankot DH').openPopup();
+        L.marker([30.33780603,76.39953685]).addTo(map).bindPopup('Patiala DH').openPopup();
+        L.marker([31.27465805,74.85364882]).addTo(map).bindPopup('Patti SDH').openPopup();
+        L.marker([31.230178,75.76264578]).addTo(map).bindPopup('Phagwara SDH').openPopup();
+        L.marker([31.02171817,75.79010622]).addTo(map).bindPopup('Phillaur SDH').openPopup();
+        L.marker([30.64373869,75.58089011]).addTo(map).bindPopup('Raikot SDH').openPopup();
+        L.marker([30.47829002,76.58439128]).addTo(map).bindPopup('Rajpura SDH').openPopup();
+        L.marker([30.32280885,75.24355099]).addTo(map).bindPopup('Rampura Phul SDH').openPopup();
+        L.marker([30.96655,76.52503]).addTo(map).bindPopup('Ropar DH').openPopup();
+        L.marker([30.15946692,76.20282606]).addTo(map).bindPopup('Samana SDH').openPopup();
+        L.marker([30.83910716,76.18747948]).addTo(map).bindPopup('Samrala SDH').openPopup();
+        L.marker([30.25216211,75.83589949]).addTo(map).bindPopup('Sangrur DH').openPopup();
+        L.marker([29.6910283333333,75.2380716666666]).addTo(map).bindPopup('Sardulgarh SDH').openPopup();
+        L.marker([31.5391409,75.50770497]).addTo(map).bindPopup('Bhulath SDH').openPopup();
+        L.marker([30.73882964,76.71369736]).addTo(map).bindPopup('Mohali DH').openPopup();
+        L.marker([31.11652967,76.15569411]).addTo(map).bindPopup('Nawanshahr DH').openPopup();
     }
-
-
 
     $.ajax({
         async : false,
@@ -64,14 +123,6 @@ Ext.onReady( function() {
         error: function(response){
         }
     });
-
-//            $.getJSON("../../api/optionSets/dGdSkUKNC0I.json?fields=options[id,name]", function (data) {
-//                $.each(data.options, function (index, item) {
-//                    $('#drop_ownership').append($('<option></option>').val(item.id).html(item.name).text(item.name)
-//                    );
-//                });
-//            });
-
 
     $.getJSON("../../api/dataElementGroups/fX1ACo0Ffid.json?fields=dataElements[id,name,code]", function (data) {
         var dataElements=data.dataElements;
@@ -129,28 +180,61 @@ Ext.onReady( function() {
         });
     });
 
-    $.getJSON("../../api/organisationUnitGroups/JuXnnz1dJqo.json?fields=organisationUnits[id,name,code]", function (data) {
-
-        var organisationUnits=data.organisationUnits;
-        organisationUnits.sort(function(a, b) {
-            var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-            if (nameA < nameB) //sort string ascending
-                return -1
-            if (nameA > nameB)
-                return 1
-            return 0 //default return value (no sorting)
-        });
-
-        $.each(organisationUnits, function (index, item) {
-            $('#drophospital').append($('<option></option>').val(item.id).html(item.name).text(item.name)
-            );
-        });
-    });
+    //$.getJSON("../../api/organisationUnitGroups/JuXnnz1dJqo.json?fields=organisationUnits[id,name,code]", function (data) {
+    //
+    //    var organisationUnits=data.organisationUnits;
+    //    organisationUnits.sort(function(a, b) {
+    //        var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
+    //        if (nameA < nameB) //sort string ascending
+    //            return -1
+    //        if (nameA > nameB)
+    //            return 1
+    //        return 0 //default return value (no sorting)
+    //    });
+    //
+    //    $.each(organisationUnits, function (index, item) {
+    //        $('#drophospital').append($('<option></option>').val(item.id).html(item.name).text(item.name)
+    //        );
+    //    });
+    //});
 
 
     $("#drop1").change(function () {
         $('#drophospital').prop('selectedIndex',0);
         orgid = $(this).find("option:selected").val();
+
+        $.getJSON("../../api/organisationUnits/"+orgid+"?paging=false&fields=children[id,name]", function (data) {
+
+            var organisationUnits=data.children;
+            organisationUnits.sort(function(a, b) {
+                var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
+                if (nameA < nameB) //sort string ascending
+                    return -1
+                if (nameA > nameB)
+                    return 1
+                return 0 //default return value (no sorting)
+            });
+            var element = document.getElementById("drophospital");
+            for (var i = element.length-1; i >= 0; i--) {
+
+                if(element[i].selected)
+
+                {
+
+                }
+                else {
+                    element[i].remove();
+                }
+            }
+
+
+            $.each(organisationUnits, function (index1, item1) {
+                $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name)
+
+                );
+            });
+            $('#drophospital').selectpicker('refresh');
+        });
         //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
         jQuery('#sel').html('');
     });
@@ -165,19 +249,19 @@ Ext.onReady( function() {
     $("#drop_ownership").change(function () {
 
         defowner = defowner+":IN:"+$(this).find("option:selected").text();
-        if(serviceid=="all1")
-        {
-            $('#drop_ownership').selectpicker('selectAll');
-
-        }
-        //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
-        defowner="XEiMcaGi6vv";
+        //if(serviceid=="all1")
+        //{
+        //    $('#drop_ownership').selectpicker('selectAll');
+        //
+        //}
+        ////generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
+        //defowner="XEiMcaGi6vv";
 
 
     });
 
     $("#drop2").change(function () {
-        jQuery('#sel').html('');
+        //jQuery('#sel').html('');
         defservice=$(this).find("option:selected").val()+":IN:1";
 
         //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
@@ -218,12 +302,17 @@ function myJoin(array){
     }
     return result.substr(0,result.length-2);
 }
-function generatefilterrecord(orgid,defservice,defowner,defhealthfacility) {
+function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility) {
+    $("#content1").hide();
+    $("#mapA1").hide();
+
     $('#drop2').val('');
+    $('#drop1').val('');
     $('#drophospital').val('');
     $('#drop_ownership').val('');
     $('#droptype').val('');
     $('#drop2').selectpicker('refresh');
+    $('#drop1').selectpicker('refresh');
     $('#drophospital').selectpicker('refresh');
     $('#drop_ownership').selectpicker('refresh');
     $('#droptype').selectpicker('refresh');
@@ -610,8 +699,6 @@ function generatefilterrecord(orgid,defservice,defowner,defhealthfacility) {
             arrayName : "ownership"
         }
 
-
-
     ]
 
     jQuery('#sel').html('');
@@ -619,26 +706,11 @@ function generatefilterrecord(orgid,defservice,defowner,defhealthfacility) {
 
     var addressjoin=[],ouid=[],availspecialitiesjoin,availspecialities=[],avaialabilityjoin,name=[],address=[],pincode=[],village=[],mobile=[],special=[],notspecial=[],hfacilities=[],nothfacilities=[],schemes=[],notschemes=[],contactpname=[],contactpnumber=[];
     var toAdd,spec=[],email=[],specialjoin,notspecialjoin,notspec=[],owner=[],notowner=[],hfacilitiesjoin,nothfacilitiesjoin,schemesjoin,notschemesjoin,hfschemes=[],nothfschemes=[];
-    var healthfac="",ownership=[];
+    var healthfac="",ownership=[],availspecialiti=[];
     var arrayMap = [];
-    arrayMap["special"] = special;
-    arrayMap["name"] = name;
-    arrayMap["addressjoin"] = addressjoin;
-    arrayMap["address"] = address;
-    arrayMap["pincode"] = pincode;
-    arrayMap["village"] = village;
-    arrayMap["mobile"] = mobile;
-    arrayMap["notspecial"] = notspecial;
-    arrayMap["hfacilities"] = hfacilities;
-    arrayMap["nothfacilities"] = nothfacilities;
-    arrayMap["schemes"] = schemes;
-    arrayMap["notschemes"] = notschemes;
-    arrayMap["contactpname"] = contactpname;
-    arrayMap["contactpnumber"] = contactpnumber;
-    arrayMap["availspecialities"] = availspecialities;
-    arrayMap["ownership"] = ownership;
-    arrayMap["ouid"] = ouid;
-    $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs&dimension="+defservice+"&dimension="+defowner+"&dimension="+defhealthfacility+"&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
+
+
+    $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs&dimension="+defservice+"&dimension="+defavail+"&dimension="+defowner+"&dimension="+defhealthfacility+"&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
         console.log("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs&dimension="+defservice+"&dimension="+defowner+"&dimension="+defhealthfacility+"&dimension=jXCd8k2841l&dimension=RkP5neDLbHv&dimension=avHST8wLPnX&dimension=txl9e6UJFP4&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME");
         var constants={key:name, value: value}
 
@@ -649,6 +721,24 @@ function generatefilterrecord(orgid,defservice,defowner,defhealthfacility) {
             alert("No result found for above selection");
         }
         for(var k=0;k<data.rows.length;k++){
+
+            arrayMap["special"] = special;
+            arrayMap["name"] = name;
+            arrayMap["addressjoin"] = addressjoin;
+            arrayMap["address"] = address;
+            arrayMap["pincode"] = pincode;
+            arrayMap["village"] = village;
+            arrayMap["mobile"] = mobile;
+            arrayMap["notspecial"] = notspecial;
+            arrayMap["hfacilities"] = hfacilities;
+            arrayMap["nothfacilities"] = nothfacilities;
+            arrayMap["schemes"] = schemes;
+            arrayMap["notschemes"] = notschemes;
+            arrayMap["contactpname"] = contactpname;
+            arrayMap["contactpnumber"] = contactpnumber;
+            arrayMap["availspecialities"] = availspecialities;
+            arrayMap["ownership"] = ownership;
+            arrayMap["ouid"] = ouid;
 
             for (var j=0;j<analyticsMap.length;j++){
 
@@ -663,7 +753,6 @@ function generatefilterrecord(orgid,defservice,defowner,defhealthfacility) {
                     }
                     if(arrayMap[analyticsMap[j].arrayName]){
                         arrayMap[analyticsMap[j].arrayName].push(value);
-
                     }
                 }
             }
@@ -678,18 +767,19 @@ function generatefilterrecord(orgid,defservice,defowner,defhealthfacility) {
             spec.push(specialjoin);
             notspec.push(notspecialjoin);
             owner.push(hfacilitiesjoin);
-            availspecialities.push(availspecialitiesjoin);
+            availspecialiti.push(availspecialitiesjoin);
             notowner.push(nothfacilitiesjoin);
             hfschemes.push(schemesjoin);
             nothfschemes.push(notschemesjoin);
 
-            specialjoin = "";
-            notspecialjoin = "";
-            hfacilitiesjoin = "";
-            nothfacilitiesjoin = "";
-            schemesjoin = "";
-            notschemesjoin = "";
 
+            //specialjoin = "";
+            //notspecialjoin = "";
+            //hfacilitiesjoin = "";
+            //nothfacilitiesjoin = "";
+            //schemesjoin = "";
+            //notschemesjoin = "";
+            availspecialities=[];
             special = [];
             notspecial = [];
             hfacilities = [];
@@ -699,15 +789,15 @@ function generatefilterrecord(orgid,defservice,defowner,defhealthfacility) {
 
 
 
+
         }
 
 
         for (var i = 0; i < name.length; i++) {
-            obj = new constructor_obj(document.body, name[i], addressjoin[i], pincode[i], mobile[i], spec[i], owner[i],availspecialities[i], contactpname[i], contactpnumber[i], email[i], hfschemes[i], nothfschemes[i], ouid[i],ownership[i]);
+            obj = new constructor_obj(document.body, name[i], addressjoin[i], pincode[i], mobile[i], spec[i], owner[i],availspecialiti[i], contactpname[i], contactpnumber[i], email[i], hfschemes[i], nothfschemes[i], ouid[i],ownership[i]);
         }
     });
-    $("#content1").hide();
-    $("#mapA1").hide();
+
 }
 
 // A simple constructor function
@@ -732,7 +822,7 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
     this.ouid = ouid;
     this.ownership = ownership;
 
-//        this.avgRating = avgRating;
+//this.avgRating = avgRating;
 
     var div = document.createElement('div');
     div.id = 'sel';
@@ -740,6 +830,7 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
 
     $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR&dimension=ou:"+ouid+"&dimension=eH2F2xuLmoY&dimension=kfDoQ3V1RQK&dimension=csjh8jewk7x&dimension=WXnr5Qk8Qgo&dimension=UwGx1EmJyIf&dimension=rzNUVjOm5ZJ&dimension=tpm9TIh7IeQ&dimension=pUYrErSv4Kf&dimension=hq5P29o8auc&dimension=KBgdegZWYDc&dimension=Mpo7Zm6z9WL&dimension=xtGxtg2I1SH&dimension=EhBs6eq4ebt&dimension=ThPPuHVPTsZ&dimension=hK82b1FNhui&dimension=aLY8DrZ88WN&dimension=XfstNyl31ca&dimension=fOLmSsSSlVI&dimension=aLnsQJ6De8p&dimension=LFDq2RYMt88&displayProperty=NAME", function (cdata) {
 
+        console.log("ouid:"+ouid);
         for(var p=0;p<cdata.rows.length;p++)
         {
             for(var k=8;k<27;k++)
