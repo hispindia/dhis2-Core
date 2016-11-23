@@ -857,52 +857,144 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
         $("#procedureid").empty();
         $("#procedureid").append(htmlstring);
 
-
-
-
     });
 
-    div.innerHTML = '\
-             <div class="w3-card-4" id="test1">\
-                 <table style="width:100%">\
-                <tr>\
-                 <td> <h3 class="title"></h3></td>\
-                 <td style="float:right"> <a id="createAccountLink" target="_blank" href="lib/controllers/feedback.html?ouid='+ouid+'">Rate Your Facility</a></td>\
-                </tr>\
-    <tr>\
-    <td><h6 class="address"></h6></td>\
-    <td style="float:right"></td>\
+    //$.getJSON("../../api/analytics/events/query/oKibT84LSdV.json?stage=jujDNAJZEU8&dimension=pe:THIS_YEAR&dimension=ou:"+ouid+"&dimension=VdaNJktWZ7E&dimension=O2k16XtvCQ8&dimension=l8VDWUvIHmv&displayProperty=NAME", function (data) {
+    //    var dNames=[],dQual=[],dMedical=[],dOrgunit=[];
+    //    for(var i=0;i<data.rows.length;i++){
+    //
+    //        dOrgunit.push(data.rows[i][5]);
+    //        dQual.push(data.rows[i][8]);
+    //        dMedical.push(data.rows[i][9]);
+    //        dNames.push(data.rows[i][10]);
+    //    }
+    //
+    //});
+
+
+
+  //  div.innerHTML = '\
+  //           <div class="w3-card-4" id="test1">\
+  //               <table style="width:100%">\
+  //              <tr>\
+  //               <td> <h3 class="title"></h3></td>\
+  //               <td style="float:right"> <a id="createAccountLink" target="_blank" href="lib/controllers/feedback.html?ouid='+ouid+'">Rate Your Facility</a></td>\
+  //              </tr>\
+  //  <tr>\
+  //  <td><h6 class="address"></h6></td>\
+  //  <td style="float:right"></td>\
+  //  </tr>\
+  //  <tr>\
+  //  <td><h6 class="pincode"></h6></td>\
+  //  <td style="float:right"></td>\
+  //  </tr>\
+  //  <tr>\
+  //  <td><h6 class="mobile"></h6></td>\
+  //  <td style="float:right"></td>\
+  //  </tr>\
+  //              </table>\
+  //              <button class="w3-btn-block w3-dark-grey" onclick="myfunc('+mobile+')">More Details</button>\
+  //                        <div class="noDisplay" id="'+mobile+'">\
+  //                 <label>Specialities :</label> <h2 class="specialty"></h2>\
+  //                  <hr>\
+  //               <label>Health Facilities: </label><h2 class="owner"><h2>\
+  //               <hr>\
+  //               <label>Availabilities :</label><h2 class="availability"><h2>\
+  //               <hr>\
+  //                   <label>Contact Person:</label><h2 class="contactperson"></h2>\
+  //                    <h2 class="contactpnumber"></h2>\
+  //                    <h2 class="email"></h2>\
+  //                    <hr>\
+  //                   <label>Schemes :</label><h2 class="hfschemes"></h2>\
+  //                   <hr>\
+  //                   <label>Ownership :</label><h2 class="ownership"></h2>\
+  //                   <hr>\
+  //       <div id="procedureid"></div>\
+  //      <tr> <td style="float:right"> <a id="createAccountLink" target="_blank" href="lib/controllers/doctors.html?ouid='+ouid+'">Doctors List</a></td></tr>\
+  //                   <hr>\
+  //                   <h2 class="rating"><h2>\
+  //           </div>\
+  //';
+
+    div.innerHTML='\
+    <div style="margin-left:15%;margin-right:15%;" id="test1">\
+    <div class="w3-card-4">\
+     <header  style="background-color:#2978B3;height: 3%" >\
+      <table width="100px">\
+      <tr>\
+       <td width="8%"><i class="fa fa-h-square" style="font-size:36px; color:White;"></i></td>\
+       <td width="92%"><h3 style="color:white;" class="title"></h3></td>\
+       </tr>\
+       </table>\
+        </header>\
+        </br>\
+        <div class="w3-container">\
+        <table width="100%" style="background-color: aliceblue">\
+         <tr>\
+        <td width="20%"><strong>Address</strong></td>\
+        <td width="50%"><p class="address">G.T. Road, Inder Palace Road, Ram Bagh.</p></td>\
+        <td width="10%" ><strong>Pincode</strong></td>\
+        <td width="18%"  class="pincode">143001</td></td>\
+        </tr>\
+        </table>\
+        <table width="100%">\
+        <tr>\
+        <td width="20%" >\
+        <strong>Contact Number</strong>\
+    </td>\
+    <td width="60%">\
+        <p class="mobile">9815476763</p>\
+        </td>\
+                <p style="margin-left: 80%"> <a id="createAccountLink" target="_blank" href="lib/controllers/procedures.html?ouid='+ouid+'">Procedure List</a></p>\
+                <p style="margin-left: 80%"> <a id="createAccountLink" target="_blank" href="lib/controllers/doctors.html?ouid='+ouid+'">Doctor List</a></p>\
+        <p style="margin-left: 80%"> <a id="createAccountLink" target="_blank" href="lib/controllers/feedback.html?ouid='+ouid+'">Rate Your Facility</a></p>\
+        </tr>\
+    </table>\
+</div>\
+     <button class="w3-btn-block w3-dark-grey" onclick="myfunc('+mobile+')">More Details</button>\
+    </br>\
+        <div class="noDisplay" id="'+mobile+'">\
+          </br>\
+        <table width="100%" style="background-color: aliceblue">\
+        <tr>\
+        <td width="20%"><strong style="margin-left: 10%">Specialities</strong></td>\
+        <td width="80%"><p style="text-align: justify; margin-top: 5%; margin-right: 5%"class="specialty">Dental , Dermatology , Emergency medicine , Obstetrics & gynaecology , Paedriatrics & child care , General medicine , Psychiatry , Radiology , General surgery , Venereology/venereal diseases/STDs , Orthopedics , Physiotherapy , Ear nose throat (ENT) , Leprosy clinic , HIV/AIDS clinic , Burns and plastic surgery , Aesthetic & reconstructive surgery , Anaesthesiology , Eye care</p></td>\
     </tr>\
     <tr>\
-    <td><h6 class="pincode"></h6></td>\
-    <td style="float:right"></td>\
+    <td width="20%"><strong style="margin-left: 10%">Health Facilites</strong></td>\
+    <td><p class="owner">Both IPD and OPD , Only diagnostic</p></td>\
     </tr>\
     <tr>\
-    <td><h6 class="mobile"></h6></td>\
-    <td style="float:right"></td>\
+    <td width="20%"><strong style="margin-left: 10%">Availabilities</strong></td>\
+        <td width="80%"><p class="availability">Blood bank , Operation theatre</p></td>\
     </tr>\
-                </table>\
-                <button class="w3-btn-block w3-dark-grey" onclick="myfunc('+mobile+')">More Details</button>\
-                          <div class="noDisplay" id="'+mobile+'">\
-                   <label>Specialities :</label> <h2 class="specialty"></h2>\
-                    <hr>\
-                 <label>Health Facilities: </label><h2 class="owner"><h2>\
-                 <hr>\
-                 <label>Availabilities :</label><h2 class="availability"><h2>\
-                 <hr>\
-                     <label>Contact Person:</label><h2 class="contactperson"></h2>\
-                      <h2 class="contactpnumber"></h2>\
-                      <h2 class="email"></h2>\
-                      <hr>\
-                     <label>Schemes :</label><h2 class="hfschemes"></h2>\
-                     <hr>\
-                     <label>Ownership :</label><h2 class="ownership"></h2>\
-                     <hr>\
-         <div id="procedureid"></div>\
-                     <hr>\
-                     <h2 class="rating"><h2>\
-             </div>\
-  ';
+    <tr>\
+    <td width="20%"><strong style="margin-left: 10%">Contact Person</strong></td>\
+    <td width="80%"><p class="contactperson">Dr. Charanjit Singh</p></td>\
+    </tr>\
+        <tr>\
+    <td width="20%"><strong style="margin-left: 10%">Email</strong></td>\
+    <td width="80%"><p class="email">Dr. Charanjit Singh</p></td>\
+    </tr>\
+     <tr>\
+    <td width="20%"><strong style="margin-left: 10%">Phone:</strong></td>\
+    <td width="80%"><p class="contactpnumber">Dr. Charanjit Singh</p></td>\
+    </tr>\
+    <tr>\
+    <td width="20%"><strong style="margin-left: 10%">Schemes</strong></td>\
+        <td width="80%"><p class="hfschemes">Health insurance schemes , Bhagat puran singh bima yojana , Punjab government employees & pensioners health insurance scheme (PGEPHIS) , Other health insurance schemes</p></td>\
+    </tr>\
+    <tr>\
+    <td width="20%"><strong style="margin-left: 10%">Ownership</strong></td>\
+        <td width="80%"><p class="ownership">Public</p></td>\
+        </tr>\
+        </table>\
+        </br>\
+        </div>\
+        </div>\
+        </div>\
+    ';
+
     this.parent.appendChild(div);
     div.getElementsByClassName('title')[0].innerHTML = this.title?this.title:"";
     div.getElementsByClassName('address')[0].innerHTML = this.address?this.address:"";
