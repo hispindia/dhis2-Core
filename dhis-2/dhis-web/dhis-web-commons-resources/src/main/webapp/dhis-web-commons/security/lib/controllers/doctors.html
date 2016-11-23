@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="//dhis2-cdn.org/v221/ext/ext-all.js"></script>
+    <link rel="stylesheet" href="../css/w3.css">
+    <script src="../js/jquery.min.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Punjab Portal</title>
+    <script src="../constants.js"></script>
+</head>
+<style>
+    #footer{
+
+        right: 0;
+        bottom: 0;
+        left: 0;
+        padding: 1rem;
+        background-color:#2978B3;
+        text-align: center;
+    }
+    header
+    {
+        background-color:#2978B3;
+    }
+    #formHeader
+    {
+        background-color:#2978B3;
+    }
+    body
+    {
+        background-color:#E5E3E3;
+    }
+    .rating
+    {
+        unicode-bidi: bidi-override;
+        direction: rtl;
+        text-align: center;
+    }
+    .rating > span
+    {
+        display: inline-block;
+        position: relative;
+        width: 1.1em;
+    }
+    .rating > span:hover,
+    .rating > span:hover ~ span {
+        color: transparent;
+    }
+    .rating > span:hover:before,
+    .rating > span:hover ~ span:before {
+        content: "\2605";
+        position: absolute;
+        left: 0;
+        color: gold;
+    }
+</style>
+<script>
+
+
+
+    Ext.onReady( function() {
+        var procedures=[],costs=[];
+        var dNames=[],dQual=[],dMedical=[],dOrgunit=[];
+        var query = decodeURIComponent(window.location.search);
+        var ouid;
+        var title;
+        query = query.substring(1);
+        var params = query.split("&");
+        for (var i=0;i<params.length;i++) {
+            var param = params[i].split("=");
+            switch(param[0]) {
+                case "ouid":
+                    ouid = param[1];
+                    setLinks(ouid);
+
+            }
+        }
+        function setLinks(ouid) {
+            var header = {
+                "Authorization": "Basic " + btoa("homepage" + ':' + "Homepage123")
+            };
+            $.getJSON("../../../../api/analytics/events/query/oKibT84LSdV.json?stage=jujDNAJZEU8&dimension=pe:THIS_YEAR&dimension=ou:"+ouid+"&dimension=VdaNJktWZ7E&dimension=O2k16XtvCQ8&dimension=l8VDWUvIHmv&displayProperty=NAME", function (data) {
+                var dNames=[],dQual=[],dMedical=[],dOrgunit=[];
+                for(var i=0;i<data.rows.length;i++){
+
+                    dOrgunit.push(data.rows[i][5]);
+                    dQual.push(data.rows[i][8]);
+                    dMedical.push(data.rows[i][9]);
+                    dNames.push(data.rows[i][10]);
+                }
+                var htmlstring="";
+                htmlstring='<table><tr><th style="width:20%">Medical staff</th><th style="width:30%">Name</th><th style="width:50%">Highest qualification</th></tr>'
+                for(var i =0;i<=dNames.length-1;i++)
+                {
+                    htmlstring+='<tr><td>'+dMedical[i]+'</td><td>'+dNames[i]+'</td><td>'+dQual[i]+'</td></tr>'
+
+                }
+                htmlstring+='</table>';
+                $("#procedureid").empty();
+                $("#procedureid").append(htmlstring);
+            });
+
+        }
+    });
+
+</script>
+<body>
+<header class="w3-card" >
+    <h2 style="color:#fff; text-align:center;  font-weight: bold;">Staff Details:</h2>
+</header>
+
+</br>
+<div class="w3-card-4" style="margin-left:20%; background-color:white; margin-right:20%;">
+
+    <div id="procedureid"></div>
+</div>
+</body>
+</html>
