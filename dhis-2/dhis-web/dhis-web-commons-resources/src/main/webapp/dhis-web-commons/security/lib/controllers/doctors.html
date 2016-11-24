@@ -90,10 +90,10 @@
                     dNames.push(data.rows[i][10]);
                 }
                 var htmlstring="";
-                htmlstring='<table><tr><th style="width:20%">Medical staff</th><th style="width:30%">Name</th><th style="width:50%">Highest qualification</th></tr>'
+                htmlstring='<table  class="w3-table w3-striped w3-hoverable"><tr style=" background-color: #2978B3; color: white;"><th style="width:20%"><p><strong>Medical staff</strong></p></th><th style="width:30%"><p><strong>Name</strong></p></th><th style="width:50%"><p><strong>Highest qualification</strong></p></th></tr>'
                 for(var i =0;i<=dNames.length-1;i++)
                 {
-                    htmlstring+='<tr><td>'+dMedical[i]+'</td><td>'+dNames[i]+'</td><td>'+dQual[i]+'</td></tr>'
+                    htmlstring+='<tr><td><p>'+dMedical[i]+'</p></td><td><p>'+dNames[i]+'</p></td><td><p>'+dQual[i]+'</p> </td></tr>'
 
                 }
                 htmlstring+='</table>';
@@ -107,13 +107,14 @@
 </script>
 <body>
 <header class="w3-card" >
-    <h2 style="color:#fff; text-align:center;  font-weight: bold;">Staff Details:</h2>
+    <h2 style="color:#fff; text-align:center;  font-weight: bold;">Staff Details</h2>
 </header>
 
 </br>
-<div class="w3-card-4" style="margin-left:20%; background-color:white; margin-right:20%;">
+<div class="w3-card-4" style="margin-left:20%; margin-right:20%;background-color:white;">
 
-    <div id="procedureid"></div>
+    <div id="procedureid" class="w3-container" style="padding-top: 10px; padding-bottom: 10px;"></div>
+
 </div>
 </body>
 </html>

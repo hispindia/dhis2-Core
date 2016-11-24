@@ -98,10 +98,10 @@
                 }
 
                 var htmlstring="";
-                htmlstring='<table><tr><th style="width:30%">Procedure</th><th style="width:30%">Cost</th></tr>'
+                htmlstring='<table class="w3-table w3-striped w3-hoverable"><tr style=" background-color: #2978B3; color: white;"><th style="width:30%"><p>Procedure</p></th><th style="width:30%"><p>Cost</p></th></tr>'
                 for(var i =0;i<=procedures.length-1;i++)
                 {
-                    htmlstring+='<tr><td>'+procedures[i]+'</td><td>'+costs[i]+'</td></tr>'
+                    htmlstring+='<tr><td><p>'+procedures[i]+'</p></td><td><p>'+costs[i]+'</p></td></tr>'
 
                 }
                 htmlstring+='</table>';
@@ -121,7 +121,7 @@
 </br>
 <div class="w3-card-4" style="margin-left:20%; background-color:white; margin-right:20%;">
 
-    <div id="procedureid"></div>
+    <div id="procedureid" class="w3-container" style="padding-top: 10px; padding-bottom: 10px;"></div>
 </div>
 </body>
 </html>
