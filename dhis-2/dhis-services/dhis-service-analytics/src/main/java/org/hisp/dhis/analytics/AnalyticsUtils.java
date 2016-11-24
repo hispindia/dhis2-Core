@@ -47,6 +47,7 @@ import org.hisp.dhis.calendar.Calendar;
 import org.hisp.dhis.calendar.DateTimeUnit;
 import org.hisp.dhis.common.DataDimensionItemType;
 import org.hisp.dhis.common.DataDimensionalItemObject;
+import org.hisp.dhis.common.DimensionItemType;
 import org.hisp.dhis.common.DimensionType;
 import org.hisp.dhis.common.DimensionalItemObject;
 import org.hisp.dhis.common.DimensionalObject;
@@ -61,6 +62,7 @@ import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
 import org.hisp.dhis.dxf2.datavalue.DataValue;
 import org.hisp.dhis.dxf2.datavalueset.DataValueSet;
+import org.hisp.dhis.indicator.Indicator;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodType;
@@ -301,10 +303,12 @@ public class AnalyticsUtils
         Assert.isTrue( ouInx >= 0 );
         Assert.isTrue( vlInx >= 0 );
         
-        String created = DateUtils.getMediumDateString();
-        
         Map<String, DimensionalItemObject> itemMap = (Map<String, DimensionalItemObject>) grid.
             getMetaData().get( AnalyticsMetaDataKey.DIMENSION_ITEMS.getKey() );
+
+        Assert.isTrue( itemMap != null );
+        
+        String created = DateUtils.getMediumDateString();
         
         DataValueSet dvs = new DataValueSet();
         
@@ -312,40 +316,66 @@ public class AnalyticsUtils
         {
             String dx = String.valueOf( row.get( dxInx ) );
             
+            DataDimensionalItemObject item = (DataDimensionalItemObject) itemMap.get( dx );
+            
+            Object vl = getIntegerOrValue( row.get( vlInx ), item );
+                        
             DataValue dv = new DataValue();
             
             dv.setDataElement( dx );
             dv.setPeriod( String.valueOf( row.get( peInx ) ) );
             dv.setOrgUnit( String.valueOf( row.get( ouInx ) ) );
-            dv.setValue( String.valueOf( row.get( vlInx ) ) );
+            dv.setValue( String.valueOf( vl ) );
             dv.setComment( KEY_AGG_VALUE );
             dv.setStoredBy( KEY_AGG_VALUE );
             dv.setCreated( created );
             dv.setLastUpdated( created );
-
-            if ( itemMap != null && itemMap.containsKey( dx ) )
+            
+            if ( item != null && item.hasAggregateExportCategoryOptionCombo() )
             {
-                DataDimensionalItemObject item = (DataDimensionalItemObject) itemMap.get( dx );
-                
-                Assert.isTrue( item != null );
-                
-                if ( item.hasAggregateExportCategoryOptionCombo() )
-                {
-                    dv.setCategoryOptionCombo( item.getAggregateExportCategoryOptionCombo() );
-                }
-                
-                if ( item.hasAggregateExportAttributeOptionCombo() )
-                {
-                    dv.setAttributeOptionCombo( item.getAggregateExportAttributeOptionCombo() );
-                }
+                dv.setCategoryOptionCombo( item.getAggregateExportCategoryOptionCombo() );
             }
-                        
+            
+            if ( item != null && item.hasAggregateExportAttributeOptionCombo() )
+            {
+                dv.setAttributeOptionCombo( item.getAggregateExportAttributeOptionCombo() );
+            }
+            
             dvs.getDataValues().add( dv );
         }
         
         return dvs;        
     }
 
+    /**
+     * Handles conversion of double values to integer. A value is converted to
+     * integer if it is a double, and if either the dimensional item object is
+     * associated with a data element of value type integer, or associated with
+     * an indicator with zero decimals in aggregated output.
+     * 
+     * @param value the value.
+     * @param item the dimensional item object.
+     * @return an object, double or integer depending on the given arguments.
+     */
+    private static Object getIntegerOrValue( Object value, DataDimensionalItemObject item )
+    {
+        boolean doubleValue = item != null && value != null && ( value instanceof Double );
+        
+        if ( doubleValue )
+        {
+            if ( DimensionItemType.DATA_ELEMENT == item.getDimensionItemType() && ((DataElement) item).getValueType().isInteger() )
+            {
+                value = ((Double) value).intValue();
+            }
+            else if ( DimensionItemType.INDICATOR == item.getDimensionItemType() && ((Indicator) item).hasZeroDecimals() )
+            {
+                value = ((Double) value).intValue();
+            }
+        }
+        
+        return value;        
+    }
+    
     /**
      * Returns a mapping between dimension item identifiers and dimensional
      * item object for the given query. The output identifier scheme of the
