@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="http://dhis2-cdn.org/v221/ext/ext-all.js"></script>
+    <script src="http://dhis2-cdn.org/v221/openlayers/OpenLayers.js"></script>
+    <script src="http://dhis2-cdn.org/v221/plugin/map.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"
+            type="text/javascript"></script>
+    <link rel="stylesheet" href="//dhis2-cdn.org/v221/ext/resources/css/ext-plugin-gray.css" />
+    <style type="text/css">
+
+        li {
+            float: left;
+        }
+
+        .map {
+            border: 0;
+            margin: 10px;
+        }
+        .map.wide {
+            width: 900px;
+            height: 500px;
+        }
+	section.section0
+	{
+    margin-left: 170px;
+    border-left: 0px solid;
+    padding: 1em;
+    overflow: hidden;
+	}
+	header, footer
+	{
+    padding: 0.5em;
+    color: white;
+    background-color: #16629E;
+    clear: left;
+    text-align: center;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:90%;
+	}
+
+	
+    </style>
+
+    <!-- Login and initialize maps -->
+
+    <script>
+        Ext.onReady( function() {
+            Ext.Ajax.request({
+                url: "dhis-web-commons-security/login.action?authOnly=true",
+                method: 'POST',
+                params: { j_username: "publicdashboard", j_password: "D@SHbo@rd20!6" },
+                success: setLinks
+            });
+
+            var element = $("#map"); // global variable
+            var getCanvas; // global variable
+            $("#btn-Preview-Image").on('click', function () {
+                html2canvas(element, {
+                    onrendered: function (canvas) {
+                        $("#previewImage").append(canvas);
+                        getCanvas = canvas;
+                    }
+                });
+            });
+
+            $("#btn-Convert-Html2Image").on('click', function () {
+                var imgageData = getCanvas.toDataURL("image/png");
+                // Now browser starts downloading it instead of just showing it
+                var newData = imgageData.replace(/^data:image\/png/, "data:application/octet-stream");
+                $("#btn-Convert-Html2Image").attr("download", "your_pic_name.png").attr("href", newData);
+            });
+        });
+
+        function setLinks() {
+
+            var query = decodeURIComponent(window.location.search);
+            console.log("query"+ query);
+            query = query.substring(1);
+            var params = query.split("&");
+            for (var i=0;i<params.length;i++) {
+                var param = params[i].split("=");
+                switch(param[0]) {
+                    case "mdeid":
+                        mdeid = param[1];
+
+                        break;
+					
+                    case "mpeid":
+                        mpeid = param[1];
+                        break;
+                    case "morgid":
+                        morgid = param[1];
+                        break;
+                    case "morgname":
+                        morgname = param[1];
+                        break;
+                }
+            }
+//            console.log(deid);
+//            console.log(peid);
+//            console.log(orgid);
+//            console.log(orgname);
+            DHIS.getMap({
+                "mapViews": [
+                    {
+                        "columns": [
+                            {
+                                "dimension": "dx",
+                                "items": [
+                                    {
+                                        "id": mdeid
+                                    }
+                                ]
+                            }
+                        ],
+                        "rows": [
+                            {
+                                "dimension": "ou",
+                                "items": [
+                                    {
+                                        "id": morgid
+                                    }
+                                ]
+                            }
+                        ],
+                        "filters": [
+                            {
+                                "dimension": "pe",
+                                "items": [
+                                    {
+                                        "id": mpeid
+                                    }
+                                ]
+                            }
+                        ],
+                        "layer": "thematic1",
+                        "method": 3,
+                        "hidden": false
+                    }
+                ],
+
+                "url": "../../../../",
+                "el": "map"
+            });
+        }
+    </script>
+
+</head>
+
+<body>
+
+<header>
+   <h1>Maps</h1>
+</header>
+
+<section class="section0">
+
+    <div id="map" class="map wide"></div>
+
+    <div id="canvas">
+
+    </div>
+    
+</section>
+</br>
+</br>
+<footer >
+<section class="indent-1">
+<table>
+	<tr>
+		<td><img src="./img/dis.png" width="300px" height="100px"></img></td>
+		<td>
+		<p style="font-size:18px; text-align:left;">
+The Boundaries and names shown and the designations used on this map do not imply the expression of any opinion whatsoever on the part of World Health Organization concerning th leagal status of any country, territory, city or area or of its authorities, or concerning the delimitation of its frontiers or boundaries. Dotted lines on maps represent approximate border lines for which there may not yet be full agreement.</p></td>
+</section>
+</footer>
+</body>
+</html>

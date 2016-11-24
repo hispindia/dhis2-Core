@@ -1,2157 +1,1209 @@
 <!DOCTYPE HTML>
 <html class="loginPage">
 <head>
-	<!--For Page Automatic refresh
-	<meta http-equiv="refresh" content="30" >-->
-	<title>WHO-HIP</title>
-	<link rel="icon" href="./img/logo1n.png" type="image/x-icon">
+    <!--For Page Automatic refresh
+    <meta http-equiv="refresh" content="30" >-->
+    <title>WHO-HIP</title>
+    <link rel="icon" href="./img/logo1n.png" type="image/x-icon">
 
-	<meta name="description" content="DHIS 2">
-	<meta name="keywords" content="DHIS 2">
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-	<!--<script type="text/javascript" src="../javascripts/jQuery/jquery.min.js"></script>-->
-	<script type="text/javascript" src="login.js"></script>
-	<link type="text/css" rel="stylesheet" href="../css/widgets.css">
-	<link type="text/css" rel="stylesheet" href="../css/login.css">
-	<link type="text/css" rel="stylesheet" href="../../api/files/style/external" />
-	<script src="//dhis2-cdn.org/v221/ext/ext-all.js"></script>
+    <meta name="description" content="DHIS 2">
+    <meta name="keywords" content="DHIS 2">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script src="lib/jquery.min.js"></script>
+    <!--<script type="text/javascript" src="../javascripts/jQuery/jquery.min.js"></script>-->
+    <script type="text/javascript" src="login.js"></script>
+    <link type="text/css" rel="stylesheet" href="../css/widgets.css">
+    <link type="text/css" rel="stylesheet" href="../css/login.css">
+    <link type="text/css" rel="stylesheet" href="../../api/files/style/external" />
+    <script src="//dhis2-cdn.org/v221/ext/ext-all.js"></script>
 
-	<!-- Latest compiled and minified CSS -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="lib/bootstrap.min.css" integrity="" crossorigin="anonymous">
 
-	<!-- Optional theme -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="lib/bootstrap-theme.min.css" integrity="" crossorigin="anonymous">
 
-	<!-- Latest compiled and minified JavaScript -->
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-	<!--<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">-->
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="lib/bootstrap.min.js" integrity="" crossorigin="anonymous"></script>
+    <!--<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">-->
 
-	<!--<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>-->
+    <!--<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>-->
 
-	<!--Bootstrap Select Library-->
-	<!-- Latest compiled and minified CSS -->
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css">
+    <!--Bootstrap Select Library-->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="lib/bootstrap-select.min.css">
 
-	<!-- Latest compiled and minified JavaScript -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="lib/bootstrap-select.min.js"></script>
 
-	<!-- (Optional) Latest compiled and minified JavaScript translation files -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/i18n/defaults-*.min.js"></script>
 
-	<!--W3schools-->
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+    <!--W3schools-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="lib/css/w3.css">
+    <link rel="stylesheet" href="lib/css/style.css">
 
-	<link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body class="loginPage">
 <!--Header--->
 <div class="page-header">
-	<div style="height:100px">
-		<p style="text-align:center;"><img src="./img/logo.png" style="height:85px;width:210px;"></a>
-		<ul class="sociallink">
-			<li><a href="http://www.who.int/about/licensing/rss/en/"><img src="./img/rss.png"  width="30px" height="30px"></a></li>
-			<li><a href="http://www.youtube.com/whosoutheastasia"><img src="./img/youtube.png"  width="30px" height="30px"></a></li>
-			<li><a href="https://twitter.com/WHOSEARO"><img src="./img/twitter.png"  width="30px" height="30px"></a></li>
-			<li><a href="https://www.facebook.com/WHOSEARO"><img src="./img/facebook.png" width="30px" height="30px"></a></li>
-			<li><a href="https://plus.google.com/+who/posts"><img src="./img/google.png"  width="30px" height="30px"></a></li>
-		</ul>
-	</div>
+    <div style="height:100px">
+        <p style="text-align:center;"><img src="./img/logo.png" style="height:85px;width:210px;"></p>
+        <ul class="sociallink">
+            <li><a href="http://www.who.int/about/licensing/rss/en/"><img src="./img/rss.png"  width="30px" height="30px"></a></li>
+            <li><a href="http://www.youtube.com/whosoutheastasia"><img src="./img/youtube.png"  width="30px" height="30px"></a></li>
+            <li><a href="https://twitter.com/WHOSEARO"><img src="./img/twitter.png"  width="30px" height="30px"></a></li>
+            <li><a href="https://www.facebook.com/WHOSEARO"><img src="./img/facebook.png" width="30px" height="30px"></a></li>
+            <li><a href="https://plus.google.com/+who/posts"><img src="./img/google.png"  width="30px" height="30px"></a></li>
+        </ul>
+    </div>
 </div>
 <div style="color:white;background:#1E7FB8;text-align:center;" >
-	<ul class="w3-navbar w3-center" >
-		<li style="width:30%">&nbsp;</li>
-		<li ><a href="#" class="show_hidee"><img src="./img/home.png" height="20px" width="20px"></a></li>
-		<li ><a href="#" class="show_hide">Indicators & metadata</a></li>
-		<li ><a href="#" class="show_hidee">Reports & Publications</a></li>
-		<li ><a href="#" class="show_hidee">Help</a></li>
-		<li class="w3-right" ><a type="button" id="b1" class="button12" data-toggle="modal" data-target="#myModal"><b>DHIS2 Login</b></a></li>
-	</ul>
+    <ul class="w3-navbar w3-center" >
+        <li style="width:30%">&nbsp;</li>
+        <li ><a href="#" class="show_hidee"><img src="./img/home.png" height="20px" width="20px"></a></li>
+        <li ><a href="#" class="show_hide">Indicators & metadata</a></li>
+        <li ><a href="#" class="show_hidee">Reports & Publications</a></li>
+        <li ><a href="#" class="show_hidee">Help</a></li>
+        <li class="w3-right" ><a type="button" id="b1" class="button12" data-toggle="modal" data-target="#myModal"><b>DHIS2 Login</b></a></li>
+    </ul>
 </div>
 <!-- Modal -->
 <div class="modal fade" id="myModal" role="dialog">
-	<div class="modal-dialog">
+    <div class="modal-dialog">
 
-		<!-- Modal content-->
-		<div class="modal-content">
-			<div class="modal-header" >
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h4><span class="glyphicon glyphicon-lock"></span> Login</h4>
-			</div>
-			<div class="modal-body" >
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header" >
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4><span class="glyphicon glyphicon-lock"></span> Login</h4>
+            </div>
+            <div class="modal-body" >
 
-				<div id="loginField">
-					<div id="loginArea">
-						<div id="bannerArea">
-							<img src="./img/logo.png" style="border:none">
-						</div>
+                <div id="loginField">
+                    <div id="loginArea">
+                        <div id="bannerArea">
+                            <img src="./img/logo.png" style="border:none">
+                        </div>
 
-						<form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">
-							<div>
-								<div id="signInLabel">Sign in</div>
-								<div><input type="text" autofocus="autofocus" id="j_username" name="j_username" placeholder="Username"></div>
-								<div><input type="password" id="j_password" name="j_password" autocomplete="off" placeholder="Password"></div>
-							</div>
-							<div id="submitDiv">
-								<input id="submit" class="button" type="submit" value="Sign in">
-							</div>
-							#if( $keyAccountRecovery )
-							<div style="padding-bottom: 10px">
-								<a id="forgotPasswordLink" href="recovery.action">Forgot password?</a>
-							</div>
-							#end
-							#if( $keyConfig.selfRegistrationAllowed() )
-							<div style="padding-bottom: 10px">
-								<a id="createAccountLink" href="account.action">Create an account</a>
-							</div>
-							#end
-						</form>
-						#if( $keyOpenIdProvider )
-						<form id="openIdLoginForm" action="../../dhis-web-commons-security/openid.action" method="post">
-							  <input name="openid_identifier" type="hidden" value="$keyOpenIdProvider"/>
-							<div id="submitDiv">
-								#if( $keyOpenIdProviderLabel )
-								<input style="width: 269px;" id="submit" class="button" type="submit" value="$keyOpenIdProviderLabel">
-								#else
-								<input style="width: 269px;" id="submit" class="button" type="submit" value="Sign in with OpenID">
-								#end
-							</div>
-						</form>
-						#end
-						#if( $failed == true )
-						<div id="loginMessage">Wrong username or password</div>
-						#end
-						#if ( $keyApplicationNotification )
-						<div id="notificationArea">$!{keyApplicationNotification}</div>
-						#end
-						<!--[if lte IE 8]>
-						<div id="notificationArea" style="color: white; background-color: red;">$i18n.getString( "unsupported_browser" )</div>
-						<![endif]-->
-					</div>
-				</div>
+                        <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">
+                            <div>
+                                <div id="signInLabel">Sign in</div>
+                                <div><input type="text" autofocus="autofocus" id="j_username" name="j_username" placeholder="Username"></div>
+                                <div><input type="password" id="j_password" name="j_password" autocomplete="off" placeholder="Password"></div>
+                            </div>
+                            <div id="submitDiv">
+                                <input id="submit" class="button" type="submit" value="Sign in">
+                            </div>
+                            #if( $keyAccountRecovery )
+                            <div style="padding-bottom: 10px">
+                                <a id="forgotPasswordLink" href="recovery.action">Forgot password?</a>
+                            </div>
+                            #end
+                            #if( $keyConfig.selfRegistrationAllowed() )
+                            <div style="padding-bottom: 10px">
+                                <a id="createAccountLink" href="account.action">Create an account</a>
+                            </div>
+                            #end
+                        </form>
+                        #if( $keyOpenIdProvider )
+                        <form id="openIdLoginForm" action="../../dhis-web-commons-security/openid.action" method="post">
+                              <input name="openid_identifier" type="hidden" value="$keyOpenIdProvider"/>
+                            <div id="submitDiv">
+                                #if( $keyOpenIdProviderLabel )
+                                <input style="width: 269px;" id="submit" class="button" type="submit" value="$keyOpenIdProviderLabel">
+                                #else
+                                <input style="width: 269px;" id="submit" class="button" type="submit" value="Sign in with OpenID">
+                                #end
+                            </div>
+                        </form>
+                        #end
+                        #if( $failed == true )
+                        <div id="loginMessage">Wrong username or password</div>
+                        #end
+                        #if ( $keyApplicationNotification )
+                        <div id="notificationArea">$!{keyApplicationNotification}</div>
+                        #end
+                        <!--[if lte IE 8]>
+                        <div id="notificationArea" style="color: white; background-color: red;">$i18n.getString( "unsupported_browser" )</div>
+                        <![endif]-->
+                    </div>
+                </div>
 
-			</div>
+            </div>
 
-		</div>
+        </div>
 
-	</div>
+    </div>
 </div>
 
-<style>
-	.w3-navbar li a:hover{background-color:#D86422}
-	.sociallink{
-		display:flex;
-		list-style:none;
-		position:absolute;
-		float:right;
-		width:auto;
-		top: 53px;
-		right: 20px;
-	}
 
-	.sociallink1{
-		display:flex;
-		list-style:none;
-		position:absolute;
-		float:right;
-		width:auto;
-		right: 20px;
-	}
-
-	.page-header
-	{
-		border-bottom: 1px solid #16629E;
-	}
-	.slidingDiv {
-		height:500px;
-		padding: 5px;
-		text-align: center;
-		background-color: #e5eecc;
-		border: solid 1px #c3c3c3;
-		overflow:scroll;
-
-	}
-
-	.show_hide {
-		display:none;
-	}
-	.show_hidee {
-		display:none;
-	}
-
-	table {
-		border-collapse: collapse;
-		width: 100%;
-	}
-
-	th, td {
-		text-align: left;
-		padding: 8px;
-	}
-
-	tr:nth-child(even){background-color: #f2f2f2}
-
-	th {
-		background-color: #4CAF50;
-		color: white;
-	}
-	.button12{
-		background-color: #228B22;
-	}
-	#p12{
-		height:100px;
-	}
-	.w3-margin-bottom {
-		margin-bottom: 40px!important;
-	}
-
-</style>
 
 <script type="text/javascript">
 
-	$(document).ready(function(){
+    $(document).ready(function(){
 
-		$(".slidingDiv").hide();
-		$(".show_hide").show();
-		$(".show_hidee").show();
+        $(".slidingDiv").hide();
+        $(".show_hide").show();
+        $(".show_hidee").show();
 
-		$('.show_hide').click(function(){
+        $('.show_hide').click(function(){
 
-			$(".slidingDiv").slideToggle();
-		});
-		$('.show_hidee').click(function(){
+            $(".slidingDiv").slideToggle();
+        });
+        $('.show_hidee').click(function(){
 
-			$(".slidingDiv").hide();
-		});
+            $(".slidingDiv").hide();
+        });
 
-	});
+    });
 
 </script>
 
 <div class="slidingDiv">
 
-	<table border="1" cellspacing="0" cellpadding="0" >
-		<tbody>
-		<tr>
-			<td  ><p><b> Indicators</b></p></td>
-			<td  ><p><b>Definitions</b></p></td>
-		</tr>
-
-		<tr>
-			<td colspan="2" valign="top" ><p><b> Health SDGs</b></p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Maternal mortality ratio</p></td>
-			<td valign="top" ><p>The annual number of female deaths from any cause related to or aggravated by pregnancy or its management (excluding accidental or incidental causes) during pregnancy and childbirth or within 42 days of termination of pregnancy, irrespective of the duration and site of the pregnancy,<br />
-				expressed per 100 000 live births, for a specified time period.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Births attended by skilled health personnel</p></td>
-			<td valign="top" ><p>Percentage of live births attended by skilled health personnel during a specified time period</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Children under-five mortality rate</p></td>
-			<td valign="top" ><p>The probability of a child born in a specific year or period dying before reaching the age of 5 years, if subject to age-specific mortality rates of that period, expressed per 1000 live births.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Neonatal mortality rate</p></td>
-			<td valign="top" ><p>Probability that a child born in a specific year or period will die during the first 28 completed days of life if subject to age-specific mortality rates of that period, expressed per 1000 live births.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>HIV incidence rate</p></td>
-			<td valign="top" ><p>Number of new HIV infections per 1000 person-years among the uninfected population. The incidence rate is the number of new cases per population at risk in a given time<br />
-				period.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>TB incidence rate</p></td>
-			<td valign="top" ><p>Estimated number of new and relapse TB cases (all forms of TB, including cases in people living with HIV) arising in a given year, expressed as a rate per 100 000 population.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Malaria incidence rate</p></td>
-			<td valign="top" ><p>Number of malaria cases per 1000 persons per year.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Hepatitis B incidence per 100,000 population</p></td>
-			<td valign="top" ><p>Number of new hepatitis B infections per 100 000<br />
-				population in a given year is estimated from the prevalence of total antibodies against hepatitis B core antigen (Total anti-HBc) and hepatitis B surface<br />
-				antigen (HBsAg) positive among children 5 years of age, adjusted for sampling design.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Number of people requiring interventions against Neglected Tropical Diseases</p></td>
-			<td valign="top" ><p>Number of people requiring preventive or curative treatment, as a tracer for interventions against any one of the 17 NTDs targeted by WHO, including 11 NTDs targeted for eradication or elimination in World Health Assembly resolutions. Note: 17 NTDs- Buruli ulcer<br />
-				Chagas disease<br />
-				Dengue and Chikungunya<br />
-				Dracunculiasis (guinea-worm disease)<br />
-				Echinococcosis<br />
-				Endemic treponematoses (Yaws)<br />
-				Foodborne trematodiases<br />
-				Human African trypanosomiasis (sleeping sickness)<br />
-				Leishmaniasis<br />
-				Leprosy (Hansen disease)<br />
-				Lymphatic filariasis<br />
-				Onchocerciasis (river blindness)<br />
-				Rabies<br />
-				Schistosomiasis<br />
-				Soil-transmitted helminthiases<br />
-				Taeniasis/Cysticercosis<br />
-				Trachoma</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Mortality between 30 and 70 years of age from cardiovascular diseases, cancer, diabetes or chronic respiratory diseases</p></td>
-			<td valign="top" ><p>Unconditional probability of dying between the exact ages of 30 and 70 years from cardiovascular diseases, cancer, diabetes or chronic respiratory diseases.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Suicide rate</p></td>
-			<td valign="top" ><p>Suicide rate per 100,000 population in a specified period </p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Coverage of treatment interventions (pharmacological, psychosocial and rehabilitation and aftercare services) for substance use disorder</p></td>
-			<td valign="top" ><p>Number of people who have received different treatment interventions in the last year divided by the actual number of the target population (people with substance use disorders measured as the total number of problem drug users) </p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Total alcohol per capita (age 15+ years) consumption</p></td>
-			<td valign="top" ><p>Total alcohol per capita is the total amount (sum of recorded alcohol per capita three-year average and unrecorded alcohol per capita) of alcohol consumed per adult (15+ years) in a calendar year, in litres of pure alcohol. Note: Recorded alcohol consumption refers to official statistics (production, import, export, and sales or taxation data), while unrecorded alcohol consumption refers to alcohol which is not taxed and is outside the usual system of government control. In circumstances in which the number of tourists per year is at least the number of inhabitants, tourist consumption is also taken into account and is deducted from a country's recorded alcohol per capita</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Mortality rate from road traffic injuries</p></td>
-			<td valign="top" ><p>Number of road traffic fatal injury deaths per 100,000 population (age-standardized).</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Demand for family planning satisfied with modern methods</p></td>
-			<td valign="top" ><p>Percentage of women of reproductive age (15-49 years) who are sexually active and who have their need for family planning satisfied with modern methods.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Adolescent fertility rate</p></td>
-			<td valign="top" ><p>Annual number of births to women aged 15-19 years per 1000 women in that age group.<br />
-				Note: It is also referred to as the age-specific fertility rate for women aged 15-19 years.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Antenatal care coverage - at least four visits (%)</p></td>
-			<td valign="top" ><p>Percentage of women aged 15-49 years with a live birth in a given time period who received antenatal care, four times or more</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Immunization coverage rate by vaccine for each vaccine in the national schedule</p></td>
-			<td rowspan="6" valign="top" ><p>Percentage of the target population that has received the last recommended dose for each vaccine recommended in the national schedule by vaccine. Note: This should include all vaccines within a country's routine immunization schedule (e.g., Bacillus Calmette-Gurin (BCG); polio;<br />
-				pneumococcal conjugate vaccine (PCV); rotavirus; diphtheria, tetanus, pertussis-Hepatitis B-Haemophilus influenzae type B vaccine (DTP-HepBHib); measles (MCV); rubella; human papilloma virus (HPV); tetanus toxoid (TT); influenza; and others as determined by the national schedule).</p></td>
-		</tr>
-
-		<tr>
-			<td nowrap="" valign="bottom" ><p>DTP3</p></td>
-		</tr>
-
-		<tr>
-			<td nowrap="" valign="bottom" ><p>Measles</p></td>
-		</tr>
-
-		<tr>
-			<td nowrap="" valign="bottom" ><p>Hep B3</p></td>
-		</tr>
-
-		<tr>
-			<td nowrap="" valign="bottom" ><p>Hib 3</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Others Penta</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Care-seeking for symptoms of pneumonia</p></td>
-			<td valign="top" ><p>Percentage of children under 5 years of age with suspected pneumonia (cough and difficult breathing NOT due to a problem in the chest and a blocked nose) in the two weeks preceding the survey taken to an appropriate health facility or provider</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>TB treatment success rate</p></td>
-			<td valign="top" ><p>Percentage of TB cases successfully treated (cured plus treatment completed) among TB cases notified to the national health authorities during a specified period.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Antiretroviral therapy (ART) coverage</p></td>
-			<td valign="top" ><p>Percentage of people living with HIV currently receiving ART among the estimated number of adults and children living with HIV. </p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Use of insecticide treated nets (ITNs)</p></td>
-			<td valign="top" ><p>Percentage population in malaria-endemic areas who slept under an ITN the previous night</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Hypertension treatment coverage </p></td>
-			<td valign="bottom" ><p>Proportion of population aged 18 years and older who are currently taking antihypertensive medication among number of adults 18 years and older who are taking medication for hypertension, with systolic blood pressure = 140 mmHg, or with diastolic blood pressure = 90 mmHg</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Diabetes treatment coverage </p></td>
-			<td valign="bottom" ><p>Proportion of population aged 18 years and older who are currently taking medication for diabetes (insulinor glycaemic control pills) among number of adults 18 years and older who are taking medication for diabetes or with fasting plasma glucose =7.0 mmol/</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Cervical cancer screening</p></td>
-			<td valign="top" ><p>Proportion of women aged 30-49 years who report they were screened for cervical cancer using any of the following methods: visual Inspection with acetic acid/vinegar (VIA), pap smear, human papilloma virus (HPV) test.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Service utilization</p></td>
-			<td valign="top" ><p>Number of outpatient department visits per person per year</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Availability of essential medicines and commodities</p></td>
-			<td valign="top" ><p>Percentage of health facilities with essential medicines and life-saving commodities</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Number of people covered by health insurance or a public health system per 1,000 population</p></td>
-			<td valign="top" ><p>NEW INDICATOR, no globally standard definition available yet.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Mortality rate attributed to household and ambient air pollution </p></td>
-			<td valign="top" ><p>The mortality attributable to ambient air pollution can be expressed as either (1) number of deaths or (2) overall death rate attributed to: Acute respiratory infections in young children (estimated under 5 years of age); Cerebrovascular diseases in adults (estimated above 25 years); Ischaemic heart diseases in adults (estimated above 25 years); Chronic obstructive pulmonary disease in adults (estimated above 25 years); and Lung cancer in adults (estimated above 25 years).</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Population using safely managed sanitation services</p></td>
-			<td valign="top" ><p>Population using a basic sanitation facility (flush or pour-flush toilets to sewer systems, septic tanks or pit latrines, ventilated improved pit latrines, pit latrines with a slab, and composting toilets ) which is not shared with other households and where excreta are safely disposed in situ or transported to a designated place for safe disposal or treatment </p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Population using safely managed drinking-water services</p></td>
-			<td valign="top" ><p>Population using a basic drinking-water source (piped water into dwelling, yard or plot; public taps or standpipes; boreholes or tubewells; protected dug wells; protected springs and rainwater) which is located on premises and available when needed; free of faecal (and priority chemical) contamination and/or regulated<br />
-				by a competent authority.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Mortality rate attributed to unintentional poisoning</p></td>
-			<td valign="top" ><p>NEW INDICATOR, no globally standard definition available yet.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Tobacco use among persons aged 15+ years</p></td>
-			<td valign="top" ><p>Age-standardized prevalence of current tobacco use among persons aged 15+ years. "Smoked tobacco products" include the consumption of cigarettes, bidis, cigars, cheroots, pipes, shisha (water pipes), fine-cut smoking articles (roll-your-own), krekets, and any other form of smoked tobacco."Smokeless tobacco" includes moist snuff, plug, creamy snuff, dissolvables, dry snuff, gul, loose leaf, red tooth<br />
-				powder, snus, chimo, gutkha, khaini, gudakhu, zarda, quiwam, dohra, tuibur, nasway, naas/naswar, shammah, betel<br />
-				quid, toombak, pan (betel quid), iq'mik, mishri, tapkeer, tombol and any other tobacco product that is sniffed, held<br />
-				in the mouth, or chewed.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Proportion of the population with access to affordable medicines and vaccines on a sustainable basis</p></td>
-			<td valign="top" ><p>Percentage of health facilities with essential medicines and life-saving commodities</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Total net official development assistance to medical research and basic health sectors </p></td>
-			<td valign="top" ><p>Total net official development assistance (ODA) to the medical research (purpose code 12182) and basic health (code 122) sectors. Data expressed in US dollars at the average annual exchange rate. URL:http://www.oecd.org/dac/stats/documentupload/Budget%20identifier%20purpose%20codes_Apr%202016.pdf </p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Health worker density and distribution</p></td>
-			<td valign="top" ><p>By cadre, including generalist medical practitioners, specialist medical practitioners (surgeons, anaesthetists, obstetricians, emergency medicine specialists, cardiologists, paediatricians, psychiatrists, ophthalmologists, gynaecologists, etc.), nursing and midwifery professionals, traditional and complementary medicine professionals, among others.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>International Health Regulations (IHR) core capacity index</p></td>
-			<td valign="top" ><p>Percentage of attributes of 13 core capacities that have been attained at a specific point in time. The 13 core capacities are: (1) National legislation, policy and financing; (2) Coordination and National Focal Point communications; (3) Surveillance; (4) Response; (5) Preparedness; (6) Risk communication; (7) Human resources; (8) Laboratory; (9) Points of entry; (10) Zoonotic events; (11) Food safety; (12) Chemical events; (13)<br />
-				Radionuclear emergencies.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Children under 5 years who are stunted</p></td>
-			<td valign="top" ><p>Percentage of stunted (moderate and severe) children aged 0-59 months (moderate = height-for-age below -2 standard deviations from the WHO Child Growth Standards median; severe = height-for-age below -3 standard deviations from the WHO Child Growth Standards median).</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Children under 5 years who are wasted</p></td>
-			<td valign="top" ><p>Percentage of wasted (moderate and severe) children aged 0-59 months (moderate = weight-for-height below -2 standard deviations of the WHO Child Growth Standards median; severe = weight-for-height below -3 standard deviations of the WHO Child Growth Standards median).</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Intimate partner violence prevalence</p></td>
-			<td valign="top" ><p>Percentage of currently partnered girls and women aged 15-49 years who have experienced physical and/or sexual violence by their current intimate partner in the last 12 months.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Proportion of population with access to electricity</p></td>
-			<td valign="top" ><p>The percentage of the population that has access to electricity</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Air pollution level in cities</p></td>
-			<td valign="top" ><p>Annual mean concentration of particulate matter of less than 2.5 microns of diameter (PM2.5) [ug/m3] (or of less than 10 microns [PM10] if PM2.5 is not available) in cities</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Number of deaths, missing persons and persons afected by disaster per 100,000 people</p></td>
-			<td valign="top" ><p>NEW INDICATOR, no globally standard definition available yet.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Number of victims of intentional homicide per 100,000 population</p></td>
-			<td valign="top" ><p>Intentional homicide is defined as the unlawful death inflicted upon a person with the intent to cause death or serious injury (Source: International Classification of Crime for Statistical Purposes, ICCS 2015); the rate is defined as the total count of victims of intentional homicide divided by the total resident population, expressed per 100,000 population. </p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Conflict-related deaths per 100,000 population</p></td>
-			<td valign="top" ><p>NEW INDICATOR, no globally standard definition available yet.</p></td>
-		</tr>
-
-		<tr>
-			<td valign="top" ><p>Birth registration coverage</p></td>
-			<td valign="top" ><p>Percentage of births that are registered within one month of age in a civil registration system</p></td>
-		</tr>
-
-		</tbody>
-	</table>
-
-	<p><b>Demography</b></p>
-
-	<table border="1" cellspacing="0" cellpadding="0" width="108%" >
-		<tbody>
-		<tr>
-			<td width="34%" valign="top" ><p>Total Population (in thousands)</p></td>
-			<td width="65%" valign="top" ><p>Total population is based on the De facto population in a country. Figures are presented in thousands.</p></td>
-		</tr>
-
-		<tr>
-			<td width="34%" valign="top" ><p>Average annual rate of population growth (%) </p></td>
-			<td width="65%" valign="top" ><p>Average exponential rate of growth of the population over a given period. It is expressed as a percentage.</p></td>
-		</tr>
-
-		<tr>
-			<td width="34%" valign="top" ><p>Crude birth rate</p></td>
-			<td width="65%" valign="top" ><p>Annual number of live births1 per 1,000 population.</p></td>
-		</tr>
-
-		<tr>
-			<td width="34%" valign="top" ><p>Crude death rate</p></td>
-			<td width="65%" valign="top" ><p>Annual number of deaths per 1,000 population. </p></td>
-		</tr>
-
-		<tr>
-			<td width="34%" valign="top" ><p>Net number of international migrants, both sexes combined</p></td>
-			<td width="65%" valign="top" ><p>The number of international migrants generally represents the number of persons born in a country other than that in which they live.</p></td>
-		</tr>
-
-		<tr>
-			<td width="34%" valign="top" ><p>Population sex ratio (male per 100 female)</p></td>
-			<td width="65%" valign="top" ><p>Number of males per 100 females in the population.</p></td>
-		</tr>
-
-		<tr>
-			<td width="34%" valign="top" ><p>Population density (per sq km)</p></td>
-			<td width="65%" valign="top" ><p>The number of population per square Kilometer.</p></td>
-		</tr>
-
-		<tr>
-			<td width="34%" valign="top" ><p>Urban population (%)</p></td>
-			<td width="65%" valign="top" ><p>Urban population as a percentage of the total population.</p></td>
-		</tr>
-
-		<tr>
-			<td width="34%" valign="top" ><p>Estimated average number of annual births</p></td>
-			<td width="65%" valign="top" ><p>The estimated number of live births taking place in a country during a year</p></td>
-		</tr>
-
-		<tr>
-			<td width="34%" valign="top" ><p>Estimated average number of annual deaths </p></td>
-			<td width="65%" valign="top" ><p>The estimated number of deaths taking place in a country during a year</p></td>
-		</tr>
-
-		<tr>
-			<td width="34%" valign="top" ><p>Children &lt;1 year (% of total population)</p></td>
-			<td width="65%" valign="top" ><p>Population less than 1 year of age as a percentage of the total population. Population is based on the de facto definition of population.</p></td>
-		</tr>
-
-		<tr>
-			<td width="34%" valign="top" ><p>Children &lt;5 years (% of total population)</p></td>
-			<td width="65%" valign="top" ><p>Population less than 5 years of age as a percentage of the total population. Population is based on the de facto definition of population.</p></td>
-		</tr>
-
-		<tr>
-			<td width="34%" valign="top" ><p>Children &lt;15 years (% of total population)</p></td>
-			<td width="65%" valign="top" ><p>Population less than 15 years of age as a percentage of the total population. Population is based on the de facto definition of population.</p></td>
-		</tr>
-
-		<tr>
-			<td width="34%" valign="top" ><p>Adolescents 10-19 years (% of total population)</p></td>
-			<td width="65%" valign="top" ><p>Population between the age of 10-19 years as a percentage of the total population. Population is based on the de facto definition of population.</p></td>
-		</tr>
-
-		<tr>
-			<td width="34%" valign="top" ><p>Youth 15-24 years (% of total population)</p></td>
-			<td width="65%" valign="top" ><p>Population between the age of 15-24 years as a percentage of the total population. Population is based on the de facto definition of population.</p></td>
-		</tr>
-
-		<tr>
-			<td width="34%" valign="top" ><p>Adults 15-59 years (% of total population)</p></td>
-			<td width="65%" valign="top" ><p>Population between the age of 15-59 years as a percentage of the total population. Population is based on the de facto definition of population.</p></td>
-		</tr>
-
-		<tr>
-			<td width="34%" valign="top" ><p>Elderly &gt;60 years (% of total population)</p></td>
-			<td width="65%" valign="top" ><p>Population greater than 60 years of age as a percentage of the total population. Population is based on the de facto definition of population.</p></td>
-		</tr>
-
-		<tr>
-			<td width="34%" valign="top" ><p>Adolescent girls 15-19 years (% of total population)</p></td>
-			<td width="65%" valign="top" ><p>Population of female between the age of 15-19 years as a percentage of the total population. Population is based on the de facto definition of population</p></td>
-		</tr>
-
-		<tr>
-			<td width="34%" valign="top" ><p>Women of reproductive age 15-44 years (% of total population)</p></td>
-			<td width="65%" valign="top" ><p>Population of female between the age of 15-44 years as a percentage of the total population. Population is based on the de facto definition of population</p></td>
-		</tr>
-
-		</tbody>
-	</table>
-
-	<p><b>Socio Economics</b></p>
-
-	<table border="1" cellspacing="0" cellpadding="0" width="108%" >
-		<tbody>
-		<tr>
-			<td width="36%" valign="top" ><p>Gross national income per capita in PPP (current international $)</p></td>
-			<td width="63%" valign="top" ><p>GNI per capita based on purchasing power parity (PPP). PPP GNI is gross national income (GNI) converted to international dollars using purchasing power parity rates. An international dollar has the same purchasing power over GNI as a U.S. dollar has in the United States. GNI is the sum of value added by all resident producers plus any product taxes (less subsidies) not included in the valuation of output plus net receipts of primary income (compensation of employees and property income) from abroad. </p></td>
-		</tr>
-
-		<tr>
-			<td width="36%" valign="top" ><p>Gross domestic product (GDP) per capita (current US$)</p></td>
-			<td width="63%" valign="top" ><p>GDP per capita based on purchasing power parity (PPP). PPP GDP is gross domestic product converted to international dollars using purchasing power parity rates. An international dollar has the same purchasing power over GDP as the U.S. dollar has in the United States. GDP at purchaser's prices is the sum of gross value added by all resident producers in the economy plus any product taxes and minus any subsidies not included in the value of the products. It is calculated without making deductions for depreciation of fabricated assets or for depletion and degradation of natural resources. </p></td>
-		</tr>
-
-		<tr>
-			<td width="36%" valign="top" ><p>GDP growth (annual%)</p></td>
-			<td width="63%" valign="top" ><p>Annual percentage growth rate of GDP at market prices based on constant local currency. </p></td>
-		</tr>
-
-		<tr>
-			<td width="36%" valign="top" ><p>Poverty (% of population living at less than PPP $ 1.25 a day)</p></td>
-			<td width="63%" valign="top" ><p>The poverty rate at $1.25 a day is the proportion of the population living on less than $1.25 a day, adjusted for purchasing power parity (PPP).</p></td>
-		</tr>
-
-		<tr>
-			<td width="36%" valign="top" ><p>Poverty (% of population living below national poverty line)</p></td>
-			<td width="63%" valign="top" ><p>The proportion of population below national poverty line is defined as the proportion of the total population living below the national poverty line. This indicator is expressed as a percentage.</p></td>
-		</tr>
-
-		<tr>
-			<td width="36%" valign="top" ><p>Multidimensional poverty (% of population)</p></td>
-			<td width="63%" valign="top" ><p>Percentage of the population that is multidimensionally poor adjusted by the intensity of the deprivations</p></td>
-		</tr>
-
-		<tr>
-			<td width="36%" valign="top" ><p>Adult (&gt;15) literacy rate (%)-Both sexes</p></td>
-			<td width="63%" valign="top" ><p>Percentage of persons aged 15 and over who can read and write.</p></td>
-		</tr>
-
-		<tr>
-			<td width="36%" valign="top" ><p>Adult (&gt;15) literacy rate (%)-Male</p></td>
-			<td width="63%" valign="top" ><p>Percentage of males aged 15 and over who can read and write.</p></td>
-		</tr>
-
-		<tr>
-			<td width="36%" valign="top" ><p>Adult (&gt;15) literacy rate (%)-Female</p></td>
-			<td width="63%" valign="top" ><p>Percentage of females aged 15 and over who can read and write.</p></td>
-		</tr>
-
-		<tr>
-			<td width="36%" valign="top" ><p>Mean years of schooling of adults (years)</p></td>
-			<td width="63%" valign="top" ><p>Average number of years of education received by people ages 25 and older, converted from education attainment levels using official durations of each level.</p></td>
-		</tr>
-
-		<tr>
-			<td width="36%" valign="top" ><p>Expected years of schooling of children (years)</p></td>
-			<td width="63%" valign="top" ><p>Number of years of schooling that a child of school entrance age can expect to receive if prevailing patterns of age-specific enrolment rates persist throughout the child's life.</p></td>
-		</tr>
-
-		<tr>
-			<td width="36%" valign="top" ><p>Fixed-telephone subscriptions per 100 inhabitants</p></td>
-			<td width="63%" valign="top" ><p>The number of fixed-telephone subscriptions per 100 subscriptions. Fixed-telephone subscriptions refers to the sum of active number of analogue fixed-telephone lines, voice-over-IP (VoIP) subscriptions, fixed wireless local loop (WLL) subscriptions, integrated services digital network (ISDN) voice-channel equivalents and fixed public payphones.</p></td>
-		</tr>
-
-		<tr>
-			<td width="36%" valign="top" ><p>Mobile-cellular telephone subscriptions per 100 inhabitants</p></td>
-			<td width="63%" valign="top" ><p>The number of mobile-cellular telephone subscriptions per 100 inhabitants.Mobile-cellular telephone subscriptions refers to the number of subscriptions to a public mobile-telephone service that provide access to the PSTN using cellular technology. The indicator includes the number of postpaid subscriptions and the number of active prepaid accounts (i.e. that have been used during the last three months). The indicator applies to all mobile-cellular subscriptions that offer voice communications. It excludes subscriptions via data cards or USB modems, subscriptions to public mobile data services, private trunked mobile radio, telepoint, radio paging and telemetry services.</p></td>
-		</tr>
-
-		<tr>
-			<td width="36%" valign="top" ><p>Individuals using Internet (%)</p></td>
-			<td width="63%" valign="top" ><p>The number of individuals using the Internet per 100 inhabitants.individuals using the Internet refers to those that used the Internet in the last 3 months from any location. </p></td>
-		</tr>
-
-		</tbody>
-	</table>
-
-	<p><b>Health Service Delivery</b></p>
-
-	<table border="1" cellspacing="0" cellpadding="0" width="108%" >
-		<tbody>
-		<tr>
-			<td width="36%" valign="top" ><p>Population using modern fuels for cooking/heating/lighting</p></td>
-			<td width="63%" valign="top" ><p>Percentage of households/population using modern fuels and technologies for cooking/heating/lighting as defined by the recommendations set forth in the WHO guidelines for indoor air quality: household fuel combustion.</p></td>
-		</tr>
-
-		<tr>
-			<td width="36%" valign="top" ><p>Contraceptive prevalence rate</p></td>
-			<td width="63%" valign="top" ><p>Percentage of women aged 15-49 years, married or in union, who are currently using, or whose sexual partner is using, at least one method of contraception, regardless of the method used.</p></td>
-		</tr>
-
-		<tr>
-			<td width="36%" valign="top" ><p>Service-specific availability and readiness</p></td>
-			<td width="63%" valign="top" ><p>Number of health facilities offering specific services per 10,000 population and meeting minimum service standards on the basis of a set of tracer<br />
-				criteria for specific services, etc.</p></td>
-		</tr>
-
-		<tr>
-			<td width="36%" valign="top" ><p>Health service access</p></td>
-			<td width="63%" valign="top" ><p>Percentage of population living within 5 km of a health facility (total number of health facilities per 10,000 population).</p></td>
-		</tr>
-
-		<tr>
-			<td width="36%" valign="top" ><p>Completeness of reporting by facilities</p></td>
-			<td width="63%" valign="top" ><p>Percentage of facilities that submit reports within the required deadline.</p></td>
-		</tr>
-
-		</tbody>
-	</table>
-
-	<p><b>Communicable Disease</b></p>
-
-	<table border="1" cellspacing="0" cellpadding="0" width="108%" >
-		<tbody>
-		<tr>
-			<td width="33%" valign="top" ><p>New cases of vaccine-preventable diseases</p></td>
-			<td width="66%" valign="top" ><p>Number of confirmed new cases of vaccine-preventable diseases that are included in the WHO recommended standards for surveillance of selected vaccine-preventable diseases, and vaccine-preventable diseases reported on the WHO-UNICEF reporting form in a specified time period.</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>New cases of IHR-notifiable diseases and other notifiable diseases</p></td>
-			<td width="66%" valign="top" ><p>Number of new confirmed cases of IHR-notifiable diseases (immediately notifiable diseases) and other notifiable diseases (diseases that could cause serious public health impact and could spread rapidly internationally) per year.</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>HIV prevalence rate among adults (15-49)</p></td>
-			<td width="66%" valign="top" ><p>Percentage of adult people (15-49) living with HIV. Prevalence measures the frequency of existing disease in a defined population at a specific time</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>Hepatitis B surface antigen prevalence</p></td>
-			<td width="66%" valign="top" ><p>Prevalence of hepatitis B surface antigen (HBsAg)-positive, adjusted for sampling design.</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>Sexually transmitted infections (STIs) incidence rate</p></td>
-			<td width="66%" valign="top" ><p>Number of new cases of reported STIs (syndromic or etiological reporting) in a specified time period (year).</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>TB notification rate per 100, 000 population</p></td>
-			<td width="66%" valign="top" ><p>Number of new and relapse TB cases notified in a given year, per 100 000 population.<br />
-				Note: The term "notification" means that TB is diagnosed in a patient and is reported within the national surveillance system, and then on to WHO</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>TB prevalence rate</p></td>
-			<td width="66%" valign="top" ><p>Number of cases of tuberculosis (all forms) in a population at a given point in time (the middle of the calendar year), expressed as a rate<br />
-				per 100,000 population. </p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>Malaria parasite prevalence among children aged 6-59 months</p></td>
-			<td width="66%" valign="top" ><p>Percentage of children aged 6-59 months in the population with malaria parasites in blood.</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>Condom use at last sex with high-risk partner</p></td>
-			<td width="66%" valign="top" ><p>Percentage using a condom during last sexual intercourse with a higher-risk partner (women and men who have more than one sexual partner<br />
-				in the past 12 months; sex workers with most recent client; men who have sex with men anal sex with a male partner; people who inject drugs condom use at last sex). For people who inject drugs, also measure number of needles per person who injects drugs per year.</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>People living with HIV who have been diagnosed</p></td>
-			<td width="66%" valign="top" ><p>Percentage of people living with HIV who have been diagnosed.</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>Prevention of mother-to-child transmission</p></td>
-			<td width="66%" valign="top" ><p>Percentage of HIV-positive pregnant women provided with ART to reduce the risk of mother-to-child transmission during pregnancy.</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>HIV care coverage</p></td>
-			<td width="66%" valign="top" ><p>Number and percentage of people living with HIV who are receiving HIV care, as proxied by receipt of at least one of the following during the reporting period: clinical assessment (WHO staging) or CD4 count or viral load or on ART.</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>HIV viral load suppression</p></td>
-			<td width="66%" valign="top" ><p>Percentage of people on ART who are virologically suppressed (VL level = 1000 copies/mL).</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>TB preventive therapy for HIV-positive people newly enrolled in HIV care</p></td>
-			<td width="66%" valign="top" ><p>Number of patients who are started on treatment for latent TB infection expressed as a percentage of the total number newly enrolled in HIV care in a specified time period.</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>HIV test results for registered new and relapse TB patients</p></td>
-			<td width="66%" valign="top" ><p>Number of new and relapse TB patients who had an HIV test result recorded in the TB register, expressed as a percentage of the number registered in a specified time period.</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>HIV-positive new and relapse TB patients on ART during TB treatment</p></td>
-			<td width="66%" valign="top" ><p>Number of HIV-positive new and relapse TB patients who received ART during TB treatment, expressed as a percentage of those registered in a specified time period.</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>TB patients with results for drug susceptibility testing</p></td>
-			<td width="66%" valign="top" ><p>Percentage of TB cases with results for diagnostic drug susceptibility testing for resistance to isoniazid and rifampicinin a specified time period.</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>TB case detection rate</p></td>
-			<td width="66%" valign="top" ><p>Percentage of estimated new and relapse TB cases detected in a given year under the internationally recommended tuberculosis control strategy.<br />
-				Note: The term "case detection", as used here, means that TB is diagnosed in a patient and is reported within the national surveillance system and then to WHO.<br />
-				Note: The term "rate" is used for historical reasons. The indicator is actually a ratio (expressed as a percentage) and not a rate.</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>Second-line treatment coverage among multidrug-resistant tuberculosis (MDR-TB) cases</p></td>
-			<td width="66%" valign="top" ><p>Percentage of notified TB patients estimated to have MDR-TB who were detected with MDR-TB and enrolled on second-line anti-TB treatment in a specified time period.</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>Intermittent preventive therapy for malaria during pregnancy (IPTp)</p></td>
-			<td width="66%" valign="top" ><p>Percentage of women who received three or more doses of intermittent preventive treatment during antenatal care visits during their last pregnancy.</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>Treatment of confirmed malaria cases </p></td>
-			<td width="66%" valign="top" ><p>Percentage of confirmed malaria cases that receive first-line antimalarial treatment</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>Indoor residual spraying (IRS) coverage</p></td>
-			<td width="66%" valign="top" ><p>Percentage of population at risk protected by IRS during a specified time period.</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>Coverage of preventive chemotherapy for selected neglected tropical diseases</p></td>
-			<td width="66%" valign="top" ><p>Proportion of the population living in endemic areas requiring preventive chemotherapy that received treatment for at least one of the selected neglected tropical diseases (schistosomiasis, soil-transmitted helminthiases, lymphatic filariasis , onchocerciasis).</p></td>
-		</tr>
-
-		<tr>
-			<td width="33%" valign="top" ><p>ART retention rate</p></td>
-			<td width="66%" valign="top" ><p>Percentage of adults and children with HIV alive and on ART 12, 24, 36 (etc.) months after initiating treatment among patients initiating ART during a specified time period.</p></td>
-		</tr>
-
-		</tbody>
-	</table>
-
-	<p><b>Non-Communicable Disease</b></p>
-
-	<table border="1" cellspacing="0" cellpadding="0" width="108%" >
-		<tbody>
-		<tr>
-			<td width="35%" valign="top" ><p>Cancer incidence, by type of cancer</p></td>
-			<td width="64%" valign="top" ><p>The at-risk population for the given category of cancer. The population used depends on the rate to be calculated. For cancer sites that occur only in one sex, the sex-specific population (e.g. females for cervical cancer) is used.</p></td>
-		</tr>
-
-		<tr>
-			<td width="35%" valign="top" ><p>Children aged under 5 years who are overweight</p></td>
-			<td width="64%" valign="top" ><p>Prevalence of weight-for-height in children aged 0-59 months defined as above +2 standard deviations of the WHO Child Growth Standards median</p></td>
-		</tr>
-
-		<tr>
-			<td width="35%" valign="top" ><p>Overweight and obesity in adults (Also: adolescents)</p></td>
-			<td width="64%" valign="top" ><p>Number of respondents aged 18+ years who are overweight. Number of respondents aged 18+ years who are obese.<br />
-				Note: BMI is calculated by dividing weight in kilograms by height in meters squared. Overweight is defined as having a BMI = 25 kg/m^2 and obesity is defined as having a BMI = 30 kg/m^2.</p></td>
-		</tr>
-
-		<tr>
-			<td width="35%" valign="top" ><p>Raised blood pressure among adults</p></td>
-			<td width="64%" valign="top" ><p>Age-standardized prevalence of raised blood pressure among persons aged 18+ years (defined as systolic blood pressure = 140 mmHg and/or diastolic blood pressure = 90 mmHg), and mean systolic blood pressure. </p></td>
-		</tr>
-
-		<tr>
-			<td width="35%" valign="top" ><p>Raised blood glucose/diabetes among adults</p></td>
-			<td width="64%" valign="top" ><p>Age-standardized prevalence of raised blood glucose/diabetes among persons aged 18+ years or on medication for raised blood glucose (defined as fasting plasma glucose value = 7.0 mmol/L (126 mg/dL) or on medication for raised blood glucose among adults aged 18+ years).</p></td>
-		</tr>
-
-		<tr>
-			<td width="35%" valign="top" ><p>Salt intake</p></td>
-			<td width="64%" valign="top" ><p>Age-standardized mean population intake of salt (sodium chloride) per day in grams in persons aged 18+ years. </p></td>
-		</tr>
-
-		<tr>
-			<td width="35%" valign="top" ><p>Insufficient physical activity in adults (Also: adolescents)</p></td>
-			<td width="64%" valign="top" ><p>Age-standardized prevalence of insufficiently physically active persons aged 18+ years (percentage of adults aged 18+ years not meeting any of the following criteria: 150 minutes of moderate-intensity physical activity per week; 75 minutes of vigorous-intensity physical activity per week; an equivalent combination of moderate- and vigorous-intensity physical activity accumulating at least 600 metabolic equivalent minutes per week (minutes of physical activity can be accumulated over the course of a week but must be of a duration of at least 10 minutes).</p></td>
-		</tr>
-
-		<tr>
-			<td width="35%" valign="top" ><p>Coverage of services for severe mental health disorders</p></td>
-			<td width="64%" valign="top" ><p>Percentage of persons with a severe mental disorder (psychosis, bipolar affective disorder, moderate-severe depression) who are using services.</p></td>
-		</tr>
-
-		</tbody>
-	</table>
-
-	<p><b>RMNCAH</b></p>
-
-	<table border="1" cellspacing="0" cellpadding="0" width="108%" >
-		<tbody>
-		<tr>
-			<td width="41%" valign="top" ><p>Exclusive breastfeeding rate 0-5 months of age</p></td>
-			<td width="58%" valign="top" ><p>Percentage of infants 0-5 months of age (&lt;6 months) who are fed exclusively with breast milk</p></td>
-		</tr>
-
-		<tr>
-			<td width="41%" valign="top" ><p>Early initiation of breastfeeding</p></td>
-			<td width="58%" valign="top" ><p>Percentage of infants breastfed within 1 hour of birth in a specified time period.</p></td>
-		</tr>
-
-		<tr>
-			<td width="41%" valign="top" ><p>Anaemia prevalence in children</p></td>
-			<td width="58%" valign="top" ><p>Percentage of children aged 6-59 months with a haemoglobin level of less than 110 g/L, adjusted for altitude</p></td>
-		</tr>
-
-		<tr>
-			<td width="41%" valign="top" ><p>Anaemia prevalence in women of reproductive age</p></td>
-			<td width="58%" valign="top" ><p>Percentage of women aged 15-49 years with a haemoglobin level less than 120 g/L for non-pregnant women and lactating women, and less than 110 g/L for pregnant women, adjusted for altitude and smoking</p></td>
-		</tr>
-
-		<tr>
-			<td width="41%" valign="top" ><p>Postpartum care coverage</p></td>
-			<td width="58%" valign="top" ><p>Percentage of mothers and babies who received postpartum care within two days of childbirth (regardless of place of delivery)</p></td>
-		</tr>
-
-		<tr>
-			<td width="41%" valign="top" ><p>Children with diarrhoea receiving oral rehydration solution (ORS)</p></td>
-			<td width="58%" valign="top" ><p>Percentage of children under 5 years of age with diarrhoea in the last two weeks receiving ORS (fluids made from ORS packets or pre-packaged ORS<br />
-				fluids). </p></td>
-		</tr>
-
-		<tr>
-			<td width="41%" valign="top" ><p>Vitamin A supplementation coverage</p></td>
-			<td width="58%" valign="top" ><p>Percentage of children aged 6-59 months who received two age-appropriate doses of vitamin A in the past 12 months. </p></td>
-		</tr>
-
-		<tr>
-			<td width="41%" valign="top" ><p>Perioperative mortality rate</p></td>
-			<td width="58%" valign="top" ><p>All-cause death rate prior to discharge among patients having one or more procedures in an operating theatre during the relevant admission</p></td>
-		</tr>
-
-		<tr>
-			<td width="41%" valign="top" ><p>Obstetric and gynaecological admissions owing to abortion</p></td>
-			<td width="58%" valign="top" ><p>Percentage of admissions for (spontaneous or induced) abortion-related complications to service delivery points providing inpatient obstetric and gynaecological services, among all admissions (except those for planned termination of pregnancy).<br />
-				Note: Abortion is the termination of a pregnancy before the fetus has attained viability ( i.e. become capable of independent extra-uterine life. Induced abortion is the deliberate termination of a pregnancy before the fetus has attained viability  i.e. become capable of independent extra-uterine life.<br />
-				Spontaneous abortion is the spontaneous termination of a pregnancy before the fetus has attained viability ) i.e. become capable of independent extra-uterine life  - and is often referred to as a miscarriage</p></td>
-		</tr>
-
-		<tr>
-			<td width="41%" valign="top" ><p>Institutional maternal mortality ratio</p></td>
-			<td width="58%" valign="top" ><p>Number of maternal deaths among 100,000 deliveries in health facilities/institutions</p></td>
-		</tr>
-
-		<tr>
-			<td width="41%" valign="top" ><p>Maternal death reviews</p></td>
-			<td width="58%" valign="top" ><p>Percentage of maternal deaths occurring in the facility that were audited.</p></td>
-		</tr>
-
-		</tbody>
-	</table>
-
-	<p><b>Health Resource</b></p>
-
-	<table border="1" cellspacing="0" cellpadding="0" width="108%" >
-		<tbody>
-		<tr>
-			<td width="41%" valign="top" ><p>Hospital bed density</p></td>
-			<td width="58%" valign="top" ><p>Total number of hospital beds per 10,000 population</p></td>
-		</tr>
-
-		<tr>
-			<td width="41%" valign="top" ><p>Output training institutions</p></td>
-			<td width="58%" valign="top" ><p>Number of graduates from health workforce educational institutions (including schools of dentistry, medicine, midwifery, nursing, pharmacy) during the last academic year per 1000 population.</p></td>
-		</tr>
-
-		<tr>
-			<td width="41%" valign="top" ><p>Total current expenditure on health (% of gross domestic product)</p></td>
-			<td width="58%" valign="top" ><p>Total current expenditure on health as a percentage of gross domestic product.</p></td>
-		</tr>
-
-		<tr>
-			<td width="41%" valign="top" ><p>Current expenditure on health by general government and compulsory schemes (% of current expenditure on health)</p></td>
-			<td width="58%" valign="top" ><p>Current expenditure on health by general government and compulsory schemes as a share of total current expenditure on health (expressed as a % of total current expenditure on health). This is the sum of current health outlays paid for in cash or supplied in kind by government entities<br />
-				such as the Ministry of Health, other ministries, parastatal organizations or social security agencies, or by entities running health schemes that are compulsory by law.</p></td>
-		</tr>
-
-		<tr>
-			<td width="41%" valign="top" ><p>Out-of-pocket payment for health (% of current expenditure on health)</p></td>
-			<td width="58%" valign="top" ><p>Share of total current expenditure on health paid by households out-of-pocket, expressed as a percentage of total current expenditure on health (this is the households out-of-pocket expenditure).</p></td>
-		</tr>
-
-		<tr>
-			<td width="41%" valign="top" ><p>Externally sourced funding (% of current expenditure on health)</p></td>
-			<td width="58%" valign="top" ><p>Share of total current expenditure on health funded by external (rest of the world) institutional units providing revenues to financing schemes.</p></td>
-		</tr>
-
-		<tr>
-			<td width="41%" valign="top" ><p>Total capital expenditure on health (% current + capital expenditure on health)</p></td>
-			<td width="58%" valign="top" ><p>Total capital expenditure on health as a percentage of current + capital expenditure on health.</p></td>
-		</tr>
-
-		<tr>
-			<td width="41%" valign="top" ><p>Headcount ratio of catastrophic health expenditure</p></td>
-			<td width="58%" valign="top" ><p>Proportion of the population (or sub-population) facing catastrophic health expenditures.</p></td>
-		</tr>
-
-		<tr>
-			<td width="41%" valign="top" ><p>Headcount ratio of impoverishing health expenditure</p></td>
-			<td width="58%" valign="top" ><p>Proportion of the population (or sub-population) facing impoverishing health expenditures.</p></td>
-		</tr>
-
-		</tbody>
-	</table>
-
-	<a href="#" class="show_hide" >HIDE</a></div>
+    <table border="1" cellspacing="0" cellpadding="0" >
+        <tbody>
+        <tr>
+            <td  ><p><b> Indicators</b></p></td>
+            <td  ><p><b>Definitions</b></p></td>
+        </tr>
+
+        <tr>
+            <td colspan="2" valign="top" ><p><b> Health SDGs</b></p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Maternal mortality ratio</p></td>
+            <td valign="top" ><p>The annual number of female deaths from any cause related to or aggravated by pregnancy or its management (excluding accidental or incidental causes) during pregnancy and childbirth or within 42 days of termination of pregnancy, irrespective of the duration and site of the pregnancy,<br />
+                expressed per 100 000 live births, for a specified time period.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Births attended by skilled health personnel</p></td>
+            <td valign="top" ><p>Percentage of live births attended by skilled health personnel during a specified time period</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Children under-five mortality rate</p></td>
+            <td valign="top" ><p>The probability of a child born in a specific year or period dying before reaching the age of 5 years, if subject to age-specific mortality rates of that period, expressed per 1000 live births.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Neonatal mortality rate</p></td>
+            <td valign="top" ><p>Probability that a child born in a specific year or period will die during the first 28 completed days of life if subject to age-specific mortality rates of that period, expressed per 1000 live births.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>HIV incidence rate</p></td>
+            <td valign="top" ><p>Number of new HIV infections per 1000 person-years among the uninfected population. The incidence rate is the number of new cases per population at risk in a given time<br />
+                period.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>TB incidence rate</p></td>
+            <td valign="top" ><p>Estimated number of new and relapse TB cases (all forms of TB, including cases in people living with HIV) arising in a given year, expressed as a rate per 100 000 population.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Malaria incidence rate</p></td>
+            <td valign="top" ><p>Number of malaria cases per 1000 persons per year.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Hepatitis B incidence per 100,000 population</p></td>
+            <td valign="top" ><p>Number of new hepatitis B infections per 100 000<br />
+                population in a given year is estimated from the prevalence of total antibodies against hepatitis B core antigen (Total anti-HBc) and hepatitis B surface<br />
+                antigen (HBsAg) positive among children 5 years of age, adjusted for sampling design.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Number of people requiring interventions against Neglected Tropical Diseases</p></td>
+            <td valign="top" ><p>Number of people requiring preventive or curative treatment, as a tracer for interventions against any one of the 17 NTDs targeted by WHO, including 11 NTDs targeted for eradication or elimination in World Health Assembly resolutions. Note: 17 NTDs- Buruli ulcer<br />
+                Chagas disease<br />
+                Dengue and Chikungunya<br />
+                Dracunculiasis (guinea-worm disease)<br />
+                Echinococcosis<br />
+                Endemic treponematoses (Yaws)<br />
+                Foodborne trematodiases<br />
+                Human African trypanosomiasis (sleeping sickness)<br />
+                Leishmaniasis<br />
+                Leprosy (Hansen disease)<br />
+                Lymphatic filariasis<br />
+                Onchocerciasis (river blindness)<br />
+                Rabies<br />
+                Schistosomiasis<br />
+                Soil-transmitted helminthiases<br />
+                Taeniasis/Cysticercosis<br />
+                Trachoma</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Mortality between 30 and 70 years of age from cardiovascular diseases, cancer, diabetes or chronic respiratory diseases</p></td>
+            <td valign="top" ><p>Unconditional probability of dying between the exact ages of 30 and 70 years from cardiovascular diseases, cancer, diabetes or chronic respiratory diseases.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Suicide rate</p></td>
+            <td valign="top" ><p>Suicide rate per 100,000 population in a specified period </p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Coverage of treatment interventions (pharmacological, psychosocial and rehabilitation and aftercare services) for substance use disorder</p></td>
+            <td valign="top" ><p>Number of people who have received different treatment interventions in the last year divided by the actual number of the target population (people with substance use disorders measured as the total number of problem drug users) </p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Total alcohol per capita (age 15+ years) consumption</p></td>
+            <td valign="top" ><p>Total alcohol per capita is the total amount (sum of recorded alcohol per capita three-year average and unrecorded alcohol per capita) of alcohol consumed per adult (15+ years) in a calendar year, in litres of pure alcohol. Note: Recorded alcohol consumption refers to official statistics (production, import, export, and sales or taxation data), while unrecorded alcohol consumption refers to alcohol which is not taxed and is outside the usual system of government control. In circumstances in which the number of tourists per year is at least the number of inhabitants, tourist consumption is also taken into account and is deducted from a country's recorded alcohol per capita</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Mortality rate from road traffic injuries</p></td>
+            <td valign="top" ><p>Number of road traffic fatal injury deaths per 100,000 population (age-standardized).</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Demand for family planning satisfied with modern methods</p></td>
+            <td valign="top" ><p>Percentage of women of reproductive age (15-49 years) who are sexually active and who have their need for family planning satisfied with modern methods.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Adolescent fertility rate</p></td>
+            <td valign="top" ><p>Annual number of births to women aged 15-19 years per 1000 women in that age group.<br />
+                Note: It is also referred to as the age-specific fertility rate for women aged 15-19 years.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Antenatal care coverage - at least four visits (%)</p></td>
+            <td valign="top" ><p>Percentage of women aged 15-49 years with a live birth in a given time period who received antenatal care, four times or more</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Immunization coverage rate by vaccine for each vaccine in the national schedule</p></td>
+            <td rowspan="6" valign="top" ><p>Percentage of the target population that has received the last recommended dose for each vaccine recommended in the national schedule by vaccine. Note: This should include all vaccines within a country's routine immunization schedule (e.g., Bacillus Calmette-Gurin (BCG); polio;<br />
+                pneumococcal conjugate vaccine (PCV); rotavirus; diphtheria, tetanus, pertussis-Hepatitis B-Haemophilus influenzae type B vaccine (DTP-HepBHib); measles (MCV); rubella; human papilloma virus (HPV); tetanus toxoid (TT); influenza; and others as determined by the national schedule).</p></td>
+        </tr>
+
+        <tr>
+            <td nowrap="" valign="bottom" ><p>DTP3</p></td>
+        </tr>
+
+        <tr>
+            <td nowrap="" valign="bottom" ><p>Measles</p></td>
+        </tr>
+
+        <tr>
+            <td nowrap="" valign="bottom" ><p>Hep B3</p></td>
+        </tr>
+
+        <tr>
+            <td nowrap="" valign="bottom" ><p>Hib 3</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Others Penta</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Care-seeking for symptoms of pneumonia</p></td>
+            <td valign="top" ><p>Percentage of children under 5 years of age with suspected pneumonia (cough and difficult breathing NOT due to a problem in the chest and a blocked nose) in the two weeks preceding the survey taken to an appropriate health facility or provider</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>TB treatment success rate</p></td>
+            <td valign="top" ><p>Percentage of TB cases successfully treated (cured plus treatment completed) among TB cases notified to the national health authorities during a specified period.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Antiretroviral therapy (ART) coverage</p></td>
+            <td valign="top" ><p>Percentage of people living with HIV currently receiving ART among the estimated number of adults and children living with HIV. </p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Use of insecticide treated nets (ITNs)</p></td>
+            <td valign="top" ><p>Percentage population in malaria-endemic areas who slept under an ITN the previous night</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Hypertension treatment coverage </p></td>
+            <td valign="bottom" ><p>Proportion of population aged 18 years and older who are currently taking antihypertensive medication among number of adults 18 years and older who are taking medication for hypertension, with systolic blood pressure = 140 mmHg, or with diastolic blood pressure = 90 mmHg</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Diabetes treatment coverage </p></td>
+            <td valign="bottom" ><p>Proportion of population aged 18 years and older who are currently taking medication for diabetes (insulinor glycaemic control pills) among number of adults 18 years and older who are taking medication for diabetes or with fasting plasma glucose =7.0 mmol/</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Cervical cancer screening</p></td>
+            <td valign="top" ><p>Proportion of women aged 30-49 years who report they were screened for cervical cancer using any of the following methods: visual Inspection with acetic acid/vinegar (VIA), pap smear, human papilloma virus (HPV) test.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Service utilization</p></td>
+            <td valign="top" ><p>Number of outpatient department visits per person per year</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Availability of essential medicines and commodities</p></td>
+            <td valign="top" ><p>Percentage of health facilities with essential medicines and life-saving commodities</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Number of people covered by health insurance or a public health system per 1,000 population</p></td>
+            <td valign="top" ><p>NEW INDICATOR, no globally standard definition available yet.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Mortality rate attributed to household and ambient air pollution </p></td>
+            <td valign="top" ><p>The mortality attributable to ambient air pollution can be expressed as either (1) number of deaths or (2) overall death rate attributed to: Acute respiratory infections in young children (estimated under 5 years of age); Cerebrovascular diseases in adults (estimated above 25 years); Ischaemic heart diseases in adults (estimated above 25 years); Chronic obstructive pulmonary disease in adults (estimated above 25 years); and Lung cancer in adults (estimated above 25 years).</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Population using safely managed sanitation services</p></td>
+            <td valign="top" ><p>Population using a basic sanitation facility (flush or pour-flush toilets to sewer systems, septic tanks or pit latrines, ventilated improved pit latrines, pit latrines with a slab, and composting toilets ) which is not shared with other households and where excreta are safely disposed in situ or transported to a designated place for safe disposal or treatment </p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Population using safely managed drinking-water services</p></td>
+            <td valign="top" ><p>Population using a basic drinking-water source (piped water into dwelling, yard or plot; public taps or standpipes; boreholes or tubewells; protected dug wells; protected springs and rainwater) which is located on premises and available when needed; free of faecal (and priority chemical) contamination and/or regulated<br />
+                by a competent authority.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Mortality rate attributed to unintentional poisoning</p></td>
+            <td valign="top" ><p>NEW INDICATOR, no globally standard definition available yet.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Tobacco use among persons aged 15+ years</p></td>
+            <td valign="top" ><p>Age-standardized prevalence of current tobacco use among persons aged 15+ years. "Smoked tobacco products" include the consumption of cigarettes, bidis, cigars, cheroots, pipes, shisha (water pipes), fine-cut smoking articles (roll-your-own), krekets, and any other form of smoked tobacco."Smokeless tobacco" includes moist snuff, plug, creamy snuff, dissolvables, dry snuff, gul, loose leaf, red tooth<br />
+                powder, snus, chimo, gutkha, khaini, gudakhu, zarda, quiwam, dohra, tuibur, nasway, naas/naswar, shammah, betel<br />
+                quid, toombak, pan (betel quid), iq'mik, mishri, tapkeer, tombol and any other tobacco product that is sniffed, held<br />
+                in the mouth, or chewed.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Proportion of the population with access to affordable medicines and vaccines on a sustainable basis</p></td>
+            <td valign="top" ><p>Percentage of health facilities with essential medicines and life-saving commodities</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Total net official development assistance to medical research and basic health sectors </p></td>
+            <td valign="top" ><p>Total net official development assistance (ODA) to the medical research (purpose code 12182) and basic health (code 122) sectors. Data expressed in US dollars at the average annual exchange rate. URL:http://www.oecd.org/dac/stats/documentupload/Budget%20identifier%20purpose%20codes_Apr%202016.pdf </p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Health worker density and distribution</p></td>
+            <td valign="top" ><p>By cadre, including generalist medical practitioners, specialist medical practitioners (surgeons, anaesthetists, obstetricians, emergency medicine specialists, cardiologists, paediatricians, psychiatrists, ophthalmologists, gynaecologists, etc.), nursing and midwifery professionals, traditional and complementary medicine professionals, among others.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>International Health Regulations (IHR) core capacity index</p></td>
+            <td valign="top" ><p>Percentage of attributes of 13 core capacities that have been attained at a specific point in time. The 13 core capacities are: (1) National legislation, policy and financing; (2) Coordination and National Focal Point communications; (3) Surveillance; (4) Response; (5) Preparedness; (6) Risk communication; (7) Human resources; (8) Laboratory; (9) Points of entry; (10) Zoonotic events; (11) Food safety; (12) Chemical events; (13)<br />
+                Radionuclear emergencies.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Children under 5 years who are stunted</p></td>
+            <td valign="top" ><p>Percentage of stunted (moderate and severe) children aged 0-59 months (moderate = height-for-age below -2 standard deviations from the WHO Child Growth Standards median; severe = height-for-age below -3 standard deviations from the WHO Child Growth Standards median).</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Children under 5 years who are wasted</p></td>
+            <td valign="top" ><p>Percentage of wasted (moderate and severe) children aged 0-59 months (moderate = weight-for-height below -2 standard deviations of the WHO Child Growth Standards median; severe = weight-for-height below -3 standard deviations of the WHO Child Growth Standards median).</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Intimate partner violence prevalence</p></td>
+            <td valign="top" ><p>Percentage of currently partnered girls and women aged 15-49 years who have experienced physical and/or sexual violence by their current intimate partner in the last 12 months.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Proportion of population with access to electricity</p></td>
+            <td valign="top" ><p>The percentage of the population that has access to electricity</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Air pollution level in cities</p></td>
+            <td valign="top" ><p>Annual mean concentration of particulate matter of less than 2.5 microns of diameter (PM2.5) [ug/m3] (or of less than 10 microns [PM10] if PM2.5 is not available) in cities</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Number of deaths, missing persons and persons afected by disaster per 100,000 people</p></td>
+            <td valign="top" ><p>NEW INDICATOR, no globally standard definition available yet.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Number of victims of intentional homicide per 100,000 population</p></td>
+            <td valign="top" ><p>Intentional homicide is defined as the unlawful death inflicted upon a person with the intent to cause death or serious injury (Source: International Classification of Crime for Statistical Purposes, ICCS 2015); the rate is defined as the total count of victims of intentional homicide divided by the total resident population, expressed per 100,000 population. </p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Conflict-related deaths per 100,000 population</p></td>
+            <td valign="top" ><p>NEW INDICATOR, no globally standard definition available yet.</p></td>
+        </tr>
+
+        <tr>
+            <td valign="top" ><p>Birth registration coverage</p></td>
+            <td valign="top" ><p>Percentage of births that are registered within one month of age in a civil registration system</p></td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <p><b>Demography</b></p>
+
+    <table border="1" cellspacing="0" cellpadding="0" width="108%" >
+        <tbody>
+        <tr>
+            <td width="34%" valign="top" ><p>Total Population (in thousands)</p></td>
+            <td width="65%" valign="top" ><p>Total population is based on the De facto population in a country. Figures are presented in thousands.</p></td>
+        </tr>
+
+        <tr>
+            <td width="34%" valign="top" ><p>Average annual rate of population growth (%) </p></td>
+            <td width="65%" valign="top" ><p>Average exponential rate of growth of the population over a given period. It is expressed as a percentage.</p></td>
+        </tr>
+
+        <tr>
+            <td width="34%" valign="top" ><p>Crude birth rate</p></td>
+            <td width="65%" valign="top" ><p>Annual number of live births1 per 1,000 population.</p></td>
+        </tr>
+
+        <tr>
+            <td width="34%" valign="top" ><p>Crude death rate</p></td>
+            <td width="65%" valign="top" ><p>Annual number of deaths per 1,000 population. </p></td>
+        </tr>
+
+        <tr>
+            <td width="34%" valign="top" ><p>Net number of international migrants, both sexes combined</p></td>
+            <td width="65%" valign="top" ><p>The number of international migrants generally represents the number of persons born in a country other than that in which they live.</p></td>
+        </tr>
+
+        <tr>
+            <td width="34%" valign="top" ><p>Population sex ratio (male per 100 female)</p></td>
+            <td width="65%" valign="top" ><p>Number of males per 100 females in the population.</p></td>
+        </tr>
+
+        <tr>
+            <td width="34%" valign="top" ><p>Population density (per sq km)</p></td>
+            <td width="65%" valign="top" ><p>The number of population per square Kilometer.</p></td>
+        </tr>
+
+        <tr>
+            <td width="34%" valign="top" ><p>Urban population (%)</p></td>
+            <td width="65%" valign="top" ><p>Urban population as a percentage of the total population.</p></td>
+        </tr>
+
+        <tr>
+            <td width="34%" valign="top" ><p>Estimated average number of annual births</p></td>
+            <td width="65%" valign="top" ><p>The estimated number of live births taking place in a country during a year</p></td>
+        </tr>
+
+        <tr>
+            <td width="34%" valign="top" ><p>Estimated average number of annual deaths </p></td>
+            <td width="65%" valign="top" ><p>The estimated number of deaths taking place in a country during a year</p></td>
+        </tr>
+
+        <tr>
+            <td width="34%" valign="top" ><p>Children &lt;1 year (% of total population)</p></td>
+            <td width="65%" valign="top" ><p>Population less than 1 year of age as a percentage of the total population. Population is based on the de facto definition of population.</p></td>
+        </tr>
+
+        <tr>
+            <td width="34%" valign="top" ><p>Children &lt;5 years (% of total population)</p></td>
+            <td width="65%" valign="top" ><p>Population less than 5 years of age as a percentage of the total population. Population is based on the de facto definition of population.</p></td>
+        </tr>
+
+        <tr>
+            <td width="34%" valign="top" ><p>Children &lt;15 years (% of total population)</p></td>
+            <td width="65%" valign="top" ><p>Population less than 15 years of age as a percentage of the total population. Population is based on the de facto definition of population.</p></td>
+        </tr>
+
+        <tr>
+            <td width="34%" valign="top" ><p>Adolescents 10-19 years (% of total population)</p></td>
+            <td width="65%" valign="top" ><p>Population between the age of 10-19 years as a percentage of the total population. Population is based on the de facto definition of population.</p></td>
+        </tr>
+
+        <tr>
+            <td width="34%" valign="top" ><p>Youth 15-24 years (% of total population)</p></td>
+            <td width="65%" valign="top" ><p>Population between the age of 15-24 years as a percentage of the total population. Population is based on the de facto definition of population.</p></td>
+        </tr>
+
+        <tr>
+            <td width="34%" valign="top" ><p>Adults 15-59 years (% of total population)</p></td>
+            <td width="65%" valign="top" ><p>Population between the age of 15-59 years as a percentage of the total population. Population is based on the de facto definition of population.</p></td>
+        </tr>
+
+        <tr>
+            <td width="34%" valign="top" ><p>Elderly &gt;60 years (% of total population)</p></td>
+            <td width="65%" valign="top" ><p>Population greater than 60 years of age as a percentage of the total population. Population is based on the de facto definition of population.</p></td>
+        </tr>
+
+        <tr>
+            <td width="34%" valign="top" ><p>Adolescent girls 15-19 years (% of total population)</p></td>
+            <td width="65%" valign="top" ><p>Population of female between the age of 15-19 years as a percentage of the total population. Population is based on the de facto definition of population</p></td>
+        </tr>
+
+        <tr>
+            <td width="34%" valign="top" ><p>Women of reproductive age 15-44 years (% of total population)</p></td>
+            <td width="65%" valign="top" ><p>Population of female between the age of 15-44 years as a percentage of the total population. Population is based on the de facto definition of population</p></td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <p><b>Socio Economics</b></p>
+
+    <table border="1" cellspacing="0" cellpadding="0" width="108%" >
+        <tbody>
+        <tr>
+            <td width="36%" valign="top" ><p>Gross national income per capita in PPP (current international $)</p></td>
+            <td width="63%" valign="top" ><p>GNI per capita based on purchasing power parity (PPP). PPP GNI is gross national income (GNI) converted to international dollars using purchasing power parity rates. An international dollar has the same purchasing power over GNI as a U.S. dollar has in the United States. GNI is the sum of value added by all resident producers plus any product taxes (less subsidies) not included in the valuation of output plus net receipts of primary income (compensation of employees and property income) from abroad. </p></td>
+        </tr>
+
+        <tr>
+            <td width="36%" valign="top" ><p>Gross domestic product (GDP) per capita (current US$)</p></td>
+            <td width="63%" valign="top" ><p>GDP per capita based on purchasing power parity (PPP). PPP GDP is gross domestic product converted to international dollars using purchasing power parity rates. An international dollar has the same purchasing power over GDP as the U.S. dollar has in the United States. GDP at purchaser's prices is the sum of gross value added by all resident producers in the economy plus any product taxes and minus any subsidies not included in the value of the products. It is calculated without making deductions for depreciation of fabricated assets or for depletion and degradation of natural resources. </p></td>
+        </tr>
+
+        <tr>
+            <td width="36%" valign="top" ><p>GDP growth (annual%)</p></td>
+            <td width="63%" valign="top" ><p>Annual percentage growth rate of GDP at market prices based on constant local currency. </p></td>
+        </tr>
+
+        <tr>
+            <td width="36%" valign="top" ><p>Poverty (% of population living at less than PPP $ 1.25 a day)</p></td>
+            <td width="63%" valign="top" ><p>The poverty rate at $1.25 a day is the proportion of the population living on less than $1.25 a day, adjusted for purchasing power parity (PPP).</p></td>
+        </tr>
+
+        <tr>
+            <td width="36%" valign="top" ><p>Poverty (% of population living below national poverty line)</p></td>
+            <td width="63%" valign="top" ><p>The proportion of population below national poverty line is defined as the proportion of the total population living below the national poverty line. This indicator is expressed as a percentage.</p></td>
+        </tr>
+
+        <tr>
+            <td width="36%" valign="top" ><p>Multidimensional poverty (% of population)</p></td>
+            <td width="63%" valign="top" ><p>Percentage of the population that is multidimensionally poor adjusted by the intensity of the deprivations</p></td>
+        </tr>
+
+        <tr>
+            <td width="36%" valign="top" ><p>Adult (&gt;15) literacy rate (%)-Both sexes</p></td>
+            <td width="63%" valign="top" ><p>Percentage of persons aged 15 and over who can read and write.</p></td>
+        </tr>
+
+        <tr>
+            <td width="36%" valign="top" ><p>Adult (&gt;15) literacy rate (%)-Male</p></td>
+            <td width="63%" valign="top" ><p>Percentage of males aged 15 and over who can read and write.</p></td>
+        </tr>
+
+        <tr>
+            <td width="36%" valign="top" ><p>Adult (&gt;15) literacy rate (%)-Female</p></td>
+            <td width="63%" valign="top" ><p>Percentage of females aged 15 and over who can read and write.</p></td>
+        </tr>
+
+        <tr>
+            <td width="36%" valign="top" ><p>Mean years of schooling of adults (years)</p></td>
+            <td width="63%" valign="top" ><p>Average number of years of education received by people ages 25 and older, converted from education attainment levels using official durations of each level.</p></td>
+        </tr>
+
+        <tr>
+            <td width="36%" valign="top" ><p>Expected years of schooling of children (years)</p></td>
+            <td width="63%" valign="top" ><p>Number of years of schooling that a child of school entrance age can expect to receive if prevailing patterns of age-specific enrolment rates persist throughout the child's life.</p></td>
+        </tr>
+
+        <tr>
+            <td width="36%" valign="top" ><p>Fixed-telephone subscriptions per 100 inhabitants</p></td>
+            <td width="63%" valign="top" ><p>The number of fixed-telephone subscriptions per 100 subscriptions. Fixed-telephone subscriptions refers to the sum of active number of analogue fixed-telephone lines, voice-over-IP (VoIP) subscriptions, fixed wireless local loop (WLL) subscriptions, integrated services digital network (ISDN) voice-channel equivalents and fixed public payphones.</p></td>
+        </tr>
+
+        <tr>
+            <td width="36%" valign="top" ><p>Mobile-cellular telephone subscriptions per 100 inhabitants</p></td>
+            <td width="63%" valign="top" ><p>The number of mobile-cellular telephone subscriptions per 100 inhabitants.Mobile-cellular telephone subscriptions refers to the number of subscriptions to a public mobile-telephone service that provide access to the PSTN using cellular technology. The indicator includes the number of postpaid subscriptions and the number of active prepaid accounts (i.e. that have been used during the last three months). The indicator applies to all mobile-cellular subscriptions that offer voice communications. It excludes subscriptions via data cards or USB modems, subscriptions to public mobile data services, private trunked mobile radio, telepoint, radio paging and telemetry services.</p></td>
+        </tr>
+
+        <tr>
+            <td width="36%" valign="top" ><p>Individuals using Internet (%)</p></td>
+            <td width="63%" valign="top" ><p>The number of individuals using the Internet per 100 inhabitants.individuals using the Internet refers to those that used the Internet in the last 3 months from any location. </p></td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <p><b>Health Service Delivery</b></p>
+
+    <table border="1" cellspacing="0" cellpadding="0" width="108%" >
+        <tbody>
+        <tr>
+            <td width="36%" valign="top" ><p>Population using modern fuels for cooking/heating/lighting</p></td>
+            <td width="63%" valign="top" ><p>Percentage of households/population using modern fuels and technologies for cooking/heating/lighting as defined by the recommendations set forth in the WHO guidelines for indoor air quality: household fuel combustion.</p></td>
+        </tr>
+
+        <tr>
+            <td width="36%" valign="top" ><p>Contraceptive prevalence rate</p></td>
+            <td width="63%" valign="top" ><p>Percentage of women aged 15-49 years, married or in union, who are currently using, or whose sexual partner is using, at least one method of contraception, regardless of the method used.</p></td>
+        </tr>
+
+        <tr>
+            <td width="36%" valign="top" ><p>Service-specific availability and readiness</p></td>
+            <td width="63%" valign="top" ><p>Number of health facilities offering specific services per 10,000 population and meeting minimum service standards on the basis of a set of tracer<br />
+                criteria for specific services, etc.</p></td>
+        </tr>
+
+        <tr>
+            <td width="36%" valign="top" ><p>Health service access</p></td>
+            <td width="63%" valign="top" ><p>Percentage of population living within 5 km of a health facility (total number of health facilities per 10,000 population).</p></td>
+        </tr>
+
+        <tr>
+            <td width="36%" valign="top" ><p>Completeness of reporting by facilities</p></td>
+            <td width="63%" valign="top" ><p>Percentage of facilities that submit reports within the required deadline.</p></td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <p><b>Communicable Disease</b></p>
+
+    <table border="1" cellspacing="0" cellpadding="0" width="108%" >
+        <tbody>
+        <tr>
+            <td width="33%" valign="top" ><p>New cases of vaccine-preventable diseases</p></td>
+            <td width="66%" valign="top" ><p>Number of confirmed new cases of vaccine-preventable diseases that are included in the WHO recommended standards for surveillance of selected vaccine-preventable diseases, and vaccine-preventable diseases reported on the WHO-UNICEF reporting form in a specified time period.</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>New cases of IHR-notifiable diseases and other notifiable diseases</p></td>
+            <td width="66%" valign="top" ><p>Number of new confirmed cases of IHR-notifiable diseases (immediately notifiable diseases) and other notifiable diseases (diseases that could cause serious public health impact and could spread rapidly internationally) per year.</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>HIV prevalence rate among adults (15-49)</p></td>
+            <td width="66%" valign="top" ><p>Percentage of adult people (15-49) living with HIV. Prevalence measures the frequency of existing disease in a defined population at a specific time</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>Hepatitis B surface antigen prevalence</p></td>
+            <td width="66%" valign="top" ><p>Prevalence of hepatitis B surface antigen (HBsAg)-positive, adjusted for sampling design.</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>Sexually transmitted infections (STIs) incidence rate</p></td>
+            <td width="66%" valign="top" ><p>Number of new cases of reported STIs (syndromic or etiological reporting) in a specified time period (year).</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>TB notification rate per 100, 000 population</p></td>
+            <td width="66%" valign="top" ><p>Number of new and relapse TB cases notified in a given year, per 100 000 population.<br />
+                Note: The term "notification" means that TB is diagnosed in a patient and is reported within the national surveillance system, and then on to WHO</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>TB prevalence rate</p></td>
+            <td width="66%" valign="top" ><p>Number of cases of tuberculosis (all forms) in a population at a given point in time (the middle of the calendar year), expressed as a rate<br />
+                per 100,000 population. </p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>Malaria parasite prevalence among children aged 6-59 months</p></td>
+            <td width="66%" valign="top" ><p>Percentage of children aged 6-59 months in the population with malaria parasites in blood.</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>Condom use at last sex with high-risk partner</p></td>
+            <td width="66%" valign="top" ><p>Percentage using a condom during last sexual intercourse with a higher-risk partner (women and men who have more than one sexual partner<br />
+                in the past 12 months; sex workers with most recent client; men who have sex with men anal sex with a male partner; people who inject drugs condom use at last sex). For people who inject drugs, also measure number of needles per person who injects drugs per year.</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>People living with HIV who have been diagnosed</p></td>
+            <td width="66%" valign="top" ><p>Percentage of people living with HIV who have been diagnosed.</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>Prevention of mother-to-child transmission</p></td>
+            <td width="66%" valign="top" ><p>Percentage of HIV-positive pregnant women provided with ART to reduce the risk of mother-to-child transmission during pregnancy.</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>HIV care coverage</p></td>
+            <td width="66%" valign="top" ><p>Number and percentage of people living with HIV who are receiving HIV care, as proxied by receipt of at least one of the following during the reporting period: clinical assessment (WHO staging) or CD4 count or viral load or on ART.</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>HIV viral load suppression</p></td>
+            <td width="66%" valign="top" ><p>Percentage of people on ART who are virologically suppressed (VL level = 1000 copies/mL).</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>TB preventive therapy for HIV-positive people newly enrolled in HIV care</p></td>
+            <td width="66%" valign="top" ><p>Number of patients who are started on treatment for latent TB infection expressed as a percentage of the total number newly enrolled in HIV care in a specified time period.</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>HIV test results for registered new and relapse TB patients</p></td>
+            <td width="66%" valign="top" ><p>Number of new and relapse TB patients who had an HIV test result recorded in the TB register, expressed as a percentage of the number registered in a specified time period.</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>HIV-positive new and relapse TB patients on ART during TB treatment</p></td>
+            <td width="66%" valign="top" ><p>Number of HIV-positive new and relapse TB patients who received ART during TB treatment, expressed as a percentage of those registered in a specified time period.</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>TB patients with results for drug susceptibility testing</p></td>
+            <td width="66%" valign="top" ><p>Percentage of TB cases with results for diagnostic drug susceptibility testing for resistance to isoniazid and rifampicinin a specified time period.</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>TB case detection rate</p></td>
+            <td width="66%" valign="top" ><p>Percentage of estimated new and relapse TB cases detected in a given year under the internationally recommended tuberculosis control strategy.<br />
+                Note: The term "case detection", as used here, means that TB is diagnosed in a patient and is reported within the national surveillance system and then to WHO.<br />
+                Note: The term "rate" is used for historical reasons. The indicator is actually a ratio (expressed as a percentage) and not a rate.</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>Second-line treatment coverage among multidrug-resistant tuberculosis (MDR-TB) cases</p></td>
+            <td width="66%" valign="top" ><p>Percentage of notified TB patients estimated to have MDR-TB who were detected with MDR-TB and enrolled on second-line anti-TB treatment in a specified time period.</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>Intermittent preventive therapy for malaria during pregnancy (IPTp)</p></td>
+            <td width="66%" valign="top" ><p>Percentage of women who received three or more doses of intermittent preventive treatment during antenatal care visits during their last pregnancy.</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>Treatment of confirmed malaria cases </p></td>
+            <td width="66%" valign="top" ><p>Percentage of confirmed malaria cases that receive first-line antimalarial treatment</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>Indoor residual spraying (IRS) coverage</p></td>
+            <td width="66%" valign="top" ><p>Percentage of population at risk protected by IRS during a specified time period.</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>Coverage of preventive chemotherapy for selected neglected tropical diseases</p></td>
+            <td width="66%" valign="top" ><p>Proportion of the population living in endemic areas requiring preventive chemotherapy that received treatment for at least one of the selected neglected tropical diseases (schistosomiasis, soil-transmitted helminthiases, lymphatic filariasis , onchocerciasis).</p></td>
+        </tr>
+
+        <tr>
+            <td width="33%" valign="top" ><p>ART retention rate</p></td>
+            <td width="66%" valign="top" ><p>Percentage of adults and children with HIV alive and on ART 12, 24, 36 (etc.) months after initiating treatment among patients initiating ART during a specified time period.</p></td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <p><b>Non-Communicable Disease</b></p>
+
+    <table border="1" cellspacing="0" cellpadding="0" width="108%" >
+        <tbody>
+        <tr>
+            <td width="35%" valign="top" ><p>Cancer incidence, by type of cancer</p></td>
+            <td width="64%" valign="top" ><p>The at-risk population for the given category of cancer. The population used depends on the rate to be calculated. For cancer sites that occur only in one sex, the sex-specific population (e.g. females for cervical cancer) is used.</p></td>
+        </tr>
+
+        <tr>
+            <td width="35%" valign="top" ><p>Children aged under 5 years who are overweight</p></td>
+            <td width="64%" valign="top" ><p>Prevalence of weight-for-height in children aged 0-59 months defined as above +2 standard deviations of the WHO Child Growth Standards median</p></td>
+        </tr>
+
+        <tr>
+            <td width="35%" valign="top" ><p>Overweight and obesity in adults (Also: adolescents)</p></td>
+            <td width="64%" valign="top" ><p>Number of respondents aged 18+ years who are overweight. Number of respondents aged 18+ years who are obese.<br />
+                Note: BMI is calculated by dividing weight in kilograms by height in meters squared. Overweight is defined as having a BMI = 25 kg/m^2 and obesity is defined as having a BMI = 30 kg/m^2.</p></td>
+        </tr>
+
+        <tr>
+            <td width="35%" valign="top" ><p>Raised blood pressure among adults</p></td>
+            <td width="64%" valign="top" ><p>Age-standardized prevalence of raised blood pressure among persons aged 18+ years (defined as systolic blood pressure = 140 mmHg and/or diastolic blood pressure = 90 mmHg), and mean systolic blood pressure. </p></td>
+        </tr>
+
+        <tr>
+            <td width="35%" valign="top" ><p>Raised blood glucose/diabetes among adults</p></td>
+            <td width="64%" valign="top" ><p>Age-standardized prevalence of raised blood glucose/diabetes among persons aged 18+ years or on medication for raised blood glucose (defined as fasting plasma glucose value = 7.0 mmol/L (126 mg/dL) or on medication for raised blood glucose among adults aged 18+ years).</p></td>
+        </tr>
+
+        <tr>
+            <td width="35%" valign="top" ><p>Salt intake</p></td>
+            <td width="64%" valign="top" ><p>Age-standardized mean population intake of salt (sodium chloride) per day in grams in persons aged 18+ years. </p></td>
+        </tr>
+
+        <tr>
+            <td width="35%" valign="top" ><p>Insufficient physical activity in adults (Also: adolescents)</p></td>
+            <td width="64%" valign="top" ><p>Age-standardized prevalence of insufficiently physically active persons aged 18+ years (percentage of adults aged 18+ years not meeting any of the following criteria: 150 minutes of moderate-intensity physical activity per week; 75 minutes of vigorous-intensity physical activity per week; an equivalent combination of moderate- and vigorous-intensity physical activity accumulating at least 600 metabolic equivalent minutes per week (minutes of physical activity can be accumulated over the course of a week but must be of a duration of at least 10 minutes).</p></td>
+        </tr>
+
+        <tr>
+            <td width="35%" valign="top" ><p>Coverage of services for severe mental health disorders</p></td>
+            <td width="64%" valign="top" ><p>Percentage of persons with a severe mental disorder (psychosis, bipolar affective disorder, moderate-severe depression) who are using services.</p></td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <p><b>RMNCAH</b></p>
+
+    <table border="1" cellspacing="0" cellpadding="0" width="108%" >
+        <tbody>
+        <tr>
+            <td width="41%" valign="top" ><p>Exclusive breastfeeding rate 0-5 months of age</p></td>
+            <td width="58%" valign="top" ><p>Percentage of infants 0-5 months of age (&lt;6 months) who are fed exclusively with breast milk</p></td>
+        </tr>
+
+        <tr>
+            <td width="41%" valign="top" ><p>Early initiation of breastfeeding</p></td>
+            <td width="58%" valign="top" ><p>Percentage of infants breastfed within 1 hour of birth in a specified time period.</p></td>
+        </tr>
+
+        <tr>
+            <td width="41%" valign="top" ><p>Anaemia prevalence in children</p></td>
+            <td width="58%" valign="top" ><p>Percentage of children aged 6-59 months with a haemoglobin level of less than 110 g/L, adjusted for altitude</p></td>
+        </tr>
+
+        <tr>
+            <td width="41%" valign="top" ><p>Anaemia prevalence in women of reproductive age</p></td>
+            <td width="58%" valign="top" ><p>Percentage of women aged 15-49 years with a haemoglobin level less than 120 g/L for non-pregnant women and lactating women, and less than 110 g/L for pregnant women, adjusted for altitude and smoking</p></td>
+        </tr>
+
+        <tr>
+            <td width="41%" valign="top" ><p>Postpartum care coverage</p></td>
+            <td width="58%" valign="top" ><p>Percentage of mothers and babies who received postpartum care within two days of childbirth (regardless of place of delivery)</p></td>
+        </tr>
+
+        <tr>
+            <td width="41%" valign="top" ><p>Children with diarrhoea receiving oral rehydration solution (ORS)</p></td>
+            <td width="58%" valign="top" ><p>Percentage of children under 5 years of age with diarrhoea in the last two weeks receiving ORS (fluids made from ORS packets or pre-packaged ORS<br />
+                fluids). </p></td>
+        </tr>
+
+        <tr>
+            <td width="41%" valign="top" ><p>Vitamin A supplementation coverage</p></td>
+            <td width="58%" valign="top" ><p>Percentage of children aged 6-59 months who received two age-appropriate doses of vitamin A in the past 12 months. </p></td>
+        </tr>
+
+        <tr>
+            <td width="41%" valign="top" ><p>Perioperative mortality rate</p></td>
+            <td width="58%" valign="top" ><p>All-cause death rate prior to discharge among patients having one or more procedures in an operating theatre during the relevant admission</p></td>
+        </tr>
+
+        <tr>
+            <td width="41%" valign="top" ><p>Obstetric and gynaecological admissions owing to abortion</p></td>
+            <td width="58%" valign="top" ><p>Percentage of admissions for (spontaneous or induced) abortion-related complications to service delivery points providing inpatient obstetric and gynaecological services, among all admissions (except those for planned termination of pregnancy).<br />
+                Note: Abortion is the termination of a pregnancy before the fetus has attained viability ( i.e. become capable of independent extra-uterine life. Induced abortion is the deliberate termination of a pregnancy before the fetus has attained viability  i.e. become capable of independent extra-uterine life.<br />
+                Spontaneous abortion is the spontaneous termination of a pregnancy before the fetus has attained viability ) i.e. become capable of independent extra-uterine life  - and is often referred to as a miscarriage</p></td>
+        </tr>
+
+        <tr>
+            <td width="41%" valign="top" ><p>Institutional maternal mortality ratio</p></td>
+            <td width="58%" valign="top" ><p>Number of maternal deaths among 100,000 deliveries in health facilities/institutions</p></td>
+        </tr>
+
+        <tr>
+            <td width="41%" valign="top" ><p>Maternal death reviews</p></td>
+            <td width="58%" valign="top" ><p>Percentage of maternal deaths occurring in the facility that were audited.</p></td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <p><b>Health Resource</b></p>
+
+    <table border="1" cellspacing="0" cellpadding="0" width="108%" >
+        <tbody>
+        <tr>
+            <td width="41%" valign="top" ><p>Hospital bed density</p></td>
+            <td width="58%" valign="top" ><p>Total number of hospital beds per 10,000 population</p></td>
+        </tr>
+
+        <tr>
+            <td width="41%" valign="top" ><p>Output training institutions</p></td>
+            <td width="58%" valign="top" ><p>Number of graduates from health workforce educational institutions (including schools of dentistry, medicine, midwifery, nursing, pharmacy) during the last academic year per 1000 population.</p></td>
+        </tr>
+
+        <tr>
+            <td width="41%" valign="top" ><p>Total current expenditure on health (% of gross domestic product)</p></td>
+            <td width="58%" valign="top" ><p>Total current expenditure on health as a percentage of gross domestic product.</p></td>
+        </tr>
+
+        <tr>
+            <td width="41%" valign="top" ><p>Current expenditure on health by general government and compulsory schemes (% of current expenditure on health)</p></td>
+            <td width="58%" valign="top" ><p>Current expenditure on health by general government and compulsory schemes as a share of total current expenditure on health (expressed as a % of total current expenditure on health). This is the sum of current health outlays paid for in cash or supplied in kind by government entities<br />
+                such as the Ministry of Health, other ministries, parastatal organizations or social security agencies, or by entities running health schemes that are compulsory by law.</p></td>
+        </tr>
+
+        <tr>
+            <td width="41%" valign="top" ><p>Out-of-pocket payment for health (% of current expenditure on health)</p></td>
+            <td width="58%" valign="top" ><p>Share of total current expenditure on health paid by households out-of-pocket, expressed as a percentage of total current expenditure on health (this is the households out-of-pocket expenditure).</p></td>
+        </tr>
+
+        <tr>
+            <td width="41%" valign="top" ><p>Externally sourced funding (% of current expenditure on health)</p></td>
+            <td width="58%" valign="top" ><p>Share of total current expenditure on health funded by external (rest of the world) institutional units providing revenues to financing schemes.</p></td>
+        </tr>
+
+        <tr>
+            <td width="41%" valign="top" ><p>Total capital expenditure on health (% current + capital expenditure on health)</p></td>
+            <td width="58%" valign="top" ><p>Total capital expenditure on health as a percentage of current + capital expenditure on health.</p></td>
+        </tr>
+
+        <tr>
+            <td width="41%" valign="top" ><p>Headcount ratio of catastrophic health expenditure</p></td>
+            <td width="58%" valign="top" ><p>Proportion of the population (or sub-population) facing catastrophic health expenditures.</p></td>
+        </tr>
+
+        <tr>
+            <td width="41%" valign="top" ><p>Headcount ratio of impoverishing health expenditure</p></td>
+            <td width="58%" valign="top" ><p>Proportion of the population (or sub-population) facing impoverishing health expenditures.</p></td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <a href="#" class="show_hide" >HIDE</a></div>
 
 <div class="container">
-	<h3 align="center" style="color:steelblue;"><strong>Welcome</strong> to the</h3>
-	<p><h2 id="h3" align="center" style="color:steelblue;">Health Information Platform for the WHO South-East Asia Region</h2></p>
-	<div class="row">
-		<div class="col-sm-12" style="background-color:white;line-height: 150%;" align="center">The Health Information Platform—or HIP—is an integrated database of country health indicators from WHO global health estimates and nationally reported values across the 11 member states of the WHO South-East Asia Region. The HIP allows users to access and download data and indicators and utilize interactive analytics tools to generate tables and charts, view maps and dashboards, and generate visualizations.  The HIP is powered by the District Health Information Software v.2 (DHIS2).</div>
-	</div>
-	</br>
-	<div>
-		<p align="center" style=" line-height:200%;background:#16629E;color:white;">Click on a toolbox below to explore health indicators from the 11 countries in the WHO South-East Asia Region.</p>
-	</div>
-	</br>
-	<div class="row">
-		<div class="col-sm-3">
+    <h3 align="center" style="color:steelblue;"><strong>Welcome</strong> to the</h3>
+    <p><h2 id="h3" align="center" style="color:steelblue;">Health Information Platform for the WHO South-East Asia Region</h2></p>
+    <div class="row">
+        <div class="col-sm-12" style="background-color:white;line-height: 150%;" align="center">The Health Information Platform—or HIP—is an integrated database of country health indicators from WHO global health estimates and nationally reported values across the 11 member states of the WHO South-East Asia Region. The HIP allows users to access and download data and indicators and utilize interactive analytics tools to generate tables and charts, view maps and dashboards, and generate visualizations.  The HIP is powered by the District Health Information Software v.2 (DHIS2).</div>
+    </div>
+    </br>
+    <div>
+        <p align="center" style=" line-height:200%;background:#16629E;color:white;">Click on a toolbox below to explore health indicators from the 11 countries in the WHO South-East Asia Region.</p>
+    </div>
+    </br>
+    <div class="row">
+        <div class="col-sm-3">
 
-			<div class="w3-card-4" style="width:100%" onclick="w3_open();w3_close1();w3_close2()">
-				<header class="w3-container w3-light-grey">
-					<h3>Generate Tables</h3>
-				</header>
-				<div class="w3-container">
-					<img src="./img/tables.jpg" alt="Avatar" class="w3-left w3-circle w3-margin-right w3-margin-bottom" style="width:60px">
-					<p id="p12">Create data tables on single or multiple indicators, countries and years.</p><br>
-				</div>
+            <div class="w3-card-4" style="width:100%" onclick="w3_open();w3_close1();w3_close2()">
+                <header class="w3-container w3-light-grey">
+                    <h3>Generate Tables</h3>
+                </header>
+                <div class="w3-container">
+                    <img src="./img/tables.jpg" alt="Avatar" class="w3-left w3-circle w3-margin-right w3-margin-bottom" style="width:60px">
+                    <p id="p12">Create data tables on single or multiple indicators, countries and years.</p><br>
+                </div>
 
 
 
-			</div>
-		</div>
-		<div class="col-sm-3">
-			<div class="w3-card-4" style="width:100%" onclick="w3_open2();w3_close();w3_close1()">
-				<header class="w3-container w3-light-grey">
-					<h3>Create Charts</h3>
-				</header>
-				<div class="w3-container">
-					<img src="./img/charts.jpg" alt="Avatar" class="w3-left w3-circle w3-margin-right w3-margin-bottom" style="width:60px">
-					<p id="p12">Visualize data in line graph,scatter plots, bar, pie and diamond charts.</p><br>
-				</div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="w3-card-4" style="width:100%" onclick="w3_open2();w3_close();w3_close1()">
+                <header class="w3-container w3-light-grey">
+                    <h3>Create Charts</h3>
+                </header>
+                <div class="w3-container">
+                    <img src="./img/charts.jpg" alt="Avatar" class="w3-left w3-circle w3-margin-right w3-margin-bottom" style="width:60px">
+                    <p id="p12">Visualize data in line graph,scatter plots, bar, pie and diamond charts.</p><br>
+                </div>
 
-			</div>
-		</div>
-		<div class="col-sm-3">
-			<div class="w3-card-4" style="width:100%" onclick="w3_open1();w3_close();w3_close2()">
-				<header class="w3-container w3-light-grey" >
-					<h3>Render Maps</h3>
-				</header>
-				<div class="w3-container">
-					<img src="./img/maps.jpg" alt="Avatar" class="w3-left w3-circle w3-margin-right w3-margin-bottom" style="width:60px">
-					<p id="p12">Plot available indicators on the map for specific period  to compare data across the region.</p><br>
-				</div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="w3-card-4" style="width:100%" onclick="w3_open1();w3_close();w3_close2()">
+                <header class="w3-container w3-light-grey" >
+                    <h3>Render Maps</h3>
+                </header>
+                <div class="w3-container">
+                    <img src="./img/maps.jpg" alt="Avatar" class="w3-left w3-circle w3-margin-right w3-margin-bottom" style="width:60px">
+                    <p id="p12">Plot available indicators on the map for specific period  to compare data across the region.</p><br>
+                </div>
 
-			</div>
-		</div>
-		<div class="col-sm-3">
-			<a href="../../dhis-web-commons/security/DBHome.html" >	<div class="w3-card-4" style="width:100%" onclick="">
-				<header class="w3-container w3-light-grey">
-					<a href="./DBHome.html"   style="text-decoration: none">	<h3>View Dashboards</h3></a>
-				</header>
-				<a href="./DBHome.html" >		<div class="w3-container">
-					<a href="./DBHome.html" height="100px"><img src="./img/dashboards.jpg" alt="Avatar" class="w3-left w3-circle w3-margin-right w3-margin-bottom" style="width:60px"></a>
-					<a href="./DBHome.html"  style="text-decoration: none">		<p id="p12">Visualize  data and indicators by health themes, including the health SDGs and Universal Health Coverage(UHC).</p> </a><br>
-				</div></a>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <a href=".lib/controllers/DBHome.html" >	<div class="w3-card-4" style="width:100%" onclick="">
+                <header class="w3-container w3-light-grey">
+                    <a href=".lib/controllers//DBHome.html"   style="text-decoration: none">	<h3>View Dashboards</h3></a>
+                </header>
+                <a href=".lib/controllers/DBHome.html" >		<div class="w3-container">
+                    <a href=".lib/controllers/DBHome.html" height="100px"><img src="./img/dashboards.jpg" alt="Avatar" class="w3-left w3-circle w3-margin-right w3-margin-bottom" style="width:60px"></a>
+                    <a href=".lib/controllers/DBHome.html"  style="text-decoration: none">		<p id="p12">Visualize  data and indicators by health themes, including the health SDGs and Universal Health Coverage(UHC).</p> </a><br>
+                </div></a>
 
-			</div></a>
-		</div>
-	</div>
+            </div></a>
+        </div>
+    </div>
 </div>
-<script>
-	var peid,orgid,cpeid,mpeid,corgid,morgid;
-	//var base = "http://localhost:8090/dhis/";
-	var base = "../../";
-	var orgname;
-	var deids=[],denames=[];
-	var arr=[];
-	var degroupid,degroupname="",dename="",deid="";
-	var organisationUnits,corganisationUnits,morganisationUnits;
-	var indicators,mindicators,cindicators;
-	var mpeid,morgid;
-	var countries = [];
-	var ccountries = [];
-	var morgname;
-	var mdeids=[],mdenames=[];
-	var marr;
-	var mdegroupid,cdegroupid,mdegroupname,mdename,mdeid;var mpeid,morgid;
-	var organisationUnits;
-	var corgname;
-	var cdeids=[],cdenames=[];
-	var carr=[];
-	var idarr=[],codearr=[],namearr=[];
-	var periodarr=[],pearr=[];
-	var mperiodarr=[],mpearr=[];
-	var cperiodarr=[],cpearr=[];
-	var url=base+"dhis-web-commons-security/login.action";
-	var cdegroupid,cdegroupname,cdename="",cdeid="";
-	// Login - if OK, call the setLinks function
-	$(document).ready(function() {
-		$("a#meta").fancybox({
-			'hideOnContentClick': true
-		});
-
-
-	});
-	Ext.onReady( function() {
-
-		//document.getElementById("drop1").multiple = false;
-		Ext.Ajax.request({
-			url: base + "dhis-web-commons-security/login.action",
-			method: "POST",
-			params: {j_username: "admin", j_password: "district"},
-
-		});
-
-
-		$.post(url, {
-			'j_username': 'admin',
-			'j_password': 'district'
-		}, function (data, status, xhr) {
-			//console.log(data);
-			//console.log(status);
-			//console.log(xhr);
-			$.getJSON("../../api/dataElementGroups.json?fields=id,name,dataElementGroups[id,name]", function (data) {
-
-				$.each(data.dataElementGroups, function (index, item) {
-					$('#drop3').append(
-							$('<option></option>').val(item.id).html(item).text(item.name)
-					);
-				});	$.each(data.dataElementGroups, function (index, item) {
-					$('#dropm3').append(
-							$('<option></option>').val(item.id).html(item).text(item.name)
-					);
-				});	$.each(data.dataElementGroups, function (index, item) {
-					$('#dropc3').append(
-							$('<option></option>').val(item.id).html(item).text(item.name)
-					);
-				});
-			});
-
-
-			$('.selectpicker').selectpicker('refresh');
-			$.getJSON("../../api/sqlViews/n0UQzBeeixt/data.json", function (data) {
-
-				$.each(data.rows, function (index, item) {
-					var res = item[2].slice(0,4);
-					periodarr.push(item[2]);
-					mperiodarr.push(item[2]);
-					cperiodarr.push(item[2]);
-
-
-					pearr.push(res);
-					mpearr.push(res);
-					cpearr.push(res);
-
-
-
-					pearr.sort(function(a, b) {
-						var nameA=a.toLowerCase(), nameB=b.toLowerCase()
-						if (nameA < nameB) //sort string ascending
-							return -1
-						if (nameA > nameB)
-							return 1
-						return 0 //default return value (no sorting)
-					});mpearr.sort(function(a, b) {
-						var nameA=a.toLowerCase(), nameB=b.toLowerCase()
-						if (nameA < nameB) //sort string ascending
-							return -1
-						if (nameA > nameB)
-							return 1
-						return 0 //default return value (no sorting)
-					});cpearr.sort(function(a, b) {
-						var nameA=a.toLowerCase(), nameB=b.toLowerCase()
-						if (nameA < nameB) //sort string ascending
-							return -1
-						if (nameA > nameB)
-							return 1
-						return 0 //default return value (no sorting)
-					});
-				});
-				//	console.log(periodarr);
-				//console.log(pearr);
-				$.each(pearr, function (index, item) {
-					$('#drop5').append(
-							$('<option></option>').val(item).html(item).text(item)
-					);
-				});
-				$.each(mpearr, function (index, item) {
-					$('#dropm5').append(
-							$('<option></option>').val(item).html(item).text(item)
-					);
-				});$.each(cpearr, function (index, item) {
-					$('#dropc5').append(
-							$('<option></option>').val(item).html(item).text(item)
-					);
-				});
-
-			});
-			$.getJSON("../../api/organisationUnitGroups.json?fields=id,code,name&level=3&order=code:asc", function (data) {
-				$.each(data.organisationUnitGroups, function (index, item) {
-					$('#drop1').append(
-							$('<option></option>').val(item.id).html(item.name).text(item.name)
-					);
-//					$('#dropm1').append(
-//							$('<option></option>').val(item.id).html(item.name).text(item.name)
-//					);
-
-					$('#dropc1').append(
-							$('<option></option>').val(item.id).html(item.name).text(item.name)
-					);
-				});
-				$('.selectpicker').selectpicker('refresh');
-
-
-				//$('.selectpicker').selectpicker('selectAll');
-
-
-
-				//$('.selectpicker').selectpicker('selectAll');
-
-				//$.getJSON("../../api/sqlViews/n0UQzBeeixt/data.json", function (data) {
-
-
-			});
-
-
-			$("#drop5").change(function () {
-				var selected = $("#drop5 option:selected");
-
-
-				peid = "";
-				selected.each(function () {
-					peid += ";" + $(this).val();
-				});
-			});
-			$("#dropm5").change(function () {
-				var selected = $("#dropm5 option:selected");
-
-
-				mpeid = "";
-				selected.each(function () {
-					mpeid += ";" + $(this).val();
-				});
-			});$("#dropc5").change(function () {
-
-				var selected = $("#dropc5 option:selected");
-
-
-				cpeid = "";
-				selected.each(function () {
-					cpeid += ";" + $(this).val();
-				});
-
-			});
-
-			$("#drop3").change(function () {
-
-
-				degroupid = "";
-
-				degroupname += ","+$(this).find("option:selected").text();
-
-				degroupid = $(this).find("option:selected").val();
-
-
-				$.each($("#drop4 option:selected"), function(index,item ){
-					var country = {};
-					country.id =  item.value;
-					country.name = item.innerHTML;
-					countries.push(country);
-					//console.log(country);
-					//console.log(countries);
-				});
-
-				var element = document.getElementById("drop4");
-				for (var i = element.length-1; i >= 0; i--) {
-
-					if(element[i].selected)
-
-					{
-
-						alert(element[i].selected);
-					}
-					else {
-						element[i].remove();
-					}
-				}
-
-
-
-				$.each(countries, function(index,item){
-
-
-
-					//countries.push(document.getElementById("drop4").selectedIndex);
-
-					$('#drop4').append(
-							$('<option></option>').val(item.id).html(item.name).text(item.name)
-					);
-
-				});
-
-				$.getJSON("../../api/dataElementGroups/" + degroupid + ".json?fields=dataElements[id,name]", function (data) {
-
-					indicators = data.dataElements;
-
-					indicators.sort(function(a, b) {
-						var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-						if (nameA < nameB) //sort string ascending
-							return -1
-						if (nameA > nameB)
-							return 1
-						return 0 //default return value (no sorting)
-					});
-					$.each(indicators, function (index, item) {
-						$('#drop4').append(
-								$('<option></option>').val(item.id).html(item).text(item.name)
-						);
-					});
-
-					$('.selectpicker').selectpicker('refresh');
-				});
-
-			});
-			$("#dropc3").change(function () {
-
-
-				cdegroupid = "";
-
-				cdegroupname += ","+$(this).find("option:selected").text();
-
-				cdegroupid = $(this).find("option:selected").val();
-
-
-
-				$.each($("#drop4 option:selected"), function(index,item ){
-					var ccountry = {};
-					ccountry.id =  item.value;
-					ccountry.name = item.innerHTML;
-					ccountries.push(ccountry);
-				});
-
-				var element = document.getElementById("dropc4");
-//				for (var i = element.length-1; i >= 0; i--) {
-//					element[i].remove()
-//				}
-				for (var i = element.length-1; i >= 0; i--) {
-
-					if(element[i].selected)
-
-					{
-
-//						alert(element[i].selected);
-					}
-					else {
-						element[i].remove();
-					}
-				}
-
-
-				$.each(ccountries, function(index,item){
-
-
-
-					//countries.push(document.getElementById("drop4").selectedIndex);
-
-					$('#dropc4').append(
-							$('<option></option>').val(item.id).html(item.name).text(item.name)
-					);
-
-				});
-
-				$.getJSON("../../api/dataElementGroups/" + cdegroupid + ".json?fields=dataElements[id,name]", function (data) {
-
-
-
-					cindicators = data.dataElements;
-
-					cindicators.sort(function(a, b) {
-						var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-						if (nameA < nameB) //sort string ascending
-							return -1
-						if (nameA > nameB)
-							return 1
-						return 0 //default return value (no sorting)
-					});
-					$.each(cindicators, function (index, item) {
-						$('#dropc4').append(
-								$('<option></option>').val(item.id).html(item).text(item.name)
-						);
-					});
-					$('.selectpicker').selectpicker('refresh');
-				});
-
-			});
-			$("#dropm3").change(function () {
-
-
-				mdegroupid = "";
-				mdegroupname = $(this).find("option:selected").text();
-
-				mdegroupid = $(this).find("option:selected").val();
-
-
-				$.getJSON("../../api/dataElementGroups/" + mdegroupid + ".json?fields=dataElements[id,name]", function (data) {
-
-					mindicators = data.dataElements;
-
-					mindicators.sort(function(a, b) {
-						var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-						if (nameA < nameB) //sort string ascending
-							return -1
-						if (nameA > nameB)
-							return 1
-						return 0 //default return value (no sorting)
-					});
-					$.each(mindicators, function (index, item) {
-						$('#dropm4').append(
-								$('<option></option>').val(item.id).html(item).text(item.name)
-						);
-					});
-					$('.selectpicker').selectpicker('refresh');
-				});
-
-			});
-
-			$("#dropc3").change(function () {
-
-
-				cdegroupid = "";
-				cdegroupname = $(this).find("option:selected").text();
-
-				cdegroupid = $(this).find("option:selected").val();
-
-
-				$.getJSON("../../api/dataElementGroups/" + cdegroupid + ".json?fields=dataElements[id,name]", function (data) {
-					$.each(data.dataElements, function (index, item) {
-						// deids.push(item.id);
-						//denames.push(item.name);
-
-						$('#dropc4').append(
-								$('<option></option>').val(item.id).html(item).text(item.name)
-						);
-
-					});
-					$('.selectpicker').selectpicker('refresh');
-				});
-
-			});
-			$("#drop4").change(function () {
-				var selected = $("#drop4 option:selected");
-				//dename = "";
-				//deid = "";
-				selected.each(function () {
-					dename = "";
-					deid = "";
-					deid += ";" + $(this).val();
-					dename += ";" + $(this).text();
-
-					//alert(dename);
-					arr.push({"id": deid, "name": dename});
-				});
-				//alert(dename);
-				//arr=[];
-
-				//dename = "";
-				//deid = "";
-				//getFilteredOrgUnitList();
-				//console.log("Data Elements" + arr);
-			});
-			$("#dropm4").change(function () {
-				var selected = $("#dropm4 option:selected");
-				mdename = "";
-				mdeid = "";
-				selected.each(function () {
-					mdeid += ";" + $(this).val();
-					mdename += ";" + $(this).text();
-
-				});
-				marr = [];
-				marr.push({"id": mdeid, "name": mdename});
-				//getFilteredOrgUnitList();
-
-			});
-			$("#dropc4").change(function () {
-				var selected = $("#dropc4 option:selected");
-				cdename = "";
-				cdeid = "";
-				selected.each(function () {
-
-					//cdeid = "";
-					cdeid += ";" + $(this).val();
-					cdename += $(this).text()+",";
-
-					carr.push({"id": cdeid, "name": cdename});
-
-				});
-				//carr = [];
-
-				//getFilteredOrgUnitList();
-
-			});
-
-			$("#drop1").change(function () {
-
-
-
-				if(drop1.value=="MhXp46Y40hA" || drop1.value=="KQKjaCQNIlV")
-				{
-					var element = document.getElementById("drop2");
-					for (var i = element.length-1; i >= 0; i--) {
-						element[i].remove()
-					}
-
-				}
-
-
-				var orglevel = $(this).find("option:selected").val();
-				$.getJSON("../../api/organisationUnitGroups/" + orglevel + ".json", function (data) {
-					organisationUnits = data.organisationUnits;
-
-					organisationUnits.sort(function(a, b) {
-						var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-						if (nameA < nameB) //sort string ascending
-							return -1
-						if (nameA > nameB)
-							return 1
-						return 0 //default return value (no sorting)
-					});
-
-					$.each(organisationUnits, function (index, item) {
-						$('#drop2').append(
-								$('<option></option>').val(item.id).html(item).text(item.name)
-						);
-					});
-					$('.selectpicker').selectpicker('refresh');
-
-					//$('.selectpicker').selectpicker('selectAll');
-
-				});
-				//document.getElementById("drop2").innerHTML = "";
-			});
-//			$("#dropm1").change(function () {
-//				if(dropm1.value=="FZUNQOeSpPf" || dropm1.value=="R9MatOlqMdE")
-//				{
-//					document.getElementById("dropm2").innerHTML = "";
-//
-//				}
-//				//document.getElementById("dropm2").innerHTML = "";
-//				var morglevel = $(this).find("option:selected").val();
-//				$.getJSON("../../api/organisationUnitGroups/" + morglevel + ".json", function (data) {
-//					morganisationUnits = data.organisationUnits;
-//
-//					morganisationUnits.sort(function(a, b) {
-//						var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-//						if (nameA < nameB) //sort string ascending
-//							return -1
-//						if (nameA > nameB)
-//							return 1
-//						return 0 //default return value (no sorting)
-//					});
-//					$.each(morganisationUnits, function (index, item) {
-//						$('#dropm2').append(
-//								$('<option></option>').val(item.id).html(item).text(item.name)
-//						);
-//					});
-//
-//					$('.selectpicker').selectpicker('refresh');
-//
-//					//$('.selectpicker').selectpicker('selectAll');
-//
-//				});
-//			});
-			$("#dropc1").change(function () {
-
-				if(dropc1.value=="MhXp46Y40hA" || dropc1.value=="KQKjaCQNIlV")
-				{
-					var element = document.getElementById("dropc2");
-					for (var i = element.length-1; i >= 0; i--) {
-						element[i].remove()
-					}
-
-				}
-				var corglevel = $(this).find("option:selected").val();
-				$.getJSON("../../api/organisationUnitGroups/" + corglevel + ".json", function (data) {
-					corganisationUnits = data.organisationUnits;
-
-					corganisationUnits.sort(function(a, b) {
-						var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-						if (nameA < nameB) //sort string ascending
-							return -1
-						if (nameA > nameB)
-							return 1
-						return 0 //default return value (no sorting)
-					});
-					$.each(corganisationUnits, function (index, item) {
-						$('#dropc2').append(
-								$('<option></option>').val(item.id).html(item).text(item.name)
-						);
-					});
-					$('.selectpicker').selectpicker('refresh');
-
-					//$('.selectpicker').selectpicker('selectAll');
-
-				});
-			});
-
-
-			/* Select All property for the Drop down*/
-
-			$('#drop2').selectpicker().change(function(){toggleSelectAll($(this));}).trigger('change');
-
-			function toggleSelectAll(control) {
-				var allOptionIsSelected = (control.val() || []).indexOf('all') > -1;
-				function valuesOf(elements) {
-					return $.map(elements, function(element) {
-						return element.value;
-					});
-				}
-
-				if (control.data('allOptionIsSelected') != allOptionIsSelected) {
-					// User clicked 'All' option
-					if (allOptionIsSelected) {
-						// Can't use .selectpicker('selectAll') because multiple "change" events will be triggered
-						control.selectpicker('val', valuesOf(control.find('option')));
-					} else {
-						control.selectpicker('val', []);
-					}
-				} else {
-					// User clicked other option
-					if (allOptionIsSelected && control.val().length != control.find('option').length) {
-						// All options were selected, user deselected one option
-						// => unselect 'All' option
-						control.selectpicker('val', valuesOf(control.find('option:selected[value!=all]')));
-						allOptionIsSelected = false;
-					} else if (!allOptionIsSelected && control.val().length == control.find('option').length - 1) {
-						// Not all options were selected, user selected all options except 'All' option
-						// => select 'All' option too
-						control.selectpicker('val', valuesOf(control.find('option')));
-						allOptionIsSelected = true;
-					}
-				}
-				control.data('allOptionIsSelected', allOptionIsSelected);
-			}
-
-
-			$("#drop2").change(function () {
-
-				/*if(drop2.value=="all")
-				 {
-
-				 if(drop2.value=='all')
-				 {
-				 $('#drop2').selectpicker('selectAll');
-				 }
-				 }*/
-				var selected = $("#drop2 option:selected");
-				orgname="";
-				orgid = "";
-				selected.each(function () {
-					orgname=$(this).val();
-					orgid += ";" + $(this).val();
-
-
-				});
-
-
-				orgname = $(this).find("option:selected").text();
-
-				// orgid += $(this).find("option:selected").val()+";";
-				//	console.log("org id"+orgid);
-
-			});
-//			$("#dropm2").change(function () {
-//				if(dropm2.value=="all")
-//				{
-//
-//					$('#dropm2').selectpicker('selectAll');
-//
-//				}
-//				var selected = $("#dropm2 option:selected");
-//				morgname="";
-//				morgid = "";
-//				selected.each(function () {
-//					morgname=$(this).val();
-//					morgid += ";" + $(this).val();
-//
-//				});
-//
-//				morgname = $(this).find("option:selected").text();
-//
-//				// orgid += $(this).find("option:selected").val()+";";
-//
-//
-//			});
-			morgid="eGtybcKtVeq";
-
-
-			/* Select All property for the Drop down of charts*/
-
-			$('#dropc2').selectpicker().change(function(){toggleSelectAll($(this));}).trigger('change');
-
-
-
-			$("#dropc2").change(function () {
-				/*if(dropc2.value=="all")
-				 {
-
-				 $('#dropc2').selectpicker('selectAll');
-
-				 }*/
-				var selected = $("#dropc2 option:selected");
-				corgname="";
-				corgid = "";
-				selected.each(function () {
-					corgname=$(this).val();
-					corgid += ";" + $(this).val();
-
-				});
-
-				corgname = $(this).find("option:selected").text();
-
-				// orgid += $(this).find("option:selected").val()+";";
-
-
-			});
-
-		});	});
-
-
-
-
-
-	function validatetable() {
-		var isValidated = "true";
-
-		//orgUnit Related
-		var level = document.getElementById('drop1');
-		var levelid = level.options[level.selectedIndex].value;
-		//alert( tempOrgUnitUid );
-
-		// indicator related
-		var orgf = document.getElementById('drop2');
-		var orgfid = orgf.options[orgf.selectedIndex].value;
-		//alert( tempIndicatorUid );
-
-		// month related
-		var period = document.getElementById('drop3');
-		var periodid = period.options[period.selectedIndex].value;
-		//alert( tempMonthUid );
-
-		// year related
-		var indigroup = document.getElementById('drop4');
-		var indigid = indigroup.options[indigroup.selectedIndex].value;
-		//alert( tempYearUid );
-
-		// year related
-		var indi = document.getElementById('drop5');
-		var indiid = indi.options[indi.selectedIndex].value;
-		//alert( tempYearUid );
-
-
-		if (levelid == "base" || levelid == undefined || levelid =="") {
-			alert("Please select Level");
-			isValidated = "false";
-			return;
-		}
-
-		else if (orgfid == "" || orgfid == undefined) {
-			alert("Please select Organisation unit");
-			isValidated = "false";
-			return;
-		}
-
-		else if (periodid="" || periodid == "Please Select" || periodid == undefined) {
-			alert("Please select Period");
-			isValidated = "false";
-			return;
-		}
-
-		else if (indigid="" || indigid == "Please Select" || indigid == undefined) {
-			alert("Please select Indicator Group");
-			isValidated = "false";
-			return;
-		}
-		else if (indi=""|| indi == "Select Year" || indi == undefined) {
-			alert("Please select Indicator");
-			isValidated = "false";
-			return;
-		}
-
-		else ( isValidated === "true")
-		{
-//			open('POST', "dd", "fff", 'newtab.html');
-
-			window.open('newtab.html?arr='+encodeURIComponent(JSON.stringify(arr))+'&peid='+peid+'&orgid='+orgid+'&orgname='+orgname);
-
-		}
-
-//
-//		open = function(verb, url, data, target) {
-//			var form = document.createElement("form");
-//			form.action = url;
-//			form.method = verb;
-//			form.target = target || "_self";
-//			if (data) {
-//				for (var key in data) {
-//					var input = document.createElement("textarea");
-//					input.name = key;
-//					input.value = typeof data[key] === "object" ? JSON.stringify(data[key]) : data[key];
-//					form.appendChild(input);
-//				}
-//			}
-//			form.style.display = 'none';
-//			document.body.appendChild(form);
-//			form.submit();
-//		};
-
-	}
-
-	function validatechart() {
-		var isValidated = "true";
-
-		//orgUnit Related
-		var level = document.getElementById('dropc1');
-		var levelid = level.options[level.selectedIndex].value;
-		//alert( tempOrgUnitUid );
-
-		// indicator related
-		var orgf = document.getElementById('dropc2');
-		var orgfid = orgf.options[orgf.selectedIndex].value;
-		//alert( tempIndicatorUid );
-
-		// month related
-		var period = document.getElementById('dropc3');
-		var periodid = period.options[period.selectedIndex].value;
-		//alert( tempMonthUid );
-
-		// year related
-		var indigroup = document.getElementById('dropc4');
-		var indigid = indigroup.options[indigroup.selectedIndex].value;
-		//alert( tempYearUid );
-
-		// year related
-		var indi = document.getElementById('dropc5');
-		var indiid = indi.options[indi.selectedIndex].value;
-		//alert( tempYearUid );
-
-
-		if (levelid == "base" || levelid == undefined || levelid =="") {
-			alert("Please select Level");
-			isValidated = "false";
-			return;
-		}
-
-		else if (orgfid == "" || orgfid == undefined) {
-			alert("Please select Organisation unit");
-			isValidated = "false";
-			return;
-		}
-
-		else if (periodid="" || periodid == "Please Select" || periodid == undefined) {
-			alert("Please select Period");
-			isValidated = "false";
-			return;
-		}
-
-		else if (indigid="" || indigid == "Please Select" || indigid == undefined) {
-			alert("Please select Indicator Group");
-			isValidated = "false";
-			return;
-		}
-		else if (indi=""|| indi == "Select Year" || indi == undefined) {
-			alert("Please select Indicator");
-			isValidated = "false";
-			return;
-		}
-		else ( isValidated === "true")
-		{
-
-			window.open('highcharts1.html?cdegroupid='+cdegroupid+'&cpeid='+cpeid+'&cdegroupname='+cdegroupname+'&cdeid='+cdeid+'&cdename='+encodeURIComponent(cdename)+'&corgid='+corgid+'&corgname='+corgname);
-			// window.open('highcharts2.html?cdegroupid='+cdegroupid+'&cpeid='+cpeid+'&cdegroupname='+cdegroupname+'&cdeid='+cdeid+'&cdename='+encodeURIComponent(cdename)+'&corgid='+corgid+'&corgname='+corgname);
-		}
-
-	}
-
-	function validatemap() {
-		var isValidated = "true";
-
-		var period = document.getElementById('dropm5');
-		var periodid = period.options[period.selectedIndex].value;
-
-		var indigroup = document.getElementById('dropm4');
-		var indigid = indigroup.options[indigroup.selectedIndex].value;
-
-		var indi = document.getElementById('dropm3');
-		var indiid = indi.options[indi.selectedIndex].value;
-
-		if (periodid==""|| periodid == "Please Select" || periodid == undefined|| periodid == "false") {
-			alert("Please select Period");
-			isValidated = "false";
-			return;
-		}
-
-		else if (indigid=="" || indigid == "Please Select" || indigid == undefined) {
-			alert("Please select Indicator Group");
-			isValidated = "false";
-			return;
-		}
-		else if (indiid==""|| indiid == "Select Year" || indiid == undefined) {
-			alert("Please select Indicator");
-			isValidated = "false";
-			return;
-		}
-
-		else ( isValidated === "true")
-		{
-
-			window.open('map1.html?mdeid='+mdeid+
-					'&mpeid='+mpeid+'&morgid='+";sCU6B2ZOTYr;GY9dLYENyOU;AFkkfLBwuHc;sQeCnfgIko4;n5AQFbBKbVA;vMK14bK6V4P;rV0O78pYETp;uu7IpfKO1IA;jqvWOjpUOLE;BYyRgdEoYDd;rY3Q1VZtZpg"+'&morgname='+"Searo Region");
-
-		}
-
-
-	}
-
-
-</script>
 
 <!--Drop down Nav bar-->
 <div class="container">
-	<nav class="w3-dropnav w3-card-2" style="display:none" id="myDropnav">
-		<div class="w3-container">
-			<span onclick="w3_close()" class="w3-closebtn w3-xlarge" title="Close Menu">&times;</span>
-		</div>
-		<div class="w3-row-padding w3-padding-bottom">
-			<div  class="w3-col w3-container" style="width:20%">
-				<label for="Orgunit">Select Level</label>
-				<select id="drop1" class="selectpicker " >
-					<option value="" disabled selected hidden>Please Select</option>
-				</select>
-			</div>
-			<div  class="w3-col w3-container" style="width:20%">
-				<label for="Orgunit">Select Countries</label>
-				<select id="drop2"class="selectpicker " multiple>
-					<option value="all">ALL </option>
-				</select>
-			</div>
-			<div class="w3-col w3-container"  style="width:20%">
-				<label for="Orgunit">Period</label>
-				<select id="drop5" class="selectpicker" multiple>
-				</select>
-			</div>
-			<div class="w3-col w3-container" style="width:20%">
-				<label for="Orgunit">Indicator Group</label>
-				<select id="drop3" class="selectpicker "  >
-					<option value="" disabled selected hidden>Please Select</option>
-				</select>
-			</div>
-			<div class="w3-col w3-container" style="width:20%;">
-				<label for="Orgunit">Indicator</label>
-				<select id="drop4" class="selectpicker "multiple  >
-					<option value="all">ALL </option>
-				</select>
-			</div>
-		</div>
-		<div class="w3-row-padding">
-			<div class="w3-col" style="width:100%"><p align="center"><button class="w3-btn" id="g1" onclick="validatetable();">Generate Tables</button></p></div>
-		</div>
-	</nav>
+    <nav class="w3-dropnav w3-card-2" style="display:none" id="myDropnav">
+        <div class="w3-container">
+            <span onclick="w3_close()" class="w3-closebtn w3-xlarge" title="Close Menu">&times;</span>
+        </div>
+        <div class="w3-row-padding w3-padding-bottom">
+            <div  class="w3-col w3-container" style="width:20%">
+                <label for="Orgunit">Select Level</label>
+                <select id="drop1" class="selectpicker " >
+                    <option value="" disabled selected hidden>Please Select</option>
+                </select>
+            </div>
+            <div  class="w3-col w3-container" style="width:20%">
+                <label for="Orgunit">Select Countries</label>
+                <select id="drop2"class="selectpicker " multiple>
+                    <option value="all">ALL </option>
+                </select>
+            </div>
+            <div class="w3-col w3-container"  style="width:20%">
+                <label for="Orgunit">Period</label>
+                <select id="drop5" class="selectpicker" multiple>
+                </select>
+            </div>
+            <div class="w3-col w3-container" style="width:20%">
+                <label for="Orgunit">Indicator Group</label>
+                <select id="drop3" class="selectpicker "  >
+                    <option value="" disabled selected hidden>Please Select</option>
+                </select>
+            </div>
+            <div class="w3-col w3-container" style="width:20%;">
+                <label for="Orgunit">Indicator</label>
+                <select id="drop4" class="selectpicker "multiple  >
+                    <option value="all">ALL </option>
+                </select>
+            </div>
+        </div>
+        <div class="w3-row-padding">
+            <div class="w3-col" style="width:100%"><p align="center"><button class="w3-btn" id="g1" onclick="validatetable();">Generate Tables</button></p></div>
+        </div>
+    </nav>
 </div>
 <div class="container">
-	<nav class="w3-dropnav w3-card-2" style="display:none" id="myDropnav1">
-		<div class="w3-container">
-			<span onclick="w3_close1()" class="w3-closebtn w3-xlarge" title="Close Menu">&times;</span>
-		</div>
-		<div class="w3-row-padding w3-padding-bottom">
-			<!--<div class="w3-col w3-container" style="width:20%">-->
-			<!--<label for="Orgunit">Select Level</label>-->
-			<!--<select id="dropm1" class="selectpicker " >-->
-			<!--<option value="" disabled selected hidden>Please Select</option>-->
-			<!--</select>-->
-			<!--</div>-->
-			<!--<div class="w3-col w3-container" style="width:20%">-->
-			<!--<label for="Orgunit">Please Select</label>-->
-			<!--<select id="dropm2"class="selectpicker " multiple>-->
-			<!--<option value="all">ALL </option>-->
-			<!--</select>-->
-			<!--</div>-->
-			<div class="w3-col w3-container" style="width:20%">
-				<label for="Orgunit" >Period</label>
-				<select id="dropm5" style="margin-left: 60%" class="selectpicker " >
-					<option value="" disabled selected hidden>Please Select</option>
-					<!--<option value="" disabled selected hidden>Please Select</option>-->
-					<!--<option value="2016">2016</option>-->
-					<!--<option value="2015">2015</option>-->
-					<!--<option value="2014">2014</option>-->
-					<!--<option value="2013">2013</option>-->
-					<!--<option value="2012">2012</option>-->
-					<!--<option value="2011">2011</option>-->
-					<!--<option value="2010">2010</option>-->
-				</select>
-			</div>
-			<div class="w3-col w3-container" style="width:20%">
-				<label for="Orgunit">Indicator Group</label>
-				<select id="dropm3" class="selectpicker" >
-					<option value="" disabled selected hidden>Please Select</option>
-				</select>
-			</div>
-			<div class="w3-col w3-container" style="width:20%">
-				<label for="Orgunit">Indicator</label>
-				<select id="dropm4" class="selectpicker" >
-					<option value="" disabled selected hidden>Please Select</option>
-				</select>
-			</div>
-		</div>
-		<div class="w3-row-padding">
-			<div class="w3-col" style="width:100%"><p align="center"><button class="w3-btn" id="g1" onclick="validatemap()">Generate Maps</button></p></div>
-		</div>
-	</nav>
+    <nav class="w3-dropnav w3-card-2" style="display:none" id="myDropnav1">
+        <div class="w3-container">
+            <span onclick="w3_close1()" class="w3-closebtn w3-xlarge" title="Close Menu">&times;</span>
+        </div>
+        <div class="w3-row-padding w3-padding-bottom">
+            <!--<div class="w3-col w3-container" style="width:20%">-->
+            <!--<label for="Orgunit">Select Level</label>-->
+            <!--<select id="dropm1" class="selectpicker " >-->
+            <!--<option value="" disabled selected hidden>Please Select</option>-->
+            <!--</select>-->
+            <!--</div>-->
+            <!--<div class="w3-col w3-container" style="width:20%">-->
+            <!--<label for="Orgunit">Please Select</label>-->
+            <!--<select id="dropm2"class="selectpicker " multiple>-->
+            <!--<option value="all">ALL </option>-->
+            <!--</select>-->
+            <!--</div>-->
+            <div class="w3-col w3-container" style="width:20%">
+                <label for="Orgunit" >Period</label>
+                <select id="dropm5" style="margin-left: 60%" class="selectpicker " >
+                    <option value="" disabled selected hidden>Please Select</option>
+                    <!--<option value="" disabled selected hidden>Please Select</option>-->
+                    <!--<option value="2016">2016</option>-->
+                    <!--<option value="2015">2015</option>-->
+                    <!--<option value="2014">2014</option>-->
+                    <!--<option value="2013">2013</option>-->
+                    <!--<option value="2012">2012</option>-->
+                    <!--<option value="2011">2011</option>-->
+                    <!--<option value="2010">2010</option>-->
+                </select>
+            </div>
+            <div class="w3-col w3-container" style="width:20%">
+                <label for="Orgunit">Indicator Group</label>
+                <select id="dropm3" class="selectpicker" >
+                    <option value="" disabled selected hidden>Please Select</option>
+                </select>
+            </div>
+            <div class="w3-col w3-container" style="width:20%">
+                <label for="Orgunit">Indicator</label>
+                <select id="dropm4" class="selectpicker" >
+                    <option value="" disabled selected hidden>Please Select</option>
+                </select>
+            </div>
+        </div>
+        <div class="w3-row-padding">
+            <div class="w3-col" style="width:100%"><p align="center"><button class="w3-btn" id="g1" onclick="validatemap()">Generate Maps</button></p></div>
+        </div>
+    </nav>
 </div>
 <div class="container">
-	<nav class="w3-dropnav w3-card-2" style="display:none" id="myDropnav2">
-		<div class="w3-container">
-			<span onclick="w3_close2()" class="w3-closebtn w3-xlarge" title="Close Menu">&times;</span>
-		</div>
-		<div class="w3-row-padding w3-padding-bottom">
-			<div class="w3-col w3-container" style="width:20%">
-				<label for="Orgunit">Select Level</label>
+    <nav class="w3-dropnav w3-card-2" style="display:none" id="myDropnav2">
+        <div class="w3-container">
+            <span onclick="w3_close2()" class="w3-closebtn w3-xlarge" title="Close Menu">&times;</span>
+        </div>
+        <div class="w3-row-padding w3-padding-bottom">
+            <div class="w3-col w3-container" style="width:20%">
+                <label for="Orgunit">Select Level</label>
 
-				<select id="dropc1" class="selectpicker " >
-					<option value="all" disabled selected hidden>Please Select</option>
-				</select>
-			</div>
-			<div class="w3-col w3-container" style="width:20%">
-				<label for="Orgunit">Select Countries</label>
-				<select id="dropc2"class="selectpicker " multiple>
-					<option value="all">ALL </option>
-				</select>
-			</div>
-			<div class="w3-col w3-container" style="width:20%">
-				<label for="Orgunit">Period</label>
-				<select id="dropc5"class="selectpicker " multiple >
-					<!--<option value="2016">2016</option>-->
-					<!--<option value="2015">2015</option>-->
-					<!--<option value="2014">2014</option>-->
-					<!--<option value="2013">2013</option>-->
-					<!--<option value="2012">2012</option>-->
-					<!--<option value="2011">2011</option>-->
-					<!--<option value="2010">2010</option>-->
-				</select>
-			</div>
-			<div class="w3-col w3-container" style="width:20%">
-				<label for="Orgunit">Indicator Group</label>
-				<select id="dropc3" class="selectpicker " >
-					<option value="" disabled selected hidden>Please Select</option>
-				</select>
-			</div>
-			<div class="w3-col w3-container" style="width:20%">
-				<label for="Orgunit">Indicator</label>
-				<select id="dropc4" class="selectpicker " multiple>
-				</select>
-			</div>
+                <select id="dropc1" class="selectpicker " >
+                    <option value="all" disabled selected hidden>Please Select</option>
+                </select>
+            </div>
+            <div class="w3-col w3-container" style="width:20%">
+                <label for="Orgunit">Select Countries</label>
+                <select id="dropc2"class="selectpicker " multiple>
+                    <option value="all">ALL </option>
+                </select>
+            </div>
+            <div class="w3-col w3-container" style="width:20%">
+                <label for="Orgunit">Period</label>
+                <select id="dropc5"class="selectpicker " multiple >
+                    <!--<option value="2016">2016</option>-->
+                    <!--<option value="2015">2015</option>-->
+                    <!--<option value="2014">2014</option>-->
+                    <!--<option value="2013">2013</option>-->
+                    <!--<option value="2012">2012</option>-->
+                    <!--<option value="2011">2011</option>-->
+                    <!--<option value="2010">2010</option>-->
+                </select>
+            </div>
+            <div class="w3-col w3-container" style="width:20%">
+                <label for="Orgunit">Indicator Group</label>
+                <select id="dropc3" class="selectpicker " >
+                    <option value="" disabled selected hidden>Please Select</option>
+                </select>
+            </div>
+            <div class="w3-col w3-container" style="width:20%">
+                <label for="Orgunit">Indicator</label>
+                <select id="dropc4" class="selectpicker " multiple>
+                </select>
+            </div>
 
 
-			<br>
-		</div>
-		<div class="w3-row-padding">
-			<div class="w3-col" style="width:100%"><p align="center"><button class="w3-btn" id="g1"  onclick="validatechart()">Generate Charts</button></p></div>
-		</div>
-	</nav>
+            <br>
+        </div>
+        <div class="w3-row-padding">
+            <div class="w3-col" style="width:100%"><p align="center"><button class="w3-btn" id="g1"  onclick="validatechart()">Generate Charts</button></p></div>
+        </div>
+    </nav>
 </div>
 <!-- Footer -->
 <div id="footer">
-	<div class="container">
-		<div class="row">
-			<div class="col-sm-3">
-				<img src="./img/SEAROLogo.gif" width="250px">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-3">
+                <img src="./img/SEAROLogo.gif" width="250px">
 
-				<ul class="sociallink1">
-					<li><a href="http://www.who.int/about/licensing/rss/en/"><img src="./img/rss.png"  width="30px" height="30px"></a></li>
-					<li><a href="http://www.youtube.com/whosoutheastasia"><img src="./img/youtube.png"  width="30px" height="30px"></a></li>
-					<li><a href="https://twitter.com/WHOSEARO"><img src="./img/twitter.png"  width="30px" height="30px"></a></li>
-					<li><a href="https://www.facebook.com/WHOSEARO"><img src="./img/facebook.png" width="30px" height="30px"></a></li>
-					<li><a href="https://plus.google.com/+who/posts"><img src="./img/google.png"  width="30px" height="30px"></a></li>
-				</ul>
+                <ul class="sociallink1">
+                    <li><a href="http://www.who.int/about/licensing/rss/en/"><img src="./img/rss.png"  width="30px" height="30px"></a></li>
+                    <li><a href="http://www.youtube.com/whosoutheastasia"><img src="./img/youtube.png"  width="30px" height="30px"></a></li>
+                    <li><a href="https://twitter.com/WHOSEARO"><img src="./img/twitter.png"  width="30px" height="30px"></a></li>
+                    <li><a href="https://www.facebook.com/WHOSEARO"><img src="./img/facebook.png" width="30px" height="30px"></a></li>
+                    <li><a href="https://plus.google.com/+who/posts"><img src="./img/google.png"  width="30px" height="30px"></a></li>
+                </ul>
 
-			</div>
-			<div class="col-sm-3"><ul id="ul1" style="list-style-type:none"><li><a href="http://www.who.int/gho/en/" target="_blank">Global Health Observatory</a></li><li><a>Contact us</a></li></ul></div>
-			<div class="col-sm-3">
-				<ul id="ul2" style="list-style-type:none">
-					<li><Strong>WHO Regional Health Information Links</strong></li>
-					<li><a href="http://www.aho.afro.who.int/" target="_blank">Africa</a></li>
-					<li><a href=" http://www.paho.org/hq/index.php?option=com_content&view=article&id=2470&Itemid=2003&lang=en" target="_blank">Americas</a></li>
-					<li><a href="http://www.emro.who.int/entity/statistics/statistics.html" target="_blank">Eastern Mediterranean</a></li>
-					<li><a href="http://portal.euro.who.int/en/" target="_blank">Europe</a></li>
-					<li><a href="http://hiip.wpro.who.int/portal/default.aspx" target="_blank">Western Pacific</a></li>
-					<ul>
-			</div>
+            </div>
+            <div class="col-sm-3"><ul id="ul1" style="list-style-type:none"><li><a href="http://www.who.int/gho/en/" target="_blank">Global Health Observatory</a></li><li><a>Contact us</a></li></ul></div>
+            <div class="col-sm-3">
+                <ul id="ul2" style="list-style-type:none">
+                    <li><Strong>WHO Regional Health Information Links</strong></li>
+                    <li><a href="http://www.aho.afro.who.int/" target="_blank">Africa</a></li>
+                    <li><a href=" http://www.paho.org/hq/index.php?option=com_content&view=article&id=2470&Itemid=2003&lang=en" target="_blank">Americas</a></li>
+                    <li><a href="http://www.emro.who.int/entity/statistics/statistics.html" target="_blank">Eastern Mediterranean</a></li>
+                    <li><a href="http://portal.euro.who.int/en/" target="_blank">Europe</a></li>
+                    <li><a href="http://hiip.wpro.who.int/portal/default.aspx" target="_blank">Western Pacific</a></li>
+                </ul>
+            </div>
 
-		</div>
-	</div>
+        </div>
+    </div>
 </div>
-<script>
-	function w3_open() {
-		document.getElementById("myDropnav").style.display = "block";
-
-
-	}
-	function w3_open1() {
-		document.getElementById("myDropnav1").style.display = "block";
-	}
-	function w3_open2() {
-		document.getElementById("myDropnav2").style.display = "block";
-	}
-
-	function w3_close() {
-		document.getElementById("myDropnav").style.display = "none";
-	}function w3_close1() {
-		document.getElementById("myDropnav1").style.display = "none";
-	}function w3_close2() {
-		document.getElementById("myDropnav2").style.display = "none";
-	}
-</script>
+<script src="lib/controllers/scriptcontroller.js"></script>
 </body>
 </html>
