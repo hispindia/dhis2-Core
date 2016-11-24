@@ -21,7 +21,7 @@
     <!--W3schools-->
     <link rel="stylesheet" href="lib/css/w3.css">
     <link rel="stylesheet" href="lib/css/style.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
     <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 
@@ -39,23 +39,26 @@
 
         <!-- Modal content-->
         <div class="modal-content">
-            <div class="modal-header" >
+            <div class="modal-header" style="background-color:#2978B3">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4><span class="glyphicon glyphicon-lock"></span> Login</h4>
+                <h4  style="text-align: center;color: white"> Login</h4>
             </div>
-            <div class="modal-body" >
+            <div class="modal-body">
 
-                <div id="loginField">
+                <div id="loginField" style="margin-left: ">
                     <div id="loginArea">
                         <div id="bannerArea">
                             <img src="" style="border:none">
                         </div>
 
-                        <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">
+                        <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post" style="text-align: center;">
                             <div>
-                                <div id="signInLabel">Sign in</div>
+                                <div id="signInLabel"><p><strong>Sign in</strong></p></div>
+                                </br>
                                 <div><input type="text" autofocus="autofocus" id="j_username" name="j_username" placeholder="Username"></div>
+                                </br>
                                 <div><input type="password" id="j_password" name="j_password" autocomplete="off" placeholder="Password"></div>
+                                </br>
                             </div>
                             <div style="padding-bottom: 10px">
                                 <a id="createAccountLink" target="_blank" href="lib/controllers/register.html">Create an account</a>
