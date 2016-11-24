@@ -236,7 +236,7 @@ Ext.onReady( function() {
             $('#drophospital').selectpicker('refresh');
         });
         //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
-        jQuery('#sel').html('');
+        //jQuery('#sel').html('');
     });
 
     $("#drophospital").change(function () {
@@ -305,6 +305,7 @@ function myJoin(array){
 function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility) {
     $("#content1").hide();
     $("#mapA1").hide();
+    $("#footer").hide();
 
     $('#drop2').val('');
     $('#drop1').val('');
@@ -917,8 +918,8 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
   //';
 
     div.innerHTML='\
-    <div style="margin-left:15%;margin-right:15%;" id="test1">\
-    <div class="w3-card-4">\
+    <div class="w3-card-4" style="margin-left:15%;margin-right:15%;" id="test1">\
+    <div >\
      <header  style="background-color:#2978B3;height: 3%" >\
       <table width="100px">\
       <tr>\
@@ -931,23 +932,19 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
         <div class="w3-container">\
         <table width="100%" style="background-color: aliceblue">\
          <tr>\
-        <td width="20%"><strong>Address</strong></td>\
-        <td width="50%"><p class="address">G.T. Road, Inder Palace Road, Ram Bagh.</p></td>\
-        <td width="10%" ><strong>Pincode</strong></td>\
-        <td width="18%"  class="pincode">143001</td></td>\
+        <td width="20%"><p><strong>Address</strong></p></td>\
+        <td width="50%"><p class="address"></p></td>\
+        <td width="10%"><p><strong>Pincode</strong></p></td>\
+        <td width="18%" class="pincode"><p></p></td></td>\
         </tr>\
         </table>\
         <table width="100%">\
         <tr>\
-        <td width="20%" >\
-        <strong>Contact Number</strong>\
-    </td>\
-    <td width="60%">\
-        <p class="mobile">9815476763</p>\
-        </td>\
-                <p style="margin-left: 80%"> <a id="createAccountLink" target="_blank" href="lib/controllers/procedures.html?ouid='+ouid+'">Procedure List</a></p>\
-                <p style="margin-left: 80%"> <a id="createAccountLink" target="_blank" href="lib/controllers/doctors.html?ouid='+ouid+'">Doctor List</a></p>\
-        <p style="margin-left: 80%"> <a id="createAccountLink" target="_blank" href="lib/controllers/feedback.html?ouid='+ouid+'">Rate Your Facility</a></p>\
+            <td width="20%" ><strong>Contact Number</strong></td>\
+            <td width="20%"><p class="mobile"></p></td>\
+            <td width="20%"><p> <a id="createAccountLink" target="_blank" href="lib/controllers/procedures.html?ouid='+ouid+'">Procedure List</a></p></td>\
+            <td width="20%"><p> <a id="createAccountLink" target="_blank" href="lib/controllers/doctors.html?ouid='+ouid+'">Doctor List</a></p></td>\
+            <td width="20%"><p> <a id="createAccountLink" target="_blank" href="lib/controllers/feedback.html?ouid='+ouid+'">Rate Your Facility</a></p></td>\
         </tr>\
     </table>\
 </div>\
@@ -955,38 +952,38 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
     </br>\
         <div class="noDisplay" id="'+mobile+'">\
           </br>\
-        <table width="100%" style="background-color: aliceblue">\
+        <table width="100%" class="w3-table w3-striped w3-bordered w3-hoverable">\
         <tr>\
-        <td width="20%"><strong style="margin-left: 10%">Specialities</strong></td>\
-        <td width="80%"><p style="text-align: justify; margin-top: 5%; margin-right: 5%"class="specialty">Dental , Dermatology , Emergency medicine , Obstetrics & gynaecology , Paedriatrics & child care , General medicine , Psychiatry , Radiology , General surgery , Venereology/venereal diseases/STDs , Orthopedics , Physiotherapy , Ear nose throat (ENT) , Leprosy clinic , HIV/AIDS clinic , Burns and plastic surgery , Aesthetic & reconstructive surgery , Anaesthesiology , Eye care</p></td>\
+        <td width="20%"><p><strong style="margin-left: 10%">Specialities</strong></p></td>\
+        <td width="80%"><p style="text-align: justify;" class="specialty"></p></td>\
     </tr>\
     <tr>\
-    <td width="20%"><strong style="margin-left: 10%">Health Facilites</strong></td>\
-    <td><p class="owner">Both IPD and OPD , Only diagnostic</p></td>\
+    <td width="20%"><p><strong style="margin-left: 10%">Health Facilites</strong></p></td>\
+    <td><p class="owner"></p></td>\
     </tr>\
     <tr>\
-    <td width="20%"><strong style="margin-left: 10%">Availabilities</strong></td>\
-        <td width="80%"><p class="availability">Blood bank , Operation theatre</p></td>\
+    <td width="20%"><p><strong style="margin-left: 10%">Availabilities</strong></p></td>\
+        <td width="80%"><p class="availability"></p></td>\
     </tr>\
     <tr>\
-    <td width="20%"><strong style="margin-left: 10%">Contact Person</strong></td>\
-    <td width="80%"><p class="contactperson">Dr. Charanjit Singh</p></td>\
+    <td width="20%"><p><strong style="margin-left: 10%">Contact Person</strong></p></td>\
+    <td width="80%"><p class="contactperson"></p></td>\
     </tr>\
         <tr>\
-    <td width="20%"><strong style="margin-left: 10%">Email</strong></td>\
-    <td width="80%"><p class="email">Dr. Charanjit Singh</p></td>\
+    <td width="20%"><p><strong style="margin-left: 10%">Email</p></strong></td>\
+    <td width="80%"><p class="email"></p></td>\
     </tr>\
      <tr>\
-    <td width="20%"><strong style="margin-left: 10%">Phone:</strong></td>\
-    <td width="80%"><p class="contactpnumber">Dr. Charanjit Singh</p></td>\
+    <td width="20%"><p><strong style="margin-left: 10%">Phone:</strong></p></td>\
+    <td width="80%"><p class="contactpnumber"></p></td>\
     </tr>\
     <tr>\
     <td width="20%"><strong style="margin-left: 10%">Schemes</strong></td>\
-        <td width="80%"><p class="hfschemes">Health insurance schemes , Bhagat puran singh bima yojana , Punjab government employees & pensioners health insurance scheme (PGEPHIS) , Other health insurance schemes</p></td>\
+        <td width="80%"><p class="hfschemes"></p></td>\
     </tr>\
     <tr>\
-    <td width="20%"><strong style="margin-left: 10%">Ownership</strong></td>\
-        <td width="80%"><p class="ownership">Public</p></td>\
+    <td width="20%"><strong style="margin-left:10%">Ownership</strong></td>\
+        <td width="80%"><p class="ownership"></p></td>\
         </tr>\
         </table>\
         </br>\
@@ -1019,5 +1016,5 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
 function myfunc(thiz){
 //      var div = $("#"+thiz)[0];
 //              div.className="";
-    $("#"+thiz).slideToggle("slow");
+    $("#"+thiz).slideToggle(1000);
 }
