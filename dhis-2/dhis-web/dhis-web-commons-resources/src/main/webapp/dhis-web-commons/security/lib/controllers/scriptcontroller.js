@@ -45,14 +45,14 @@ Ext.onReady( function() {
     Ext.Ajax.request({
         url: base + "dhis-web-commons-security/login.action",
         method: "POST",
-        params: {j_username: "admin", j_password: "district"},
+        params: {j_username: "publicdashboard", j_password: "D@SHbo@rd20!6"},
 
     });
 
 
     $.post(url, {
-        'j_username': 'admin',
-        'j_password': 'district'
+        'j_username': 'publicdashboard',
+        'j_password': 'D@SHbo@rd20!6'
     }, function (data, status, xhr) {
         //console.log(data);
         //console.log(status);
@@ -441,13 +441,13 @@ Ext.onReady( function() {
 
 
 
-            //if(drop1.value=="MhXp46Y40hA" || drop1.value=="KQKjaCQNIlV")
-            //{
-                var element = document.getElementById("drop2");
-                for (var i = element.length-1; i >= 1; i--) {
-                    element[i].remove()
-                }
-            //}
+            if(drop1.value=="MhXp46Y40hA" || drop1.value=="KQKjaCQNIlV")
+            {
+            var element = document.getElementById("drop2");
+            for (var i = element.length-1; i >= 1; i--) {
+                element[i].remove()
+            }
+            }
 
 
             var orglevel = $(this).find("option:selected").val();
@@ -476,15 +476,15 @@ Ext.onReady( function() {
             //document.getElementById("drop2").innerHTML = "";
         });
         $("#dropc1").change(function () {
-            //
-            //if(dropc1.value=="MhXp46Y40hA" || dropc1.value=="KQKjaCQNIlV")
-            //{
-                var element = document.getElementById("dropc2");
-                for (var i = element.length-1; i >= 0; i--) {
-                    element[i].remove()
-                }
-            //
-            //}
+
+            if(dropc1.value=="MhXp46Y40hA" || dropc1.value=="KQKjaCQNIlV")
+            {
+            var element = document.getElementById("dropc2");
+            for (var i = element.length-1; i >= 0; i--) {
+                element[i].remove()
+            }
+
+            }
             var corglevel = $(this).find("option:selected").val();
             $.getJSON("../../api/organisationUnitGroups/" + corglevel + ".json", function (data) {
                 corganisationUnits = data.organisationUnits;
