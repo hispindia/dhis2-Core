@@ -441,14 +441,14 @@ Ext.onReady( function() {
 
 
 
-            if(drop1.value=="MhXp46Y40hA" || drop1.value=="KQKjaCQNIlV")
-            {
+            //if(drop1.value=="MhXp46Y40hA" || drop1.value=="KQKjaCQNIlV")
+            //{
                 var element = document.getElementById("drop2");
                 for (var i = element.length-1; i >= 0; i--) {
                     element[i].remove()
                 }
 
-            }
+            //}
 
 
             var orglevel = $(this).find("option:selected").val();
@@ -476,47 +476,16 @@ Ext.onReady( function() {
             });
             //document.getElementById("drop2").innerHTML = "";
         });
-//			$("#dropm1").change(function () {
-//				if(dropm1.value=="FZUNQOeSpPf" || dropm1.value=="R9MatOlqMdE")
-//				{
-//					document.getElementById("dropm2").innerHTML = "";
-//
-//				}
-//				//document.getElementById("dropm2").innerHTML = "";
-//				var morglevel = $(this).find("option:selected").val();
-//				$.getJSON("../../api/organisationUnitGroups/" + morglevel + ".json", function (data) {
-//					morganisationUnits = data.organisationUnits;
-//
-//					morganisationUnits.sort(function(a, b) {
-//						var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-//						if (nameA < nameB) //sort string ascending
-//							return -1
-//						if (nameA > nameB)
-//							return 1
-//						return 0 //default return value (no sorting)
-//					});
-//					$.each(morganisationUnits, function (index, item) {
-//						$('#dropm2').append(
-//								$('<option></option>').val(item.id).html(item).text(item.name)
-//						);
-//					});
-//
-//					$('.selectpicker').selectpicker('refresh');
-//
-//					//$('.selectpicker').selectpicker('selectAll');
-//
-//				});
-//			});
         $("#dropc1").change(function () {
-
-            if(dropc1.value=="MhXp46Y40hA" || dropc1.value=="KQKjaCQNIlV")
-            {
+            //
+            //if(dropc1.value=="MhXp46Y40hA" || dropc1.value=="KQKjaCQNIlV")
+            //{
                 var element = document.getElementById("dropc2");
                 for (var i = element.length-1; i >= 0; i--) {
                     element[i].remove()
                 }
-
-            }
+            //
+            //}
             var corglevel = $(this).find("option:selected").val();
             $.getJSON("../../api/organisationUnitGroups/" + corglevel + ".json", function (data) {
                 corganisationUnits = data.organisationUnits;
@@ -582,14 +551,6 @@ Ext.onReady( function() {
 
         $("#drop2").change(function () {
 
-            /*if(drop2.value=="all")
-             {
-
-             if(drop2.value=='all')
-             {
-             $('#drop2').selectpicker('selectAll');
-             }
-             }*/
             var selected = $("#drop2 option:selected");
             orgname="";
             orgid = "";
@@ -597,9 +558,7 @@ Ext.onReady( function() {
                 orgname=$(this).val();
                 orgid += ";" + $(this).val();
 
-
             });
-
 
             orgname = $(this).find("option:selected").text();
 
