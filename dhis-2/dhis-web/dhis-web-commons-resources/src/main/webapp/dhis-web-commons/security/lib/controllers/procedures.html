@@ -98,7 +98,7 @@
                 }
 
                 var htmlstring="";
-                htmlstring='<table class="w3-table w3-striped w3-hoverable"><tr style=" background-color: #2978B3; color: white;"><th style="width:30%"><p>Procedure</p></th><th style="width:30%"><p>Cost</p></th></tr>'
+                htmlstring='<table id="procedure" class="w3-table w3-striped w3-hoverable"><tr style=" background-color: #2978B3; color: white;"><th style="width:30%"><p>Procedure</p></th><th style="width:30%"><p>Cost</p></th></tr>'
                 for(var i =0;i<=procedures.length-1;i++)
                 {
                     htmlstring+='<tr><td><p>'+procedures[i]+'</p></td><td><p>'+costs[i]+'</p></td></tr>'
@@ -110,17 +110,38 @@
 
             });
         }
-        });
+    });
 
+</script>
+<script type="text/javascript">
+    var tableToExcel = (function() {
+        var uri = 'data:application/vnd.ms-excel;base64,'
+                , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+                , base64 = function(s) { return window.btoa(unescape(encodeURIComponent(s))) }
+                , format = function(s, c) { return s.replace(/{(\w+)}/g, function(m, p) { return c[p]; }) }
+        return function(table, name) {
+            if (!table.nodeType) table = document.getElementById(table)
+            var ctx = {worksheet: name || 'Worksheet', table: table.innerHTML}
+            window.location.href = uri + base64(format(template, ctx))
+        }
+    })()
 </script>
 <body>
 <header class="w3-card" >
-    <h2 style="color:#fff; text-align:center;  font-weight: bold;">Procedure Cost Detail:</h2>
+    <h2 style="color:#fff; text-align:center;  font-weight: bold;">Procedure Cost Detail</h2>
+
 </header>
+<div  style="margin-left:20%; margin-right:20%;">
+    <table>
+        <tr>
+            <td><input type="button" onclick="tableToExcel('procedure', 'W3C Example Table')" value="Export to Excel">
+                <input type="button" onclick="window.print();" value="Print"></td>
+        </tr>
+    </table>
+</div>
 
 </br>
 <div class="w3-card-4" style="margin-left:20%; background-color:white; margin-right:20%;">
-
     <div id="procedureid" class="w3-container" style="padding-top: 10px; padding-bottom: 10px;"></div>
 </div>
 </body>
