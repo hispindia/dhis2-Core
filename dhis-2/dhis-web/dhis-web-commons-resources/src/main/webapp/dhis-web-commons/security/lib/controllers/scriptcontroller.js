@@ -444,10 +444,9 @@ Ext.onReady( function() {
             //if(drop1.value=="MhXp46Y40hA" || drop1.value=="KQKjaCQNIlV")
             //{
                 var element = document.getElementById("drop2");
-                for (var i = element.length-1; i >= 0; i--) {
+                for (var i = element.length-1; i >= 1; i--) {
                     element[i].remove()
                 }
-
             //}
 
 
