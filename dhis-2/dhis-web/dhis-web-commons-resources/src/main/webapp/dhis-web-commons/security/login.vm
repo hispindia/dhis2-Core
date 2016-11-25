@@ -1020,19 +1020,6 @@
 
             </div>
         </div>
-        <!--<div class="col-sm-3">-->
-            <!--<a href="../../dhis-web-commons/security/DBHome.html" >	<div class="w3-card-4" style="width:100%" onclick="">-->
-                <!--<header class="w3-container w3-light-grey">-->
-                    <!--<a href="./DBHome.html"   style="text-decoration: none">	<h3>View Dashboards</h3></a>-->
-                <!--</header>-->
-                <!--<a href="./DBHome.html" >		<div class="w3-container">-->
-                    <!--<a href="./DBHome.html" height="100px"><img src="./img/dashboards.jpg" alt="Avatar" class="w3-left w3-circle w3-margin-right w3-margin-bottom" style="width:60px"></a>-->
-                    <!--<a href="./DBHome.html"  style="text-decoration: none">		<p id="p12">Visualize  data and indicators by health themes, including the health SDGs and Universal Health Coverage(UHC).</p> </a><br>-->
-                <!--</div></a>-->
-
-            <!--</div></a>-->
-        <!--</div>  -->
-
         <div class="col-sm-3">
             <a href="../../dhis-web-commons/security/DBHome.html" >	<div class="w3-card-4" style="width:100%" onclick="">
                 <header class="w3-container w3-light-grey">
@@ -1196,15 +1183,6 @@
     <div class="container">
         <div class="row">
             <div class="col-sm-3">
-                <img src="./img/SEAROLogo.gif" width="250px">
-
-                <ul class="sociallink1">
-                    <li><a href="http://www.who.int/about/licensing/rss/en/"><img src="./img/rss.png"  width="30px" height="30px"></a></li>
-                    <li><a href="http://www.youtube.com/whosoutheastasia"><img src="./img/youtube.png"  width="30px" height="30px"></a></li>
-                    <li><a href="https://twitter.com/WHOSEARO"><img src="./img/twitter.png"  width="30px" height="30px"></a></li>
-                    <li><a href="https://www.facebook.com/WHOSEARO"><img src="./img/facebook.png" width="30px" height="30px"></a></li>
-                    <li><a href="https://plus.google.com/+who/posts"><img src="./img/google.png"  width="30px" height="30px"></a></li>
-                </ul>
 
             </div>
             <div class="col-sm-3"><ul id="ul1" style="list-style-type:none"><li><a href="http://www.who.int/gho/en/" target="_blank">Global Health Observatory</a></li><li><a>Contact us</a></li></ul></div>
