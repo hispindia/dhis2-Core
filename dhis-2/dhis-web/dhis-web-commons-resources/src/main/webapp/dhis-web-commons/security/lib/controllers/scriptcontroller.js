@@ -409,7 +409,7 @@ Ext.onReady( function() {
             mdename = "";
             mdeid = "";
             selected.each(function () {
-                mdeid += ";" + $(this).val();
+                mdeid +=  $(this).val();
                 mdename += $(this).text();
 
             });
