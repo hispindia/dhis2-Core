@@ -410,7 +410,7 @@ Ext.onReady( function() {
             mdeid = "";
             selected.each(function () {
                 mdeid += ";" + $(this).val();
-                mdename += ";" + $(this).text();
+                mdename += $(this).text();
 
             });
             marr = [];
