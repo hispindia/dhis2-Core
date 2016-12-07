@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="//dhis2-cdn.org/v221/ext/ext-all.js"></script>
+    <link rel="stylesheet" href="../css/w3.css">
+    <script src="../js/jquery.min.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Punjab Portal</title>
+    <script src="../constants.js"></script>
+</head>
+<style>
+    #footer{
+
+        right: 0;
+        bottom: 0;
+        left: 0;
+        padding: 1rem;
+        background-color:#2978B3;
+        text-align: center;
+    }
+    header
+    {
+        background-color:#2978B3;
+    }
+    #formHeader
+    {
+        background-color:#2978B3;
+    }
+    body
+    {
+        background-color:#E5E3E3;
+    }
+    .rating
+    {
+        unicode-bidi: bidi-override;
+        direction: rtl;
+        text-align: center;
+    }
+    .rating > span
+    {
+        display: inline-block;
+        position: relative;
+        width: 1.1em;
+    }
+    .rating > span:hover,
+    .rating > span:hover ~ span {
+        color: transparent;
+    }
+    .rating > span:hover:before,
+    .rating > span:hover ~ span:before {
+        content: "\2605";
+        position: absolute;
+        left: 0;
+        color: gold;
+    }
+</style>
+<script>
+
+
+
+    Ext.onReady( function() {
+        var procedures=[],costs=[];
+        var dNames=[],dQual=[],dMedical=[],dOrgunit=[];
+        var query = decodeURIComponent(window.location.search);
+        var ouid;
+        var title;
+        query = query.substring(1);
+        var params = query.split("&");
+        for (var i=0;i<params.length;i++) {
+            var param = params[i].split("=");
+            switch(param[0]) {
+                case "ouid":
+                    ouid = param[1];
+                    setLinks(ouid);
+
+            }
+        }
+        function setLinks(ouid) {
+            var header = {
+                "Authorization": "Basic " + btoa("homepage" + ':' + "Homepage123")
+            };
+            $.getJSON("../../../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR&dimension=ou:"+ouid+"&dimension=eH2F2xuLmoY&dimension=kfDoQ3V1RQK&dimension=csjh8jewk7x&dimension=WXnr5Qk8Qgo&dimension=UwGx1EmJyIf&dimension=rzNUVjOm5ZJ&dimension=tpm9TIh7IeQ&dimension=pUYrErSv4Kf&dimension=hq5P29o8auc&dimension=KBgdegZWYDc&dimension=Mpo7Zm6z9WL&dimension=xtGxtg2I1SH&dimension=EhBs6eq4ebt&dimension=ThPPuHVPTsZ&dimension=hK82b1FNhui&dimension=aLY8DrZ88WN&dimension=XfstNyl31ca&dimension=fOLmSsSSlVI&dimension=aLnsQJ6De8p&dimension=LFDq2RYMt88&displayProperty=NAME", function (cdata) {
+                console.log("ouid:"+ouid);
+                for(var p=0;p<cdata.rows.length;p++)
+                {
+                    for(var k=8;k<27;k++)
+                    {
+                        if(cdata.rows[p][k]!=""&&cdata.rows[p][k]!=0)
+                        {
+                            procedures.push(cdata.rows[p][k]);
+                            costs.push(cdata.rows[p][k+1]);
+                        }
+                        k++;
+                    }
+
+
+                }
+
+                var htmlstring="";
+                htmlstring='<table id="procedure" class="w3-table w3-striped w3-hoverable"><tr style=" background-color: #2978B3; color: white;"><th style="width:30%"><p>Procedure</p></th><th style="width:30%"><p>Cost</p></th></tr>'
+                for(var i =0;i<=procedures.length-1;i++)
+                {
+                    htmlstring+='<tr><td><p>'+procedures[i]+'</p></td><td><p>'+costs[i]+'</p></td></tr>'
+
+                }
+                htmlstring+='</table>';
+                $("#procedureid").empty();
+                $("#procedureid").append(htmlstring);
+
+            });
+        }
+    });
+
+</script>
+<script type="text/javascript">
+    var tableToExcel = (function() {
+        var uri = 'data:application/vnd.ms-excel;base64,'
+                , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+                , base64 = function(s) { return window.btoa(unescape(encodeURIComponent(s))) }
+                , format = function(s, c) { return s.replace(/{(\w+)}/g, function(m, p) { return c[p]; }) }
+        return function(table, name) {
+            if (!table.nodeType) table = document.getElementById(table)
+            var ctx = {worksheet: name || 'Worksheet', table: table.innerHTML}
+            window.location.href = uri + base64(format(template, ctx))
+        }
+    })()
+</script>
+<body>
+<header class="w3-card" >
+    <h2 style="color:#fff; text-align:center;  font-weight: bold;">Procedure Cost Detail</h2>
+
+</header>
+<div  style="margin-left:20%; margin-right:20%;">
+    <table>
+        <tr>
+            <td><input type="button" onclick="tableToExcel('procedure', 'W3C Example Table')" value="Export to Excel">
+                <input type="button" onclick="window.print();" value="Print"></td>
+        </tr>
+    </table>
+</div>
+
+</br>
+<div class="w3-card-4" style="margin-left:20%; background-color:white; margin-right:20%;">
+    <div id="procedureid" class="w3-container" style="padding-top: 10px; padding-bottom: 10px;"></div>
+</div>
+</body>
+</html>
