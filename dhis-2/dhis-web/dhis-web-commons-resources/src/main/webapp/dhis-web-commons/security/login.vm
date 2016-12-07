@@ -1,99 +1,199 @@
 <!DOCTYPE HTML>
 <html class="loginPage">
-    <head>
-        <title>$!encoder.htmlEncode( ${applicationTitle} )</title>
-        <meta name="description" content="DHIS 2">
-        <meta name="keywords" content="DHIS 2">
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <script type="text/javascript" src="../javascripts/jQuery/jquery.min.js"></script>
-        <script type="text/javascript" src="login.js"></script>
-        <link type="text/css" rel="stylesheet" href="../css/widgets.css">
-        <link type="text/css" rel="stylesheet" href="../css/login.css">
-        <link type="text/css" rel="stylesheet" href="../../api/files/style/external" />
-    </head>
-    <body class="loginPage">
-    	<h1 style="display:none">$!encoder.htmlEncode( ${applicationTitle} )</h1>
-    	<div style="display:none">DHIS 2</div>
-        <div>
-        #if ( $keyFlag )
-            <img id="flagArea" src="../flags/$!{keyFlagImage}">
-        #end
-        #if ( $applicationTitle )
-            <span id="titleArea">$!encoder.htmlEncode( ${applicationTitle} )</span>
-        #end        
-        #if ( $keyApplicationIntro )
-            <span id="introArea">$!{keyApplicationIntro}</span>
-        #end
-        </div>
-        #if ( $keyConfig.selfRegistrationAllowed() )
-        <div id="accountArea">
-        	<a id="createAccountButton" class="greenButtonLink" href="account.action">Create an account</a>
-        </div>
-        #end
-        <div id="loginField">
-        <div id="loginArea">
-            <div id="bannerArea">
-            <a href="http://www.dhis2.org"><img src="../../api/staticContent/logo_front" style="border:none"></a>
+<head>
+
+    <!-- Default Dhis -->
+    <title>Punjab Health Transparency Portal</title>
+    <link rel="icon" href="./img/logo1n.png" type="image/x-icon">
+    <meta name="description" content="DHIS 2">
+    <meta name="keywords" content="DHIS 2">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <!--  new Libraries-->
+    <script src="lib/js/jquerymin.js"></script>
+    <script src="//dhis2-cdn.org/v221/ext/ext-all.js"></script>
+    <link rel="stylesheet" href="lib/css/bootstrapmin.css" integrity="" crossorigin="anonymous" />
+    <link rel="stylesheet"  href="lib/css/bootstrapthememin.css" integrity="" crossorigin="anonymous" />
+    <script src="lib/js/bootstrapmin.js"  ></script>
+    <script src="lib/js/bootstrapselectmin.js" ></script>
+    <link rel="stylesheet" href="lib/css/bootstrap-selectmin.css" />
+
+
+
+    <!--W3schools-->
+    <link rel="stylesheet" href="lib/css/w3.css">
+    <link rel="stylesheet" href="lib/css/style.css">
+
+
+    <link rel="stylesheet" href="lib/font-awesome.css">
+    <link rel="stylesheet" href="lib/leaflet.css" />
+    <script src="lib/leaflet.js"></script>
+    <script src="lib/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="lib/ionicons.min.css">
+    <link rel="stylesheet" href="lib/leaflet.awesome-markers.css">
+
+
+
+</head>
+<style>
+    #map {
+        width: 650px;
+        height:400px;
+    }
+</style>
+<body>
+<!-- Modal -->
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:#2978B3">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4  style="text-align: center;color: white"> Login</h4>
             </div>
-            
-            <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">
-                <div>
-                	<div id="signInLabel">Sign in</div>
-                    <div><input type="text" id="j_username" name="j_username" placeholder="Username"></div>
-                    <div><input type="password" id="j_password" name="j_password" autocomplete="off" placeholder="Password"></div>
+            <div class="modal-body">
+
+                <div id="loginField" style="margin-left: ">
+                    <div id="loginArea">
+                        <div id="bannerArea">
+                            <img src="" style="border:none">
+                        </div>
+
+                        <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post" style="text-align: center;">
+                            <div>
+                                <div id="signInLabel"><p><strong>Sign in</strong></p></div>
+                                </br>
+                                <div><input type="text" autofocus="autofocus" id="j_username" name="j_username" placeholder="Username"></div>
+                                </br>
+                                <div><input type="password" id="j_password" name="j_password" autocomplete="off" placeholder="Password"></div>
+                                </br>
+                            </div>
+                            <div style="padding-bottom: 10px">
+                                <a id="createAccountLink" target="_blank" href="lib/controllers/register.html">Create an account</a>
+                            </div>
+                            <div id="submitDiv">
+                                <input id="submit" class="button" type="submit" value="Sign in">
+                            </div>
+                            #if( $keyAccountRecovery )
+                            <div style="padding-bottom: 10px">
+                                <a id="forgotPasswordLink" href="recovery.action">Forgot password?</a>
+                            </div>
+                            #end
+                            #if( $keyConfig.selfRegistrationAllowed() )
+                            <!--<div style="padding-bottom: 10px">-->
+                            <!--<a id="createAccountLink" href="account.action">Create an account</a>-->
+                            <!--</div>-->
+                            #end
+                        </form>
+                        #if( $keyOpenIdProvider )
+                        <form id="openIdLoginForm" action="../../dhis-web-commons-security/openid.action" method="post">
+                            <input name="openid_identifier" type="hidden" value="$keyOpenIdProvider"/>
+                            <div id="submitDiv">
+                                #if( $keyOpenIdProviderLabel )
+                                <input style="width: 269px;" id="submit" class="button" type="submit" value="$keyOpenIdProviderLabel">
+                                #else
+                                <input style="width: 269px;" id="submit" class="button" type="submit" value="Sign in with OpenID">
+                                #end
+                            </div>
+                        </form>
+                        #end
+                        #if( $failed == true )
+                        <div id="loginMessage">Wrong username or password</div>
+                        #end
+                        #if ( $keyApplicationNotification )
+                        <div id="notificationArea">$!{keyApplicationNotification}</div>
+                        #end
+                        <!--[if lte IE 8]>
+                        <div id="notificationArea" style="color: white; background-color: red;">$i18n.getString( "unsupported_browser" )</div>
+                        <![endif]-->
+                    </div>
                 </div>
-                <div id="submitDiv">
-                	<input id="submit" class="button" type="submit" value="Sign in">
-                </div>
-                #if( $keyAccountRecovery )
-                <div style="padding-bottom: 10px">
-                    <a id="forgotPasswordLink" href="recovery.action">Forgot password?</a>
-                </div>
-                #end
-                #if( $keyConfig.selfRegistrationAllowed() )
-                <div style="padding-bottom: 10px">                	
-                	<a id="createAccountLink" href="account.action">Create an account</a>
-                </div>
-                #end
-            </form>
-            #if( $keyOpenIdProvider )
-              <form id="openIdLoginForm" action="../../dhis-web-commons-security/openid.action" method="post">
-                  <input name="openid_identifier" type="hidden" value="$keyOpenIdProvider"/>
-                  <div id="submitDiv">
-                    #if( $keyOpenIdProviderLabel )
-                  	<input style="width: 269px;" id="submit" class="button" type="submit" value="$keyOpenIdProviderLabel">
-                    #else
-                    <input style="width: 269px;" id="submit" class="button" type="submit" value="Sign in with OpenID">
-                    #end
-                  </div>
-              </form>
-            #end
-            #if( $failed == true )
-            <div id="loginMessage">Wrong username or password</div>
-            #end
-            #if ( $keyApplicationNotification )
-            <div id="notificationArea">              
-              $!{keyApplicationNotification}
+
             </div>
-            #end
-            <!--[if lte IE 8]>
-            <div id="notificationArea" style="color: white; background-color: red;">$i18n.getString( "unsupported_browser" )</div>
-            <![endif]-->
+
         </div>
+
+    </div>
+</div>
+<div >
+    <!--Header -->
+    <header class="w3-hover-shadow ">
+        <div style="float:left; width:100px;">
+            <img src="img/Punjab_logo.png" height="100px";>
         </div>
-        <div id="footerArea">
-        	<div id="leftFooterArea" class="innerFooterArea">
-	        	Powered by <a href="http://www.dhis2.org">DHIS 2</a>&nbsp; <span id="applicationFooter">$!{keyApplicationFooter}</span>
-		    </div>
-			<div id="rightFooterArea" class="innerFooterArea">
-				<span id="applicationRightFooter">$!{keyApplicationRightFooter}</span>
-				<select id="localeSelect" onchange="login.localeChanged()" style="margin-left: 30px">
-	        		<option value="">[ Change language ]</option>
-	        		#foreach( $locale in $availableLocales )
-	        		<option value="${locale.language}">${locale.displayName}</option>
-			        #end
-		        </select>
-		    </div>
+        <div style="display:inline-block;margin:0 auto;width:auto;">
+            <h1 style="color:#fff">Punjab Health Facility Portal</h1>
         </div>
-    </body>
+        <div style="float:right">
+            <ul style="list-style-type:none;">
+                <li class="w3-btn"><a onclick="window.location.reload()" target="_blank" style="color:#fff">Home</a></li>
+                <li class="w3-btn"><a href="http://pbhealth.gov.in/" target="_blank" style="color:#fff"> Punjab Health Department</a></li>
+                <li class="w3-btn" id="b1" class="button12" data-toggle="modal"  style="color:#fff" data-target="#myModal"><b>Register Facility/Login</b></li>
+            </ul>
+        </div>
+    </header>
+
+
+    <!--DropDown Bar-->
+    <div style="text-align: center">
+        <div class="w3-row-padding w3-padding-bottom" style="margin-top: 2%; margin-left: 5%">
+            <div  class="w3-col w3-container" style="width:17%">
+                <select id="drop1" class="selectpicker"  data-live-search="true" >
+                    <option value="" disabled selected hidden>Please Select State/District</option>
+                    <option value="wSslG6mcGXl">Select Entire State (Punjab)</option>
+                </select>
+            </div>
+            <div  class="w3-col w3-container" style="width:17%">
+                <select id="drophospital"  class="selectpicker"  data-live-search="true" >
+                    <option value="" disabled selected hidden>Search by Hospital Name</option>
+                </select>
+            </div>
+            <div class="w3-col w3-container"  style="width:17%">
+                <select id="drop2"  class="selectpicker"  data-live-search="true">
+                    <option value=""  disabled selected hidden>Search by speciality</option>
+                </select>
+            </div>
+            <div class="w3-col w3-container" style="width:17%">
+                <select id="drop_ownership"  class="selectpicker"   data-live-search="true">
+                    <option value="" disabled selected hidden>Search by Ownership</option>
+                </select>
+            </div>
+            <div class="w3-col w3-container" style="width:17%;">
+                <select id="droptype"  class="selectpicker"  data-live-search="true">
+                    <option value="" disabled selected hidden>Type of Health Facility</option>
+                </select>
+
+            </div>
+            <button type="button" onclick="generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility);">Go</button>
+        </div>
+    </div>
+    </br>
+
+    <div id="content1">
+        <table>
+            <tr>
+                <td><div style="width: 650px">
+                    <h3 style="text-align: center; margin-top: 5%">About Us</h3>
+                    <p style="text-align:justify; margin-left: 50px">The Government of Punjab is pleased to announce the launch of the “Punjab Health Facility Portal” where all public and private health facilities are invited to self-report on the various health services they provide in their respective health facilities. This information will be made available to citizens through this portal to allow them to make more informed choices of what health services they can access from where. The information will help the Punjab Government to identify gaps and strengthen health services delivery and improve citizen satisfaction.
+                        </br></br>We request you to partner with the State to make this important venture a resounding success. For this, healthcare providers are requested to self-register by clicking on “Register Facility/Login” button. Please note this portal will be dynamic and allow for changes to be made as they take place in future. Users of health facilities are requested to provide feedback.
+                        </br></br>We hope that citizens of state find this portal useful and provide feedback regarding services.</p>
+                </div></td>
+                <td>
+                    <div id="map" ></div>
+                    <!--<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1750772.7212624417!2d74.27996482023067!3d31.012930230614476!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391964aa569e7355%3A0x8fbd263103a38861!2sPunjab!5e0!3m2!1sen!2sin!4v1478332283034" width="600" height="350"  frameborder="0" style="border:0;margin-top: 5%" allowfullscreen> </iframe></td>-->
+            </tr>
+        </table>
+    </div>
+</div>
+<div align='center' style="bottom: 08%;text-align: center"><img src='http://www.hit-counts.com/counter.php?t=MTM5OTk2Mw==' border='0' alt='Free Hit Counter'></a><BR><p style="font-family: Arial;color: #00bcd4; bottom: 08%">Visitor Counter</p></div>
+<div id="footer">
+    <p style="text-align: center; color: #fff">Disclaimer: The responsibility for the correctness of data in the portal is the responsibility of the facility which has self-registered the data. The Government is only responsible for the dissemination of this information through this portal.</p>
+</div>
+
+
+</body>
+
+<script src="lib/scriptcontroller.js"></script>
+
 </html>
