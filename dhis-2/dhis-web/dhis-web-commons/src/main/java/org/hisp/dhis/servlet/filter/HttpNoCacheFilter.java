@@ -1,4 +1,4 @@
-package org.hisp.dhis.common.cache;
+package org.hisp.dhis.servlet.filter;
 
 /*
  * Copyright (c) 2004-2016, University of Oslo
@@ -28,19 +28,38 @@ package org.hisp.dhis.common.cache;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import java.io.IOException;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.hisp.dhis.webapi.utils.ContextUtils;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpMethod;
+
 /**
- * CacheStrategies express web request caching settings.
- * Note that {@link #RESPECT_SYSTEM_SETTING} should only be used on a
- * per-object-basis (i.e. never as a system wide setting).
- *
- * @author Halvdan Hoem Grelland
+ * Filter which enforces no cache for HTML pages like 
+ * index pages to prevent stale versions being rendered 
+ * in clients.
+ * 
+ * @author Lars Helge Overland
  */
-public enum CacheStrategy
+public class HttpNoCacheFilter
+    extends HttpUrlPatternFilter
 {
-    NO_CACHE,
-    CACHE_15_MINUTES,
-    CACHE_1_HOUR,
-    CACHE_6AM_TOMORROW,
-    CACHE_TWO_WEEKS,
-    RESPECT_SYSTEM_SETTING
+    @Override
+    public final void doHttpFilter( HttpServletRequest request, HttpServletResponse response, FilterChain chain )
+        throws IOException, ServletException
+    {
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        
+        if ( HttpMethod.GET == HttpMethod.resolve( request.getMethod() ) )
+        {        
+            ContextUtils.setCacheControl( httpResponse, CacheControl.noStore().cachePrivate() );
+        }
+        
+        chain.doFilter( request, response );
+    }
 }

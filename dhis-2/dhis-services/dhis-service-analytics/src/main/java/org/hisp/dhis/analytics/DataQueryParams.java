@@ -179,12 +179,6 @@ public class DataQueryParams
     protected boolean hierarchyMeta;
     
     /**
-     * Indicates whether a identifier to dimension item object mapping should be
-     * part of the meta data reponse.
-     */
-    protected boolean dimensionItemMeta;
-    
-    /**
      * Indicates whether the maximum number of records to include the response
      * should be ignored.
      */
@@ -222,6 +216,12 @@ public class DataQueryParams
      * The output format, default is OutputFormat.ANALYTICS.
      */
     protected OutputFormat outputFormat;
+    
+    /**
+     * Indicates whether to return duplicate data values only. Applicable to
+     * {@link OutputFormat} DATA_VALUE_SET only.
+     */
+    protected boolean duplicatesOnly;
     
     /**
      * The required approval level identifier for data to be included in query response.
@@ -369,7 +369,6 @@ public class DataQueryParams
         params.skipRounding = this.skipRounding;
         params.completedOnly = this.completedOnly;
         params.hierarchyMeta = this.hierarchyMeta;
-        params.dimensionItemMeta = this.dimensionItemMeta;
         params.ignoreLimit = this.ignoreLimit;
         params.hideEmptyRows = this.hideEmptyRows;
         params.showHierarchy = this.showHierarchy;
@@ -377,6 +376,7 @@ public class DataQueryParams
         params.displayProperty = this.displayProperty;
         params.outputIdScheme = this.outputIdScheme;
         params.outputFormat = this.outputFormat;
+        params.duplicatesOnly = this.duplicatesOnly;
         params.approvalLevel = this.approvalLevel;
         params.startDate = this.startDate;
         params.endDate = this.endDate;
@@ -1600,11 +1600,6 @@ public class DataQueryParams
         return hierarchyMeta;
     }
 
-    public boolean isDimensionItemMeta()
-    {
-        return dimensionItemMeta;
-    }
-
     public boolean isIgnoreLimit()
     {
         return ignoreLimit;
@@ -1638,6 +1633,11 @@ public class DataQueryParams
     public OutputFormat getOutputFormat()
     {
         return outputFormat;
+    }
+    
+    public boolean isDuplicatesOnly()
+    {
+        return duplicatesOnly;
     }
 
     public String getApprovalLevel()
@@ -2188,12 +2188,6 @@ public class DataQueryParams
             return this;
         }
         
-        public Builder withDimensionItemMeta( boolean dimensionItemMeta )
-        {
-            this.params.dimensionItemMeta = dimensionItemMeta;
-            return this;
-        }
-
         public Builder withHideEmptyRows( boolean hideEmptyRows )
         {
             this.params.hideEmptyRows = hideEmptyRows;
@@ -2227,6 +2221,12 @@ public class DataQueryParams
         public Builder withOutputFormat( OutputFormat outputFormat )
         {
             this.params.outputFormat = outputFormat;
+            return this;
+        }
+        
+        public Builder withDuplicatesOnly( boolean duplicatesOnly )
+        {
+            this.params.duplicatesOnly = duplicatesOnly;
             return this;
         }
         

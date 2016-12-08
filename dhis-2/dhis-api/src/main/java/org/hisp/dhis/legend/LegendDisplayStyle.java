@@ -1,4 +1,4 @@
-package org.hisp.dhis.common.cache;
+package org.hisp.dhis.legend;
 
 /*
  * Copyright (c) 2004-2016, University of Oslo
@@ -29,18 +29,10 @@ package org.hisp.dhis.common.cache;
  */
 
 /**
- * CacheStrategies express web request caching settings.
- * Note that {@link #RESPECT_SYSTEM_SETTING} should only be used on a
- * per-object-basis (i.e. never as a system wide setting).
- *
- * @author Halvdan Hoem Grelland
+ * @author Lars Helge Overland
  */
-public enum CacheStrategy
+public enum LegendDisplayStyle
 {
-    NO_CACHE,
-    CACHE_15_MINUTES,
-    CACHE_1_HOUR,
-    CACHE_6AM_TOMORROW,
-    CACHE_TWO_WEEKS,
-    RESPECT_SYSTEM_SETTING
+    FILL,
+    TEXT;
 }
