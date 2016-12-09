@@ -441,16 +441,8 @@ Ext.onReady( function() {
     });
 
     $("#drop_ownership").change(function () {
-
+        defowner="XEiMcaGi6vv";
         defowner = defowner+":IN:"+$(this).find("option:selected").text();
-        //if(serviceid=="all1")
-        //{
-        //    $('#drop_ownership').selectpicker('selectAll');
-        //
-        //}
-        ////generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
-        //defowner="XEiMcaGi6vv";
-
 
     });
 
@@ -491,7 +483,7 @@ function myJoin(array){
     var result = "";
     for (key in array){
         if (array[key]){
-            result = result+array[key]+" , ";
+            result = result+array[key]+", ";
         }
     }
     return result.substr(0,result.length-2);
@@ -1142,9 +1134,9 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
         </tr>\
     </table>\
 </div>\
-     <button class="w3-btn-block w3-dark-grey" onclick="myfunc('+mobile+')">More Details</button>\
+     <button class="w3-btn-block w3-dark-grey" onclick="myfunc(\''+ouid+'\')">More Details</button>\
     </br>\
-        <div class="noDisplay" id="'+mobile+'">\
+        <div class="noDisplay" id="'+ouid+'">\
           </br>\
         <table width="100%" class="w3-table w3-striped w3-bordered w3-hoverable">\
         <tr>\
@@ -1207,8 +1199,8 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
 }
 
 
-function myfunc(thiz){
+function myfunc(ouid){
 //      var div = $("#"+thiz)[0];
 //              div.className="";
-    $("#"+thiz).slideToggle(1000);
+    $("#"+ouid).slideToggle(1000);
 }
