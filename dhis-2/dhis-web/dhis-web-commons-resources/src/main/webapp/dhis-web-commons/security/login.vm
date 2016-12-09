@@ -69,11 +69,12 @@
                                 <div><input type="password" id="j_password" name="j_password" autocomplete="off" placeholder="Password"></div>
                                 </br>
                             </div>
-                            <div style="padding-bottom: 10px">
-                                <a id="createAccountLink" target="_blank" href="lib/controllers/register.html">Create an account</a>
-                            </div>
+
                             <div id="submitDiv">
                                 <input id="submit" class="button" type="submit" value="Sign in">
+                            </div>
+                            <div style="padding-bottom: 10px">
+                                <a id="createAccountLink" target="_blank" href="lib/controllers/register.html">Create an account</a>
                             </div>
                             #if( $keyAccountRecovery )
                             <div style="padding-bottom: 10px">
