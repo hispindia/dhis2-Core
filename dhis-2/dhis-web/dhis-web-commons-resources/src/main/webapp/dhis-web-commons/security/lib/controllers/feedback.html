@@ -7,6 +7,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>Punjab Portal</title>
 	<script src="../constants.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 	<style>
 		#footer{
@@ -135,92 +136,157 @@
 		<h2 style="color:white; font-weight: bold; text-align:center">Feedback Form</h2>
 	</div>
 	<hr>
-	<table>
-		<!--<tr>-->
-		<!--<td>-->
-		<!--<label style="margin-left: 10px">Facility Filling for:</label>-->
-		<!--</td>-->
-		<!--<td>-->
-		<!--<h2 class="name" type="text" id="facility"></h2>-->
-		<!--</td>-->
-		<!--</tr>-->
-		<tr>
-			<td style="width: 51%">
-				<label style="margin-left: 10px">Name:</label>
-			</td>
-			<td style="width: 40%">
-				<input class="w3-input" type="text" id="name">
-			</td>
-		</tr>
-		<tr>
-			<td style="width: 51%">
-				<label style="margin-left: 10px">Email:</label>
-			</td>
-			<td  style="width: 40%">
-				<input class="w3-input" type="email" id="email">
-			</td>
-		</tr>
-		<tr>
-			<td style="width: 51%">
-				<label style="margin-left: 10px">Phone:</label>
-			</td>
-			<td  style="width: 40%">
-				<input class="w3-input" type="number" maxlength="10" id="phone">
-			</td>
-		</tr>
-		<tr>
-			<td style="width: 51%">
-				<label style="margin-left: 10px">Who received services in this facility?</label>
-			</td>
-			<td  style="width: 40%">
+	<div class="w3-container">
+
+		<div class="w3-row w3-section">
+			<div class="w3-col" style="width:50px"><i class="w3-xxlarge fa fa-user"></i></div>
+			<div class="w3-rest">
+				<input class="w3-input w3-border" name="first" id="name" type="text" placeholder="First Name">
+			</div>
+		</div>
+
+		<div class="w3-row w3-section">
+			<div class="w3-col" style="width:50px"><i class="w3-xxlarge fa fa-envelope-o"></i></div>
+			<div class="w3-rest">
+				<input class="w3-input w3-border" name="email" id="email" type="text" placeholder="Email">
+			</div>
+		</div>
+
+		<div class="w3-row w3-section">
+			<div class="w3-col" style="width:50px"><i class="w3-xxlarge fa fa-phone"></i></div>
+			<div class="w3-rest">
+				<input class="w3-input w3-border" name="phone" id="phone" type="text" placeholder="Phone">
+			</div>
+		</div>
+
+		<div class="w3-row w3-section">
+			<div class="w3-col" style="width:300px">Who received services in this facility?</div>
+			<div class="w3-rest">
 				<select id="person">
 					<option disabled selected hidden>Please Select</option>
 					<option value="self">Self</option>
 					<option value="fmember">Family Member</option>
 					<option value="friend">Friend or Relative</option>
-				</select>
-			</td>
-		</tr>
+					</select>
+                </div>
+            </div>
 
-		<tr>
-			<td style="width: 51%">
-				<label style="margin-left: 10px">What services did you avail :-</label>
-			</td>
-			<td  style="width: 40%">
+		<div class="w3-row w3-section">
+			<div class="w3-col" style="width:300px">What services did you avail :-</div>
+			<div class="w3-rest">
 				<select id="services">
-					<option disabled selected hidden>Please Select</option>
-					<option value="outpatient">Outpatient</option>
-					<option value="inpatient">Inpatient</option>
-					<option value="diagnostics">Diagnostics</option>
+				<option disabled selected hidden>Please Select</option>
+				<option value="outpatient">Outpatient</option>
+				<option value="inpatient">Inpatient</option>
+				<option value="diagnostics">Diagnostics</option>
 				</select>
-			</td>
-		</tr>
-		<tr>
-			<td style="width: 51%">
-				<label style="margin-left: 10px">Please give your overall rating(1-5)</label>
-			</td>
-			<td  style="width: 40%">
+			</div>
+		</div>
+
+		<div class="w3-row w3-section">
+			<div class="w3-col" style="width:300px">Please give your overall rating(1-5)</div>
+			<div class="w3-rest">
 				<select id="rating">
-					<option disabled selected hidden>Please Select</option>
-					<option value="1">1</option>
-					<option value="2">2</option>
-					<option value="3">3</option>
-					<option value="4">4</option>
-					<option value="5">5</option>
+				<option disabled selected hidden>Please Select</option>
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="5">5</option>
 				</select>
-			</td>
-		</tr>
-		<tr>
-			<td style="width: 51%">
-				<label style="margin-left: 10px">Additional Comments</label>
-			</td>
-			<td  style="width: 40%">
-				<input class="w3-input" type="text" id="comments">
-			</td>
-		</tr>
+			</div>
+		</div>
+		<div class="w3-row w3-section">
+			<div class="w3-col" style="width:300px">Additional Comments</div>
+			<div class="w3-rest">
+				<input class="w3-input w3-border" type="text" id="comments" placeholder="Comments">
+			</div>
+		</div>
+
+		<!--<table style="width: 500px">-->
+		<!--&lt;!&ndash;<tr>&ndash;&gt;-->
+			<!--&lt;!&ndash;<td>&ndash;&gt;-->
+				<!--&lt;!&ndash;<label class="w3-xxlarge fa fa-user"></label>&ndash;&gt;-->
+			<!--&lt;!&ndash;</td>&ndash;&gt;-->
+			<!--&lt;!&ndash;<td>&ndash;&gt;-->
+				<!--&lt;!&ndash;<input class="w3-input w3-border" type="text" id="name" placeholder="Full Name">&ndash;&gt;-->
+			<!--&lt;!&ndash;</td>&ndash;&gt;-->
+		<!--&lt;!&ndash;</tr>&ndash;&gt;-->
 
 
-	</table>
+		<!--<tr>-->
+			<!--<td>-->
+				<!--<label class="w3-xxlarge fa fa-envelope-o"></label>-->
+			<!--</td>-->
+			<!--<td>-->
+				<!--<input class="w3-input w3-border" type="email" id="email" placeholder="Email">-->
+			<!--</td>-->
+		<!--</tr>-->
+
+		<!--<tr>-->
+			<!--<td>-->
+				<!--<label class="w3-xxlarge fa fa-phone"></label>-->
+			<!--</td>-->
+			<!--<td>-->
+				<!--<input class="w3-input w3-border"  id="phone" placeholder="Mobile Number">-->
+			<!--</td>-->
+		<!--</tr>-->
+
+		<!--<tr>-->
+			<!--<td>-->
+				<!--<label>Who received services in this facility?</label>-->
+			<!--</td>-->
+			<!--<td>-->
+				<!--<select id="person">-->
+					<!--<option disabled selected hidden>Please Select</option>-->
+					<!--<option value="self">Self</option>-->
+					<!--<option value="fmember">Family Member</option>-->
+					<!--<option value="friend">Friend or Relative</option>-->
+				<!--</select>-->
+			<!--</td>-->
+		<!--</tr>-->
+
+		<!--<tr>-->
+			<!--<td>-->
+				<!--<label>What services did you avail :-</label>-->
+			<!--</td>-->
+			<!--<td>-->
+				<!--<select id="services">-->
+					<!--<option disabled selected hidden>Please Select</option>-->
+					<!--<option value="outpatient">Outpatient</option>-->
+					<!--<option value="inpatient">Inpatient</option>-->
+					<!--<option value="diagnostics">Diagnostics</option>-->
+				<!--</select>-->
+			<!--</td>-->
+		<!--</tr>-->
+
+		<!--<tr>-->
+			<!--<td>-->
+				<!--<label>Please give your overall rating(1-5)</label>-->
+			<!--</td>-->
+			<!--<td>-->
+				<!--<select id="rating">-->
+					<!--<option disabled selected hidden>Please Select</option>-->
+					<!--<option value="1">1</option>-->
+					<!--<option value="2">2</option>-->
+					<!--<option value="3">3</option>-->
+					<!--<option value="4">4</option>-->
+					<!--<option value="5">5</option>-->
+				<!--</select>-->
+			<!--</td>-->
+		<!--</tr>-->
+		<!--<tr>-->
+			<!--<td>-->
+				<!--<label>Additional Comments</label>-->
+			<!--</td>-->
+			<!--<td>-->
+				<!--<input class="w3-input w3-border" type="text" id="comments" placeholder="Comments">-->
+			<!--</td>-->
+		<!--</tr>-->
+
+
+	<!--</table>-->
+		</div>
 	<hr>
 
 	<p style="padding:20px; text-align:center"><button class="w3-btn" style="background-color:#2978B3" onclick="saveRating()">Submit</button></p>
