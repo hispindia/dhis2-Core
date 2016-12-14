@@ -521,7 +521,7 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
             reference : "address",
             key: "KOhqEw0UKxA",
             index : 0,
-            arrayName:"addressjoin"
+            arrayName:"address"
         },{
             reference : "pincode",
             key: "xjJR4dTmn4p",
@@ -911,8 +911,7 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
 
             arrayMap["special"] = special;
             arrayMap["name"] = name;
-            arrayMap["addressjoin"] = addressjoin;
-            arrayMap["address"] = address;
+            arrayMap["address"] = addressjoin;
             arrayMap["pincode"] = pincode;
             arrayMap["village"] = village;
             arrayMap["mobile"] = mobile;
