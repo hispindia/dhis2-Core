@@ -92,7 +92,7 @@
       <select id="optionSet" name="optionSetUid" style="width: 310px">
         <option value="0">[$i18n.getString('please_select')]</option>
         #foreach( $optionSet in $optionSets )
-        <option value="$optionSet.uid" #if( $attribute.optionSet && $attribute.optionSet.uid == $optionSet.uid )selected="selected"#end>$optionSet.displayName</option>
+        <option value="$optionSet.uid" #if( $attribute.optionSet && $attribute.optionSet.uid == $optionSet.uid )selected="selected"#end>$encoder.htmlEncode($optionSet.displayName)</option>
         #end
       </select>
     </td>

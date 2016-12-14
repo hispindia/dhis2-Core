@@ -16,7 +16,9 @@ function showUpdateTrackedEntityForm( context ) {
 function showTrackedEntityDetails( context ) {
   jQuery.getJSON('getTrackedEntity.action', { id: context.id },
     function( json ) {
-      setInnerHTML('nameField', json.trackedEntity.name);
+      //setInnerHTML('nameField', json.trackedEntity.name);
+        document.getElementById('nameField').textContent = json.trackedEntity.name;
+
       setInnerHTML('descriptionField', json.trackedEntity.description);
       setInnerHTML('idField', json.trackedEntity.uid);
 

@@ -67,7 +67,7 @@
             <select id="reportTableId" name="reportTableId">
             <option value="0">[ $i18n.getString( "none" ) ]</option>
             #foreach( $table in $reportTables )
-                <option value="$table.id"#if( $!report.reportTable.id == $table.id ) selected="selected"#end>$table.name</option>
+<option value="$table.id"#if( $!report.reportTable.id == $table.id ) selected="selected"#end>$encoder.htmlEncode($table.name)</option>
             #end
             </select>
         </td>

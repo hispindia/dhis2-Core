@@ -19,7 +19,8 @@ function showUpdateAttributeForm(context) {
 function showAttributeDetails(context) {
   jQuery.getJSON('getAttribute.action', { id: context.id },
     function(json) {
-      setInnerHTML('nameField', json.attribute.name);
+      //setInnerHTML('nameField', json.attribute.name);
+      document.getElementById('nameField').textContent = json.attribute.name;
       setInnerHTML('descriptionField', json.attribute.description);
       setInnerHTML('optionSetField', json.attribute.optionSet);
       setInnerHTML('idField', json.attribute.uid);

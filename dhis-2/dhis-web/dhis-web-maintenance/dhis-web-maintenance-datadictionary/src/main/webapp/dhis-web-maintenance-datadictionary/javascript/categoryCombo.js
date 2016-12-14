@@ -9,7 +9,9 @@ $(function() {
 function showDataElementCategoryComboDetails( context ) {
     jQuery.post( 'getDataElementCategoryCombo.action', { id: context.id },
 		function ( json) {
-			setInnerHTML( 'nameField', json.dataElementCategoryCombo.name );
+			//setInnerHTML( 'nameField', json.dataElementCategoryCombo.name );
+
+            document.getElementById('nameField').textContent = json.dataElementCategoryCombo.name;
 			setInnerHTML( 'dataElementCategoryCountField', json.dataElementCategoryCombo.dataElementCategoryCount );
 			setInnerHTML( 'idField', json.dataElementCategoryCombo.uid );
 

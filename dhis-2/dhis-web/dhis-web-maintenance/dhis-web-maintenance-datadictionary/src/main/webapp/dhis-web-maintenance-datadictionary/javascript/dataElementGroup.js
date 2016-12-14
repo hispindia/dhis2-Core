@@ -23,11 +23,14 @@ function showDataElementGroupDetails( context ) {
   jQuery.post('../dhis-web-commons-ajax-json/getDataElementGroup.action',
     { id: context.id }, function( json ) {
 
-      setInnerHTML('nameField', json.dataElementGroup.name);
-      setInnerHTML('shortNameField', json.dataElementGroup.shortName);
+      //setInnerHTML('nameField', json.dataElementGroup.name);
+      //setInnerHTML('shortNameField', json.dataElementGroup.shortName);
       setInnerHTML('codeField', json.dataElementGroup.code);
       setInnerHTML('memberCountField', json.dataElementGroup.memberCount);
       setInnerHTML('idField', json.dataElementGroup.uid);
+
+          document.getElementById('nameField').textContent = json.dataElementGroup.name;
+          document.getElementById('shortNameField').textContent = json.dataElementGroup.shortName;
 
       showDetails();
     });

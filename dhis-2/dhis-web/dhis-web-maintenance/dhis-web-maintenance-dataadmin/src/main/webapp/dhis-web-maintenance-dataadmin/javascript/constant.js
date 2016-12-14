@@ -5,8 +5,11 @@
 function showConstantDetails( context ) {
   jQuery.post('getConstant.action', { id: context.id },
     function( json ) {
-      setInnerHTML('nameField', json.constant.name);
-      setInnerHTML('shortNameField', json.constant.shortName);
+      //setInnerHTML('nameField', json.constant.name);
+      //setInnerHTML('shortNameField', json.constant.shortName);
+
+        document.getElementById('nameField').textContent = json.constant.name;
+        document.getElementById('shortNameField').textContent = json.constant.shortName;
       setInnerHTML('codeField', json.constant.code);
       setInnerHTML('valueField', json.constant.value);
       setInnerHTML('idField', json.constant.uid);

@@ -9,11 +9,13 @@ function showUpdateValidationRuleGroupForm( context ) {
 
 function showValidationRuleGroupDetails( context ) {
   jQuery.post('getValidationRuleGroup.action', { 'id': context.id }, function( json ) {
-    setInnerHTML('nameField', json.validationRuleGroup.name);
+    //setInnerHTML('nameField', json.validationRuleGroup.name);
     setInnerHTML('descriptionField', json.validationRuleGroup.description);
     setInnerHTML('memberCountField', json.validationRuleGroup.memberCount);
     setInnerHTML('userGroupsToAlertCountField', json.validationRuleGroup.userGroupsToAlertCount);
 	setInnerHTML('idField', json.validationRuleGroup.uid);
+
+    document.getElementById('nameField').textContent =json.validationRuleGroup.name;
 
     showDetails();
   });

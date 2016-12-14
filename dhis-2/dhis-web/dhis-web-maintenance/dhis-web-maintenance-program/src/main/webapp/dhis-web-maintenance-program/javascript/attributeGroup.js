@@ -16,7 +16,8 @@ function showUpdateAttributeGroupForm( context ) {
 function showAttributeGroupDetails( context ) {
   jQuery.getJSON('getAttributeGroup.action', { id: context.id },
     function( json ) {
-      setInnerHTML('nameField', json.attributeGroup.name);
+      //setInnerHTML('nameField', json.attributeGroup.name);
+        document.getElementById('nameField').textContent = json.attributeGroup.name;
       setInnerHTML('descriptionField', json.attributeGroup.description);
       setInnerHTML('noAttributeField', json.attributeGroup.noAttribute);
       setInnerHTML('idField', json.attributeGroup.uid);

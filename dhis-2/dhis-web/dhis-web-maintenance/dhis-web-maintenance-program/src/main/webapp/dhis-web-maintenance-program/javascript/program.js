@@ -45,7 +45,9 @@ function showProgramDetails( context ) {
   jQuery.getJSON("getProgram.action", {
     id: context.id
   }, function( json ) {
-    setInnerHTML('nameField', json.program.name);
+    //setInnerHTML('nameField', json.program.name);
+
+    document.getElementById('nameField').textContent = json.program.name;
     setInnerHTML('descriptionField', json.program.description);
     setInnerHTML('idField', json.program.uid);
 

@@ -27,7 +27,9 @@ function onOptionSetChange(e) {
 function showAttributeDetails(context) {
   jQuery.post('getAttribute.action', { id: context.id },
     function(json) {
-      setInnerHTML('nameField', json.attribute.name);
+      //setInnerHTML('nameField', json.attribute.name);
+
+        document.getElementById('nameField').textContent = json.attribute.name;
       setInnerHTML('mandatoryField', json.attribute.mandatory);
       setInnerHTML('dataelementField', json.attribute.dataelement);
       setInnerHTML('indicatorField', json.attribute.indicator);

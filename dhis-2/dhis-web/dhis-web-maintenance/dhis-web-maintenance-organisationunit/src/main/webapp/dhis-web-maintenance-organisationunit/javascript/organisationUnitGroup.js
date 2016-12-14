@@ -5,8 +5,11 @@
 function showOrganisationUnitGroupDetails( context ) {
   jQuery.post('getOrganisationUnitGroup.action', { id: context.id },
     function( json ) {
-      setInnerHTML('nameField', json.organisationUnitGroup.name);
-      setInnerHTML('shortNameField', json.organisationUnitGroup.shortName);
+      //setInnerHTML('nameField', json.organisationUnitGroup.name);
+      //setInnerHTML('shortNameField', json.organisationUnitGroup.shortName);
+
+        document.getElementById('nameField').textContent = json.organisationUnitGroup.name;
+        document.getElementById('shortNameField').textContent = json.organisationUnitGroup.shortName;
       setInnerHTML('codeField', json.organisationUnitGroup.code);
       setInnerHTML('memberCountField', json.organisationUnitGroup.memberCount);
       setInnerHTML('idField', json.organisationUnitGroup.uid);

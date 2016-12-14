@@ -65,8 +65,12 @@ function showMoreOrFewerOptions()
 
 function showDataElementCategoryOptionDetails( context ) {
 	jQuery.post( 'getDataElementCategoryOption.action', { id: context.id } ,function ( json ) {		
-		setInnerHTML( 'nameField', json.dataElementCategoryOption.name );
-		setInnerHTML( 'shortNameField', json.dataElementCategoryOption.shortName );
+		//setInnerHTML( 'nameField', json.dataElementCategoryOption.name );
+		//setInnerHTML( 'shortNameField', json.dataElementCategoryOption.shortName );
+
+		document.getElementById('nameField').textContent = json.dataElementCategoryOption.name;
+		document.getElementById('shortNameField').textContent = json.dataElementCategoryOption.shortName;
+
 		setInnerHTML( 'codeField', json.dataElementCategoryOption.code );
 		setInnerHTML( 'startDateField', json.dataElementCategoryOption.startDate );
 		setInnerHTML( 'endDateField', json.dataElementCategoryOption.endDate );

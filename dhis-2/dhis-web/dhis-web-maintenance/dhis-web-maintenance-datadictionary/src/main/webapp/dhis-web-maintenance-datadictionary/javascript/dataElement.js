@@ -94,9 +94,11 @@ function criteriaChanged() {
 function showDataElementDetails( context ) {
   jQuery.get('../dhis-web-commons-ajax-json/getDataElement.action',
     { "id": context.id }, function( json ) {
-      setInnerHTML('nameField', json.dataElement.name);
-      setInnerHTML('shortNameField', json.dataElement.shortName);
+      //setInnerHTML('nameField', json.dataElement.name);
+      //setInnerHTML('shortNameField', json.dataElement.shortName);
 
+          document.getElementById('nameField').textContent = json.dataElement.name;
+          document.getElementById('shortNameField').textContent = json.dataElement.shortName;
       var description = json.dataElement.description;
       setInnerHTML('descriptionField', description ? description : '[' + i18n_none + ']');
 

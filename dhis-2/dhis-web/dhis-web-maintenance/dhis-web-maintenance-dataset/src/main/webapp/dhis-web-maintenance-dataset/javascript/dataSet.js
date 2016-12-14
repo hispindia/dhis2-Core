@@ -9,7 +9,9 @@ function showDataSetDetails( context ) {
   jQuery.get('../dhis-web-commons-ajax-json/getDataSet.action', {
     id: context.id
   }, function( json ) {
-    setInnerHTML('nameField', json.dataSet.name);
+    //setInnerHTML('nameField', json.dataSet.name);
+
+    document.getElementById('nameField').textContent = json.dataSet.name;
     setInnerHTML('descriptionField', json.dataSet.description);
     setInnerHTML('frequencyField', json.dataSet.frequency);
     setInnerHTML('dataElementCountField', json.dataSet.dataElementCount);

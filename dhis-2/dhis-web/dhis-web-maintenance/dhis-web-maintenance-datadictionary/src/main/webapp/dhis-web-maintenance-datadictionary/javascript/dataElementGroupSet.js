@@ -31,7 +31,8 @@ function deleteDataElementGroupSet( context ) {
 function showDataElementGroupSetDetails( context ) {
   $.post('../dhis-web-commons-ajax-json/getDataElementGroupSet.action', { id: context.id },
     function( json ) {
-      setInnerHTML('nameField', json.dataElementGroupSet.name);
+      //setInnerHTML('nameField', json.dataElementGroupSet.name);
+        document.getElementById('nameField').textContent = json.dataElementGroupSet.name;
       setInnerHTML('memberCountField', json.dataElementGroupSet.memberCount);
       setInnerHTML('idField', json.dataElementGroupSet.uid);
 

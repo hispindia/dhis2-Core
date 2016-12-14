@@ -45,7 +45,7 @@ function getConstantsPage()
 	jQuery.get( '../api/constants.json?paging=false&links=false',
 		function( json ) {
 			jQuery.each( json.constants, function(i, item) {
-				target.append( '<option value="C{' + item.id + '}">' + item.name + '</option>' );
+				target.append( '<option value="C{' + item.id + '}">' + $('<b/>').text(item.name).html() + '</option>' );
 			});
 		});
 }
@@ -58,7 +58,7 @@ function getOrgUnitGroupsPage()
     jQuery.get( '../api/organisationUnitGroups.json?paging=false&links=false',
         function( json ) {
             jQuery.each( json.organisationUnitGroups, function(i, item) {
-                target.append( '<option value="OUG{' + item.id + '}">' + item.name + '</option>' );
+                target.append( '<option value="OUG{' + item.id + '}">' + $('<b/>').text(item.name).html() + '</option>' );
             });
         });
 }

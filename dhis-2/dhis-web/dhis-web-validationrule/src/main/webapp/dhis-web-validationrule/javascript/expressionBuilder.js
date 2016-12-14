@@ -63,7 +63,7 @@ function getConstantsPage()
 		}
 		
 		jQuery.each( json.constants, function(i, item) {
-			target.append( '<option value="C{' + item.id + '}">' + item.name + '</option>' );
+			target.append( '<option value="C{' + item.id + '}">' + $('<b/>').text(item.name).html() + '</option>' );
 		});
 	});
 }

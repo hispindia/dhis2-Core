@@ -15,8 +15,11 @@ function showUpdateRelationshipTypeForm( context ) {
 
 function showRelationshipTypeDetails( context ) {
   jQuery.getJSON('getRelationshipType.action', { id: context.id }, function( json ) {
-    setInnerHTML('aIsToBField', json.relationshipType.aIsToB);
-    setInnerHTML('bIsToAField', json.relationshipType.bIsToA);
+    //setInnerHTML('aIsToBField', json.relationshipType.aIsToB);
+    //setInnerHTML('bIsToAField', json.relationshipType.bIsToA);
+
+    document.getElementById('aIsToBField').textContent = json.relationshipType.aIsToB;
+    document.getElementById('bIsToAField').textContent = json.relationshipType.bIsToA;
     setInnerHTML('descriptionField', json.relationshipType.description);
     setInnerHTML('idField', json.relationshipType.uid);
 

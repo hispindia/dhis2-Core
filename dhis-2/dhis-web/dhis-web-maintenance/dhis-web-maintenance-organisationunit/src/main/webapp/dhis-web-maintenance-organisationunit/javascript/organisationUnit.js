@@ -35,8 +35,11 @@ function showUpdateOrganisationUnitForm( context ) {
 function showOrganisationUnitDetails( context ) {
     jQuery.post( '../dhis-web-commons-ajax-json/getOrganisationUnit.action',
 		{ id: context.uid }, function ( json ) {
-		setInnerHTML( 'nameField', json.organisationUnit.name );
-		setInnerHTML( 'shortNameField', json.organisationUnit.shortName );
+		//setInnerHTML( 'nameField', json.organisationUnit.name );
+		//		setInnerHTML( 'shortNameField', json.organisationUnit.shortName );
+
+				document.getElementById('nameField').textContent = json.organisationUnit.name;
+				document.getElementById('shortNameField').textContent = json.organisationUnit.shortName;
 		setInnerHTML( 'descriptionField', json.organisationUnit.description );
 		setInnerHTML( 'openingDateField', json.organisationUnit.openingDate );
 		setInnerHTML( 'idField', json.organisationUnit.uid );

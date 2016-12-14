@@ -16,7 +16,9 @@ function showUpdateCategoryOptionGroupSetForm( context ) {
 function showCategoryOptionGroupSetDetails( context ) {
   jQuery.getJSON('getCategoryOptionGroupSet.action', { id: context.id },
     function( json ) {
-      setInnerHTML('nameField', json.categoryOptionGroupSet.name);
+      //setInnerHTML('nameField', json.categoryOptionGroupSet.name);
+
+        document.getElementById('nameField').textContent = json.categoryOptionGroupSet.name;
       setInnerHTML('descriptionField', json.categoryOptionGroupSet.description);
       setInnerHTML('memberCountField', json.categoryOptionGroupSet.memberCount);
       setInnerHTML('idField', json.categoryOptionGroupSet.uid);

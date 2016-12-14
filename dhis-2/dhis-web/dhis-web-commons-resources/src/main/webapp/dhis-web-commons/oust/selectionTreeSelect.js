@@ -115,7 +115,8 @@ function loadOrganisationUnitGroup()
 		groups.empty();
 		jQuery.each(json.organisationUnitGroups, function( i, item )
 		{
-			groups.append('<option value="' + item.id + '">' + item.name + '</option>');
+			
+			groups.append('<option value="' + item.id + '">' +$('<b/>').text(item.name).html() + '</option>');
 		});
 
 		loadOrganisationUnitLevel();

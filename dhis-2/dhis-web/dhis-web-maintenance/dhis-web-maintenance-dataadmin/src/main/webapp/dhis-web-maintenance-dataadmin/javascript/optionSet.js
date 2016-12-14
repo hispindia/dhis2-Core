@@ -9,7 +9,10 @@ function showUpdateOptionSetForm( context ) {
 function showOptionSetDetails( context ) {
   jQuery.post('getOptionSet.action', { id: context.id },
     function( json ) {
-      setInnerHTML('nameField', json.optionSet.name);
+      //setInnerHTML('nameField', json.optionSet.name);
+
+      document.getElementById('nameField').textContent = json.optionSet.name;
+
       setInnerHTML('optionCount', json.optionSet.optionCount);
       setInnerHTML('idField', json.optionSet.uid);
       showDetails();

@@ -10,7 +10,9 @@ function showOrganisationUnitGroupSetDetails( context )
 {
 	jQuery.post( 'getOrganisationUnitGroupSet.action', { id: context.id },
 		function ( json ) {
-			setInnerHTML( 'nameField', json.organisationUnitGroupSet.name );
+			//setInnerHTML( 'nameField', json.organisationUnitGroupSet.name );
+
+			document.getElementById('nameField').textContent = json.organisationUnitGroupSet.name;
 			setInnerHTML( 'descriptionField', json.organisationUnitGroupSet.description );
 			setInnerHTML( 'idField', json.organisationUnitGroupSet.uid );
 			

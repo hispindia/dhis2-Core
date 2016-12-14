@@ -101,7 +101,7 @@
 				<select id='trackedEntityId' name='trackedEntityId' >
 					<option value=''>[$i18n.getString('please_select')]</option>
 					#foreach($trackedEntity in $trackedEntities)
-					<option value='$trackedEntity.id'>$trackedEntity.displayName</option>
+					<option value='$trackedEntity.id'>$encoder.htmlEncode($trackedEntity.displayName)</option>
 					#end
 				</select>
 			</td>
@@ -254,7 +254,7 @@
 		<td>
 			<select style="width:100%;" size="15" multiple id="availablePropertyIds" name="availablePropertyIds" ondblclick="selectProperties();">
 				#foreach( $attribute in $availableAttributes )
-					<option value="attr_$attribute.id" valuetype='$attribute.valueType'>$attribute.displayName</option>
+				<option value="attr_$attribute.id" valuetype='$attribute.valueType'>$encoder.htmlEncode($attribute.displayName)</option>
 				#end
 			</select>
 		</td>

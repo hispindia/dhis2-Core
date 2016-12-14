@@ -12,7 +12,9 @@ $(function() {
 function showIndicatorGroupDetails( context ) {
   jQuery.get('../dhis-web-commons-ajax-json/getIndicatorGroup.action',
     { id: context.id }, function( json ) {
-      setInnerHTML('nameField', json.indicatorGroup.name);
+      //setInnerHTML('nameField', json.indicatorGroup.name);
+
+          document.getElementById('nameField').textContent = json.indicatorGroup.name;
       setInnerHTML('memberCountField', json.indicatorGroup.memberCount);
 	  setInnerHTML('idField', json.indicatorGroup.uid);
 

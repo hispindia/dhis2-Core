@@ -16,7 +16,8 @@ function editUserGroupForm( context ) {
 function showUserGroupDetails( context ) {
   jQuery.post('getUserGroup.action', { userGroupId: context.id },
     function( json ) {
-      setInnerHTML('nameField', json.userGroup.name);
+      //setInnerHTML('nameField', json.userGroup.name);
+      document.getElementById('nameField').textContent =json.userGroup.name;
       setInnerHTML('noOfGroupField', json.userGroup.noOfUsers);
       setInnerHTML('idField', json.userGroup.uid);
 

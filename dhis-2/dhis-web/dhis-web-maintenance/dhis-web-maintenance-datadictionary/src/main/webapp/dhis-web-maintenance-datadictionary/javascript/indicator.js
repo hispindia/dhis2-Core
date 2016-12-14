@@ -53,10 +53,13 @@ function showIndicatorDetails( context )
     jQuery.get( '../dhis-web-commons-ajax-json/getIndicator.action',
 		{ id: context.id }, function( json ) {
 		
-		setInnerHTML( 'nameField', json.indicator.name );
+		//setInnerHTML( 'nameField', json.indicator.name );
 
-		setInnerHTML( 'shortNameField', json.indicator.shortName );
+            document.getElementById('nameField').textContent = json.indicator.name;
 
+
+		//setInnerHTML( 'shortNameField', json.indicator.shortName );
+            document.getElementById('shortNameField').textContent = json.indicator.shortName;
 		var description = json.indicator.description;
 		setInnerHTML( 'descriptionField', description ? description : '[' + i18n_none + ']' );
 
