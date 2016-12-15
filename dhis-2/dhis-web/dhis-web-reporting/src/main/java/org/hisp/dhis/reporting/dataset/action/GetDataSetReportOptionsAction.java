@@ -31,8 +31,11 @@ package org.hisp.dhis.reporting.dataset.action;
 import static org.hisp.dhis.period.PeriodType.getAvailablePeriodTypes;
 import static org.hisp.dhis.period.PeriodType.getPeriodFromIsoString;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.hisp.dhis.common.comparator.IdentifiableObjectNameComparator;
@@ -46,7 +49,9 @@ import org.hisp.dhis.organisationunit.OrganisationUnitGroupSet;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.oust.manager.SelectionTreeManager;
 import org.hisp.dhis.period.Period;
+import org.hisp.dhis.period.PeriodService;
 import org.hisp.dhis.period.PeriodType;
+import org.hisp.dhis.period.comparator.PeriodComparator;
 import org.joda.time.DateTime;
 
 import com.opensymphony.xwork2.Action;
@@ -95,7 +100,14 @@ public class GetDataSetReportOptionsAction
     {
         this.selectionTreeManager = selectionTreeManager;
     }
+    
+    // add for IPPF
+    private PeriodService periodService;
 
+    public void setPeriodService( PeriodService periodService )
+    {
+        this.periodService = periodService;
+    }
     // -------------------------------------------------------------------------
     // Input
     // -------------------------------------------------------------------------
@@ -197,7 +209,17 @@ public class GetDataSetReportOptionsAction
     {
         return organisationUnitGroupSets;
     }
-
+    
+    // add for IPPF
+    private List<String> yearList;
+    
+    public List<String> getYearList()
+    {
+        return yearList;
+    }
+    
+    private SimpleDateFormat simpleDateFormat;
+    
     // -------------------------------------------------------------------------
     // Action implementation
     // -------------------------------------------------------------------------
@@ -231,6 +253,32 @@ public class GetDataSetReportOptionsAction
         Collections.sort( categoryCombos, IdentifiableObjectNameComparator.INSTANCE );
         Collections.sort( categoryOptionGroupSets, IdentifiableObjectNameComparator.INSTANCE );
         Collections.sort( organisationUnitGroupSets, IdentifiableObjectNameComparator.INSTANCE );
+        
+        // add for IPPF
+        PeriodType periodType = periodService.getPeriodTypeByName( "Yearly" );
+        
+        List<Period> periods = new ArrayList<Period>( periodService.getPeriodsByPeriodType( periodType ) );
+        
+        Iterator<Period> periodIterator = periods.iterator();
+        while ( periodIterator.hasNext() )
+        {
+            Period p1 = periodIterator.next();
+
+            if ( p1.getStartDate().compareTo( new Date() ) > 0 )
+            {
+                periodIterator.remove();
+            }
+
+        }
+        
+        Collections.sort( periods, new PeriodComparator() );
+        
+        yearList = new ArrayList<String>();
+        simpleDateFormat = new SimpleDateFormat( "yyyy" );
+        for ( Period p1 : periods )
+        {
+            yearList.add( simpleDateFormat.format( p1.getStartDate() ) );
+        }
         
         return SUCCESS;
     }

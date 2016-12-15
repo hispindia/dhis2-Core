@@ -136,13 +136,31 @@ dhis2.dsr.displayPeriods = function()
 dhis2.dsr.displayPeriodsInternal = function( periodType, offset )
 {
     var periods = dhis2.period.generator.generateReversedPeriods(periodType, offset);
-
-    $( "#periodId" ).removeAttr( "disabled" );
-    clearListById( "periodId" );
-
-    for ( i in periods )
+    
+    // add for IPPF
+    if( periodType == "Weekly" )
     {
-        addOptionById( "periodId", periods[i].iso, periods[i].name );
+    	//$("#previousPeriod").attr("disabled", true);
+    	//$("#nextPeriod").attr("disabled", true);
+    	showById('yearMonth');
+    	$( "#periodId" ).removeAttr( "disabled" );
+    	clearListById( "periodId" );
+    	getWeeklyPeriods();
+    }
+    // end for IPPF
+    else
+    {
+    	hideById('yearMonth');
+    	
+    	//$( "#previousPeriod" ).removeAttr( "disabled" );
+    	//$( "#nextPeriod" ).removeAttr( "disabled" );        
+        $( "#periodId" ).removeAttr( "disabled" );
+        clearListById( "periodId" );
+
+        for ( i in periods )
+        {
+            addOptionById( "periodId", periods[i].iso, periods[i].name );
+        }
     }
 };
 
@@ -160,6 +178,46 @@ dhis2.dsr.displayPreviousPeriods = function()
     dhis2.dsr.currentPeriodOffset--;
     dhis2.dsr.displayPeriods();
 };
+
+//---------------------------------------------------------------
+//Get Weekly Periods  add for IPPF
+//---------------------------------------------------------------
+
+function getWeeklyPeriods()
+{
+	var yearList = document.getElementById( "year" );
+	var year = yearList.options[ yearList.selectedIndex ].value;
+	
+	var monthList = document.getElementById( "month" );
+	var month = monthList.options[ monthList.selectedIndex ].value;
+	
+	var periodList = document.getElementById( "periodId" );
+	clearList( periodList );
+	clearListById( "periodId" );
+	
+	//var url = 'getWeeklyPeriods.action';
+	
+	var url = 'getWeeklyPeriods.action?year=' + year + '&month=' + month;
+	
+	if ( year != "NA" )
+	{ 
+		 $.getJSON( url, function( json ) {
+		    	for ( i in json.periods ) {
+		    		//addOptionToList( periodList, json.periods[i].isoDate, json.periods[i].isoDate + "  " +json.periods[i].name );
+		    		addOptionToList( periodList, json.periods[i].isoDate, json.periods[i].name );
+		    	}
+		    } );
+	}
+	else
+	{
+		clearList( tempPeriods );
+		clearListById( "periodId" );
+	}
+	
+}
+
+// end
+
 
 //------------------------------------------------------------------------------
 // Run report

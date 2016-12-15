@@ -39,8 +39,12 @@ div.inputSection {
 
 <div id="control">
 <input type="button" id="dataButton" value='$i18n.getString( "data_criteria" )' style="width:140px" onclick="dhis2.dsr.showCriteria()" disabled="disabled">
+<!-- comment for IPPF -->
+<!--
 <input type="button" class="downloadButton" value="$i18n.getString( 'get_report_as_xls' )" onclick="dhis2.dsr.exportDataSetReport( 'xls' )" style="width:140px; display:none;">
 <input type="button" class="downloadButton" value="$i18n.getString( 'get_report_as_pdf' )" onclick="dhis2.dsr.exportDataSetReport( 'pdf' )" style="width:140px; display:none;">
+-->
+<!-- -->
 <input type="button" class="downloadButton" value="$i18n.getString( 'print' )" onclick="window.print()" style="width:140px; display:none;">
 </div>
 
@@ -74,7 +78,43 @@ div.inputSection {
 </select>
 <input type="button" style="width:75px" value="$i18n.getString( 'prev_year' )" onclick="dhis2.dsr.displayPreviousPeriods()" />
 <input type="button" style="width:75px" value="$i18n.getString( 'next_year' )" onclick="dhis2.dsr.displayNextPeriods()" /><br>
-
+<!-- add for IPPF -->
+<div id="yearMonth" style="display:none">
+	<table>
+    	<tr>
+            <td>$i18n.getString( "Year" )</td>
+    		<td>$i18n.getString( "Month" )</td>
+        </tr>
+		<tr>
+			<td>
+				<select id="year" name="year" style="width:160px" onchange="getWeeklyPeriods()">
+					#foreach ( $year in $yearList )
+						<option value="$year">$year</option>
+					#end
+				</select>
+            </td>
+			<td>
+				<select id="month" name="month" style="width:160px" onchange="getWeeklyPeriods()">
+                    <option value="01">January</option>
+					<option value="02">February</option>
+					<option value="03">March</option>
+					<option value="04">April</option>
+					<option value="05">May</option>
+					<option value="06">June</option>
+					<option value="07">July</option>
+					<option value="08">August</option>
+					<option value="09">September</option>
+					<option value="10">October</option>
+                    <option value="11">November</option>
+					<option value="12">December</option>
+				</select>
+            </td>	
+        </tr>
+	</table>
+	
+</div>	
+<!-- -->	
+	
 <select id="periodId" name="periodId" style="width:330px" disabled="disabled">
 </select>
 </div>

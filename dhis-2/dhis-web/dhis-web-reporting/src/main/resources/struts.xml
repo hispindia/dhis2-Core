@@ -235,6 +235,28 @@
       <param name="onExceptionReturn">plainTextError</param>
       <param name="requiredAuthorities">F_DATA_MART_ADMIN</param>
     </action>
+	
+	<!--  add for IPPF -->
+	
+    <!-- Get Weekly Periods -->
+    <action name="getWeeklyPeriods" class="org.hisp.dhis.reporting.dataset.action.GetWeeklyPeriodsAction">
+        <result name="success" type="velocity-json">/dhis-web-reporting/jsonWeeklyPeriods.vm</result>
+    </action>
+
+	<!--  For IPPF Resource Add UPDATE and DELETE-->
+    <action name="addResource" class="org.hisp.dhis.commons.action.NoAction">
+      <param name="requiredAuthorities">F_RESOURCE_ADD</param>
+    </action>
+    
+	<!--  for download dataSet Report as dataEntry Screen to excel -->
+    <action name="exportToExcel" class="org.hisp.dhis.reporting.excel.ExportToExcelAction">
+      <result name="success" type="stream">
+      	<param name="contentType">application/vnd.ms-excel</param>
+      	<param name="inputName">inputStream</param>
+      	<param name="contentDisposition">filename="${fileName}"</param>
+      	<param name="bufferSize">10240</param>
+      </result>
+    </action>
 
   </package>
 </struts>
