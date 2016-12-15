@@ -647,6 +647,26 @@
     <action name="getOption" class="org.hisp.dhis.dataadmin.action.option.GetOptionAction">
       <result name="success" type="velocity-json">/dhis-web-commons/ajax/jsonOption.vm</result>
     </action>
-    
+	
+	
+    <!-- Multiple User Population Form-->
+    <action name="populateMultipleUsersForm"
+      class="org.hisp.dhis.dataadmin.action.userimport.AddMultipleUserFormAction">
+      <result name="success" type="velocity">/main.vm</result>
+      <param name="page">/dhis-web-maintenance-dataadmin/multipleUserForm.vm</param>
+      <param name="menu">/dhis-web-maintenance-dataadmin/menu.vm</param>
+      <param name="requiredAuthorities">F_POPULATE_USERS</param>
+    </action>
+
+      <!-- Multiple User Population Result-->
+      <action name="populateMultipleUsers"
+          class="org.hisp.dhis.dataadmin.action.userimport.AddMultipleUserAction">
+          <result name="success" type="velocity">/main.vm</result>
+          <param name="page">/dhis-web-maintenance-dataadmin/responseUserImport.vm</param>
+          <param name="menu">/dhis-web-maintenance-dataadmin/menu.vm</param>
+          <interceptor-ref name="fileUploadStack"/>
+          <param name="requiredAuthorities">F_POPULATE_USERS</param>
+      </action>
+	  
   </package>
 </struts>
