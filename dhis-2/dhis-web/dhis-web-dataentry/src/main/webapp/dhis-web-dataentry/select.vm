@@ -58,6 +58,347 @@ var i18n_file_upload_failed = '$encoder.jsEscape( $i18n.getString( "file_upload_
 var i18n_loading_file_info_failed = '$encoder.jsEscape( $i18n.getString( "loading_file_info_failed" ), "'" )';
 </script>
 
+<!-- add for IPPF - weekly Period Load Month wise in dataEntry screen -->
+<script>
+  var selMonth=new Date().getMonth()+1;
+  var selYear=new Date().getFullYear();
+  var yearDiff=0;
+  var yr = new Date().getFullYear();
+  var today = new Date();
+
+  /*
+  $(document).ready(function(){
+
+      changeMonth();
+  });
+  */
+
+  function changeDate()
+  {
+    if(document.getElementById('sample2'))
+      document.getElementById('sample2').id="selectedPeriodId";
+
+    var dateFormat = 'yyyy-MM-dd';
+    var cyear = new Date().getFullYear()+yearDiff;
+
+    var cmonth=selMonth;
+    //alert
+
+    document.getElementById('selectMonths').selectedIndex=cmonth-1;
+
+    var cDate = new Date(cyear+'-01-01');
+    var selFirstDate = cDate;
+    var cday = cDate.getDay();
+    displayMonths(cyear);
+
+    var periods = [];
+
+    var i = 0;
+    var x = 0;
+
+    if(cyear=="2016")
+    {
+      if(selMonth=="01")
+      {
+        //setting the first day to monday
+        if( cday == 1 ) // Monday
+        {
+
+        }
+        else if( cday == 0 ) // sunday
+        {
+          cDate.setDate( cDate.getDate() - 6 );
+        }
+        else // others
+        {
+          cDate.setDate( cday - 1 );
+        }
+      }
+      else
+      {
+        //setting the first day to monday
+        if ( cday == 0 ) // Sunday
+        {
+          cDate.setDate(2);
+
+          //i=1;
+        }
+        else if ( cday == 1 ) // Monday
+        {
+
+        }
+        else // others
+        {
+          cDate.setDate(( 9 - cday ) );
+          //i=1;
+        }
+      }
+    }
+
+    else
+    {
+
+      if(selMonth=="01")
+      {
+        //setting the first day to monday
+        if( cday == 1 ) // Monday
+        {
+
+        }
+        else if( cday == 0 ) // sunday
+        {
+          cDate.setDate( cDate.getDate() - 6 );
+        }
+        else // others
+        {
+          cDate.setDate( cDate.getDate() - cday + 1 );
+        }
+      }
+      else
+      {
+        //setting the first day to monday
+        if ( cday == 0 ) // Sunday
+        {
+          cDate.setDate(2);
+          //console.log("2"+cDate);
+          i=1;
+        }
+        else if ( cday == 1 ) // Monday
+        {
+          //console.log("cday"+cday);
+
+        }
+        else // others
+        {
+          cDate.setDate(( 9 - cday ) );
+
+          i=1;
+        }
+      }
+    }
+
+    //alert(cDate);
+
+    var tempDate = cDate;
+    while ( cDate.getFullYear() <= cyear)
+    {
+      //individual values after adjusting
+      //lower limit ********************************************************
+      if(cDate.getDate()<10)
+        var pdate="0"+cDate.getDate();
+      else
+        var pdate=cDate.getDate();
+
+      var m = cDate.getMonth();
+      if(m<9)
+        var pmonth="0"+(cDate.getMonth()+1);
+      else
+        var pmonth=cDate.getMonth()+1;
+
+      var pyear=cDate.getFullYear();
+      var pfulldate=pyear+'-'+pmonth+'-'+pdate;
+
+      //upper limit ********************************************************
+      cDate.setDate(cDate.getDate()+6)
+      if((cDate.getDate())<10)
+        var pdate1="0"+cDate.getDate();
+      else
+        var pdate1=cDate.getDate();
+
+      var n = cDate.getMonth();
+      if(n<9)
+        var pmonth1="0"+(cDate.getMonth()+1);
+      else
+        var pmonth1=cDate.getMonth()+1;
+
+      var pyear1=cDate.getFullYear();
+      var pfulldate2=pyear1+'-'+pmonth1+'-'+pdate1;
+      //*********************************************************************
+      cDate.setDate(cDate.getDate()+1);
+      //console.log("pfulldate2"+pfulldate2);
+      var period;
+      var namee = 'W' + ( x + 1 ) + ' - ' + pfulldate+' - '+pfulldate2;
+
+      var id = cyear+'W'+(i+1);
+      period= {name:namee, id:id};
+
+
+      if((cmonth==pmonth && today>=cDate && cyear >= pyear1)||(cmonth==1 && pmonth==12  && today>=cDate && selFirstDate>=cDate  && cyear > pyear))
+      {
+        //alert(cmonth+" +++++ "+pmonth+" +++++ "+today+"+++++++ "+cDate);
+        periods[x] = period;
+
+
+        x++;
+      }
+      i++;
+      if(cmonth=="12")
+      {
+        periods[x] = period}
+
+      //alert ("i : "+i+" x: "+x);
+
+      tempDate = cDate;
+
+      displayDate(periods);
+    }
+  }
+  function displayDate(cperiods)
+  {
+    clearOptions();
+
+    if ( cperiods.length > 0 )
+    {
+      addOptionDate( 'selectedPeriodId', '-1', '[ Select Week ]' );
+      //console.log(selectedPeriodId);
+    }
+    else
+    {
+      addOptionDate( 'selectedPeriodId', '-1', '[ Invalid ]' );
+    }
+
+    for(var i=0; i<cperiods.length; i++)
+    {
+      var item=cperiods[i];
+      //alert("periods : "+item.name+" "+item.id);
+      addOptionDate( 'selectedPeriodId', item.id, item.name );
+    }
+  }
+
+  function addOptionDate(list, optionValue, optionText)
+  {
+    var select = document.getElementById(list);
+    var option = document.createElement( "option" );
+    option.value = optionValue;
+    option.text = optionText;
+    select.add( option, null );
+  }
+
+  function changeMonth()
+  {
+    var e=document.getElementById('selectMonths');
+    selMonth=e.options[e.selectedIndex].value
+    changeDate();
+    verifyPeriod();
+  }
+
+  function clearOptions()
+  {
+    var select = document.getElementById("selectedPeriodId");
+    var length = select.options.length;
+    for (i = 0; i < length; i++)
+      select.remove(select.selectedIndex);
+  }
+
+  function displayMonths(nyear)
+  {
+    var selectobject1=document.getElementById("selectMonths");
+    for (var i=0; i<12;i++)
+    {
+      selectobject1.remove(selectobject1.selectedIndex);
+    }
+
+    var monthss=["January","February","March","April","May","June","July","August","September","October","November","December"];
+    var valMonths=["01","02","03","04","05","06","07","08","09","10","11","12"];
+
+    for(var m=0; m<12; m++)
+    {
+      var option = document.createElement( "option" );
+      option.value = valMonths[m];
+      option.text = monthss[m];
+      selectobject1.add( option, null );
+
+    }
+    for(var n=12; n>0; n--)
+    {
+      var selectobject=document.getElementById("selectMonths");
+
+      var mDate = new Date(nyear+'-'+n+'-01');
+
+      //alert(today+"    ------    "+mDate);
+      if(today<=mDate)
+      {
+        selectobject.remove(n-1);
+      }
+    }
+
+    document.getElementById('selectMonths').selectedIndex=selMonth-1;
+  }
+
+  function cpreviousYear()
+  {
+    previousPeriodsSelected();
+    yearDiff--;
+    changeDate();
+    yr--;
+    verifyPeriod();
+
+    if(yearDiff<0)
+      document.getElementById('nextButton2').disabled=false;
+    else
+      document.getElementById('nextButton2').disabled=true;
+  }
+
+  function cnextYear()
+  {
+    nextPeriodsSelected();
+    yearDiff++
+    changeDate();
+    yr++;
+    verifyPeriod();
+
+    if(yearDiff<0)
+      document.getElementById('nextButton2').disabled=false;
+    else
+      document.getElementById('nextButton2').disabled=true;
+  }
+
+  function verifyPeriod()
+  {
+    var e=document.getElementById('selectedPeriodId');
+    var selVal=e.options[e.selectedIndex].value
+
+    if(selVal=='-1')
+    {
+
+      dhis2.de.clearEntryForm();
+      //clearEntryForm();
+    }
+    else
+    {
+      WeeklyPeriodSelected();
+    }
+  }
+
+  function WeeklyPeriodSelected()
+  {
+    var periodName = $( '#selectedPeriodId :selected' ).text();
+    var dataSetId = $( '#selectedDataSetId' ).val();
+
+
+    $( '#currentPeriod' ).html( periodName );
+
+    var periodId = $( '#selectedPeriodId' ).val();
+    //alert(periodId);
+
+    if ( dhis2.de.inputSelected() )
+    {
+      showLoader();
+
+      if ( dhis2.de.dataEntryFormIsLoaded )
+      {
+        loadDataValues();
+      }
+      else
+      {
+        dhis2.de.loadForm();
+        //loadForm();
+      }
+    }
+  }
+</script>
+<!-- end  for IPPF - weekly Period Load Month wise in dataEntry screen -->
+
 <style type="text/css" media="print">
 #moduleHeader, #currentSelection, #actions, #selectionBox, #completenessDiv, .ui-helper-hidden-accessible {
     display: none;
@@ -89,12 +430,46 @@ var i18n_loading_file_info_failed = '$encoder.jsEscape( $i18n.getString( "loadin
     <span id="loaderSpan" style="display:none"><img src='../images/ajax-loader-bar.gif'></span>
 </div>
 <div class="selectionBoxRow">
+  <div class="selectionBoxRow">
+    <div id="weekly" style="display:none">
+      <div class="selectionLabel">$i18n.getString( "period" )</div>
+      <select id="sample2" name="selectedPeriodId2" class="weeklyperiods" style="width:125px" onchange="verifyPeriod()" style="display:none">
+      </select>
+      <select id="selectMonths" name="selectedPeriodId" style="width:100px" onchange="changeMonth()">
+        <option value='01'> January</option>
+        <option value='02'> February </option>
+        <option value='03'> March </option>
+        <option value='04'> April </option>
+        <option value='05'> May </option>
+        <option value='06'> June </option>
+        <option value='07'> July </option>
+        <option value='08'> August </option>
+        <option value='09'> September </option>
+        <option value='10'> October </option>
+        <option value='11'> November </option>
+        <option value='12'> December </option>
+      </select>
+      <input type="button" id="prevButton" style="width:85px" value="Prev Year" title="$i18n.getString('earlier_periods')" onclick="cpreviousYear()">
+      <input type="button" id="nextButton2" style="width:85px" value="Next Year" title="$i18n.getString('later_periods')" disabled="disabled" onclick="cnextYear()">
+    </div>
+
+    <div id="otherPeriods" style="display:none">
+      <div class="selectionLabel">$i18n.getString( "period" )</div>
+      <select id="sample" name="selectedPeriodId" class="otherPeriods" style="width:225px" onchange="periodSelected()"></select>
+      <input type="button" id="prevButton" style="width:85px" value="$i18n.getString( 'prev_year' )" title="$i18n.getString('earlier_periods')" onclick="previousPeriodsSelected()">
+      <input type="button" id="nextButton" style="width:85px" value="$i18n.getString( 'next_year' )" title="$i18n.getString('later_periods')" onclick="nextPeriodsSelected()">
+    </div>
+  </div>
+    <!--
     <div class="selectionLabel">$i18n.getString( "period" )</div>
     <select id="selectedPeriodId" name="selectedPeriodId" style="width:225px" onchange="periodSelected()" disabled="disabled"></select>
     <input type="button" id="prevButton" style="width:85px" value="$i18n.getString( 'prev_year' )" title="$i18n.getString('earlier_periods')" onclick="previousPeriodsSelected()" disabled="disabled">
    	<input type="button" id="nextButton" style="width:85px" value="$i18n.getString( 'next_year' )" title="$i18n.getString('later_periods')" onclick="nextPeriodsSelected()" disabled="disabled">
+    -->
 </div>
 <div id="attributeComboDiv"></div>
+
+
 <div id="filterDataSetSectionDiv" class="selectionBoxRow" style="display:none">
     <div class="selectionLabel">$i18n.getString( "filter_on_section" )</div>
     <select id="filterDataSetSection" name="filterDataSetSection" class="selectionBoxSelect" onchange="dhis2.de.filterOnSection()"></select>
@@ -110,12 +485,8 @@ var i18n_loading_file_info_failed = '$encoder.jsEscape( $i18n.getString( "loadin
 <div id="validationDiv" class="page"></div>
 
 <div id="completenessDiv" class="page inputCriteria">
-	<!--
-	<input type="button" id="completeButton" name="completeButton" value="$i18n.getString( 'complete' )" onclick="registerCompleteDataSet()" style="width:120px">
-	<input type="button" id="undoButton" name="undoButton" value="$i18n.getString( 'incomplete' )" onclick="undoCompleteDataSet()" style="width:120px">
-	-->
 	
-	<!-- for IPPF -->
+<!-- for IPPF -->
 	#if( $auth.hasAccess( "dhis-web-dataentry", "registerCompleteDataSet") )	
 		<input type="button" id="completeButton" name="completeButton" value="$i18n.getString( 'submit' )" onclick="registerCompleteDataSet()" style="width:120px">
 	#end
@@ -123,8 +494,7 @@ var i18n_loading_file_info_failed = '$encoder.jsEscape( $i18n.getString( "loadin
 	#if( $auth.hasAccess( "dhis-web-dataentry", "undoCompleteDataSet") )		
 		<input type="button" id="undoButton" name="undoButton" value="$i18n.getString( 'incomplete' )" onclick="undoCompleteDataSet()" style="width:120px">
 	#end
-	<!-- end IPPF -->	
-
+<!-- end IPPF -->	
 	<span class="separator">&#124;</span>
 	<input type="button" id="validateButton" value="$i18n.getString( 'run_validation' )" onclick="dhis2.de.validate( false )" style="width:120px">
 </div>

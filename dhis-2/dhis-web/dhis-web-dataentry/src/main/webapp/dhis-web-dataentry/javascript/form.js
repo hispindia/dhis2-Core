@@ -1177,6 +1177,66 @@ function dataSetSelected()
 
         dhis2.de.multiOrganisationUnit = !!$( '#selectedDataSetId :selected' ).data( 'multiorg' );
 
+        //alert( " 1 " + periodType );
+        if(periodType == "Weekly")
+        {
+            //alert( " 2 " + periodType );
+            document.getElementById('weekly').style.display="block";
+            document.getElementById('otherPeriods').style.display = "none";
+
+            if(document.getElementsByClassName('otherPeriods')[0])
+            {
+                document.getElementsByClassName('otherPeriods')[0].id="sample";
+            }
+
+            if(document.getElementsByClassName('weeklyperiods')[0])
+            {
+                document.getElementsByClassName('weeklyperiods')[0].id="selectedPeriodId";
+            }
+
+            changeDate();
+        }
+        else
+        {
+            //alert( " 3 " + periodType + "--" + periods.length );
+
+            document.getElementById('weekly').style.display = "none";
+            document.getElementById('otherPeriods').style.display="block";
+
+            var elems = document.getElementsByClassName('weeklyperiods');
+
+            //alert( elems[0].id );
+
+            var other = document.getElementsByClassName('otherPeriods');
+
+            //alert( other[0].id );
+
+
+            if( document.getElementsByClassName('weeklyperiods')[0] )
+            {
+                document.getElementsByClassName('weeklyperiods')[0].id="sample";
+            }
+
+            if(document.getElementsByClassName('otherPeriods')[0])
+            {
+                document.getElementsByClassName('otherPeriods')[0].id="selectedPeriodId";
+            }
+
+            if ( dhis2.de.inputSelected() && previousSelectionValid )
+            {
+                showLoader();
+                dhis2.de.loadForm();
+            }
+            else
+            {
+                dhis2.de.currentPeriodOffset = 0;
+                displayPeriods();
+                dhis2.de.clearSectionFilters();
+                dhis2.de.clearEntryForm();
+            }
+        }
+
+        /*
         if ( dhis2.de.inputSelected() && previousSelectionValid )
         {
             showLoader();
@@ -1187,8 +1247,10 @@ function dataSetSelected()
         	dhis2.de.currentPeriodOffset = 0;
         	displayPeriods();
         	dhis2.de.clearSectionFilters();
-            dhis2.de.clearEntryForm();
+          dhis2.de.clearEntryForm();
         }
+        */
+
     }
     else
     {
@@ -1977,6 +2039,7 @@ function registerCompleteDataSet()
                 $( document ).trigger( dhis2.de.event.completed, [ dhis2.de.currentDataSetId, params ] );
 	    		disableCompleteButton();
 	    		dhis2.de.storageManager.clearCompleteDataSet( params );
+	    		$('#contentDiv input').attr('disabled','disabled');
 	        },
 		    error:  function( xhr, textStatus, errorThrown )
 		    {
@@ -1989,6 +2052,7 @@ function registerCompleteDataSet()
                     $( document ).trigger( dhis2.de.event.completed, [ dhis2.de.currentDataSetId, params ] );
 	        		disableCompleteButton();
 	        		setHeaderMessage( i18n_offline_notification );
+	        		$('#contentDiv input').attr('disabled','disabled');
 	        	}
 		    }
 	    } );
@@ -2028,6 +2092,7 @@ function undoCompleteDataSet()
           $( document ).trigger( dhis2.de.event.uncompleted, dhis2.de.currentDataSetId );
           disableUndoButton();
           dhis2.de.storageManager.clearCompleteDataSet( params );
+          $( '#contentDiv input' ).removeAttr( 'disabled' );
         },
         error: function( xhr, textStatus, errorThrown )
         {
@@ -2040,6 +2105,7 @@ function undoCompleteDataSet()
                 $( document ).trigger( dhis2.de.event.uncompleted, dhis2.de.currentDataSetId );
         		disableUndoButton();
         		setHeaderMessage( i18n_offline_notification );
+        		$( '#contentDiv input' ).removeAttr( 'disabled' );
         	}
 
     		dhis2.de.storageManager.clearCompleteDataSet( params );
