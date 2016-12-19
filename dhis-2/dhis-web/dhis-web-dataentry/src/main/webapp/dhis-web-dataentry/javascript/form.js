@@ -1884,6 +1884,7 @@ function insertDataValues( json )
     {
         $( '#completeButton' ).attr( 'disabled', 'disabled' );
         $( '#undoButton' ).removeAttr( 'disabled' );
+		$('#contentDiv input').attr('disabled','disabled');
 
         if ( json.storedBy )
         {
@@ -1899,6 +1900,8 @@ function insertDataValues( json )
         $( '#completeButton' ).removeAttr( 'disabled' );
         $( '#undoButton' ).attr( 'disabled', 'disabled' );
         $( '#infoDiv' ).hide();
+		
+		$( '#contentDiv input' ).removeAttr( 'disabled' );
     }
 
     if ( json.locked ) 
