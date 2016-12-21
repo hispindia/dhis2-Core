@@ -17,10 +17,10 @@
 
 	<modules>
 		<module>dhis-api</module>
+		<module>dhis-in-api</module>
 		<module>dhis-services</module>
 		<module>dhis-support</module>
 		<module>dhis-web</module>
-		<!--<module>dhis-web-portal</module>-->
 	</modules>
 
 </project>
