@@ -40,6 +40,19 @@
         width: 650px;
         height:400px;
     }
+
+     #map1 {
+     border:3px solid black;
+     display:none
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    right: 50%;
+
+     width: 1200px;
+     height:450px;
+         transform: translate(-50%, -50%)
+    }
 </style>
 <body>
 <!-- Modal -->
@@ -166,7 +179,8 @@
                 </select>
 
             </div>
-            <button type="button" onclick="generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility);">Go</button>
+            <button type="button" onclick="generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility);">Map View</button>
+            <button type="button" onclick="generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfacility);">List View</button>
         </div>
     </div>
     </br>
@@ -187,6 +201,7 @@
         </table>
     </div>
 </div>
+<div id="map1" ></div>
 <div align='center' style="bottom: 08%;text-align: center"><img src='http://www.hit-counts.com/counter.php?t=MTM5OTk2Mw==' border='0' alt='Free Hit Counter'></a><BR><p style="font-family: Arial;color: #00bcd4; bottom: 08%">Visitor Counter</p></div>
 <div id="footer">
     <p style="text-align: center; color: #fff">Disclaimer: The responsibility for the correctness of data in the portal is the responsibility of the facility which has self-registered the data. The Government is only responsible for the dissemination of this information through this portal.</p>
