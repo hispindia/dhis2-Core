@@ -16,6 +16,443 @@ var divele;
 var servicename,serviceid;
 var name=[],address=[],pincode=[],village=[],mobile=[],owner=[],special=[];
 var toAdd,spec=[],specialjoin;
+var redMarker = L.AwesomeMarkers.icon({
+    icon: 'coffee',
+    markerColor: 'red'
+});
+
+var blueMarker = L.AwesomeMarkers.icon({
+    icon: 'coffee',
+    markerColor: 'blue'
+});
+
+var map1 =L.map('map1').setView([31.1471, 75.3412], 10);
+
+L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map1);
+
+
+var legend = L.control({position: 'bottomright'});
+
+legend.onAdd = function (map) {
+
+    var div = L.DomUtil.create('div', 'info legend'),
+        grades = ["Red","Private","Blue","Public","Green","NGO"],
+        labels = [],
+        from, to;
+
+    for (var i = 0; i < grades.length;) {
+        from = grades[i];
+        to = grades[i + 1];
+
+
+        labels.push(
+            '<i style="background:' + getColor(from + 1) + '"></i> ' +
+            from + (to ? '&ndash;' + to : '+'));
+    i=i+2;
+    }
+
+    div.innerHTML = labels.join('<br>');
+    return div;
+};
+
+legend.addTo(map1);
+
+function getColor(d) {
+    return d > 1000 ? '#800026' :
+        d > 500  ? '#BD0026' :
+            d > 200  ? '#E31A1C' :
+                d > 100  ? '#FC4E2A' :
+                    d == "Green"   ? '#FD8D3C' :
+                        d == "Blue"   ? '#FEB24C' :
+                            d == "Red"   ? '#FED976' :
+                                '#FFEDA0';
+}
+
+var analyticsMap = [
+
+    {
+        reference : "Name",
+        key: "l8VDWUvIHmv",
+        index : 0,
+        arrayName:"name"
+    },{
+        reference : "ouid",
+        key: "ou",
+        index : 0,
+        arrayName:"ouid"
+    },
+    {
+        reference : "address",
+        key: "KOhqEw0UKxA",
+        index : 0,
+        arrayName:"address"
+    },{
+        reference : "pincode",
+        key: "xjJR4dTmn4p",
+        index : 0,
+        arrayName:"pincode"
+    },{
+        reference : "Village",
+        key: "wcmHow1kcBi",
+        index : 0,
+        arrayName:"addressjoin"
+    },{
+        reference : "mobile",
+        key: "pqVIj8NyTXb",
+        index : 0,
+        arrayName:"mobile"
+    },{
+        reference : "Email",
+        key: "g7vyRbNim1K",
+        index : 0,
+        arrayName:"email"
+    },
+
+    {
+        reference : "Dental",
+        key: "mKUqJtDn41L",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Dermatology",
+        key: "G6QYTm3JoNo",
+        index : 0,
+        arrayName : "special"
+    },
+    {
+        reference : "Emergency medicine",
+        key: "p2MQZL84eNu",
+        index : 0,
+        arrayName : "special"
+    },
+    {
+        reference : "Obstetrics & gynaecology",
+        key: "lKQPhgCfuvz",
+        index : 0,
+        arrayName : "special"
+    },
+    {
+        reference : "Paedriatrics & child care",
+        key: "L11XujC9xzh",
+        index : 0,
+        arrayName : "special"
+    },
+    {
+        reference : "General medicine",
+        key: "XBO6pg9y1m8",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Psychiatry",
+        key: "ttLEYvjxCse",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Radiology",
+        key: "eFpqq53Zifj",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "General surgery",
+        key: "x2SMBBm0P7T",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Venereology/venereal diseases/STDs",
+        key: "sIeFKRWtZrn",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Orthopedics",
+        key: "l1f67ipP6mj",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Physiotherapy",
+        key: "I3jAOh6ZIMk",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Ear nose throat (ENT)",
+        key: "DfbzQg5LTlm",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Leprosy clinic",
+        key: "IlBOWfRZyUc",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "HIV/AIDS clinic",
+        key: "t035HNWxNZU",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Cancer care",
+        key: "tx0G6s6nBiC",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Nutrition & dietetics",
+        key: "LRb9HlmAbc6",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Endocrinology",
+        key: "vvzIfRasrJd",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Burns and plastic surgery",
+        key: "akM0bMRwfV4",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Aesthetic & reconstructive surgery",
+        key: "dO49PmdQpvT",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Anaesthesiology",
+        key: "BZ0xteKZNid",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Audiology & speech therapy",
+        key: "OYAHA8Vhc3G",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Bariatric/weightloss surgery",
+        key: "qNBCYtrkaD7",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Bone marrow transplant",
+        key: "Bv5Fu3onViS",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Cardiology",
+        key: "ALMaYK2pMhL",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Critical care",
+        key: "g7tngXzv2Zz",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Eye care",
+        key: "QeEQe0ERs9X",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Gastroenterology",
+        key: "sFKV5EA9U6t",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Health & wellness",
+        key: "DeWJ6TcLBGn",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Internal medicine",
+        key: "MZ8si8FHS0T",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "IVF",
+        key: "uyyl3x9jwQa",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Kidney transplant",
+        key: "bfL2zXyQtrA",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Mental health & behavioral sciences",
+        key: "AEQRulqMjQB",
+        index : 0,
+        arrayName : "special"
+    },{
+        reference : "Nephrology",
+        key: "lWsun2ZATjI",
+        index : 0,
+        arrayName : "special"
+    },
+    {
+        reference : "Neurosciences",
+        key: "hEZYkang3cp",
+        index : 0,
+        arrayName : "special"
+    },
+    {
+        reference : "Pulmonology",
+        key: "szDQ40J4DTm",
+        index : 0,
+        arrayName : "special"
+    },
+    {
+        reference : "Podiatry",
+        key: "bxGjTYnbgcB",
+        index : 0,
+        arrayName : "special"
+    },
+    {
+        reference : "Rheumatology",
+        key: "JOOdfW6RCCD",
+        index : 0,
+        arrayName : "special"
+    },
+    {
+        reference : "Thoracic surgery",
+        key: "TaudXwrGaVC",
+        index : 0,
+        arrayName : "special"
+    }, {
+        reference : "Urology",
+        key: "KPpV7WAdys5",
+        index : 0,
+        arrayName : "special"
+    }, {
+        reference : "Oncology, cancer care surgery and treatment",
+        key: "sCypRhH8brf",
+        index : 0,
+        arrayName : "special"
+    }, {
+        reference : "Clinical hematology",
+        key: "IYOefLkrEZk",
+        index : 0,
+        arrayName : "special"
+    }, {
+        reference : "Clinical pharmacology",
+        key: "epW5qI95Cno",
+        index : 0,
+        arrayName : "special"
+    }, {
+        reference : "Clinical immunology",
+        key: "gJoAOIEKG9M",
+        index : 0,
+        arrayName : "special"
+    }, {
+        reference : "Medical genetics",
+        key: "snsCxRbqdHP",
+        index : 0,
+        arrayName : "special"
+    }, {
+        reference : "Infectious diseases",
+        key: "Guub32IStl2",
+        index : 0,
+        arrayName : "special"
+    }, {
+        reference : "Virology",
+        key: "U0rv5FWWeeo",
+        index : 0,
+        arrayName : "special"
+    }, {
+        reference : "Contact person-name",
+        key: "Gx4VSNet1dC",
+        index : 0,
+        arrayName : "contactpname"
+    },{
+        reference : "Contact person-mobile number",
+        key: "bUg8a8bAvJs",
+        index : 0,
+        arrayName : "contactpnumber"
+    },{
+        reference : "Only OPD",
+        key: "rD7PJQN4TTe",
+        index : 0,
+        arrayName : "hfacilities"
+    },{
+        reference : "Both IPD and OPD",
+        key: "nvGzrdrt48l",
+        index : 0,
+        arrayName : "hfacilities"
+    },{
+        reference : "Only lab",
+        key: "UmlIjjErp1p",
+        index : 0,
+        arrayName : "hfacilities"
+    },{
+        reference : "Only diagnostic",
+        key: "UfCxf82vB7J",
+        index : 0,
+        arrayName : "hfacilities"
+    },{
+        reference : "Ambulance type",
+        key: "tC8Ad3DuScJ",
+        index : 0,
+        arrayName : "availspecialities"
+    },{
+        reference : "Blood bank",
+        key: "jXCd8k2841l",
+        index : 0,
+        arrayName : "availspecialities"
+    },{
+        reference : "Casualty/Emergency",
+        key: "RkP5neDLbHv",
+        index : 0,
+        arrayName : "availspecialities"
+    },{
+        reference : "Operation theatre",
+        key: "avHST8wLPnX",
+        index : 0,
+        arrayName : "availspecialities"
+    },{
+        reference : "Ventilator available",
+        key: "txl9e6UJFP4",
+        index : 0,
+        arrayName : "availspecialities"
+    },{
+        reference : "Health insurance schemes",
+        key: "ZUbPsfW6y0C",
+        index : 0,
+        arrayName : "schemes"
+    },{
+        reference : "Bhagat puran singh bima yojana",
+        key: "CAOM6riDtfU",
+        index : 0,
+        arrayName : "schemes"
+    },{
+        reference : "Punjab government employees & pensioners health insurance scheme (PGEPHIS)",
+        key: "YL7OJoQCAmF",
+        index : 0,
+        arrayName : "schemes"
+    },{
+        reference : "Other health insurance schemes",
+        key: "vJO1Jac84Ar",
+        index : 0,
+        arrayName : "schemes"
+    },{
+        reference : "Bajaj Alliance Health Insurance Scheme",
+        key: "kF8ZJYe9SJZ",
+        index : 0,
+        arrayName : "schemes"
+    },{
+        reference : "Max Bupa Health Insurance schemes",
+        key: "tNhLX6c7KHp",
+        index : 0,
+        arrayName : "schemes"
+    },{
+        reference : "National Health Insurance schemes",
+        key: "bVENUe0eDsO",
+        index : 0,
+        arrayName : "schemes"
+    },
+    {
+        reference : "Ownership details",
+        key: "XEiMcaGi6vv",
+        index : 0,
+        arrayName : "ownership"
+    }
+
+]
 Ext.onReady( function() {
 
     var header = {
@@ -34,6 +471,7 @@ Ext.onReady( function() {
 
     function setLinks() {
 
+
         //var greenIcon = L.icon({
         //    iconUrl: 'hospital.png',
         //
@@ -43,18 +481,10 @@ Ext.onReady( function() {
         //    shadowAnchor: [4, 62],  // the same for the shadow
         //    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
         //});
-        var redMarker = L.AwesomeMarkers.icon({
-            icon: 'coffee',
-            markerColor: 'red'
-        });
 
-        var blueMarker = L.AwesomeMarkers.icon({
-            icon: 'coffee',
-            markerColor: 'blue'
-        });
         ////
         //L.marker([51.941196,4.512291], {icon: redMarker}).addTo(map);
-
+        //
         var map =L.map('map').setView([31.1471, 75.3412], 8);
 
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
@@ -279,124 +709,10 @@ Ext.onReady( function() {
         });
     });
 
-    //$.getJSON("../../api/organisationUnitGroups/JuXnnz1dJqo.json?fields=organisationUnits[id,name,code]", function (data) {
-    //
-    //    var organisationUnits=data.organisationUnits;
-    //    organisationUnits.sort(function(a, b) {
-    //        var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-    //        if (nameA < nameB) //sort string ascending
-    //            return -1
-    //        if (nameA > nameB)
-    //            return 1
-    //        return 0 //default return value (no sorting)
-    //    });
-    //
-    //    $.each(organisationUnits, function (index, item) {
-    //        $('#drophospital').append($('<option></option>').val(item.id).html(item.name).text(item.name)
-    //        );
-    //    });
-    //});
-
-
     $("#drop1").change(function () {
         $('#drophospital').prop('selectedIndex',0);
         orgid = $(this).find("option:selected").val();
         var organisationUnits;
-
-        //if(orgid=="wSslG6mcGXl")
-        //{
-        //    $.getJSON("../../api/organisationUnits/"+orgid+"?paging=false&fields=children[id,name,children[id,name]]", function (data) {
-        //
-        //        for(var i=0; i<data.children.length;i++)
-        //        {
-        //             organisationUnits=data.children[i].children;
-        //
-        //            organisationUnits.sort(function(a, b) {
-        //                var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-        //                if (nameA < nameB) //sort string ascending
-        //                    return -1
-        //                if (nameA > nameB)
-        //                    return 1
-        //                return 0 //default return value (no sorting)
-        //            });
-        //
-        //        }
-        //
-        //    });
-        //    organisationUnits.sort(function(a, b) {
-        //        var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-        //        if (nameA < nameB) //sort string ascending
-        //            return -1
-        //        if (nameA > nameB)
-        //            return 1
-        //        return 0 //default return value (no sorting)
-        //    });
-        //    var element = document.getElementById("drophospital");
-        //    for (var i = element.length-1; i >= 0; i--) {
-        //
-        //        if(element[i].selected)
-        //
-        //        {
-        //
-        //        }
-        //        else {
-        //            element[i].remove();
-        //        }
-        //    }
-        //
-        //
-        //    $.each(organisationUnits, function (index1, item1) {
-        //        $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name)
-        //
-        //        );
-        //    });
-        //    $('#drophospital').selectpicker('refresh');
-        //}
-        //else{
-        //    $.getJSON("../../api/organisationUnits/"+orgid+"?paging=false&fields=children[id,name]", function (data) {
-        //
-        //        organisationUnits=data.children;
-        //        organisationUnits.sort(function(a, b) {
-        //            var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-        //            if (nameA < nameB) //sort string ascending
-        //                return -1
-        //            if (nameA > nameB)
-        //                return 1
-        //            return 0 //default return value (no sorting)
-        //        });
-        //    });
-        //
-        //    organisationUnits.sort(function(a, b) {
-        //        var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-        //        if (nameA < nameB) //sort string ascending
-        //            return -1
-        //        if (nameA > nameB)
-        //            return 1
-        //        return 0 //default return value (no sorting)
-        //    });
-        //    var element = document.getElementById("drophospital");
-        //    for (var i = element.length-1; i >= 0; i--) {
-        //
-        //        if(element[i].selected)
-        //
-        //        {
-        //
-        //        }
-        //        else {
-        //            element[i].remove();
-        //        }
-        //    }
-        //
-        //
-        //    $.each(organisationUnits, function (index1, item1) {
-        //        $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name)
-        //
-        //        );
-        //    });
-        //    $('#drophospital').selectpicker('refresh');
-        //}
-
-
 
         $.getJSON("../../api/organisationUnits/"+orgid+"?paging=false&fields=children[id,name]", function (data) {
             var organisationUnits=data.children;
@@ -489,412 +805,20 @@ function myJoin(array){
     return result.substr(0,result.length-2);
 }
 function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility) {
+
     $("#content1").hide();
+    $("#map1").show();
+
     $("#mapA1").hide();
     $("#footer").hide();
-
-    //$('#drop2').val('');
-    //$('#drop1').val('');
-    //$('#drophospital').val('');
-    //$('#drop_ownership').val('');
-    ////$('#droptype').val('');
-    //$('#drop2').selectpicker('refresh');
-    //$('#drop1').selectpicker('refresh');
-    //$('#drophospital').selectpicker('refresh');
-    //$('#drop_ownership').selectpicker('refresh');
-    //$('#droptype').selectpicker('refresh');
-
-    var analyticsMap = [
-
-        {
-            reference : "Name",
-            key: "l8VDWUvIHmv",
-            index : 0,
-            arrayName:"name"
-        },{
-            reference : "ouid",
-            key: "ou",
-            index : 0,
-            arrayName:"ouid"
-        },
-        {
-            reference : "address",
-            key: "KOhqEw0UKxA",
-            index : 0,
-            arrayName:"address"
-        },{
-            reference : "pincode",
-            key: "xjJR4dTmn4p",
-            index : 0,
-            arrayName:"pincode"
-        },{
-            reference : "Village",
-            key: "wcmHow1kcBi",
-            index : 0,
-            arrayName:"addressjoin"
-        },{
-            reference : "mobile",
-            key: "pqVIj8NyTXb",
-            index : 0,
-            arrayName:"mobile"
-        },{
-            reference : "Email",
-            key: "g7vyRbNim1K",
-            index : 0,
-            arrayName:"email"
-        },
-
-        {
-            reference : "Dental",
-            key: "mKUqJtDn41L",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Dermatology",
-            key: "G6QYTm3JoNo",
-            index : 0,
-            arrayName : "special"
-        },
-        {
-            reference : "Emergency medicine",
-            key: "p2MQZL84eNu",
-            index : 0,
-            arrayName : "special"
-        },
-        {
-            reference : "Obstetrics & gynaecology",
-            key: "lKQPhgCfuvz",
-            index : 0,
-            arrayName : "special"
-        },
-        {
-            reference : "Paedriatrics & child care",
-            key: "L11XujC9xzh",
-            index : 0,
-            arrayName : "special"
-        },
-        {
-            reference : "General medicine",
-            key: "XBO6pg9y1m8",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Psychiatry",
-            key: "ttLEYvjxCse",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Radiology",
-            key: "eFpqq53Zifj",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "General surgery",
-            key: "x2SMBBm0P7T",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Venereology/venereal diseases/STDs",
-            key: "sIeFKRWtZrn",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Orthopedics",
-            key: "l1f67ipP6mj",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Physiotherapy",
-            key: "I3jAOh6ZIMk",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Ear nose throat (ENT)",
-            key: "DfbzQg5LTlm",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Leprosy clinic",
-            key: "IlBOWfRZyUc",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "HIV/AIDS clinic",
-            key: "t035HNWxNZU",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Cancer care",
-            key: "tx0G6s6nBiC",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Nutrition & dietetics",
-            key: "LRb9HlmAbc6",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Endocrinology",
-            key: "vvzIfRasrJd",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Burns and plastic surgery",
-            key: "akM0bMRwfV4",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Aesthetic & reconstructive surgery",
-            key: "dO49PmdQpvT",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Anaesthesiology",
-            key: "BZ0xteKZNid",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Audiology & speech therapy",
-            key: "OYAHA8Vhc3G",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Bariatric/weightloss surgery",
-            key: "qNBCYtrkaD7",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Bone marrow transplant",
-            key: "Bv5Fu3onViS",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Cardiology",
-            key: "ALMaYK2pMhL",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Critical care",
-            key: "g7tngXzv2Zz",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Eye care",
-            key: "QeEQe0ERs9X",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Gastroenterology",
-            key: "sFKV5EA9U6t",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Health & wellness",
-            key: "DeWJ6TcLBGn",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Internal medicine",
-            key: "MZ8si8FHS0T",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "IVF",
-            key: "uyyl3x9jwQa",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Kidney transplant",
-            key: "bfL2zXyQtrA",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Mental health & behavioral sciences",
-            key: "AEQRulqMjQB",
-            index : 0,
-            arrayName : "special"
-        },{
-            reference : "Nephrology",
-            key: "lWsun2ZATjI",
-            index : 0,
-            arrayName : "special"
-        },
-        {
-            reference : "Neurosciences",
-            key: "hEZYkang3cp",
-            index : 0,
-            arrayName : "special"
-        },
-        {
-            reference : "Pulmonology",
-            key: "szDQ40J4DTm",
-            index : 0,
-            arrayName : "special"
-        },
-        {
-            reference : "Podiatry",
-            key: "bxGjTYnbgcB",
-            index : 0,
-            arrayName : "special"
-        },
-        {
-            reference : "Rheumatology",
-            key: "JOOdfW6RCCD",
-            index : 0,
-            arrayName : "special"
-        },
-        {
-            reference : "Thoracic surgery",
-            key: "TaudXwrGaVC",
-            index : 0,
-            arrayName : "special"
-        }, {
-            reference : "Urology",
-            key: "KPpV7WAdys5",
-            index : 0,
-            arrayName : "special"
-        }, {
-            reference : "Oncology, cancer care surgery and treatment",
-            key: "sCypRhH8brf",
-            index : 0,
-            arrayName : "special"
-        }, {
-            reference : "Clinical hematology",
-            key: "IYOefLkrEZk",
-            index : 0,
-            arrayName : "special"
-        }, {
-            reference : "Clinical pharmacology",
-            key: "epW5qI95Cno",
-            index : 0,
-            arrayName : "special"
-        }, {
-            reference : "Clinical immunology",
-            key: "gJoAOIEKG9M",
-            index : 0,
-            arrayName : "special"
-        }, {
-            reference : "Medical genetics",
-            key: "snsCxRbqdHP",
-            index : 0,
-            arrayName : "special"
-        }, {
-            reference : "Infectious diseases",
-            key: "Guub32IStl2",
-            index : 0,
-            arrayName : "special"
-        }, {
-            reference : "Virology",
-            key: "U0rv5FWWeeo",
-            index : 0,
-            arrayName : "special"
-        }, {
-            reference : "Contact person-name",
-            key: "Gx4VSNet1dC",
-            index : 0,
-            arrayName : "contactpname"
-        },{
-            reference : "Contact person-mobile number",
-            key: "bUg8a8bAvJs",
-            index : 0,
-            arrayName : "contactpnumber"
-        },{
-            reference : "Only OPD",
-            key: "rD7PJQN4TTe",
-            index : 0,
-            arrayName : "hfacilities"
-        },{
-            reference : "Both IPD and OPD",
-            key: "nvGzrdrt48l",
-            index : 0,
-            arrayName : "hfacilities"
-        },{
-            reference : "Only lab",
-            key: "UmlIjjErp1p",
-            index : 0,
-            arrayName : "hfacilities"
-        },{
-            reference : "Only diagnostic",
-            key: "UfCxf82vB7J",
-            index : 0,
-            arrayName : "hfacilities"
-        },{
-            reference : "Ambulance type",
-            key: "tC8Ad3DuScJ",
-            index : 0,
-            arrayName : "availspecialities"
-        },{
-            reference : "Blood bank",
-            key: "jXCd8k2841l",
-            index : 0,
-            arrayName : "availspecialities"
-        },{
-            reference : "Casualty/Emergency",
-            key: "RkP5neDLbHv",
-            index : 0,
-            arrayName : "availspecialities"
-        },{
-            reference : "Operation theatre",
-            key: "avHST8wLPnX",
-            index : 0,
-            arrayName : "availspecialities"
-        },{
-            reference : "Ventilator available",
-            key: "txl9e6UJFP4",
-            index : 0,
-            arrayName : "availspecialities"
-        },{
-            reference : "Health insurance schemes",
-            key: "ZUbPsfW6y0C",
-            index : 0,
-            arrayName : "schemes"
-        },{
-            reference : "Bhagat puran singh bima yojana",
-            key: "CAOM6riDtfU",
-            index : 0,
-            arrayName : "schemes"
-        },{
-            reference : "Punjab government employees & pensioners health insurance scheme (PGEPHIS)",
-            key: "YL7OJoQCAmF",
-            index : 0,
-            arrayName : "schemes"
-        },{
-            reference : "Other health insurance schemes",
-            key: "vJO1Jac84Ar",
-            index : 0,
-            arrayName : "schemes"
-        },{
-            reference : "Bajaj Alliance Health Insurance Scheme",
-            key: "kF8ZJYe9SJZ",
-            index : 0,
-            arrayName : "schemes"
-        },{
-            reference : "Max Bupa Health Insurance schemes",
-            key: "tNhLX6c7KHp",
-            index : 0,
-            arrayName : "schemes"
-        },{
-            reference : "National Health Insurance schemes",
-            key: "bVENUe0eDsO",
-            index : 0,
-            arrayName : "schemes"
-        },
-        {
-            reference : "Ownership details",
-            key: "XEiMcaGi6vv",
-            index : 0,
-            arrayName : "ownership"
-        }
-
-    ]
-
     jQuery('#sel').html('');
     $(".w3-card-4").remove();
+
 
     var addressjoin=[],ouid=[],availspecialitiesjoin,availspecialities=[],avaialabilityjoin,name=[],address=[],pincode=[],village=[],mobile=[],special=[],notspecial=[],hfacilities=[],nothfacilities=[],schemes=[],notschemes=[],contactpname=[],contactpnumber=[];
     var toAdd,spec=[],email=[],specialjoin,notspecialjoin,notspec=[],owner=[],notowner=[],hfacilitiesjoin,nothfacilitiesjoin,schemesjoin,notschemesjoin,hfschemes=[],nothfschemes=[];
     var healthfac="",ownership=[],availspecialiti=[];
-    var arrayMap = [];
+    var arrayMap = [];latitude=[];longitude=[];
 
 
     $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs&dimension="+defservice+"&dimension="+defavail+"&dimension="+defowner+"&dimension="+defhealthfacility+"&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
@@ -959,12 +883,139 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
             nothfschemes.push(notschemesjoin);
 
 
-            //specialjoin = "";
-            //notspecialjoin = "";
-            //hfacilitiesjoin = "";
-            //nothfacilitiesjoin = "";
-            //schemesjoin = "";
-            //notschemesjoin = "";
+            availspecialities=[];
+            special = [];
+            notspecial = [];
+            hfacilities = [];
+            nothfacilities = [];
+            schemes = [];
+            notschemes = [];
+
+
+
+
+        }
+        var header = {
+            "Authorization": "Basic " + btoa( "homepage" + ':' + "Homepage123@123" )
+        };
+        for (var i = 0; i < name.length; i++) {
+            $.ajax({
+                async: false,
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json",
+                header: header,
+                url: '../../api/organisationUnits/' + ouid[i] + '.json?fields=[id,name,coordinates]',
+                success: function (response) {
+                    var coordinates = JSON.parse(response.coordinates);
+                    latitude.push(coordinates[0]);
+                    longitude.push(coordinates[1]);
+
+
+                },
+                error: function (response) {
+
+                }
+            });
+        }
+
+        for (var i = 0; i < name.length; i++) {
+            if(ownership[i]=="Public")
+            {
+                L.marker([longitude[i], latitude[i]], {icon: blueMarker}).addTo(map1).bindPopup(name[i]+","+" Contact:"+  mobile[i]+ ", Schemes:"+hfschemes[i]+", Availabilities: "+availspecialiti[i]).openPopup();
+            }
+            else if(ownership[i]=="Private")
+            {
+                L.marker([longitude[i], latitude[i]], {icon: redMarker}).addTo(map1).bindPopup(name[i]).openPopup();
+            }
+
+
+        }
+
+    });
+
+}
+
+function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfacility) {
+    $("#content1").hide();
+    $("#map1").hide();
+
+    $("#mapA1").hide();
+    $("#footer").hide();
+
+
+
+    jQuery('#sel').html('');
+    $(".w3-card-4").remove();
+
+    var addressjoin=[],ouid=[],availspecialitiesjoin,availspecialities=[],avaialabilityjoin,name=[],address=[],pincode=[],village=[],mobile=[],special=[],notspecial=[],hfacilities=[],nothfacilities=[],schemes=[],notschemes=[],contactpname=[],contactpnumber=[];
+    var toAdd,spec=[],email=[],specialjoin,notspecialjoin,notspec=[],owner=[],notowner=[],hfacilitiesjoin,nothfacilitiesjoin,schemesjoin,notschemesjoin,hfschemes=[],nothfschemes=[];
+    var healthfac="",ownership=[],availspecialiti=[];
+    var arrayMap = [];latitude=[];longitude=[];
+
+
+    $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs&dimension="+defservice+"&dimension="+defavail+"&dimension="+defowner+"&dimension="+defhealthfacility+"&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
+        console.log("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs&dimension="+defservice+"&dimension="+defowner+"&dimension="+defhealthfacility+"&dimension=jXCd8k2841l&dimension=RkP5neDLbHv&dimension=avHST8wLPnX&dimension=txl9e6UJFP4&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME");
+        var constants={key:name, value: value}
+
+        analyticsMap = calculateIndex(data.headers,analyticsMap);
+
+        if(data.rows.length==0)
+        {
+            alert("No result found for above selection");
+        }
+        for(var k=0;k<data.rows.length;k++){
+
+            arrayMap["special"] = special;
+            arrayMap["name"] = name;
+            arrayMap["address"] = addressjoin;
+            arrayMap["pincode"] = pincode;
+            arrayMap["village"] = village;
+            arrayMap["mobile"] = mobile;
+            arrayMap["notspecial"] = notspecial;
+            arrayMap["hfacilities"] = hfacilities;
+            arrayMap["nothfacilities"] = nothfacilities;
+            arrayMap["schemes"] = schemes;
+            arrayMap["notschemes"] = notschemes;
+            arrayMap["contactpname"] = contactpname;
+            arrayMap["contactpnumber"] = contactpnumber;
+            arrayMap["availspecialities"] = availspecialities;
+            arrayMap["ownership"] = ownership;
+            arrayMap["ouid"] = ouid;
+
+            for (var j=0;j<analyticsMap.length;j++){
+
+                if (analyticsMap[j].index > 0){
+                    var value = data.rows[k][analyticsMap[j].index];
+                    if (value == "1"){
+                        value = data.headers[analyticsMap[j].index].column;
+                    }
+
+                    if (!value || value == "0"){
+                        value = "";
+                    }
+                    if(arrayMap[analyticsMap[j].arrayName]){
+                        arrayMap[analyticsMap[j].arrayName].push(value);
+                    }
+                }
+            }
+            specialjoin = myJoin(special);
+            availspecialitiesjoin = myJoin(availspecialities);
+            notspecialjoin = myJoin(notspecial);
+            hfacilitiesjoin = myJoin(hfacilities);
+            nothfacilitiesjoin = myJoin(nothfacilities);
+            schemesjoin = myJoin(schemes);
+            notschemesjoin = myJoin(notschemes);
+
+            spec.push(specialjoin);
+            notspec.push(notspecialjoin);
+            owner.push(hfacilitiesjoin);
+            availspecialiti.push(availspecialitiesjoin);
+            notowner.push(nothfacilitiesjoin);
+            hfschemes.push(schemesjoin);
+            nothfschemes.push(notschemesjoin);
+
+
             availspecialities=[];
             special = [];
             notspecial = [];
@@ -978,7 +1029,6 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
 
         }
 
-
         for (var i = 0; i < name.length; i++) {
             obj = new constructor_obj(document.body, name[i], addressjoin[i], pincode[i], mobile[i], spec[i], owner[i],availspecialiti[i], contactpname[i], contactpnumber[i], email[i], hfschemes[i], nothfschemes[i], ouid[i],ownership[i]);
         }
@@ -986,9 +1036,7 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
 
 }
 
-// A simple constructor function
-//parent ==> html parent object to add the info
-//constructor_obj(document.body,name[i],addressjoin[i],spec[i] ,owner[i],contactpname[i],contactpnumber[i],email[i],hfschemes[i],nothfschemes[i]);
+
 
 function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaialability,contactpname,contactpnumber, email,hfschemes,nothfschemes,ouid,ownership) {
     var procedures=[],costs=[];
@@ -1045,62 +1093,6 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
 
     });
 
-    //$.getJSON("../../api/analytics/events/query/oKibT84LSdV.json?stage=jujDNAJZEU8&dimension=pe:THIS_YEAR&dimension=ou:"+ouid+"&dimension=VdaNJktWZ7E&dimension=O2k16XtvCQ8&dimension=l8VDWUvIHmv&displayProperty=NAME", function (data) {
-    //    var dNames=[],dQual=[],dMedical=[],dOrgunit=[];
-    //    for(var i=0;i<data.rows.length;i++){
-    //
-    //        dOrgunit.push(data.rows[i][5]);
-    //        dQual.push(data.rows[i][8]);
-    //        dMedical.push(data.rows[i][9]);
-    //        dNames.push(data.rows[i][10]);
-    //    }
-    //
-    //});
-
-
-
-    //  div.innerHTML = '\
-    //           <div class="w3-card-4" id="test1">\
-    //               <table style="width:100%">\
-    //              <tr>\
-    //               <td> <h3 class="title"></h3></td>\
-    //               <td style="float:right"> <a id="createAccountLink" target="_blank" href="lib/controllers/feedback.html?ouid='+ouid+'">Rate Your Facility</a></td>\
-    //              </tr>\
-    //  <tr>\
-    //  <td><h6 class="address"></h6></td>\
-    //  <td style="float:right"></td>\
-    //  </tr>\
-    //  <tr>\
-    //  <td><h6 class="pincode"></h6></td>\
-    //  <td style="float:right"></td>\
-    //  </tr>\
-    //  <tr>\
-    //  <td><h6 class="mobile"></h6></td>\
-    //  <td style="float:right"></td>\
-    //  </tr>\
-    //              </table>\
-    //              <button class="w3-btn-block w3-dark-grey" onclick="myfunc('+mobile+')">More Details</button>\
-    //                        <div class="noDisplay" id="'+mobile+'">\
-    //                 <label>Specialities :</label> <h2 class="specialty"></h2>\
-    //                  <hr>\
-    //               <label>Health Facilities: </label><h2 class="owner"><h2>\
-    //               <hr>\
-    //               <label>Availabilities :</label><h2 class="availability"><h2>\
-    //               <hr>\
-    //                   <label>Contact Person:</label><h2 class="contactperson"></h2>\
-    //                    <h2 class="contactpnumber"></h2>\
-    //                    <h2 class="email"></h2>\
-    //                    <hr>\
-    //                   <label>Schemes :</label><h2 class="hfschemes"></h2>\
-    //                   <hr>\
-    //                   <label>Ownership :</label><h2 class="ownership"></h2>\
-    //                   <hr>\
-    //       <div id="procedureid"></div>\
-    //      <tr> <td style="float:right"> <a id="createAccountLink" target="_blank" href="lib/controllers/doctors.html?ouid='+ouid+'">Doctors List</a></td></tr>\
-    //                   <hr>\
-    //                   <h2 class="rating"><h2>\
-    //           </div>\
-    //';
 
     div.innerHTML='\
     <div class="w3-card-4" style="margin-left:15%;margin-right:15%;" id="test1">\
