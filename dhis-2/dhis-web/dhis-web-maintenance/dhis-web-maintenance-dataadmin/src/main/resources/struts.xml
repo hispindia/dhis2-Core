@@ -639,5 +639,7 @@
       <result name="success" type="velocity-json">/dhis-web-commons/ajax/jsonOption.vm</result>
     </action>
     
+    
+    
   </package>
 </struts>

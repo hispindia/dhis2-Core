@@ -150,11 +150,6 @@ public class Schema implements Ordered, Klass
     private boolean defaultPrivate;
 
     /**
-     * If this is true, do not require private authority for create/update of instances of this type.
-     */
-     private boolean implicitPrivateAuthority;
-
-     /**
      * List of authorities required for doing operations on this class.
      */
     private List<Authority> authorities = Lists.newArrayList();
@@ -392,18 +387,6 @@ public class Schema implements Ordered, Klass
     }
 
     @JsonProperty
-    @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
-    public boolean isImplicitPrivateAuthority()
-    {
-        return implicitPrivateAuthority;
-    }
-
-    public void setImplicitPrivateAuthority( boolean implicitPrivateAuthority )
-    {
-        this.implicitPrivateAuthority = implicitPrivateAuthority;
-    }
-
-    @JsonProperty
     @JacksonXmlElementWrapper( localName = "authorities", namespace = DxfNamespaces.DXF_2_0 )
     @JacksonXmlProperty( localName = "authority", namespace = DxfNamespaces.DXF_2_0 )
     public List<Authority> getAuthorities()
@@ -542,15 +525,22 @@ public class Schema implements Ordered, Klass
         return null;
     }
 
+    private Map<AuthorityType, List<String>> authorityMap = Maps.newHashMap();
+
     public List<String> getAuthorityByType( AuthorityType type )
     {
-        List<String> authorityList = Lists.newArrayList();
+        if ( !authorityMap.containsKey( type ) )
+        {
+            List<String> authorityList = Lists.newArrayList();
 
-        authorities.stream()
-            .filter( authority -> type.equals( authority.getType() ) )
-            .forEach( authority -> authorityList.addAll( authority.getAuthorities() ) );
+            authorities.stream()
+                .filter( authority -> type.equals( authority.getType() ) )
+                .forEach( authority -> authorityList.addAll( authority.getAuthorities() ) );
 
-        return authorityList;
+            authorityMap.put( type, authorityList );
+        }
+
+        return authorityMap.get( type );
     }
 
     // TODO not exposed right now, should we?
@@ -570,7 +560,7 @@ public class Schema implements Ordered, Klass
     public int hashCode()
     {
         return Objects.hashCode( klass, identifiableObject, nameableObject, singular, plural, namespace, name,
-            collectionName, shareable, relativeApiEndpoint, metadata, authorities, propertyMap, order );
+            collectionName, shareable, relativeApiEndpoint, metadata, authorities, propertyMap, order, authorityMap );
     }
 
     @Override
@@ -593,7 +583,8 @@ public class Schema implements Ordered, Klass
             && Objects.equal( this.name, other.name ) && Objects.equal( this.collectionName, other.collectionName )
             && Objects.equal( this.shareable, other.shareable ) && Objects.equal( this.relativeApiEndpoint, other.relativeApiEndpoint )
             && Objects.equal( this.metadata, other.metadata ) && Objects.equal( this.authorities, other.authorities )
-            && Objects.equal( this.propertyMap, other.propertyMap ) && Objects.equal( this.order, other.order );
+            && Objects.equal( this.propertyMap, other.propertyMap ) && Objects.equal( this.order, other.order )
+            && Objects.equal( this.authorityMap, other.authorityMap );
     }
 
     @Override
@@ -613,6 +604,7 @@ public class Schema implements Ordered, Klass
             .add( "metadata", metadata )
             .add( "authorities", authorities )
             .add( "propertyMap", propertyMap )
+            .add( "authorityMap", authorityMap )
             .toString();
     }
 }

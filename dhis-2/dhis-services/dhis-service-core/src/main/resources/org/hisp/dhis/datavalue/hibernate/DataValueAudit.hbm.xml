@@ -37,6 +37,13 @@
 			<param name="type">12</param>
 		</type> 
 	</property>
+
+    <property name="comment" length="360" />
+
+	<property name="commentType" column="commenttype" length="4" />
+	
+	<property name="status" not-null="true" />	
+
     
   </class>
 </hibernate-mapping>

@@ -377,4 +377,9 @@ public interface UserService
      * @param userRoles the collection of user roles.
      */
     void canIssueFilter( Collection<UserAuthorityGroup> userRoles );
+	
+	Collection<User> getUsersByEmail( String email );
+	
+	Collection<User> getUserByNameAndGroup( String name ,String type, int first, int max );
+
 }

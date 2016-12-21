@@ -54,7 +54,6 @@ import org.hisp.dhis.webapi.webdomain.WebOptions;
 import org.hisp.dhis.webapi.webdomain.form.Form;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -63,7 +62,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.transform.Transformer;
@@ -134,36 +132,14 @@ public class DataSetController
 
     @RequestMapping( value = "/{uid}/version", method = RequestMethod.GET )
     public void getVersion( @PathVariable( "uid" ) String uid, @RequestParam Map<String, String> parameters,
-        HttpServletResponse response ) throws Exception
+        HttpServletResponse response ) throws IOException
     {
         DataSet dataSet = manager.get( DataSet.class, uid );
 
-        if ( dataSet == null )
-        {
-            throw new WebMessageException( WebMessageUtils.conflict( "Data set does not exist: " + uid ) );
-        }
-        
         Map<String, Integer> versionMap = new HashMap<>();
         versionMap.put( "version", dataSet.getVersion() );
 
         renderService.toJson( response.getOutputStream(), versionMap );
-    }
-    
-    @ResponseStatus( HttpStatus.NO_CONTENT )
-    @RequestMapping( value = "/{uid}/version", method = RequestMethod.POST )
-    public void bumpVersion( @PathVariable( "uid" ) String uid )
-        throws Exception
-    {
-        DataSet dataSet = manager.get( DataSet.class, uid );
-
-        if ( dataSet == null )
-        {
-            throw new WebMessageException( WebMessageUtils.conflict( "Data set does not exist: " + uid ) );
-        }
-        
-        dataSet.increaseVersion();
-        
-        dataSetService.updateDataSet( dataSet );
     }
 
     @RequestMapping( value = "/{uid}/dataValueSet", method = RequestMethod.GET )

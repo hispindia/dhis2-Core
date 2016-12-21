@@ -629,7 +629,7 @@ public class DefaultAnalyticsService
      */
     private void applyIdScheme( DataQueryParams params, Grid grid )
     {
-        if ( !params.isSkipMeta() && params.hasNonUidOutputIdScheme() )
+        if ( params.hasNonUidOutputIdScheme() )
         {
             List<NameableObject> items = params.getAllDimensionItems();
             
@@ -680,7 +680,7 @@ public class DefaultAnalyticsService
                 tableRows.add( params.getDimensionArrayExplodeCoc( dimension ) );
             }
         }
-        
+
         reportTable.setGridColumns( new CombinationGenerator<>( tableColumns.toArray( IRT2D ) ).getCombinations() );
         reportTable.setGridRows( new CombinationGenerator<>( tableRows.toArray( IRT2D ) ).getCombinations() );
 
@@ -693,7 +693,7 @@ public class DefaultAnalyticsService
 
         Map<String, Object> valueMap = getAggregatedDataValueMapping( grid );
 
-        return reportTable.getGrid( new ListGrid( grid.getMetaData() ), valueMap, params.getDisplayProperty(), false );
+        return reportTable.getGrid( new ListGrid( grid.getMetaData() ), valueMap, false );
     }
 
     @Override

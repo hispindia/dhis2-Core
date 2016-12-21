@@ -33,6 +33,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.hisp.dhis.common.comparator.IdentifiableObjectNameComparator;
+import org.hisp.dhis.dataelement.DataElement;
+import org.hisp.dhis.dataelement.DataElementService;
 import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.dataset.DataSetService;
 import org.hisp.dhis.program.Program;
@@ -78,6 +80,9 @@ public class GetRoleAction
 
     @Autowired
     private ProgramService programService;
+
+    @Autowired
+    private DataElementService dataElementService;
     
     // -------------------------------------------------------------------------
     // Input
@@ -142,6 +147,20 @@ public class GetRoleAction
         return roleAuthorities;
     }
 
+	private List<DataElement> availableDataElements;
+    
+    public List<DataElement> getAvailableDataElements()
+    {
+        return availableDataElements;
+    }
+    
+    private List<DataElement> roleDataElements;
+    
+    public List<DataElement> getRoleDataElements()
+    {
+        return roleDataElements;
+    }
+	
     // -------------------------------------------------------------------------
     // Action implementation
     // -------------------------------------------------------------------------
@@ -191,6 +210,20 @@ public class GetRoleAction
         roleAuthorities = new ArrayList<>( userAuthorityGroup.getAuthorities() );
 
         Collections.sort( roleAuthorities );
+
+        // ---------------------------------------------------------------------
+        // DataElements
+        // ---------------------------------------------------------------------
+        
+        availableDataElements = new ArrayList<DataElement>( dataElementService.getAllDataElements() );
+        
+        availableDataElements.removeAll( userAuthorityGroup.getDataElements() );
+        
+        Collections.sort( availableDataElements, IdentifiableObjectNameComparator.INSTANCE );
+        
+        roleDataElements = new ArrayList<DataElement>( userAuthorityGroup.getDataElements() );
+        
+        Collections.sort( roleDataElements, IdentifiableObjectNameComparator.INSTANCE );		
 
         return SUCCESS;
     }

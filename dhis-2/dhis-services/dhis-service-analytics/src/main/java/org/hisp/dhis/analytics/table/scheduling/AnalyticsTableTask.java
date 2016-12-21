@@ -167,14 +167,14 @@ public class AnalyticsTableTask
             String appTitle = StringUtils.trimToEmpty( (String) systemSettingManager.getSystemSetting( Setting.APPLICATION_TITLE ) );
 
             notifier.notify( taskId, ERROR, "Process failed: " + ex.getMessage(), true );
-
+            /*
             messageService.sendSystemNotification(
                 "Analytics table process failed",
                 "Analytics table process failed, please check the logs. Time: " + new DateTime().toString() + ". " +
                     "Application title: " + appTitle + " " +
                     "Message: " + ex.getMessage() + " " +
                     "Cause: " + DebugUtils.getStackTrace( ex.getCause() ) );
-
+			*/
             throw ex;
         }
 

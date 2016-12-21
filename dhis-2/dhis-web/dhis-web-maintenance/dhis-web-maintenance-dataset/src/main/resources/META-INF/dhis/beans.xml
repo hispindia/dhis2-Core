@@ -33,6 +33,12 @@
     <property name="sectionService" ref="org.hisp.dhis.dataset.SectionService" />
   </bean>
 
+  <bean id="org.hisp.dhis.dataset.action.section.DefineSectionAssociationsAction" class="org.hisp.dhis.dataset.action.section.DefineSectionAssociationsAction"
+     scope="prototype">
+     <property name="selectionTreeManager" ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+     <property name="sectionService" ref="org.hisp.dhis.dataset.SectionService" />
+  </bean>
+ 
   <bean id="org.hisp.dhis.dataset.action.section.UpdateSectionAction" class="org.hisp.dhis.dataset.action.section.UpdateSectionAction"
     scope="prototype">
     <property name="sectionService" ref="org.hisp.dhis.dataset.SectionService" />

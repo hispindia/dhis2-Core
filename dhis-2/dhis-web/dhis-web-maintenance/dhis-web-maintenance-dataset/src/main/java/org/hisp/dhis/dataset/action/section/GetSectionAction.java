@@ -38,6 +38,8 @@ import org.hisp.dhis.dataelement.DataElementCategoryCombo;
 import org.hisp.dhis.dataset.Section;
 import org.hisp.dhis.dataset.SectionService;
 import org.hisp.dhis.indicator.Indicator;
+import org.hisp.dhis.oust.manager.SelectionTreeManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
 
@@ -55,6 +57,9 @@ public class GetSectionAction
         this.sectionService = sectionService;
     }
 
+	@Autowired
+    private SelectionTreeManager selectionTreeManager;
+	
     // -------------------------------------------------------------------------
     // Input & output
     // -------------------------------------------------------------------------
@@ -123,6 +128,8 @@ public class GetSectionAction
         Collections.sort( sectionDataElements, new IdentifiableObjectNameComparator() );
         Collections.sort( sectionIndicators, new IdentifiableObjectNameComparator() );
 
+        selectionTreeManager.setSelectedOrganisationUnits( section.getSources() );
+		
         return SUCCESS;
     }
 }

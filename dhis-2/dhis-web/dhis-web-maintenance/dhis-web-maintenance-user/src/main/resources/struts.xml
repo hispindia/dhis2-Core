@@ -32,6 +32,14 @@
       <param name="requiredAuthorities">F_USER_VIEW</param>
     </action>
 
+	<action name="filterUsers" class="org.hisp.dhis.user.action.GetUserByNameAndGroupListAction">
+       <result name="success" type="velocity">/main.vm</result>
+       <param name="page">/dhis-web-maintenance-user/filerUsers.vm</param>
+       <param name="menu">/dhis-web-maintenance-user/menu.vm</param>
+       <param name="javascripts">javascript/user.js,javascript/filterTable.js</param>
+       <param name="requiredAuthorities">F_USER_VIEW</param>
+    </action>
+	
     <action name="getUser" class="org.hisp.dhis.user.action.GetUserAction">
       <result name="success" type="velocity-json">/dhis-web-commons/ajax/jsonUser.vm</result>
       <param name="onExceptionReturn">plainTextError</param>
@@ -207,6 +215,19 @@
       <param name="onExceptionReturn">plainTextError</param>
     </action>
     
+	<action name="exportToExcel" class="org.hisp.dhis.user.action.GetRoleListAction">
+       <result name="success" type="redirect">downloadUserRole.action?key=${key}</result>
+      <param name="javascripts">javascript/role.js,javascript/filterTable.js</param>
+    </action>
+
+	<action name="downloadUserRole" class="org.hisp.dhis.userRole.action.excel.ExportToExcelAction">
+       <result name="success" type="stream">
+	       <param name="contentType">application/vnd.ms-excel</param>
+	       <param name="inputName">inputStream</param>
+	       <param name="contentDisposition">filename="${fileName}"</param>
+	       <param name="bufferSize">1024</param>
+       </result>
+    </action>
 
   </package>
 </struts>

@@ -1716,6 +1716,7 @@
 
   <bean id="org.hisp.dhis.sms.command.code.SMSCodesDeletionHandler"
     class="org.hisp.dhis.sms.command.code.SMSCodesDeletionHandler" />
+    
 
   <!-- DeletionManager -->
 

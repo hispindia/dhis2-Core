@@ -1294,9 +1294,6 @@ Ext.onReady( function() {
                 //}
             }
 
-            // coordinates
-            paramString += '&coordinatesOnly=true';
-
             success = function(r) {
                 var events = [],
                     features = [],

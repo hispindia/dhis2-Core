@@ -37,6 +37,9 @@ import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramService;
 import org.hisp.dhis.user.UserAuthorityGroup;
 import org.hisp.dhis.user.UserService;
+import org.hisp.dhis.dataelement.DataElement;
+import org.hisp.dhis.dataelement.DataElementService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -68,6 +71,10 @@ public class AddRoleAction
 
     @Autowired
     private ProgramService programService;
+	
+    @Autowired
+    private DataElementService dataElementService;
+
     
     // -------------------------------------------------------------------------
     // Input
@@ -108,6 +115,13 @@ public class AddRoleAction
         this.selectedProgramList = selectedProgramList;
     }
 
+    private Collection<String> selectedListDataElement = new ArrayList<String>();
+    
+    public void setSelectedListDataElement( Collection<String> selectedListDataElement )
+    {
+        this.selectedListDataElement = selectedListDataElement;
+    }
+	
     // -------------------------------------------------------------------------
     // Action implementation
     // -------------------------------------------------------------------------
@@ -131,6 +145,13 @@ public class AddRoleAction
         {
             Program program = programService.getProgram( id );
             group.getPrograms().add( program );
+        }
+
+		for( String deId : selectedListDataElement )
+        {
+            DataElement dataElement = dataElementService.getDataElement( Integer.parseInt( deId ) );
+            
+            group.getDataElements().add( dataElement );
         }
         
         group.getAuthorities().addAll( selectedListAuthority );

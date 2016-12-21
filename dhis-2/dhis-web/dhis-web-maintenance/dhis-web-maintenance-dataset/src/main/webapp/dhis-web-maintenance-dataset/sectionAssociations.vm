@@ -1,0 +1,23 @@
+<h3>$i18n.getString( "define_section_associations" )</h3>
+
+<h4>$encoder.htmlEncode( $section.displayName )</h4>
+
+<form id="defineSectionAssociationsForm" action="defineSectionAssociations.action" method="post">
+  <div style="display:inline">
+	<input type="hidden" name="sectionId" value="$sectionId"/>
+  </div>
+  <table id="selectionTable">
+	<tr>
+	  <td>
+		#organisationUnitSelectionTree( false, true, false )
+	  </td>
+    </tr>
+    <tr>
+      <td>
+        <input type="submit" id="submitButton" value="$i18n.getString( 'save' )" style="width:10em"/>
+		<input type="button" onclick="window.location.href='section.action'" value="$i18n.getString( 'cancel' )" style="width:10em"/>
+      </td>
+    </tr>
+  </table>
+
+</form>

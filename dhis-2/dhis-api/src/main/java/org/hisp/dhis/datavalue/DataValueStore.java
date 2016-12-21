@@ -250,6 +250,11 @@ public interface DataValueStore
      */
     List<DataValue> getDataValues( DataElement dataElement );  
     
+    
+    
+    
+    List<DataValue> getDataValues( OrganisationUnit organisationUnit,DataElement dataElement,DataElementCategoryOptionCombo optionCombo);
+    
     /**
      * Returns Latest DataValues for a given DataElement, PeriodType and OrganisationUnit
      * 
@@ -298,4 +303,9 @@ public interface DataValueStore
      * @param sourceIds the Collection of Source identifiers.
      */
     Collection<DeflatedDataValue> getDeflatedDataValues( int dataElementId, int periodId, Collection<Integer> sourceIds );
+
+	DataValue getLatestDataValue( DataElement dataElement, DataElementCategoryOptionCombo optionCombo, OrganisationUnit organisationUnit );
+    
+    DataValue getLatestDataValue( Integer dataElementId, Integer categoryOptionComboId, Integer ouId );
+	
 }

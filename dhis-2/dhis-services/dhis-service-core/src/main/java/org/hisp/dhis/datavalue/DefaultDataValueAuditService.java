@@ -28,7 +28,9 @@ package org.hisp.dhis.datavalue;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Date;
 
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
@@ -117,4 +119,60 @@ public class DefaultDataValueAuditService
     {
         return dataValueAuditStore.deleteDataValueAuditByCategoryOptionCombo( categoryOptionCombo );
     }
+	
+	    public DataValueAudit getDataValueAuditById( Integer id )
+    {        
+        return dataValueAuditStore.getDataValueAuditById( id );
+    }
+
+    public DataValueAudit getDataValueAuditByLastUpdated_StoredBy( DataElement dataElement, OrganisationUnit organisationUnit, Date timeStamp, String storedBy, Integer status, String commentType )
+    {
+        return dataValueAuditStore.getDataValueAuditByLastUpdated_StoredBy(  dataElement, organisationUnit,timeStamp, storedBy, status, commentType );
+    }
+
+    public void updateDataValueAudit( DataValueAudit dataValueAudit )
+    {       
+        dataValueAuditStore.updateDataValueAudit( dataValueAudit );       
+    }
+
+    public Collection<DataValueAudit> getDataValueAuditByOrgUnit_DataElement( DataElement dataElement, OrganisationUnit organisationUnit )
+    {
+        return dataValueAuditStore.getDataValueAuditByOrgUnit_DataElement( dataElement, organisationUnit );
+    }
+    
+    public Collection<DataValueAudit> getActiveDataValueAuditByOrgUnit_DataElement( DataElement dataElement, OrganisationUnit organisationUnit )
+    {
+        return dataValueAuditStore.getActiveDataValueAuditByOrgUnit_DataElement( dataElement, organisationUnit );
+    }
+    
+    public Collection<DataValueAudit> getActiveDataValueAuditByOrgUnit_DataElement_Period( DataElement dataElement, OrganisationUnit organisationUnit, Period period )
+    {
+    	return dataValueAuditStore.getActiveDataValueAuditByOrgUnit_DataElement_Period( dataElement, organisationUnit, period );
+    }
+    
+    public Collection<DataValueAudit> getActiveDataValueAuditByOrgUnit_DataElement_Period_type( DataElement dataElement, OrganisationUnit organisationUnit, Period period, String commentType )
+    {        
+    	return dataValueAuditStore.getActiveDataValueAuditByOrgUnit_DataElement_Period_type( dataElement, organisationUnit, period, commentType );
+    }
+    
+    public DataValueAudit getLatestDataValueAudit( DataElement dataElement, OrganisationUnit organisationUnit, String commentType )
+    {
+        return dataValueAuditStore.getLatestDataValueAudit( dataElement, organisationUnit, commentType );
+    }
+    
+    public DataValueAudit getLatestDataValueAudit( DataElement dataElement, OrganisationUnit organisationUnit, String commentType, String value, String comment )
+    {
+        return dataValueAuditStore.getLatestDataValueAudit( dataElement, organisationUnit, commentType, value, comment );
+    }
+
+    public Collection<DataValueAudit> getDataValueAuditByDataValue( DataValue dataValue )
+    {
+        return dataValueAuditStore.getDataValueAuditByDataValue( dataValue );
+    }
+
+    public Collection<DataValueAudit> getActiveDataValueAuditByDataValue( DataValue dataValue )
+    {
+        return dataValueAuditStore.getActiveDataValueAuditByDataValue( dataValue );
+    }
+
 }

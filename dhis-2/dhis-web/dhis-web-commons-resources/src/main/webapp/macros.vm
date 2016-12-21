@@ -331,7 +331,7 @@ jQuery.each(attributes, function(i, item) {
 #if( $args.attributes.size() > 0 )
 <select multiple="multiple" id="jsonAttributeValues" name="jsonAttributeValues" style="display: none;"></select>
 
-<div id="dynamicAttributesContainer" style="margin-bottom: 10px;">
+<div id="dynamicAttributesContainer" style="margin-bottom: 10px;width:78%;">
 <table>
 	#foreach( $attribute in $args.attributes )
 		#set( $text = $attribute.displayName )

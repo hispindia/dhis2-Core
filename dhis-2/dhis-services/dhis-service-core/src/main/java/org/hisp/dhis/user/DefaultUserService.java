@@ -47,7 +47,9 @@ import org.hisp.dhis.dataelement.DataElementCategoryOption;
 import org.hisp.dhis.dataelement.DataElementCategoryService;
 import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.period.PeriodType;
-import org.hisp.dhis.security.PasswordManager;
+import org.hisp.dhis.security.migration.MigrationPasswordManager;
+//import org.hisp.dhis.security.PasswordManager;
+import org.hisp.dhis.security.migration.MigrationPasswordManager;
 import org.hisp.dhis.setting.Setting;
 import org.hisp.dhis.setting.SystemSettingManager;
 import org.hisp.dhis.system.filter.UserAuthorityGroupCanIssueFilter;
@@ -118,13 +120,22 @@ public class DefaultUserService
         this.systemSettingManager = systemSettingManager;
     }
 
+	/*
     private PasswordManager passwordManager;
 
     public void setPasswordManager( PasswordManager passwordManager )
     {
         this.passwordManager = passwordManager;
     }
+	*/
 
+	private MigrationPasswordManager passwordManager;
+
+    public void setPasswordManager( MigrationPasswordManager passwordManager )
+    {
+        this.passwordManager = passwordManager;
+    }
+	
     // -------------------------------------------------------------------------
     // UserService implementation
     // -------------------------------------------------------------------------
@@ -536,9 +547,12 @@ public class DefaultUserService
     @Override
     public void encodeAndSetPassword( UserCredentials userCredentials, String rawPassword )
     {
-        boolean isNewPassword = StringUtils.isBlank( userCredentials.getPassword() ) ||
-            !passwordManager.matches( rawPassword, userCredentials.getPassword() );
+        //boolean isNewPassword = StringUtils.isBlank( userCredentials.getPassword() ) ||
+        //    !passwordManager.matches( rawPassword, userCredentials.getPassword() );
 
+		boolean isNewPassword = StringUtils.isBlank( userCredentials.getPassword() ) ||
+            !passwordManager.legacyOrCurrentMatches( rawPassword, userCredentials.getPassword(), userCredentials.getUsername() );
+	
         if ( isNewPassword )
         {
             userCredentials.setPasswordLastUpdated( new Date() );
@@ -613,5 +627,17 @@ public class DefaultUserService
         int months = DateUtils.monthsBetween( credentials.getPasswordLastUpdated(), new Date() );
 
         return months < credentialsExpires;
+    }
+	
+	@Override
+    public Collection<User> getUsersByEmail( String email ) 
+    {
+        return userStore.getUsersByEmail( email );                 
+    }
+
+    @Override
+    public Collection<User> getUserByNameAndGroup( String name, String type , int first, int max)
+    {        
+        return userStore.getUserByNameAndGroup( name, type ,first, max);
     }
 }

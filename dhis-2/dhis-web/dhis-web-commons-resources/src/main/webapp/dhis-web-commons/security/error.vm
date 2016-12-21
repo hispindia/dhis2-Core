@@ -1,0 +1,7 @@
+<div style="height:100px; background-color:#01A9DB">
+<center><img src="banner1.png"/></center>
+</div>
+<br/>
+<center><h1>Requested Url not found</h1><h3>$error</h3>
+ <a href="../../dhis-web-commons-security/login.action">Back to Login</a>
+</center>

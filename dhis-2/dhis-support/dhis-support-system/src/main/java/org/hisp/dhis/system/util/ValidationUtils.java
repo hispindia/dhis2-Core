@@ -365,12 +365,12 @@ public class ValidationUtils
         {
             return "value_not_true_only";
         }
-
+		/*
         if ( ValueType.DATE == valueType && !DateUtils.dateIsValid( value ) )
         {
             return "value_not_valid_date";
         }
-
+		*/
         if ( ValueType.DATETIME == valueType && !DateUtils.dateTimeIsValid( value ) )
         {
             return "value_not_valid_datetime";

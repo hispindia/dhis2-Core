@@ -60,6 +60,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
@@ -1421,4 +1423,33 @@ public class HibernateCaseAggregationConditionStore
 
         return sql;
     }
+
+	@SuppressWarnings( "unchecked" )
+	@Override
+	public Collection<CaseAggregationCondition> getCaseAggregationConditionByOperator( String operator )
+	{
+		return getCriteria( Restrictions.eq( "operator", operator ) ).list();
+	}
+
+	@SuppressWarnings( "unchecked" )
+    @Override
+    public Collection<CaseAggregationCondition> getAggConditionsBetween( int first, int max )
+    {
+        Session session = sessionFactory.getCurrentSession();
+
+        return session.createQuery( "from CaseAggregationCondition order by name" ).setFirstResult( first )
+            .setMaxResults( max ).list();        
+    }
+
+    @Override
+    public int getAggConditionCount()
+    {
+        Session session = sessionFactory.getCurrentSession();
+
+        Query query = session.createQuery( "select count(*) from CaseAggregationCondition" );
+
+        Number rs = (Number) query.uniqueResult();
+
+        return rs != null ? rs.intValue() : 0; 
+    }	
 }

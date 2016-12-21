@@ -93,5 +93,11 @@
       <many-to-many class="org.hisp.dhis.user.UserGroupAccess" column="usergroupaccessid" unique="true" />
     </set>
 
+ 	<set name="orgUnits" table="hiddende_orgunit">
+ 		<cache usage="read-write" />
+ 		<key column="dataelementid" />
+ 		<many-to-many class="org.hisp.dhis.organisationunit.OrganisationUnit" column="orgunitid" />
+ 	</set>
+
   </class>
 </hibernate-mapping>

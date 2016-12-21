@@ -16,4 +16,6 @@
     <li><a href="showCache.action">$i18n.getString( "cache_statistics" )&nbsp;</a></li>
     <li><a href="attribute.action">$i18n.getString( "attribute" )&nbsp;</a></li>
     <li><a href="viewScheduledTasks.action">$i18n.getString( "scheduling" )</a></li>
+    
+    <li><a href="autoPopulateUsersFromExcel.action">Auto Populate Users From Excel</a></li>
 </ul>

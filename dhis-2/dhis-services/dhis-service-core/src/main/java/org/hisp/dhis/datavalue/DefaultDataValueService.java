@@ -245,6 +245,11 @@ public class DefaultDataValueService
     }
 
     @Override
+    public List<DataValue> getDataValues( OrganisationUnit source, DataElement dataElement,DataElementCategoryOptionCombo optionCombo )
+    {System.out.println("hellosavita");
+        return dataValueStore.getDataValues( source, dataElement,optionCombo );
+    }
+    @Override
     public List<DataValue> getDataValues( Collection<OrganisationUnit> sources, DataElement dataElement )
     {
         return dataValueStore.getDataValues( sources, dataElement );
@@ -339,5 +344,15 @@ public class DefaultDataValueService
     public Collection<DeflatedDataValue> getDeflatedDataValues( int dataElementId, int periodId, Collection<Integer> sourceIds )
     {
         return dataValueStore.getDeflatedDataValues( dataElementId, periodId, sourceIds );
+    }
+	
+	public DataValue getLatestDataValue( DataElement dataElement, DataElementCategoryOptionCombo optionCombo, OrganisationUnit organisationUnit )
+    {
+        return dataValueStore.getLatestDataValue( dataElement, optionCombo, organisationUnit );
+    }
+	
+    public DataValue getLatestDataValue( Integer dataElementId, Integer categoryOptionComboId, Integer ouId )
+    {
+        return dataValueStore.getLatestDataValue( dataElementId, categoryOptionComboId, ouId );
     }
 }

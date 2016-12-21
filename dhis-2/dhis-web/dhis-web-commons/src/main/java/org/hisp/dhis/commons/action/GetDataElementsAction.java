@@ -45,10 +45,13 @@ import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.system.filter.AggregatableDataElementFilter;
 import org.hisp.dhis.commons.filter.FilterUtils;
 import org.hisp.dhis.util.ContextUtils;
+import org.hisp.dhis.constant.ConstantService;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Lars Helge Overland
@@ -90,6 +93,9 @@ public class GetDataElementsAction
         this.periodService = periodService;
     }
 
+    @Autowired
+    private ConstantService constantService;
+	
     // -------------------------------------------------------------------------
     // Input & output
     // -------------------------------------------------------------------------
@@ -164,7 +170,13 @@ public class GetDataElementsAction
 
             if ( dataElementGroup != null )
             {
-                dataElements = new ArrayList<>( dataElementGroup.getMembers() );
+                //dataElements = new ArrayList<>( dataElementGroup.getMembers() );
+				
+				List<DataElement> deList = new ArrayList<DataElement>( dataElementGroup.getMembers() );
+
+                dataElements = new ArrayList<DataElement>( dataElementService.getAllDataElements() );
+
+                dataElements.retainAll( deList );
             }
         }
         else if ( categoryComboId != null && categoryComboId != ALL )

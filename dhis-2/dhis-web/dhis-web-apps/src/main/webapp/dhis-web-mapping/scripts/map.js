@@ -7591,8 +7591,7 @@ Ext.onReady(function() {
                 GIS_GM = {
                     ready: false,
                     offline: false,
-                    array: [],
-                    key: 'AIzaSyBjlDmwuON9lJbPMDlh_LI3zGpGtpK9erc'
+                    array: []
                 };
 
                 GIS_GM_fn = function() {
@@ -7610,7 +7609,7 @@ Ext.onReady(function() {
                 };
 
                 if (!Ext.Array.contains(['osm', 'none'], config.baseLayer)) {
-                    Ext.Loader.injectScriptElement('//maps.googleapis.com/maps/api/js?v=3.24&callback=GIS_GM_fn&key=' + GIS_GM.key,
+                    Ext.Loader.injectScriptElement('//maps.googleapis.com/maps/api/js?v=3.22&callback=GIS_GM_fn',
                         function() {
                             console.log("GM available (online)");
                         },

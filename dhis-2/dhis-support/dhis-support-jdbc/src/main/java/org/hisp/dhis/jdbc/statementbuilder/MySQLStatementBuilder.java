@@ -85,12 +85,6 @@ public class MySQLStatementBuilder
     }
     
     @Override
-    public String getCastToDate( String column )
-    {
-        return "date(" + column + ")";
-    }
-
-    @Override
     public String getDeleteZeroDataValues()
     {
         return

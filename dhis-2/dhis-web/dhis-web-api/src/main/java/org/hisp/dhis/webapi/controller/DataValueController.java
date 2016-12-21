@@ -188,7 +188,7 @@ public class DataValueController
                 "Category option combo: " + categoryOptionCombo.getUid() + " must be part of category combo of data element: " + dataElement.getUid() ) );
         }
         
-        if ( strictOrgUnits && !organisationUnit.hasDataElement( dataElement ) )
+        if ( strictOrgUnits && !dataElement.hasDataSetOrganisationUnit( organisationUnit ) )
         {
             throw new WebMessageException( WebMessageUtils.conflict( 
                 "Data element: " + dataElement.getUid() + " must be assigned through data sets to organisation unit: " + organisationUnit.getUid() ) );

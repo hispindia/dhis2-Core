@@ -46,8 +46,7 @@ public class CachingMap<K, V>
 {
     /**
      * Returns the cached value if available or executes the Callable and returns
-     * the value, which is also cached. Will not attempt to fetch values for null
-     * keys, to avoid potentially expensive and pointless operations.
+     * the value, which is also cached.
      *
      * @param key the key.
      * @param callable the Callable.
@@ -55,11 +54,6 @@ public class CachingMap<K, V>
      */
     public V get( K key, Callable<V> callable )
     {
-        if ( key == null )
-        {
-            return null;
-        }
-        
         V value = super.get( key );
 
         if ( value == null )

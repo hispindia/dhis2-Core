@@ -34,6 +34,12 @@
     <property name="userService" ref="org.hisp.dhis.user.UserService" />
   </bean>
 
+  <bean id="org.hisp.dhis.user.action.GetUserByNameAndGroupListAction" class="org.hisp.dhis.user.action.GetUserByNameAndGroupListAction" scope="prototype">
+     <property name="userService" ref="org.hisp.dhis.user.UserService" />
+     <property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+     <property name="userGroupService" ref="org.hisp.dhis.user.UserGroupService" />  
+  </bean>
+  
   <bean id="org.hisp.dhis.user.action.RemoveUserAction" class="org.hisp.dhis.user.action.RemoveUserAction" scope="prototype">
     <property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
     <property name="userService" ref="org.hisp.dhis.user.UserService" />
@@ -146,6 +152,11 @@
   <bean id="org.hisp.dhis.user.action.usergroup.ValidateUserGroupAction" class="org.hisp.dhis.user.action.usergroup.ValidateUserGroupAction"
     scope="prototype">
     <property name="userGroupService" ref="org.hisp.dhis.user.UserGroupService" />
+  </bean>
+
+  <bean id="org.hisp.dhis.userRole.action.excel.ExportToExcelAction" class="org.hisp.dhis.userRole.action.excel.ExportToExcelAction"
+     scope="prototype">
+     <property name="userService" ref="org.hisp.dhis.user.UserService" />
   </bean>
   
 </beans>

@@ -662,4 +662,22 @@ public class DefaultCaseAggregationConditionService
 
         return false;
     }
+	
+	@Override
+	public Collection<CaseAggregationCondition> getCaseAggregationConditionByOperator( String operator )
+	{
+		return i18n( i18nService, aggregationConditionStore.getCaseAggregationConditionByOperator( operator ) );
+	}
+
+    @Override
+    public Collection<CaseAggregationCondition> getAggConditionsBetween( int first, int max )
+    { 
+        return aggregationConditionStore.getAggConditionsBetween( first, max );
+    }
+
+    @Override
+    public int getAggConditionCount()
+    {
+        return aggregationConditionStore.getAggConditionCount();       
+    }	
 }

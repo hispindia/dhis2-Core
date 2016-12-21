@@ -30,9 +30,17 @@ package org.hisp.dhis.document.impl;
 
 import java.util.List;
 
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
+
 import org.hisp.dhis.common.GenericIdentifiableObjectStore;
 import org.hisp.dhis.document.Document;
 import org.hisp.dhis.document.DocumentService;
+import org.hisp.dhis.organisationunit.OrganisationUnit;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -54,7 +62,10 @@ public class DefaultDocumentService
         this.documentStore = documentStore;
     }
 
-    // -------------------------------------------------------------------------
+	@Autowired
+    private SessionFactory sessionFactory;
+    
+	// -------------------------------------------------------------------------
     // DocumentService implementation
     // -------------------------------------------------------------------------
 
@@ -123,4 +134,20 @@ public class DefaultDocumentService
     {
         return documentStore.getByUid( uids );
     }
+	
+    public List<Document> getDocumentsBySource( OrganisationUnit source )
+    {
+    	Session session = sessionFactory.getCurrentSession();
+
+        Criteria criteria = session.createCriteria( Document.class );
+        if(source != null)
+        {
+        	criteria.add( Restrictions.eq( "source", source ) );  
+        }
+        else
+        {
+        	criteria.add( Restrictions.isNull("source") );  
+        }
+		return criteria.list();
+    }	
 }

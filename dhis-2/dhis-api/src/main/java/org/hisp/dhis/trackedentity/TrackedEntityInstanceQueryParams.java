@@ -35,7 +35,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.hisp.dhis.common.OrganisationUnitSelectionMode;
 import org.hisp.dhis.common.QueryFilter;
 import org.hisp.dhis.common.QueryItem;
@@ -608,7 +607,7 @@ public class TrackedEntityInstanceQueryParams
 
     public Date getProgramEndDate()
     {
-    	return programEndDate != null ? DateUtils.addDays(programEndDate, 1) : programEndDate;
+        return programEndDate;
     }
 
     public void setProgramEndDate( Date programEndDate )

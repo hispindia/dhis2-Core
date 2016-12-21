@@ -29,6 +29,7 @@ package org.hisp.dhis.document;
  */
 
 import java.util.List;
+import org.hisp.dhis.organisationunit.OrganisationUnit;
 
 /**
  * @author Lars Helge Overland
@@ -94,4 +95,6 @@ public interface DocumentService
     int getDocumentCountByName( String name );
     
     List<Document> getDocumentsByUid( List<String> uids );
+	
+	List<Document> getDocumentsBySource( OrganisationUnit organisationUnit );
 }

@@ -132,21 +132,16 @@ public class ValidatorThread
                                 Map<Integer, Double> leftSideValues = getExpressionValueMap( rule.getLeftSide(),
                                     currentValueMap, incompleteValuesMap );
 
-                                if ( !leftSideValues.isEmpty()
-                                    || Operator.compulsory_pair.equals( rule.getOperator() )
-                                    || Operator.exclusive_pair.equals( rule.getOperator() ))
+                                if ( !leftSideValues.isEmpty() || Operator.compulsory_pair.equals( rule.getOperator() ) )
                                 {
                                     Map<Integer, Double> rightSideValues = getRightSideValue( sourceX.getSource(), periodTypeX, period, rule,
                                         currentValueMap, sourceDataElements );
 
-                                    if ( !rightSideValues.isEmpty()
-                                        || Operator.compulsory_pair.equals( rule.getOperator() )
-                                        || Operator.compulsory_pair.equals( rule.getOperator() ))
+                                    if ( !rightSideValues.isEmpty() || Operator.compulsory_pair.equals( rule.getOperator() ) )
                                     {
                                         Set<Integer> attributeOptionCombos = leftSideValues.keySet();
 
-                                        if ( Operator.compulsory_pair.equals( rule.getOperator() ) ||
-                                            Operator.exclusive_pair.equals( rule.getOperator() ) )
+                                        if ( Operator.compulsory_pair.equals( rule.getOperator() ) )
                                         {
                                             attributeOptionCombos = new HashSet<>( attributeOptionCombos );
                                             attributeOptionCombos.addAll( rightSideValues.keySet() );
@@ -162,10 +157,6 @@ public class ValidatorThread
                                             {
                                                 violation = (leftSide != null && rightSide == null)
                                                     || (leftSide == null && rightSide != null);
-                                            }
-                                            else if ( Operator.exclusive_pair.equals( rule.getOperator() ) )
-                                            {
-                                                violation = ( leftSide != null && rightSide != null );
                                             }
                                             else if ( leftSide != null && rightSide != null )
                                             {

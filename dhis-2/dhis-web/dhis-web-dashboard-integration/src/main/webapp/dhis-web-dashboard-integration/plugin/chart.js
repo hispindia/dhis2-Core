@@ -684,8 +684,7 @@ Ext.onReady(function() {
                         line: 'line',
                         area: 'area',
                         pie: 'pie',
-                        radar: 'radar',
-                        gauge: 'gauge'
+                        radar: 'radar'
                     },
                     server: {
                         column: 'COLUMN',
@@ -2451,7 +2450,6 @@ Ext.onReady(function() {
                     map = xLayout.dimensionNameItemsMap,
 					dx = dimConf.indicator.dimensionName,
 					co = dimConf.category.dimensionName,
-					ou = dimConf.organisationUnit.dimensionName,
                     aggTypes = ['COUNT', 'SUM', 'STDDEV', 'VARIANCE', 'MIN', 'MAX'],
                     propertyMap = {
                         'name': 'name',
@@ -2460,26 +2458,7 @@ Ext.onReady(function() {
                         'displayShortName': 'shortName'
                     },
                     keyAnalysisDisplayProperty = init.userAccount.settings.keyAnalysisDisplayProperty,
-                    displayProperty = propertyMap[keyAnalysisDisplayProperty] || propertyMap[xLayout.displayProperty] || 'name',
-                    userIdDestroyCacheKeys = [
-						'USER_ORGUNIT',
-						'USER_ORGUNIT_CHILDREN',
-						'USER_ORGUNIT_GRANDCHILDREN'
-					];
-                    
-                var hasRelativeOrgunit = function() {
-					var has = false;
-
-					if (dimensionNameIdsMap.ou) {
-						userIdDestroyCacheKeys.forEach(function(key) {
-							if (Ext.Array.contains(dimensionNameIdsMap.ou, key)) {
-								has = true;
-							}
-						});
-					}
-
-					return has;
-				}();
+                    displayProperty = propertyMap[keyAnalysisDisplayProperty] || propertyMap[xLayout.displayProperty] || 'name';
 
                 for (var i = 0, dimName, items; i < axisDimensionNames.length; i++) {
                     dimName = axisDimensionNames[i];
@@ -2543,11 +2522,6 @@ Ext.onReady(function() {
                 if (xLayout.relativePeriodDate) {
                     paramString += '&relativePeriodDate=' + xLayout.relativePeriodDate;
                 }
-
-                // relative orgunits / user
-                if (hasRelativeOrgunit) {
-					paramString += '&user=' + init.userAccount.id;
-				}
 
                 return paramString.replace(/#/g, '.');
             };
@@ -3390,8 +3364,8 @@ Ext.onReady(function() {
                         text = '',
                         titleFont,
                         titleColor,
-                        isPie = xLayout.type === conf.finals.chart.client.pie,
-                        isGauge = xLayout.type === conf.finals.chart.client.gauge;
+                        isPie = xLayout.type === conf.finals.chart.pie,
+                        isGauge = xLayout.type === conf.finals.chart.gauge;
 
                     if (isPie) {
                         ids.push(columnIds[0]);
@@ -4568,7 +4542,7 @@ Ext.onReady(function() {
                     xResponse = service.response.getExtendedResponse(xLayout, response);
 
                     // legend set
-                    if (xLayout.type === 'GAUGE' && Ext.Array.contains(xLayout.axisObjectNames, ind) && xLayout.objectNameIdsMap[ind].length) {
+                    if (xLayout.type === 'gauge' && Ext.Array.contains(xLayout.axisObjectNames, ind) && xLayout.objectNameIdsMap[ind].length) {
                         Ext.Ajax.request({
                             url: ns.core.init.contextPath + '/api/indicators/' + xLayout.objectNameIdsMap[ind][0] + '.json?fields=legendSet[legends[id,name,startValue,endValue,color]]',
                             disableCaching: false,

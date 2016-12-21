@@ -39,6 +39,11 @@
       <key column="userroleid" foreign-key="fk_userroleprogram_userroleid" />
       <many-to-many column="programid" class="org.hisp.dhis.program.Program" foreign-key="fk_userroleprogram_programid" />
     </set>
+
+	<set name="dataElements" table="userroledataelement">
+      <key column="userroleid" foreign-key="fk_userroledataelement_userroleid" />
+      <many-to-many column="dataelementid" class="org.hisp.dhis.dataelement.DataElement" foreign-key="fk_userroledataelement_dataelementid" />
+    </set>
     
     <!-- Access properties -->
     <many-to-one name="user" class="org.hisp.dhis.user.User" column="userid" foreign-key="fk_userrole_userid" />

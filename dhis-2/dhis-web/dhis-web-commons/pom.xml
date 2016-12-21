@@ -19,6 +19,11 @@
       <groupId>org.hisp.dhis</groupId>
       <artifactId>dhis-api</artifactId>
     </dependency>
+       <dependency>
+      <groupId>org.hisp.dhis</groupId>
+      <artifactId>dhis-in-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.hisp.dhis</groupId>
       <artifactId>dhis-service-dxf2</artifactId>
@@ -44,6 +49,13 @@
       <artifactId>dhis-support-system</artifactId>
     </dependency>
 
+ <dependency>
+      <groupId>org.hisp.dhis</groupId>
+      <artifactId>dhis-in-service-lookup</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  
+  
     <!-- Web -->
 
     <dependency>

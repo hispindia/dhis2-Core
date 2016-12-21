@@ -2725,28 +2725,6 @@ Ext.onReady( function() {
                 return dataDimensions;
             };
 
-            service.layout.hasRecordIds = function(layout, recordIds) {
-                var dimensions = Ext.Array.clean([].concat(layout.columns, layout.rows, layout.filters)),
-                    ids = [],
-                    has = false;
-
-                dimensions.forEach(function(dim) {
-                    if (Ext.isArray(dim.items)) {
-                        dim.items.forEach(function(record) {
-                            ids.push(record.id);
-                        });
-                    }
-                });
-
-                ids.forEach(function(id) {
-                    if (Ext.Array.contains(recordIds, id)) {
-                        has = true;
-                    }
-                });
-
-                return has;
-            };
-
 			// response
 			service.response = {};
 
@@ -3136,13 +3114,10 @@ Ext.onReady( function() {
                 var paramString,
                     dimensions = Ext.Array.clean([].concat(layout.columns || [], layout.rows || [])),
                     ignoreKeys = ['dy', 'longitude', 'latitude'],
-                    userIdDestroyCacheKeys = [
-						'USER_ORGUNIT',
-						'USER_ORGUNIT_CHILDREN',
-						'USER_ORGUNIT_GRANDCHILDREN'
-					];
-
-                var hasRelativeOrgunits = service.layout.hasRecordIds(layout, userIdDestroyCacheKeys);
+                    dataTypeMap = {
+                        'aggregated_values': 'aggregate'
+                    },
+                    nameItemsMap;
 
                 paramString = '/api/analytics/events/aggregate/' + layout.program.id + '.' + (format || 'json') + '?';
 
@@ -3249,11 +3224,6 @@ Ext.onReady( function() {
                 // relative period date
                 if (layout.relativePeriodDate) {
                     paramString += '&relativePeriodDate=' + layout.relativePeriodDate;
-                }
-
-                // user / relative orgunit
-                if (hasRelativeOrgunits) {
-                    paramString += '&user=' + init.userAccount.id;
                 }
 
                 return paramString;

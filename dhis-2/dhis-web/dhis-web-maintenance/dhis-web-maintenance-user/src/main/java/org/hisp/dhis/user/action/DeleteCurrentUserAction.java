@@ -33,7 +33,8 @@ import com.opensymphony.xwork2.Action;
 import java.util.Collection;
 
 import org.hisp.dhis.i18n.I18n;
-import org.hisp.dhis.security.PasswordManager;
+//import org.hisp.dhis.security.PasswordManager;
+import org.hisp.dhis.security.migration.MigrationPasswordManager;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserCredentials;
@@ -52,13 +53,21 @@ public class DeleteCurrentUserAction
         this.currentUserService = currentUserService;
     }
 
+	/*
     private PasswordManager passwordManager;
 
     public void setPasswordManager( PasswordManager passwordManager )
     {
         this.passwordManager = passwordManager;
     }
+	*/
+    private MigrationPasswordManager passwordManager;
 
+    public void setPasswordManager( MigrationPasswordManager passwordManager )
+    {
+        this.passwordManager = passwordManager;
+    }	
+	
     private UserService userService;
 
     public void setUserService( UserService userService )
@@ -138,7 +147,8 @@ public class DeleteCurrentUserAction
             return INPUT;
         }
 
-        if( !passwordManager.matches( oldPassword, oldPasswordFromDB ) )
+		if( !passwordManager.legacyOrCurrentMatches( oldPassword, oldPasswordFromDB, username ) )
+        //if( !passwordManager.matches( oldPassword, oldPasswordFromDB ) )
         {
             message = i18n.getString( "wrong_password" );
             return INPUT;

@@ -59,7 +59,7 @@ public class CategoryResourceTable
     {
         String statement = "create table " + getTempTableName() + " (" +
             "categoryoptioncomboid integer not null, " +
-            "categoryoptioncomboname varchar(255), ";
+            "categoryoptioncomboname varchar(230), ";
         
         for ( DataElementCategory category : objects )
         {

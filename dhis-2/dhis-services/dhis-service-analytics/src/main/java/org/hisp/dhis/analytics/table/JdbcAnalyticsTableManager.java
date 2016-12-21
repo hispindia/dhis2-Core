@@ -181,6 +181,8 @@ public class JdbcAnalyticsTableManager
 
             populateTable( table, "0", "null", Sets.newHashSet( ValueType.BOOLEAN ), "dv.value = 'false'", approvalClause );
 
+            populateTable( table, "1", "null", Sets.newHashSet( ValueType.TRUE_ONLY ), "dv.value = 'true'", approvalClause );
+
             populateTable( table, "null", "dv.value", ValueType.TEXT_TYPES, null, approvalClause );
         }
 

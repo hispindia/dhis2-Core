@@ -39,6 +39,7 @@ import org.hisp.dhis.paging.ActionPagingSupport;
 import org.hisp.dhis.system.filter.DataElementGroupWithoutGroupSetFilter;
 import org.hisp.dhis.commons.filter.FilterUtils;
 import org.hisp.dhis.common.IdentifiableObjectUtils;
+import org.hisp.dhis.common.comparator.IdentifiableObjectCodeComparator;
 
 /**
  * @author Tran Thanh Tri
@@ -103,7 +104,10 @@ public class GetDataElementGroupsAction
             dataElementGroups = IdentifiableObjectUtils.filterNameByKey( dataElementGroups, key, true );
         }
 
-        Collections.sort( this.dataElementGroups, IdentifiableObjectNameComparator.INSTANCE );
+        //Collections.sort( this.dataElementGroups, IdentifiableObjectNameComparator.INSTANCE );
+        
+        Collections.sort( this.dataElementGroups, new IdentifiableObjectCodeComparator() );
+		
 
         if ( usePaging )
         {

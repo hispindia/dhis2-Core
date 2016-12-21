@@ -198,4 +198,10 @@ public interface CaseAggregationConditionStore
      */
      void insertAggregateValue( String sql, DataElement dataElement, DataElementCategoryOptionCombo optionCombo,
         DataElementCategoryOptionCombo attributeOptionCombo, Collection<Integer> orgunitIds, Period period );
+
+	 Collection<CaseAggregationCondition> getCaseAggregationConditionByOperator( String operator );
+
+    Collection<CaseAggregationCondition> getAggConditionsBetween( int first, int max );
+
+    int getAggConditionCount();	
 }

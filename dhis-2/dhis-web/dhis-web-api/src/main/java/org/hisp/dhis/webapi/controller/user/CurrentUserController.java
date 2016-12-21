@@ -336,7 +336,6 @@ public class CurrentUserController
         UserAccount userAccount = new UserAccount();
 
         // user account
-        userAccount.setId( currentUser.getUid() );
         userAccount.setUsername( currentUser.getUsername() );
         userAccount.setFirstName( currentUser.getFirstName() );
         userAccount.setSurname( currentUser.getSurname() );

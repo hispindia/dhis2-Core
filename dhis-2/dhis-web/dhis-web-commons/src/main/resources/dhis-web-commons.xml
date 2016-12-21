@@ -403,7 +403,14 @@
       <param name="onExceptionReturn">plainTextError</param>
     </action>
 
-    <action name="getDataSet" class="org.hisp.dhis.commons.action.GetDataSetAction">
+	<action name="getFilterDataElements" class="org.hisp.dhis.commons.action.GetFilterDataElementsAction">
+       <result name="success" type="velocity-xml">
+         /dhis-web-commons/ajax/xmlDataElements.vm
+       </result>
+       <param name="onExceptionReturn">plainTextError</param>
+    </action>
+    
+	<action name="getDataSet" class="org.hisp.dhis.commons.action.GetDataSetAction">
       <result name="success" type="velocity-xml">
         /dhis-web-commons/ajax/xmlDataSet.vm
       </result>
@@ -623,6 +630,13 @@
       <param name="onExceptionReturn">plainTextError</param>
     </action>
 
+	<action name="getFilterDataElements" class="org.hisp.dhis.commons.action.GetFilterDataElementsAction">
+       <result name="success" type="velocity-json">
+         /dhis-web-commons/ajax/jsonFilterDataElements.vm
+       </result>
+       <param name="onExceptionReturn">plainTextError</param>
+    </action>
+	
     <action name="getDataElementsMinified" class="org.hisp.dhis.commons.action.GetDataElementsAction">
       <result name="success" type="velocity-json">
         /dhis-web-commons/ajax/jsonminDataElements.vm

@@ -890,4 +890,9 @@ public class DefaultOrganisationUnitService
 
         return new ArrayList<>();
     }
+	
+	public List<OrganisationUnit> getOrganisationUnitByShortName( String name )
+	{
+		return organisationUnitStore.getAllEqShortName( name );
+	}
 }

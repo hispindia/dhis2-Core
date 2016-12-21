@@ -2,14 +2,35 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:sec="http://www.springframework.org/schema/security"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
+  <bean id="md5PasswordEncoder" class="org.springframework.security.authentication.encoding.Md5PasswordEncoder" />
+
+  <bean id="usernameSaltSource" class="org.hisp.dhis.security.DefaultUsernameSaltSource" />
+
+  <bean id="bCryptPasswordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+
   <bean id="userDetailsService" class="org.hisp.dhis.security.DefaultUserDetailsService">
     <property name="userService" ref="org.hisp.dhis.user.UserService" />
   </bean>
 
-  <bean id="bCryptPasswordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+  <!-- <bean id="bCryptPasswordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" /> -->
 
+  <!--
   <bean id="org.hisp.dhis.security.PasswordManager" class="org.hisp.dhis.security.spring.SpringSecurityPasswordManager">
     <property name="passwordEncoder" ref="bCryptPasswordEncoder" />
+  </bean>
+  -->
+
+  <bean id="org.hisp.dhis.security.PasswordManager" class="org.hisp.dhis.security.migration.SpringSecurityMigrationPasswordManager">
+    <property name="passwordEncoder" ref="bCryptPasswordEncoder" />
+    <property name="legacyPasswordEncoder" ref="md5PasswordEncoder" />
+    <property name="usernameSaltSource" ref="usernameSaltSource" />
+  </bean>
+
+  <bean id="migrationAuthenticationProvider" class="org.hisp.dhis.security.migration.MigrationAuthenticationProvider">
+    <property name="passwordManager" ref="org.hisp.dhis.security.PasswordManager" />
+    <property name="userService" ref="org.hisp.dhis.user.UserService" />
+    <property name="passwordEncoder" ref="bCryptPasswordEncoder" />
+    <property name="userDetailsService" ref="userDetailsService" />
   </bean>
 
   <bean id="org.hisp.dhis.security.SecurityService" class="org.hisp.dhis.security.DefaultSecurityService">
@@ -22,10 +43,16 @@
 
   <!-- Security : Authentication providers -->
   <sec:authentication-manager alias="authenticationManager">
+    <sec:authentication-provider ref="migrationAuthenticationProvider" />
+  </sec:authentication-manager>
+
+  <!--
+  <sec:authentication-manager alias="authenticationManager">
     <sec:authentication-provider user-service-ref="userDetailsService">
       <sec:password-encoder ref="bCryptPasswordEncoder" />
     </sec:authentication-provider>
   </sec:authentication-manager>
+  -->
 
   <!-- OAuth2 -->
   <bean id="clientDetailsService" class="org.hisp.dhis.security.oauth2.DefaultClientDetailsService" />

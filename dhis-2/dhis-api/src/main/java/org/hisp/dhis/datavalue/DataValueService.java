@@ -158,6 +158,9 @@ public interface DataValueService
      *         DataElement, or an empty collection if no values match.
      */
     List<DataValue> getDataValues( OrganisationUnit source, DataElement dataElement );
+    
+    
+    List<DataValue> getDataValues( OrganisationUnit source, DataElement dataElement, DataElementCategoryOptionCombo optionCombo);
 
     /**
      * Returns all DataValues for a given collection of Sources and a
@@ -322,4 +325,9 @@ public interface DataValueService
      * @param sourceIds the Collection of Source identifiers.
      */
     Collection<DeflatedDataValue> getDeflatedDataValues( int dataElementId, int periodId, Collection<Integer> sourceIds );
+    
+	DataValue getLatestDataValue( DataElement dataElement, DataElementCategoryOptionCombo optionCombo, OrganisationUnit organisationUnit );
+    
+    DataValue getLatestDataValue( Integer dataElementId, Integer categoryOptionComboId, Integer ouId );
+
 }

@@ -7108,8 +7108,6 @@ Ext.onReady( function() {
 			radiusLow,
 			radiusHigh,
             methodPanel,
-            lowPanelLabel,
-            highPanelLabel,
             lowPanel,
             highPanel,
             legend,
@@ -7482,23 +7480,14 @@ Ext.onReady( function() {
 		legendTypeToggler = function(legendType) {
 			if (legendType === 'automatic') {
 				methodPanel.show();
-
-                colorLow.enable();
-                lowPanelLabel.update(GIS.i18n.low_color_size + ':');
-                colorHigh.enable();
-                highPanelLabel.update(GIS.i18n.high_color_size + ':');
-                
+				lowPanel.show();
+				highPanel.show();
 				legendSet.hide();
-
 			}
 			else if (legendType === 'predefined') {
 				methodPanel.hide();
-                
-                colorLow.disable();
-                lowPanelLabel.update(GIS.i18n.low_size + ':');
-                colorHigh.disable();
-                highPanelLabel.update(GIS.i18n.high_size + ':');
-                
+				lowPanel.hide();
+				highPanel.hide();
 				legendSet.show();
 			}
 		};
@@ -8610,26 +8599,17 @@ Ext.onReady( function() {
 			]
 		});
 
-        lowPanelLabel = Ext.create('Ext.panel.Panel', {
-            html: GIS.i18n.low_color_size + ':',
-            width: 100,
-            style: 'padding: 4px 0 0 4px',
-            bodyStyle: 'border: 0 none'
-        });
-
-        highPanelLabel = Ext.create('Ext.panel.Panel', {
-            html: GIS.i18n.high_color_size + ':',
-            width: 100,
-            style: 'padding: 4px 0 0 4px',
-            bodyStyle: 'border: 0 none'
-        });
-
 		lowPanel = Ext.create('Ext.container.Container', {
 			layout: 'hbox',
             height: 25,
             bodyStyle: 'border: 0 none',
 			items: [
-				lowPanelLabel,
+				{
+					html: GIS.i18n.low_color_size + ':',
+					width: 100,
+					style: 'padding: 4px 0 0 4px',
+                    bodyStyle: 'border: 0 none'
+				},
 				colorLow,
 				radiusLow
 			]
@@ -8640,7 +8620,12 @@ Ext.onReady( function() {
             height: 25,
             bodyStyle: 'border: 0 none',
 			items: [
-				highPanelLabel,
+				{
+					html: GIS.i18n.high_color_size + ':',
+					width: 100,
+					style: 'padding: 4px 0 0 4px',
+                    bodyStyle: 'border: 0 none'
+				},
 				colorHigh,
 				radiusHigh
 			]
@@ -10081,8 +10066,7 @@ Ext.onReady( function() {
         GIS_GM = {
             ready: false,
             array: [],
-            offline: false,
-            key: 'AIzaSyBjlDmwuON9lJbPMDlh_LI3zGpGtpK9erc'
+            offline: false
         };
 
         GIS_GM_fn = function() {
@@ -10099,7 +10083,7 @@ Ext.onReady( function() {
             }
         };
 
-        Ext.Loader.injectScriptElement('//maps.googleapis.com/maps/api/js?v=3.24&callback=GIS_GM_fn&key=' + GIS_GM.key,
+        Ext.Loader.injectScriptElement('//maps.googleapis.com/maps/api/js?v=3.22&callback=GIS_GM_fn',
             function() {
                 console.log("GM available (online)");
             },

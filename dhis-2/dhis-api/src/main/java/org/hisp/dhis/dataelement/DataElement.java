@@ -49,16 +49,16 @@ import org.hisp.dhis.common.view.DetailedView;
 import org.hisp.dhis.common.view.DimensionalView;
 import org.hisp.dhis.common.view.ExportView;
 import org.hisp.dhis.dataset.DataSet;
-import org.hisp.dhis.dataset.comparator.DataSetApprovalFrequencyComparator;
 import org.hisp.dhis.dataset.comparator.DataSetFrequencyComparator;
 import org.hisp.dhis.option.OptionSet;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
-import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.period.YearlyPeriodType;
 import org.hisp.dhis.schema.PropertyType;
 import org.hisp.dhis.schema.annotation.Property;
 import org.hisp.dhis.schema.annotation.PropertyRange;
+import org.hisp.dhis.util.ObjectUtils;
+import org.joda.time.DateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -155,6 +155,18 @@ public class DataElement
      * The option set for comments linked to this data element.
      */
     private OptionSet commentOptionSet;
+    
+    private Set<OrganisationUnit> orgUnits = new HashSet<OrganisationUnit>();
+    
+    public Set<OrganisationUnit> getOrgUnits()
+    {
+    	return orgUnits;
+    }
+    
+    public void setOrgUnits( Set<OrganisationUnit> orgUnits )
+    {
+    	this.orgUnits = orgUnits;
+    }
 
     // -------------------------------------------------------------------------
     // Constructors
@@ -239,13 +251,6 @@ public class DataElement
         return !list.isEmpty() ? list.get( 0 ) : null;
     }
 
-    public DataSet getApprovalDataSet()
-    {
-        List<DataSet> list = new ArrayList<>( dataSets );
-        Collections.sort( list, DataSetApprovalFrequencyComparator.INSTANCE );
-        return !list.isEmpty() ? list.get( 0 ) : null;
-    }
-    
     /**
      * Returns the category combinations associated with the data sets of this
      * data element.
@@ -276,6 +281,23 @@ public class DataElement
         }
 
         return categoryOptionCombos;
+    }
+
+    /**
+     * Indicates whether the data sets of this data element is associated with
+     * the given organisation unit.
+     */
+    public boolean hasDataSetOrganisationUnit( OrganisationUnit unit )
+    {
+        for ( DataSet dataSet : dataSets )
+        {
+            if ( dataSet.getSources().contains( unit ) )
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

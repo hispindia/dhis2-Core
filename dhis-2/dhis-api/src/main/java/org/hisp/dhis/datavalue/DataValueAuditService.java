@@ -28,7 +28,9 @@ package org.hisp.dhis.datavalue;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Date;
 
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
@@ -121,4 +123,26 @@ public interface DataValueAuditService
      * @return the number of deleted DataValueAudits.
      */
     int deleteDataValueAuditByCategoryOptionCombo( DataElementCategoryOptionCombo categoryOptionCombo );
+	
+	DataValueAudit getDataValueAuditById( Integer id );
+    
+    DataValueAudit getDataValueAuditByLastUpdated_StoredBy( DataElement dataElement, OrganisationUnit organisationUnit, Date timeStamp, String storedBy, Integer status, String commentType );
+    
+    void updateDataValueAudit( DataValueAudit dataValueAudit );
+    
+    Collection<DataValueAudit> getDataValueAuditByOrgUnit_DataElement( DataElement dataElement, OrganisationUnit organisationUnit );
+
+    Collection<DataValueAudit> getActiveDataValueAuditByOrgUnit_DataElement( DataElement dataElement, OrganisationUnit organisationUnit );
+    
+    Collection<DataValueAudit> getActiveDataValueAuditByOrgUnit_DataElement_Period( DataElement dataElement, OrganisationUnit organisationUnit, Period period );
+    
+    Collection<DataValueAudit> getActiveDataValueAuditByOrgUnit_DataElement_Period_type( DataElement dataElement, OrganisationUnit organisationUnit, Period period, String commentType );
+
+    DataValueAudit getLatestDataValueAudit( DataElement dataElement, OrganisationUnit organisationUnit, String commentType );
+    
+    DataValueAudit getLatestDataValueAudit( DataElement dataElement, OrganisationUnit organisationUnit, String commentType, String value, String comment );
+    
+    Collection<DataValueAudit> getDataValueAuditByDataValue( DataValue dataValue );
+	
+    Collection<DataValueAudit> getActiveDataValueAuditByDataValue( DataValue dataValue );
 }

@@ -1426,27 +1426,6 @@ dhis2.de.optionValidWithinPeriod = function( option, period )
 }
 
 /**
- * Tests to see if attribute category option is valid for the selected org unit.
- */
-dhis2.de.optionValidForSelectedOrgUnit = function( option )
-{
-    var isValid = true;
-
-    if (option.ous && option.ous.length) {
-        isValid = false;
-        var path = organisationUnits[dhis2.de.getCurrentOrganisationUnit()].path;
-        $.safeEach(option.ous, function (idx, uid) {
-            if (path.indexOf(uid) >= 0) {
-                isValid = true;
-                return false;
-            }
-        });
-    }
-
-    return isValid;
-}
-
-/**
  * Sets the markup for attribute selections.
  */
 dhis2.de.setAttributesMarkup = function()
@@ -1480,7 +1459,7 @@ dhis2.de.getAttributesMarkup = function()
 		html += '<option value="-1">[ ' + i18n_select_option + ' ]</option>';
 
 		$.safeEach( category.options, function( idx, option ) {
-			if ( dhis2.de.optionValidWithinPeriod( option, period ) && dhis2.de.optionValidForSelectedOrgUnit( option ) ) {
+			if ( dhis2.de.optionValidWithinPeriod( option, period ) ) {
 				var selected = ( $.inArray( option.id, options ) != -1 ) ? " selected" : "";
 				html += '<option value="' + option.id + '"' + selected + '>' + option.name + '</option>';
 			}
@@ -1667,7 +1646,6 @@ function insertDataValues( json )
 	if ( json.locked )
 	{
         $( '#contentDiv input').attr( 'readonly', 'readonly' );
-	 $( '#contentDiv textarea').attr( 'readonly', 'readonly' );
         $( '.entryoptionset').autocomplete( 'disable' );
         $( '.sectionFilter').removeAttr( 'disabled' );
         $( '#completenessDiv' ).hide();
@@ -1677,7 +1655,6 @@ function insertDataValues( json )
 	{
         $( '.entryoptionset' ).autocomplete( 'enable' );
         $( '#contentDiv input' ).removeAttr( 'readonly' );
-	 $( '#contentDiv textarea' ).removeAttr( 'readonly' );
 		$( '#completenessDiv' ).show();
 	}
 	

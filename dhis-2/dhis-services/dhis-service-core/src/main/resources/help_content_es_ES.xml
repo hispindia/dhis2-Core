@@ -1,0 +1,36 @@
+<book>
+<chapter>
+<title>IVB</title>
+<section id="IVBdescription">
+<title>Description</title>
+<para>New Vaccines Introduction unit within the Immunization, Vaccines, and Biologicals (IVB) team of the World Health Organization (WHO), is in the process of developing a system, to prepare a data repository, to simplify user experience and provide an integrated system. This will include, web based data entry, flagging of key indicators, country and regional dashboard, standard and custom reports among other things. IVB Data Repository can be used to identify whether new vaccines can be introduced in countries (especially developing) based on the key flag indicator data that we are collecting. It is also to be used to implement best practices from one country to other.
+</para>
+</section>
+</chapter>
+<chapter>
+<title>página principal</title>
+<section id="HomepageDescription">
+<title>Description</title>
+<para>Once the página principal is open, the user will see a list of flags of countries divided region wise. There is an option to search by country name. Also there various filters available to search by type of countries.</para>
+</section>
+<section id="searchbycountrynames">
+<title>Search By Country Names</title>
+<para>The user can directly navigate to a particular country by searching by the country name. As the user starts entering the name, all the possible search results by the name will be displayed. The user will have to click on the particular country and that country dashboard will open.</para>
+</section>
+<section id="filterbycountrygroups">
+<title>Filter by Country Groups (eg. Low Income Countries)</title>
+<para>There are some countries which belong to a particular group. There are filters available for these groups on the home page. The user can click on a particular filter which will display all the countries by region belonging to that particular group.
+</para>
+</section>
+<section id="navigatingtocountrydashboard">
+<title>Navigating to Country Dashboard</title>
+<para>User can navigate to a particular country dashboard by either searching by the country name (explained in the section ‘Search by country names’, or clicking on the country flag.)
+</para>
+</section>
+<section id="navigatingtoregionaldashboard">
+<title>Navigating to Regional Dashboard</title>
+<para>User can navigate to a regional dashboard, by clicking on the Region Name on the página principal. Eg. If the user wants to navigate to the regional dashboard of Africa Central, then the user needs to click on ‘AFR Central’ on the homepage.
+</para>
+</section>
+</chapter>
+</book>

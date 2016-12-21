@@ -29,7 +29,6 @@ package org.hisp.dhis.dxf2.events.event;
  */
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.apache.commons.logging.Log;
@@ -107,7 +106,7 @@ public class JacksonEventService extends AbstractEventService
             Events fromXml = fromXml( input, Events.class );
             events.addAll( fromXml.getEvents() );
         }
-        catch ( JsonMappingException ex )
+        catch ( Exception ex )
         {
             Event fromXml = fromXml( input, Event.class );
             events.add( fromXml );
@@ -133,7 +132,7 @@ public class JacksonEventService extends AbstractEventService
             Events fromJson = fromJson( input, Events.class );
             events.addAll( fromJson.getEvents() );
         }
-        catch ( JsonMappingException ex )
+        catch ( Exception ex )
         {
             Event fromJson = fromJson( input, Event.class );
             events.add( fromJson );

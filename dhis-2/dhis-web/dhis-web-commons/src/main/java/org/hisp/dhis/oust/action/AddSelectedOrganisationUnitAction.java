@@ -36,6 +36,7 @@ import org.hisp.dhis.oust.manager.SelectionTreeManager;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Torgeir Lorange Ostby
@@ -122,6 +123,15 @@ public class AddSelectedOrganisationUnitAction
         if ( id != null )
         {
             OrganisationUnit unit = organisationUnitService.getOrganisationUnit( id );
+            //selectedUnits.add( unit );
+			Integer level = unit.getHierarchyLevel();
+            if( level == 2 )
+            {
+            	Set<OrganisationUnit> level1OrgUnits = new HashSet<OrganisationUnit>( organisationUnitService.getOrganisationUnitsAtLevel( 1 ) );
+            	
+            	selectedUnits.removeAll( level1OrgUnits );
+            }
+            
             selectedUnits.add( unit );
         }
 
@@ -132,8 +142,27 @@ public class AddSelectedOrganisationUnitAction
 
         if ( organisationUnitGroupId != null )
         {
-            selectedUnits.addAll( organisationUnitGroupService.getOrganisationUnitGroup( organisationUnitGroupId )
-                .getMembers() );
+            //selectedUnits.addAll( organisationUnitGroupService.getOrganisationUnitGroup( organisationUnitGroupId ).getMembers() );
+			Set<OrganisationUnit> level1OrgUnits = new HashSet<OrganisationUnit>( organisationUnitService.getOrganisationUnitsAtLevel( 1 ) );
+        	
+        	for( OrganisationUnit orgUnit : selectedUnits)
+        	{
+        		Integer level = orgUnit.getHierarchyLevel();
+        		if( level == 2 )
+                {
+                	selectedUnits.removeAll( level1OrgUnits );
+                	break;
+                }
+        	}
+        	
+            for ( OrganisationUnit selected : selectionTreeManager.getSelectedOrganisationUnits() )
+            {
+                selectedUnits.addAll( organisationUnitService.getOrganisationUnitWithChildren( selected.getId() ) );
+            }
+            
+            selectedUnits.retainAll( organisationUnitGroupService.getOrganisationUnitGroup( organisationUnitGroupId ).getMembers() );
+            
+            selectedUnits.addAll( selectionTreeManager.getSelectedOrganisationUnits() );
         }
 
         if ( children != null && children == true )

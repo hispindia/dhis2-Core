@@ -387,7 +387,7 @@ public class DefaultObjectBridge
         {
             return objects.iterator().next();
         }
-        else if ( !objects.isEmpty() )
+        else
         {
             String objectName;
 

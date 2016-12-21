@@ -51,7 +51,6 @@ import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValueServ
 import org.hisp.dhis.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -191,34 +190,17 @@ public abstract class AbstractTrackedEntityInstanceService
         return trackedEntityInstance;
     }
 
-    public org.hisp.dhis.trackedentity.TrackedEntityInstance getTrackedEntityInstance( TrackedEntityInstance trackedEntityInstance, ImportSummary importSummary )
+    public org.hisp.dhis.trackedentity.TrackedEntityInstance getTrackedEntityInstance( TrackedEntityInstance trackedEntityInstance )
     {
-        if ( StringUtils.isEmpty( trackedEntityInstance.getOrgUnit() ) )
-        {
-            importSummary.getConflicts().add( new ImportConflict( trackedEntityInstance.getTrackedEntityInstance(), "No org unit ID in tracked entity instance object." ) );
-            return null;
-        }
+        Assert.hasText( trackedEntityInstance.getOrgUnit() );
 
         org.hisp.dhis.trackedentity.TrackedEntityInstance entityInstance = new org.hisp.dhis.trackedentity.TrackedEntityInstance();
 
         OrganisationUnit organisationUnit = getOrganisationUnit( trackedEntityInstance.getOrgUnit() );
-
-        if ( organisationUnit == null )
-        {
-            importSummary.getConflicts().add( new ImportConflict( trackedEntityInstance.getTrackedEntityInstance(), "Invalid org unit ID: " + trackedEntityInstance.getOrgUnit()) );
-            return null;
-        }
-
+        Assert.notNull( organisationUnit );
         entityInstance.setOrganisationUnit( organisationUnit );
 
         TrackedEntity trackedEntity = getTrackedEntity( trackedEntityInstance.getTrackedEntity() );
-
-        if ( trackedEntity == null )
-        {
-            importSummary.getConflicts().add( new ImportConflict( trackedEntityInstance.getTrackedEntityInstance(), "Invalid tracked entity ID: " + trackedEntityInstance.getTrackedEntity() ) );
-            return null;
-        }
-
         entityInstance.setTrackedEntity( trackedEntity );
         entityInstance.setUid( CodeGenerator.isValidCode( trackedEntityInstance.getTrackedEntityInstance() ) ?
             trackedEntityInstance.getTrackedEntityInstance() : CodeGenerator.generateCode() );
@@ -271,12 +253,7 @@ public abstract class AbstractTrackedEntityInstanceService
             return importSummary;
         }
 
-        org.hisp.dhis.trackedentity.TrackedEntityInstance entityInstance = getTrackedEntityInstance( trackedEntityInstance, importSummary );
-
-        if ( entityInstance == null )
-        {
-            return importSummary;
-        }
+        org.hisp.dhis.trackedentity.TrackedEntityInstance entityInstance = getTrackedEntityInstance( trackedEntityInstance );
 
         teiService.addTrackedEntityInstance( entityInstance );
 

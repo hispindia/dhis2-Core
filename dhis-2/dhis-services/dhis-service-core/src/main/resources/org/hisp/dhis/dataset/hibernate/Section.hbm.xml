@@ -46,6 +46,13 @@
         foreign-key="fk_section_dataelementoperandid" />
     </set>
 
+	<set name="sources" table="sectionsource">
+       <cache usage="read-write" />
+       <key column="sectionid" foreign-key="fk_sectionsource_sectionid" />
+       <many-to-many column="sourceid" class="org.hisp.dhis.organisationunit.OrganisationUnit"
+         foreign-key="fk_section_organisationunit" />
+    </set>
+
     <property name="sortOrder" column="sortorder" not-null="true" />
 
   </class>

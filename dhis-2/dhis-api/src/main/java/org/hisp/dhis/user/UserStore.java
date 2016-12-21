@@ -28,6 +28,7 @@ package org.hisp.dhis.user;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import java.util.Collection;
 import java.util.List;
 
 import org.hisp.dhis.common.GenericIdentifiableObjectStore;
@@ -55,4 +56,9 @@ public interface UserStore
      * @return number of users.
      */
     int getUserCount( UserQueryParams params );
+	
+	Collection<User> getUsersByEmail( String email );
+	
+	Collection<User> getUserByNameAndGroup( String name ,String type, int first, int max );
+
 }

@@ -286,4 +286,9 @@ public interface CaseAggregationConditionService
     List<Grid> getAggregateValue( Collection<CaseAggregationCondition> caseAggregationConditions, Collection<Integer> orgunitIds,
         Collection<Period> periods, I18nFormat format, I18n i18n );
 
+	Collection<CaseAggregationCondition> getCaseAggregationConditionByOperator( String operator );
+    
+    Collection<CaseAggregationCondition> getAggConditionsBetween( int first, int max );
+    
+    int getAggConditionCount();
 }

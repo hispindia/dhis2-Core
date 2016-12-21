@@ -51,6 +51,8 @@ public interface OrganisationUnitService
     // -------------------------------------------------------------------------
     // OrganisationUnit
     // -------------------------------------------------------------------------
+	
+	List<OrganisationUnit> getOrganisationUnitByShortName( String name );
 
     /**
      * Adds an OrganisationUnit to the hierarchy.

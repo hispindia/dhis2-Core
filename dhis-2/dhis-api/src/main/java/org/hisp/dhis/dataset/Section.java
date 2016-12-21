@@ -46,6 +46,7 @@ import org.hisp.dhis.dataelement.DataElementCategoryCombo;
 import org.hisp.dhis.dataelement.DataElementOperand;
 import org.hisp.dhis.indicator.Indicator;
 import org.hisp.dhis.schema.annotation.PropertyRange;
+import org.hisp.dhis.organisationunit.OrganisationUnit;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -70,6 +71,19 @@ public class Section
 
     private int sortOrder;
 
+	@Scanned
+    private Set<OrganisationUnit> sources = new HashSet<OrganisationUnit>();
+
+	public Set<OrganisationUnit> getSources()
+    {
+        return sources;
+    }
+
+    public void setSources( Set<OrganisationUnit> sources )
+    {
+        this.sources = sources;
+    }
+	
     // -------------------------------------------------------------------------
     // Constructors
     // -------------------------------------------------------------------------

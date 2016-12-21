@@ -48,6 +48,7 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.Set;
 
+import org.hibernate.SessionFactory;
 import static org.hisp.dhis.webapi.utils.ContextUtils.*;
 
 /**
@@ -64,6 +65,9 @@ public class DataValueSetController
 
     @Autowired
     private RenderService renderService;
+
+    @Autowired
+    private SessionFactory sessionFactory;
 
     // -------------------------------------------------------------------------
     // Get

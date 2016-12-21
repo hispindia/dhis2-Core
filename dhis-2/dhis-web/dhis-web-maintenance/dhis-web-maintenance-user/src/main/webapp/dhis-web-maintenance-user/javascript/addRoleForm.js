@@ -6,6 +6,7 @@ jQuery( document ).ready( function()
 	{
 		selectAllById( 'selectedList' );
 		selectAllById( 'selectedListAuthority' );
+		selectAllById( 'selectedListDataElement' );
 		form.submit();
 	}, {
 		'rules' : getValidationRules("role")

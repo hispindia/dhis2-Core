@@ -31,6 +31,9 @@ package org.hisp.dhis.user.action;
 import com.opensymphony.xwork2.Action;
 
 import org.apache.commons.lang3.StringUtils;
+
+import org.hisp.dhis.dataelement.DataElement;
+import org.hisp.dhis.dataelement.DataElementService;
 import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.dataset.DataSetService;
 import org.hisp.dhis.program.Program;
@@ -68,6 +71,9 @@ public class UpdateRoleAction
 
     @Autowired
     private ProgramService programService;
+
+    @Autowired
+    private DataElementService dataElementService;	
     
     // -------------------------------------------------------------------------
     // Input
@@ -115,6 +121,13 @@ public class UpdateRoleAction
         this.selectedProgramList = selectedProgramList;
     }
 
+	private Collection<String> selectedListDataElement = new ArrayList<String>();
+    
+    public void setSelectedListDataElement( Collection<String> selectedListDataElement )
+    {
+        this.selectedListDataElement = selectedListDataElement;
+    }
+	
     // -------------------------------------------------------------------------
     // Action implementation
     // -------------------------------------------------------------------------
@@ -131,6 +144,7 @@ public class UpdateRoleAction
         group.getDataSets().clear();
         group.getPrograms().clear();
         group.getAuthorities().clear();
+        group.getDataElements().clear();
 
         for ( String id : selectedList )
         {
@@ -142,6 +156,13 @@ public class UpdateRoleAction
         {
             Program program = programService.getProgram( id );
             group.getPrograms().add( program );
+        }
+
+		for ( String deId : selectedListDataElement )
+        {
+            DataElement dataElement = dataElementService.getDataElement( Integer.parseInt( deId ) );
+
+            group.getDataElements().add( dataElement );
         }
         
         group.getAuthorities().addAll( selectedListAuthority );

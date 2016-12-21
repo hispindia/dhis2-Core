@@ -63,7 +63,7 @@ public class SqlView
     public static final String PREFIX_VIEWNAME = "_view";
 
     public static final Set<String> PROTECTED_TABLES = Sets.newHashSet( "users", "userinfo", 
-        "trackedentityattribute", "trackedentityattributevalue", "oauth_access_token", "oauth2client" );
+        "trackedentityattribute", "trackedentityattributevalue" );
 
     public static final Set<String> ILLEGAL_KEYWORDS = Sets.newHashSet( "delete", "alter", "update", 
         "create", "drop", "commit", "createdb", "createuser", "insert", "rename", "replace", "restore", "write" );

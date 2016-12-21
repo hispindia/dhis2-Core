@@ -15,6 +15,7 @@
 
 <div id="contextMenu" class="contextMenu" style="width: 210px;">
   <ul id="contextMenuItems" class="contextMenuItems">
+  	<li data-enabled="canUpdate"><a data-target-fn="defineSectionAssociationsForm"><i class="fa fa-plus"></i>&nbsp;&nbsp;$i18n.getString( "define_associations" )</a></li>  
     <li><a data-target-fn="editSectionShow"><i class="fa fa-edit"></i>&nbsp;&nbsp;$i18n.getString( "edit" )</a></li>
     <li><a data-target-fn="translateWithContext"><i class="fa fa-globe"></i>&nbsp;&nbsp;$i18n.getString( "translation_translate" )</a></li>
     <li><a data-target-fn="removeSection"><i class="fa fa-trash-o"></i>&nbsp;&nbsp;$i18n.getString( "remove" )</a></li>
@@ -60,7 +61,7 @@
 			</thead>
 			<tbody id="list">
 				#foreach( $section in $sections )
-				<tr id="tr${section.id}" data-id="$!section.id" data-uid="$!section.uid" data-type="Section" data-name="$encoder.htmlEncode( $!section.displayName )">
+				<tr id="tr${section.id}" data-id="$!section.id" data-uid="$!section.uid" data-type="Section" data-name="$encoder.htmlEncode( $!section.displayName )" data-can-update="$security.canUpdate( $section )">
 					<td>$encoder.htmlEncode( $section.displayName )</td>
 					<td>$!encoder.htmlEncode( $section.categoryCombo.name )</td>
 				</tr>

@@ -150,14 +150,6 @@ public interface StatementBuilder
     String getNumberOfColumnsInPrimaryKey( String table );
     
     /**
-     * Returns a cast to timestamp statement for the given column.
-     * 
-     * @param column the column name.
-     * @return a cast to timestamp statement for the given column.
-     */
-    String getCastToDate( String column );
-    
-    /**
      * Creates a delete datavalue statement.
      * @return a delete datavalue statement.
      */

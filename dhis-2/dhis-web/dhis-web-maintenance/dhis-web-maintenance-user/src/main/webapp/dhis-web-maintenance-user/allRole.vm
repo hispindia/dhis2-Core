@@ -5,9 +5,24 @@
 <script type="text/javascript">
 	var i18n_confirm_delete = '$encoder.jsEscape( $i18n.getString( "confirm_delete_role" ) , "'")';
 	var i18n_none = '$encoder.jsEscape( $i18n.getString( "none" ) , "'")';
+
+	function exportToExcel()
+	{
+		document.getElementById('htmlContent').value = document.getElementById('contentDiv').innerHTML;
+		return true;
+	}	
 </script>
 
 <h3>$i18n.getString( "user_role_management" ) #openHelp( "user_user_roles" )</h3>
+
+<form id="form1" name="form1" action="exportToExcel.action" method="post" onsubmit="return exportToExcel()" target="_newtab">
+	<input type="hidden" id="key" name="key" value="$!key"/>
+	<table style="width:98%;">
+		<tr>
+			<td style="text-align:right;"><input type="submit" value="Export to Excel" onclick="exportToExcel();" style="width:100px"/></td>
+		</tr>
+	</table>
+</form>
 
 <div id="contextMenu" class="contextMenu">
   <ul id="contextMenuItems" class="contextMenuItems">

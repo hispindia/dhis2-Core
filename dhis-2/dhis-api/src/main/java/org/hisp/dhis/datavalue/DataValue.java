@@ -81,6 +81,18 @@ public class DataValue
 
     private Boolean followup;
 
+	private Integer status;
+	
+	public Integer getStatus()
+    {
+        return status;
+    }
+
+    public void setStatus( Integer status )
+    {
+        this.status = status;
+    }
+	
     // -------------------------------------------------------------------------
     // Transient properties
     // -------------------------------------------------------------------------

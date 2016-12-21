@@ -43,6 +43,14 @@ import java.util.Date;
 
 public class DataValueAudit
 {
+	public static final Integer DVA_STATUS_ACTIVE = 1;
+    public static final Integer DVA_STATUS_INACTIVE = 0;
+    public static final Integer DVA_STATUS_CLOSE = 2;
+    
+    public static final String DVA_CT_HISOTRY = "H";
+    public static final String DVA_CT_TA = "T";
+    public static final String DVA_CT_DISCUSSION = "D";
+	
     private int id;
 
     private String value;
@@ -62,6 +70,12 @@ public class DataValueAudit
     private DataElementCategoryOptionCombo attributeOptionCombo;
 
     private AuditType auditType;
+
+    private String comment;
+	
+    private String commentType;
+    
+    private Integer status;
 
     // -------------------------------------------------------------------------
     // Constructors
@@ -83,8 +97,43 @@ public class DataValueAudit
         this.modifiedBy = modifiedBy;
         this.timestamp = timestamp;
         this.auditType = auditType;
+		
+		this.status = 1;
     }
 
+    public DataValueAudit( DataValue dataValue, String value, String modifiedBy, Date timestamp, String comment, String commentType, Integer status )
+    {
+        this.dataElement = dataValue.getDataElement();
+        this.period = dataValue.getPeriod();
+        this.organisationUnit = dataValue.getSource();
+        this.categoryOptionCombo = dataValue.getCategoryOptionCombo();
+
+        this.value = value;
+        this.modifiedBy = modifiedBy;
+        this.timestamp = timestamp;
+        this.comment = comment;
+        this.commentType = commentType;
+        this.status = status;
+        
+        this.auditType = AuditType.UPDATE;
+    }
+
+    public DataValueAudit( DataValue dataValue, String value, String modifiedBy, Date timestamp, String comment, String commentType, Integer status, AuditType auditType )
+    {
+        this.dataElement = dataValue.getDataElement();
+        this.period = dataValue.getPeriod();
+        this.organisationUnit = dataValue.getSource();
+        this.categoryOptionCombo = dataValue.getCategoryOptionCombo();
+        this.auditType = auditType;
+
+        this.value = value;
+        this.modifiedBy = modifiedBy;
+        this.timestamp = timestamp;
+        this.comment = comment;
+        this.commentType = commentType;
+        this.status = status;
+    }
+	
     // -------------------------------------------------------------------------
     // Getters and setters
     // -------------------------------------------------------------------------
@@ -188,4 +237,35 @@ public class DataValueAudit
     {
         this.auditType = auditType;
     }
+
+	public String getComment()
+    {
+        return comment;
+    }
+
+    public void setComment( String comment )
+    {
+        this.comment = comment;
+    }
+	
+    public String getCommentType()
+    {
+        return commentType;
+    }
+
+    public void setCommentType( String commentType )
+    {
+        this.commentType = commentType;
+    }
+
+    public Integer getStatus()
+    {
+        return status;
+    }
+
+    public void setStatus( Integer status )
+    {
+        this.status = status;
+    }	
+	
 }

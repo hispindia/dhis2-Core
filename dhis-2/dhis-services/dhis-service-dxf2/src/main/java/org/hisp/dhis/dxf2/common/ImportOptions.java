@@ -56,7 +56,7 @@ public class ImportOptions
 
     private boolean dryRun;
 
-    private boolean preheatCache = true;
+    private boolean preheatCache;
 
     private boolean async;
 

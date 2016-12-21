@@ -1,5 +1,7 @@
 package org.hisp.dhis.user.action;
 
+import java.util.Collection;
+
 /*
  * Copyright (c) 2004-2015, University of Oslo
  * All rights reserved.
@@ -29,106 +31,111 @@ package org.hisp.dhis.user.action;
  */
 
 import org.hisp.dhis.i18n.I18n;
+import org.hisp.dhis.ivb.useractivity.UserActivity;
+import org.hisp.dhis.ivb.useractivity.UserActivityService;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserCredentials;
 import org.hisp.dhis.user.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
 
 /**
  * @author Torgeir Lorange Ostby
  */
-public class RemoveUserAction
-    implements Action
-{
-    // -------------------------------------------------------------------------
-    // Dependencies
-    // -------------------------------------------------------------------------
+public class RemoveUserAction implements Action {
+	// -------------------------------------------------------------------------
+	// Dependencies
+	// -------------------------------------------------------------------------
 
-    private CurrentUserService currentUserService;
+	private CurrentUserService currentUserService;
 
-    public void setCurrentUserService( CurrentUserService currentUserService )
-    {
-        this.currentUserService = currentUserService;
-    }
+	public void setCurrentUserService(CurrentUserService currentUserService) {
+		this.currentUserService = currentUserService;
+	}
 
-    private UserService userService;
+	private UserService userService;
 
-    public void setUserService( UserService userService )
-    {
-        this.userService = userService;
-    }
+	public void setUserService(UserService userService) {
+		this.userService = userService;
+	}
 
-    // -------------------------------------------------------------------------
-    // Input
-    // -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// Input
+	// -------------------------------------------------------------------------
+	@Autowired
+	public UserActivityService userActivityService;
+	private I18n i18n;
 
-    private I18n i18n;
+	public void setI18n(I18n i18n) {
+		this.i18n = i18n;
+	}
 
-    public void setI18n( I18n i18n )
-    {
-        this.i18n = i18n;
-    }
+	private Integer id;
 
-    private Integer id;
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public void setId( Integer id )
-    {
-        this.id = id;
-    }
+	private String message;
 
-    private String message;
+	public String getMessage() {
+		return message;
+	}
 
-    public String getMessage()
-    {
-        return message;
-    }
+	// -------------------------------------------------------------------------
+	// Action implementation
+	// -------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------
-    // Action implementation
-    // -------------------------------------------------------------------------
+	@Override
+	public String execute() throws Exception {
 
-    @Override
-    public String execute()
-        throws Exception
-    {
-        //TODO: Allow user with F_USER_DELETE_WITHIN_MANAGED_GROUP to delete a user within managed groups.
+		// TODO: Allow user with F_USER_DELETE_WITHIN_MANAGED_GROUP to delete a
+		// user within managed groups.
 
-        User user = userService.getUser( id );
+		User user = userService.getUser(id);
 
-        User currentUser = currentUserService.getCurrentUser();
+		Collection<UserActivity> useractivtiy = userActivityService.getAllUserActivitys();
+		if (useractivtiy != null) {
+			for (UserActivity ua : useractivtiy) {
+				if (ua.getUser() == user) {
+					userActivityService.deleteUserActivity(ua);
+				}
+			}
+		}
+		User currentUser = currentUserService.getCurrentUser();
 
-        if ( currentUser == null || user == null )
-        {
-            return ERROR;
-        }
-        
-        if ( !currentUser.getUserCredentials().canModifyUser( user.getUserCredentials() ) )
-        {
-            return ERROR;
-        }
-        
-        boolean isCurrentUser = currentUser.equals( user );
+		if (currentUser == null || user == null) {
+			return ERROR;
+		}
 
-        UserCredentials userCredentials = user.getUserCredentials();
-        
-        if ( userService.isLastSuperUser( userCredentials ) )
-        {
-            message = i18n.getString( "can_not_remove_last_super_user" );
-            
-            return ERROR;
-        }
-        else
-        {
-            userService.deleteUser( user );
-        }
+		if (!currentUser.getUserCredentials().canModifyUser(user.getUserCredentials())) {
+			return ERROR;
+		}
 
-        if ( isCurrentUser )
-        {
-            return "logout";
-        }
+		boolean isCurrentUser = currentUser.equals(user);
 
-        return SUCCESS;
-    }
+		UserCredentials userCredentials = user.getUserCredentials();
+
+		if (userService.isLastSuperUser(userCredentials)) {
+			message = i18n.getString("can_not_remove_last_super_user");
+
+			return ERROR;
+		} else {
+			// userActivityService.deleteUserActivity( useractivity );
+			userService.deleteUser(user);
+		}
+
+		if (isCurrentUser) {
+			return "logout";
+		}
+
+		return SUCCESS;
+	}
+
+	private String String(int id2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

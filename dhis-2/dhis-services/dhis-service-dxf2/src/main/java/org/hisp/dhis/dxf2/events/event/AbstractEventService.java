@@ -1132,19 +1132,9 @@ public abstract class AbstractEventService
         importSummary.setStatus( ImportStatus.SUCCESS );
         boolean dryRun = importOptions != null && importOptions.isDryRun();
 
-        Date executionDate = null; //  = new Date();
+        Date eventDate = DateUtils.parseDate( event.getEventDate() );
 
-        if ( event.getEventDate() != null )
-        {
-            executionDate = DateUtils.parseDate( event.getEventDate() );
-        }
-
-        Date dueDate = new Date();
-
-        if ( event.getDueDate() != null )
-        {
-            dueDate = DateUtils.parseDate( event.getDueDate() );
-        }
+        Date dueDate = DateUtils.parseDate( event.getDueDate() );
 
         String storedBy = getStoredBy( event, importSummary, user );
 
@@ -1165,11 +1155,11 @@ public abstract class AbstractEventService
             if ( programStageInstance == null )
             {
                 programStageInstance = createProgramStageInstance( programStage, programInstance, organisationUnit,
-                    dueDate, executionDate, event.getStatus().getValue(), event.getCoordinate(), storedBy, event.getEvent(), coc );
+                    dueDate, eventDate, event.getStatus().getValue(), event.getCoordinate(), storedBy, event.getEvent(), coc );
             }
             else
             {
-                updateProgramStageInstance( programStage, programInstance, organisationUnit, dueDate, executionDate, event
+                updateProgramStageInstance( programStage, programInstance, organisationUnit, dueDate, eventDate, event
                     .getStatus().getValue(), event.getCoordinate(), storedBy, programStageInstance, coc );
             }
 

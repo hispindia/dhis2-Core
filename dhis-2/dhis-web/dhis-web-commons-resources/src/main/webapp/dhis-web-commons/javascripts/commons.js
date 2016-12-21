@@ -1313,7 +1313,8 @@ function validation2( formId, submitHandler, kwargs )
 		{}
 	});
 
-	var nameField = jQuery('#' + formId + ' :input')[0];
+	//var nameField = jQuery('#' + formId + ' :input')[0];
+	var nameField = jQuery('#' + formId + '').filter(':input').get(0);
 	
 	if ( nameField )
 	{
@@ -1339,8 +1340,9 @@ function getValidationRules( form )
 
 function validation( formId, submitHandler, beforeValidateHandler )
 {
-	var nameField = jQuery('#' + formId + ' :input')[0];
-
+	//var nameField = jQuery('#' + formId + ' :input')[0];
+	var nameField = jQuery('#' + formId + '').filter(':input').get(0);
+	
 	var validator = jQuery("#" + formId ).validate({
 		 meta:"validate"
 		,errorElement:"span"
@@ -1614,6 +1616,20 @@ function exportPdfByType( type, params )
 	form.action = 'exportToPdf.action?' + params;
 	form.submit();
 	form.action = type + '.action';
+}
+
+function exportExcelByType( type, params )
+{	
+ 	if ( jQuery( "table.listTable tbody tr" ).length == 0 )
+ 	{
+ 		showWarningMessage( i18n_no_item_to_export );
+ 		return;
+ 	}
+ 	
+ 	var form = byId( 'filterKeyForm' );
+ 	form.action = 'exportToExcel.action?' + params;
+ 	form.submit();
+ 	form.action = type + '.action';
 }
 
 /**

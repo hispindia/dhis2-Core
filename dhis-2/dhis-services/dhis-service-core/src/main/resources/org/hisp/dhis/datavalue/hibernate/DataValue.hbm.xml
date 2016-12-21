@@ -25,6 +25,8 @@
     <property name="comment" length="50000" />
 
     <property name="followup" />
+	
+	<property name="status" />
 
   </class>
 </hibernate-mapping>

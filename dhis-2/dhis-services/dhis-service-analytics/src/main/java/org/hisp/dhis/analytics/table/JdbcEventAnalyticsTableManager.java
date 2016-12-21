@@ -178,7 +178,6 @@ public class JdbcEventAnalyticsTableManager
             final String start = DateUtils.getMediumDateString( table.getPeriod().getStartDate() );
             final String end = DateUtils.getMediumDateString( table.getPeriod().getEndDate() );
             final String tableName = table.getTempTableName();
-            final String psiExecutionDate = statementBuilder.getCastToDate( "psi.executiondate" );
 
             String sql = "insert into " + table.getTempTableName() + " (";
 
@@ -208,7 +207,7 @@ public class JdbcEventAnalyticsTableManager
                 "inner join organisationunit ou on psi.organisationunitid=ou.organisationunitid " +
                 "left join _orgunitstructure ous on psi.organisationunitid=ous.organisationunitid " +
                 "left join _organisationunitgroupsetstructure ougs on psi.organisationunitid=ougs.organisationunitid " +
-                "left join _dateperiodstructure dps on " + psiExecutionDate + "=dps.dateperiod " +
+                "left join _dateperiodstructure dps on psi.executiondate=dps.dateperiod " +
                 "where psi.executiondate >= '" + start + "' " + 
                 "and psi.executiondate <= '" + end + "' " +
                 "and pr.programid=" + table.getProgram().getId() + " " + 

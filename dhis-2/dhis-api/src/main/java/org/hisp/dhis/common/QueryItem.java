@@ -119,11 +119,6 @@ public class QueryItem
         return valueType.isNumeric();
     }
 
-    public boolean isText()
-    {
-        return valueType.isText();
-    }
-    
     public boolean hasLegendSet()
     {
         return legendSet != null;

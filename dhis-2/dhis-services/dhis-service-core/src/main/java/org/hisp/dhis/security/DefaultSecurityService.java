@@ -38,6 +38,7 @@ import org.hisp.dhis.i18n.I18nManager;
 import org.hisp.dhis.i18n.locale.LocaleManager;
 import org.hisp.dhis.message.MessageSender;
 import org.hisp.dhis.period.Cal;
+import org.hisp.dhis.security.migration.MigrationPasswordManager;
 import org.hisp.dhis.setting.Setting;
 import org.hisp.dhis.setting.SystemSettingManager;
 import org.hisp.dhis.system.util.ValidationUtils;
@@ -82,14 +83,23 @@ public class DefaultSecurityService
     // Dependencies
     // -------------------------------------------------------------------------
 
+    private MigrationPasswordManager passwordManager;
+
+    public void setPasswordManager( MigrationPasswordManager passwordManager )
+    {
+        this.passwordManager = passwordManager;
+    }
+	
+	/*
     private PasswordManager passwordManager;
 
     public void setPasswordManager( PasswordManager passwordManager )
     {
         this.passwordManager = passwordManager;
     }
-
-    private MessageSender emailMessageSender;
+	*/
+    
+	private MessageSender emailMessageSender;
 
     public void setEmailMessageSender( MessageSender emailMessageSender )
     {
@@ -359,7 +369,8 @@ public class DefaultSecurityService
             return errorMessage;
         }
 
-        errorMessage = verifyRestoreCode( credentials.getRestoreCode(), code );
+        //errorMessage = verifyRestoreCode( credentials.getRestoreCode(), code );
+		errorMessage = verifyRestoreCode( credentials, code );
 
         if ( errorMessage != null )
         {
@@ -385,8 +396,11 @@ public class DefaultSecurityService
      * @param code        the user supplied code to verify.
      * @return null on success, a descriptive error string otherwise.
      */
-    private String verifyRestoreCode( String restoreCode, String code )
-    {
+    //private String verifyRestoreCode( String restoreCode, String code )
+    private String verifyRestoreCode( UserCredentials credentials, String code )
+	{
+		String restoreCode = credentials.getRestoreCode();
+		
         if ( code == null )
         {
             return "code_parameter_is_null";
@@ -397,7 +411,8 @@ public class DefaultSecurityService
             return "account_restore_code_is_null";
         }
 
-        boolean validCode = passwordManager.matches( code, restoreCode );
+        //boolean validCode = passwordManager.matches( code, restoreCode );
+		boolean validCode = passwordManager.legacyOrCurrentMatches( code, restoreCode, credentials.getUsername() );
 
         return validCode ? null : "code_does_not_match_restoreCode - code: '" + code + "' restoreCode: '" + restoreCode + "'";
     }
@@ -459,7 +474,8 @@ public class DefaultSecurityService
             return "could_not_verify_token";
         }
 
-        boolean validToken = passwordManager.matches( token, restoreToken );
+        //boolean validToken = passwordManager.matches( token, restoreToken );
+		boolean validToken = passwordManager.legacyOrCurrentMatches( token, restoreToken, credentials.getUsername() );
 
         return validToken ? null : "restore_token_does_not_match_supplied_token";
     }

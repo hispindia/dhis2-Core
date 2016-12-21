@@ -62,9 +62,8 @@ public class DataApprovalMinLevelResourceTable
             "periodid integer not null, " +
             "organisationunitid integer not null, " +
             "attributeoptioncomboid integer not null, " +
-            "minlevel integer not null, " +
-            "primary key (datasetid,periodid,attributeoptioncomboid,organisationunitid))";
-        
+            "minlevel integer not null);";
+
         return sql;
     }
 
@@ -77,19 +76,17 @@ public class DataApprovalMinLevelResourceTable
             "select da.datasetid, da.periodid, da.organisationunitid, da.attributeoptioncomboid, dal.level as minlevel " +
             "from dataapproval da " +
             "inner join dataapprovallevel dal on da.dataapprovallevelid=dal.dataapprovallevelid " +
-            "inner join _orgunitstructure ous on da.organisationunitid=ous.organisationunitid " +
             "where not exists ( " +
                 "select 1 from dataapproval da2 " +
                 "inner join dataapprovallevel dal2 on da2.dataapprovallevelid=dal2.dataapprovallevelid " +
-                "where da.datasetid=da2.datasetid " +
-                  "and da.periodid=da2.periodid " +
-                  "and da.attributeoptioncomboid=da2.attributeoptioncomboid " +
-                  "and dal.level > dal2.level " +
-                  "and ( ";
+                "inner join _orgunitstructure ous2 on da2.organisationunitid=ous2.organisationunitid " +
+                "where da.datasetid=da2.datasetid and da.periodid=da2.periodid and da.attributeoptioncomboid=da2.attributeoptioncomboid " +
+                "and dal2.level < dal.level " +
+                "and ( ";
         
         for ( OrganisationUnitLevel level : objects )
         {
-            sql += "ous.idlevel" + level.getLevel() + " = da2.organisationunitid or ";
+            sql += "da.organisationunitid = ous2.idlevel" + level.getLevel() + " or ";
         }
         
         sql = TextUtils.removeLastOr( sql ) + ") )";
@@ -106,6 +103,10 @@ public class DataApprovalMinLevelResourceTable
     @Override
     public List<String> getCreateIndexStatements()
     {
-        return Lists.newArrayList();      
+        return Lists.newArrayList(
+            "create index in_dataapprovalminlevel_datasetid_" + getRandomSuffix() + " on " + getTempTableName() + "(datasetid);",
+            "create index in_dataapprovalminlevel_periodid_" + getRandomSuffix() + " on " + getTempTableName() + "(periodid);",
+            "create index in_dataapprovalminlevel_organisationunitid_" + getRandomSuffix() + " on " + getTempTableName() + "(organisationunitid);",
+            "create index in_dataapprovalminlevel_attributeoptioncomboid_" + getRandomSuffix() + " on " + getTempTableName() + "(attributeoptioncomboid);" );      
     }
 }

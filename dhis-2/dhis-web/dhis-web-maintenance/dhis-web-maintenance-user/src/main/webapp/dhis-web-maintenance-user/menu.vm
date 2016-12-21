@@ -5,4 +5,5 @@
 	#if( $security.canView( "userRole" ) )<li><a href="allRole.action" title="$i18n.getString( "user_role" )">$i18n.getString( "user_role" )&nbsp;</a></li>#end
 	#if( $security.canView( "userGroup" ) )<li><a href="getAllUserGroups.action">$i18n.getString( "user_group" )</a></li>#end
 	<li><a href="deleteCurrentUser.action" title="$i18n.getString( "delete_current_user" )">$i18n.getString( "delete_current_user" )</a></li>
+	<li><a href="filterUsers.action" title="$i18n.getString( 'filter_user_by_name_or_group' )">$i18n.getString( "filter_user_by_name_or_group" )</a></li>
 </ul>

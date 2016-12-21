@@ -2123,7 +2123,6 @@ Ext.onReady( function() {
 					dx = dimConf.indicator.dimensionName,
 					co = dimConf.category.dimensionName,
                     aggTypes = ['COUNT', 'SUM', 'STDDEV', 'VARIANCE', 'MIN', 'MAX'],
-					ou = dimConf.organisationUnit.dimensionName,
                     propertyMap = {
                         'name': 'name',
                         'displayName': 'name',
@@ -2131,26 +2130,7 @@ Ext.onReady( function() {
                         'displayShortName': 'shortName'
                     },
                     keyAnalysisDisplayProperty = init.userAccount.settings.keyAnalysisDisplayProperty,
-                    displayProperty = propertyMap[keyAnalysisDisplayProperty] || propertyMap[xLayout.displayProperty] || 'name',
-                    userIdDestroyCacheKeys = [
-						'USER_ORGUNIT',
-						'USER_ORGUNIT_CHILDREN',
-						'USER_ORGUNIT_GRANDCHILDREN'
-					];
-                    
-                var hasRelativeOrgunit = function() {
-					var has = false;
-
-					if (dimensionNameIdsMap.ou) {
-						userIdDestroyCacheKeys.forEach(function(key) {
-							if (Ext.Array.contains(dimensionNameIdsMap.ou, key)) {
-								has = true;
-							}
-						});
-					}
-
-					return has;
-				}();
+                    displayProperty = propertyMap[keyAnalysisDisplayProperty] || propertyMap[xLayout.displayProperty] || 'name';
 
 				for (var i = 0, dimName, items; i < axisDimensionNames.length; i++) {
 					dimName = axisDimensionNames[i];
@@ -2228,11 +2208,6 @@ Ext.onReady( function() {
                 if (xLayout.skipRounding) {
                     paramString += '&skipRounding=true';
                 }
-
-                // relative orgunits / user
-                if (hasRelativeOrgunit) {
-					paramString += '&user=' + init.userAccount.id;
-				}
 
 				return paramString.replace(/#/g, '.');
 			};

@@ -136,7 +136,25 @@ public class RemoveSelectedOrganisationUnitAction
 
         if ( organisationUnitGroupId != null )
         {
-            selectedUnits.removeAll( organisationUnitGroupService.getOrganisationUnitGroup( organisationUnitGroupId ).getMembers() );
+            //selectedUnits.removeAll( organisationUnitGroupService.getOrganisationUnitGroup( organisationUnitGroupId ).getMembers() );
+        	/**
+        	 * TODO - Hardcoding for IVB Project
+        	 */
+        	Set<OrganisationUnit> regions = new HashSet<OrganisationUnit>( organisationUnitService.getOrganisationUnitsAtLevel( 2 ) );
+        	regions.addAll( organisationUnitService.getRootOrganisationUnits() );
+        	regions.retainAll( selectedUnits );
+        	
+        	Set<OrganisationUnit> regionChildren = new HashSet<OrganisationUnit>();
+        	for ( OrganisationUnit region : regions )
+        	{
+        		regionChildren.addAll( organisationUnitService.getOrganisationUnitWithChildren( region.getId() ) );
+        	}
+            
+        	Set<OrganisationUnit> orgUnitGroupMembers = new HashSet<OrganisationUnit>( organisationUnitGroupService.getOrganisationUnitGroup( organisationUnitGroupId ).getMembers() );
+
+        	regionChildren.retainAll( orgUnitGroupMembers );
+        	
+        	selectedUnits.removeAll( regionChildren );			
         }
 
         if ( children != null && children == true )

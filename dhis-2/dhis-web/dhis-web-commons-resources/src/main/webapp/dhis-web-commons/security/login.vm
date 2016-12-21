@@ -10,88 +10,121 @@
         <link type="text/css" rel="stylesheet" href="../css/widgets.css">
         <link type="text/css" rel="stylesheet" href="../css/login.css">
         <link type="text/css" rel="stylesheet" href="../../api/files/style/external" />
+        
+    <style>
+        table.login {
+        font-family: verdana,arial,sans-serif;
+        font-size:14px;
+        color:#333333;
+        border-width: 1px;
+        border-spacing:0;
+        border-collapse:collapse;
+        background-color:white;
+        }
+        table.login td {    
+        padding: 6px;
+        }
+    </style>
+        
     </head>
-    <body class="loginPage">
-    	<h1 style="display:none">$!encoder.htmlEncode( ${applicationTitle} )</h1>
-    	<div style="display:none">DHIS 2</div>
-        <div>
-        #if ( $keyFlag )
-            <img id="flagArea" src="../flags/$!{keyFlagImage}">
-        #end
-        #if ( $applicationTitle )
-            <span id="titleArea">$!encoder.htmlEncode( ${applicationTitle} )</span>
-        #end        
-        #if ( $keyApplicationIntro )
-            <span id="introArea">$!{keyApplicationIntro}</span>
-        #end
-        </div>
-        #if ( $keyConfig.selfRegistrationAllowed() )
-        <div id="accountArea">
-        	<a id="createAccountButton" class="greenButtonLink" href="account.action">Create an account</a>
-        </div>
-        #end
-        <div id="loginField">
-        <div id="loginArea">
-            <div id="bannerArea">
-            <a href="http://www.dhis2.org"><img src="../../api/staticContent/logo_front" style="border:none"></a>
-            </div>
-            
-            <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">
-                <div>
-                	<div id="signInLabel">Sign in</div>
-                    <div><input type="text" id="j_username" name="j_username" placeholder="Username"></div>
-                    <div><input type="password" id="j_password" name="j_password" autocomplete="off" placeholder="Password"></div>
-                </div>
-                <div id="submitDiv">
-                	<input id="submit" class="button" type="submit" value="Sign in">
-                </div>
-                #if( $keyAccountRecovery )
-                <div style="padding-bottom: 10px">
-                    <a id="forgotPasswordLink" href="recovery.action">Forgot password?</a>
-                </div>
-                #end
-                #if( $keyConfig.selfRegistrationAllowed() )
-                <div style="padding-bottom: 10px">                	
-                	<a id="createAccountLink" href="account.action">Create an account</a>
-                </div>
-                #end
+    <body bgcolor="white">
+    <table align="center" class="login">
+        <tr align="center">
+            <td>
+                 <img src="IVB_LOGO_NEW.png" />
+            </td>
+        </tr>
+        <tr align="center">
+            <td>
+                <span><h2>
+                    <font color="#0099CC" size="+3" face="Arial, Helvetica, sans-serif">
+                        Immunization Repository</font>
+                </h2></span>
+            </td>
+        </tr>
+        <tr align="center">
+            <td>
+                <font color="#000000" face="Arial, Helvetica, sans-serif">Welcome to the WHO Immunization Repository, an online forum for managing and reviewing information on new vaccine introduction, <br/>strengthening immunization services and accelerated disease control activities in countries.</font><br />
+            </td>
+        </tr>
+        <tr align="center">
+            <td><br/>
+                <font color="#000000" face="Arial, Helvetica, sans-serif">
+                    To obtain permission to access the system, please send an e-mail to <a href="mailto:nicolash@who.int?subject=Immunization Repository">nicolash@who.int</a></font><br />
+            </td>
+        </tr>
+		
+		<form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">		
+        <tr align="center">
+            <td>
+                <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">
+                <table class="login" >
+                    <tr>
+                        <td><label for="j_username"><b>User Name</b></label></td>
+                        <td><input type="text" id="j_username" name="j_username" style="width:240px; height:20px;"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="j_password"><b>Password</b></label></td>
+                        <td><input type="password" id="j_password" name="j_password" autocomplete="off" style="width:230px; height:11px;"></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <input id="submit" class="button" type="submit" value="Login" style="width:120px; height:25px;">
+                            <input id="reset" class="button" type="reset" value="Clear" style="width:120px; height:25px;">
+                        </td>
+                    </tr>
+                    <tr style="">
+                         <td colspan="2">
+                            <img src="login_or.png"/>
+                         </td>
+                    </tr>                                       
+                </table>
             </form>
-            #if( $keyOpenIdProvider )
-              <form id="openIdLoginForm" action="../../dhis-web-commons-security/openid.action" method="post">
-                  <input name="openid_identifier" type="hidden" value="$keyOpenIdProvider"/>
-                  <div id="submitDiv">
-                    #if( $keyOpenIdProviderLabel )
-                  	<input style="width: 269px;" id="submit" class="button" type="submit" value="$keyOpenIdProviderLabel">
-                    #else
-                    <input style="width: 269px;" id="submit" class="button" type="submit" value="Sign in with OpenID">
-                    #end
-                  </div>
-              </form>
-            #end
-            #if( $failed == true )
-            <div id="loginMessage">Wrong username or password</div>
-            #end
-            #if ( $keyApplicationNotification )
-            <div id="notificationArea">$!{keyApplicationNotification}</div>
-            #end
-            <!--[if lte IE 8]>
-            <div id="notificationArea" style="color: white; background-color: red;">$i18n.getString( "unsupported_browser" )</div>
-            <![endif]-->
-        </div>
-        </div>
-        <div id="footerArea">
-        	<div id="leftFooterArea" class="innerFooterArea">
-	        	Powered by <a href="http://www.dhis2.org">DHIS 2</a>&nbsp; <span id="applicationFooter">$!{keyApplicationFooter}
-		    </div>
-			<div id="rightFooterArea" class="innerFooterArea">
-				$!{keyApplicationRightFooter}
-				<select id="localeSelect" onchange="login.localeChanged()" style="margin-left: 30px">
-	        		<option value="">[ Change language ]</option>
-	        		#foreach( $locale in $availableLocales )
-	        		<option value="${locale.language}">${locale.displayName}</option>
-			        #end
-		        </select>
-		    </div>
-        </div>
+            </td>
+        </tr>
+        <tr>
+        <td colspan="2">
+        #if( $keyOpenIdProvider )
+               <form id="openIdLoginForm" name="openIdLoginForm" action="../../dhis-web-commons-security/openid.action" method="post">
+                   <input name="openid_identifier" type="hidden" value="$keyOpenIdProvider"/>
+                   <center>                         
+                            <a href="../../dhis-web-commons-security/openid.action?openid_identifier=$keyOpenIdProvider" ><img src="who.png" style="width:50px;"/></a>
+                    </center>
+               </form>
+         #end
+         </td>
+         </tr>
+        <tr align="center">
+            <td>
+                <font color="#0099CC" face="Arial, Helvetica, sans-serif">
+                    <strong>WHO Staff:</strong></font> <font color="#000000" face="Arial, Helvetica, sans-serif">You can use your current account credentials.</font> <br />
+            </td>
+        </tr>
+        <tr style="display:none" align="center">
+            <td>
+                <font color="#0099CC" face="Arial, Helvetica, sans-serif">
+                <strong>Partners:</strong><font color="#000000" face="Arial, Helvetica, sans-serif"> you can request access to the system by contacting</font> <a href="mailto:nicolash@who.int?subject=Immunization Repository">nicolash@who.int</a><br /><br />
+            </td>
+        </tr> 
+        <tr align="center" bgcolor="#AABBCC" #if( $failed == false ) style="display:none" #end>
+            <td><font color="#0000FF" face="Arial, Helvetica, sans-serif"><strong>Wrong username or password</td>
+        </tr>
+        
+    </table>
+    
+    
+    <table>
+        <tr>
+            <td>
+               <font style="font-size:14px;" color="#000000" face="Arial, Helvetica, sans-serif"><strong>Our Partners: </strong></font>            
+            </td>
+            <td>
+                &nbsp;&nbsp;<img src="unicef_logo.png" style="width:115px;"/>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="GAVI_logo.png" style="width:80px;height:33px;"/>
+            </td>
+        </tr>
+    </table>
+
     </body>
 </html>

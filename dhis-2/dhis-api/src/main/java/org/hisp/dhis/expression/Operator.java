@@ -37,8 +37,7 @@ public enum Operator
     greater_than_or_equal_to( ">=" ), 
     less_than( "<" ), 
     less_than_or_equal_to( "<=" ),
-    compulsory_pair( "[Compulsory pair]"),
-    exclusive_pair( "[Exclusive pair]" );
+    compulsory_pair( "[Compulsory pair]" );
 
     private final String mathematicalOperator;
 

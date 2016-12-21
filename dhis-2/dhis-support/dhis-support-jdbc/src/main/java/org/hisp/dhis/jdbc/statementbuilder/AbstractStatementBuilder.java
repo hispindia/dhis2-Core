@@ -104,12 +104,6 @@ public abstract class AbstractStatementBuilder
                 "where tc.constraint_type='PRIMARY KEY' " +
                 "and cu.table_name='" + table + "';";
     }
-    
-    @Override
-    public String getCastToDate( String column )
-    {
-        return "cast(" + column + " as date)";
-    }
 
     @Override
     public String getDropPrimaryKey( String table )

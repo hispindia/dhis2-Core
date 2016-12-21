@@ -1,7 +1,10 @@
 // -----------------------------------------------------------------------------
 // Section details form
 // -----------------------------------------------------------------------------
-
+function defineSectionAssociationsForm( context ) {
+   location.href = 'defineSectionAssociationsForm.action?sectionId=' + context.id;
+}
+ 
 function editSectionShow( context ) {
     location.href = 'editSection.action?sectionId=' + context.id;
 }

@@ -33,6 +33,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.criterion.Expression;
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.Order;
+
 import org.hisp.dhis.common.IdentifiableObjectUtils;
 import org.hisp.dhis.common.hibernate.HibernateIdentifiableObjectStore;
 import org.hisp.dhis.commons.util.SqlHelper;
@@ -211,5 +217,36 @@ public class HibernateUserStore
         }
         
         return query;
+    }
+	
+	@Override
+    public List<User> getUsersByEmail( String email ) 
+    {
+        Criteria criteria = getCriteria();
+        criteria.add(  Restrictions.ilike( "email", "" + email + "" ));
+               
+        return criteria.list();
+    }
+
+    @Override
+    public Collection<User> getUserByNameAndGroup( String name, String type , int first, int max)
+    {
+        Session session = sessionFactory.getCurrentSession();
+        Criteria criteria = session.createCriteria( User.class );
+        if(type == null)
+        {
+            criteria.add( Restrictions.or( Restrictions.ilike( "surname", "%" + name + "%" ),
+                Restrictions.ilike( "firstName", "%" + name + "%" ) ) );
+            
+            criteria.addOrder( Order.asc( "surname" ) ).addOrder( Order.asc( "firstName" ) );
+        }
+        else
+        {
+            criteria = criteria.createAlias("groups","group").add(Expression.eq("group.id",Integer.parseInt( type )));
+        }  
+        criteria.setFirstResult( first );
+        criteria.setMaxResults( max );
+            
+        return criteria.list();       
     }
 }

@@ -119,6 +119,19 @@ function closeExpressionBuilder()
 function insertExpression()
 {
 	var expression = getFieldValue( 'indicator-expression-container textarea[id=expression]' );
+	var description = getFieldValue( 'indicator-expression-container input[id=description]' );		
+	
+	setFieldValue( 'numerator', expression );
+	setFieldValue( 'numeratorDescription', description );					
+				
+	closeExpressionBuilder();
+			
+}
+
+/*
+function insertExpression()
+{
+	var expression = getFieldValue( 'indicator-expression-container textarea[id=expression]' );
 	var description = getFieldValue( 'indicator-expression-container input[id=description]' );
 	
 	jQuery.ajax({
@@ -145,3 +158,4 @@ function insertExpression()
 		}
 	});
 }
+*/

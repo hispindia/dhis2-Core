@@ -28,8 +28,10 @@ package org.hisp.dhis.datavalue.hibernate;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import java.util.Collection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
 
 import org.hibernate.Criteria;
 import org.hibernate.Query;
@@ -173,4 +175,186 @@ public class HibernateDataValueAuditStore
 
         return query.executeUpdate();
     }
+	
+	public DataValueAudit getDataValueAuditById( Integer id )
+    {        
+        Session session = sessionFactory.getCurrentSession();
+
+        Query query = session.createQuery( "SELECT dva FROM DataValueAudit dva WHERE dva.id ="+id );       
+        
+        return (DataValueAudit)query.uniqueResult();
+    }
+	
+    public DataValueAudit getDataValueAuditByLastUpdated_StoredBy( DataElement dataElement, OrganisationUnit organisationUnit, Date timestamp, String modifiedBy, Integer status, String commentType )
+    {
+        final String hsql = "SELECT dva FROM DataValueAudit dva WHERE  dva.modifiedBy =:modifiedBy "
+            + " AND dva.dataElement =:dataElement AND dva.organisationUnit=:organisationUnit " 
+            + " AND dva.timestamp=:timestamp AND dva.status =:status AND dva.commentType =:commentType ORDER BY dva.timestamp DESC";
+
+        Session session = sessionFactory.getCurrentSession();
+
+        Query query = session.createQuery( hsql );
+
+        query.setParameter( "dataElement", dataElement );
+        query.setParameter( "organisationUnit", organisationUnit );
+        query.setParameter( "timestamp", timestamp );
+        query.setParameter( "modifiedBy", modifiedBy );
+        query.setParameter( "status", status );
+        query.setParameter( "commentType", commentType );
+        
+        return (DataValueAudit) query.uniqueResult();
+    }
+    
+    public void updateDataValueAudit( DataValueAudit dataValueAudit )
+    {
+    	dataValueAudit.setPeriod( periodStore.reloadForceAddPeriod( dataValueAudit.getPeriod() ) );
+
+        Session session = sessionFactory.getCurrentSession();
+        
+        session.update( dataValueAudit );         
+        
+        session.flush();
+    }
+    
+    @SuppressWarnings( "unchecked" )
+    public Collection<DataValueAudit> getDataValueAuditByOrgUnit_DataElement( DataElement dataElement, OrganisationUnit organisationUnit )
+    {
+        final String hsql = "SELECT dva FROM DataValueAudit dva WHERE  dva.dataElement =:dataElement "
+            + " AND dva.organisationUnit=:organisationUnit ORDER BY dva.timestamp,dva.period.startDate DESC";
+
+        Session session = sessionFactory.getCurrentSession();
+
+        Query query = session.createQuery( hsql );
+
+        query.setParameter( "dataElement", dataElement );
+        query.setParameter( "organisationUnit", organisationUnit );
+        
+        return query.list();
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public Collection<DataValueAudit> getActiveDataValueAuditByOrgUnit_DataElement( DataElement dataElement, OrganisationUnit organisationUnit )
+    {
+        final String hsql = "SELECT dva FROM DataValueAudit dva WHERE  dva.dataElement =:dataElement "
+            + " AND dva.organisationUnit=:organisationUnit AND dva.status = 1 ORDER BY dva.timestamp,dva.period.startDate DESC";
+
+        Session session = sessionFactory.getCurrentSession();
+
+        Query query = session.createQuery( hsql );
+
+        query.setParameter( "dataElement", dataElement );
+        query.setParameter( "organisationUnit", organisationUnit );
+        
+        return query.list();
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public Collection<DataValueAudit> getActiveDataValueAuditByOrgUnit_DataElement_Period( DataElement dataElement, OrganisationUnit organisationUnit, Period period )
+    {
+        final String hsql = "SELECT dva FROM DataValueAudit dva WHERE  dva.dataElement =:dataElement "
+            + " AND dva.organisationUnit=:organisationUnit AND dva.period=:period AND dva.status = 1 ORDER BY dva.timestamp DESC";
+
+        Session session = sessionFactory.getCurrentSession();
+
+        Query query = session.createQuery( hsql );
+
+        query.setParameter( "dataElement", dataElement );
+        query.setParameter( "organisationUnit", organisationUnit );
+        query.setParameter( "period", period );
+        
+        return query.list();
+    }
+    
+    @SuppressWarnings( "unchecked" )
+    public Collection<DataValueAudit> getActiveDataValueAuditByOrgUnit_DataElement_Period_type( DataElement dataElement, OrganisationUnit organisationUnit, Period period ,String commentType )
+    {
+        final String hsql = "SELECT dva FROM DataValueAudit dva WHERE  dva.dataElement =:dataElement "
+            + " AND dva.organisationUnit=:organisationUnit AND dva.period=:period AND dva.status = 1 AND dva.commentType=:commentType AND ( dva.value IS NOT NULL OR dva.comment IS NOT NULL )  ORDER BY dva.timestamp DESC";
+
+        //System.out.println( hsql );
+        
+        Session session = sessionFactory.getCurrentSession();
+
+        Query query = session.createQuery( hsql );
+
+        query.setParameter( "dataElement", dataElement );
+        query.setParameter( "organisationUnit", organisationUnit );
+        query.setParameter( "period", period );
+        query.setParameter( "commentType", commentType );
+        
+        return query.list();
+    }
+    
+    public DataValueAudit getLatestDataValueAudit( DataElement dataElement, OrganisationUnit organisationUnit, String commentType )
+    {
+        final String hsql = "SELECT dva FROM DataValueAudit dva, Period p WHERE  dva.dataElement =:dataElement "
+            + " AND dva.period=p AND dva.commentType=:commentType AND dva.organisationUnit=:organisationUnit ORDER BY p.endDate,dva.timestamp DESC";
+
+        Session session = sessionFactory.getCurrentSession();
+
+        Query query = session.createQuery( hsql );
+
+        query.setParameter( "dataElement", dataElement );
+        query.setParameter( "commentType", commentType );
+        query.setParameter( "organisationUnit", organisationUnit );
+        
+        query.setFirstResult( 0 );
+        query.setMaxResults( 1 );
+
+        return (DataValueAudit) query.uniqueResult();
+    }
+
+    public DataValueAudit getLatestDataValueAudit( DataElement dataElement, OrganisationUnit organisationUnit, String commentType, String dv_value, String dv_comment )
+    {
+        final String hsql = "SELECT dva FROM DataValueAudit dva, Period p WHERE dva.dataElement =:dataElement "
+            + " AND dva.period=p AND dva.commentType=:commentType AND dva.organisationUnit=:organisationUnit "
+            + " AND dva.value=:value AND dva.comment=:comment ORDER BY p.endDate,dva.timestamp DESC";
+
+        Session session = sessionFactory.getCurrentSession();
+
+        Query query = session.createQuery( hsql );
+
+        query.setParameter( "dataElement", dataElement );
+        query.setParameter( "commentType", commentType );
+        query.setParameter( "organisationUnit", organisationUnit );
+        query.setParameter( "value", dv_value );
+        query.setParameter( "comment", dv_comment );
+        
+        query.setFirstResult( 0 );
+        query.setMaxResults( 1 );
+
+        return (DataValueAudit) query.uniqueResult();
+    }	
+
+    @SuppressWarnings( "unchecked" )
+    public Collection<DataValueAudit> getDataValueAuditByDataValue( DataValue dataValue )
+    {
+        Session session = sessionFactory.getCurrentSession();
+
+        Criteria criteria = session.createCriteria( DataValueAudit.class );
+        criteria.add( Restrictions.eq( "dataElement", dataValue.getDataElement() ) );
+        criteria.add( Restrictions.eq( "organisationUnit", dataValue.getSource() ) );
+        criteria.add( Restrictions.eq( "period", dataValue.getPeriod() ) );
+        criteria.add( Restrictions.eq( "categoryOptionCombo", dataValue.getCategoryOptionCombo() ) );
+
+        return criteria.list();
+    }
+	
+    @SuppressWarnings( "unchecked" )
+    public Collection<DataValueAudit> getActiveDataValueAuditByDataValue( DataValue dataValue )
+    {
+        Integer status = 1;
+        
+        Session session = sessionFactory.getCurrentSession();
+
+        Criteria criteria = session.createCriteria( DataValueAudit.class );
+        criteria.add( Restrictions.eq( "dataElement", dataValue.getDataElement() ) );
+        criteria.add( Restrictions.eq( "organisationUnit", dataValue.getSource() ) );
+        criteria.add( Restrictions.eq( "period", dataValue.getPeriod() ) );
+        criteria.add( Restrictions.eq( "categoryOptionCombo", dataValue.getCategoryOptionCombo() ) );
+        criteria.add( Restrictions.eq( "status", status ) );
+
+        return criteria.list();
+    }
+	
 }

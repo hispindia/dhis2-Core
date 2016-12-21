@@ -33,7 +33,9 @@ import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementService;
 import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.dataset.DataSetService;
+//import org.hisp.dhis.favorite.FavoriteService;
 import org.hisp.dhis.i18n.I18n;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import com.opensymphony.xwork2.Action;
 
@@ -54,7 +56,19 @@ public class RemoveDataElementAction
     {
         this.dataElementService = dataElementService;
     }
+/*
+    private FavoriteService favoriteService;
+    
+    public FavoriteService getFavoriteService()
+    {
+        return favoriteService;
+    }
 
+    public void setFavoriteService( FavoriteService favoriteService )
+    {
+        this.favoriteService = favoriteService;
+    }
+*/
     private I18n i18n;
 
     public void setI18n( I18n i18n )
@@ -95,10 +109,12 @@ public class RemoveDataElementAction
     // Action implementation
     // -------------------------------------------------------------------------
 
-    @Override
     public String execute()
         throws Exception
     {
+        
+        
+        
         try
         {
             DataElement dataElement = dataElementService.getDataElement( id );
@@ -113,13 +129,24 @@ public class RemoveDataElementAction
         }
         catch ( DeleteNotAllowedException ex )
         {
+            
             if ( ex.getErrorCode().equals( DeleteNotAllowedException.ERROR_ASSOCIATED_BY_OTHER_OBJECTS ) )
             {
                 message = i18n.getString( "object_not_deleted_associated_by_objects" ) + " " + ex.getMessage();
                 
                 return ERROR;
             }
-        }        
+            
+        } 
+        
+        catch ( DataIntegrityViolationException dex )
+        {
+                message = i18n.getString( "object_not_deleted_associated_by_bookmark" );
+                
+                return ERROR;
+          
+        }
+    
         
         return SUCCESS;
     }

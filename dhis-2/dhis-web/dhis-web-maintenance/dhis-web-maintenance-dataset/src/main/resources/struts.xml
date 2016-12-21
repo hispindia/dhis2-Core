@@ -227,5 +227,16 @@
       <param name="anyAuthorities">F_DATASET_PUBLIC_ADD, F_DATASET_PRIVATE_ADD</param>
     </action>
 
+	<!-- DataSet Section association -->
+  
+     <action name="defineSectionAssociationsForm" class="org.hisp.dhis.dataset.action.section.GetSectionAction">
+      <result name="success" type="velocity">/main.vm</result>
+       <param name="page">/dhis-web-maintenance-dataset/sectionAssociations.vm</param>      
+     </action>
+  
+     <action name="defineSectionAssociations" class="org.hisp.dhis.dataset.action.section.DefineSectionAssociationsAction">
+       <result name="success" type="redirect">section.action</result>      
+     </action>
+	
   </package>
 </struts>

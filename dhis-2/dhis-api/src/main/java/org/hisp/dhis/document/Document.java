@@ -40,6 +40,7 @@ import org.hisp.dhis.common.view.DetailedView;
 import org.hisp.dhis.common.view.ExportView;
 import org.hisp.dhis.schema.PropertyType;
 import org.hisp.dhis.schema.annotation.Property;
+import org.hisp.dhis.organisationunit.OrganisationUnit;
 
 /**
  * @author Lars Helge Overland
@@ -55,6 +56,8 @@ public class Document
     private String contentType;
 
     private Boolean attachment = false;
+	
+	private OrganisationUnit source;
 
     public Document()
     {
@@ -67,6 +70,15 @@ public class Document
         this.external = external;
         this.contentType = contentType;
     }
+	
+	public Document( String name, String url, boolean external, String contentType, OrganisationUnit source )
+    {
+        this.name = name;
+        this.url = url;
+        this.external = external;
+        this.contentType = contentType;
+        this.source = source;
+    }
 
     @Override
     public boolean haveUniqueNames()
@@ -74,6 +86,16 @@ public class Document
         return false;
     }
 
+	public OrganisationUnit getSource() 
+    {
+		return source;
+	}
+
+	public void setSource( OrganisationUnit source ) 
+	{
+		this.source = source;
+	}
+    
     @JsonProperty
     @JsonView( { DetailedView.class, ExportView.class } )
     @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )

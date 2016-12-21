@@ -134,9 +134,13 @@
       <td><label>$i18n.getString( "language" )</label></td>
       <td>
         <select id="localeUi" name="localeUi">
-          #foreach( $locale in $availableLocales )
-            <option value="$locale.toString()" #if( $locale == $currentLocale )selected="selected"#end>$locale.getDisplayName()</option>
-          #end
+            <option value="en" #if( $currentLocale == 'en' ) selected="selected" #end>English</option>
+ 	        <option value="fr" #if( $currentLocale == 'fr' ) selected="selected" #end>French</option>
+            <option value="es" #if( $currentLocale == 'es' ) selected="selected" #end>Spanish</option>
+        
+          ##foreach( $locale in $availableLocales )
+           <!-- <option value="$locale.toString()" #if( $locale == $currentLocale )selected="selected"#end>$locale.getDisplayName()</option> -->
+          ##end
         </select>
       </td>
     </tr>

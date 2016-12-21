@@ -595,7 +595,7 @@ public class JdbcEventAnalyticsManager
             {
                 for ( QueryFilter filter : item.getFilters() )
                 {
-                    sql += "and " + getColumn( item ) + " " + filter.getSqlOperator() + " " + getSqlFilter( filter, item ) + " ";
+                    sql += "and " + getColumn( item ) + " " + filter.getSqlOperator() + " " + getSqlFilter( filter, item.isNumeric() ) + " ";
                 }
             }
         }
@@ -606,7 +606,7 @@ public class JdbcEventAnalyticsManager
             {
                 for ( QueryFilter filter : item.getFilters() )
                 {
-                    sql += "and " + getColumn( item ) + " " + filter.getSqlOperator() + " " + getSqlFilter( filter, item ) + " ";
+                    sql += "and " + getColumn( item ) + " " + filter.getSqlOperator() + " " + getSqlFilter( filter, item.isNumeric() ) + " ";
                 }
             }
         }
@@ -652,26 +652,25 @@ public class JdbcEventAnalyticsManager
     }
     
     /**
-     * Returns an encoded column name wrapped in lower directive if not numeric
-     * or boolean.
+     * Returns an encoded column name wrapped in lower directive if not numeric.
      */
     private String getColumn( QueryItem item )
     {
         String col = statementBuilder.columnQuote( item.getItemName() );
         
-        return item.isText() ? "lower(" + col + ")" : col;
+        return item.isNumeric() ? col : "lower(" + col + ")"; 
     }
     
     /**
      * Returns the filter value for the given query item.
      */
-    private String getSqlFilter( QueryFilter filter, QueryItem item )
+    private String getSqlFilter( QueryFilter filter, boolean numeric )
     {
         String encodedFilter = statementBuilder.encode( filter.getFilter(), false );
         
         String sqlFilter = filter.getSqlFilter( encodedFilter );
         
-        return item.isText() ? sqlFilter.toLowerCase() : sqlFilter;
+        return numeric ? sqlFilter : sqlFilter.toLowerCase();
     }
 
     /**

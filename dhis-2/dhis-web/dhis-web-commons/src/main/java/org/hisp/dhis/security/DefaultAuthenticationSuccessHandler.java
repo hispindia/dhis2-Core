@@ -29,13 +29,18 @@ package org.hisp.dhis.security;
  */
 
 import java.io.IOException;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.hisp.dhis.ivb.useractivity.UserActivity;
+import org.hisp.dhis.ivb.useractivity.UserActivityService;
 import org.hisp.dhis.security.intercept.LoginInterceptor;
+import org.hisp.dhis.user.CurrentUserService;
+//import org.hisp.dhis.user.String;
 import org.hisp.dhis.user.UserCredentials;
 import org.hisp.dhis.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,31 +52,46 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
  * Since ActionContext is not available at this point, we set a mark in the
  * session that signales that login has just occured, and that LoginInterceptor
  * should be run.
- *
+ * 
  * @author mortenoh
  */
 public class DefaultAuthenticationSuccessHandler
     extends SavedRequestAwareAuthenticationSuccessHandler
 {
+
+    @Autowired
+    public UserActivityService useractivityservices;
+
+    @Autowired
+    public CurrentUserService currentuserservice;
+
     /**
-     * Default is 1 hour of inactivity, this is mostly for when we are using the mobile
-     * client, since entering data can take time, and data will be lost if the session
-     * times out while entering data.
+     * Default is 1 hour of inactivity, this is mostly for when we are using the
+     * mobile client, since entering data can take time, and data will be lost
+     * if the session times out while entering data.
      */
     public static final int DEFAULT_SESSION_TIMEOUT = 60 * 60;
 
     @Autowired
     private UserService userService;
-    
+
     @Override
-    public void onAuthenticationSuccess( HttpServletRequest request, HttpServletResponse response, Authentication authentication )
+    public void onAuthenticationSuccess( HttpServletRequest request, HttpServletResponse response,
+        Authentication authentication )
         throws ServletException, IOException
     {
         HttpSession session = request.getSession();
-        
-        String username = ((User)authentication.getPrincipal()).getUsername();
 
-        session.setAttribute( "userIs", username);
+        UserActivity useractivity = new UserActivity();
+
+        String username = ((User) authentication.getPrincipal()).getUsername();
+
+        useractivity.setUser( currentuserservice.getCurrentUser() );
+
+        useractivity.setLoginTime( new Date() );
+
+        useractivityservices.addUserActivity( useractivity );
+
         session.setAttribute( LoginInterceptor.JLI_SESSION_VARIABLE, Boolean.TRUE );
         session.setMaxInactiveInterval( DefaultAuthenticationSuccessHandler.DEFAULT_SESSION_TIMEOUT );
 
@@ -80,9 +100,9 @@ public class DefaultAuthenticationSuccessHandler
         if ( credentials != null )
         {
             credentials.updateLastLogin();
-            userService.updateUserCredentials( credentials );            
+            userService.updateUserCredentials( credentials );
         }
-        
+
         super.onAuthenticationSuccess( request, response, authentication );
     }
 }
