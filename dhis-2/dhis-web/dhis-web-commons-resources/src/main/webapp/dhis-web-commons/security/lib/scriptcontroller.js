@@ -4,18 +4,14 @@ var base = "../../";
 var url=base+"dhis-web-commons-security/login.action";
 var orgid="wSslG6mcGXl";
 var ouid=[];
-var filterhospital,service,owner,healthfacility;
+var service;
 var hospital;
 var defavail="avHST8wLPnX&dimension=jXCd8k2841l&dimension=txl9e6UJFP4";
 var defservice="BZ0xteKZNid&dimension=OYAHA8Vhc3G&dimension=qNBCYtrkaD7&dimension=Bv5Fu3onViS&dimension=g7tngXzv2Zz&dimension=mKUqJtDn41L&dimension=G6QYTm3JoNo&dimension=DfbzQg5LTlm&dimension=vvzIfRasrJd&dimension=QeEQe0ERs9X&dimension=sFKV5EA9U6t&dimension=x2SMBBm0P7T&dimension=DeWJ6TcLBGn&dimension=MZ8si8FHS0T&dimension=uyyl3x9jwQa&dimension=bfL2zXyQtrA&dimension=XBO6pg9y1m8&dimension=AEQRulqMjQB&dimension=hEZYkang3cp&dimension=lWsun2ZATjI&dimension=ALMaYK2pMhL&dimension=p2MQZL84eNu&dimension=LRb9HlmAbc6&dimension=sCypRhH8brf&dimension=L11XujC9xzh&dimension=szDQ40J4DTm&dimension=KPpV7WAdys5&dimension=tx0G6s6nBiC&dimension=epW5qI95Cno&dimension=lKQPhgCfuvz&dimension=l1f67ipP6mj&dimension=I3jAOh6ZIMk&dimension=bxGjTYnbgcB&dimension=ttLEYvjxCse&dimension=JOOdfW6RCCD&dimension=TaudXwrGaVC&dimension=gJoAOIEKG9M&dimension=snsCxRbqdHP&dimension=eFpqq53Zifj&dimension=U0rv5FWWeeo&dimension=VDigKipZYu1&dimension=Guub32IStl2&dimension=sIeFKRWtZrn&dimension=IYOefLkrEZk&dimension=t035HNWxNZU&dimension=IlBOWfRZyUc&dimension=dO49PmdQpvT&dimension=akM0bMRwfV4";
-// var defowner="EwolVkPAKN6&dimension=aI5XEAH8PkC&dimension=VozTuKA0GP1";
+
 var defowner="XEiMcaGi6vv";
 var defhealthfacility="UmlIjjErp1p&dimension=rD7PJQN4TTe&dimension=nvGzrdrt48l&dimension=UfCxf82vB7J";
-var avgRating=[],avgRating1;
-var divele;
-var servicename,serviceid;
-var name=[],address=[],pincode=[],village=[],mobile=[],owner=[],special=[];
-var toAdd,spec=[],specialjoin;
+var name=[],address=[],pincode=[],village=[],mobile=[],special=[];
 var redMarker = L.AwesomeMarkers.icon({
     icon: 'coffee',
     markerColor: 'red'
@@ -460,7 +456,6 @@ Ext.onReady( function() {
         "Authorization": "Basic " + btoa( "homepage" + ':' + "Homepage123" )
 
     };
-    //var base = 'http://localhost:8080/demodhis/';
 
     Ext.Ajax.request({
         url: "dhis-web-commons-security/login.action?authOnly=true",
@@ -471,20 +466,6 @@ Ext.onReady( function() {
 
     function setLinks() {
 
-
-        //var greenIcon = L.icon({
-        //    iconUrl: 'hospital.png',
-        //
-        //    iconSize:     [10, 20], // size of the icon
-        //    shadowSize:   [50, 64], // size of the shadow
-        //    iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
-        //    shadowAnchor: [4, 62],  // the same for the shadow
-        //    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
-        //});
-
-        ////
-        //L.marker([51.941196,4.512291], {icon: redMarker}).addTo(map);
-        //
         var map =L.map('map').setView([31.1471, 75.3412], 8);
 
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
@@ -745,15 +726,11 @@ Ext.onReady( function() {
             });
             $('#drophospital').selectpicker('refresh');
         });
-        //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
-        //jQuery('#sel').html('');
     });
 
     $("#drophospital").change(function () {
         hospital = $(this).find("option:selected").val();
         orgid=hospital;
-        //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
-        //jQuery('#sel').html('');
     });
 
     $("#drop_ownership").change(function () {
@@ -766,13 +743,10 @@ Ext.onReady( function() {
         //jQuery('#sel').html('');
         defservice=$(this).find("option:selected").val()+":IN:1";
 
-        //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
-
-
     })
     $("#droptype").change(function () {
         defhealthfacility=$(this).find("option:selected").val()+":IN:1";
-        //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
+
     });
 
 
@@ -1076,8 +1050,6 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
                 }
                 k++;
             }
-
-
         }
 
         var htmlstring="";
@@ -1092,7 +1064,6 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
         $("#procedureid").append(htmlstring);
 
     });
-
 
     div.innerHTML='\
     <div class="w3-card-4" style="margin-left:15%;margin-right:15%;" id="test1">\
@@ -1183,15 +1154,12 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
     div.getElementsByClassName('hfschemes')[0].innerHTML = this.hfschemes?this.hfschemes:"";
     div.getElementsByClassName('ownership')[0].innerHTML = this.ownership?this.ownership:"";
 
-//        div.getElementsByClassName('rating')[0].innerHTML = "3.0";
-//        div.getElementsByClassName('rating')[0].innerHTML = this.avgRating;
     this.parent="";
 
 }
 
 
 function myfunc(ouid){
-//      var div = $("#"+thiz)[0];
-//              div.className="";
+
     $("#"+ouid).slideToggle(1000);
 }
