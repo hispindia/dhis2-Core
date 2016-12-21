@@ -922,7 +922,7 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
         for (var i = 0; i < name.length; i++) {
             if(ownership[i]=="Public")
             {
-                L.marker([longitude[i], latitude[i]], {icon: blueMarker}).addTo(map1).bindPopup(name[i]+","+" Contact:"+  mobile[i]+ ", Schemes:"+hfschemes[i]+", Availabilities: "+availspecialiti[i]).openPopup();
+                L.marker([longitude[i], latitude[i]], {icon: blueMarker}).addTo(map1).bindPopup(name[i]+","+"</br><strong>Contact:</strong> "+  mobile[i]+ ",</br> <strong>Schemes:</strong>"+hfschemes[i]+", </br><strong>Availabilities:</strong> "+availspecialiti[i]).openPopup();
             }
             else if(ownership[i]=="Private")
             {
