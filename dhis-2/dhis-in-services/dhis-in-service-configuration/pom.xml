@@ -5,14 +5,13 @@
   
 	<parent>
 		<groupId>org.hisp.dhis</groupId>
-		<artifactId>dhis-services</artifactId>
+		<artifactId>dhis-in-services</artifactId>
 		<version>2.21</version>
-		<relativePath>../../../../dhis-2/dhis-services/pom.xml</relativePath>
 	</parent>
 	
-  <artifactId>dhis-in-service-configuration</artifactId>
-  <packaging>jar</packaging>
-  <name>DHIS India Configuration Service</name>
+	<artifactId>dhis-in-service-configuration</artifactId>
+		<packaging>jar</packaging>
+	<name>DHIS India Configuration Service</name>
   
   <dependencies>
     
