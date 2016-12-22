@@ -245,7 +245,6 @@
 
 
 </body>
-<div class="se-pre-con"></div>
 <div id="loader" style="display:none;" class="loader"></div>
 <script src="lib/scriptcontroller.js"></script>
 
