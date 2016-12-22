@@ -6,6 +6,7 @@ var orgid="wSslG6mcGXl";
 var ouid=[];
 var service;
 var hospital;
+var resultcount=0;
 var defavail="avHST8wLPnX&dimension=jXCd8k2841l&dimension=txl9e6UJFP4";
 var defservice="BZ0xteKZNid&dimension=OYAHA8Vhc3G&dimension=qNBCYtrkaD7&dimension=Bv5Fu3onViS&dimension=g7tngXzv2Zz&dimension=mKUqJtDn41L&dimension=G6QYTm3JoNo&dimension=DfbzQg5LTlm&dimension=vvzIfRasrJd&dimension=QeEQe0ERs9X&dimension=sFKV5EA9U6t&dimension=x2SMBBm0P7T&dimension=DeWJ6TcLBGn&dimension=MZ8si8FHS0T&dimension=uyyl3x9jwQa&dimension=bfL2zXyQtrA&dimension=XBO6pg9y1m8&dimension=AEQRulqMjQB&dimension=hEZYkang3cp&dimension=lWsun2ZATjI&dimension=ALMaYK2pMhL&dimension=p2MQZL84eNu&dimension=LRb9HlmAbc6&dimension=sCypRhH8brf&dimension=L11XujC9xzh&dimension=szDQ40J4DTm&dimension=KPpV7WAdys5&dimension=tx0G6s6nBiC&dimension=epW5qI95Cno&dimension=lKQPhgCfuvz&dimension=l1f67ipP6mj&dimension=I3jAOh6ZIMk&dimension=bxGjTYnbgcB&dimension=ttLEYvjxCse&dimension=JOOdfW6RCCD&dimension=TaudXwrGaVC&dimension=gJoAOIEKG9M&dimension=snsCxRbqdHP&dimension=eFpqq53Zifj&dimension=U0rv5FWWeeo&dimension=VDigKipZYu1&dimension=Guub32IStl2&dimension=sIeFKRWtZrn&dimension=IYOefLkrEZk&dimension=t035HNWxNZU&dimension=IlBOWfRZyUc&dimension=dO49PmdQpvT&dimension=akM0bMRwfV4";
 
@@ -27,7 +28,7 @@ var map1 =L.map('map1').setView([31.1471, 75.3412], 10);
 L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map1);
-
+var layerGroup = L.layerGroup().addTo(map1);
 
 var legend = L.control({position: 'bottomright'});
 
@@ -44,7 +45,7 @@ legend.onAdd = function (map) {
 
 
         labels.push(
-            '<i style="background:' + getColor(from + 1) + '"></i> ' +
+            '<i style="background:' + '#000000' + '"></i> ' +
             from + (to ? '&ndash;' + to : '+'));
     i=i+2;
     }
@@ -55,16 +56,7 @@ legend.onAdd = function (map) {
 
 legend.addTo(map1);
 
-function getColor(d) {
-    return d > 1000 ? '#800026' :
-        d > 500  ? '#BD0026' :
-            d > 200  ? '#E31A1C' :
-                d > 100  ? '#FC4E2A' :
-                    d == "Green"   ? '#FD8D3C' :
-                        d == "Blue"   ? '#FEB24C' :
-                            d == "Red"   ? '#FED976' :
-                                '#FFEDA0';
-}
+
 
 var analyticsMap = [
 
@@ -449,12 +441,14 @@ var analyticsMap = [
     }
 
 ]
+$(window).load(function() {
+    // Animate loader off screen
+    $(".se-pre-con").fadeOut("slow");;
+});
 Ext.onReady( function() {
 
     var header = {
-
         "Authorization": "Basic " + btoa( "homepage" + ':' + "Homepage123" )
-
     };
 
     Ext.Ajax.request({
@@ -466,73 +460,74 @@ Ext.onReady( function() {
 
     function setLinks() {
 
+
         var map =L.map('map').setView([31.1471, 75.3412], 8);
 
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
-
-
-
-        L.marker([31.23911142,76.49470665], {icon: blueMarker}).addTo(map).bindPopup('Anandpur Sahib SDH').openPopup();
-        L.marker([31.55747995,75.26604862], {icon: blueMarker}).addTo(map).bindPopup('Baba Bakala SDH').openPopup();
-        L.marker([30.0667157,74.65523599], {icon: blueMarker}).addTo(map).bindPopup('Badal SDH').openPopup();
-
-        L.marker([31.0759360441769,76.2937775969546], {icon: blueMarker}).addTo(map).bindPopup('Balachaur SDH').openPopup();
+        legend.addTo(map);
+        //
+        //
+        //L.marker([31.23911142,76.49470665], {icon: blueMarker}).addTo(map).bindPopup('Anandpur Sahib SDH').openPopup();
+        //L.marker([31.55747995,75.26604862], {icon: blueMarker}).addTo(map).bindPopup('Baba Bakala SDH').openPopup();
+        //L.marker([30.0667157,74.65523599], {icon: blueMarker}).addTo(map).bindPopup('Badal SDH').openPopup();
+        //
+        //L.marker([31.0759360441769,76.2937775969546], {icon: blueMarker}).addTo(map).bindPopup('Balachaur SDH').openPopup();
         L.marker([30.37550547,75.54520121], {icon: blueMarker}).addTo(map).bindPopup('Barnala DH').openPopup();
-        L.marker([31.80871582,75.21504738], {icon: blueMarker}).addTo(map).bindPopup('Batala SDH').openPopup();
+        //L.marker([31.80871582,75.21504738], {icon: blueMarker}).addTo(map).bindPopup('Batala SDH').openPopup();
         L.marker([30.195269,74.948875], {icon: blueMarker}).addTo(map).bindPopup('Bathinda DH').openPopup();
-        L.marker([31.80801415,75.66609161], {icon: blueMarker}).addTo(map).bindPopup('Dasuya SDH').openPopup();
-        L.marker([30.58493912,76.84537522], {icon: blueMarker}).addTo(map).bindPopup('Dera Bassi SDH').openPopup();
-        L.marker([30.36701341,75.86064861], {icon: blueMarker}).addTo(map).bindPopup('Dhuri SDH').openPopup();
+        //L.marker([31.80801415,75.66609161], {icon: blueMarker}).addTo(map).bindPopup('Dasuya SDH').openPopup();
+        //L.marker([30.58493912,76.84537522], {icon: blueMarker}).addTo(map).bindPopup('Dera Bassi SDH').openPopup();
+        //L.marker([30.36701341,75.86064861], {icon: blueMarker}).addTo(map).bindPopup('Dhuri SDH').openPopup();
         L.marker([30.67916,74.76056], {icon: blueMarker}).addTo(map).bindPopup('Faridkot DH').openPopup();
         L.marker([30.64654063,76.39065742], {icon: blueMarker}).addTo(map).bindPopup('Fatehgarh Sahib DH').openPopup();
         L.marker([30.40692,74.02465], {icon: blueMarker}).addTo(map).bindPopup('Fazilka DH').openPopup();
         L.marker([30.95201,74.60811], {icon: blueMarker}).addTo(map).bindPopup('Ferozpur DH').openPopup();
-        L.marker([31.2133338,76.15022645], {icon: blueMarker}).addTo(map).bindPopup('Garhshankar SDH').openPopup();
-        L.marker([30.21606572,74.64781269], {icon: blueMarker}).addTo(map).bindPopup('Gidderbaha SDH').openPopup();
+        //L.marker([31.2133338,76.15022645], {icon: blueMarker}).addTo(map).bindPopup('Garhshankar SDH').openPopup();
+        //L.marker([30.21606572,74.64781269], {icon: blueMarker}).addTo(map).bindPopup('Gidderbaha SDH').openPopup();
         L.marker([32.04073,75.40306], {icon: blueMarker}).addTo(map).bindPopup('Gurdaspur DH').openPopup();
         L.marker([31.52922237,75.89993167], {icon: blueMarker}).addTo(map).bindPopup('Hoshiarpur DH').openPopup();
-        L.marker([30.81121602,75.477995], {icon: blueMarker}).addTo(map).bindPopup('Jagraon SDH').openPopup();
+        //L.marker([30.81121602,75.477995], {icon: blueMarker}).addTo(map).bindPopup('Jagraon SDH').openPopup();
         L.marker([31.3262145,75.57351424], {icon: blueMarker}).addTo(map).bindPopup('Jalandhar DH').openPopup();
-        L.marker([31.37516702,75.38252558], {icon: blueMarker}).addTo(map).bindPopup('Kapurthala DH').openPopup();
-        L.marker([31.42239039,75.10375804], {icon: blueMarker}).addTo(map).bindPopup('Khadoor Sahib SDH').openPopup();
-        L.marker([30.70351313,76.22276782], {icon: blueMarker}).addTo(map).bindPopup('Khanna SDH').openPopup();
-        L.marker([30.75275677,76.63298919], {icon: blueMarker}).addTo(map).bindPopup('Kharar SDH').openPopup();
-        L.marker([30.584712,74.819477], {icon: blueMarker}).addTo(map).bindPopup('Kot Kapura SDH').openPopup();
+
+        //L.marker([31.42239039,75.10375804], {icon: blueMarker}).addTo(map).bindPopup('Khadoor Sahib SDH').openPopup();
+        //L.marker([30.70351313,76.22276782], {icon: blueMarker}).addTo(map).bindPopup('Khanna SDH').openPopup();
+        //L.marker([30.75275677,76.63298919], {icon: blueMarker}).addTo(map).bindPopup('Kharar SDH').openPopup();
+        //L.marker([30.584712,74.819477], {icon: blueMarker}).addTo(map).bindPopup('Kot Kapura SDH').openPopup();
         L.marker([30.90672481,75.86081254], {icon: blueMarker}).addTo(map).bindPopup('Ludhiana DH').openPopup();
-        L.marker([30.51947437,75.87631838], {icon: blueMarker}).addTo(map).bindPopup('Malerkotla SDH').openPopup();
-        L.marker([30.18659814,74.4952944], {icon: blueMarker}).addTo(map).bindPopup('Malout SDH').openPopup();
-        L.marker([30.66815731,76.29482029], {icon: blueMarker}).addTo(map).bindPopup('Mandi Gobindgarh SDH').openPopup();
+        //L.marker([30.51947437,75.87631838], {icon: blueMarker}).addTo(map).bindPopup('Malerkotla SDH').openPopup();
+        //L.marker([30.18659814,74.4952944], {icon: blueMarker}).addTo(map).bindPopup('Malout SDH').openPopup();
+        //L.marker([30.66815731,76.29482029], {icon: blueMarker}).addTo(map).bindPopup('Mandi Gobindgarh SDH').openPopup();
         L.marker([29.9854766666666,75.4028283333333], {icon: blueMarker}).addTo(map).bindPopup('Mansa DH').openPopup();
         L.marker([30.8115504023731,75.1687670480491], {icon: blueMarker}).addTo(map).bindPopup('Moga DH').openPopup();
-        L.marker([31.95013172,75.61338068], {icon: blueMarker}).addTo(map).bindPopup('Mukerian SDH').openPopup();
-        L.marker([31.21798862,75.19219881], {icon: blueMarker}).addTo(map).bindPopup('Sultanpur Lodhi SDH').openPopup();
-        L.marker([30.1379447,75.80376698], {icon: blueMarker}).addTo(map).bindPopup('Sunam SDH').openPopup();
-        L.marker([29.98855225,75.08340907], {icon: blueMarker}).addTo(map).bindPopup('Talwandi Sabo SDH').openPopup();
-        L.marker([30.30710418,75.37256897], {icon: blueMarker}).addTo(map).bindPopup('Tappa SDH').openPopup();
+        //L.marker([31.95013172,75.61338068], {icon: blueMarker}).addTo(map).bindPopup('Mukerian SDH').openPopup();
+        //L.marker([31.21798862,75.19219881], {icon: blueMarker}).addTo(map).bindPopup('Sultanpur Lodhi SDH').openPopup();
+        //L.marker([30.1379447,75.80376698], {icon: blueMarker}).addTo(map).bindPopup('Sunam SDH').openPopup();
+        //L.marker([29.98855225,75.08340907], {icon: blueMarker}).addTo(map).bindPopup('Talwandi Sabo SDH').openPopup();
+        //L.marker([30.30710418,75.37256897], {icon: blueMarker}).addTo(map).bindPopup('Tappa SDH').openPopup();
         L.marker([31.45811,74.92324], {icon: blueMarker}).addTo(map).bindPopup('Tarn Taran DH').openPopup();
-        L.marker([30.9689826,74.99135592], {icon: blueMarker}).addTo(map).bindPopup('Zira SDH').openPopup();
-        L.marker([29.9252016666666,75.5579733333333], {icon: blueMarker}).addTo(map).bindPopup('Bhudlada SDH').openPopup();
-        L.marker([30.12685385,74.79407916], {icon: blueMarker}).addTo(map).bindPopup('Ghudda SDH').openPopup();
-        L.marker([29.82178179,75.87980863], {icon: blueMarker}).addTo(map).bindPopup('Moonak SDH').openPopup();
+        //L.marker([30.9689826,74.99135592], {icon: blueMarker}).addTo(map).bindPopup('Zira SDH').openPopup();
+        //L.marker([29.9252016666666,75.5579733333333], {icon: blueMarker}).addTo(map).bindPopup('Bhudlada SDH').openPopup();
+        //L.marker([30.12685385,74.79407916], {icon: blueMarker}).addTo(map).bindPopup('Ghudda SDH').openPopup();
+        //L.marker([29.82178179,75.87980863], {icon: blueMarker}).addTo(map).bindPopup('Moonak SDH').openPopup();
         L.marker([30.46327,74.53723], {icon: blueMarker}).addTo(map).bindPopup('Muktsar DH').openPopup();
-        L.marker([30.37233541,76.14592193], {icon: blueMarker}).addTo(map).bindPopup('Nabha SDH').openPopup();
-        L.marker([31.12822406,75.47563157], {icon: blueMarker}).addTo(map).bindPopup('Nakodar SDH').openPopup();
+        //L.marker([30.37233541,76.14592193], {icon: blueMarker}).addTo(map).bindPopup('Nabha SDH').openPopup();
+        //L.marker([31.12822406,75.47563157], {icon: blueMarker}).addTo(map).bindPopup('Nakodar SDH').openPopup();
         L.marker([32.28217178,75.65333879], {icon: blueMarker}).addTo(map).bindPopup('Pathankot DH').openPopup();
         L.marker([30.33780603,76.39953685], {icon: blueMarker}).addTo(map).bindPopup('Patiala DH').openPopup();
-        L.marker([31.27465805,74.85364882], {icon: blueMarker}).addTo(map).bindPopup('Patti SDH').openPopup();
-        L.marker([31.230178,75.76264578], {icon: blueMarker}).addTo(map).bindPopup('Phagwara SDH').openPopup();
-        L.marker([31.02171817,75.79010622], {icon: blueMarker}).addTo(map).bindPopup('Phillaur SDH').openPopup();
-        L.marker([30.64373869,75.58089011], {icon: blueMarker}).addTo(map).bindPopup('Raikot SDH').openPopup();
-        L.marker([30.47829002,76.58439128], {icon: blueMarker}).addTo(map).bindPopup('Rajpura SDH').openPopup();
-        L.marker([30.32280885,75.24355099], {icon: blueMarker}).addTo(map).bindPopup('Rampura Phul SDH').openPopup();
+        //L.marker([31.27465805,74.85364882], {icon: blueMarker}).addTo(map).bindPopup('Patti SDH').openPopup();
+        //L.marker([31.230178,75.76264578], {icon: blueMarker}).addTo(map).bindPopup('Phagwara SDH').openPopup();
+        //L.marker([31.02171817,75.79010622], {icon: blueMarker}).addTo(map).bindPopup('Phillaur SDH').openPopup();
+        //L.marker([30.64373869,75.58089011], {icon: blueMarker}).addTo(map).bindPopup('Raikot SDH').openPopup();
+        //L.marker([30.47829002,76.58439128], {icon: blueMarker}).addTo(map).bindPopup('Rajpura SDH').openPopup();
+        //L.marker([30.32280885,75.24355099], {icon: blueMarker}).addTo(map).bindPopup('Rampura Phul SDH').openPopup();
         L.marker([30.96655,76.52503], {icon: blueMarker}).addTo(map).bindPopup('Ropar DH').openPopup();
-        L.marker([30.15946692,76.20282606], {icon: blueMarker}).addTo(map).bindPopup('Samana SDH').openPopup();
-        L.marker([30.83910716,76.18747948], {icon: blueMarker}).addTo(map).bindPopup('Samrala SDH').openPopup();
+        //L.marker([30.15946692,76.20282606], {icon: blueMarker}).addTo(map).bindPopup('Samana SDH').openPopup();
+        //L.marker([30.83910716,76.18747948], {icon: blueMarker}).addTo(map).bindPopup('Samrala SDH').openPopup();
         L.marker([30.25216211,75.83589949], {icon: blueMarker}).addTo(map).bindPopup('Sangrur DH').openPopup();
-        L.marker([29.6910283333333,75.2380716666666], {icon: blueMarker}).addTo(map).bindPopup('Sardulgarh SDH').openPopup();
-        L.marker([31.5391409,75.50770497], {icon: blueMarker}).addTo(map).bindPopup('Bhulath SDH').openPopup();
+        //L.marker([29.6910283333333,75.2380716666666], {icon: blueMarker}).addTo(map).bindPopup('Sardulgarh SDH').openPopup();
+        //L.marker([31.5391409,75.50770497], {icon: blueMarker}).addTo(map).bindPopup('Bhulath SDH').openPopup();
         L.marker([30.73882964,76.71369736], {icon: blueMarker}).addTo(map).bindPopup('Mohali DH').openPopup();
         L.marker([31.11652967,76.15569411], {icon: blueMarker}).addTo(map).bindPopup('Nawanshahr DH').openPopup();
 
@@ -608,12 +603,13 @@ Ext.onReady( function() {
         L.marker([31.33443,75.56227], {icon: redMarker}).addTo(map).bindPopup('Joshi hospital multi superspeciality hospital').openPopup();
         L.marker([30.22213,74.94327], {icon: redMarker}).addTo(map).bindPopup('Pardeep Memorial Goyal Multispeciality Hospital').openPopup();
         L.marker([30.81792,75.19998], {icon: redMarker}).addTo(map).bindPopup('Gill Eye hospital').openPopup();
-        L.marker([30.47272,74.5193], {icon: redMarker}).addTo(map).bindPopup('Gawri Nursing Home').openPopup();
+
         L.marker([31.33428,75.56743], {icon: redMarker}).addTo(map).bindPopup('Karan Hospital').openPopup();
         L.marker([32.02774,75.39031], {icon: redMarker}).addTo(map).bindPopup('Abrol Medical Centre').openPopup();
         L.marker([30.62618,76.39361], {icon: redMarker}).addTo(map).bindPopup('Rana Nursing Home').openPopup();
         L.marker([30.33699,76.38368], {icon: redMarker}).addTo(map).bindPopup('Preet Surgical Centre & Maternity Hospital').openPopup();
-
+        L.marker([30.47272,74.5193], {icon: redMarker}).addTo(map).bindPopup('Gawri Nursing Home').openPopup();
+        L.marker([31.37516702,75.38252558], {icon: blueMarker}).addTo(map).bindPopup('Kapurthala DH').openPopup();
     }
 
     $.ajax({
@@ -779,6 +775,7 @@ function myJoin(array){
     return result.substr(0,result.length-2);
 }
 function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility) {
+    document.getElementById("loader").style.display = "block";
 
     $("#content1").hide();
     $("#map1").show();
@@ -893,24 +890,29 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
             });
         }
 
+
         for (var i = 0; i < name.length; i++) {
             if(ownership[i]=="Public")
             {
-                L.marker([longitude[i], latitude[i]], {icon: blueMarker}).addTo(map1).bindPopup(name[i]+","+"</br><strong>Contact:</strong> "+  mobile[i]+ ",</br> <strong>Schemes:</strong>"+hfschemes[i]+", </br><strong>Availabilities:</strong> "+availspecialiti[i]).openPopup();
+                L.marker([longitude[i], latitude[i]], {icon: blueMarker}).addTo(map1).bindPopup(name[i]+","+"</br><strong>Adress:</strong>"+addressjoin[i]+"</br><strong>Contact:</strong> "+  mobile[i]+ ",</br> <strong>Schemes:</strong>"+hfschemes[i]+", </br><strong>Availabilities:</strong> "+availspecialiti[i]+"</br><strong>Go To List View for more Details</strong>").openPopup();
             }
             else if(ownership[i]=="Private")
             {
                 L.marker([longitude[i], latitude[i]], {icon: redMarker}).addTo(map1).bindPopup(name[i]).openPopup();
             }
-
+            L.marker().addTo(layerGroup);
 
         }
 
     });
+    document.getElementById("loader").style.display = "none";
 
 }
 
 function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfacility) {
+
+        document.getElementById("loader").style.display = "block";
+    resultcount=0;
     $("#content1").hide();
     $("#map1").hide();
 
@@ -1005,7 +1007,10 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
 
         for (var i = 0; i < name.length; i++) {
             obj = new constructor_obj(document.body, name[i], addressjoin[i], pincode[i], mobile[i], spec[i], owner[i],availspecialiti[i], contactpname[i], contactpnumber[i], email[i], hfschemes[i], nothfschemes[i], ouid[i],ownership[i]);
+            resultcount++;
+
         }
+        document.getElementById('resultcount').innerHTML = '<strong>Total no: of Results:</strong>'+ resultcount;
     });
 
 }
@@ -1062,6 +1067,7 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
         htmlstring+='</table>';
         $("#procedureid").empty();
         $("#procedureid").append(htmlstring);
+
 
     });
 
@@ -1155,7 +1161,8 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
     div.getElementsByClassName('ownership')[0].innerHTML = this.ownership?this.ownership:"";
 
     this.parent="";
-
+    document.getElementById("loader").style.display = "none";
+    document.getElementById("resultcount")== "asdsadsa";
 }
 
 
