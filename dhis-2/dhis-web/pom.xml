@@ -32,7 +32,7 @@
 	<!-- India Module -->
 	
 	<module>dhis-web-maintenance-in</module>
-	<module>dhis-web-dashboard</module>
+	<!--<module>dhis-web-dashboard</module>-->
 	<module>dhis-web-ivb</module>
 	
     <module>dhis-web-portal</module>
