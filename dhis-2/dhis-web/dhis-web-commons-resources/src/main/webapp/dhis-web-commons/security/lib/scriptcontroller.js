@@ -777,6 +777,7 @@ function myJoin(array){
 function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility) {
     document.getElementById("loader").style.display = "block";
 
+
     $("#content1").hide();
     $("#map1").show();
 
@@ -910,7 +911,7 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
 }
 
 function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfacility) {
-
+      document.getElementById("resultcount").style.display = "block";
         document.getElementById("loader").style.display = "block";
     resultcount=0;
     $("#content1").hide();
