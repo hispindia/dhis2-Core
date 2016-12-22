@@ -17,6 +17,7 @@
     <script src="lib/js/bootstrapmin.js"  ></script>
     <script src="lib/js/bootstrapselectmin.js" ></script>
     <link rel="stylesheet" href="lib/css/bootstrap-selectmin.css" />
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <!--W3schools-->
     <link rel="stylesheet" href="lib/css/w3.css">
@@ -32,9 +33,45 @@
 
 </head>
 <style>
+.loader {
+       position: fixed;
+        top: 50%;
+        left: 50%;
+        right: 50%;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
     #map {
         width: 650px;
         height:400px;
+    }
+    
+     #map1 {
+     border:3px solid black;
+     display:none;
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    right: 50%;
+
+     width: 1200px;
+     height:450px;
+         transform: translate(-50%, -50%)
     }
     #header{
 
@@ -197,14 +234,16 @@
         <div id="map" style="width: 650px" ></div>
     </div>
 </div>
+<div id="map1" ></div>
 <div align='center' style="bottom: 08%;text-align: center"><img src='http://www.hit-counts.com/counter.php?t=MTM5OTk2Mw==' border='0' alt='Free Hit Counter'></a><BR><p style="font-family: Arial;color: #00bcd4; bottom: 08%">Visitor Counter</p></div>
+<div align='center' style="bottom: 08%;text-align: center"><p id="resultcount">Total No: of Results: </p></div>
 <div id="footer">
     <p style="text-align: center; color: #fff">Disclaimer: The responsibility for the correctness of data in the portal is the responsibility of the facility which has self-registered the data. The Government is only responsible for the dissemination of this information through this portal.</p>
 </div>
 
 
 </body>
-
+<div id="loader" style="display:none;" class="loader"></div>
 <script src="lib/scriptcontroller.js"></script>
 
 </html>
