@@ -1,0 +1,289 @@
+<!DOCTYPE HTML>
+<!--[if IE 7]><html #if( $manifest ) manifest="$manifest" #end class="ie7"><![endif]-->
+<!--[if IE 8]><html #if( $manifest ) manifest="$manifest" #end class="ie8"><![endif]-->
+<!--[if IE 9]><html #if( $manifest ) manifest="$manifest" #end class="ie9"><![endif]-->
+<![if !IE]><html #if( $manifest ) manifest="$manifest" #end><![endif]>
+
+	<head>
+   		<title>$i18n.getString( "title" )</title>
+   		<meta name="description" content="DHIS 2">
+    	<meta name="keywords" content="DHIS 2">
+    	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+	    <link type="text/css" rel="stylesheet" href="../dhis-web-commons/font-awesome/css/font-awesome.min.css?_rev=$!{buildRevision}" />
+	    <link type="text/css" rel="stylesheet" media="screen" href="../dhis-web-commons/javascripts/jQuery/ui/css/redmond/jquery-ui.css?_rev=$!{buildRevision}" />
+	    <!--<link type="text/css" rel="stylesheet" media="screen,print" href="../dhis-web-commons/css/${stylesheet}?_rev=$!{buildRevision}" />
+	    <link type="text/css" rel="stylesheet" media="screen,print" href="../dhis-web-commons/css/widgets.css?_rev=$!{buildRevision}" />
+	    <link type="text/css" rel="stylesheet" media="print" href="../dhis-web-commons/css/print.css?_rev=$!{buildRevision}" />
+	    <link type="text/css" rel="stylesheet" media="screen" href="../dhis-web-commons/css/menu.css?_rev=$!{buildRevision}" />-->
+	    <link type="text/css" rel="stylesheet" media="screen" href="../dhis-web-commons/javascripts/jQuery/calendars/css/jquery.calendars.picker.css?_rev=$!{buildRevision}" />
+	    #foreach ( $style in $stylesheets )
+	    <link type="text/css" rel="stylesheet" href="${style}?_rev=$!{buildRevision}">
+	    #end
+	    <link type="text/css" rel="stylesheet" href="../api/files/style?_rev=$!{buildRevision}" />
+	    <link rel="shortcut icon" href="../favicon.ico" />
+
+		<!--<link type="text/css" rel="stylesheet" media="screen" href="../dhis-web-commons/javascripts/jQuery/ui/css/redmond/jquery-ui-1.9.1.custom.css" />-->	
+	
+	<script type="text/javascript">
+      var dateFormat = 'yy-mm-dd';	  
+    </script>
+	 
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/es5-shim.min.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/es5-sham.min.js?_rev=$!{buildRevision}"></script>
+
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/jquery.min.js?_rev=$!{buildRevision}"></script>
+    <!--[if lte IE 8]><script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/placeholders.jquery.min.js?_rev=$!{buildRevision}"></script><![endif]-->
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/jquery.utils.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/jquery.ext.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/jquery.metadata.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/jquery.tablesorter.min.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/jquery.upload-1.0.2.min.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/jquery.dhisAjaxSelect.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/ui/jquery-ui.min.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/ui/jquery.blockUI.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/jquery.validate.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/jquery.validate.ext.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/jquery.cookie.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/jquery.glob.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/jquery.date.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/jquery.tmpl.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/jquery.autogrow.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/underscore.min.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.util.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/commons.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/commons.ajax.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/lists.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/periodType.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/date.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/json2.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/validationRules.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.array.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.select.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.min.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.plus.min.js?_rev=$!{buildRevision}"></script>
+    #if( $keyCalendar == "coptic" || $keyCalendar == "ethiopian" || $keyCalendar == "islamic"  || $keyCalendar == "julian" || $keyCalendar == "nepali" || $keyCalendar == "thai" )
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.${keyCalendar}.min.js?_rev=$!{buildRevision}"></script>
+    #end
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.period.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/jQuery/calendars/jquery.calendars.picker.min.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.selected.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.comparator.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.availability.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.trigger.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.sharing.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.validation.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.storage.ss.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.storage.ls.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.storage.idb.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.storage.memory.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.storage.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.contextmenu.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.appcache.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.translate.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.menu.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/javascripts/dhis2/dhis2.menu.ui.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../dhis-web-commons/i18nJavaScript.action?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../main.js?_rev=$!{buildRevision}"></script>
+    <script type="text/javascript" src="../request.js?_rev=$!{buildRevision}"></script>
+    #foreach( $javascript in $javascripts )
+    <script type="text/javascript" src="${javascript}?_rev=$!{buildRevision}"></script>
+    #end
+    <script type="text/javascript" src="../api/files/script?_rev=$!{buildRevision}"></script>
+    <!-- Create global system calendar -->
+    <script>
+      #if( $keyCalendar == 'iso8601')
+      dhis2.period.calendar = $.calendars.instance('gregorian');
+      #else
+      dhis2.period.calendar = $.calendars.instance('$keyCalendar');
+      #end
+      dhis2.period.generator = new dhis2.period.PeriodGenerator( dhis2.period.calendar, '$dateFormat.js' );
+      dhis2.period.picker = new dhis2.period.DatePicker( dhis2.period.calendar, '$dateFormat.js' );
+    </script>
+    
+<style type="text/css" media="print">
+    @page 
+    {
+        size: auto;   /* auto is the initial value */
+        margin: 7mm;  /* this affects the margin in the printer settings */
+    }
+</style>
+ 
+<style>
+	img {
+   			border: 0;
+		}
+	.validateTips {
+	  border: 1px solid transparent;
+	  padding: 0.3em;
+	  color: #FA8258; 
+	  }
+	label, #subject ,#text{ 
+		display:block;
+	}
+		#subject ,#text	{ 
+		margin-bottom:12px;
+		width:95%; 
+		padding: .4em; 
+	}	
+	#showSendFeedback fieldset	{ 
+		padding:0;
+		border:0;
+		margin-top:25px;
+	}
+	body{
+		font-family: arial,serif,script;
+		font-size:12px;
+		font-weight:normal;
+		text-decoration:none;
+		text-align:left;
+		color:#333333;
+		width: 98%;
+		position: absolute;
+		min-width:250px;
+		
+	}	
+	a:link {color:#0174DF;text-decoration:none;}      /* unvisited link */
+	a:visited {color:#0174DF;text-decoration:none;}  /* visited link */
+	a:hover {color:#0174DF;text-decoration:none;}  /* mouse over link */
+	a:active {color:black;text-decoration:none;}
+	
+    #crumbs ul, li {
+    list-style-type:none;
+    padding:0;
+    margin:0;	
+    
+    }
+
+    #crumbs {
+    border:1px solid #dedede;
+    height:2.3em;
+    width:95%;
+    position: fixed;top: 180px;
+    background-color:white;
+    margin:0px;
+    }
+
+    #crumbs li {
+    float:left;
+    line-height:2.3em;
+    padding-left:.75em;
+    color:#777;
+    
+    }
+
+    #crumbs li a {
+    display:block;
+    padding:0 10px 0 0;
+    background:url(images/crumbs.gif) no-repeat right center;
+    }
+    table#detailTable, table#detailTable1 {
+	font-family: arial,verdana,sans-serif;
+	font-size:11px;	
+	border-width: 1px;
+	border-spacing:0;
+  	border-collapse:collapse;
+	}
+	table#detailTable th, table#detailTable1 th {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #342309;
+	background-color:#342309;
+	color:white;
+	}
+	table#detailTable td, table#detailTable1 td {	
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #EBE4D8;
+	background-color:#EBE4D8;
+	color:black;
+}	
+.htmlContent{
+				padding: 15px;
+				background-color: white; 
+	
+				/* outer shadows  (note the rgba is red, green, blue, alpha) */
+				-webkit-box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.4); 
+				-moz-box-shadow: 0px 1px 6px rgba(23, 69, 88, .5);
+		
+				/* rounded corners */
+				-webkit-border-radius: 12px;
+				-moz-border-radius: 7px; 
+				border-radius: 7px;
+				
+				/* gradients */
+				background: -webkit-gradient(linear, left top, left bottom, 
+				color-stop(0%, white), color-stop(15%, white), color-stop(100%, #D7E9F5)); 
+				background: -moz-linear-gradient(top, white 0%, white 0%, #D5E4F3 60%); 
+			}
+</style>    
+  </head>
+  <body>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+	    $('#myjquerymenu').find('#home').addClass("selected");	    
+	});
+</script>
+#if($message == "Not Exist")
+<script>
+	$(function()
+	 {		
+		$( "#dialog" ).dialog({
+			autoOpen: true,
+			resizable: false,			
+			modal: true,
+			width: 500,
+			
+			buttons: {
+				"$i18n.getString( 'message_ok' )": function() {
+					document.getElementById("welcomPage").submit();
+				},
+				"$i18n.getString( 'message_cancel' )": function() {
+					$( this ).dialog( "close" );
+					window.location.href = "../dhis-web-commons-security/logout.action";
+				}
+			},
+			close: function() {
+				$( this ).dialog( "close" );
+				window.location.href = "../dhis-web-commons-security/logout.action";
+			}
+			
+		});
+	});
+</script>
+<style>
+	body {    
+     	width:100%;
+		margin-left:auto;
+		margin-right:auto;		
+		height:auto;
+		min-height:600px; 
+}
+</style>
+ <form id="welcomPage" action="home.action" method="post" >
+ 	<div id="welcomeDiv">
+	   <div style="float:left;width: 42%;">
+	       #if($language == 'fr')
+		      <img src="images/IVB_LOGO_fr.png" />
+		   #elseif($language == 'es')
+		      <img src="images/IVB_LOGO_es.png" />
+		   #else
+		      <img src="images/IVB_Heading.png" />
+		   #end 
+	   </div>
+	</div>
+ </form>
+<div id="dialog">
+	<p>$i18n.getString( "message" )</p>
+</div>
+#else
+	<script>
+		window.location.href = "home.action";
+	</script>
+#end
+
+  </body>
+  </html>

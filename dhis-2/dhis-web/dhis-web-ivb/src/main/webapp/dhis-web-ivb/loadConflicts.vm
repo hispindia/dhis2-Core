@@ -1,0 +1,109 @@
+
+<script>
+    function resolveConflict()
+    {
+    	var the_value;    
+        the_value = getChecklistItems();
+    	$('#selectedValue').val(the_value);
+		
+    	if(the_value == "")
+    	{
+    		alert('Please select atleast one value to reolve');
+    		return false;
+    	}
+    	else
+    	{        	
+    		return true;
+    	}
+    }
+
+    function getChecklistItems() 
+    {
+        var result =
+            $("#conflictResult input[type='radio']:checked").get();
+    
+        var columns = jQuery.map(result, function(element) 
+            {
+                return $(element).attr("value");
+            });
+    
+        return columns.join("|");
+    }
+</script>
+<style>
+	#conflictResult {    
+     	width:100%;
+		margin-left:auto;
+		margin-right:auto;		
+		height:auto;
+		min-height:600px; 
+}
+</style>
+<form name="conflictResult" id="conflictResult" action="resolveConflict.action" method="post" onsubmit="return resolveConflict()">
+    <input type="hidden" name="selectedValue" id="selectedValue" />    
+    <input type="hidden" name="selectedPeriodId" id="selectedPeriodId" value="$!selectedPeriod" />
+    
+    <h3>Conflict Information</h3>
+    
+    #set( $mark = true )
+    <table class="altrowstable" cellspacing="0" cellpadding="0" style="margin:auto;table-layout:fixed;width:100%;">    
+	#foreach($orgUnit in $orgUnitList)
+		#set( $count = 1 )		
+    	#foreach($de in $dataElementList)
+    	    #if( $mark )
+    	       #set( $mark = false )
+    	    #else
+    	       #set( $mark = true )
+    	    #end          	
+			#set( $getter = "${orgUnit.uid}-${de.uid}")
+			#set( $radioValue = "${orgUnit.id}-${de.id}")	
+			#if( $valueMap.get(${getter}) || $commentMap.get(${getter}) || $storedMap.get(${getter}))
+                #if( $count == 1 )                  
+                    <tr>
+                        <th style="width:5%">$orgUnit.name</th>      
+                        <th style="width:15%">$i18n.getString( "areas_of_work" )</th>   
+                        <th style="width:20%">$i18n.getString( "data_element" )</th>
+                        <th style="width:10%">$i18n.getString( "value" )</th>
+                        <th style="width:30%">$i18n.getString( "comment" )</th>
+                        <th style="width:9%">$i18n.getString( "last_entry" )</th>
+                    </tr>
+                    #set( $count = 2)
+                #end
+                <tr #if( $mark ) bgcolor="#E0ECF8" #else bgcolor = "#FFFFFF" #end>
+                    <td ><input type="radio" name="${getter}" id="${getter}" value="latest-${radioValue}"/></td>                
+                    <td >$dataSetMap.get($de.uid) </td>
+                    <td >$de.name</td>
+                    <td >$!valueMap.get(${getter}) </td>
+                    <td >$!commentMap.get(${getter}) </td>
+                    <td >$!storedMap.get(${getter}) </td>
+                </tr>                
+			#end
+			#foreach( $history in $historyMap.get(${getter}) )
+				#if($history)
+				<tr #if( $mark ) bgcolor="#E0ECF8" #else bgcolor = "#FFFFFF" #end>
+    				<td ><input type="radio" name="${getter}" id="${getter}" value="history-${radioValue}-$history.id"/></td>				
+        			<td ></td>
+        			<td ></td>
+        			<td >$!history.value </td>
+        			<td >$!history.comment </td>
+        			<td >$!history.modifiedBy ( $standardDateFormat.format( $!history.timestamp ) ) </td>
+				</tr>
+				#end
+			#end
+    	#end
+        <tr>
+            <td style="width:5%">&nbsp;</td>      
+            <td style="width:15%">&nbsp;</td>   
+            <td style="width:20%">&nbsp;</td>
+            <td style="width:10%">&nbsp;</td>
+            <td style="width:30%">&nbsp;</td>
+            <td style="width:9%">&nbsp;</td>
+        </tr>
+	#end
+	#if($historyMap.size() >0 || $valueMap.size() > 0)
+	<tr>
+		<td colspan="6" align="center"><input type="submit" value="Resolve" /></td>
+    </tr>
+	#end
+    </table>
+</form>

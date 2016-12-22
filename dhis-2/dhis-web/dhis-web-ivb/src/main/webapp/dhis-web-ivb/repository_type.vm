@@ -1,0 +1,76 @@
+
+<style>
+
+table {
+  color: #333;
+  font-size: 1.0em;
+  font-weight: 300;
+  line-height: 40px;
+  border-spacing: 0;
+  border: 1px solid #428bca;
+  width: 800px;
+  margin: 20px auto;
+}
+
+thead tr:first-child {
+  background: #428bca;
+  color: #fff;
+  border: none;
+}
+
+th {font-weight: bold;}
+th:first-child, td:first-child {padding: 0 15px 0 20px;}
+
+thead tr:last-child th {border-bottom: 2px solid #ddd;}
+
+tbody td {border-bottom: 1px solid #ddd;}
+
+td:last-child {
+  text-align: left;
+}
+
+</style>
+
+<table>
+  <thead>
+    <tr><th colspan="2">REPOSITORY KEY</th></tr>
+  </thead>
+  <tbody>
+
+    <tr>
+      <td><img height="36px" width="36px" src="images/repo_pencil.png"></td>
+      <td>$i18n.getString( "repo_editing_of_value" )</td>
+    </tr>
+     
+<tr>
+      <td><img height="36px" width="36px" src="images/repo_official.png"></td>
+      <td>$i18n.getString( "repo_official_value" )</td>
+    </tr>
+
+<tr>
+      <td><img height="36px" width="36px" src="images/repo_copy.png"></td>
+      <td>$i18n.getString( "repo_copy_icon" )</td>
+    </tr>
+ <tr>
+      <td><img height="36px" width="36px" src="images/repo_help.png"></td>
+      <td>$i18n.getString( "repo_more_info" )</td>
+    </tr>
+ <tr>
+      <td><img height="36px" width="36px" src="images/repo_toolbox_info.png"></td>
+      <td>$i18n.getString( "repo_more_info_all" )</td>
+    </tr>
+ <tr>
+      <td><img height="36px" width="36px" src="images/repo_discussion.png"></td>
+      <td>$i18n.getString( "repo_D" )</td>
+    </tr>
+ <tr>
+      <td><img height="36px" width="36px" src="images/repo_notification_warning.png"></td>
+      <td>$i18n.getString( "repo_I" )</td>
+    </tr>
+ <tr>
+      <td><img height="36px" width="36px" src="images/repo_ta.png"></td>
+      <td>$i18n.getString( "repo_T" )</td>
+    </tr>
+   
+ </tbody>
+</table>

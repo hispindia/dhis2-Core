@@ -1,0 +1,169 @@
+ <style>
+		.ui-tooltip, .arrow1:after {
+			background: white;
+			border: 2px solid #086B96;
+		}
+		.ui-tooltip {
+			padding: 10px 20px;
+			color: black;
+			border-radius: 20px;
+			font: bold 12px "Helvetica Neue", Sans-Serif;			
+			box-shadow: 0 0 7px black;
+		}
+		.arrow1 {
+			width: 70px;
+			height: 16px;
+			overflow: hidden;
+			position: absolute;
+			left: 50%;
+			margin-left: -35px;
+			bottom: -16px;
+		}
+		.arrow1.top {
+			top: -16px;
+			bottom: auto;
+		}
+		.arrow1.left {
+			left: 20%;
+		}
+		.arrow1:after {
+			content: "";
+			position: relative;
+			left: 20px;
+			top: -20px;
+			width: 25px;
+			height: 25px;
+			box-shadow: 6px 5px 9px -9px black;
+			-webkit-transform: rotate(45deg);
+			-moz-transform: rotate(45deg);
+			-ms-transform: rotate(45deg);
+			-o-transform: rotate(45deg);
+			tranform: rotate(45deg);
+		}
+		.arrow1.top:after {
+			bottom: -20px;
+			top: auto;
+		}
+</style>
+<script type="text/javascript">
+	$(document).ready(function(){
+	    $('#myjquerymenu').find('#dataentry').addClass("selected");	    
+	});
+</script>
+<style>
+    #overlay {
+    z-index:9998;
+    position:absolute;
+    top:0;
+    bottom:0;
+    left:0;
+    width:100%;
+    background:#000;
+    opacity:0.45;
+    -moz-opacity:0.45;
+    filter:alpha(opacity=45);
+    visibility:hidden;   
+    }
+    #overlayImg{ width: 50px; height: 50px; z-index: 9999; position: absolute; left:50%}
+    body{
+    min-height:600px;
+    height:auto;
+    }
+</style>
+<div id="overlay">
+    <div id="overlayImg"><img  width="50" height="50" src="images/ajax-loader.gif" style="margin:auto;position:fixed;top: 50%;left: 50%;"/></div>
+</div>
+
+<script type="text/javascript">	
+	$(document).ready(function()
+	 {
+		$('.fancybox').fancybox();		
+		getDataElementRegionWise();	
+		pageName = 'sourceWiseEntry';
+	});
+function getDataElementRegionWise()
+{
+	var seletedRegion = document.getElementById("seletedRegion");
+	var value1 = seletedRegion.options[seletedRegion.selectedIndex].value;	
+	if( value1 == "-1")
+	{						
+		return false;
+	}
+	else
+	{
+		document.getElementById('overlay').style.visibility = 'visible';
+		$('#dataElementDiv').load("regionWiseDataelement.action", 
+			{
+				oranisationUnitId : value1
+			}
+			, function( ){
+				document.getElementById('overlay').style.visibility = 'hidden';	
+				altRows('alternatecolor');
+				tableSorter( 'alternatecolor' );
+							
+			});	
+	}
+}
+function getDataElementDataSetWise()
+{
+	var seletedDataSet = document.getElementById("dataSetId");
+	var dataSetValue = seletedDataSet.options[seletedDataSet.selectedIndex].value;
+	var seletedRegion = document.getElementById("seletedRegion");
+	var value1 = seletedRegion.options[seletedRegion.selectedIndex].value;	
+	if( value1 == "-1")
+	{						
+		return false;
+	}		
+	else
+	{
+		document.getElementById('overlay').style.visibility = 'visible';
+		$('#dataElementDiv').load("regionWiseDataelement.action", 
+			{
+				oranisationUnitId : value1,
+				dataSetId : dataSetValue
+			}
+			, function( ){
+				document.getElementById('overlay').style.visibility = 'hidden';	
+				altRows('alternatecolor');
+				tableSorter( 'alternatecolor' );
+							
+			});	
+	}
+}	
+</script>
+
+<style type="text/css">
+	.fancybox-custom .fancybox-skin {
+		box-shadow: 0 0 50px #222;
+	}
+</style>
+
+<form id="sourceWiseForm" name="sourceWiseForm" > 
+	
+	<div id='contentDiv' class="ui-widget-content ui-corner-all">
+		<table width="90%">
+			<tr>
+				<td style="float:left;" >$i18n.getString( "region" ) : 
+					<select name="seletedRegion" id="seletedRegion" onchange="getDataElementRegionWise()">
+						<option value="-1">$i18n.getString( "please_select" )</option>
+						#foreach($org in $userOrgUnitList)
+						<option value="$org.id" #if($oranisationUnitId == $org.id ) selected #elseif($organisationUnit.id == $org.id ) selected  #end value="$org.id" >$org.name</option>								
+						#end	
+    				</select>
+    				</td>
+    				<td >$i18n.getString( "areas_of_work" ) :
+    					<select name="dataSetId" id="dataSetId" onchange="getDataElementDataSetWise()">
+    						<option value="-1" selected>$i18n.getString( "all_dataset" )</option>
+    						#foreach($dataSet in $dataSetList)
+								<option value="$dataSet.id" >$dataSet.displayName</option>								
+							#end
+					    </select>
+				    </td>
+				<td style="float:right;"><label for="selectedPeriodId">$i18n.getString( "period" ) : $!selectedPeriod</label></td>
+			</tr>
+		</table>
+		</div>
+		<br/>
+	<div id="dataElementDiv" class="ui-widget-content ui-corner-all"></div>
+</form>
+

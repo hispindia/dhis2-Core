@@ -1,0 +1,19 @@
+<div style="font-size:16px; width:65%; margin:auto;" class="ui-widget-header ui-corner-all"><b>$i18n.getString( "manual_aggregation" )</b></div>
+<div id="reportFilterDiv" style="width:62%;margin:auto;">
+<form id="runAggregationQueryForm" action="runAggregationQuery.action" method="post" >
+  
+  <table style="width:100%;margin:auto;">
+	<tr>
+	  <td>
+		#organisationUnitSelectionTree1( false, true, true )
+	  </td>
+    </tr>
+    <tr>
+      <td>
+        <input type="submit" id="submitButton" value="$i18n.getString( 'aggregate_values' )" />
+	  </td>
+    </tr>
+  </table>
+<br/>
+</form>
+</div>

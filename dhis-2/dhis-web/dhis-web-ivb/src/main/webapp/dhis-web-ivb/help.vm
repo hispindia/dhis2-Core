@@ -1,0 +1,78 @@
+<script >
+$(document).ready(function(){
+	    $('#myjquerymenu').find('#menu_help').addClass("selected");	  
+	    pageName = 'Help';  
+	});
+</script>
+<h3>$i18n.getString( "help_center" )</h3>
+
+<table style="width:100%;" >
+<tr>
+<td valign="top" style="width:25%"><div id="helpMenu"></div></td>
+<td valign="top" style="width:70%">
+	<div id="helpContent">
+		<h3>$i18n.getString( "help_intro_header" )<h3>
+		<p>$i18n.getString( "help_intro_text" )</p>
+	</div>
+</td>
+</tr>
+</table>
+<style>
+	div#helpMenu
+	{
+  	   margin-right: 15px;
+  	   width:100%;
+	}
+	div#helpMenu ul
+	{
+	  list-style-type: none;
+	  font-size: 9pt;
+      font-weight:normal;
+      padding:0; 
+      font-family:Arial, Helvetica, sans-serif;
+	}	
+	div#helpMenu a
+	{
+	  text-decoration: none;
+	}
+	
+	div#helpMenu h6
+	{
+	  cursor: pointer;
+	  padding: 3px 0px 4px 25px;	  
+      font-size: 10pt;
+      font-weight: normal;
+	}
+	
+	div#helpContent
+	{
+	  margin-top: 1px;
+	  margin-right: 0px;	  
+	  border: 1px solid #c0c0c0; 
+	  padding: 0px;
+	  border-radius: 3px;
+	  font-size: 9pt;
+      font-weight:normal;
+      min-height:600px;
+      height:auto;
+      width:100%;
+	}
+	
+	div#helpContent ul, ol
+	{
+	  padding-left: 6px;
+	}
+	div#helpContent h3{
+		color: #606060;
+    	font-size: 14pt;
+    	font-weight: normal;
+    	padding-left: 15px;
+	}
+	div#helpContent p{
+		color: #606060;
+    	font-size: 9pt;
+    	font-weight: normal;
+    	padding-left: 15px;
+	}
+
+</style>

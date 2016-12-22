@@ -1,0 +1,955 @@
+   
+#set( $reportWarning = "Y" )
+   
+<link rel="stylesheet" href="css/bootstrap.min.css">
+	
+<!-- Style for header freeze -->
+<style>
+	.scrollbar-measure 
+	{
+		width: 100px;
+		height: 100px;
+		overflow: scroll;
+		position: absolute;
+		top: -9999px;
+	}
+
+	table tbody, table thead
+	{
+		display: block;
+		width:100%;
+	}
+
+	table tbody 
+	{
+	   overflow: auto;
+	   height: 150px;
+	   width:100%
+	}
+
+	th ,td
+	{
+		border-left: 1px solid #cdd0d4;
+		padding:0px;
+		font-size:8pt;
+		overflow: hidden;
+		width:5.88235%;
+		max-width:5.88235%;    
+		text-align:left;	
+	}
+
+	th
+	{
+		font: bold normal 11px Tahoma;
+	}
+
+	td
+	{
+		font: normal normal 11px Tahoma;
+	}
+
+	.table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td 
+	{
+		padding: 0px;
+		line-height: 1.42857143;
+		vertical-align: top;
+		border-top: 1px solid #ddd;
+	}
+
+	thead tr
+	{
+		background-color: #E7E7E8;
+	}
+
+	tbody tr
+	{
+		background-color: #F4EFEF;
+	}
+	
+	.table>thead>tr>th 
+	{
+		vertical-align: bottom;
+		border-bottom: 1px solid #ddd;
+	}
+</style>
+
+<script type="text/javascript">
+
+	jQuery(function() {
+		$('#toUser').show();
+		$('#recipients').select2({
+		   minimumInputLength: 1,
+		   multiple: true, 
+		   width: "546px",      
+		   ajax: {
+			   url: 'getMessageRecipients.action',
+			   dataType: 'json',
+			   data: function(term, page) {
+					return {
+						filter: term
+					}
+			   },
+			   results: function(data, page) {
+				return {               
+				   results: data.matches }
+			   }
+		   }
+		});
+	});
+</script>
+
+<script>
+    function getShareLink()
+    {       
+        $('#shareSubject').val('AFRO West Monitoring Tool');
+        $('#orgUnitIds option').attr('selected', 'selected');
+        var orgUnitIds = document.getElementById('orgUnitIds').options;
+        var ids = '';
+        for(var i=0;i <= orgUnitIds.length-1 ; i++)
+        {   
+            ids = ids+'&orgUnitIds='+orgUnitIds[i].value;
+        }
+        url = document.location.href +ids;
+        $('#shareText').val('Link to view the report: \n \n' + url);
+        $( "#shareLinkToUser" ).dialog('open');     
+    }
+   
+    $(function() {
+        $( document ).tooltip({
+            track: true
+        });
+    });
+</script>
+
+<style>
+    @media print {
+    @page { margin: 0; }
+        body { margin: 1.6cm; }
+    }
+        
+</style>
+<select id="orgUnitIds" multiple style="display:none;">
+    #foreach( $orgUnit in $orgUnitList )
+        <option value="$orgUnit.id"></option>
+    #end
+</select>
+   
+   
+<form id="form1" name="form1" action="exportToWorkBook.action" method="post" onsubmit="return exportToExcel()" target="_newtab">
+
+    <input type="hidden" name="htmlCode" id="htmlCode" />
+
+    <div align="right" style="width:95%;margin:auto;padding-top:8px;padding-bottom:3px;">		
+        <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" onclick="location.href='loadHPVDemoReportScreen.action'" value="Back"/>&nbsp;
+        <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all" value="Download As Excel"/>&nbsp;
+        <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" value="Print" onclick="javascript:printDiv('htmlContent')" />
+        <input type="button" class="ui-button ui-widget ui-state-default ui-corner-all" value="Share" onclick="javascript: getShareLink()"/>
+    </div>
+
+    <div id="htmlContent" style="width:98%;margin:auto;" >        
+        <h3>HPV Demo Report</h3>    
+		
+		<h4>$i18n.getString( "program_info_status" )</h4>
+    	
+    	<table class="table table-striped" id="t1">
+        	<thead id="t1head">
+            	<tr>
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "country" )</th>
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_year" )</th>					
+
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_gavi_app_status" )</th>						
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_gavi_app_status" )</th>
+					
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_intro_status" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_intro_status" )</th>
+					
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_target_age_or_grade" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_target_age_or_grade" )</th>
+
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_primary_strategy" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_primary_strategy" )</th>
+
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_product_preference_licensure_in_country" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_product_preference_licensure_in_country" )</th>
+
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_schedule" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_schedule" )</th>
+
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_verified_target_pop_size" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_verified_target_pop_size" )</th>
+
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_cash_grant_received" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_cash_grant_received" )</th>
+
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_1st_dose_date" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_1st_dose_date" )</th>
+
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_training_status" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_training_status" )</th>
+					
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_developed_communication_social_mob_plan" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_developed_communication_social_mob_plan" )</th>
+					
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_vaccine_supply" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_vaccine_supply" )</th>
+
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_final_dose_date" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_final_dose_date" )</th>
+
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_year_end_review_meeting_date" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_year_end_review_meeting_date" )</th>
+
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_expected_nat_intro_year" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_expected_nat_intro_year" )</th>
+				
+				</tr>				
+        	</thead>
+        
+        	<tbody>
+                #set( $mark = false )
+                #foreach( $orgUnit in $orgUnitList )
+					#if( $mark )
+						#set( $mark = false )
+					#else
+						#set( $mark = true )
+					#end
+				
+					#set( $countryDemoYearList = "" )
+					#set( $countryDemoYearList = $countryDemoYearMap.get( $orgUnit.id ) )
+					#foreach( $demoYear in $countryDemoYearList )					
+						<tr>
+					
+							<!-- Country -->
+							<td align="left" style="vertical-align: middle;">$orgUnit.name</td>
+							
+							<!-- HPV Demo Year -->					                                                    
+							<td style="vertical-align: middle;" >$demoYear</td>
+					
+							<!-- HPV Demo Gavi Application Status -->
+							#set( $getter = "$orgUnit.id:$demoYear:363" )
+							#set( $dataValue = "" )
+							#set( $dataValue = $!dataValueMap.get( $getter ) )
+							#set( $tempVal = "" )
+	                        #set( $tempVal = $!dataValue.value )
+			
+							#set( $tempComment = "" )
+	                        #set( $tempComment = $!dataValue.comment ) 
+							<td #if ( $tempVal == "Approved" || $tempVal == "Approved with Comments") style="vertical-align: middle; color: green" #elseif ($tempVal == "Not Approved" ) style="vertical-align: middle; color: red" #else style="vertical-align: middle;" #end title="$!tempComment" > $tempVal</td>						
+							<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+					
+							<!-- HPV Demo Intro Status -->
+							#set( $getter = "$orgUnit.id:$demoYear:375" )
+							#set( $dataValue = "" )
+							#set( $dataValue = $!dataValueMap.get( $getter ) )
+							#set( $tempVal = "" )
+	                        #set( $tempVal = $!dataValue.value )
+							#set( $tempComment = "" )
+	                        #set( $tempComment = $!dataValue.comment ) 
+							<td #if ( $tempVal == "Introduced") style="vertical-align: middle; color: green" #elseif ($tempVal == "Not Introduced" ) style="vertical-align: middle; color: red" #else style="vertical-align: middle;" #end title="$!tempComment" > $tempVal</td>
+							<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+					
+							<!-- HPV Demo Target Age or Grade -->
+							#set( $getter = "$orgUnit.id:$demoYear:630" )
+							#set( $dataValue = "" )
+							#set( $dataValue = $!dataValueMap.get( $getter ) )
+							#set( $tempVal = "" )
+	                        #set( $tempVal = $!dataValue.value )
+							#set( $tempComment = "" )
+	                        #set( $tempComment = $!dataValue.comment ) 
+							<td style="vertical-align: middle;" title="$!tempComment" > $tempVal</td>
+							<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+					
+							<!-- HPV Demo Primary Strategy -->
+							#set( $getter = "$orgUnit.id:$demoYear:631" )
+							#set( $dataValue = "" )
+							#set( $dataValue = $!dataValueMap.get( $getter ) )
+							#set( $tempVal = "" )
+	                        #set( $tempVal = $!dataValue.value )
+							#set( $tempComment = "" )
+	                        #set( $tempComment = $!dataValue.comment ) 
+							<td style="vertical-align: middle;" title="$!tempComment" > $tempVal</td>
+							<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+					
+							<!-- HPV Demo Product Preference / Licensure in Country -->
+							#set( $getter = "$orgUnit.id:$demoYear:362" )
+							#set( $dataValue = "" )
+							#set( $dataValue = $!dataValueMap.get( $getter ) )
+							#set( $tempVal = "" )
+	                        #set( $tempVal = $!dataValue.value )
+							#set( $tempComment = "" )
+	                        #set( $tempComment = $!dataValue.comment ) 
+							
+							
+							
+							<td #if ( $tempVal == "Bivalent - Licensed" || $tempVal == "Quad - Licensed" ) style="vertical-align: middle; color: green" #elseif ($tempVal == "Bivalent – Not Licensed" || $tempVal == "Quad – Not Licensed" ) style="vertical-align: middle; color: red" #else style="vertical-align: middle;" #end title="$!tempComment" > $tempVal</td>
+							<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+					
+							<!-- HPV Demo Schedule -->
+							#set( $getter = "$orgUnit.id:$demoYear:632" )
+							#set( $dataValue = "" )
+							#set( $dataValue = $!dataValueMap.get( $getter ) )
+							#set( $tempVal = "" )
+	                        #set( $tempVal = $!dataValue.value )
+							#set( $tempComment = "" )
+	                        #set( $tempComment = $!dataValue.comment ) 
+							<td style="vertical-align: middle;" title="$!tempComment" > $tempVal</td>
+							<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+					
+							<!-- HPV Demo Verified Target Pop’n Size -->
+							#set( $getter = "$orgUnit.id:$demoYear:371" )
+							#set( $dataValue = "" )
+							#set( $dataValue = $!dataValueMap.get( $getter ) )
+							#set( $tempVal = "" )
+	                        #set( $tempVal = $!dataValue.value )
+							#set( $tempComment = "" )
+	                        #set( $tempComment = $!dataValue.comment )
+							
+						
+							<td style="vertical-align: middle;" title="$!tempComment" > $tempVal</td>
+							<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+					
+							<!-- HPV Demo Cash grant Received -->
+							#set( $getter = "$orgUnit.id:$demoYear:365" )
+							#set( $dataValue = "" )
+							#set( $dataValue = $!dataValueMap.get( $getter ) )
+							#set( $tempVal = "" )
+	                        #set( $tempVal = $!dataValue.value )
+							#set( $tempComment = "" )
+	                        #set( $tempComment = $!dataValue.comment )
+							<td style="vertical-align: middle;" title="$!tempComment" > $tempVal</td>
+							<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+					
+							<!-- HPV Demo 1st Dose Date -->
+							#set( $getter = "$orgUnit.id:$demoYear:373" )
+							#set( $dataValue = "" )
+							#set( $dataValue = $!dataValueMap.get( $getter ) )
+							#set( $tempVal = "" )
+	                        #set( $tempVal = $!dataValue.value )
+							#set( $tempComment = "" )
+	                        #set( $tempComment = $!dataValue.comment )
+							<td style="vertical-align: middle;" title="$!tempComment" > $tempVal</td>
+							<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+					
+							<!-- HPV Demo Training Status -->
+							#set( $getter = "$orgUnit.id:$demoYear:368" )
+							#set( $dataValue = "" )
+							#set( $dataValue = $!dataValueMap.get( $getter ) )
+							#set( $tempVal = "" )
+	                        #set( $tempVal = $!dataValue.value )
+							#set( $tempComment = "" )
+	                        #set( $tempComment = $!dataValue.comment ) 
+							<td #if ( $tempVal == "Bi Pre-assessment Training on Track" || $tempVal == "On Track" ) style="vertical-align: middle; color: green" #elseif ($tempVal == "Bi Pre-assessment Training Not on Track" || $tempVal == "Not On Track" ) style="vertical-align: middle; color: red" #else style="vertical-align: middle;" #end title="$!tempComment" > $tempVal</td>
+							<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+					
+							<!-- HPV Demo Developed communication & social mob plan -->
+							#set( $getter = "$orgUnit.id:$demoYear:367" )
+							#set( $dataValue = "" )
+							#set( $dataValue = $!dataValueMap.get( $getter ) )
+							#set( $tempVal = "" )
+	                        #set( $tempVal = $!dataValue.value )
+							#set( $tempComment = "" )
+	                        #set( $tempComment = $!dataValue.comment ) 
+							<td #if ( $tempVal == "Planned" || $tempVal == "Underway" || $tempVal == "Completed" ) style="vertical-align: middle; color: green" #elseif ($tempVal == "Not Yet Planned" ) style="vertical-align: middle; color: red" #else style="vertical-align: middle;" #end title="$!tempComment" > $tempVal</td>
+							<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+					
+							<!-- HPV Demo - Vaccine Supply -->
+							#set( $getter = "$orgUnit.id:$demoYear:366" )
+							#set( $dataValue = "" )
+							#set( $dataValue = $!dataValueMap.get( $getter ) )
+							#set( $tempVal = "" )
+	                        #set( $tempVal = $!dataValue.value )
+							#set( $tempComment = "" )
+	                        #set( $tempComment = $!dataValue.comment ) 
+							<td #if ( $tempVal == "Planned" || $tempVal == "Underway" || $tempVal == "Completed" ) style="vertical-align: middle; color: green" #elseif ($tempVal == "Not Yet Planned" ) style="vertical-align: middle; color: red" #else style="vertical-align: middle;" #end title="$!tempComment" > $tempVal</td>
+							<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+					
+							<!-- HPV Demo - FinalDose Date -->
+							#set( $getter = "$orgUnit.id:$demoYear:374" )
+							#set( $dataValue = "" )
+							#set( $dataValue = $!dataValueMap.get( $getter ) )
+							#set( $tempVal = "" )
+	                        #set( $tempVal = $!dataValue.value )
+							#set( $tempComment = "" )
+	                        #set( $tempComment = $!dataValue.comment )
+							<td style="vertical-align: middle;" title="$!tempComment" > $tempVal</td>
+							<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+					
+							<!-- HPV Demo – Year End Review Meeting Date -->
+							#set( $getter = "$orgUnit.id:$demoYear:633" )
+							#set( $dataValue = "" )
+							#set( $dataValue = $!dataValueMap.get( $getter ) )
+							#set( $tempVal = "" )
+	                        #set( $tempVal = $!dataValue.value )
+							#set( $tempComment = "" )
+	                        #set( $tempComment = $!dataValue.comment )
+							<td style="vertical-align: middle;" title="$!tempComment" > $tempVal</td>
+							<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+					
+							<!-- HPV Demo - Expected Nat’l Intro Year -->
+							#set( $getter = "$orgUnit.id:$demoYear:634" )
+							#set( $dataValue = "" )
+							#set( $dataValue = $!dataValueMap.get( $getter ) )
+							#set( $tempVal = "" )
+	                        #set( $tempVal = $!dataValue.value )
+							#set( $tempComment = "" )
+	                        #set( $tempComment = $!dataValue.comment )
+							<td style="vertical-align: middle;" title="$!tempComment" > $tempVal</td>
+							<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>						
+						</tr>
+					#end
+				#end
+			</tbody>
+		</table>
+		
+
+		
+		<h4>$i18n.getString( "status_of_evaluations" )</h4>
+
+    	<table class="table table-striped" id="t2">
+        	<thead id="t2head">
+            	<tr>
+					<th align="left" style="vertical-align: middle; ">$i18n.getString( "country" )</th>
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_year" )</th>						
+
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_adh_integration_desk_review_status" )</th>						
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_adh_integration_desk_review_status" )</th>
+					
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_adh_service_chosen_for_integration_in_year_2" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_adh_service_chosen_for_integration_in_year_2" )</th>
+					
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_date_of_hpv_pie" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_date_of_hpv_pie" )</th>
+
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_pie_status" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_pie_status" )</th>
+
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_coverage_survey_completion_date" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_coverage_survey_completion_date" )</th>
+
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_coverage_survey_status" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_coverage_survey_status" )</th>
+
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_costing_analysis_completion_date" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_costing_analysis_completion_date" )</th>
+
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_costing_analysis_status" )</th>
+					<th align="left" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_costing_analysis_status" )</th>
+
+					<th align="left" style="vertical-align: middle;">$i18n.getString( "hpv_demo_development_of_nat'l_cervical_cancer_prevention_and_control_plan_status" )</th>
+					<th align="left" style="display:none;vertical-align: middle; width:100px;">$i18n.getString( "comment" ) $i18n.getString( "hpv_demo_development_of_nat'l_cervical_cancer_prevention_and_control_plan_status" )</th>
+				</tr>				
+        	</thead>
+        
+        	<tbody>
+                #set( $mark = false )
+                #foreach( $orgUnit in $orgUnitList )
+					#if( $mark )
+						#set( $mark = false )
+					#else
+						#set( $mark = true )
+					#end
+				
+					#set( $countryDemoYearList = "" )
+					#set( $countryDemoYearList = $countryDemoYearMap.get( $orgUnit.id ) )
+					
+					#foreach( $demoYear in $countryDemoYearList )
+					
+						#set( $getter = "$orgUnit.id:$demoYear:375" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $introStausVal = "" )
+	                    #set( $introStausVal = $!dataValue.value )
+
+						#if( $introStausVal == "Introduced" )
+
+							<tr>
+								<!-- Country -->
+								<td align="left" style="vertical-align: middle;">$orgUnit.name</td>
+								
+								<!-- HPV Demo Year -->					                                                    
+								<td style="vertical-align: middle;" >$demoYear</td>
+						
+								<!-- HPV Demo ADH Integration Desk Review Status -->
+								#set( $getter = "$orgUnit.id:$demoYear:352" )
+								#set( $dataValue = "" )
+								#set( $dataValue = $!dataValueMap.get( $getter ) )
+								#set( $tempVal = "" )
+		                        #set( $tempVal = $!dataValue.value )
+								#set( $tempComment = "" )
+		                        #set( $tempComment = $!dataValue.comment ) 
+								<td #if($tempVal== "Not Yet Planned" )style="vertical-align: middle; color: red" #elseif ($tempVal== "Completed" ) style="vertical-align: middle; color: green" #else style="vertical-align: middle;" #end title="$!tempComment" >$tempVal</td>
+								<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+								<!-- HPV Demo ADH Service Chosen for Integration in Year 2 -->
+								#set( $getter = "$orgUnit.id:$demoYear:635" )
+								#set( $dataValue = "" )
+								#set( $dataValue = $!dataValueMap.get( $getter ) )
+								#set( $tempVal = "" )
+		                        #set( $tempVal = $!dataValue.value )
+								#set( $tempComment = "" )
+		                        #set( $tempComment = $!dataValue.comment ) 
+								<td style="vertical-align: middle;" title="$!tempComment" >$tempVal</td>						
+								<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+								<!-- HPV Demo Date of HPV PIE -->
+								#set( $getter = "$orgUnit.id:$demoYear:595" )
+								#set( $dataValue = "" )
+								#set( $dataValue = $!dataValueMap.get( $getter ) )
+								#set( $tempVal = "" )
+		                        #set( $tempVal = $!dataValue.value )
+								#set( $tempComment = "" )
+		                        #set( $tempComment = $!dataValue.comment ) 
+								<td style="vertical-align: middle;" title="$!tempComment" >$tempVal</td>
+								<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+								<!-- HPV Demo PIE Status-->
+								#set( $getter = "$orgUnit.id:$demoYear:636" )
+								#set( $dataValue = "" )
+								#set( $dataValue = $!dataValueMap.get( $getter ) )
+								#set( $tempVal = "" )
+		                        #set( $tempVal = $!dataValue.value )
+								#set( $tempComment = "" )
+		                        #set( $tempComment = $!dataValue.comment ) 
+								<td #if ( $tempVal== "Planned" || $tempVal== "Underway" || $tempVal== "Completed" )style="vertical-align: middle; color: green;" #elseif ( $tempVal == "Not Yet Planned" ) style="vertical-align: middle; color: red;" #end title="$!tempComment" >$tempVal</td>
+								<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+								<!-- HPV Demo Coverage Survey Completion Date -->
+								#set( $getter = "$orgUnit.id:$demoYear:351" )
+								#set( $dataValue = "" )
+								#set( $dataValue = $!dataValueMap.get( $getter ) )
+								#set( $tempVal = "" )
+		                        #set( $tempVal = $!dataValue.value )
+								#set( $tempComment = "" )
+		                        #set( $tempComment = $!dataValue.comment ) 
+								<td style="vertical-align: middle;" title="$!tempComment" > $tempVal</td>
+								<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+						
+								<!-- HPV Demo Coverage Survey Status -->
+								#set( $getter = "$orgUnit.id:$demoYear:637" )
+								#set( $dataValue = "" )
+								#set( $dataValue = $!dataValueMap.get( $getter ) )
+								#set( $tempVal = "" )
+		                        #set( $tempVal = $!dataValue.value )
+								#set( $tempComment = "" )
+		                        #set( $tempComment = $!dataValue.comment )
+								<td #if ( $tempVal== "Planned" || $tempVal== "Underway" || $tempVal== "Completed" )style="vertical-align: middle; color: green;" #elseif ( $tempVal == "Not Yet Planned" ) style="vertical-align: middle; color: red;" #end title="$!tempComment" >$tempVal</td>
+								<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+								<!-- HPV Demo Costing Analysis Completion Date -->
+								#set( $getter = "$orgUnit.id:$demoYear:638" )
+								#set( $dataValue = "" )
+								#set( $dataValue = $!dataValueMap.get( $getter ) )
+								#set( $tempVal = "" )
+		                        #set( $tempVal = $!dataValue.value )
+								#set( $tempComment = "" )
+		                        #set( $tempComment = $!dataValue.comment )
+								<td style="vertical-align: middle;" title="$!tempComment" >$tempVal</td>
+								<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+												
+								<!-- HPV Demo Costing Analysis Status -->
+								#set( $getter = "$orgUnit.id:$demoYear:349" )
+								#set( $dataValue = "" )
+								#set( $dataValue = $!dataValueMap.get( $getter ) )
+								#set( $tempVal = "" )
+		                        #set( $tempVal = $!dataValue.value )
+								#set( $tempComment = "" )
+		                        #set( $tempComment = $!dataValue.comment )
+								<td style="vertical-align: middle;" title="$!tempComment" > $tempVal</td>
+								<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+						
+								<!-- HPV Demo Development of Nat'l Cervical Cancer Prevention & Control Plan Status-->
+								#set( $getter = "$orgUnit.id:$demoYear:353" )
+								#set( $dataValue = "" )
+								#set( $dataValue = $!dataValueMap.get( $getter ) )
+								#set( $tempVal = "" )
+		                        #set( $tempVal = $!dataValue.value )
+								#set( $tempComment = "" )
+		                        #set( $tempComment = $!dataValue.comment ) 
+								<td #if ( $tempVal== "Draft Planned" || $tempVal== "Finalization Planned" || $tempVal== "Final Plan Completed" )style="vertical-align: middle; color: green;" #elseif ( $tempVal == "Draft Not Yet Planned" || $tempVal == "Finalization Not Yet Planned"  ) style="vertical-align: middle; color: red;" #end title="$!tempComment" >$tempVal</td>
+								<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>					
+							</tr>
+						#end	
+						#end
+					#end
+			</tbody>
+		</table>
+	
+		<br/><br/><br/>
+        <table style="margin:auto;display:none;color: #9F6000;background-color: #FEEFB3;border: 1px solid;" width="100%">
+            <tr>
+                <td colspan="5">$i18n.getString( "inline_security_warning" )</td>
+            </tr>
+        </table>
+    </div>    
+</form>
+
+<div id="shareLinkToUser" title="Share Link to User">
+    <fieldset>
+        <label for="toUser">$i18n.getString( "maintenance_users" )</label>
+        <input type="hidden" name="recipients" id="recipients" class="text ui-widget-content ui-corner-all" placeholder="Enter User Name"/>
+        <br/><br/>
+        <label for="shareSubject">$i18n.getString( "feedback_subject" )</label>
+        <input type="text" id="shareSubject" name="shareSubject" class="text ui-widget-content ui-corner-all" />
+        <label for="shareText">$i18n.getString( "feedback_text" )</label>
+        <textarea id="shareText" name="shareText" class="text ui-widget-content ui-corner-all" rows="6">                
+        </textarea>
+    </fieldset>
+	<br/><hr/>
+	<span style="float:right;">
+	    <a id="send" href="#">Send</a>
+		<a id="cancel" href="#">Cancel</a>
+	</span>
+</div>
+    
+<style>
+    label, #toUser ,#shareText ,#shareSubject{ 
+        display:block;
+    }
+        #recipients ,#shareText ,#shareSubject  { 
+        margin-bottom:12px;
+        width:95%; 
+        padding: .4em; 
+    }   
+    #shareLinkToUser fieldset   { 
+        padding:0;
+        border:0;
+        margin-top:25px;
+    }
+</style>
+
+<SCRIPT>
+	// Create the measurement node
+	var scrollDiv = document.createElement("div");
+	scrollDiv.className = "scrollbar-measure";
+	document.body.appendChild(scrollDiv);
+
+	// Get the scrollbar width
+	var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+	
+
+	// Delete the DIV 
+	document.body.removeChild(scrollDiv);
+
+	
+	
+	$( document ).ready(function() {
+			
+			$(window).resize(function(){
+			
+				
+				var fullWidth = parseInt($("#htmlContent").css("width")) - scrollbarWidth ;;
+				
+				var fullWidth2 = fullWidth + 'px';
+				
+				$("#t1head").css("width",fullWidth2);
+				$("#t2head").css("width",fullWidth2);
+				
+				var tdnewwidth = Math.floor(fullWidth/17) + 'px';
+			
+				$('#t1 th').each(function () {
+					
+					$(this).css('overflow', "hidden");
+					$(this).removeAttr('width');
+					$(this).css('width', tdnewwidth);
+					$(this).css('max-width', tdnewwidth);
+					$(this).css('min-width', tdnewwidth);
+					
+
+				});
+			
+				$('#t1 td').each(function () {
+					
+				
+					$(this).removeAttr('width');
+					$(this).css('width', tdnewwidth);
+					$(this).css('max-width', tdnewwidth);
+					$(this).css('min-width', tdnewwidth);
+					
+
+				});
+				
+				
+				var tdnewwidth2 = Math.floor(fullWidth/11) + 'px';
+			
+				$('#t2 th').each(function () {
+					
+					$(this).css('overflow', "hidden");
+					$(this).removeAttr('width');
+					$(this).css('width', tdnewwidth2);
+					$(this).css('max-width', tdnewwidth2);
+					$(this).css('min-width', tdnewwidth2);
+					
+
+				});
+			
+				$('#t2 td').each(function () {
+					
+				
+					$(this).removeAttr('width');
+					$(this).css('width', tdnewwidth2);
+					$(this).css('max-width', tdnewwidth2);
+					$(this).css('min-width', tdnewwidth2);
+					
+
+				});
+		
+		
+		
+	
+		
+				
+			});
+			
+			$('#t1, #t2').each(function () {
+		 
+			var dimension_cells = new Array();
+			var dimension_col = null;
+			var columnTitle = "Country";
+		 
+			var i = 0;
+
+			$(this).find('th').each(function () {
+				
+				if ($(this).html().trim() == columnTitle) {
+					dimension_col = i;
+				}
+				i++;
+			});
+			
+		 
+		   
+			var first_instance = null;
+
+			$(this).find('tr').each(function () {
+				
+				var dimension_td = $(this).find('td').eq( dimension_col ) ;
+		 
+				if (first_instance == null) {
+					first_instance = dimension_td;
+				} else if (dimension_td.text() == first_instance.text()) {
+
+					dimension_td.remove();
+					
+					var x=2;
+					if(parseInt(first_instance.attr('rowspan')))
+					   x=parseInt(first_instance.attr('rowspan'))+1;
+						
+					first_instance.attr('rowspan', x);
+				} else {
+					first_instance = dimension_td;
+				}
+		 
+			});
+		});
+
+		var tdwidth ;
+		var tdwidth2 ;
+		var theadwidth;
+		var theadwidth2;
+		
+		theadwidth = parseInt($("#t1head").css("width")) - scrollbarWidth ;
+		theadwidth2 = theadwidth + 'px';
+	
+		$("#t1head").css("width",theadwidth2);
+		
+		tdwidth = $("#widthPasser").css("width"); 
+		
+		
+		tdwidth2 = Math.floor(theadwidth/17) + 'px';
+			
+			$('#t1 th').each(function () {
+				
+				$(this).css('overflow', "hidden");
+				$(this).removeAttr('width');
+				$(this).css('width', tdwidth2);
+				$(this).css('max-width', tdwidth2);
+				$(this).css('min-width', tdwidth2);
+				
+
+			});
+			
+			$('#t1 td').each(function () {
+				
+			
+				$(this).removeAttr('width');
+				$(this).css('width', tdwidth2);
+				$(this).css('max-width', tdwidth2);
+				$(this).css('min-width', tdwidth2);
+				
+
+			});
+			
+			
+		theadwidth = parseInt($("#t2head").css("width")) - scrollbarWidth ;
+		theadwidth2 = theadwidth + 'px';
+	
+		$("#t2head").css("width",theadwidth2);
+		
+		tdwidth = $("#widthPasser1").css("width"); 
+		
+		
+		tdwidth2 = Math.floor(theadwidth/11) + 'px';
+			
+			$('#t2 th').each(function () {
+				
+				$(this).css('overflow', "hidden");
+				$(this).removeAttr('width');
+				$(this).css('width', tdwidth2);
+				$(this).css('max-width', tdwidth2);
+				$(this).css('min-width', tdwidth2);
+				
+
+			});
+			
+			$('#t2 td').each(function () {
+				
+			
+				$(this).removeAttr('width');
+				$(this).css('width', tdwidth2);
+				$(this).css('max-width', tdwidth2);
+				$(this).css('min-width', tdwidth2);
+				
+
+			});
+			
+	
+	});
+	
+	function scrollbarWidth() {
+    var div = $('<div style="width:50px;height:50px;overflow:hidden;position:absolute;top:-200px;left:-200px;"><div style="height:100px;"></div>');
+    // Append our div, do our calculation and then remove it
+    $('body').append(div);
+    var w1 = $('div', div).innerWidth();
+    div.css('overflow-y', 'scroll');
+    var w2 = $('div', div).innerWidth();
+    $(div).remove();
+    return (w1 - w2);
+}
+		
+</SCRIPT>
+
+<script>
+	
+    jQuery(function() {	
+	
+	$("#send").button();
+	$("#send").click(function() {
+			
+			$("#send").attr("href","mailto:"+$('#recipients').val().replace(/[,]/g,';')+"?subject="+$('#shareSubject').val()+"&body="+escape(document.getElementById('shareText').value));
+    		$("#shareLinkToUser").dialog('close');
+	});
+	$("#cancel").button();
+	$("#cancel").click(function() {
+		$("#shareLinkToUser").dialog('close');
+	});
+        var emailIds = 'null';
+        $( "#shareLinkToUser" ).dialog({
+                autoOpen: false,
+                height: 420,
+                width: 595,
+                modal: true,
+                show: "blind",
+                hide: "explode"               
+           
+        });
+    });
+	function sendMsg()
+	{
+    		
+    
+	}
+</script>
+
+<!-- td hover commented out 
+
+<style style="text/css">
+
+tr:hover {
+ background-color: red;
+}
+         
+</style>
+-->
+
+<script>
+/*
+table sorting removed
+
+	$(document).ready(function()
+	{ 
+		$('table').tablesorter();
+	});
+	
+*/
+	
+	
+	
+
+
+    function exportToExcel()
+    {
+	
+		var x=0;
+		$('table> thead>tr>th').each(function()
+		{
+		$(this).attr("bgcolor","#A9D0F5");
+		});
+		
+		$('#t1 > tbody  > tr').each(function()
+		{
+			if(x%2==0)
+			$(this).attr("bgcolor","#E0ECF8");
+			x++;
+		});
+
+		x=0;
+		$('#t2 > tbody  > tr').each(function()
+		{
+			if(x%2==0)
+			$(this).attr("bgcolor","#E0ECF8");
+			x++;
+		});
+		
+        var currentFlaggedImgPath = $('.flagedImg').find('img').attr('src');
+		var currentUnFlaggedImgPath = $('.unFlagedImg').find('img').attr('src');
+		
+		var redFlag = $('#redFlag').val();
+		var greyFlag = $('#greyFlag').val();
+		
+		
+		$('.flagedImg').find('img').remove();
+		$('.unFlagedImg').find('img').remove();
+		
+		$('.flagedImg').append('<font size=\"20\" color=\"red\">*</font>')
+		$('.unFlagedImg').append('<font size=\"20\" color=\"#A4A4A4\">*</font>');
+		
+		document.getElementById('htmlCode').value = document.getElementById('htmlContent').innerHTML;
+		
+		$('.flagedImg').text('');
+		$('.unFlagedImg').text('');	
+		
+		$('.flagedImg').append('<img src=\"'+currentFlaggedImgPath+'\" width=\"20\" height=\"20\" style=\"float:left;\" \>');
+		$('.unFlagedImg').append('<img src=\"'+currentUnFlaggedImgPath+'\" width=\"20\" height=\"20\" style=\"float:left;\" \>');
+        return true;
+    }
+    
+    function printDiv( divID ) 
+    {
+        //Get the HTML of div
+        var divElements = document.getElementById(divID).innerHTML;
+        
+        //Get the HTML of whole page
+        var oldPage = document.body.innerHTML;
+
+        //Reset the page's HTML with div's HTML only
+        document.body.innerHTML = "<html><head><title></title></head><body>" + divElements + "</body>";
+
+        //Print Page
+        window.print();
+
+        //Restore orignal HTML
+        document.body.innerHTML = oldPage;        
+		
+		window.location.reload();			
+    }
+</script>

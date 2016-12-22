@@ -1,0 +1,12 @@
+{
+"conflict":"${userConflictAuthority}",
+"activity":"${userActivityReportAuthority}",
+"dashboard":"${seeUserDashboardAuthority}",
+"aggEngine":"${aggEngineAuthority}",
+"lookup":"${lookupAuthority}",
+"maintenanceModules":"${maintenanceModuleAuthority}",
+"progReviewTAReportAuthority":"${progReviewTAReportAuthority}",
+"cmypDevTrackingReportAuthority":"${cmypDevTrackingReportAuthority}",
+"alertReportAuthority":"${alertReportAuthority}",
+"userActivityLogin":"${userActivityLoginReportAuthority}"
+}

@@ -1,0 +1,250 @@
+<script type="text/javascript">
+	$(document).ready(function(){
+	    $('#myjquerymenu').find('#dataentry').addClass("selected");	    
+	});
+</script>
+#if( $statusMessage == "NONE" )
+
+<script type="text/javascript">
+	var i18n_select_period = '$encoder.jsEscape( $i18n.getString( "select_period" ) , "'")';
+	var i18n_no_periods_click_prev_year_button = '$encoder.jsEscape( $i18n.getString( "no_periods_click_prev_year_button" ) , "'")';
+	$(document).ready(function() {
+		$('.fancybox').fancybox();	
+			
+	});
+</script>
+
+<style type="text/css">
+	.fancybox-custom .fancybox-skin {
+		box-shadow: 0 0 50px #222;
+	}
+</style>
+
+<script>
+	 $(function() {
+		$( document ).tooltip({		
+		position: {
+			my: "center bottom-20",
+			at: "center top",
+			using: function( position, feedback ) {
+		$( this ).css( position );
+		$( "<div>" )
+			.addClass( "arrow1" )
+			.addClass( "fontsize" )
+			.addClass( feedback.vertical )
+			.addClass( feedback.horizontal )
+			.appendTo( this );
+		}
+		}
+		});
+	});
+function textAreaAdjust(o) {
+    o.style.height = "1px";
+    o.style.height = (25+o.scrollHeight)+"px";
+}
+function showContent(o) {	
+		alert(o.value);
+}
+</script>
+ <style>
+ 	
+ 		.fontsize
+ 		{
+ 			font-size:15px;	
+ 		}
+		.ui-tooltip, .arrow1:after {
+			background: white;
+			border: 2px solid #086B96;						
+		}
+		.ui-tooltip {
+			padding: 10px 20px;
+			color: black;
+			border-radius: 20px;
+			font: bold 12px "Helvetica Neue", Sans-Serif;			
+			box-shadow: 0 0 7px black;
+		}
+		.arrow1 {
+			width: 70px;
+			height: 16px;
+			overflow: hidden;
+			position: absolute;
+			left: 50%;
+			margin-left: -35px;
+			bottom: -16px;
+		}
+		.arrow1.top {
+			top: -16px;
+			bottom: auto;
+		}
+		.arrow1.left {
+			left: 20%;
+		}
+		.arrow1:after {
+			content: "";
+			position: absolute;
+			left: 20px;
+			top: -20px;
+			width: 25px;
+			height: 25px;
+			box-shadow: 6px 5px 9px -9px black;
+			-webkit-transform: rotate(45deg);
+			-moz-transform: rotate(45deg);
+			-ms-transform: rotate(45deg);
+			-o-transform: rotate(45deg);
+			tranform: rotate(45deg);
+		}
+		.arrow1.top:after {
+			bottom: -20px;
+			top: auto;
+		}
+</style>
+
+#set( $count = 0 )
+
+<table width="100%">
+<tr>
+<td width="20%">#parse( "menu.vm" )</td>
+<td widht="80%">
+<form id="ivbDataEntryForm" name="ivbDataEntryForm" action="singleCountry.action" > 
+	<div id='contentDiv' align="center">	
+		<input type="hidden" name="selectedPeriodId" id="selectedPeriodId" value="$currentPeriod"/>
+		<input type="hidden" name="orgUnitUid" id="orgUnitUid" value="$orgUnitUid"/>
+		<input type="hidden" name="dataSetId" id="dataSetId" value="$dataSetId"/>
+		<input type="hidden" name="selectedPeriod" id="selectedPeriod" value="$selectedPeriod"/>
+		<table>
+			<tr>
+				<td>
+					$i18n.getString( "region" ) : 
+					<select id="region_id" name="region_id" onchange="javascript:">
+						#foreach( $region in $regions )
+						#end	
+					</select>
+				</td>
+				<td>$i18n.getString( "country" ) : 
+					<select id="country_id" name="country_id" onchange="javascript:">
+					</select>
+				</td>
+				<td>$i18n.getString( "period" ) : $selectedPeriod</td>
+			</tr>
+		</table>
+
+		<table align="center" class="altrowstable" id="alternatecolor" cellspacing="0" cellpadding="0" style="margin:0cm 0cm 0cm 0cm;" width="100%">	
+			<tr style="height:30px;">
+				<th width="5%">$i18n.getString( "status" )</th>
+				<th width="5%">$i18n.getString( "type" )</th>						
+				<th width="23%">$i18n.getString( "data_element" )</th>
+				<th width="15%">$i18n.getString( "value" )</th>
+				<th width="20%">$i18n.getString( "comment" )</th>
+				<th width="5%">$i18n.getString( "last_entry" )</th>				 
+				<th width="3%">$i18n.getString( "copy" )</th>
+				<!--
+				<th width="5%">$i18n.getString( "history" )</th>
+				<th width="5%">$i18n.getString( "technical" )</th>
+				 -->				
+				<th width="5%">$i18n.getString( "help" )</th>
+				<th width="5%">$i18n.getString( "tools" )</th>		
+			</tr>	
+			#foreach( $dataElement in $dataElementList )
+				#set( $getter = "${orgUnitUid}-${dataElement.uid}")
+				#set( $count = $count + 1 )
+				#set( $dataEntryId = "${dataElement.id}-${organisationUnit.id}-${optionCombo.id}-${count}-val" )
+				#set( $dataEntryComment = "${dataElement.id}-${organisationUnit.id}-${optionCombo.id}-${count}-comment" )
+				#set( $off_pri_val = $off_pri_de_map.get( $dataElement ) )
+
+				#if( $userDataElements.contains( $dataElement ) && $userOrgUnit.contains( $organisationUnit ) )                          
+					#set( $deUpdateStatus = "yes" )
+                #else
+					#set( $deUpdateStatus = "no" )
+				#end
+				
+				#if( $!dataValueStatusMap.get(${getter}) == 0 )
+					#set( $deUpdateStatus = "no" )
+				#end
+				
+				<tr style="height:20px;#if( $keyFlagDataElements.contains( $dataElement ) ) background-color:red; #end">
+					<td align="center">
+						#if($deUpdateStatus == "yes" && $conflictMap.get(${getter})=="Yes")								
+							<img src="images/notification_warning.png" width="20"/ >							
+						#else
+							&nbsp;	
+						#end				
+					</td>
+					<td align="center">
+						#if( $!off_pri_val == "official" && $deUpdateStatus == "no")
+							<img src="images/official.ico" width="20"/>
+						#elseif( $!off_pri_val == "private" && $deUpdateStatus == "no")
+							<img src="images/private.ico" width="20"/>
+						#elseif( $!off_pri_val == "other" && $deUpdateStatus == "no" )
+							&nbsp;
+						#elseif($deUpdateStatus == "yes")	
+							<img src="images/pencil.png" width="20"/ >
+						#end					
+					</td>					
+					<td >$dataElement.displayName</td>
+					#if($dataElement.type == 'int')
+						<td><input type="text" style="width:130px;" #if( $deUpdateStatus == "no" ) disabled #end name="entryfield" id="${dataEntryId}" value="$!dataValue.get(${getter})"  onblur="javascript: saveValue('$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataElement.type')" /></td>
+						<td><textarea title="$!dataComments.get(${getter})" cols="32" onclick="textAreaAdjust(this)" style="overflow:hidden;height:20px;" #if( $deUpdateStatus == "no" ) disabled #end name="entrycomment" id="${dataEntryComment}" value="$!dataComments.get(${getter})"  onblur="javascript: saveComment('$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataEntryComment')" >$!dataComments.get(${getter})</textarea>  </td>		
+					#elseif($dataElement.type == 'bool')
+						<td>
+							<select style="width:134px;" #if( $deUpdateStatus == "no" ) disabled #end name="entryfield" id="${dataEntryId}"  onchange="javascript: saveValue('$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataElement.type')" />
+								<option value="-1">$i18n.getString( "please_select" )</option>
+								<option #if($!dataValue.get(${getter}) == 'Yes' ) selected #end>Yes</option>
+								<option #if($!dataValue.get(${getter}) == 'No' ) selected #end>No</option>
+							</select>
+						</td>
+						<td><textarea title="$!dataComments.get(${getter})" cols="32" onclick="textAreaAdjust(this)" style="overflow:hidden;height:20px;" class="ui-widget-content" #if( $deUpdateStatus == "no" ) disabled #end name="entrycomment" id="${dataEntryComment}" value="$!dataComments.get(${getter})"  onblur="javascript: saveComment('$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataEntryComment')">$!dataComments.get(${getter})</textarea></td>
+					#elseif($dataElement.type == 'date')						
+						<td><input type="text" style="width:130px;" #if( $deUpdateStatus == "no" ) disabled #end  value="$!dataValue.get(${getter})"  onblur="javascript: saveValue('$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataElement.type')" name="entryfield" id="${dataEntryId}" title="Date Format: YYYY / YYYY-Qn / YYYY-MM e.g. 2012 / 2012-Q1 / 2012-01"/></td>
+						<td><textarea title="$!dataComments.get(${getter})" cols="32" onclick="textAreaAdjust(this)" style="overflow:hidden;height:20px;" name="entrycomment" id="${dataEntryComment}" onblur="javascript: saveComment('$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataEntryComment')" title="$!dataComments.get(${getter})" #if( $deUpdateStatus == "no" ) disabled #end >$!dataComments.get(${getter})</textarea></td>
+						
+					#elseif($dataElement.type == 'string')
+						#if( $dataElement.getOptionSet() )
+							<td>
+								<select style="width:134px;" #if( $deUpdateStatus == "no" ) disabled #end name="entryfield" id="${dataEntryId}" onchange="javascript: saveValueOption('$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','${dataEntryId}')">
+									<option value="-1">$i18n.getString( "please_select" )</option>
+									#foreach( $option in $dataElement.getOptionSet()..getOptions() )
+									<option #if($!dataValue.get(${getter}) == $option.code ) selected #end>$option.name</option>
+									#end					
+								</select>
+							</td>
+							<td><textarea title="$!dataComments.get(${getter})" cols="32" onclick="textAreaAdjust(this)" style="overflow:hidden;height:20px;" #if( $deUpdateStatus == "no" ) disabled #end name="entrycomment" id="${dataEntryComment}" onblur="javascript: saveCommentOption('$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataEntryComment')">$!dataComments.get(${getter})</textarea></td>
+						#elseif(!($dataElement.getOptionSet())) 
+							<td><input type="text" style="width:130px;" #if( $deUpdateStatus == "no" ) disabled #end name="entryfield" id="${dataEntryId}" value="$!dataValue.get(${getter})"  onblur="javascript: saveValue('$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataElement.type')" /></td>
+							<td><textarea  title="$!dataComments.get(${getter})" cols="32" onclick="textAreaAdjust(this)" style="overflow:hidden;height:20px;" #if( $deUpdateStatus == "no" ) disabled #end name="entrycomment" id="${dataEntryComment}" value="$!dataComments.get(${getter})"  onblur="javascript: saveComment('$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataEntryComment')">$!dataComments.get(${getter})</textarea></td>
+						#end
+					#else				
+						<td><input type="text" style="width:130px;" #if( $deUpdateStatus == "no" ) disabled #end name="entryfield" id="${dataEntryId}" value="$!dataValue.get(${getter})"  onblur="javascript: saveValue('$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataElement.type')"  /></td>
+						<td><textarea  title="$!dataComments.get(${getter})" cols="32" onclick="textAreaAdjust(this)" style="overflow:hidden;height:20px;" #if( $deUpdateStatus == "no" ) disabled #end name="entrycomment" id="${dataEntryComment}" value="$!dataComments.get(${getter})"  onblur="javascript: saveComment('$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataEntryComment')">$!dataComments.get(${getter})</textarea></td>
+					#end	
+					<td align="center">$!dataStoredBy.get(${getter})</td>
+					 					
+					#if($copyRightMap.get(${getter})=='No' || $!dataValue.get(${getter})=='' || $!dataComments.get(${getter})=='' || $deUpdateStatus == 'no')
+						<td><img src="images/disable_copy.png" width="25" /></td>
+					#else
+						#if($dataElement.type == 'string' && $dataElement.getOptionSet())
+							<td><a href="javascript:copyValueAndCommentOption('$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataEntryComment')"><img src="images/copy.png" width="25" title="Resubmit current value and comment"/></a></td>
+						#else
+							<td><a href="javascript:copyValueAndComment('$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataEntryComment')"><img src="images/copy.png" width="25" title="Resubmit current value and comment"/></a></td>
+						#end						
+					#end
+					<!-- 
+					<td align="center"><a class="fancybox" href="javascript:getHistory('$dataElement.id','$organisationUnit.id','$optionCombo.id','$dataElement.name');"><img src="images/history.png" width="20" alt="$dataElement.name History"/></a></td>
+					<td align="center"><a class="fancybox" href="javascript:addTechnical('$dataElement.id','$organisationUnit.id','$optionCombo.id','$dataElement.name','$dataEntryId');"><img src="images/icon_techsupport.png" width="20" alt="$dataElement.name Technical Assistance Comments"/></a></td>	
+					-->			
+					<td align="center"><a class="fancybox" href="javascript:getHelp('$dataElement.id','$organisationUnit.id','$optionCombo.id','$dataElement.name')"><img src="images/help.png" width="20" title="Get more info about this element"/></a></td>
+					<td align="center"><a class="fancybox" href="javascript:getHistory('$dataElement.id','$organisationUnit.id','$optionCombo.id','$dataElement.name','$deUpdateStatus');"><img src="images/tools_icon.png" width="20" title="Get history,discussion and TA"/></a> </td>
+				</tr>
+			#end
+		</table> 
+	</div>
+	
+	<div id="technical" style="width:700px;height:500px;"></div>
+	<div id="history" style="width:800px;height:550px;"></div>
+	<div id="help" style="width:700px;height:500px;"></div>
+</form>
+#else
+	<h4>$statusMessage</h4>
+#end
+</td>
+</tr>
+</table>

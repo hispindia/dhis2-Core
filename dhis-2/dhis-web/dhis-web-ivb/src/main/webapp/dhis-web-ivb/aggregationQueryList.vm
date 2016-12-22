@@ -1,0 +1,73 @@
+
+<script>
+$(function() {
+  dhis2.contextmenu.makeContextMenu({
+    menuId: 'contextMenu',
+    menuItemActiveClass: 'contextMenuItemActive'
+  });
+});
+
+function editAggregation( aggConditionId )
+{
+	window.location.href = 'editAggregationQueryForm.action?aggregationCaseId='+aggConditionId;
+}
+function deleteAggregation( aggConditionId )
+{
+	window.location.href = 'deleteAggregationQuery.action?aggregationCaseId='+aggConditionId;
+}
+</script>
+<div id="reportFilterDiv">
+
+<h3>$i18n.getString( 'aggregation_query_builder_management' )</h3>
+
+
+<table class="mainPageTable" style="width:100%;margin:auto;">
+  <tr>
+    <td style="vertical-align:top">    	
+        <table width="100%">         
+            <tr style="">
+                <td style="text-align:right">
+                    <input type="button" value="$i18n.getString( 'add_new' )" onclick="showAddAggregationForm();" >
+                </td>
+            </tr>
+        </table>
+        <table class="listTable" width="100%" cellpadding="10">
+            <col>
+            <thead>
+                <tr bgcolor="#A9D0F5">
+                    <th>$i18n.getString( "name" )</th>
+                    <th>$i18n.getString( "operations" )</th> 
+                </tr>
+            </thead>
+            <tbody id="list">
+				#set( $mark = false )
+                #foreach( $aggregationCondition in $aggregationConditions )
+					 #if( $mark )
+                        #set( $mark = false )
+                     #else
+                         #set( $mark = true )
+                     #end
+                    <tr #if( $mark ) bgcolor="#E0ECF8" #else bgcolor = "#FFFFFF" #end>
+                        <td>$encoder.htmlEncode( $!aggregationCondition.displayName )</td>
+                        <td>
+							<a href="#" onclick="javascript:editAggregation('$aggregationCondition.id')">
+								<img src="../images/edit.png" alt="$i18n.getString( 'edit' )"/>
+                            </a>
+							<a href="#" onclick="javascript:deleteAggregation('$aggregationCondition.id')">
+								<img src="../images/delete.png"/>
+                            </a>
+						</td>
+                    </tr>
+                #end
+            </tbody>
+      </table>
+    </td>
+  </tr>
+</table>
+<br/><br/><br/>
+<div class="paging-container" style="width:98%;">
+	#parse( "/dhis-web-commons/paging/paging.vm" )
+</div>
+</div>
+
+<br/>

@@ -1,0 +1,34 @@
+#set( $size = $dataElementsList.size() )
+#set($values = [])
+#set($comments = [])
+{ "dataElementsList": [
+#foreach( $dataElement in $dataElementsList )
+  {
+    "id": ${dataElement.id} ,
+    "name": "$!encoder.jsonEncode( ${dataElement.name} )"
+  }#if( $velocityCount < $size ),#end
+#end
+],
+"values":[
+#foreach( $dataElement in $dataElementsList )
+{
+#if($valueMap.get($dataElement.id) == 'V' || $valueMap.get($dataElement.id) == 'VC')
+		"value":"true"
+	#else
+		"value":"false"
+	#end	
+}#if( $velocityCount < $size ),#end
+#end
+],
+"comments":[
+#foreach( $dataElement in $dataElementsList )
+{
+	#if($valueMap.get($dataElement.id) == 'C' || $valueMap.get($dataElement.id) == 'VC')
+		"value":"true"
+	#else
+		"value":"false"
+	#end
+}#if( $velocityCount < $size ),#end
+#end
+]
+}

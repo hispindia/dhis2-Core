@@ -1,0 +1,45 @@
+
+<script>
+	$(function()
+	 {		
+		$( "#dialog" ).dialog({
+			autoOpen: true,
+			resizable: false,			
+			modal: true,
+			width: 400,
+			
+			buttons: {
+				"$i18n.getString( 'message_ok' )": function() {
+					document.getElementById("validateDoc").submit();
+				},
+				"$i18n.getString( 'message_cancel' )": function() {
+					$( this ).dialog( "close" );
+					window.location.href = "displayViewDocumentForm.action";
+				}
+			},
+			close: function() {
+				$( this ).dialog( "close" );
+				window.location.href = "displayViewDocumentForm.action";
+			}
+			
+		});
+	});
+</script>
+<style>
+	body {    
+     	width:100%;
+		margin-left:auto;
+		margin-right:auto;		
+		height:auto;
+		min-height:600px; 
+}
+</style>
+ <form id="validateDoc" action="displayViewDocumentForm.action" method="post" >
+ 	<div id="validateDiv">
+ 		&nbsp;
+	</div>
+ </form>
+<div id="dialog">
+	<p>File already Exist</p>
+</div>
+

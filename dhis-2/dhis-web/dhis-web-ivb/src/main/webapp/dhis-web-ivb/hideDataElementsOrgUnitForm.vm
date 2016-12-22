@@ -1,0 +1,133 @@
+<style>
+    #filterDataElementsDiv{
+            padding: 15px;
+            background-color: white; 
+            width:75%;
+            margin:auto;
+            display:block;
+            
+            /* outer shadows  (note the rgba is red, green, blue, alpha) */
+            -webkit-box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.4); 
+            -moz-box-shadow: 0px 1px 6px rgba(23, 69, 88, .5);
+    
+            /* rounded corners */
+            -webkit-border-radius: 12px;
+            -moz-border-radius: 7px; 
+            border-radius: 7px;
+            
+            /* gradients */
+            background: -webkit-gradient(linear, left top, left bottom, 
+            color-stop(0%, white), color-stop(15%, white), color-stop(100%, #D7E9F5)); 
+            background: -moz-linear-gradient(top, white 0%, white 0%, #D5E4F3 60%); 
+            box-shadow: 8px 10px 10px rgba(0,0,0,0.5),
+               inset 8px 10px 10px rgba(255,255,255,0.75);
+               -o-box-shadow: 8px 10px 10px rgba(0,0,0,0.5),
+               inset 8px 10px 10px rgba(255,255,255,0.75);
+               -webkit-box-shadow: 8px 10px 10px rgba(0,0,0,0.5),
+               inset 8px 10px 10px rgba(255,255,255,0.75);
+               -moz-box-shadow: 8px 10px 10px rgba(0,0,0,0.5),
+               inset 8px 10px 10px rgba(255,255,255,0.75);
+        }
+</style>
+<script type="text/javascript">
+	var deSelected;
+	var allDataElementsName = [];
+	var allDataElementsID = [];
+	
+	$(document).ready(function() {
+			var k = 0;
+			#foreach($de in $allDataElementList)
+			  allDataElementsName[k] = "${de.getName()}";
+			  allDataElementsID[k] = "${de.getUid()}";
+			  k++;
+			#end
+	});
+	
+    jQuery(function() 
+	{
+        $("#submitButton").on( "click", function(){
+			var dataElementInput =  document.getElementById("dataElementsAutoCompleteInput").value;
+            if(dataElementInput=="")
+			{
+				alert("Please select a data element");
+				return false;
+			}
+			else
+			{
+				$("#hideDataElementActionForm").attr("action", "hideDataElementAction.action?deSelected="+deSelected);
+				$( "#hideDataElementActionForm" ).submit();
+			}
+        });
+    });
+
+	
+	function viewTree()
+	{
+		var iframe = document.getElementById('treeFrame');
+		iframe.src = "filterOrganisationUnits.action?selectedDE="+deSelected;
+		
+		
+$.ajax({
+type: "GET",
+url: iframe.src,
+//data: val,
+
+//async: false,
+//cache: false,
+success: function (msg) {
+
+
+}
+});
+	
+}
+	function selectDataElement(ui)
+	{
+		var selDEname = ui.item.value;
+					
+		for(var t=0; t<allDataElementsName.length; t++)
+		{
+			if(allDataElementsName[t]==selDEname)
+			{
+				deSelected = allDataElementsID[t];
+			}
+		}
+		viewTree();
+	}
+	
+	
+	$(function() {
+    $( "#dataElementsAutoCompleteInput" ).autocomplete({
+      source: allDataElementsName,
+	  select: function( event, ui ) { selectDataElement(ui);}
+    });
+  });
+</script>
+
+<div style="width:90%;margin:auto;" id="filterDataElementsDiv">
+	<h3>Hide Data Elements</h3>
+	<input type="hidden" name="favoriteType" id="favoriteType" value="$favoriteType"/>
+	<form id="hideDataElementActionForm" name="hideDataElementActionForm" action="" method="post" class="inputForm" >
+    	<table id="dataElementSelectionArea" style="width:100%;margin:auto;">
+            <tr>
+                <th width="80%"  style="padding-left:100px"><input id="dataElementsAutoCompleteInput" style="width:470px" placeholder="Select a data element"></br></br></th>
+            </tr>
+        
+            <tr>
+                <td onchange ="selectDataElement()" width="80%"  style="display:none">
+                    <select id="availableDataElementsList"  style="height: 200px; width: 100%; display:none"></select>
+                </td>
+				<td colspan="2"  style="min-width:500px;padding-left:100px">
+                	<div id="treeFrame" style="width:470px; height:330px;border:0;outline:0">
+						#organisationUnitSelectionTree1( false, true, true)
+					</div>
+                </td>
+            </tr>
+            <tr>
+                <td   style="padding-left:100px"><br/><br/>
+                    <input type="submit" id="submitButton" value="Save" style="width:23em" />              
+                </td>
+            </tr>
+    	</table>
+	</form>
+</div>

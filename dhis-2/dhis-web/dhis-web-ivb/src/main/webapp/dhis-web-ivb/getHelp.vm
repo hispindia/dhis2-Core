@@ -1,0 +1,37 @@
+<script>
+</script>
+<div style="width:680px;height:auto;" >
+	<div style="background-color:#3366CC;color:white;padding:8px;width:95%;">
+		<b>$i18n.getString( "help_for_indicator" ): $!indicator.name</b>
+	</div><br/>
+		<fieldset style="min-height:100px;width:95%;">
+    		<legend style="background-color:#A9D0F5;color:black;"><b>Calculation:</b></legend>
+					$!indicator.description
+		</fieldset>
+		<br/>
+		<fieldset style="min-height:100px;width:95%;">
+    		<legend style="background-color:#A9D0F5;color:black;" ><b>Sources:</b></legend> 
+				
+					$!sources
+				
+		</fieldset>		
+		<br/>
+		<fieldset style="height:auto;width:95%;">
+    		<legend style="background-color:#A9D0F5;color:black;"><b>Data Elements:</b></legend>
+			<table align="center" id="alternatecolor1" class="altrowstable" style="width:100%;height:auto;margin:auto;">
+				<tr >
+					<th style="width:20%;">Name</th>
+					<th style="width:10%;">Value</th>
+					<th style="width:20%;">Comments</th>
+                </tr>
+				#foreach($de in $dataElementList)
+				<tr >
+					<td >$de.name </td>
+					<td >$valueMap.get($de.uid) </td>
+					<td >$commentMap.get($de.uid) </td>
+                </tr>
+				#end
+            </table>			   			
+		</fieldset>
+		<br/>		
+</div>

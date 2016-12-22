@@ -1,0 +1,304 @@
+#set( $reportWarning = "Y" )
+
+<style >
+    th, td
+    {       
+        vertical-align: middle !important;
+    }
+
+
+/* tables */
+table.tablesorter {
+    font-family:arial;
+    background-color: #CDCDCD;
+    margin:10px 0pt 15px;
+    font-size: 8pt;
+    width: 100%;
+    text-align: left;    
+}
+table.tablesorter thead tr th, table.tablesorter tfoot tr th {
+    background-color: #e6EEEE;
+    border: 1px solid #FFF;
+    font-size: 8pt;
+    padding: 4px;
+}
+table.tablesorter thead tr .header {
+    background-image: url(bg.gif);
+    background-repeat: no-repeat;
+    background-position: center right;
+    cursor: pointer;
+}
+table.tablesorter tbody td {
+    color: #3D3D3D;
+    padding: 4px;
+    background-color: #FFF;
+    vertical-align: middle;
+}
+table.tablesorter tbody tr.odd td {
+    background-color:#F0F0F6;
+}
+table.tablesorter thead tr .headerSortUp {
+    background-image: url(asc.gif);
+}
+table.tablesorter thead tr .headerSortDown {
+    background-image: url(desc.gif);
+}
+table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
+background-color: #8dbdd8;
+}
+
+table.tablesorter td:hover {
+ background-color: #ffff99;
+}
+
+table.tablesorter tr.odd td:hover {
+ background-color: #ffff99;
+}
+
+</style>
+<script type="text/javascript">
+jQuery(function() {
+    $('#toUser').show();
+    $('#recipients').select2({
+       minimumInputLength: 1,
+       multiple: true, 
+       width: "546px",      
+       ajax: {
+           url: 'getMessageRecipients.action',
+           dataType: 'json',
+           data: function(term, page) {
+                return {
+                    filter: term
+                }
+           },
+           results: function(data, page) {
+            return {               
+               results: data.matches }
+           }
+       }
+    });
+});
+</script>
+
+<script>
+    function getShareLink()
+    {       
+        $('#shareSubject').val('Alerts');
+        $('#orgUnitIds option').attr('selected', 'selected');
+        var orgUnitIds = document.getElementById('orgUnitIds').options;
+        var ids = '';
+        for(var i=0;i <= orgUnitIds.length-1 ; i++)
+        {   
+            ids = ids+'&orgUnitIds='+orgUnitIds[i].value;
+        }
+        url = document.location.href +ids;
+        $('#shareText').val('Link to view the report: \n \n' + url);
+        $( "#shareLinkToUser" ).dialog('open');     
+    }
+    function getKeyFlagDetails(value,comment,source,orgName,area)
+    {
+        $('#detailSection').remove();
+        $('#areaAndCountry').find('#content').remove();
+        $('#areaAndCountry').append("<div id='content'><b style='float:left;'> Area: "+area+"</b><b style='float:right;'>Country: "+orgName+"&nbsp;</b> </div>");
+        $('#detailTable').append("<tr id='detailSection'><td>"+value+"</td><td>"+comment+"</td><td>"+source+"</td></tr>")
+        $( '.keyFlagDetail' ).css( 'display','block' );
+    }
+    $(function() {
+        $( document ).tooltip({
+            track: true
+        });
+    });
+</script>
+ <style>
+    @media print {
+    @page { margin: 0; }
+        body { margin: 1.6cm; }
+    }
+        
+</style>
+<select id="orgUnitIds" multiple style="display:none;">
+    #foreach( $orgUnit in $orgUnitList )
+        <option value="$orgUnit.id"></option>
+    #end
+</select>
+<form id="form1" name="form1" action="exportToWorkBook.action" method="post" onsubmit="return exportToExcel()" target="_newtab">
+
+    <input type="hidden" name="htmlCode" id="htmlCode" />
+
+    <div align="right" style="width:95%;margin:auto;padding-top:8px;padding-bottom:3px;">        
+        <input type="submit" value="Download As Excel"/>&nbsp;
+        <input type="button" value="Print" onclick="javascript:printDiv('htmlContent')" />
+        <input type="button" value="Share" onclick="javascript: getShareLink()"/>
+    </div>
+
+    <hr/>  
+    
+    <div id="htmlContent" style="width:90%;margin:auto;" >
+        <h2>$i18n.getString( "alerts" )</h2>         
+        
+        <table id="table1" class="tablesorter">
+        
+            <thead>
+                <tr>
+                    <th align="left" style="vertical-align: middle;">$i18n.getString( "iso_code" )</th>
+                    <th align="left" style="vertical-align: middle;">$i18n.getString( "who_region" )</th>
+                    <!--<th align="left" style="vertical-align: middle;">$i18n.getString( "unicef_region" )</th>-->
+                    <th align="left" style="vertical-align: middle;">$i18n.getString( "country" )</th>                    
+                    <th align="left" style="vertical-align: middle;">$i18n.getString( "dataelement" )</th>                    
+                    <th align="left" style="vertical-align: middle;">$i18n.getString( "remarks" )</th>
+                </tr>
+            </thead>
+            
+            <tbody >
+                #foreach( $orgUnit in $orgUnitList )
+                    #foreach( $de in $dataElementList )
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:$de.id" )
+                        #set( $alertResult = "" )
+                        #set( $alertResult = $alertResultMap.get( $mapKey ) )
+                        
+                        #if(  "$!alertResult" == "" )
+                        
+                        #else
+                            #if( $mark )
+                                #set( $mark = false )
+                            #else
+                                #set( $mark = true )
+                            #end                        
+                            <tr #if( $mark ) bgcolor = "#F0F0F6" #else bgcolor="#FFFFFF"  #end>
+                                <td style="vertical-align: middle;">$orgUnit.code</td>
+                                <td align="left" style="vertical-align: middle;">$!orgUnit.getParent().shortName</td>
+                                <!--<td style="vertical-align: middle;">$orgUnit.getGroupInGroupSet( $unicefRegionsGroupSet ).getShortName()</td>-->
+                                <td align="left" style="vertical-align: middle;">$!orgUnit.name</td>                                
+                                <td style="vertical-align: middle;">$!de.name</td>
+                                <td style="vertical-align: middle;">$!alertResult</td>
+                            </tr>
+                        #end
+                    #end
+                #end
+            </tbody>
+        </table>
+        <br/><br/><br/>
+        <table style="margin:auto;display:none;color: #9F6000;background-color: #FEEFB3;border: 1px solid;" width="100%">
+            <tr>
+                <td colspan="10">$i18n.getString( "report_inline_security_warning" )</td>
+            </tr>
+        </table>
+    </div>    
+</form>
+
+
+<div id="shareLinkToUser" title="Share Link to User">
+        <fieldset>
+            <label for="toUser">$i18n.getString( "maintenance_users" )</label>
+            <input type="hidden" name="recipients" id="recipients" class="text ui-widget-content ui-corner-all" placeholder="Enter User Name"/>
+            <br/><br/>
+            <label for="shareSubject">$i18n.getString( "feedback_subject" )</label>
+            <input type="text" id="shareSubject" name="shareSubject" class="text ui-widget-content ui-corner-all" />
+            <label for="shareText">$i18n.getString( "feedback_text" )</label>
+            <textarea id="shareText" name="shareText" class="text ui-widget-content ui-corner-all" rows="6">                
+            </textarea>
+        </fieldset>
+        <br/>
+        <hr/>
+        <span style="float:right;">
+        <a id="send" href="#">Send</a>
+        <a id="cancel" href="#">Cancel</a>
+        </span>
+   </div>
+    
+<style>
+    label, #toUser ,#shareText ,#shareSubject{ 
+        display:block;
+    }
+        #recipients ,#shareText ,#shareSubject  { 
+        margin-bottom:12px;
+        width:95%; 
+        padding: .4em; 
+    }   
+    #shareLinkToUser fieldset   { 
+        padding:0;
+        border:0;
+        margin-top:25px;
+    }
+</style>
+<script>
+    
+    jQuery(function() { 
+    
+    $("#send").button();
+    $("#send").click(function() {
+            
+            $("#send").attr("href","mailto:"+$('#recipients').val().replace(/[,]/g,';')+"?subject="+$('#shareSubject').val()+"&body="+escape(document.getElementById('shareText').value));
+            $("#shareLinkToUser").dialog('close');
+    });
+    $("#cancel").button();
+    $("#cancel").click(function() {
+        $("#shareLinkToUser").dialog('close');
+    });
+        var emailIds = 'null';
+        $( "#shareLinkToUser" ).dialog({
+                autoOpen: false,
+                height: 420,
+                width: 595,
+                modal: true,
+                show: "blind",
+                hide: "explode"               
+           
+        });
+    });
+    function sendMsg()
+    {
+            
+    
+    }
+</script>
+<script>
+    $(document).ready(function()
+    {
+        $("#table1").tablesorter( {widgets: ['zebra']} );
+    });
+        
+    function exportToExcel()
+    {
+        var currentFlaggedImgPath = $('.flagedImg').find('img').attr('src');
+        var currentUnFlaggedImgPath = $('.unFlagedImg').find('img').attr('src');
+        
+        var redFlag = $('#redFlag').val();
+        var greyFlag = $('#greyFlag').val();
+        
+        
+        $('.flagedImg').find('img').remove();
+        $('.unFlagedImg').find('img').remove();
+        
+        $('.flagedImg').append('<font size=\"20\" color=\"red\">*</font>')
+        $('.unFlagedImg').append('<font size=\"20\" color=\"#A4A4A4\">*</font>');
+        
+        document.getElementById('htmlCode').value = document.getElementById('htmlContent').innerHTML;
+        
+        $('.flagedImg').text('');
+        $('.unFlagedImg').text(''); 
+        
+        $('.flagedImg').append('<img src=\"'+currentFlaggedImgPath+'\" width=\"20\" height=\"20\" style=\"float:left;\" \>');
+        $('.unFlagedImg').append('<img src=\"'+currentUnFlaggedImgPath+'\" width=\"20\" height=\"20\" style=\"float:left;\" \>');
+        return true;
+    }
+    
+    function printDiv( divID ) 
+    {
+        //Get the HTML of div
+        var divElements = document.getElementById(divID).innerHTML;
+        
+        //Get the HTML of whole page
+        var oldPage = document.body.innerHTML;
+
+        //Reset the page's HTML with div's HTML only
+        document.body.innerHTML = "<html><head><title></title></head><body>" + divElements + "</body>";
+
+        //Print Page
+        window.print();
+
+        //Restore orignal HTML
+        document.body.innerHTML = oldPage;          
+    }
+</script>

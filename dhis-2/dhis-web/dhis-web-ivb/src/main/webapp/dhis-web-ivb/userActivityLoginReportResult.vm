@@ -1,0 +1,373 @@
+   <!--<style>
+		.x-column-header-inner .x-column-header-text {
+		white-space: normal;
+		z-index:-1;
+	}
+
+	.x-column-header-inner {
+		line-height: normal;
+		padding-top: 3px !important;
+		padding-bottom: 3px !important;			
+	}	
+	.x-grid-row .x-grid-cell-inner {
+		white-space: normal;
+	}
+    .x-grid-row-over .x-grid-cell-inner {        
+		white-space: normal;
+    }	 
+   </style>-->
+	<script type="text/javascript" >
+	function altRows(id){
+	if(document.getElementsByTagName){  
+		if(document.getElementById(id) != null)
+		{
+		    var table = document.getElementById(id);  		
+			var rows = table.getElementsByTagName("tr"); 
+			 
+			for(i = 0; i < rows.length; i++){          
+				if(i % 2 == 0){
+					rows[i].className = "evenrowcolor";
+				}else{
+					rows[i].className = "oddrowcolor";
+				}      
+			}
+		}
+	}
+  }
+	
+	</script>
+    <script type="text/javascript">
+    $('#toUser').show();
+    $('#recipients').select2({
+       minimumInputLength: 1,
+       multiple: true, 
+       width: "546px",      
+       ajax: {
+           url: 'getMessageRecipients.action',
+           dataType: 'json',
+           data: function(term, page) {
+                return {
+                    filter: term
+                }
+           },
+           results: function(data, page) {
+		    return {		   	   
+               results: data.matches }
+           }
+       }
+    });
+});
+</script>
+
+<script>
+    function getShareLink()
+    {       
+        $('#shareSubject').val('User Activity Login Report');
+		url = document.location.href;
+        $('#shareText').val('Link to view the report: \n \n' + url);
+        $( "#shareLinkToUser" ).dialog('open');     
+    }
+	$(function() {
+		$( document ).tooltip();
+	});
+</script>
+ <style>
+    @media print {
+    @page { margin: 0; }
+        body { margin: 1.6cm; }
+    }
+        .ui-tooltip, .arrow1:after {
+            background: white;
+            border: 2px solid #086B96;
+        }
+        .ui-tooltip {
+            padding: 10px 20px;
+            color: black;
+            border-radius: 20px;
+            font: bold 12px "Helvetica Neue", Sans-Serif;           
+            box-shadow: 0 0 7px black;
+        }
+        .arrow1 {
+            width: 70px;
+            height: 16px;
+            overflow: hidden;
+            position: absolute;
+            left: 40%;
+            margin-left: -35px;
+            bottom: -16px;
+        }
+        .arrow1.top {
+            top: -16px;
+            bottom: auto;
+        }
+        .arrow1.left {
+            left: 20%;
+        }
+        .arrow1:after {
+            content: "";
+            position: absolute;
+            left: 20px;
+            top: -20px;
+            width: 25px;
+            height: 25px;
+            box-shadow: 6px 5px 9px -9px black;
+            -webkit-transform: rotate(45deg);
+            -moz-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            -o-transform: rotate(45deg);
+            tranform: rotate(45deg);
+        }
+        .arrow1.top:after {
+            bottom: -20px;
+            top: auto;
+        }
+
+/* tables */
+table.tablesorter {
+    font-family:arial;
+    background-color: #CDCDCD;
+    margin:10px 0pt 15px;
+    font-size: 8pt;
+    width: 100%;
+    text-align: left;    
+}
+table.tablesorter thead tr th, table.tablesorter tfoot tr th {
+    background-color: #e6EEEE;
+    border: 1px solid #FFF;
+    font-size: 8pt;
+    padding: 4px;
+}
+table.tablesorter thead tr .header {
+    background-image: url(bg.gif);
+    background-repeat: no-repeat;
+    background-position: center right;
+    cursor: pointer;
+}
+table.tablesorter tbody td {
+    color: #3D3D3D;
+    padding: 4px;
+    background-color: #FFF;
+    vertical-align: middle;
+}
+table.tablesorter tbody tr.odd td {
+    background-color:#F0F0F6;
+}
+table.tablesorter thead tr .headerSortUp {
+    background-image: url(asc.gif);
+}
+table.tablesorter thead tr .headerSortDown {
+    background-image: url(desc.gif);
+}
+table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
+background-color: #8dbdd8;
+}
+
+table.tablesorter td:hover {
+ background-color: #ffff99;
+}
+
+table.tablesorter tr.odd td:hover {
+ background-color: #ffff99;
+}
+</style>
+
+<form id="form1" name="form1" action="exportToWorkBook.action" method="post" onsubmit="return exportToExcel()" target="_newtab">
+
+    <input type="hidden" name="htmlCode" id="htmlCode" />
+
+    <div align="right" style="width:95%;margin:auto;padding-top:8px;padding-bottom:3px;">
+        <input type="submit" value="Download As Excel"/>&nbsp;
+        <input type="button" value="Print" onclick="javascript:printDiv('htmlContent')" />
+        <input type="button" value="Share" onclick="javascript: getShareLink()"/>
+    </div>
+
+    <hr/>  
+    
+    <div id="htmlContent" style="width:98%;margin:auto;" >        
+        <h2>$i18n.getString( "user_activity_login_report" )</h2>
+        <table class="tablesorter" id="table1" >
+            <thead>
+                <tr>
+                    <th align="left" style="vertical-align: middle;">$i18n.getString( "username" )</th>
+                    <th align="left" style="vertical-align: middle;">$i18n.getString( "firstname" )</th>
+                    <th align="left" style="vertical-align: middle;">$i18n.getString( "surname" )</th>
+                    <th align="left" style="vertical-align: middle;">$i18n.getString( "email" )</th>
+                    <th align="left" style="vertical-align: middle;">$i18n.getString( "lastlogin" )</th>
+                </tr>
+            </thead>
+            <tbody>
+                #set( $mark = false )
+                #foreach( $userDetail in $userDetails )
+					#if( $mark )
+						#set( $mark = false )
+					#else
+						#set( $mark = true )
+					#end
+					<tr #if( $mark ) bgcolor = "#F0F0F6" #else bgcolor="#FFFFFF"  #end >
+						<td style="vertical-align: middle;">$!userDetail.userName</td>
+                        <td style="vertical-align: middle;">$!userDetail.firstName</td>
+                        <td style="vertical-align: middle;">$!userDetail.surName</td>
+                       	<td style="vertical-align: middle;">$!userDetail.email</td>
+                       	<td style="vertical-align: middle;">$!userDetail.lastLogin</td>
+					</tr>
+				#end
+    		</tbody>
+		</table>
+    	
+    	<script>
+    		$(document).ready(function()
+        	{ 
+        		$("#table1").tablesorter( {widgets: ['zebra']} );
+        	});
+    	</script>
+	</div>
+	
+	
+	
+	<div style="width:95%;margin:auto;" >
+	
+ 		<br/><br/><br/>
+        <table style="margin:auto;display:none;color: #9F6000;background-color: #FEEFB3;border: 1px solid;" width="100%">
+            <tr>
+                <td colspan="5">$i18n.getString( "inline_security_warning" )</td>
+            </tr>
+        </table>
+    </div>    
+</form>
+	
+	<div id="shareLinkToUser" title="Share Link to User">
+        <fieldset>
+            <label for="toUser">$i18n.getString( "maintenance_users" )</label>
+            <input type="hidden" name="recipients" id="recipients" class="text ui-widget-content ui-corner-all" placeholder="Enter User Name"/>
+            <br/><br/>
+            <label for="shareSubject">$i18n.getString( "feedback_subject" )</label>
+            <input type="text" id="shareSubject" name="shareSubject" class="text ui-widget-content ui-corner-all" />
+            <label for="shareText">$i18n.getString( "feedback_text" )</label>
+            <textarea id="shareText" name="shareText" class="text ui-widget-content ui-corner-all" rows="6">                
+            </textarea>
+        </fieldset>
+		<br/>
+		<hr/>
+		<span style="float:right;">
+        <a id="send" href="#">Send</a>
+		<a id="cancel" href="#">Cancel</a>
+		</span>
+   </div>
+    
+<style>
+    label, #toUser ,#shareText ,#shareSubject{ 
+        display:block;
+    }
+        #recipients ,#shareText ,#shareSubject  { 
+        margin-bottom:12px;
+        width:95%; 
+        padding: .4em; 
+    }   
+    #shareLinkToUser fieldset   { 
+        padding:0;
+        border:0;
+        margin-top:25px;
+    }
+</style>
+
+<script>
+	
+    jQuery(function() {	
+	
+	$("#send").button();
+	$("#send").click(function() {
+			
+			$("#send").attr("href","mailto:"+$('#recipients').val().replace(/[,]/g,';')+"?subject="+$('#shareSubject').val()+"&body="+escape(document.getElementById('shareText').value));
+    		$("#shareLinkToUser").dialog('close');
+	});
+	$("#cancel").button();
+	$("#cancel").click(function() {
+		$("#shareLinkToUser").dialog('close');
+	});
+        var emailIds = 'null';
+        $( "#shareLinkToUser" ).dialog({
+                autoOpen: false,
+                height: 420,
+                width: 595,
+                modal: true,
+                show: "blind",
+                hide: "explode"               
+           
+        });
+    });
+	function sendMsg()
+	{
+    		
+    
+	}
+</script>
+
+<style style="text/css">
+
+td:hover {
+ background-color: #ffff99;
+}
+         
+</style>
+
+<script>
+   
+    function sorting()
+    {
+        if($('.asc').css('display') == "block")
+        {
+            $('.asc').css('display', 'none');
+            $('.desc').css('display', 'block');
+            altRows('alternatecolor');          
+        }
+        else
+        {
+            $('.asc').css('display', 'block');
+            $('.desc').css('display', 'none');
+            altRows('alternatecolor');  
+        }
+    }
+    
+    function exportToExcel()
+    {
+        var currentFlaggedImgPath = $('.flagedImg').find('img').attr('src');
+		var currentUnFlaggedImgPath = $('.unFlagedImg').find('img').attr('src');
+		
+		var redFlag = $('#redFlag').val();
+		var greyFlag = $('#greyFlag').val();
+		
+		
+		$('.flagedImg').find('img').remove();
+		$('.unFlagedImg').find('img').remove();
+		
+		$('.flagedImg').append('<font size=\"20\" color=\"red\">*</font>')
+		$('.unFlagedImg').append('<font size=\"20\" color=\"#A4A4A4\">*</font>');
+		
+		document.getElementById('htmlCode').value = document.getElementById('htmlContent').innerHTML;
+		
+		$('.flagedImg').text('');
+		$('.unFlagedImg').text('');	
+				
+		$('.flagedImg').append('<img src=\"'+currentFlaggedImgPath+'\" width=\"20\" height=\"20\" style=\"float:left;\" \>');
+		$('.unFlagedImg').append('<img src=\"'+currentUnFlaggedImgPath+'\" width=\"20\" height=\"20\" style=\"float:left;\" \>');
+        return true;
+    }
+    
+    function printDiv( divID ) 
+    {
+        //Get the HTML of div
+        var divElements = document.getElementById(divID).innerHTML;
+        
+        //Get the HTML of whole page
+        var oldPage = document.body.innerHTML;
+
+        //Reset the page's HTML with div's HTML only
+        document.body.innerHTML = "<html><head><title></title></head><body>" + divElements + "</body>";
+
+        //Print Page
+        window.print();
+
+        //Restore orignal HTML
+        document.body.innerHTML = oldPage;          
+    }
+</script>

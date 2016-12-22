@@ -1,0 +1,268 @@
+#set( $reportWarning = "Y" )
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+<script type="text/javascript">
+jQuery(function() {
+    $('#toUser').show();
+    $('#recipients').select2({
+       minimumInputLength: 1,
+       multiple: true, 
+       width: "546px",      
+       ajax: {
+           url: 'getMessageRecipients.action',
+           dataType: 'json',
+           data: function(term, page) {
+                return {
+                    filter: term
+                }
+           },
+           results: function(data, page) {
+               return { results: data.matches }
+           }
+       }
+    });
+});
+</script>
+
+<script>
+	function getShareLink()
+	{		
+		$('#shareSubject').val('Key Flag Report');
+		$('#orgUnitIds option').attr('selected', 'selected');
+		var orgUnitIds = document.getElementById('orgUnitIds').options;
+		var ids = '';
+		for(var i=0;i <= orgUnitIds.length-1 ; i++)
+		{	
+			ids = ids+'&orgUnitIds='+orgUnitIds[i].value;
+		}
+		url = document.location.href +ids;
+        $('#shareText').val('Link to view the report: \n \n' + url);
+		$( "#shareLinkToUser" ).dialog('open');		
+	}
+</script>
+<style>
+.table-striped > tbody > tr:nth-child(2n+1) > td, .table-striped > tbody > tr:nth-child(2n+1) > th {
+   background-color: #E0ECF8;
+}
+</style>
+<select id="orgUnitIds" multiple style="display:none;">
+    #foreach( $orgUnit in $orgUnits )
+		<option value="$orgUnit.id"></option>
+    #end
+</select>
+<form id="form1" name="form1" action="exportToWorkBook.action" method="post" onsubmit="return exportToExcel()" target="_newtab">
+	<input type="hidden" name="htmlCode" id="htmlCode" />
+	<div align="right" style="width:95%;margin:auto;padding-top:8px;padding-bottom:3px;">
+		<input type="button" onclick="location.href='keyFlagReport.action'" value="Change Selections"/>&nbsp;
+		<input type="submit" value="Download As Excel"/>
+		<input type="button" value="Print" onclick="javascript:printDiv('htmlContent')"/>
+		<input type="button" value="Share" onclick="javascript: getShareLink()"/>
+	</div>
+
+
+	<div id="htmlContent" style="width:98%;margin:auto;">
+	
+		<h2>$i18n.getString( "key_flag_report" )</h2>
+	
+		<br/>
+	
+		<table class="table table-hover table-bordered altrowstable tablesorter table-striped" id="alternatecolor1" style="table-layout:fixed; width:100%" width="100%">		
+			<thead>
+				<tr id="alHead">
+					<th style="width:18%">$i18n.getString( "areas_of_work" )</th>
+					<th style="width:10%;display:none;">$i18n.getString( "key_flag" )</th>
+	                <th align="left" style="width:3%;display:none;">$i18n.getString( "iso_code" )</th>
+					<th width="8%" align="left">$i18n.getString( "who_region" ) </th>
+					<th align="left" style="width:5%;display:none;">$i18n.getString( "unicef_region" )</th>
+					<th width="8%" align="left">$i18n.getString( "country" )</th>
+					<th align="left" style="width:7%;display:none;">$i18n.getString( "income_level" )</th>
+					<th align="left" style="width:7%;display:none;">$i18n.getString( "gavi_eligibility_status" )</th>
+					<th width="12%" align="left" >$i18n.getString( "value" )</th>
+					<th width="40%" align="left">$i18n.getString( "comment" )</th>
+					<th width="8%" align="left">$i18n.getString( "period" )</th>
+					<th width="8%" align="left">$i18n.getString( "source" )</th>
+				</tr>
+			</thead>
+			<tbody id="list">
+				#set( $count = 0 )
+				#foreach($indicator in $indicatorList)
+					#set( $count = $count + 1 )
+					#foreach($dataset in $indicator.dataSets)
+						#set( $datasetUid = $dataset.uid )
+					#end
+					
+					#set( $mark = false )
+					#foreach($orgUnit in $orgUnits)	
+						#if( $mark )
+							#set( $mark = false )
+						#else
+							#set( $mark = true )
+						#end				
+						#set( $getter = "${indicator.uid}-${orgUnit.uid}")
+						
+						<tr >
+							<td title="$indicator.name">$dataSetMap.get($indicator.uid) <br />( $indicator.shortName ) </td>
+							<td style="display:none;">$indicator.name</td>
+	                        <td style="display:none;">$orgUnit.code</td>
+							<td width="10%" align="left">$orgUnit.getParent().getShortName()</td>
+							<td style="display:none;">$orgUnit.getGroupNameInGroupSet( $unicefRegionsGroupSet )</td>
+							<td width="10%" align="left">$orgUnit.getName()</td>
+							
+	                        #set( $headergetter = "" )
+	                        #set( $headergetter = "$orgUnit.id:3" )
+	                        #if('$!headerDataValueMap.get($headergetter)' != 'null' )
+	                            <td style="display:none;">$!headerDataValueMap.get($headergetter).value</td>
+	                        #else   
+	                            <td style="display:none;">&nbsp;</td>
+	                        #end
+	
+	                        #set( $headergetter = "" )
+	                        #set( $headergetter = "$orgUnit.id:4" )
+	                        #if('$!headerDataValueMap.get($headergetter)' != 'null' )
+	                            <td style="display:none;">$!headerDataValueMap.get($headergetter).value</td>
+	                        #else   
+	                            <td style="display:none;">&nbsp;</td>
+	                        #end
+							
+							#if($valueMap.get(${getter}))
+								<td id="${$orgUnit.id}" width="15%" align="left">
+									<a href="loadSingleCoutryEntryForm.action?dataSetUId=$datasetUid&orgUnitUid=$orgUnit.uid">
+										$!valueMap.get(${getter})
+									</a>
+								</td>
+							#else
+								<td id="${$orgUnit.id}" width="15%" align="left">$!valueMap.get(${getter})</td>
+							#end
+							<td width="40%" align="left">$!commentMap.get(${getter})</td>
+							<td width="10%" align="left">$!periodMap.get(${getter})</td>
+							<td width="10%" align="left">$!sourceMap.get(${getter})</td>			
+						</tr>
+					#end
+				#end
+			</tbody>
+		</table>
+		<br/><br/><br/>
+		<table style="margin:auto;display:none;color: #9F6000;background-color: #FEEFB3;border: 1px solid;" width="100%">
+			<tr>
+				<td colspan="6">$i18n.getString( "report_inline_security_warning" )</td>
+			</tr>
+		</table>
+	</div>
+</form>
+
+<div id="shareLinkToUser" title="Share Link to User">
+	<fieldset>
+		<label for="toUser">$i18n.getString( "maintenance_users" )</label>
+		<input type="hidden" name="recipients" id="recipients" class="text ui-widget-content ui-corner-all" placeholder="Enter User Name"/>
+		<br/><br/>
+		<label for="shareSubject">$i18n.getString( "feedback_subject" )</label>
+		<input type="text" id="shareSubject" name="shareSubject" class="text ui-widget-content ui-corner-all" />
+		<label for="shareText">$i18n.getString( "feedback_text" )</label>
+		<textarea id="shareText" name="shareText" class="text ui-widget-content ui-corner-all" rows="6"></textarea>
+	</fieldset>
+</div>
+
+<style>
+	label, #toUser ,#shareText ,#shareSubject{ 
+		display:block;
+	}
+		#recipients ,#shareText ,#shareSubject	{ 
+		margin-bottom:12px;
+		width:95%; 
+		padding: .4em; 
+	}	
+	#shareLinkToUser fieldset	{ 
+		padding:0;
+		border:0;
+		margin-top:25px;
+	}
+</style>
+<script>
+	jQuery(function() {
+	    var emailIds = 'null';
+		$( "#shareLinkToUser" ).dialog({
+				autoOpen: false,
+				height: 420,
+				width: 595,
+				modal: true,
+				show: "blind",
+				hide: "explode",
+				buttons: {
+				"$i18n.getString( 'send' )":function() {					
+					location.href = 'mailto:' + $('#recipients').val().replace(/[,]/g,';') +
+                	'?subject=' + $('#shareSubject').val() +
+                	'&body=' + escape(document.getElementById('shareText').value) ;
+					$( this ).dialog( "close" );
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			},
+			close: function() {				
+			}
+		});
+	});
+	jQuery(document).ready(function()
+	 {
+		$("#alternatecolor1").tablesorter(); 
+	});
+	
+	function sorting( altColorVariable)
+	{
+		if($('.asc').css('display') == "block")
+		{
+			$('.asc').css('display', 'none');
+			$('.desc').css('display', 'block');
+			altRows( altColorVariable );			
+		}
+		else
+		{
+			$('.asc').css('display', 'block');
+			$('.desc').css('display', 'none');
+			altRows( altColorVariable );	
+		}
+	}
+	
+	function exportToExcel()
+	{
+		var x=0;
+		$('#alHead').attr("bgcolor","#cccccc");
+		$('#alternatecolor1 > tbody  > tr').each(function()
+		{
+			if(x%2==0)
+			$(this).attr("bgcolor","#E0ECF8");
+			x++;
+		});
+		
+		
+		var oldHtml = document.getElementById('htmlContent').innerHTML;
+		$('.asc').remove();
+		$('.desc').remove();	
+		$('#htmlContent a').contents().unwrap();
+		
+		var tempHtml = document.getElementById('htmlContent').innerHTML;
+	
+		document.getElementById('htmlCode').value = tempHtml;			
+		document.getElementById('htmlContent').innerHTML = oldHtml;
+        return true;
+	}
+	
+	function printDiv(divID) 
+	{
+		//Get the HTML of div
+        var divElements = document.getElementById(divID).innerHTML;
+        
+        //Get the HTML of whole page
+        var oldPage = document.body.innerHTML;
+
+        //Reset the page's HTML with div's HTML only
+        document.body.innerHTML = "<html><head><title></title></head><body>" + divElements + "</body>";
+
+       	//Print Page
+        window.print();
+
+        //Restore orignal HTML
+        document.body.innerHTML = oldPage;    
+		
+		window.location.reload();			
+	}
+</script>

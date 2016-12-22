@@ -1,0 +1,421 @@
+#set( $reportWarning = "Y" )
+
+<script type="text/javascript">
+jQuery(function() {
+    $('#toUser').show();
+    $('#recipients').select2({
+       minimumInputLength: 1,
+       multiple: true, 
+       width: "546px",      
+       ajax: {
+           url: 'getMessageRecipients.action',
+           dataType: 'json',
+           data: function(term, page) {
+                return {
+                    filter: term
+                }
+           },
+           results: function(data, page) {
+               return { results: data.matches }
+           }
+       }
+    });
+});
+
+$(function() {
+		$( document ).tooltip({
+			track: true
+		});
+	});
+</script>
+
+<script>
+	function getShareLink()
+	{		
+		$('#shareSubject').val('Vaccine Introduction Report');
+		$('#orgUnitIds option').attr('selected', 'selected');
+		var orgUnitIds = document.getElementById('orgUnitIds').options;
+		var ids = '';
+		for(var i=0;i <= orgUnitIds.length-1 ; i++)
+		{	
+			ids = ids+'&orgUnitIds='+orgUnitIds[i].value;
+		}
+		url = document.location.href +ids;
+        $('#shareText').val('Link to view the report: \n \n' + url);
+		$( "#shareLinkToUser" ).dialog('open');		
+	}
+</script>
+ <style>
+ 	@media print {
+  	@page { margin: 0; }
+  		body { margin: 1.6cm; }
+	}
+		.ui-tooltip, .arrow1:after {
+			background: white;
+			border: 2px solid #086B96;
+		}
+		.ui-tooltip {
+			padding: 10px 20px;
+			color: black;
+			border-radius: 20px;
+			font: bold 12px "Helvetica Neue", Sans-Serif;			
+			box-shadow: 0 0 7px black;
+		}
+		.arrow1 {
+			width: 70px;
+			height: 16px;
+			overflow: hidden;
+			position: absolute;
+			left: 50%;
+			margin-left: -35px;
+			bottom: -16px;
+		}
+		.arrow1.top {
+			top: -16px;
+			bottom: auto;
+		}
+		.arrow1.left {
+			left: 20%;
+		}
+		.arrow1:after {
+			content: "";
+			position: absolute;
+			left: 20px;
+			top: -20px;
+			width: 25px;
+			height: 25px;
+			box-shadow: 6px 5px 9px -9px black;
+			-webkit-transform: rotate(45deg);
+			-moz-transform: rotate(45deg);
+			-ms-transform: rotate(45deg);
+			-o-transform: rotate(45deg);
+			tranform: rotate(45deg);
+		}
+		.arrow1.top:after {
+			bottom: -20px;
+			top: auto;
+		}
+</style>
+<select id="orgUnitIds" multiple style="display:none;">
+    #foreach( $orgUnit in $orgUnitList )
+		<option value="$orgUnit.id"></option>
+    #end
+</select>
+<form id="form1" name="form1" action="exportToWorkBook.action" method="post" onsubmit="return exportToExcel()" target="_newtab">
+	<input type="hidden" name="htmlCode" id="htmlCode" />
+	<div align="right" style="width:95%;margin:auto;padding-top:8px;padding-bottom:3px;">
+		<input type="button" onclick="location.href='vaccineIntroReport.action'" value="Change Selections"/>&nbsp;
+		<input type="submit" value="Download As Excel"/>&nbsp;
+		<input type="button" value="Print" onclick="javascript:printDiv('htmlContent')" />
+		<input type="button" value="Share" onclick="javascript: getShareLink()"/>
+	</div>
+
+ <div id="htmlContent" style="width:90%;margin:auto;" >     
+
+		  <div id="htmlContent" style="width:90%;margin:auto;" >        
+        <h2>Vaccine Introductions</h2>
+		<h3>Vaccines: 
+					#foreach( $dataSetSection in $dataSetSections )
+						$dataSetSection.name &nbsp; 
+					#end
+		</h3>
+        <h3>GAVI application date: $introStartDate to $introEndDate</h3>        
+		
+		<table cellspacing="0" cellpadding="0" style="display:none;margin:auto;table-layout:fixed;width:100%;">
+			<thead>
+				<tr width="100%" bgcolor="#A9D0F5">
+					<th align="left">ISO code</th>
+					<th align="left">$i18n.getString( "who_region" )</th>
+					<th align="left">$i18n.getString( "country" )</th>
+					<th align="left">$i18n.getString( "income_level" )</th>
+					<th align="left">$i18n.getString( "gavi_eligibility_status" )</th>
+					<th align="left">$i18n.getString( "vaccines" )</th>
+					<th align="left">$i18n.getString( "intro_year" )</th>
+					#foreach( $dataElementGroup in $dataElementGroups )
+						<th align="left">$!dataElementGroup.displayName</th>
+						<th align="left">Comment of $!dataElementGroup.displayName</th>
+					#end
+				</tr>
+			</thead>
+			<tbody id="list">
+				#foreach( $orgUnit in $orgUnitList )
+					#set( $sectionResultMap = $orgUnitResultMap.get( $orgUnit ) )
+					#set( $sectionCommentMap = $orgUnitCommentMap.get( $orgUnit ) )
+					
+					#set( $mark = false )
+					#foreach( $dataSetSection in $dataSetSections )
+						#if( $mark )
+							#set( $mark = false )
+						#else
+							#set( $mark = true )
+						#end
+						#set( $valueResultMap = $sectionResultMap.get( $dataSetSection.name ) )
+						#set( $valueCommentMap = $sectionCommentMap.get( $dataSetSection.name ) )
+						
+						#if($valueResultMap.get( $introYearDEGroup.id ) && $valueResultMap.get( $introYearDEGroup.id ) != " ")
+						<tr width="100%" #if( $mark ) bgcolor="#E0ECF8" #else bgcolor = "#FFFFFF" #end>
+							<td align="left">$!orgUnit.code</td>
+							<td align="left">$!orgUnit.getParent().shortName</td>
+							<td align="left">$!orgUnit.name</td>
+							<td align="left">$!countryGeneralInfoMap.get( "$!orgUnit.id:3" )</td>
+							<td align="left">$!countryGeneralInfoMap.get( "$!orgUnit.id:4" )</td>
+							<td align="left">
+							<a href="loadSingleCoutryEntryForm.action?dataSetSectionId=$dataSetSection.id&orgUnitUid=$orgUnit.uid">	
+								$!dataSetSection.displayName
+							</a>
+							</td>
+							<td align="left">$!valueResultMap.get( $!introYearDEGroup.id )</td>
+							#foreach( $dataElementGroup in $dataElementGroups )								
+                                <td align="left">$!valueResultMap.get( $!dataElementGroup.id )</td>
+                                <td align="left">$!valueCommentMap.get( $!dataElementGroup.id )</td>
+							#end
+						</tr>
+						#end
+					#end
+				#end
+			</tbody>
+		</table>
+		<br/><br/><br/>
+		<table style="margin:auto;display:none;color: #9F6000;background-color: #FEEFB3;border: 1px solid;" width="100%">
+			<tr>
+				<td colspan="6">$i18n.getString( "report_inline_security_warning" )</td>
+			</tr>
+		</table>
+	</div>
+	<br/>
+	
+	<!--<div style="width:95%;margin:auto;" >
+		<table style="table-layout:fixed; width:100%">
+            <tr><td colspan="6"><h3>Vaccine Introductions</h3></td></tr>
+            <tr>
+                <td colspan="6">Vaccines: 
+                    #foreach( $dataSetSection in $dataSetSections )
+                        $dataSetSection.name &nbsp; 
+                    #end
+                </td>
+            </tr>
+            <tr><td colspan="6">Introduction Dates: $introStartDate to $introEndDate</td></tr>
+        </table>
+        
+        <br/>-->
+        
+        <table class="altrowstable listTable" id="alternatecolor" cellspacing="0" cellpadding="0" style="margin:auto;table-layout:fixed;width:100%;">
+            <thead>
+                <tr width="100%" bgcolor="#A9D0F5">
+					<!--
+                    <th onclick="sorting()" align="left">$i18n.getString( "who_region" ) <img src="images/asc.gif" class="asc" style="display:block;float:right;"/><img src="images/desc.gif" class="desc" style="display:none;float:right;"/></th>
+                    <th onclick="sorting()" align="left">$i18n.getString( "country" ) <img src="images/asc.gif" class="asc" style="display:block;float:right;"/><img src="images/desc.gif" class="desc" style="display:none;float:right;"/></th>
+                    <th onclick="sorting()" align="left">$i18n.getString( "vaccines" ) <img src="images/asc.gif" class="asc" style="display:block;float:right;"/><img src="images/desc.gif" class="desc" style="display:none;float:right;"/></th>
+                    <th onclick="sorting()" align="left">$i18n.getString( "intro_year" ) <img src="images/asc.gif" class="asc" style="display:block;float:right;"/><img src="images/desc.gif" class="desc" style="display:none;float:right;"/></th>
+                    -->
+                    <th onclick="sorting()" align="left">$i18n.getString( "who_region" ) <img src="images/asc.gif" class="asc" style="display:none;float:right;"/><img src="images/desc.gif" class="desc" style="display:none;float:right;"/></th>
+                    <th onclick="sorting()" align="left">$i18n.getString( "country" ) <img src="images/asc.gif" class="asc" style="display:none;float:right;"/><img src="images/desc.gif" class="desc" style="display:none;float:right;"/></th>
+                    <th onclick="sorting()" align="left">$i18n.getString( "vaccines" ) <img src="images/asc.gif" class="asc" style="display:none;float:right;"/><img src="images/desc.gif" class="desc" style="display:none;float:right;"/></th>
+                    <th onclick="sorting()" align="left">$i18n.getString( "intro_year" ) <img src="images/asc.gif" class="asc" style="display:none;float:right;"/><img src="images/desc.gif" class="desc" style="display:none;float:right;"/></th>
+
+                    #foreach( $dataElementGroup in $dataElementGroups )
+                        <th onclick="sorting()" align="left">$!dataElementGroup.displayName</th>
+                    #end
+                </tr>
+            </thead>
+            <tbody id="list">
+                #foreach( $orgUnit in $orgUnitList )
+                    #set( $sectionResultMap = $orgUnitResultMap.get( $orgUnit ) )
+                    #set( $sectionCommentMap = $orgUnitCommentMap.get( $orgUnit ) )
+                    
+                    #set( $mark = false )
+                    #foreach( $dataSetSection in $dataSetSections )
+                        #if( $mark )
+                            #set( $mark = false )
+                        #else
+                            #set( $mark = true )
+                        #end
+                        #set( $valueResultMap = $sectionResultMap.get( $dataSetSection.name ) )
+                        #set( $valueCommentMap = $sectionCommentMap.get( $dataSetSection.name ) )
+                        #if($valueResultMap.get( $introYearDEGroup.id ) && $valueResultMap.get( $introYearDEGroup.id ) != " ")
+                        <tr width="100%" #if( $mark ) bgcolor="#E0ECF8" #else bgcolor = "#FFFFFF" #end>
+                            <td align="left">$!orgUnit.getParent().shortName</td>
+                            <td align="left">$!orgUnit.name</td>
+                            <td align="left">
+                            <a href="loadSingleCoutryEntryForm.action?dataSetSectionId=$dataSetSection.id&orgUnitUid=$orgUnit.uid"> 
+                                $!dataSetSection.displayName
+                            </a>
+                            </td>
+                            <td align="left">$!valueResultMap.get( $!introYearDEGroup.id )</td>
+                            #foreach( $dataElementGroup in $dataElementGroups )
+                            	#set( $comment = "" )
+                            	#set( $comment = $!valueCommentMap.get( $!dataElementGroup.id ) )
+                                <td align="left" #if(${comment} != '') style="color:green;" title="$!{comment}" #end>$!valueResultMap.get( $!dataElementGroup.id )</td>
+                            #end
+                        </tr>
+                        #end
+                    #end
+                #end
+            </tbody>
+        </table>
+        <br/><br/><br/>
+        <table style="margin:auto;display:none;color: #9F6000;background-color: #FEEFB3;border: 1px solid;" width="100%">
+            <tr>
+                <td colspan="5">$i18n.getString( "report_inline_security_warning" )</td>
+            </tr>
+        </table>
+	</div>
+	</div>
+</form>
+
+
+<div id="shareLinkToUser" title="Share Link to User">
+		<fieldset>
+			<label for="toUser">$i18n.getString( "maintenance_users" )</label>
+			<input type="hidden" name="recipients" id="recipients" class="text ui-widget-content ui-corner-all" placeholder="Enter User Name"/>
+			<br/><br/>
+			<label for="shareSubject">$i18n.getString( "feedback_subject" )</label>
+			<input type="text" id="shareSubject" name="shareSubject" class="text ui-widget-content ui-corner-all" />
+			<label for="shareText">$i18n.getString( "feedback_text" )</label>
+			<textarea id="shareText" name="shareText" class="text ui-widget-content ui-corner-all" rows="6">				
+			</textarea>
+		</fieldset>
+	</div>
+	
+<style>
+	label, #toUser ,#shareText ,#shareSubject{ 
+		display:block;
+	}
+		#recipients ,#shareText ,#shareSubject	{ 
+		margin-bottom:12px;
+		width:95%; 
+		padding: .4em; 
+	}	
+	#shareLinkToUser fieldset	{ 
+		padding:0;
+		border:0;
+		margin-top:25px;
+	}
+</style>
+<script>
+	var number = /^\d{2}$/;
+	var monthNames = {};
+	monthNames["Q1"] = "01";
+	monthNames["Q2"] = "04";
+	monthNames["Q3"] = "07";
+	monthNames["Q4"] = "10";
+	monthNames[number+""] = number+"";
+	
+	jQuery(function() {
+	    var emailIds = 'null';
+		$( "#shareLinkToUser" ).dialog({
+				autoOpen: false,
+				height: 420,
+				width: 595,
+				modal: true,
+				show: "blind",
+				hide: "explode",
+				buttons: {
+				"$i18n.getString( 'send' )":function() {					
+					location.href = 'mailto:' + $('#recipients').val().replace(/[,]/g,';') +
+                	'?subject=' + $('#shareSubject').val() +
+                	'&body=' + escape(document.getElementById('shareText').value) ;
+					$( this ).dialog( "close" );
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			},
+			close: function() {				
+			}
+		});
+		
+	
+	jQuery.tablesorter.addParser({
+    'id' : 'customDates',
+    'is' : function(string) {
+         return false;
+         },
+    'format' : function(string) {
+        if (string == "") {
+            return '';
+        }
+		string = string.replace("Q1","01");
+		string = string.replace("Q2","04");
+		string = string.replace("Q3","07");
+		string = string.replace("Q4","10");
+		
+        var thedate = string.split('-');
+		var date_month = thedate[1];
+	
+	if(date_month==undefined)
+		{
+			date_month="01";
+		}
+        var date_year = thedate[0];
+        return date_year + date_month ;
+	
+    },
+    'type' : 'numeric'
+    });
+		
+	});
+</script>
+<script>
+
+	
+	$(document).ready(function()
+	{
+		altRows('alternatecolor');
+		
+		$('table').tablesorter({
+	
+      headers: {
+         3: {
+            sorter: 'customDates'
+         }
+      }
+   	});
+	});
+	function sorting()
+	{
+		if($('.asc').css('display') == "block")
+		{
+			$('.asc').css('display', 'none');
+			$('.desc').css('display', 'block');
+			altRows('alternatecolor');			
+		}
+		else
+		{
+			$('.asc').css('display', 'block');
+			$('.desc').css('display', 'none');
+			altRows('alternatecolor');	
+		}
+	}
+	
+	function exportToExcel()
+	{
+		var oldHtml = document.getElementById('htmlContent').innerHTML;
+		$('.asc').remove();
+		$('.desc').remove();	
+		$('#htmlContent a').contents().unwrap();
+		document.getElementById('htmlCode').value = document.getElementById('htmlContent').innerHTML;				
+		document.getElementById('htmlContent').innerHTML = oldHtml;
+        return true;
+	}
+	
+	function printDiv( divID ) 
+	{
+		//Get the HTML of div
+        var divElements = document.getElementById(divID).innerHTML;
+        
+        //Get the HTML of whole page
+        var oldPage = document.body.innerHTML;
+
+        //Reset the page's HTML with div's HTML only
+        document.body.innerHTML = "<html><head><title></title></head><body>" + divElements + "</body>";
+
+       	//Print Page
+        window.print();
+
+        //Restore orignal HTML
+        document.body.innerHTML = oldPage;     
+		
+		window.location.reload();	
+	}
+</script>

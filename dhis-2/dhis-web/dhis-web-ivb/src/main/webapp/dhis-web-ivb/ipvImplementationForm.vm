@@ -1,0 +1,83 @@
+
+<script type="text/javascript">
+
+$(function() {
+        $( document ).tooltip({
+        position: {
+            my: "center bottom-20",
+            at: "center top",
+            using: function( position, feedback ) {
+        $( this ).css( position );
+        $( "<div>" )
+            .addClass( "arrow1" )
+            .addClass( feedback.vertical )
+            .addClass( feedback.horizontal )
+            .appendTo( this );
+        }
+        }
+        });
+    });
+    
+    $(document).ready(function(){
+        $('#myjquerymenu').find('#report').addClass("selected");     
+        $("#submit").button(); 
+        $("#cancel").button(); 
+          
+    });
+
+    function formValidations()
+    {       
+        $('#selectedListTier option').attr('selected', 'selected');
+        
+        var selectedListBox = document.getElementById('selectedListTier');
+        
+        if( selectedListBox.options.length <= 0 )
+        {
+            alert("Please select tier(s)");
+            return false;
+        }
+        
+        return true;
+    }
+    
+</script>
+
+<br/>
+
+<div style="font-size:16px; width:93%; margin:auto;" class="ui-widget-header ui-corner-all"><b>$i18n.getString( "ipv_implementation_report" )</b></div>
+<form id="ipvImplReportForm" method="get" action="ipvImplementationReportResult.action" onsubmit="return formValidations()">
+    <input type="hidden" id="ipvSectionUid" name="ipvSectionId" value="26" />
+    <div id="reportFilterDiv" >
+        <table style="width:95%;margin:auto;table-layout:fixed;" cellpadding="4" cellspacing="2">
+            <tr style="margin-bottom: 15px;">
+                <td width="45%">
+                    $i18n.getString( "tier" )<br/>                  
+                    <select id="availableListTier" name="availableListTier" ondblclick="moveSelectedById( 'availableListTier', 'selectedListTier' )" multiple="multiple" style="height: 165px; width: 100%;">
+                    #foreach($orgUnitGroup in $orgUnitGroups)
+                        <option value="$orgUnitGroup.id">$orgUnitGroup.name</option>
+                    #end
+                  </select>
+                </td>
+                <td style="text-align:center" width="10%">
+                    <input type="button" value="&gt;" title="$i18n.getString( 'move_selected' )" style="width:50px" onclick="moveSelectedById( 'availableListTier', 'selectedListTier' );"/><br/>
+                    <input type="button" value="&lt;" title="$i18n.getString( 'remove_selected' )" style="width:50px" onclick="moveSelectedById( 'selectedListTier', 'availableListTier' );"/><br/>
+                    <input type="button" value="&gt;&gt;" title="$i18n.getString('move_all')" style="width:50px" onclick="moveAllById( 'availableListTier', 'selectedListTier' );"/><br/>
+                    <input type="button" value="&lt;&lt;" title="$i18n.getString('remove_all')" style="width:50px" onclick="moveAllById( 'selectedListTier', 'availableListTier' );"/>
+                </td>
+                <td width="45%">
+                    <select id="selectedListTier" name="selectedListTier" ondblclick="moveSelectedById( 'selectedListTier', 'availableListTier' )" multiple="multiple" style="height: 165px; width: 100%; margin-top: 22px;"></select>
+                </td>                
+            </tr>
+            <tr>
+                <td width="45%">
+                    <input type="submit" value="$i18n.getString( 'get_report' )" id="submit" />             
+                </td>
+                <td width="10%">&nbsp;</td>
+                <td width="45%">
+                    <input type="checkbox" id="includeComments" name="includeComments" checked /> $i18n.getString('include_comments')
+                </td>
+            </tr>
+         </table>
+    </div>
+    <br/><br/>
+</form>

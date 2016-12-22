@@ -1,0 +1,1065 @@
+   
+#set( $reportWarning = "Y" )
+
+<style >
+    th, td
+    {       
+        vertical-align: middle !important;
+    }
+
+
+/* tables */
+table.tablesorter {
+    font-family:arial;
+    background-color: #CDCDCD;
+    margin:10px 0pt 15px;
+    font-size: 8pt;
+    width: 100%;
+    text-align: left;    
+}
+table.tablesorter thead tr th, table.tablesorter tfoot tr th {
+    background-color: #e6EEEE;
+    border: 1px solid #FFF;
+    font-size: 8pt;
+    padding: 4px;
+}
+table.tablesorter thead tr .header {
+    background-image: url(bg.gif);
+    background-repeat: no-repeat;
+    background-position: center right;
+    cursor: pointer;
+}
+table.tablesorter tbody td {
+    color: #3D3D3D;
+    padding: 4px;
+    background-color: #FFF;
+    vertical-align: middle;
+}
+table.tablesorter tbody tr.odd td {
+    background-color:#F0F0F6;
+}
+table.tablesorter thead tr .headerSortUp {
+    background-image: url(asc.gif);
+}
+table.tablesorter thead tr .headerSortDown {
+    background-image: url(desc.gif);
+}
+table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
+background-color: #8dbdd8;
+}
+
+table.tablesorter td:hover {
+ background-color: #ffff99;
+}
+
+table.tablesorter tr.odd td:hover {
+ background-color: #ffff99;
+}
+
+</style>
+<script type="text/javascript">
+jQuery(function() {
+    $('#toUser').show();
+    $('#recipients').select2({
+       minimumInputLength: 1,
+       multiple: true, 
+       width: "546px",      
+       ajax: {
+           url: 'getMessageRecipients.action',
+           dataType: 'json',
+           data: function(term, page) {
+                return {
+                    filter: term
+                }
+           },
+           results: function(data, page) {
+            return {               
+               results: data.matches }
+           }
+       }
+    });
+});
+</script>
+
+<script>
+    function getShareLink()
+    {       
+        $('#shareSubject').val('AFRO West Monitoring Tool');
+        $('#orgUnitIds option').attr('selected', 'selected');
+        var orgUnitIds = document.getElementById('orgUnitIds').options;
+        var ids = '';
+        for(var i=0;i <= orgUnitIds.length-1 ; i++)
+        {   
+            ids = ids+'&orgUnitIds='+orgUnitIds[i].value;
+        }
+        url = document.location.href +ids;
+        $('#shareText').val('Link to view the report: \n \n' + url);
+        $( "#shareLinkToUser" ).dialog('open');     
+    }
+    function getKeyFlagDetails(value,comment,source,orgName,area)
+    {
+        $('#detailSection').remove();
+        $('#areaAndCountry').find('#content').remove();
+        $('#areaAndCountry').append("<div id='content'><b style='float:left;'> Area: "+area+"</b><b style='float:right;'>Country: "+orgName+"&nbsp;</b> </div>");
+        $('#detailTable').append("<tr id='detailSection'><td>"+value+"</td><td>"+comment+"</td><td>"+source+"</td></tr>")
+        $( '.keyFlagDetail' ).css( 'display','block' );
+    }
+    $(function() {
+        $( document ).tooltip({
+            track: true
+        });
+    });
+</script>
+ <style>
+    @media print {
+    @page { margin: 0; }
+        body { margin: 1.6cm; }
+    }
+        
+</style>
+<select id="orgUnitIds" multiple style="display:none;">
+    #foreach( $orgUnit in $orgUnitList )
+        <option value="$orgUnit.id"></option>
+    #end
+</select>
+
+<form id="form1" name="form1" action="exportToWorkBook.action" method="post" onsubmit="return exportToExcel()" target="_newtab">
+
+    <input type="hidden" name="htmlCode" id="htmlCode" />
+
+    <div align="right" style="width:95%;margin:auto;padding-top:8px;padding-bottom:3px;">		        
+        <input type="submit" value="Download As Excel"/>&nbsp;
+        <input type="button" value="Print" onclick="javascript:printDiv('htmlContent')" />
+        <input type="button" value="Share" onclick="javascript: getShareLink()"/>
+    </div>
+
+    <hr/>  
+    
+    <div id="htmlContent1" style="width:98%;margin:auto; overflow-x:scroll;" >
+        
+        <h2>$i18n.getString( "afr_west" )</h2>                
+    	
+    	<table class="tablesorter" id="bwaActivitiyTable" >
+            <thead>
+                <tr>
+					<th rowspan="2" align="center" style="vertical-align: middle;">$i18n.getString( "country" )</th>
+					
+					<th colspan="2" align="center" style="vertical-align: middle;">$i18n.getString( "cmyp" )</th>					
+					<th colspan="2" align="center" style="vertical-align: middle;">$i18n.getString( "evm" )</th>											
+					
+					<th colspan="6" align="center" style="vertical-align: middle;">$i18n.getString( "vaccine_introduction" )</th>
+					<th colspan="7" align="center" style="vertical-align: middle;">$i18n.getString( "pie" )</th>
+					<th colspan="2" align="center" style="vertical-align: middle;">$i18n.getString( "epi_review" )</th>
+					
+					<th colspan="2" align="center" style="vertical-align: middle;">$i18n.getString( "epi_survey" )</th>
+					
+					<th rowspan="2" align="center" style="vertical-align: middle;">$i18n.getString( "next_surviellance_review" )</th>
+					<th rowspan="2" align="center" style="vertical-align: middle;">$i18n.getString( "next_dqs_dqa_planned" )</th>
+				
+					<!--<th rowspan="2" align="center" style="vertical-align: middle;">$i18n.getString( "country" )</th>-->					
+                </tr>
+				<tr>
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "last" )</th>
+					<!--<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "last" )</th>-->
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "planned" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "planned" )</th>
+										
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "last" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "last" )</th>
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "planned" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "planned" )</th>
+					
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "pcv" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "pcv" )</th>
+					
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "rota" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "rota" )</th>
+					
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "hpv" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv" )</th>
+					
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "mr" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "mr" )</th>
+					
+					<th  align="center" style="vertical-align: middle; min-width:30px;" >$i18n.getString( "mcv2" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "mcv2" )</th>
+					
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "ipv" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "ipv" )</th>
+					
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "pcv" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "pcv" )</th>				
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "rota" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "rota" )</th>					
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "hpv" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv" )</th>					
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "mr" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "mr" )</th>					
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "msd" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "msd" )</th>
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "ipv" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "ipv" )</th>
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "next_pie_planned" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "next_pie_planned" )</th>	
+
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "last_review" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "last_review" )</th>						
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "planned_review" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "planned_review" )</th>						
+
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "last" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "last" )</th>						
+					<th  align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "planned" )</th>
+					<th align="center" style="display:none;vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "planned" )</th>					
+				</tr>				
+            </thead>
+            <tbody>
+                #set( $mark = false )
+            <!-------------------------------------------------------------------------------------------------------------------------------------------->
+              	#set( $pmDataSetUid="HVMK8B5rWhT") 
+              	#set( $immDataDataSetUid = "sNFPzgwRY3j" )
+				#foreach( $orgUnit in $orgUnitList )
+					#if( $mark )
+						#set( $mark = false )
+					#else
+						#set( $mark = true )
+					#end
+					<tr #if( $mark ) bgcolor = "#F0F0F6" #else bgcolor="#FFFFFF"  #end >
+						
+						<!-- Country -->
+						<td align="left" style="vertical-align: middle;">$orgUnit.name</td>
+						
+						<!-- cMYP Last -->
+						#set( $getter = "$orgUnit.id:104" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+					
+						
+						
+						#set( $getter = "$orgUnit.id:105" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal1 = "" )
+                        #set( $tempVal1 = $!dataValue.value )						
+						                                                  
+						<td style="vertical-align: middle; " >$!tempVal - $!tempVal1 </td>
+						
+						<!-- cMYP Planned -->						
+						#set( $getter = "$orgUnit.id:103" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )						
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )                                                    
+						<td style="vertical-align: middle; " title="$!tempComment" >$tempVal</td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- evm Last -->
+						#set( $getter = "$orgUnit.id:146" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )                            
+						<td style="vertical-align: middle;" title="$!tempComment" >$tempVal</td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- evm Planned -->
+						#set( $getter = "$orgUnit.id:147" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )                            
+						<td style="vertical-align: middle;" title="$!tempComment" >$tempVal</td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- Vaccine Introduction : PCV -->
+						#set( $getter = "$orgUnit.id:75" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )
+						#set( $getter = "$orgUnit.id:74" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal1 = "" )
+                        #set( $tempVal1 = $!dataValue.value )
+						#set( $tempComment1 = "" )
+                        #set( $tempComment1 = $!dataValue.comment )						
+						<td #if ( $tempVal == "Introduced into Routine" || $tempVal == "Partially Introduced" || $tempVal == "Suspended") style="vertical-align: middle; color: green" #elseif ($tempVal == "Planned" || $tempVal == "Partially intro planned" || $tempVal == "Risk Group" || $tempVal == "Donation" ) style="vertical-align: middle; color: orange" #elseif ($tempVal == "Not Introduced" || $tempVal == "Not Applicable"  || $tempVal == "Not Available" ) style="vertical-align: middle; color: red" #else style="vertical-align: middle;" #end title="$!tempComment1" ><a href="loadSingleCoutryEntryForm.action?dataSetSectionId=32&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal1</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment $tempComment1</td>
+						
+						<!-- Vaccine Introduction : ROTA -->
+						#set( $getter = "$orgUnit.id:81" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )
+						#set( $getter = "$orgUnit.id:80" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal1 = "" )
+                        #set( $tempVal1 = $!dataValue.value )
+						#set( $tempComment1 = "" )
+                        #set( $tempComment1 = $!dataValue.comment )						
+						<td #if ($tempVal == "Introduced into Routine" || $tempVal == "Partially Introduced" || $tempVal == "Suspended") style="vertical-align: middle; color: green" #elseif ($tempVal == "Planned" || $tempVal == "Partially intro planned" || $tempVal == "Risk Group" || $tempVal == "Donation" ) style="vertical-align: middle; color: orange" #elseif ($tempVal == "Not Introduced" || $tempVal == "Not Applicable"  || $tempVal == "Not Available" ) style="vertical-align: middle; color: red" #end title="$!tempComment1" ><a href="loadSingleCoutryEntryForm.action?dataSetSectionId=33&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal1</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment $tempComment1</td>
+						
+						<!-- Vaccine Introduction : HPV -->
+						#set( $getter = "$orgUnit.id:45" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )
+						#set( $getter = "$orgUnit.id:44" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal1 = "" )
+                        #set( $tempVal1 = $!dataValue.value )
+						#set( $tempComment1 = "" )
+                        #set( $tempComment1 = $!dataValue.comment )						
+						<td #if ($tempVal == "Introduced into Routine" || $tempVal == "Partially Introduced" || $tempVal == "Suspended") style="vertical-align: middle; color: green" #elseif ($tempVal == "Planned" || $tempVal == "Partially intro planned" || $tempVal == "Risk Group" || $tempVal == "Donation" ) style="vertical-align: middle; color: orange" #elseif ($tempVal == "Not Introduced" || $tempVal == "Not Applicable"  || $tempVal == "Not Available" ) style="vertical-align: middle; color: red" #end title="$!tempComment1" ><a href="loadSingleCoutryEntryForm.action?dataSetSectionId=25&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal1</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment $tempComment1</td>
+						
+						<!-- Vaccine Introduction : MR -->
+						#set( $getter = "$orgUnit.id:87" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )
+						#set( $getter = "$orgUnit.id:86" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal1 = "" )
+                        #set( $tempVal1 = $!dataValue.value )
+						#set( $tempComment1 = "" )
+                        #set( $tempComment1 = $!dataValue.comment )						
+						<td #if ($tempVal == "Introduced into Routine" || $tempVal == "Partially Introduced" || $tempVal == "Suspended") style="vertical-align: middle; color: green" #elseif ($tempVal == "Planned" || $tempVal == "Partially intro planned" || $tempVal == "Risk Group" || $tempVal == "Donation" ) style="vertical-align: middle; color: orange" #elseif ($tempVal == "Not Introduced" || $tempVal == "Not Applicable"  || $tempVal == "Not Available" ) style="vertical-align: middle; color: red" #end title="$!tempComment1" ><a href="loadSingleCoutryEntryForm.action?dataSetSectionId=34&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal1</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment $tempComment1</td>
+						
+						<!-- Vaccine Introduction : MCV2 -->
+						#set( $getter = "$orgUnit.id:63" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )
+						#set( $getter = "$orgUnit.id:62" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal1 = "" )
+                        #set( $tempVal1 = $!dataValue.value )
+						#set( $tempComment1 = "" )
+                        #set( $tempComment1 = $!dataValue.comment )						
+						<td #if ($tempVal == "Introduced into Routine" || $tempVal == "Partially Introduced" || $tempVal == "Suspended") style="vertical-align: middle; color: green" #elseif ($tempVal == "Planned" || $tempVal == "Partially intro planned" || $tempVal == "Risk Group" || $tempVal == "Donation" ) style="vertical-align: middle; color: orange" #elseif ($tempVal == "Not Introduced" || $tempVal == "Not Applicable"  || $tempVal == "Not Available" ) style="vertical-align: middle; color: red" #end title="$!tempComment1" ><a href="loadSingleCoutryEntryForm.action?dataSetSectionId=30&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal1</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment $tempComment1</td>
+						
+						<!-- Vaccine Introduction : IPV -->
+						#set( $getter = "$orgUnit.id:360" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )
+						#set( $getter = "$orgUnit.id:359" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal1 = "" )
+                        #set( $tempVal1 = $!dataValue.value )
+						#set( $tempComment1 = "" )
+                        #set( $tempComment1 = $!dataValue.comment )                        
+						<td #if ($tempVal == "Introduced Partially" || $tempVal == "Introduced Sequentially" || $tempVal == "Introduced into Routine") style="vertical-align: middle; color: green" #elseif ($tempVal == "Intent to Introduce" || $tempVal == "Formal Commitment" ) style="vertical-align: middle; color: orange" #elseif ($tempVal == "Not Available" ) style="vertical-align: middle; color: red" #end title="$!tempComment1" ><a href="loadSingleCoutryEntryForm.action?dataSetSectionId=26&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal1</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment $tempComment1</td>
+						
+						<!-- PIE: PCV -->
+						#set( $getter = "$orgUnit.id:597" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )						
+						<td #if ($tempVal == "Completed") style="vertical-align: middle; background:#d8e4bc" #elseif($tempVal == "To  be completed ") style="vertical-align: middle; background:#e26b0a" #else style="vertical-align: middle;" #end title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$pmDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- PIE: ROTA -->
+						#set( $getter = "$orgUnit.id:598" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )						
+						<td #if ($tempVal == "Completed") style="vertical-align: middle; background:#d8e4bc" #elseif($tempVal == "To  be completed ") style="vertical-align: middle; background:#e26b0a" #else style="vertical-align: middle;" #end title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$pmDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- PIE: HPV -->
+						#set( $getter = "$orgUnit.id:595" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )						
+						<td #if ($tempVal == "Completed") style="vertical-align: middle; background:#d8e4bc" #elseif($tempVal == "To  be completed ") style="vertical-align: middle; background:#e26b0a" #else style="vertical-align: middle;" #end title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$pmDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- PIE: MR -->
+						<td></td>
+						<td align="left" style="display:none;vertical-align: middle;"></td>
+						
+						<!-- PIE: MSD -->
+						#set( $getter = "$orgUnit.id:596" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )						
+						<td #if ($tempVal == "Completed") style="vertical-align: middle; background:#d8e4bc" #elseif($tempVal == "To  be completed ") style="vertical-align: middle; background:#e26b0a" #else style="vertical-align: middle;" #end title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$pmDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- PIE: IPV -->
+						#set( $getter = "$orgUnit.id:645" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )						
+						<td #if ($tempVal == "Completed") style="vertical-align: middle; background:#d8e4bc" #elseif($tempVal == "To  be completed ") style="vertical-align: middle; background:#e26b0a" #else style="vertical-align: middle;" #end title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$pmDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- PIE: Next PIE Planned -->
+						#set( $getter = "$orgUnit.id:420" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )						
+						<td #if ($tempVal == "Completed") style="vertical-align: middle; background:#d8e4bc" #elseif($tempVal == "To  be completed ") style="vertical-align: middle; background:#e26b0a" #else style="vertical-align: middle;" #end title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$pmDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- EPI Last review -->
+						#set( $getter = "$orgUnit.id:299" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )						
+						<td style="vertical-align: middle;" title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$pmDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+						
+						<!-- EPI Planned review -->
+						#set( $getter = "$orgUnit.id:419" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )						
+						<td style="vertical-align: middle;" title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$pmDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+						
+						<!-- EPI survey Last -->
+						#set( $getter = "$orgUnit.id:221" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )                        
+						<td style="vertical-align: middle;" title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$immDataDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+
+						<!-- EPI Survey Planned -->						
+						#set( $getter = "$orgUnit.id:222" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )                        
+						<td style="vertical-align: middle;" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$immDataDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempComment</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- Next Surviellance Review -->
+						#set( $getter = "$orgUnit.id:522" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )                        
+						<td style="vertical-align: middle;" title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$pmDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- Next DQS/DQA planned -->
+						#set( $getter = "$orgUnit.id:225" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )                        
+						<td style="vertical-align: middle;" title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$immDataDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>					
+					
+						
+						<!-- Country -->
+						<!--<td align="left" style="vertical-align: middle;">$orgUnit.name</td>	-->					
+					</tr>
+				#end
+    		</tbody>
+		</table>
+        
+ 		<br/><br/><br/>
+        <table style="margin:auto;display:none;color: #9F6000;background-color: #FEEFB3;border: 1px solid;" width="100%">
+            <tr>
+                <td colspan="5">$i18n.getString( "inline_security_warning" )</td>
+            </tr>
+        </table>
+    </div>
+	
+    <div id="htmlContent" style="width:98%;margin:auto; overflow-x:scroll;display:none;" >
+        
+        <h2>$i18n.getString( "afr_west" )</h2>                
+    	
+    	<table class="tablesorter" >
+            <thead>
+                <tr>
+					<th rowspan="2" align="center" style="vertical-align: middle;">$i18n.getString( "country" )</th>
+					
+					<th colspan="3" align="center" style="vertical-align: middle;">$i18n.getString( "cmyp" )</th>					
+					<th colspan="4" align="center" style="vertical-align: middle;">$i18n.getString( "evm" )</th>											
+					
+					<th colspan="12" align="center" style="vertical-align: middle;">$i18n.getString( "vaccine_introduction" )</th>
+					<th colspan="14" align="center" style="vertical-align: middle;">$i18n.getString( "pie" )</th>
+					<th colspan="4" align="center" style="vertical-align: middle;">$i18n.getString( "epi_review" )</th>
+					
+					<th colspan="4" align="center" style="vertical-align: middle;">$i18n.getString( "epi_survey" )</th>
+					
+					<th rowspan="2" colspan="2" align="center" style="vertical-align: middle;">$i18n.getString( "next_surviellance_review" )</th>
+					<th rowspan="2" colspan="2" align="center" style="vertical-align: middle;">$i18n.getString( "next_dqs_dqa_planned" )</th>					
+				
+					<!--<th rowspan="2" align="center" style="vertical-align: middle;">$i18n.getString( "country" )</th>-->					
+                </tr>
+				<tr>
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "last" )</th>
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "planned" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "planned" )</th>
+										
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "last" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "last" )</th>
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "planned" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "planned" )</th>
+					
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "pcv" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "pcv" )</th>				
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "rota" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "rota" )</th>				
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "hpv" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv" )</th>				
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "mr" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "mr" )</th>				
+					<th align="center" style="vertical-align: middle; min-width:30px;" >$i18n.getString( "mcv2" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "mcv2" )</th>				
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "ipv" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "ipv" )</th>
+					
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "pcv" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "pcv" )</th>				
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "rota" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "rota" )</th>					
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "hpv" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "hpv" )</th>					
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "mr" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "mr" )</th>					
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "msd" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "msd" )</th>
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "ipv" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "ipv" )</th>
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "next_pie_planned" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "next_pie_planned" )</th>	
+
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "last_review" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "last_review" )</th>						
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "planned_review" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "planned_review" )</th>						
+
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "last" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "last" )</th>						
+					<th align="center" style="vertical-align: middle; min-width:30px;">$i18n.getString( "planned" )</th>
+					<th align="center" style="vertical-align: middle;">$i18n.getString( "comment" ) $i18n.getString( "planned" )</th>					
+				</tr>				
+            </thead>
+            <tbody>
+                #set( $mark = false )
+            <!-------------------------------------------------------------------------------------------------------------------------------------------->
+              	#set( $pmDataSetUid="HVMK8B5rWhT") 
+              	#set( $immDataDataSetUid = "sNFPzgwRY3j" )
+				#foreach( $orgUnit in $orgUnitList )
+					#if( $mark )
+						#set( $mark = false )
+					#else
+						#set( $mark = true )
+					#end
+					<tr #if( $mark ) bgcolor = "#F0F0F6" #else bgcolor="#FFFFFF"  #end >
+						
+						<!-- Country -->
+						<td align="left" style="vertical-align: middle;">$orgUnit.name</td>
+						
+						<!-- cMYP Last -->
+						#set( $getter = "$orgUnit.id:104" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )
+						
+						#set( $getter = "$orgUnit.id:105" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal1 = "" )
+                        #set( $tempVal1 = $!dataValue.value )						
+						<td style="vertical-align: middle; " >$!tempVal - $!tempVal1</td>
+						
+						<!-- cMYP Planned -->						
+						#set( $getter = "$orgUnit.id:103" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )						
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )                                                    
+						<td style="vertical-align: middle; " title="$!tempComment" >$tempVal</td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- evm Last -->
+						#set( $getter = "$orgUnit.id:146" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )                            
+						<td style="vertical-align: middle;" title="$!tempComment" >$tempVal</td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- evm Planned -->
+						#set( $getter = "$orgUnit.id:147" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )                            
+						<td style="vertical-align: middle;" title="$!tempComment" >$tempVal</td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- Vaccine Introduction : PCV -->
+						#set( $getter = "$orgUnit.id:75" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )
+						#set( $getter = "$orgUnit.id:74" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal1 = "" )
+                        #set( $tempVal1 = $!dataValue.value )
+						#set( $tempComment1 = "" )
+                        #set( $tempComment1 = $!dataValue.comment )						
+						<td #if ( $tempVal == "Introduced into Routine" || $tempVal == "Partially Introduced" || $tempVal == "Suspended") style="vertical-align: middle; color: green" #elseif ($tempVal == "Planned" || $tempVal == "Partially intro planned" || $tempVal == "Risk Group" || $tempVal == "Donation" ) style="vertical-align: middle; color: orange" #elseif ($tempVal == "Not Introduced" || $tempVal == "Not Applicable"  || $tempVal == "Not Available" ) style="vertical-align: middle; color: red" #else style="vertical-align: middle;" #end title="$!tempComment1" ><a href="loadSingleCoutryEntryForm.action?dataSetSectionId=32&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal1</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment $tempComment1</td>
+						
+						<!-- Vaccine Introduction : ROTA -->
+						#set( $getter = "$orgUnit.id:81" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )
+						#set( $getter = "$orgUnit.id:80" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal1 = "" )
+                        #set( $tempVal1 = $!dataValue.value )
+						#set( $tempComment1 = "" )
+                        #set( $tempComment1 = $!dataValue.comment )						
+						<td #if ($tempVal == "Introduced into Routine" || $tempVal == "Partially Introduced" || $tempVal == "Suspended") style="vertical-align: middle; color: green" #elseif ($tempVal == "Planned" || $tempVal == "Partially intro planned" || $tempVal == "Risk Group" || $tempVal == "Donation" ) style="vertical-align: middle; color: orange" #elseif ($tempVal == "Not Introduced" || $tempVal == "Not Applicable"  || $tempVal == "Not Available" ) style="vertical-align: middle; color: red" #end title="$!tempComment1" ><a href="loadSingleCoutryEntryForm.action?dataSetSectionId=33&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal1</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment $tempComment1</td>
+						
+						<!-- Vaccine Introduction : HPV -->
+						#set( $getter = "$orgUnit.id:45" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )
+						#set( $getter = "$orgUnit.id:44" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal1 = "" )
+                        #set( $tempVal1 = $!dataValue.value )
+						#set( $tempComment1 = "" )
+                        #set( $tempComment1 = $!dataValue.comment )						
+						<td #if ($tempVal == "Introduced into Routine" || $tempVal == "Partially Introduced" || $tempVal == "Suspended") style="vertical-align: middle; color: green" #elseif ($tempVal == "Planned" || $tempVal == "Partially intro planned" || $tempVal == "Risk Group" || $tempVal == "Donation" ) style="vertical-align: middle; color: orange" #elseif ($tempVal == "Not Introduced" || $tempVal == "Not Applicable"  || $tempVal == "Not Available" ) style="vertical-align: middle; color: red" #end title="$!tempComment1" ><a href="loadSingleCoutryEntryForm.action?dataSetSectionId=25&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal1</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment $tempComment1</td>
+						
+						<!-- Vaccine Introduction : MR -->
+						#set( $getter = "$orgUnit.id:87" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )
+						#set( $getter = "$orgUnit.id:86" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal1 = "" )
+                        #set( $tempVal1 = $!dataValue.value )
+						#set( $tempComment1 = "" )
+                        #set( $tempComment1 = $!dataValue.comment )						
+						<td #if ($tempVal == "Introduced into Routine" || $tempVal == "Partially Introduced" || $tempVal == "Suspended") style="vertical-align: middle; color: green" #elseif ($tempVal == "Planned" || $tempVal == "Partially intro planned" || $tempVal == "Risk Group" || $tempVal == "Donation" ) style="vertical-align: middle; color: orange" #elseif ($tempVal == "Not Introduced" || $tempVal == "Not Applicable"  || $tempVal == "Not Available" ) style="vertical-align: middle; color: red" #end title="$!tempComment1" ><a href="loadSingleCoutryEntryForm.action?dataSetSectionId=34&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal1</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment $tempComment1</td>
+						
+						<!-- Vaccine Introduction : MCV2 -->
+						#set( $getter = "$orgUnit.id:63" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )
+						#set( $getter = "$orgUnit.id:62" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal1 = "" )
+                        #set( $tempVal1 = $!dataValue.value )
+						#set( $tempComment1 = "" )
+                        #set( $tempComment1 = $!dataValue.comment )						
+						<td #if ($tempVal == "Introduced into Routine" || $tempVal == "Partially Introduced" || $tempVal == "Suspended") style="vertical-align: middle; color: green" #elseif ($tempVal == "Planned" || $tempVal == "Partially intro planned" || $tempVal == "Risk Group" || $tempVal == "Donation" ) style="vertical-align: middle; color: orange" #elseif ($tempVal == "Not Introduced" || $tempVal == "Not Applicable"  || $tempVal == "Not Available" ) style="vertical-align: middle; color: red" #end title="$!tempComment1" ><a href="loadSingleCoutryEntryForm.action?dataSetSectionId=30&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal1</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment $tempComment1</td>
+						
+						<!-- Vaccine Introduction : IPV -->
+						#set( $getter = "$orgUnit.id:360" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )
+						#set( $getter = "$orgUnit.id:359" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal1 = "" )
+                        #set( $tempVal1 = $!dataValue.value )
+						#set( $tempComment1 = "" )
+                        #set( $tempComment1 = $!dataValue.comment )                        
+						<td #if ($tempVal == "Introduced Partially" || $tempVal == "Introduced Sequentially" || $tempVal == "Introduced into Routine") style="vertical-align: middle; color: green" #elseif ($tempVal == "Intent to Introduce" || $tempVal == "Formal Commitment" ) style="vertical-align: middle; color: orange" #elseif ($tempVal == "Not Available" ) style="vertical-align: middle; color: red" #end title="$!tempComment1" ><a href="loadSingleCoutryEntryForm.action?dataSetSectionId=26&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal1</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment $tempComment1</td>
+						
+						<!-- PIE: PCV -->
+						#set( $getter = "$orgUnit.id:597" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )						
+						<td #if ($tempVal == "Completed") style="vertical-align: middle; background:#d8e4bc" #elseif($tempVal == "To  be completed ") style="vertical-align: middle; background:#e26b0a" #else style="vertical-align: middle;" #end title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$pmDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- PIE: ROTA -->
+						#set( $getter = "$orgUnit.id:598" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )						
+						<td #if ($tempVal == "Completed") style="vertical-align: middle; background:#d8e4bc" #elseif($tempVal == "To  be completed ") style="vertical-align: middle; background:#e26b0a" #else style="vertical-align: middle;" #end title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$pmDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- PIE: HPV -->
+						#set( $getter = "$orgUnit.id:595" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )						
+						<td #if ($tempVal == "Completed") style="vertical-align: middle; background:#d8e4bc" #elseif($tempVal == "To  be completed ") style="vertical-align: middle; background:#e26b0a" #else style="vertical-align: middle;" #end title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$pmDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- PIE: MR -->
+						<td></td>
+						<td align="left" style="display:none;vertical-align: middle;"></td>
+						
+						<!-- PIE: MSD -->
+						#set( $getter = "$orgUnit.id:596" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )						
+						<td #if ($tempVal == "Completed") style="vertical-align: middle; background:#d8e4bc" #elseif($tempVal == "To  be completed ") style="vertical-align: middle; background:#e26b0a" #else style="vertical-align: middle;" #end title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$pmDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- PIE: IPV -->
+						#set( $getter = "$orgUnit.id:645" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )						
+						<td #if ($tempVal == "Completed") style="vertical-align: middle; background:#d8e4bc" #elseif($tempVal == "To  be completed ") style="vertical-align: middle; background:#e26b0a" #else style="vertical-align: middle;" #end title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$pmDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- PIE: Next PIE Planned -->
+						#set( $getter = "$orgUnit.id:420" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )						
+						<td #if ($tempVal == "Completed") style="vertical-align: middle; background:#d8e4bc" #elseif($tempVal == "To  be completed ") style="vertical-align: middle; background:#e26b0a" #else style="vertical-align: middle;" #end title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$pmDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- EPI Last review -->
+						#set( $getter = "$orgUnit.id:299" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )						
+						<td style="vertical-align: middle;" title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$pmDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+						
+						<!-- EPI Planned review -->
+						#set( $getter = "$orgUnit.id:419" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )						
+						<td style="vertical-align: middle;" title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$pmDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment </td>
+						
+						<!-- EPI survey Last -->
+						#set( $getter = "$orgUnit.id:221" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )                        
+						<td style="vertical-align: middle;" title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$immDataDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+
+						<!-- EPI survey Planned -->
+						#set( $getter = "$orgUnit.id:222" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )                        
+						<td style="vertical-align: middle;" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$immDataDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempComment</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- Next Surviellance Review -->
+						#set( $getter = "$orgUnit.id:522" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )                        
+						<td style="vertical-align: middle;" title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$pmDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>
+						
+						<!-- Next DQS/DQA planned -->
+						#set( $getter = "$orgUnit.id:225" )
+						#set( $dataValue = "" )
+						#set( $dataValue = $!dataValueMap.get( $getter ) )
+						#set( $tempVal = "" )
+                        #set( $tempVal = $!dataValue.value )
+						#set( $tempComment = "" )
+                        #set( $tempComment = $!dataValue.comment )                        
+						<td style="vertical-align: middle;" title="$!tempComment" ><a href="loadSingleCoutryEntryForm.action?dataSetUId=$immDataDataSetUid&orgUnitUid=$orgUnit.uid" style="color:inherit;">$tempVal</a></td>
+						<td align="left" style="display:none;vertical-align: middle;">$tempComment</td>					
+											
+						<!-- Country -->
+						<!-- <td align="left" style="vertical-align: middle;">$orgUnit.name</td>	-->					
+					</tr>
+				#end
+    		</tbody>
+		</table>
+        
+ 		<br/><br/><br/>
+        <table style="margin:auto;display:none;color: #9F6000;background-color: #FEEFB3;border: 1px solid;" width="100%">
+            <tr>
+                <td colspan="12">$i18n.getString( "inline_security_warning" )</td>
+            </tr>
+        </table>
+    </div>	
+</form>
+
+<div id="shareLinkToUser" title="Share Link to User">
+    <fieldset>
+        <label for="toUser">$i18n.getString( "maintenance_users" )</label>
+        <input type="hidden" name="recipients" id="recipients" class="text ui-widget-content ui-corner-all" placeholder="Enter User Name"/>
+        <br/><br/>
+        <label for="shareSubject">$i18n.getString( "feedback_subject" )</label>
+        <input type="text" id="shareSubject" name="shareSubject" class="text ui-widget-content ui-corner-all" />
+        <label for="shareText">$i18n.getString( "feedback_text" )</label>
+        <textarea id="shareText" name="shareText" class="text ui-widget-content ui-corner-all" rows="6">                
+        </textarea>
+    </fieldset>
+	<br/>
+	<hr/>
+	<span style="float:right;">
+    	<a id="send" href="#">Send</a>
+		<a id="cancel" href="#">Cancel</a>
+	</span>
+</div>
+    
+<style>
+    label, #toUser ,#shareText ,#shareSubject{ 
+        display:block;
+    }
+        #recipients ,#shareText ,#shareSubject  { 
+        margin-bottom:12px;
+        width:95%; 
+        padding: .4em; 
+    }   
+    #shareLinkToUser fieldset   { 
+        padding:0;
+        border:0;
+        margin-top:25px;
+    }
+</style>
+
+<script>
+	
+    jQuery(function() {	
+	
+	$("#send").button();
+	$("#send").click(function() {
+			
+			$("#send").attr("href","mailto:"+$('#recipients').val().replace(/[,]/g,';')+"?subject="+$('#shareSubject').val()+"&body="+escape(document.getElementById('shareText').value));
+    		$("#shareLinkToUser").dialog('close');
+	});
+	$("#cancel").button();
+	$("#cancel").click(function() {
+		$("#shareLinkToUser").dialog('close');
+	});
+        var emailIds = 'null';
+        $( "#shareLinkToUser" ).dialog({
+                autoOpen: false,
+                height: 420,
+                width: 595,
+                modal: true,
+                show: "blind",
+                hide: "explode"               
+           
+        });
+    });
+	function sendMsg()
+	{
+    		
+    
+	}
+</script>
+
+<style style="text/css">
+
+td:hover {
+ background-color: #ffff99;
+}
+         
+</style>
+
+<script>
+   
+    $(document).ready(function()
+    {
+        $("#bwaActivitiyTable").tablesorter( {widgets: ['zebra']} );
+    });
+    
+    function exportToExcel()
+    {
+        var currentFlaggedImgPath = $('.flagedImg').find('img').attr('src');
+		var currentUnFlaggedImgPath = $('.unFlagedImg').find('img').attr('src');
+		
+		var redFlag = $('#redFlag').val();
+		var greyFlag = $('#greyFlag').val();
+		
+		
+		$('.flagedImg').find('img').remove();
+		$('.unFlagedImg').find('img').remove();
+		
+		$('.flagedImg').append('<font size=\"20\" color=\"red\">*</font>')
+		$('.unFlagedImg').append('<font size=\"20\" color=\"#A4A4A4\">*</font>');
+		
+		document.getElementById('htmlCode').value = document.getElementById('htmlContent').innerHTML;
+		
+		$('.flagedImg').text('');
+		$('.unFlagedImg').text('');	
+		
+		$('.flagedImg').append('<img src=\"'+currentFlaggedImgPath+'\" width=\"20\" height=\"20\" style=\"float:left;\" \>');
+		$('.unFlagedImg').append('<img src=\"'+currentUnFlaggedImgPath+'\" width=\"20\" height=\"20\" style=\"float:left;\" \>');
+        return true;
+    }
+    
+    function printDiv( divID ) 
+    {
+        //Get the HTML of div
+        var divElements = document.getElementById(divID).innerHTML;
+        
+        //Get the HTML of whole page
+        var oldPage = document.body.innerHTML;
+
+        //Reset the page's HTML with div's HTML only
+        document.body.innerHTML = "<html><head><title></title></head><body>" + divElements + "</body>";
+
+        //Print Page
+        window.print();
+
+        //Restore orignal HTML
+        document.body.innerHTML = oldPage;          
+		
+		window.location.reload();
+    }
+</script>

@@ -1,0 +1,134 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+    	<groupId>org.hisp.dhis</groupId>
+    	<artifactId>dhis-web</artifactId>
+    	<!--<relativePath>../../../dhis-2/dhis-web/pom.xml</relativePath>-->
+    	<version>2.21</version>
+  	</parent>
+ <!--   
+	<parent>
+		<groupId>org.hisp.dhis</groupId>
+		<artifactId>dhis-web</artifactId>
+		<relativePath>../../../dhis-2/dhis-web/pom.xml</relativePath>
+		<version>2.21</version>
+	</parent>
+-->	
+	<repositories>
+    	<repository>
+      		<id>central</id>
+	  		<url>http://repo1.maven.org/maven2/</url>
+		</repository>
+	</repositories>
+	
+	<artifactId>dhis-web-ivb</artifactId>
+	<packaging>war</packaging>
+	<name>DHIS WEB IVB</name>
+	
+	<build>
+		<finalName>dhis-web-ivb</finalName>
+	</build>
+	
+	<dependencies>
+
+	    <dependency>
+	      <groupId>javax.servlet</groupId>
+	      <artifactId>javax.servlet-api</artifactId>
+	      <!-- <version>3.1.0</version> -->
+		</dependency>
+    
+		<!-- DHIS -->
+		
+		<dependency>
+			<groupId>org.hisp.dhis</groupId>
+			<artifactId>dhis-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hisp.dhis</groupId>
+			<artifactId>dhis-service-core</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.hisp.dhis</groupId>
+			<artifactId>dhis-in-service-favorite</artifactId>
+			<version>${project.version}</version>
+		</dependency>	
+
+        <dependency>
+            <groupId>org.hisp.dhis</groupId>
+            <artifactId>dhis-in-service-lookup</artifactId>
+            <version>${project.version}</version>
+        </dependency>   
+		
+		<dependency>
+			<groupId>org.hisp.dhis</groupId>
+			<artifactId>dhis-web-commons</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.hisp.dhis</groupId>
+			<artifactId>dhis-web-commons-resources</artifactId>
+			<type>war</type>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.hisp.dhis</groupId>
+			<artifactId>dhis-support-external</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hisp.dhis</groupId>
+			<artifactId>dhis-support-system</artifactId>
+		</dependency>
+
+        <dependency>
+            <groupId>org.hisp.dhis</groupId>
+            <artifactId>dhis-service-reporting</artifactId>
+        </dependency>
+
+	    <dependency>
+	      <groupId>org.hisp.dhis</groupId>
+	      <artifactId>dhis-web-api</artifactId>
+	    </dependency>
+
+	    <dependency>
+	      <groupId>org.hisp.dhis</groupId>
+	      <artifactId>dhis-service-analytics</artifactId>
+	    </dependency>
+		
+		<dependency>
+			<groupId>org.hisp.dhis</groupId>
+			<artifactId>dhis-in-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+       
+		<!-- Other -->
+		<dependency>
+			<groupId>net.sourceforge.jexcelapi</groupId>
+			<artifactId>jxl</artifactId>
+			<version>2.6.12</version>
+		</dependency>		
+	    <dependency>
+			<groupId>net.sf.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>itextpdf</artifactId>
+			<version>5.4.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.itextpdf.tool</groupId>
+			<artifactId>xmlworker</artifactId>
+			<version>5.4.2</version>
+		</dependency>
+	</dependencies>
+	<properties>
+		<rootDir>../../../dhis-2/</rootDir>
+	</properties>
+</project>

@@ -1,0 +1,139 @@
+
+<style >
+	#indicators
+	{
+		font-family: arial,serif,script;
+		font-size:14px;
+		font-weight:normal;
+	}
+</style>
+<script>
+$(function() {
+		$( "#indicators" ).tabs();
+		$( "#addComment" ).button();
+	});
+function saveKeyFlagComment()
+{
+	var today = new Date();
+	var dd = today.getDate();
+	var mm = today.getMonth()+1;//January is 0!`
+
+	var yyyy = today.getFullYear();
+	if(dd<10){dd='0'+dd}
+	if(mm<10){mm='0'+mm}
+	
+	var today = yyyy+'-'+mm+'-'+dd;	
+     
+		var period = document.getElementById("selectedPeriodId").value;	
+		var userName = document.getElementById("userName").value;
+		var currentPeriod = document.getElementById("currentPeriod").value;
+		
+		var dataValue = {
+	        'dataElementId' : document.getElementById("keyDataelement").value,
+	        'optionComboId' : document.getElementById("dataElementCategoryOptionComboId").value,
+	        'organisationUnitId' : document.getElementById("oUnitId").value,
+	        'periodId' : '$selectedPeriod',
+	        'value' : document.getElementById("keyComment").value,
+	        'comment' : ''
+	    };
+	    jQuery.ajax( {
+	            url: 'saveKeyDataValue.action',
+	            data: dataValue,
+	            dataType: 'json',
+	            success: closeDialog
+	        } );
+			
+		function closeDialog( json )
+	    {
+            $("#alternatecolor2 tbody").append('<tr><td>'+today+'</td><td>'+userName+'</td><td>'+currentPeriod+'</td><td>'+document.getElementById("keyComment").value+'</td></tr>');
+			altRows('alternatecolor2');
+			document.getElementById("keyComment").value = "";
+	    }
+}
+</script>
+<input type="hidden" name="keyDataelement" id="keyDataelement" value="$!keyDataElement.id"/>
+<input type="hidden" name="dataElementCategoryOptionComboId" id="dataElementCategoryOptionComboId" value="$!optionCombo.id"/>
+<input type="hidden" name="oUnitId" id="oUnitId" value="$!organisationUnit.id"/>
+<input type="hidden" name="userName" id="userName" value="$!userName"/>
+<input type="hidden" name="currentPeriod" id="currentPeriod" value="$!currentPeriod"/>
+<div id="indicators" width="100%">
+	<ul>
+		<li><a href="#indicator-1" ><img src="images/history.png" width="20" >Indicator Details</a></li>
+		#if($keyDataElement)
+			<li ><a href="#indicator-2" ><img src="images/icon_techsupport.png" width="20" />Comment History</a></li>
+		#end
+				
+	</ul>
+	
+	<div id="indicator-1">		
+    	<div  style="background-color:#3366CC;color:white;width:95%;"><strong>$i18n.getString( "help_for_indicator" ): $!indicator.name</strong></div><br/>
+    
+    		<fieldset style="height:80px;">
+        		<legend style="background-color:#A9D0F5;color:black;width:95%;"><b>Calculation:</b></legend>
+        			<div style="width:95%;font-family: serif,script,arial;font-size:13px;">
+    					$!indicator.description
+                    </div>				
+    		</fieldset>			
+    		<br/>
+    		<fieldset style="height:auto;">
+        		<legend style="background-color:#A9D0F5;color:black;width:95%;"><b>Data Elements:</b></legend>
+    			<table align="center" id="alternatecolor1" class="altrowstable" style="width:95%;table-layout:fixed;">
+    				<tr >
+    					<th style="width:20%;">Name</th>
+    					<th style="width:10%;">Value</th>
+    					<th style="width:20%;">Comments</th>
+                    </tr>
+    				#foreach($de in $dataElementList)
+    				<tr >
+    					<td >$de.name </td>
+    					<td >$valueMap.get($de.uid) </td>
+    					<td >$commentMap.get($de.uid) </td>
+                    </tr>
+    				#end
+                </table>			   			
+    		</fieldset>
+    		<br/>
+	</div>
+	#if($keyDataElement)
+	<div id="indicator-2">
+		<div style="width:95%;height:400px;">
+			<table align="center" class="altrowstable" id="alternatecolor2" cellspacing="0" cellpadding="0" style="margin:0cm 0cm 0cm 0cm;" width="100%">
+			<thead>
+				<tr>		
+					<th width="10%">$i18n.getString( "last_updated" )</th>
+					<th width="8%">$i18n.getString( "source" )</th>
+					<th width="10%">$i18n.getString( "period" )</th> 
+					<th width="45%">$i18n.getString( "comment" )</th>					
+				</tr>
+			</thead>
+			<tbody>				
+			#foreach($history in $historyList)
+				#set( $tr = "tr-${history.id}" )
+				#if("$history.commentType" == "H")						
+					<tr>
+						<td width="10%" id="td_${history.id}">$!history.timeStamp</td>
+						<td width="8%">$!history.storedBy</td>
+						<td width="10%" >
+							#if( $periodTypeName == "Quarterly" )
+								$simpleDateFormat1.format( $!history.dataValue.period.startDate ) - $simpleDateFormat2.format( $!history.dataValue.period.endDate )
+							#else
+								$simpleDateFormat1.format( $!history.dataValue.period.startDate )
+							#end				
+						</td>
+						<td width="45%" id="comment_${history.id}">$!history.value</td>						
+					</tr>					
+				#end	
+			#end
+		</tbody>
+		</table>
+		</div>
+		<hr/>
+		<table width="95%">
+			<tr >
+				<td ><textarea cols="60" id="keyComment" rows="1" ></textarea></td>
+				<td><input type="button" id="addComment" value="Add Comment" onclick="saveKeyFlagComment();"/></td>
+			</tr> 
+        </table>
+    </div>
+	#end
+</div>

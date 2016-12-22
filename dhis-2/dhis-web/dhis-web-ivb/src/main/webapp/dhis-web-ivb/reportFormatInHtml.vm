@@ -1,0 +1,412 @@
+#set( $reportWarning = "Y" )
+
+<script type="text/javascript">
+
+    $(document).ready(function(){
+        var value1  = $('#GNI').html();
+        $('#GNI').html(value1.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+
+        var value2  = $('#WUENIC').html();
+        $('#WUENIC').html(value2+"%");
+
+        var value3  = $('#JRF').html();
+        $('#JRF').html(value3+"%");
+    });
+
+jQuery(function() {
+    $('#toUser').show();
+    $('#recipients').select2({
+       minimumInputLength: 1,
+       multiple: true, 
+       width: "546px",      
+       ajax: {
+           url: 'getMessageRecipients.action',
+           dataType: 'json',
+           data: function(term, page) {
+                return {
+                    filter: term
+                }
+           },
+           results: function(data, page) {
+               return { results: data.matches }
+           }
+       }
+    });
+});
+</script>
+
+<script>
+	function getShareLink()
+	{		
+		$('#shareSubject').val('Country File Report for '+ '$organisationUnit.name');
+		$('#shareText').val('Link to view the report: \n \n' + document.location.href);
+		$( "#shareLinkToUser" ).dialog('open');		
+	}
+    var percentageRequiredList= $percentageRequiredDe;
+
+
+</script>
+<style >
+	th, td
+	{		
+		vertical-align: middle;
+	}
+</style>
+<form id="form1" name="form1" action="exportToWorkBook.action" method="post" onsubmit="return exportToExcel()" target="_newtab" accept-charset="UTF-8">
+	<textarea name="htmlCode" id="htmlCode" style="display:none">a</textarea>
+	
+	<div align="right" style="width:95%;margin:auto;padding-top:8px;padding-bottom:3px;">
+	   <br/>
+		<input type="button" onclick="location.href='countryFile.action'" value="Change Selections"/>
+		<input type="submit" value="Download As Excel"/>
+		<input type="button" value="Print" onclick="javascript:prepPrintCoupon('htmlContent')" />
+		<input type="button" value="Share" onclick="javascript: getShareLink()"/>
+	</div>
+	
+	<br/><hr/>
+	
+	#set( $falgURL = $flagFolderPath + $organisationUnit.code +".png" )
+	<input type="hidden" value="$falgURL" id="hiddenImgPath" />
+	#set( $keyFlagURL1 = $flagFolderPath + "bookmark-star2.png" )
+	<input type="hidden" id="redFlag" value="$keyFlagURL1" />
+	#set( $keyFlagURL2 = $flagFolderPath + "bookmark-star.png" )
+	<input type="hidden" id="greyFlag" value="$keyFlagURL2" />
+	
+	<div id="htmlContent" style="width:90%;margin:auto;" >
+        <table cellspacing="0" cellpadding="0" width="100%" bgcolor="#FBEFEF">
+            <tr>
+		 	    <td align="right" id="flagImage">		
+		 		   <img src="imageAction.action?imagePath=$falgURL"/>
+		 		</td>
+		 		<td>
+		 		   <h2>$organisationUnit.name ( $organisationUnit.code )</h2> 
+		 			$i18n.getString( "last_updated_on" ) : $!lastUpdated
+		 		</td>		 		    
+            </tr>
+		    <tr>
+                <td align="right" width="5%"></td>
+		        <td></td>
+            </tr> 		
+		</table>
+		
+		<table width="100%" style="margin:auto;" bgcolor="#FBEFEF">
+			<tr style="height:30px;">
+				<td width="25%">$i18n.getString( "header_GNI" )</td>
+				<td id="GNI" width="15%">$!dataValue.get('mEidZNoWDvS')</td>
+				<!--<td width="10%">$!dataValueTimeStampMap.get('mEidZNoWDvS')</td>-->
+				<td width="10%">&nbsp;</td>
+				<td width="25%">$i18n.getString( "header_income_status" )</td>
+				<td width="15%">$!dataValue.get('J3ZawRoVEu3')</td>
+				<!--<td width="10%">$!dataValueTimeStampMap.get('J3ZawRoVEu3')</td>-->
+				<td width="10%">&nbsp;</td>
+			 </tr>
+			 <tr style="height:30px;">
+			 	<!--
+				<td width="25%">$i18n.getString( "header_GINI" )</td>
+				<td width="15%">$!dataValue.get('t4bnfS6KuIY')</td>
+				<td width="10%">$!dataValueTimeStampMap.get('t4bnfS6KuIY')</td>
+				-->
+				<td width="25%">$i18n.getString( "header_dtp3_WUENIC" )</td>
+				<td id="WUENIC" width="15%">$!dataValue.get('TNr02MLZPCk')</td>
+				<!--<td width="10%">$!dataValueTimeStampMap.get('TNr02MLZPCk')</td>-->
+				<td width="10%">&nbsp;</td>
+				<td width="25%">$i18n.getString( "header_GAVI" )</td>
+				<td width="15%">$!dataValue.get('WaL6oz51P8X')</td>
+				<!--<td width="10%">$!dataValueTimeStampMap.get('WaL6oz51P8X')</td>-->
+				<td width="10%">&nbsp;</td>
+			</tr>
+			 <tr style="height:30px;">
+				
+				<td width="25%">$i18n.getString( "header_dtp3_JRF" )</td>
+				<td id="JRF" width="15%">$!dataValue.get('vqLla2ot9Nd')</td>
+				<!--<td width="10%">$!dataValueTimeStampMap.get('vqLla2ot9Nd')</td>-->
+				<td width="10%">&nbsp;</td>
+				<td width="25%">$i18n.getString( "header_cmyp_start_date_end_date" )</td>
+				<td width="15%">$!dataValue.get('hEdIGZdkIVs') - $!dataValue.get('bfM3Jv6PFpL')</td>
+				<td width="10%"></td>
+			</tr>
+			<!--
+			 <tr style="height:30px;">
+				<td width="25%">$i18n.getString( "header_cmyp_start_date_end_date" )</td>
+				<td width="15%">$!dataValue.get('hEdIGZdkIVs') - $!dataValue.get('bfM3Jv6PFpL')</td>
+				<td width="10%"></td>
+				<td width="25%"></td>
+				<td width="15%"></td>
+				<td width="10%"></td>
+			</tr>
+			-->
+		</table>
+
+		<hr/>
+		
+		#foreach($dataSet in $dataSetList)
+			<table style="margin:auto;width:100%" width="100%">
+				<tr>					
+					<td width="100%" colspan="2"><h3>$dataSet.name</h3></td>
+				</tr>
+				<tr>
+					<td style="width:100%;">		
+						<table class="altrowstable" style="margin:auto;background:#E0F8E0;" width="100%">							
+							<tr>
+								<th width="5%"></th>
+								<th width="43%" align="left">$i18n.getString( "key_flag" )</th>
+								<th width="12%" align="left">$i18n.getString( "value" )</th>
+								<th width="24%" align="left">$i18n.getString( "comment" )</th>
+								#if( $!showSource == "YES" )
+								<th width="15%" align="left">$i18n.getString( "source" )</th>
+								#end
+							</tr>		
+							#set( $keyFlags = $keyFlagMap.get( $dataSet ) )
+							#foreach( $keyFlag in $keyFlags )
+								#set( $curColor = "BLUE" )
+								<tr>	
+										#set($keyFlagGetter = "${keyFlag.uid}-${organisationUnit.uid}")
+										#if( $colorMap.get( $keyFlagGetter ) == "RED" )
+											#set( $curColor = "RED" )
+											<td width="5%" class="flagedImg" valign="middle" style="vertical-align:middle;">
+												<img src="imageAction.action?imagePath=$keyFlagURL1" width="20" height="20" style="float:left;" ></img>  
+											</td>
+											<td width="43%" align="left" valign="middle" style="vertical-align:middle;">
+												<a href="loadSingleCoutryEntryForm.action?dataSetUId=$dataSet.uid&orgUnitUid=$organisationUnit.uid" >
+													<font color="red">$!keyFlag.displayName</font>
+												</a>
+											</td>
+										#elseif( $colorMap.get( $keyFlagGetter ) == "GREEN" )
+											#set( $curColor = "GREEN" )
+											<td width="5%" class="blueFlagedImg" valign="middle" style="vertical-align:middle;">
+											   <img src="images/bookmark-star_green.png" width="20" height="20" style="float:left;" ></img>											
+											</td>
+											<td width="43%" align="left" valign="middle" style="vertical-align:middle;">
+												<a href="loadSingleCoutryEntryForm.action?dataSetUId=$dataSet.uid&orgUnitUid=$organisationUnit.uid" >
+														<font color="green">$!keyFlag.displayName</font>
+												</a>
+											</td>
+										#else
+											#set( $curColor = "GREY" )											
+											<td width="5%" class="unFlagedImg" valign="middle" style="vertical-align:middle;">
+											   <img src="imageAction.action?imagePath=$keyFlagURL2" width="20" height="20" style="float:left;" ></img>											
+											</td>
+											<td width="43%" align="left" valign="middle" style="vertical-align:middle;">												
+												<a href="loadSingleCoutryEntryForm.action?dataSetUId=$dataSet.uid&orgUnitUid=$organisationUnit.uid" ><font color="grey">$!keyFlag.displayName</font></a>
+											</td>
+										#end
+									<td width="12%" align="left" valign="middle" style="vertical-align:middle;">$!keyIndicatorValueMap.get($keyFlagGetter)</td>
+									<td width="24%" align="left" valign="middle" style="vertical-align:middle;">$!commentMap.get($keyFlagGetter)</td>
+									#if( $!showSource == "YES" )
+									<td width="15%" align="left " valign="middle" style="vertical-align:middle;">$!sourceMap.get($keyFlagGetter)</td>
+									#end
+								</tr>
+							#end
+						</table>
+					</td>
+				</tr>
+				
+				#if( $!keyFlagOnly == "YES" )
+				#else
+				<tr>
+					<td width="100%">		
+						<table class="altrowstable" style="margin:auto;background:#F7F2E0;" width="100%">
+							<tr>
+								<th width="5%"></th>
+								<th width="43%" align="left">Data Element</th>
+								<th width="12%" align="left">Value</th>
+								<th width="24%" align="left">Comment</th>
+								#if( $!showSource == "YES" )
+								<th width="15%" align="left">Source</th>
+								#end
+							</tr>
+							#set( $dataElements = $dataElementMap.get( $dataSet ) )
+							 #foreach( $dataElement in $dataElements )
+							 #set( $deUpdateStatus ="")
+							     #set( $off_pri_val = "" )
+								 #set( $dataValue = $!dataValueMap.get( $dataElement ) )
+								 #set( $off_pri_val = $off_pri_de_map.get( $dataElement ) )
+								     #if( $userDataElements.contains( $dataElement ) && $userOrgUnit.contains( $organisationUnit1 ) )
+                        #set( $deUpdateStatus = "yes" )
+                    #else
+                        #set( $deUpdateStatus = "no" )
+                    #end
+								<tr>
+						
+				<td width="5%" valign="middle" style="vertical-align:middle;">
+				  #if( $!off_pri_val == "official" && $!deUpdateStatus == "no")
+                                <img src="images/official.ico" width="17" title="Official Data"/>									
+				#end
+				</td>
+								
+									
+									<td width="43%" align="left" valign="middle" style="vertical-align:middle;">
+									
+										<a href="loadSingleCoutryEntryForm.action?dataSetUId=$dataSet.uid&orgUnitUid=$organisationUnit.uid" #if( $keyFlagDes.contains( $dataElement ) ) style="color:$curColor" #end >$!dataElement.name</a>
+									</td>
+                                    
+                                    <td id="${dataElement.id}" width="12%" align="left" valign="middle" style="vertical-align:middle;">$!dataValue.value</td>
+
+                                    <script>
+                                        function formatNumber(type,dataelement, content){
+                                            console.log("content :" + content);
+
+                                            if(type == 'int')
+                                            {
+                                              for (var i = 0; i < percentageRequiredList.length; i++)
+                                                    {
+                                                        if(dataelement == percentageRequiredList[i])
+                                                        {
+                                                            document.getElementById(dataelement).innerHTML = content+"%";
+                                                            return;
+                                                        }
+                                                    }
+                                                    document.getElementById(dataelement).innerHTML =  content.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                            }
+                                        }
+                                        formatNumber('$dataElement.type', '$dataElement.id','$!dataValue.value');
+                                    </script>
+
+                                   	<td width="25%" align="left" valign="middle" style="vertical-align:middle;">$!dataValue.comment</td>
+									#if( $!showSource == "YES" )
+									<td width="15%" align="left" valign="middle" style="vertical-align:middle;">$!dataValue.storedBy $!dataValue.lastUpdated</td>
+									#end
+								</tr>
+							#end
+						</table>
+					</td>
+				</tr>
+				#end
+			</table>
+	       <hr/>
+        #end
+		<br/><br/><br/>
+		<table style="margin:auto;display:none;color: #9F6000;background-color: #FEEFB3;border: 1px solid;" width="100%">
+			<tr>
+				<td colspan="5" style="vertical-align:middle;">$i18n.getString( "report_inline_security_warning" )</td>
+			</tr>
+		</table>
+
+</div>
+
+</form>
+<div id="shareLinkToUser" title="Share Link to User">
+		<fieldset>
+			<label for="toUser">$i18n.getString( "maintenance_users" )</label>
+			<input type="hidden" name="recipients" id="recipients" class="text ui-widget-content ui-corner-all" placeholder="Enter User Name"/>
+			<br/><br/>
+			<label for="shareSubject">$i18n.getString( "feedback_subject" )</label>
+			<input type="text" id="shareSubject" name="shareSubject" class="text ui-widget-content ui-corner-all" />
+			<label for="shareText">$i18n.getString( "feedback_text" )</label>
+			<textarea id="shareText" name="shareText" class="text ui-widget-content ui-corner-all" rows="6">				
+			</textarea>
+		</fieldset>
+</div>
+<style>
+	label, #toUser ,#shareText ,#shareSubject{ 
+		display:block;
+	}
+		#recipients ,#shareText ,#shareSubject	{ 
+		margin-bottom:12px;
+		width:95%; 
+		padding: .4em; 
+	}	
+	#shareLinkToUser fieldset	{ 
+		padding:0;
+		border:0;
+		margin-top:25px;
+	}
+</style>
+<script>
+	jQuery(function() {
+	    var emailIds = 'null';
+		$( "#shareLinkToUser" ).dialog({
+				autoOpen: false,
+				height: 420,
+				width: 595,
+				modal: true,
+				show: "blind",
+				hide: "explode",
+				buttons: {
+				"$i18n.getString( 'send' )":function() {									
+					location.href = 'mailto:' + $('#recipients').val().replace(/[,]/g,';') +
+                	'?subject=' + $('#shareSubject').val() +
+                	'&body=' + escape(document.getElementById('shareText').value) ;
+					$( this ).dialog( "close" );
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			},
+			close: function() {				
+			}
+		});
+	});
+	function printDiv( divID ) 
+	{
+		//Get the HTML of div
+        var divElements = document.getElementById(divID).innerHTML;
+        
+        //Get the HTML of whole page
+        var oldPage = document.body.innerHTML;
+
+        //Reset the page's HTML with div's HTML only
+        document.body.innerHTML = divElements ;
+
+       	//Print Page
+        window.print();
+
+        //Restore orignal HTML
+        document.body.innerHTML = oldPage;        
+		
+		window.location.reload();
+	}
+	
+	var originalContents,coupon;
+	function prepPrintCoupon(couponID){
+  		originalContents = document.body.innerHTML;
+  		coupon=couponID;
+  		var printable = document.getElementById(couponID);
+  		var printContents = printable.innerHTML;
+  		document.body.innerHTML = printContents;
+  		setTimeout(printCoupon,50);
+	}
+	function printCoupon(){
+		window.print();
+		setTimeout(endPrintCoupon,50);
+	}
+	function endPrintCoupon(){
+  		document.body.innerHTML = originalContents;
+  	document.getElementById(coupon).scrollIntoView(true);
+	}
+	
+	
+</script>
+<script>
+	function exportToExcel()
+	{	
+		var currentFlaggedImgPath = $('.flagedImg').find('img').attr('src');
+		var currentUnFlaggedImgPath = $('.unFlagedImg').find('img').attr('src');
+		
+		countryFlagPath = $('#flagImage').find('img').attr('src');
+		
+		var imagePath = $('#hiddenImgPath').val();
+		var redFlag = $('#redFlag').val();
+		var greyFlag = $('#greyFlag').val();
+		
+		$('#flagImage').find('img').remove();
+		$('.flagedImg').find('img').remove();
+		$('.unFlagedImg').find('img').remove();
+		
+		$('#flagImage').text('');
+		$('.flagedImg').append('<font size=\"20\" color=\"red\">*</font>')
+		$('.unFlagedImg').append('<font size=\"20\" color=\"#A4A4A4\">*</font>');
+		
+		document.getElementById('htmlCode').value = document.getElementById('htmlContent').innerHTML;	
+		
+		$('.flagedImg').text('');
+		$('.unFlagedImg').text('');		
+		
+		$('#flagImage').append('<img src=\"'+countryFlagPath+'\" \>');
+		$('.flagedImg').append('<img src=\"'+currentFlaggedImgPath+'\" width=\"20\" height=\"20\" style=\"float:left;\" \>');
+		$('.unFlagedImg').append('<img src=\"'+currentUnFlaggedImgPath+'\" width=\"20\" height=\"20\" style=\"float:left;\" \>');
+		
+        return true;
+	}
+	
+</script>

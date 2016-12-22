@@ -1,0 +1,322 @@
+ <script type="text/javascript">
+	$(document).ready(function(){
+	    $('#myjquerymenu').find('#dashboard').addClass("selected");	  
+	    pageName = 'Dashboard';  
+	});
+	$(function() {
+        $( document ).tooltip({
+			track: true
+		});
+    });
+</script>
+
+#if($organisationUnit)
+<script>
+	$(document).ready(function()
+	 {			
+		tableSorter( 'alternatecolor' );		
+		altRows('alternatecolor');
+		countryTags = $countryList;	
+		$('.fancybox').fancybox();
+	});
+	$(function() {		
+		$( "#orgName" ).autocomplete({
+			source: countryTags,
+			select: function( event, ui ) {
+			
+			for(var j=0;j<=countryTags.length-1;j++)
+			{
+				if(countryTags[j] == ui.item.value)
+				{
+					var country = ui.item.value;
+					if(country.indexOf("'") != -1)
+					{
+						country = country.replace("'","\'")
+					}	
+					if(country.indexOf('&') != -1)
+					{
+						country = country.replace('&','%26')
+					}
+					window.location.href="dashboard.action?countryName="+country;
+				}
+			}	
+			
+		}
+		});
+		
+	});
+	function getDashboard()
+	{
+			var orgName = document.getElementById("orgName").value;
+			if(orgName.indexOf("'") != -1)
+    		{
+    			orgName = orgName.replace("'","\'")
+    		}
+			for(var j=0;j<=countryTags.length-1;j++)
+			{
+				if(countryTags[j].toLowerCase() == orgName.toLowerCase())
+				{
+				var country = orgName;
+					if(country.indexOf('&') != -1)
+					{
+						country = country.replace('&','%26')
+					}
+					window.location.href="dashboard.action?countryName="+country;
+				}
+			}
+		
+	}
+	function sorting()
+	{				
+		if($('.asc').css('display') == "block")
+		{						
+			$('.asc').css('display', 'none');
+			$('.desc').css('display', 'block');						
+			tableSorter( 'alternatecolor' );
+			altRows('alternatecolor');
+		}
+		else
+		{
+			$('.asc').css('display', 'block');
+			$('.desc').css('display', 'none');			
+			tableSorter( 'alternatecolor' );
+			altRows('alternatecolor');
+		}
+	}
+	function sortingFlags()
+	{	
+		$('.redFlag').text('1');
+		$('.greenFlag').text('2');
+		$('.grayFlag').text('3');
+		if($('.asc').css('display') == "block")
+		{						
+			$('.asc').css('display', 'none');
+			$('.desc').css('display', 'block');						
+			tableSorter( 'alternatecolor' );
+			altRows('alternatecolor');
+		}
+		else
+		{
+			$('.asc').css('display', 'block');
+			$('.desc').css('display', 'none');			
+			tableSorter( 'alternatecolor' );
+			altRows('alternatecolor');
+		}
+	}
+	function getKeyFlagDetails(dataSetUid, orgUnitUid, indicatorName, indValue, indComment, indSource)
+	{
+		$('#dashboardPage').append('' +
+             '<input type="hidden" name="dataSetUId" value="' + dataSetUid + '">'+
+			 '<input type="hidden" name="orgUnitUid" value="' + orgUnitUid + '">'+
+			 '<input type="hidden" name="indicatorName" value="' + indicatorName + '">'+
+			 '<input type="hidden" name="indValue" value="' + indValue + '">'+
+			 '<input type="hidden" name="indComment" value="' + indComment + '">'+
+			 '<input type="hidden" name="indSource" value="' + indSource + '">'+
+			 '');
+			 
+			$("#dashboardPage").attr("action", "loadSingleCoutryEntryForm.action");
+			$('#dashboardPage').submit();
+	}
+</script>
+
+ <form id="dashboardPage" method="post" >	
+	<div style="width:98%">
+		<ul id="crumbs">
+				<li><a href="regionalDashboard.action?orgUnitId=$organisationUnit.getParent().getId()">$!organisationUnit.getParent().getName()</a></li>
+				<li>$!organisationUnit.getName()</li>				
+			<li style="float:right;">
+				<input id="orgName" name="orgName" onkeypress="javascript:getDashboard();" size="50" placeholder="$i18n.getString( 'country_search' )" />
+			</li> 			
+		</ul>
+	</div>
+	<br/>
+ 	<table cellspacing="0" cellpadding="0"  bgcolor="#FBEFEF" width="100%">
+ 		<tr>
+ 			<td align="right" width="5%">
+ 				#set( $falgURL = $flagFolderPath + $organisationUnit.code +".png" )
+ 				<img src="imageAction.action?imagePath=$falgURL"/></td>
+ 			</td>
+ 			<td>
+ 				<h2>&nbsp;&nbsp;$organisationUnit.name ( $organisationUnit.code )</h2> 				
+ 				&nbsp;&nbsp;$i18n.getString( "last_updated_on" ) : $lastUpdated
+ 		    </td>
+		 </tr>
+        <tr>
+            <td align="right" width="5%">&nbsp;</td>
+            <td>&nbsp;</td>
+         </tr> 		
+	 </table> 
+
+	<table width="100%" style="margin:auto;" bgcolor="#FBEFEF">
+			<tr style="height:30px;">
+				<td width="25%">$i18n.getString( "header_GNI" )</td>
+				<td id="GNI" width="15%">$!dataValue.get('mEidZNoWDvS')</td>
+				<!--<td width="10%">$!dataValueTimeStampMap.get('mEidZNoWDvS')</td>-->
+				<td width="10%"></td>
+				<td width="25%">$i18n.getString( "header_income_status" )</td>
+				<td width="15%">$!dataValue.get('J3ZawRoVEu3')</td>
+				<!--<td width="10%">$!dataValueTimeStampMap.get('J3ZawRoVEu3')</td>-->
+				<td width="10%"></td>
+			 </tr>
+			 <tr style="height:30px;">
+			 	<!--
+				<td width="25%">$i18n.getString( "header_GINI" )</td>
+				<td width="15%">$!dataValue.get('t4bnfS6KuIY')</td>
+				<td width="10%">$!dataValueTimeStampMap.get('t4bnfS6KuIY')</td>
+				-->
+				<td width="25%">$i18n.getString( "header_dtp3_WUENIC" )</td>
+				<td id="WUENIC" width="15%">$!dataValue.get('TNr02MLZPCk')</td>
+				<!--<td width="10%">$!dataValueTimeStampMap.get('TNr02MLZPCk')</td>-->
+				<td width="10%"></td>
+				<td width="25%">$i18n.getString( "header_GAVI" )</td>
+				<td width="15%">$!dataValue.get('WaL6oz51P8X')</td>
+				<!--<td width="10%">$!dataValueTimeStampMap.get('WaL6oz51P8X')</td>-->
+				<td width="10%"></td>
+			</tr>
+			 <tr style="height:30px;">
+				
+				<td width="25%">$i18n.getString( "header_dtp3_JRF" )</td>
+				<td id="JRF" width="15%">$!dataValue.get('vqLla2ot9Nd')</td>
+				<!--<td width="10%">$!dataValueTimeStampMap.get('vqLla2ot9Nd')</td>-->
+				<td width="10%"></td>
+				<td width="25%">$i18n.getString( "header_cmyp_start_date_end_date" )</td>
+				<td width="15%">$!dataValue.get('hEdIGZdkIVs') - $!dataValue.get('bfM3Jv6PFpL')</td>
+				<td width="10%"></td>
+			</tr>
+			<!--
+			 <tr>
+				<td width="25%">$i18n.getString( "header_cmyp_start_date_end_date" )</td>
+				<td width="15%">$!dataValue.get('hEdIGZdkIVs') - $!dataValue.get('bfM3Jv6PFpL')</td>
+				<td width="10%"></td>
+				<td width="25%"></td>
+				<td width="25%"></td>
+				<td width="10%"></td>
+			</tr>
+			-->
+		</table>
+			 
+	<!--		 
+ 	<table width="100%" style="margin:auto;" bgcolor="#FBEFEF" >
+		<tr style="height:30px;">
+			<td title="Gross national income">$encoder.htmlEncode($headerMap.get('mEidZNoWDvS'))</td>
+			<td><input type="text" size="24" value="$!dataValue.get('mEidZNoWDvS')" readonly/></td>
+			<td>$headerMap.get('J3ZawRoVEu3')</td>
+			<td><input type="text" size="30" value="$!dataValue.get('J3ZawRoVEu3')" readonly/></td>
+		 </tr>
+		 <tr style="height:30px;">
+			<td>$headerMap.get('t4bnfS6KuIY')</td>
+			<td><input type="text" size="24" value="$!dataValue.get('t4bnfS6KuIY')" readonly/></td>
+			<td>$headerMap.get('WaL6oz51P8X')</td>
+			<td><input type="text" size="30" value="$!dataValue.get('WaL6oz51P8X')" readonly/></td>
+		</tr>
+		 <tr style="height:30px;">
+			<td title="WHO and UNICEF Estimates of National Immunization">$headerMap.get('TNr02MLZPCk')</td>
+			<td><input type="text" size="24" value="$!dataValue.get('TNr02MLZPCk')" readonly /></td>
+			<td title="Joint Reporting Form">$headerMap.get('vqLla2ot9Nd')</td>
+			<td><input type="text" size="30" value="$!dataValue.get('vqLla2ot9Nd')" readonly/></td>			
+		</tr>
+		 <tr style="height:30px;">
+			<td>$i18n.getString( "header_cmyp_start_date_end_date" )</td>
+			<td><input type="text" size="8" value="$!dataValue.get('hEdIGZdkIVs')" readonly /> - <input type="text" size="8" value="$!dataValue.get('bfM3Jv6PFpL')" readonly/></td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>			
+		</tr>
+	</table>
+ 	-->
+ 	
+	 <table class="altrowstable" id="alternatecolor" cellspacing="0" cellpadding="0" style="margin:auto;table-layout:fixed;width:100%">	
+			<col/>          
+          	<col/>
+			<thead>
+				<tr style="height:30px;">
+					<th width="4%" onclick="sortingFlags();" > <img src="images/asc.gif" class="asc" style="display:block;float:right;"/><img src="images/desc.gif" class="desc" style="display:none;float:right;"/></th>				
+					<th width="17%" onclick="sorting();">$i18n.getString( "areas_of_work" )<img src="images/asc.gif" class="asc" style="display:block;float:right;"/><img src="images/desc.gif" class="desc" style="display:none;float:right;"/></th>		
+					<th width="30%" onclick="sorting();">$i18n.getString( "key_flag" )<img src="images/asc.gif" class="asc" style="display:block;float:right;"/><img src="images/desc.gif" class="desc" style="display:none;float:right;"/></th>
+					<th width="12%" class="{sorter: false}">$i18n.getString( "latest_value" )</th>
+					<th width="15%" class="{sorter: false}">$i18n.getString( "latest_comment" )</th>
+					<th width="7%" class="{sorter: false}">$i18n.getString( "last_update" )</th>	
+					<th width="5%" title="Get more info about this element">$i18n.getString( "help" )</th>									
+				</tr>
+			</thead>
+			<tbody id="list">
+			
+				#set($actsize = $indicatorList.size())
+				#set($size = $actsize - 1)
+				#set($x = 0) 
+				#set($y = 0) 
+				#set($z = 0) 
+				#foreach($indicator in $indicatorList)
+					#foreach($dataset in $datasetMap.get($indicator.getUid()))
+						#if($x lt $size)
+					#set($x = $x + 1)
+					#end
+					
+					
+					#if($z gt 0)
+					#set($y = $z - 1)
+					#end
+					
+					
+					
+					#set($nextDataset = $datasetMap.get($indicatorList[$x].getUid())[0])
+					#set($prevDataset = $datasetMap.get($indicatorList[$y].getUid())[0])
+					
+					#if ($z == 0 && $dataset.id == $nextDataset.id )
+						#set($print = $dataset.displayName+"</br>("+$indicator.shortName+")")
+					#elseif ($z == $size && $dataset.id == $prevDataset.id )
+						#set($print = $dataset.displayName+"</br>("+$indicator.shortName+")")
+					#elseif(($dataset.id == $prevDataset.id || $dataset.id == $nextDataset.id) && $z != 0 && $z != $size)
+						#set($print = $dataset.displayName+"</br>("+$indicator.shortName+")")
+					#else
+						#set($print = $dataset.displayName)
+					#end
+					
+					#set($z = $z + 1)	
+						
+					#set($keyFlagGetter = "${indicator.uid}-${organisationUnit.uid}")
+					<tr>
+							#if( $colorMap.get( $keyFlagGetter ) == "RED" )
+								<td title="Flagged for review/update/action">									
+									<a href="javascript:getKeyFlagDetails('$dataset.uid','$organisationUnit.uid','$encoder.jsEscape($indicator.displayName,"'")','$encoder.jsEscape($!keyIndicatorValueMap.get($keyFlagGetter),"'")','$encoder.jsEscape($!commentMap.get($keyFlagGetter),"'")','$encoder.jsEscape($!sourceMap.get($keyFlagGetter),"'")')">
+										<b class="redFlag" style="display:none;">0</b><img src="images/bookmark-star2.png" width="20" height="20"/>	
+									</a>
+								</td>
+							#elseif( $colorMap.get( $keyFlagGetter ) == "GREEN" )
+								<td > 
+									<a href="javascript:getKeyFlagDetails('$dataset.uid','$organisationUnit.uid','$encoder.jsEscape($indicator.displayName,"'")','$encoder.jsEscape($!keyIndicatorValueMap.get($keyFlagGetter),"'")','$encoder.jsEscape($!commentMap.get($keyFlagGetter),"'")','$encoder.jsEscape($!sourceMap.get($keyFlagGetter),"'")')">
+										<b class="greenFlag" style="display:none;">0</b><img src="images/bookmark-star_green.png" width="20" height="20"/>
+									</a>
+								</td>
+							#else
+								<td > 
+									<a href="javascript:getKeyFlagDetails('$dataset.uid','$organisationUnit.uid','$encoder.jsEscape($indicator.displayName,"'")','$encoder.jsEscape($!keyIndicatorValueMap.get($keyFlagGetter),"'")','$encoder.jsEscape($!commentMap.get($keyFlagGetter),"'")','$encoder.jsEscape($!sourceMap.get($keyFlagGetter),"'")')">
+										<b class="grayFlag" style="display:none;">0</b><img src="images/bookmark-star.png" width="20" height="20"/>
+									</a>
+								</td>
+							#end
+						<td><a href="javascript:getKeyFlagDetails('$dataset.uid','$organisationUnit.uid','$encoder.jsEscape($indicator.shortName,"'")','$encoder.jsEscape($!keyIndicatorValueMap.get($keyFlagGetter),"'")','$encoder.jsEscape($!commentMap.get($keyFlagGetter),"'")','$encoder.jsEscape($!sourceMap.get($keyFlagGetter),"'")')">
+								$print
+						</a></td>
+						<td>
+							<a href="javascript:getKeyFlagDetails('$dataset.uid','$organisationUnit.uid','$encoder.jsEscape($indicator.displayName,"'")','$encoder.jsEscape($!keyIndicatorValueMap.get($keyFlagGetter),"'")','$encoder.jsEscape($!commentMap.get($keyFlagGetter),"'")','$encoder.jsEscape($!sourceMap.get($keyFlagGetter),"'")')" title="Click to see all data elements associated with this area of work">
+								$indicator.displayName
+							</a></td>
+						<td>$!keyIndicatorValueMap.get($keyFlagGetter)</td>
+						<td>$!commentMap.get($keyFlagGetter)</td>
+						<td title="$!userInfoMap.get($keyFlagGetter)">$!sourceMap.get($keyFlagGetter)</td>
+						<td align="center"><a class="fancybox" href="javascript:getHelp('$indicator.getId()','$organisationUnit.uid')"><img src="images/help.png" width="20" /></a></td>
+					</tr>
+					#end					
+				#end
+			</tbody>
+		</table>
+ 		<div id="help" style="width:700px;"></div>
+ 	<br/>
+	
+ </form>
+ 
+#else
+	<script>
+		window.location.href = "home.action";
+	</script>
+#end
