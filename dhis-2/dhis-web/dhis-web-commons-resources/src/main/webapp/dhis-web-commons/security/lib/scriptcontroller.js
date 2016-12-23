@@ -471,7 +471,10 @@ Ext.onReady( function() {
     });
 
     function setLinks() {
+
+
         document.getElementById("map1").style.display = "none";
+        //document.getElementById("map1").style.border = "none";
 
         //var greenIcon = L.icon({
         //    iconUrl: 'hospital.png',
@@ -805,6 +808,8 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
     document.getElementById("loader").style.display = "block";
     $("#content1").hide();
     document.getElementById("map1").style.display = "block";
+
+
     //$("#map1").show();
 
 
@@ -920,7 +925,7 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
         for (var i = 0; i < name.length; i++) {
             if(ownership[i]=="Public")
             {
-                L.marker([longitude[i], latitude[i]], {icon: blueMarker}).addTo(map1).bindPopup(name[i]+","+" Contact:"+  mobile[i]+ ", Schemes:"+hfschemes[i]+", Availabilities: "+availspecialiti[i]+"</br>GoTo List View for more details").openPopup();
+                L.marker([longitude[i], latitude[i]], {icon: blueMarker}).addTo(map1).bindPopup(name[i]+","+" </br><strong>Contact:</strong>"+  mobile[i]+ "</br><strong>Schemes:</strong>"+hfschemes[i]+"</br><strong>Availabilities: </strong>"+availspecialiti[i]+"</br>GoTo List View for more details").openPopup();
 
             }
             else if(ownership[i]=="Private")

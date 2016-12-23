@@ -75,15 +75,14 @@
         height:400px;
     }
 
-     #map1 {
-     border:3px solid black;
-    position: absolute;
-    top: 60%;
-    left: 50%;
-    right: 50%;
+     #map1  {
+
+    margin-left:10%;
+    margin-right:10%;
+     position: relative;
      width: 1200px;
      height:450px;
-         transform: translate(-50%, -50%)
+
     }
 </style>
 <body>
