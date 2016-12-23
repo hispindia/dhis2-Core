@@ -77,12 +77,10 @@
 
      #map1 {
      border:3px solid black;
-     display:none;
     position: absolute;
     top: 60%;
     left: 50%;
     right: 50%;
-
      width: 1200px;
      height:450px;
          transform: translate(-50%, -50%)
