@@ -755,7 +755,6 @@ Ext.onReady( function() {
                     $.each(organisationUnitschildren, function (index1, item1) {
 
                     $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
-                  alert(item1.name);
                     });
                 }
 
