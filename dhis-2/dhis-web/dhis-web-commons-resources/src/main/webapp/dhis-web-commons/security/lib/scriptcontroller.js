@@ -1073,7 +1073,7 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
 function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaialability,contactpname,contactpnumber, email,hfschemes,nothfschemes,ouid,ownership) {
     var procedures=[],costs=[];
     this.parent = parent;
-    this.title = title;
+    this.title = title.toUpperCase();
     this.address = address;
     this.pincode = pincode;
     this.mobile = mobile;
