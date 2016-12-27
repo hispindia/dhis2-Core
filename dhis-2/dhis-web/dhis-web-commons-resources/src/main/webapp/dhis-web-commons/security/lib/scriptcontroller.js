@@ -714,8 +714,10 @@ Ext.onReady( function() {
         orgid = $(this).find("option:selected").val();
         var organisationUnits;
 
-        $.getJSON("../../api/organisationUnits/"+orgid+"?paging=false&fields=children[id,name]", function (data) {
+        $.getJSON("../../api/organisationUnits/"+orgid+"?paging=false&fields=children[id,name,children[id,name]]", function (data) {
             var organisationUnits=data.children;
+
+
             organisationUnits.sort(function(a, b) {
                 var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
                 if (nameA < nameB) //sort string ascending
@@ -739,6 +741,25 @@ Ext.onReady( function() {
 
 
             $.each(organisationUnits, function (index1, item1) {
+                if(item1.children.length>0)
+                {
+                    var organisationUnitschildren=item1.children;
+                    organisationUnitschildren.sort(function(a, b) {
+                        var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
+                        if (nameA < nameB) //sort string ascending
+                            return -1
+                        if (nameA > nameB)
+                            return 1
+                        return 0 //default return value (no sorting)
+                    });
+                    $.each(organisationUnitschildren, function (index1, item1) {
+
+                    $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
+                  alert(item1.name);
+                    });
+                }
+
+
                 $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name)
 
                 );
