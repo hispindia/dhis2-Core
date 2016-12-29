@@ -1,9 +1,8 @@
-package org.hisp.dhis.sms.outbound;
-
+package org.hisp.dhis.dxf2.metadata2.collection;
 
 /*
  * Copyright (c) 2004-2016, University of Oslo
- * All rights reserved.
+ *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,43 +28,20 @@ package org.hisp.dhis.sms.outbound;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import java.util.List;
-import java.util.Map;
+import org.hisp.dhis.common.IdentifiableObject;
+import org.hisp.dhis.dxf2.webmessage.WebMessageException;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 /**
- * Zubair <rajazubair.asghar@gmail.com>
+ * @author Morten Olav Hansen <mortenoh@gmail.com>
  */
-
-@JacksonXmlRootElement( localName = "responseEntity" )
-public class ClickatellResponseEntity
+public interface CollectionService
 {
+    void addCollectionItems( IdentifiableObject object, String propertyName, List<IdentifiableObject> objects ) throws Exception;
 
-    private Map<Object, List<Map<Object, Object>>> data;
+    void delCollectionItems( IdentifiableObject object, String propertyName, List<IdentifiableObject> objects ) throws Exception;
 
-    public ClickatellResponseEntity( Map<Object, List<Map<Object, Object>>> data )
-    {
-        super();
-        this.data = data;
-    }
-
-    public ClickatellResponseEntity()
-    {
-        super();
-    }
-
-    @JsonProperty( value = "data" )
-    @JacksonXmlProperty( localName = "data" )
-    public Map<Object, List<Map<Object, Object>>> getData()
-    {
-        return data;
-    }
-
-    public void setData( Map<Object, List<Map<Object, Object>>> data )
-    {
-        this.data = data;
-    }
+    void clearCollectionItems( IdentifiableObject object, String pvProperty ) throws WebMessageException, InvocationTargetException, IllegalAccessException;
 }

@@ -4211,7 +4211,7 @@ Ext.onReady(function() {
 
         // user orgunit
 		requests.push({
-			url: init.contextPath + '/api/organisationUnits.' + type + '?userOnly=true&fields=id,displayName|rename(name),children[id,displayName|rename(name)]&paging=false',
+			url: encodeURI(init.contextPath + '/api/organisationUnits.' + type + '?userOnly=true&fields=id,displayName|rename(name),children[id,displayName|rename(name)]&paging=false'),
             disableCaching: false,
 			success: function(r) {
 				var organisationUnits = (r.responseText ? Ext.decode(r.responseText).organisationUnits : r) || [],
@@ -4243,7 +4243,7 @@ Ext.onReady(function() {
 		});
 
 		requests.push({
-			url: init.contextPath + '/api/dimensions.' + type + '?fields=id,displayName|rename(name)&paging=false',
+			url: encodeURI(init.contextPath + '/api/dimensions.' + type + '?fields=id,displayName|rename(name)&paging=false'),
             disableCaching: false,
 			success: function(r) {
 				init.dimensions = r.responseText ? Ext.decode(r.responseText).dimensions : r.dimensions;
@@ -4373,7 +4373,7 @@ Ext.onReady(function() {
                     console.log(obj.id, (r.responseText ? Ext.decode(r.responseText) : r));
                 };
 
-                config.url = init.contextPath + '/api/charts/' + obj.id + '.' + type + '?fields=' + conf.url.analysisFields.join(',');
+                config.url = encodeURI(init.contextPath + '/api/charts/' + obj.id + '.' + type + '?fields=' + conf.url.analysisFields.join(','));
                 config.disableCaching = false;
                 config.headers = headers;
                 config.success = success;
