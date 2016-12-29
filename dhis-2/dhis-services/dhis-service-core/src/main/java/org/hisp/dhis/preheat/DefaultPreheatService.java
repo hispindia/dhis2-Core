@@ -121,6 +121,9 @@ public class DefaultPreheatService implements PreheatService
             preheat.setUser( currentUserService.getCurrentUser() );
         }
 
+        preheat.put( PreheatIdentifier.UID, preheat.getUser() );
+        preheat.put( PreheatIdentifier.CODE, preheat.getUser() );
+
         for ( Class<? extends IdentifiableObject> klass : params.getObjects().keySet() )
         {
             params.getObjects().get( klass ).stream()
@@ -493,6 +496,11 @@ public class DefaultPreheatService implements PreheatService
                         {
                             addIdentifiers( map, dataDimensionItem.getDataElementOperand().getDataElement() );
                             addIdentifiers( map, dataDimensionItem.getDataElementOperand().getCategoryOptionCombo() );
+                        }
+
+                        if ( dataDimensionItem.getReportingRate() != null )
+                        {
+                            addIdentifiers( map, dataDimensionItem.getReportingRate().getDataSet() );
                         }
                     } );
 
