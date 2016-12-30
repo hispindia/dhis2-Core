@@ -140,7 +140,11 @@
                         </form>
                         #end
                         #if( $failed == true )
-                        <div id="loginMessage">Wrong username or password</div>
+                   <div id="loginMessage" >Wrong username or password   <script>
+                                              (function () {
+                                                  $('#myModal').modal('show');
+                                              })();
+                                          </script></div>
                         #end
                         #if ( $keyApplicationNotification )
                         <div id="notificationArea">$!{keyApplicationNotification}</div>
