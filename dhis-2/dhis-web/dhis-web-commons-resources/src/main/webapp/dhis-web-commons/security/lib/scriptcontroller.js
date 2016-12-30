@@ -21,7 +21,8 @@ var redMarker = L.AwesomeMarkers.icon({
     icon: 'coffee',
     markerColor: 'red'
 });
-
+var Subcentregroup=[];
+var Subgroup=[];
 var blueMarker = L.AwesomeMarkers.icon({
     icon: 'coffee',
     markerColor: 'blue'
@@ -33,7 +34,11 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map1);
 
+var header = {
 
+    "Authorization": "Basic " + btoa( "homepage" + ':' + "Homepage123" )
+
+};
 var legend = L.control({position: 'bottomright'});
 
 legend.onAdd = function (map) {
@@ -754,7 +759,7 @@ Ext.onReady( function() {
                     });
                     $.each(organisationUnitschildren, function (index1, item1) {
 
-                    $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
+                        $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
                     });
                 }
 
@@ -795,7 +800,24 @@ Ext.onReady( function() {
         //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
     });
 
+    $.ajax({
+        async : false,
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json",
+        header : header,
+        url: '../../api/organisationUnitGroups/w70fxv91JLT.json?fields=organisationUnits[id,name,code]',
+        success: function(response){
+            Subcentregroup=response.organisationUnits;
+            $.each(Subcentregroup, function (index1, item1) {
 
+                Subgroup.push(item1.id);
+
+            });
+        },
+        error: function(response){
+        }
+    });
 
 });
 
@@ -941,19 +963,27 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
                 }
             });
         }
+        for (var i = 0; i < ouid.length; i++) {
 
-        for (var i = 0; i < name.length; i++) {
-            if(ownership[i]=="Public")
+
+            if(Subgroup.includes(ouid[i]))
             {
-                L.marker([longitude[i], latitude[i]], {icon: blueMarker}).addTo(map1).bindPopup(name[i]+","+" </br><strong>Contact:</strong>"+  mobile[i]+ "</br><strong>Schemes:</strong>"+hfschemes[i]+"</br><strong>Availabilities: </strong>"+availspecialiti[i]+"</br>GoTo List View for more details").openPopup();
+                console.log("Not found for"+ouid[i])
+            }
+            else
+            {
+                if(ownership[i]=="Public")
+                {
+                    L.marker([longitude[i], latitude[i]], {icon: blueMarker}).addTo(map1).bindPopup(name[i]+","+" </br><strong>Contact:</strong>"+  mobile[i]+ "</br><strong>Schemes:</strong>"+hfschemes[i]+"</br><strong>Availabilities: </strong>"+availspecialiti[i]+"</br>GoTo List View for more details").openPopup();
+
+                }
+                else if(ownership[i]=="Private")
+                {
+                    L.marker([longitude[i], latitude[i]], {icon: redMarker}).addTo(map1).bindPopup(name[i]).openPopup();
+
+                }
 
             }
-            else if(ownership[i]=="Private")
-            {
-                L.marker([longitude[i], latitude[i]], {icon: redMarker}).addTo(map1).bindPopup(name[i]).openPopup();
-
-            }
-
 
         }
 
@@ -962,6 +992,7 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
 }
 
 function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfacility) {
+
     document.getElementById("resultcount").style.display = "block";
     document.getElementById("loader").style.display = "block";
     resultcount=0;
@@ -1057,11 +1088,21 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
 
         }
 
-        for (var i = 0; i < name.length; i++) {
-            obj = new constructor_obj(document.body, name[i], addressjoin[i], pincode[i], mobile[i], spec[i], owner[i],availspecialiti[i], contactpname[i], contactpnumber[i], email[i], hfschemes[i], nothfschemes[i], ouid[i],ownership[i]);
-            resultcount++;
+        for (var i = 0; i < ouid.length; i++) {
+
+
+            if(Subgroup.includes(ouid[i]))
+            {
+                console.log("Not found for"+ouid[i])
+            }
+            else
+            {
+                obj = new constructor_obj(document.body, name[i], addressjoin[i], pincode[i], mobile[i], spec[i], owner[i],availspecialiti[i], contactpname[i], contactpnumber[i], email[i], hfschemes[i], nothfschemes[i], ouid[i],ownership[i]);
+                resultcount++;
+            }
 
         }
+
         document.getElementById('resultcount').innerHTML = '<strong>Total number of Results:</strong>'+ resultcount;
     });
 
