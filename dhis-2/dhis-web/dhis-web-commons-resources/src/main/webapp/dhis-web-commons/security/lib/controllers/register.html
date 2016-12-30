@@ -42,7 +42,7 @@
             .ready(function() {
                 var header = {
 
-                    "Authorization": "Basic " + btoa( "homepage" + ':' + "Homepage123" )
+                    "Authorization": "Basic " + btoa( "admin" + ':' + "Admin@123" )
 
                 };
 
@@ -89,6 +89,7 @@
 
 
     function submitdata(){
+        var userinfoid;
         var orgname=document.getElementById("hospital").value;
         var password=document.getElementById("password").value;
         var username=document.getElementById("username").value;
@@ -120,7 +121,7 @@
             url: '../../../../api/organisationUnits/',
             data: JSON.stringify(orgunit),
             success: function(response){
-                var orgid=response.response.lastImported;
+                var orgid=response.response.uid;
                 assignprogram(orgid);
                 createUser(orgid);
 
@@ -168,15 +169,35 @@
 
         }
 
+
         function  createUser(orgid)
         {
+
+            $.ajax({
+                async : false,
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json",
+                header : header,
+                url: '../../../../api/system/id',
+                success: function(response){
+                    userinfoid = response.codes;
+
+                },
+                error: function(response){
+
+                }
+            });
             var user = {
+
                 firstName:username,
                 surname : username,
+                id:userinfoid[0],
                 email:email,
                 userCredentials: {
                     "username": username,
                     "password": password,
+                    "userInfo": {"id": userinfoid[0] },
                     "userRoles": [ {
                         "id": "ccSI4dsXeFI"
                     } ]
@@ -188,6 +209,7 @@
                 }]
             }
 
+
             $.ajax({
                 async : false,
                 type: "POST",
@@ -197,12 +219,13 @@
                 url: '../../../../api/users/',
                 data: JSON.stringify(user),
                 success: function(response){
+
                     alert("User successfully registered please login to continue!")
                     window.close();
                 },
                 error: function(response){
 
-
+                    alert("Error successfully registered please login to continue!")
                 }
             });
 
