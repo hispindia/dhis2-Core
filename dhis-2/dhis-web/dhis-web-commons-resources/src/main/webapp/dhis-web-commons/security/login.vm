@@ -17,7 +17,7 @@
     <script src="lib/js/bootstrapmin.js"  ></script>
     <script src="lib/js/bootstrapselectmin.js" ></script>
     <link rel="stylesheet" href="lib/css/bootstrap-selectmin.css" />
-       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 
     <!--W3schools-->
@@ -36,52 +36,52 @@
 
 </head>
 <style>
-.loader {
-       position: fixed;
+    .loader {
+        position: fixed;
         top: 50%;
         left: 50%;
         right: 50%;
-  border: 16px solid #f3f3f3;
-  border-radius: 50%;
-  border-top: 16px solid #3498db;
-  width: 120px;
-  height: 120px;
-  -webkit-animation: spin 2s linear infinite;
-  animation: spin 2s linear infinite;
-}
+        border: 16px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 16px solid #3498db;
+        width: 120px;
+        height: 120px;
+        -webkit-animation: spin 2s linear infinite;
+        animation: spin 2s linear infinite;
+    }
 
-@-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
-}
+    @-webkit-keyframes spin {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+    }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-.no-js #loader { display: none;  }
-.js #loader { display: block; position: absolute; left: 100px; top: 0; }
-.se-pre-con {
-	position: fixed;
-	left: 0px;
-	top: 0px;
-	width: 100%;
-	height: 100%;
-	z-index: 9999;
-	background: url(images/loader-64x/Preloader_2.gif) center no-repeat #fff;
-}
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .no-js #loader { display: none;  }
+    .js #loader { display: block; position: absolute; left: 100px; top: 0; }
+    .se-pre-con {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        background: url(images/loader-64x/Preloader_2.gif) center no-repeat #fff;
+    }
     #map {
         width: 650px;
         height:400px;
     }
 
-     #map1  {
+    #map1  {
 
-    margin-left:10%;
-    margin-right:10%;
-     position: relative;
-     width: 1200px;
-     height:450px;
+        margin-left:10%;
+        margin-right:10%;
+        position: relative;
+        width: 1200px;
+        height:450px;
 
     }
 </style>
@@ -104,7 +104,7 @@
                             <img src="" style="border:none">
                         </div>
 
-                        <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post" style="text-align: center;">
+                        <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post" style="text-align: center;" onsubmit="return validateEditReport()">
                             <div>
                                 <div id="signInLabel"><p><strong>Sign in</strong></p></div>
                                 </br>
@@ -144,7 +144,11 @@
                         </form>
                         #end
                         #if( $failed == true )
-                        <div id="loginMessage">Wrong username or password</div>
+                        <div id="loginMessage" >Wrong username or password   <script>
+                            (function () {
+                                $('#myModal').modal('show');
+                            })();
+                        </script></div>
                         #end
                         #if ( $keyApplicationNotification )
                         <div id="notificationArea">$!{keyApplicationNotification}</div>
