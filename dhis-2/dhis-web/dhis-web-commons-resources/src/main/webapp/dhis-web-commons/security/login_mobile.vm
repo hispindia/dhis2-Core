@@ -103,7 +103,7 @@
 
                         <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post" style="text-align: center;">
                             <div>
-                                <div id="signInLabel"><p><strong>Sign in</strong></p></div>
+                                  <div id="signInLabel"><p><strong>Sign in</strong></p></div>
                                 </br>
                                 <div><input type="text" autofocus="autofocus" id="j_username" name="j_username" placeholder="Username"></div>
                                 </br>
@@ -172,6 +172,7 @@
                     <ul style="list-style-type:none;">
                         <li class="w3-btn"><a onclick="window.location.reload()" target="_blank" style="color:#fff; margin-left: 25%">Home</a></li>
                         <li class="w3-btn"><a href="http://pbhealth.gov.in/" target="_blank" style="color:#fff"> Punjab Health Department</a></li>
+                          <li class="w3-btn"><a href="#" onclick="window.open('docs/SOP.pdf'); return false;" style="color:#fff">User Manual</a></li>
                         <li class="w3-btn" id="b1" class="button12" data-toggle="modal"  style="color:#fff" data-target="#myModal"><b>Register Facility/Login</b></li>
                     </ul>
                 </td>
