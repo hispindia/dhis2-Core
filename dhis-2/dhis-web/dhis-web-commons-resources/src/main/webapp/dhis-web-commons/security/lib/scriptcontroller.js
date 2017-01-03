@@ -7,10 +7,10 @@ var ouid=[];
 var filterhospital,service,owner,healthfacility;
 var hospital;
 var defavail="avHST8wLPnX&dimension=jXCd8k2841l&dimension=txl9e6UJFP4";
-var defservice="BZ0xteKZNid&dimension=OYAHA8Vhc3G&dimension=qNBCYtrkaD7&dimension=Bv5Fu3onViS&dimension=g7tngXzv2Zz&dimension=mKUqJtDn41L&dimension=G6QYTm3JoNo&dimension=DfbzQg5LTlm&dimension=vvzIfRasrJd&dimension=QeEQe0ERs9X&dimension=sFKV5EA9U6t&dimension=x2SMBBm0P7T&dimension=DeWJ6TcLBGn&dimension=MZ8si8FHS0T&dimension=uyyl3x9jwQa&dimension=bfL2zXyQtrA&dimension=XBO6pg9y1m8&dimension=AEQRulqMjQB&dimension=hEZYkang3cp&dimension=lWsun2ZATjI&dimension=ALMaYK2pMhL&dimension=p2MQZL84eNu&dimension=LRb9HlmAbc6&dimension=sCypRhH8brf&dimension=L11XujC9xzh&dimension=szDQ40J4DTm&dimension=KPpV7WAdys5&dimension=tx0G6s6nBiC&dimension=epW5qI95Cno&dimension=lKQPhgCfuvz&dimension=l1f67ipP6mj&dimension=I3jAOh6ZIMk&dimension=bxGjTYnbgcB&dimension=ttLEYvjxCse&dimension=JOOdfW6RCCD&dimension=TaudXwrGaVC&dimension=gJoAOIEKG9M&dimension=snsCxRbqdHP&dimension=eFpqq53Zifj&dimension=U0rv5FWWeeo&dimension=VDigKipZYu1&dimension=Guub32IStl2&dimension=sIeFKRWtZrn&dimension=IYOefLkrEZk&dimension=t035HNWxNZU&dimension=IlBOWfRZyUc&dimension=dO49PmdQpvT&dimension=akM0bMRwfV4";
+var defservice="&dimension=BZ0xteKZNid&dimension=OYAHA8Vhc3G&dimension=qNBCYtrkaD7&dimension=Bv5Fu3onViS&dimension=g7tngXzv2Zz&dimension=mKUqJtDn41L&dimension=G6QYTm3JoNo&dimension=DfbzQg5LTlm&dimension=vvzIfRasrJd&dimension=QeEQe0ERs9X&dimension=sFKV5EA9U6t&dimension=x2SMBBm0P7T&dimension=DeWJ6TcLBGn&dimension=MZ8si8FHS0T&dimension=uyyl3x9jwQa&dimension=bfL2zXyQtrA&dimension=XBO6pg9y1m8&dimension=AEQRulqMjQB&dimension=hEZYkang3cp&dimension=lWsun2ZATjI&dimension=ALMaYK2pMhL&dimension=p2MQZL84eNu&dimension=LRb9HlmAbc6&dimension=sCypRhH8brf&dimension=L11XujC9xzh&dimension=szDQ40J4DTm&dimension=KPpV7WAdys5&dimension=tx0G6s6nBiC&dimension=epW5qI95Cno&dimension=lKQPhgCfuvz&dimension=l1f67ipP6mj&dimension=I3jAOh6ZIMk&dimension=bxGjTYnbgcB&dimension=ttLEYvjxCse&dimension=JOOdfW6RCCD&dimension=TaudXwrGaVC&dimension=gJoAOIEKG9M&dimension=snsCxRbqdHP&dimension=eFpqq53Zifj&dimension=U0rv5FWWeeo&dimension=VDigKipZYu1&dimension=Guub32IStl2&dimension=sIeFKRWtZrn&dimension=IYOefLkrEZk&dimension=t035HNWxNZU&dimension=IlBOWfRZyUc&dimension=dO49PmdQpvT&dimension=akM0bMRwfV4";
 // var defowner="EwolVkPAKN6&dimension=aI5XEAH8PkC&dimension=VozTuKA0GP1";
 var defowner="XEiMcaGi6vv";
-var defhealthfacility="UmlIjjErp1p&dimension=rD7PJQN4TTe&dimension=nvGzrdrt48l&dimension=UfCxf82vB7J";
+var defhealthfacility="&dimension=UmlIjjErp1p&dimension=rD7PJQN4TTe&dimension=nvGzrdrt48l&dimension=UfCxf82vB7J";
 var avgRating=[],avgRating1;
 var divele;
 var servicename,serviceid;
@@ -76,389 +76,7 @@ function getColor(d) {
                                 '#FFEDA0';
 }
 
-var analyticsMap = [
 
-    {
-        reference : "Name",
-        key: "l8VDWUvIHmv",
-        index : 0,
-        arrayName:"name"
-    },{
-        reference : "ouid",
-        key: "ou",
-        index : 0,
-        arrayName:"ouid"
-    },
-    {
-        reference : "address",
-        key: "KOhqEw0UKxA",
-        index : 0,
-        arrayName:"address"
-    },{
-        reference : "pincode",
-        key: "xjJR4dTmn4p",
-        index : 0,
-        arrayName:"pincode"
-    },{
-        reference : "Village",
-        key: "wcmHow1kcBi",
-        index : 0,
-        arrayName:"addressjoin"
-    },{
-        reference : "mobile",
-        key: "pqVIj8NyTXb",
-        index : 0,
-        arrayName:"mobile"
-    },{
-        reference : "Email",
-        key: "g7vyRbNim1K",
-        index : 0,
-        arrayName:"email"
-    },
-
-    {
-        reference : "Dental",
-        key: "mKUqJtDn41L",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Dermatology",
-        key: "G6QYTm3JoNo",
-        index : 0,
-        arrayName : "special"
-    },
-    {
-        reference : "Emergency medicine",
-        key: "p2MQZL84eNu",
-        index : 0,
-        arrayName : "special"
-    },
-    {
-        reference : "Obstetrics & gynaecology",
-        key: "lKQPhgCfuvz",
-        index : 0,
-        arrayName : "special"
-    },
-    {
-        reference : "Paedriatrics & child care",
-        key: "L11XujC9xzh",
-        index : 0,
-        arrayName : "special"
-    },
-    {
-        reference : "General medicine",
-        key: "XBO6pg9y1m8",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Psychiatry",
-        key: "ttLEYvjxCse",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Radiology",
-        key: "eFpqq53Zifj",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "General surgery",
-        key: "x2SMBBm0P7T",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Venereology/venereal diseases/STDs",
-        key: "sIeFKRWtZrn",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Orthopedics",
-        key: "l1f67ipP6mj",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Physiotherapy",
-        key: "I3jAOh6ZIMk",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Ear nose throat (ENT)",
-        key: "DfbzQg5LTlm",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Leprosy clinic",
-        key: "IlBOWfRZyUc",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "HIV/AIDS clinic",
-        key: "t035HNWxNZU",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Cancer care",
-        key: "tx0G6s6nBiC",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Nutrition & dietetics",
-        key: "LRb9HlmAbc6",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Endocrinology",
-        key: "vvzIfRasrJd",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Burns and plastic surgery",
-        key: "akM0bMRwfV4",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Aesthetic & reconstructive surgery",
-        key: "dO49PmdQpvT",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Anaesthesiology",
-        key: "BZ0xteKZNid",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Audiology & speech therapy",
-        key: "OYAHA8Vhc3G",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Bariatric/weightloss surgery",
-        key: "qNBCYtrkaD7",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Bone marrow transplant",
-        key: "Bv5Fu3onViS",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Cardiology",
-        key: "ALMaYK2pMhL",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Critical care",
-        key: "g7tngXzv2Zz",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Eye care",
-        key: "QeEQe0ERs9X",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Gastroenterology",
-        key: "sFKV5EA9U6t",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Health & wellness",
-        key: "DeWJ6TcLBGn",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Internal medicine",
-        key: "MZ8si8FHS0T",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "IVF",
-        key: "uyyl3x9jwQa",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Kidney transplant",
-        key: "bfL2zXyQtrA",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Mental health & behavioral sciences",
-        key: "AEQRulqMjQB",
-        index : 0,
-        arrayName : "special"
-    },{
-        reference : "Nephrology",
-        key: "lWsun2ZATjI",
-        index : 0,
-        arrayName : "special"
-    },
-    {
-        reference : "Neurosciences",
-        key: "hEZYkang3cp",
-        index : 0,
-        arrayName : "special"
-    },
-    {
-        reference : "Pulmonology",
-        key: "szDQ40J4DTm",
-        index : 0,
-        arrayName : "special"
-    },
-    {
-        reference : "Podiatry",
-        key: "bxGjTYnbgcB",
-        index : 0,
-        arrayName : "special"
-    },
-    {
-        reference : "Rheumatology",
-        key: "JOOdfW6RCCD",
-        index : 0,
-        arrayName : "special"
-    },
-    {
-        reference : "Thoracic surgery",
-        key: "TaudXwrGaVC",
-        index : 0,
-        arrayName : "special"
-    }, {
-        reference : "Urology",
-        key: "KPpV7WAdys5",
-        index : 0,
-        arrayName : "special"
-    }, {
-        reference : "Oncology, cancer care surgery and treatment",
-        key: "sCypRhH8brf",
-        index : 0,
-        arrayName : "special"
-    }, {
-        reference : "Clinical hematology",
-        key: "IYOefLkrEZk",
-        index : 0,
-        arrayName : "special"
-    }, {
-        reference : "Clinical pharmacology",
-        key: "epW5qI95Cno",
-        index : 0,
-        arrayName : "special"
-    }, {
-        reference : "Clinical immunology",
-        key: "gJoAOIEKG9M",
-        index : 0,
-        arrayName : "special"
-    }, {
-        reference : "Medical genetics",
-        key: "snsCxRbqdHP",
-        index : 0,
-        arrayName : "special"
-    }, {
-        reference : "Infectious diseases",
-        key: "Guub32IStl2",
-        index : 0,
-        arrayName : "special"
-    }, {
-        reference : "Virology",
-        key: "U0rv5FWWeeo",
-        index : 0,
-        arrayName : "special"
-    }, {
-        reference : "Contact person-name",
-        key: "Gx4VSNet1dC",
-        index : 0,
-        arrayName : "contactpname"
-    },{
-        reference : "Contact person-mobile number",
-        key: "bUg8a8bAvJs",
-        index : 0,
-        arrayName : "contactpnumber"
-    },{
-        reference : "Only OPD",
-        key: "rD7PJQN4TTe",
-        index : 0,
-        arrayName : "hfacilities"
-    },{
-        reference : "Both IPD and OPD",
-        key: "nvGzrdrt48l",
-        index : 0,
-        arrayName : "hfacilities"
-    },{
-        reference : "Only lab",
-        key: "UmlIjjErp1p",
-        index : 0,
-        arrayName : "hfacilities"
-    },{
-        reference : "Only diagnostic",
-        key: "UfCxf82vB7J",
-        index : 0,
-        arrayName : "hfacilities"
-    },{
-        reference : "Ambulance type",
-        key: "tC8Ad3DuScJ",
-        index : 0,
-        arrayName : "availspecialities"
-    },{
-        reference : "Blood bank",
-        key: "jXCd8k2841l",
-        index : 0,
-        arrayName : "availspecialities"
-    },{
-        reference : "Casualty/Emergency",
-        key: "RkP5neDLbHv",
-        index : 0,
-        arrayName : "availspecialities"
-    },{
-        reference : "Operation theatre",
-        key: "avHST8wLPnX",
-        index : 0,
-        arrayName : "availspecialities"
-    },{
-        reference : "Ventilator available",
-        key: "txl9e6UJFP4",
-        index : 0,
-        arrayName : "availspecialities"
-    },{
-        reference : "Health insurance schemes",
-        key: "ZUbPsfW6y0C",
-        index : 0,
-        arrayName : "schemes"
-    },{
-        reference : "Bhagat puran singh bima yojana",
-        key: "CAOM6riDtfU",
-        index : 0,
-        arrayName : "schemes"
-    },{
-        reference : "Punjab government employees & pensioners health insurance scheme (PGEPHIS)",
-        key: "YL7OJoQCAmF",
-        index : 0,
-        arrayName : "schemes"
-    },{
-        reference : "Other health insurance schemes",
-        key: "vJO1Jac84Ar",
-        index : 0,
-        arrayName : "schemes"
-    },{
-        reference : "Bajaj Alliance Health Insurance Scheme",
-        key: "kF8ZJYe9SJZ",
-        index : 0,
-        arrayName : "schemes"
-    },{
-        reference : "Max Bupa Health Insurance schemes",
-        key: "tNhLX6c7KHp",
-        index : 0,
-        arrayName : "schemes"
-    },{
-        reference : "National Health Insurance schemes",
-        key: "bVENUe0eDsO",
-        index : 0,
-        arrayName : "schemes"
-    },
-    {
-        reference : "Ownership details",
-        key: "XEiMcaGi6vv",
-        index : 0,
-        arrayName : "ownership"
-    }
-
-]
 Ext.onReady( function() {
 
     var header = {
@@ -788,15 +406,39 @@ Ext.onReady( function() {
     });
 
     $("#drop2").change(function () {
-        //jQuery('#sel').html('');
-        defservice=$(this).find("option:selected").val()+":IN:1";
+        if($(this).val()==""||$(this).val()=="null")
+        {
+            defservice="&dimension=BZ0xteKZNid&dimension=OYAHA8Vhc3G&dimension=qNBCYtrkaD7&dimension=Bv5Fu3onViS&dimension=g7tngXzv2Zz&dimension=mKUqJtDn41L&dimension=G6QYTm3JoNo&dimension=DfbzQg5LTlm&dimension=vvzIfRasrJd&dimension=QeEQe0ERs9X&dimension=sFKV5EA9U6t&dimension=x2SMBBm0P7T&dimension=DeWJ6TcLBGn&dimension=MZ8si8FHS0T&dimension=uyyl3x9jwQa&dimension=bfL2zXyQtrA&dimension=XBO6pg9y1m8&dimension=AEQRulqMjQB&dimension=hEZYkang3cp&dimension=lWsun2ZATjI&dimension=ALMaYK2pMhL&dimension=p2MQZL84eNu&dimension=LRb9HlmAbc6&dimension=sCypRhH8brf&dimension=L11XujC9xzh&dimension=szDQ40J4DTm&dimension=KPpV7WAdys5&dimension=tx0G6s6nBiC&dimension=epW5qI95Cno&dimension=lKQPhgCfuvz&dimension=l1f67ipP6mj&dimension=I3jAOh6ZIMk&dimension=bxGjTYnbgcB&dimension=ttLEYvjxCse&dimension=JOOdfW6RCCD&dimension=TaudXwrGaVC&dimension=gJoAOIEKG9M&dimension=snsCxRbqdHP&dimension=eFpqq53Zifj&dimension=U0rv5FWWeeo&dimension=VDigKipZYu1&dimension=Guub32IStl2&dimension=sIeFKRWtZrn&dimension=IYOefLkrEZk&dimension=t035HNWxNZU&dimension=IlBOWfRZyUc&dimension=dO49PmdQpvT&dimension=akM0bMRwfV4";
 
-        //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
+        }
+        else
+        {
+            defservice="";
+        }
 
+        var selected = $("#drop2 option:selected");
+        selected.each(function () {
+            defservice=defservice+"&dimension="+$(this).val()+":IN:1";
 
-    })
+        });
+
+    });
     $("#droptype").change(function () {
-        defhealthfacility=$(this).find("option:selected").val()+":IN:1";
+        if($(this).val()==""||$(this).val()=="null")
+        {
+            defhealthfacility="&dimension=UmlIjjErp1p&dimension=rD7PJQN4TTe&dimension=nvGzrdrt48l&dimension=UfCxf82vB7J";
+        }
+        else
+        {
+            defhealthfacility="";
+        }
+        var selected = $("#droptype option:selected");
+        selected.each(function () {
+            defhealthfacility=defhealthfacility+"&dimension="+$(this).val()+":IN:1";
+
+        });
+
+        //defhealthfacility=$(this).find("option:selected").val()+":IN:1";
         //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
     });
 
@@ -827,7 +469,6 @@ function calculateIndex(header,analyticsMap){
 
         var key = analyticsMap[i].key;
         for (var j=0;j<header.length;j++){
-
             if (header[j].name == key){
                 analyticsMap[i].index = j;
             }
@@ -847,6 +488,391 @@ function myJoin(array){
     return result.substr(0,result.length-2);
 }
 function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility) {
+    $("#footer").hide();
+    $("#visitorcounter").hide();
+    var analyticsMap = [
+
+        {
+            reference : "Name",
+            key: "l8VDWUvIHmv",
+            index : 0,
+            arrayName:"name"
+        },{
+            reference : "ouid",
+            key: "ou",
+            index : 0,
+            arrayName:"ouid"
+        },
+        {
+            reference : "address",
+            key: "KOhqEw0UKxA",
+            index : 0,
+            arrayName:"address"
+        },{
+            reference : "pincode",
+            key: "xjJR4dTmn4p",
+            index : 0,
+            arrayName:"pincode"
+        },{
+            reference : "Village",
+            key: "wcmHow1kcBi",
+            index : 0,
+            arrayName:"addressjoin"
+        },{
+            reference : "mobile",
+            key: "pqVIj8NyTXb",
+            index : 0,
+            arrayName:"mobile"
+        },{
+            reference : "Email",
+            key: "g7vyRbNim1K",
+            index : 0,
+            arrayName:"email"
+        },
+
+        {
+            reference : "Dental",
+            key: "mKUqJtDn41L",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Dermatology",
+            key: "G6QYTm3JoNo",
+            index : 0,
+            arrayName : "special"
+        },
+        {
+            reference : "Emergency medicine",
+            key: "p2MQZL84eNu",
+            index : 0,
+            arrayName : "special"
+        },
+        {
+            reference : "Obstetrics & gynaecology",
+            key: "lKQPhgCfuvz",
+            index : 0,
+            arrayName : "special"
+        },
+        {
+            reference : "Paedriatrics & child care",
+            key: "L11XujC9xzh",
+            index : 0,
+            arrayName : "special"
+        },
+        {
+            reference : "General medicine",
+            key: "XBO6pg9y1m8",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Psychiatry",
+            key: "ttLEYvjxCse",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Radiology",
+            key: "eFpqq53Zifj",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "General surgery",
+            key: "x2SMBBm0P7T",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Venereology/venereal diseases/STDs",
+            key: "sIeFKRWtZrn",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Orthopedics",
+            key: "l1f67ipP6mj",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Physiotherapy",
+            key: "I3jAOh6ZIMk",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Ear nose throat (ENT)",
+            key: "DfbzQg5LTlm",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Leprosy clinic",
+            key: "IlBOWfRZyUc",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "HIV/AIDS clinic",
+            key: "t035HNWxNZU",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Cancer care",
+            key: "tx0G6s6nBiC",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Nutrition & dietetics",
+            key: "LRb9HlmAbc6",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Endocrinology",
+            key: "vvzIfRasrJd",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Burns and plastic surgery",
+            key: "akM0bMRwfV4",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Aesthetic & reconstructive surgery",
+            key: "dO49PmdQpvT",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Anaesthesiology",
+            key: "BZ0xteKZNid",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Audiology & speech therapy",
+            key: "OYAHA8Vhc3G",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Bariatric/weightloss surgery",
+            key: "qNBCYtrkaD7",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Bone marrow transplant",
+            key: "Bv5Fu3onViS",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Cardiology",
+            key: "ALMaYK2pMhL",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Critical care",
+            key: "g7tngXzv2Zz",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Eye care",
+            key: "QeEQe0ERs9X",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Gastroenterology",
+            key: "sFKV5EA9U6t",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Health & wellness",
+            key: "DeWJ6TcLBGn",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Internal medicine",
+            key: "MZ8si8FHS0T",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "IVF",
+            key: "uyyl3x9jwQa",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Kidney transplant",
+            key: "bfL2zXyQtrA",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Mental health & behavioral sciences",
+            key: "AEQRulqMjQB",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Nephrology",
+            key: "lWsun2ZATjI",
+            index : 0,
+            arrayName : "special"
+        },
+        {
+            reference : "Neurosciences",
+            key: "hEZYkang3cp",
+            index : 0,
+            arrayName : "special"
+        },
+        {
+            reference : "Pulmonology",
+            key: "szDQ40J4DTm",
+            index : 0,
+            arrayName : "special"
+        },
+        {
+            reference : "Podiatry",
+            key: "bxGjTYnbgcB",
+            index : 0,
+            arrayName : "special"
+        },
+        {
+            reference : "Rheumatology",
+            key: "JOOdfW6RCCD",
+            index : 0,
+            arrayName : "special"
+        },
+        {
+            reference : "Thoracic surgery",
+            key: "TaudXwrGaVC",
+            index : 0,
+            arrayName : "special"
+        }, {
+            reference : "Urology",
+            key: "KPpV7WAdys5",
+            index : 0,
+            arrayName : "special"
+        }, {
+            reference : "Oncology, cancer care surgery and treatment",
+            key: "sCypRhH8brf",
+            index : 0,
+            arrayName : "special"
+        }, {
+            reference : "Clinical hematology",
+            key: "IYOefLkrEZk",
+            index : 0,
+            arrayName : "special"
+        }, {
+            reference : "Clinical pharmacology",
+            key: "epW5qI95Cno",
+            index : 0,
+            arrayName : "special"
+        }, {
+            reference : "Clinical immunology",
+            key: "gJoAOIEKG9M",
+            index : 0,
+            arrayName : "special"
+        }, {
+            reference : "Medical genetics",
+            key: "snsCxRbqdHP",
+            index : 0,
+            arrayName : "special"
+        }, {
+            reference : "Infectious diseases",
+            key: "Guub32IStl2",
+            index : 0,
+            arrayName : "special"
+        }, {
+            reference : "Virology",
+            key: "U0rv5FWWeeo",
+            index : 0,
+            arrayName : "special"
+        }, {
+            reference : "Contact person-name",
+            key: "Gx4VSNet1dC",
+            index : 0,
+            arrayName : "contactpname"
+        },{
+            reference : "Contact person-mobile number",
+            key: "bUg8a8bAvJs",
+            index : 0,
+            arrayName : "contactpnumber"
+        },{
+            reference : "Only OPD",
+            key: "rD7PJQN4TTe",
+            index : 0,
+            arrayName : "hfacilities"
+        },{
+            reference : "Both IPD and OPD",
+            key: "nvGzrdrt48l",
+            index : 0,
+            arrayName : "hfacilities"
+        },{
+            reference : "Only lab",
+            key: "UmlIjjErp1p",
+            index : 0,
+            arrayName : "hfacilities"
+        },{
+            reference : "Only diagnostic",
+            key: "UfCxf82vB7J",
+            index : 0,
+            arrayName : "hfacilities"
+        },{
+            reference : "Ambulance type",
+            key: "tC8Ad3DuScJ",
+            index : 0,
+            arrayName : "availspecialities"
+        },{
+            reference : "Blood bank",
+            key: "jXCd8k2841l",
+            index : 0,
+            arrayName : "availspecialities"
+        },{
+            reference : "Casualty/Emergency",
+            key: "RkP5neDLbHv",
+            index : 0,
+            arrayName : "availspecialities"
+        },{
+            reference : "Operation theatre",
+            key: "avHST8wLPnX",
+            index : 0,
+            arrayName : "availspecialities"
+        },{
+            reference : "Ventilator available",
+            key: "txl9e6UJFP4",
+            index : 0,
+            arrayName : "availspecialities"
+        },{
+            reference : "Health insurance schemes",
+            key: "ZUbPsfW6y0C",
+            index : 0,
+            arrayName : "schemes"
+        },{
+            reference : "Bhagat puran singh bima yojana",
+            key: "CAOM6riDtfU",
+            index : 0,
+            arrayName : "schemes"
+        },{
+            reference : "Punjab government employees & pensioners health insurance scheme (PGEPHIS)",
+            key: "YL7OJoQCAmF",
+            index : 0,
+            arrayName : "schemes"
+        },{
+            reference : "Other health insurance schemes",
+            key: "vJO1Jac84Ar",
+            index : 0,
+            arrayName : "schemes"
+        },{
+            reference : "Bajaj Alliance Health Insurance Scheme",
+            key: "kF8ZJYe9SJZ",
+            index : 0,
+            arrayName : "schemes"
+        },{
+            reference : "Max Bupa Health Insurance schemes",
+            key: "tNhLX6c7KHp",
+            index : 0,
+            arrayName : "schemes"
+        },{
+            reference : "National Health Insurance schemes",
+            key: "bVENUe0eDsO",
+            index : 0,
+            arrayName : "schemes"
+        },
+        {
+            reference : "Ownership details",
+            key: "XEiMcaGi6vv",
+            index : 0,
+            arrayName : "ownership"
+        }
+
+    ]
     document.getElementById("loader").style.display = "block";
     $("#content1").hide();
     document.getElementById("map1").style.display = "block";
@@ -855,7 +881,7 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
     //$("#map1").show();
 
 
-    $("#footer").hide();
+    $("#footer1").hide();
     jQuery('#sel').html('');
     $(".w3-card-4").remove();
 
@@ -866,8 +892,8 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
     var arrayMap = [];latitude=[];longitude=[];
 
 
-    $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs&dimension="+defservice+"&dimension="+defavail+"&dimension="+defowner+"&dimension="+defhealthfacility+"&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
-        console.log("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs&dimension="+defservice+"&dimension="+defowner+"&dimension="+defhealthfacility+"&dimension=jXCd8k2841l&dimension=RkP5neDLbHv&dimension=avHST8wLPnX&dimension=txl9e6UJFP4&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME");
+    $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:LAST_5_YEARS&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs"+defservice+"&dimension="+defavail+"&dimension="+defowner+defhealthfacility+"&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
+        console.log("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:LAST_5_YEARS&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs"+defservice+"&dimension="+defowner+defhealthfacility+"&dimension=jXCd8k2841l&dimension=RkP5neDLbHv&dimension=avHST8wLPnX&dimension=txl9e6UJFP4&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME");
         var constants={key:name, value: value}
 
         analyticsMap = calculateIndex(data.headers,analyticsMap);
@@ -875,6 +901,7 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
         if(data.rows.length==0)
         {
             alert("No result found for above selection");
+            document.getElementById("loader").style.display = "none";
         }
         for(var k=0;k<data.rows.length;k++){
 
@@ -899,11 +926,11 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
 
                 if (analyticsMap[j].index > 0){
                     var value = data.rows[k][analyticsMap[j].index];
-                    if (value == "1"){
+                    if (value == 1){
                         value = data.headers[analyticsMap[j].index].column;
                     }
 
-                    if (!value || value == "0"){
+                    if (!value || value == 0){
                         value = "";
                     }
                     if(arrayMap[analyticsMap[j].arrayName]){
@@ -968,7 +995,7 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
 
             if(Subgroup.includes(ouid[i]))
             {
-                console.log("Not found for"+ouid[i])
+
             }
             else
             {
@@ -992,6 +1019,391 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
 }
 
 function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfacility) {
+    $("#footer").hide();
+    $("#visitorcounter").hide();
+    var analyticsMap = [
+
+        {
+            reference : "Name",
+            key: "l8VDWUvIHmv",
+            index : 0,
+            arrayName:"name"
+        },{
+            reference : "ouid",
+            key: "ou",
+            index : 0,
+            arrayName:"ouid"
+        },
+        {
+            reference : "address",
+            key: "KOhqEw0UKxA",
+            index : 0,
+            arrayName:"address"
+        },{
+            reference : "pincode",
+            key: "xjJR4dTmn4p",
+            index : 0,
+            arrayName:"pincode"
+        },{
+            reference : "Village",
+            key: "wcmHow1kcBi",
+            index : 0,
+            arrayName:"addressjoin"
+        },{
+            reference : "mobile",
+            key: "pqVIj8NyTXb",
+            index : 0,
+            arrayName:"mobile"
+        },{
+            reference : "Email",
+            key: "g7vyRbNim1K",
+            index : 0,
+            arrayName:"email"
+        },
+
+        {
+            reference : "Dental",
+            key: "mKUqJtDn41L",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Dermatology",
+            key: "G6QYTm3JoNo",
+            index : 0,
+            arrayName : "special"
+        },
+        {
+            reference : "Emergency medicine",
+            key: "p2MQZL84eNu",
+            index : 0,
+            arrayName : "special"
+        },
+        {
+            reference : "Obstetrics & gynaecology",
+            key: "lKQPhgCfuvz",
+            index : 0,
+            arrayName : "special"
+        },
+        {
+            reference : "Paedriatrics & child care",
+            key: "L11XujC9xzh",
+            index : 0,
+            arrayName : "special"
+        },
+        {
+            reference : "General medicine",
+            key: "XBO6pg9y1m8",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Psychiatry",
+            key: "ttLEYvjxCse",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Radiology",
+            key: "eFpqq53Zifj",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "General surgery",
+            key: "x2SMBBm0P7T",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Venereology/venereal diseases/STDs",
+            key: "sIeFKRWtZrn",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Orthopedics",
+            key: "l1f67ipP6mj",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Physiotherapy",
+            key: "I3jAOh6ZIMk",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Ear nose throat (ENT)",
+            key: "DfbzQg5LTlm",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Leprosy clinic",
+            key: "IlBOWfRZyUc",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "HIV/AIDS clinic",
+            key: "t035HNWxNZU",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Cancer care",
+            key: "tx0G6s6nBiC",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Nutrition & dietetics",
+            key: "LRb9HlmAbc6",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Endocrinology",
+            key: "vvzIfRasrJd",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Burns and plastic surgery",
+            key: "akM0bMRwfV4",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Aesthetic & reconstructive surgery",
+            key: "dO49PmdQpvT",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Anaesthesiology",
+            key: "BZ0xteKZNid",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Audiology & speech therapy",
+            key: "OYAHA8Vhc3G",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Bariatric/weightloss surgery",
+            key: "qNBCYtrkaD7",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Bone marrow transplant",
+            key: "Bv5Fu3onViS",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Cardiology",
+            key: "ALMaYK2pMhL",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Critical care",
+            key: "g7tngXzv2Zz",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Eye care",
+            key: "QeEQe0ERs9X",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Gastroenterology",
+            key: "sFKV5EA9U6t",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Health & wellness",
+            key: "DeWJ6TcLBGn",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Internal medicine",
+            key: "MZ8si8FHS0T",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "IVF",
+            key: "uyyl3x9jwQa",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Kidney transplant",
+            key: "bfL2zXyQtrA",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Mental health & behavioral sciences",
+            key: "AEQRulqMjQB",
+            index : 0,
+            arrayName : "special"
+        },{
+            reference : "Nephrology",
+            key: "lWsun2ZATjI",
+            index : 0,
+            arrayName : "special"
+        },
+        {
+            reference : "Neurosciences",
+            key: "hEZYkang3cp",
+            index : 0,
+            arrayName : "special"
+        },
+        {
+            reference : "Pulmonology",
+            key: "szDQ40J4DTm",
+            index : 0,
+            arrayName : "special"
+        },
+        {
+            reference : "Podiatry",
+            key: "bxGjTYnbgcB",
+            index : 0,
+            arrayName : "special"
+        },
+        {
+            reference : "Rheumatology",
+            key: "JOOdfW6RCCD",
+            index : 0,
+            arrayName : "special"
+        },
+        {
+            reference : "Thoracic surgery",
+            key: "TaudXwrGaVC",
+            index : 0,
+            arrayName : "special"
+        }, {
+            reference : "Urology",
+            key: "KPpV7WAdys5",
+            index : 0,
+            arrayName : "special"
+        }, {
+            reference : "Oncology, cancer care surgery and treatment",
+            key: "sCypRhH8brf",
+            index : 0,
+            arrayName : "special"
+        }, {
+            reference : "Clinical hematology",
+            key: "IYOefLkrEZk",
+            index : 0,
+            arrayName : "special"
+        }, {
+            reference : "Clinical pharmacology",
+            key: "epW5qI95Cno",
+            index : 0,
+            arrayName : "special"
+        }, {
+            reference : "Clinical immunology",
+            key: "gJoAOIEKG9M",
+            index : 0,
+            arrayName : "special"
+        }, {
+            reference : "Medical genetics",
+            key: "snsCxRbqdHP",
+            index : 0,
+            arrayName : "special"
+        }, {
+            reference : "Infectious diseases",
+            key: "Guub32IStl2",
+            index : 0,
+            arrayName : "special"
+        }, {
+            reference : "Virology",
+            key: "U0rv5FWWeeo",
+            index : 0,
+            arrayName : "special"
+        }, {
+            reference : "Contact person-name",
+            key: "Gx4VSNet1dC",
+            index : 0,
+            arrayName : "contactpname"
+        },{
+            reference : "Contact person-mobile number",
+            key: "bUg8a8bAvJs",
+            index : 0,
+            arrayName : "contactpnumber"
+        },{
+            reference : "Only OPD",
+            key: "rD7PJQN4TTe",
+            index : 0,
+            arrayName : "hfacilities"
+        },{
+            reference : "Both IPD and OPD",
+            key: "nvGzrdrt48l",
+            index : 0,
+            arrayName : "hfacilities"
+        },{
+            reference : "Only lab",
+            key: "UmlIjjErp1p",
+            index : 0,
+            arrayName : "hfacilities"
+        },{
+            reference : "Only diagnostic",
+            key: "UfCxf82vB7J",
+            index : 0,
+            arrayName : "hfacilities"
+        },{
+            reference : "Ambulance type",
+            key: "tC8Ad3DuScJ",
+            index : 0,
+            arrayName : "availspecialities"
+        },{
+            reference : "Blood bank",
+            key: "jXCd8k2841l",
+            index : 0,
+            arrayName : "availspecialities"
+        },{
+            reference : "Casualty/Emergency",
+            key: "RkP5neDLbHv",
+            index : 0,
+            arrayName : "availspecialities"
+        },{
+            reference : "Operation theatre",
+            key: "avHST8wLPnX",
+            index : 0,
+            arrayName : "availspecialities"
+        },{
+            reference : "Ventilator available",
+            key: "txl9e6UJFP4",
+            index : 0,
+            arrayName : "availspecialities"
+        },{
+            reference : "Health insurance schemes",
+            key: "ZUbPsfW6y0C",
+            index : 0,
+            arrayName : "schemes"
+        },{
+            reference : "Bhagat puran singh bima yojana",
+            key: "CAOM6riDtfU",
+            index : 0,
+            arrayName : "schemes"
+        },{
+            reference : "Punjab government employees & pensioners health insurance scheme (PGEPHIS)",
+            key: "YL7OJoQCAmF",
+            index : 0,
+            arrayName : "schemes"
+        },{
+            reference : "Other health insurance schemes",
+            key: "vJO1Jac84Ar",
+            index : 0,
+            arrayName : "schemes"
+        },{
+            reference : "Bajaj Alliance Health Insurance Scheme",
+            key: "kF8ZJYe9SJZ",
+            index : 0,
+            arrayName : "schemes"
+        },{
+            reference : "Max Bupa Health Insurance schemes",
+            key: "tNhLX6c7KHp",
+            index : 0,
+            arrayName : "schemes"
+        },{
+            reference : "National Health Insurance schemes",
+            key: "bVENUe0eDsO",
+            index : 0,
+            arrayName : "schemes"
+        },
+        {
+            reference : "Ownership details",
+            key: "XEiMcaGi6vv",
+            index : 0,
+            arrayName : "ownership"
+        }
+
+    ]
 
     document.getElementById("resultcount").style.display = "block";
     document.getElementById("loader").style.display = "block";
@@ -1000,7 +1412,7 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
     //$("#map1").hide();
     document.getElementById("map1").style.display = "none";
 
-    $("#footer").hide();
+    $("#footer1").hide();
 
 
 
@@ -1013,8 +1425,8 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
     var arrayMap = [];latitude=[];longitude=[];
 
 
-    $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs&dimension="+defservice+"&dimension="+defavail+"&dimension="+defowner+"&dimension="+defhealthfacility+"&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
-        console.log("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs&dimension="+defservice+"&dimension="+defowner+"&dimension="+defhealthfacility+"&dimension=jXCd8k2841l&dimension=RkP5neDLbHv&dimension=avHST8wLPnX&dimension=txl9e6UJFP4&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME");
+    $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:LAST_5_YEARS&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs"+defservice+"&dimension="+defavail+"&dimension="+defowner+defhealthfacility+"&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
+        console.log("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:LAST_5_YEARS&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs"+defservice+"&dimension="+defowner+defhealthfacility+"&dimension=jXCd8k2841l&dimension=RkP5neDLbHv&dimension=avHST8wLPnX&dimension=txl9e6UJFP4&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME");
         var constants={key:name, value: value}
 
         analyticsMap = calculateIndex(data.headers,analyticsMap);
@@ -1022,6 +1434,7 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
         if(data.rows.length==0)
         {
             alert("No result found for above selection");
+            document.getElementById("loader").style.display = "none";
         }
         for(var k=0;k<data.rows.length;k++){
 
@@ -1046,11 +1459,11 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
 
                 if (analyticsMap[j].index > 0){
                     var value = data.rows[k][analyticsMap[j].index];
-                    if (value == "1"){
+                    if (value == 1){
                         value = data.headers[analyticsMap[j].index].column;
                     }
 
-                    if (!value || value == "0"){
+                    if (!value || value == 0){
                         value = "";
                     }
                     if(arrayMap[analyticsMap[j].arrayName]){
@@ -1093,7 +1506,7 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
 
             if(Subgroup.includes(ouid[i]))
             {
-                console.log("Not found for"+ouid[i])
+
             }
             else
             {
@@ -1134,9 +1547,9 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
     div.id = 'sel';
     div.style = "width:auto;"
 
-    $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR&dimension=ou:"+ouid+"&dimension=eH2F2xuLmoY&dimension=kfDoQ3V1RQK&dimension=csjh8jewk7x&dimension=WXnr5Qk8Qgo&dimension=UwGx1EmJyIf&dimension=rzNUVjOm5ZJ&dimension=tpm9TIh7IeQ&dimension=pUYrErSv4Kf&dimension=hq5P29o8auc&dimension=KBgdegZWYDc&dimension=Mpo7Zm6z9WL&dimension=xtGxtg2I1SH&dimension=EhBs6eq4ebt&dimension=ThPPuHVPTsZ&dimension=hK82b1FNhui&dimension=aLY8DrZ88WN&dimension=XfstNyl31ca&dimension=fOLmSsSSlVI&dimension=aLnsQJ6De8p&dimension=LFDq2RYMt88&displayProperty=NAME", function (cdata) {
+    $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:LAST_5_YEARS&dimension=ou:"+ouid+"&dimension=eH2F2xuLmoY&dimension=kfDoQ3V1RQK&dimension=csjh8jewk7x&dimension=WXnr5Qk8Qgo&dimension=UwGx1EmJyIf&dimension=rzNUVjOm5ZJ&dimension=tpm9TIh7IeQ&dimension=pUYrErSv4Kf&dimension=hq5P29o8auc&dimension=KBgdegZWYDc&dimension=Mpo7Zm6z9WL&dimension=xtGxtg2I1SH&dimension=EhBs6eq4ebt&dimension=ThPPuHVPTsZ&dimension=hK82b1FNhui&dimension=aLY8DrZ88WN&dimension=XfstNyl31ca&dimension=fOLmSsSSlVI&dimension=aLnsQJ6De8p&dimension=LFDq2RYMt88&displayProperty=NAME", function (cdata) {
 
-        console.log("ouid:"+ouid);
+
         for(var p=0;p<cdata.rows.length;p++)
         {
             for(var k=8;k<27;k++)
