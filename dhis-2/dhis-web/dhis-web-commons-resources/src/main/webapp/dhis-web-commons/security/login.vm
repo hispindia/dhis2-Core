@@ -194,35 +194,37 @@
             <div  class="w3-col w3-container" style="width:17%">
                 <label for="Orgunit">Please Select State/District</label>
                 <select id="drop1" class="selectpicker"  data-live-search="true" >
-                    <option value="" disabled selected hidden>State/District</option>
+                    <option value="" disabled selected hidden>Please Select</option>
                     <option value="wSslG6mcGXl">Select Entire State (Punjab)</option>
                 </select>
             </div>
             <div  class="w3-col w3-container" style="width:17%">
                 <label for="Orgunit">Search by Hospital Name</label>
                 <select id="drophospital"  class="selectpicker"  data-live-search="true" >
-                    <option value="" disabled selected hidden>Search by Hospital Name</option>
+                  <option value="" disabled  hidden>Please Select</option>
                 </select>
             </div>
             <div class="w3-col w3-container"  style="width:17%">
                 <label for="Orgunit">Search by speciality</label>
                 <select id="drop2"  class="selectpicker"  multiple data-live-search="true" >
+
                 </select>
             </div>
             <div class="w3-col w3-container" style="width:17%">
                 <label for="Orgunit">Search by Ownership</label>
-                <select id="drop_ownership"  class="selectpicker"   data-live-search="true">
-                    <option value="" disabled selected hidden>Search by Ownership</option>
+                <select id="drop_ownership"  class="selectpicker"  multiple  data-live-search="true">
+
                 </select>
             </div>
             <div class="w3-col w3-container" style="width:17%;">
                 <label for="Orgunit">Type of Health Facility</label>
                 <select id="droptype"  class="selectpicker" multiple  data-live-search="true">
+
                 </select>
 
             </div>
-            <button type="button" onclick="generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility);">Map View</button>
-            <button type="button" onclick="generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfacility);">List View</button>
+            <button type="button" class="btn btn-success" onclick="generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility);">Map View</button>
+            <button type="button" class="btn btn-primary" onclick="generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfacility);">List View</button>
         </div>
     </div>
     </br>
@@ -251,8 +253,13 @@
 <MARQUEE >
     <p style="font-family: Arial;font-weight: bold;color: #0f0f0f">Please call on 9643208385 for any kind of technical support.</p>
 </MARQUEE>
-<div id="visitorcounter" align='center' style="bottom: 08%;text-align: center"><img src='http://www.hit-counts.com/counter.php?t=MTM5OTk2Mw==' border='0' alt='Free Hit Counter'></a><BR><p style="font-family: Arial;color: #00bcd4; bottom: 08%">Visitor Counter</p></div>
-<div id="resultcount" align='center' style="bottom: 08%;display:none;text-align: center"><p id="resultcount">Total No: of Results: </p></div>
+<div align='center' id="visitorcounter"style="bottom: 08%;text-align: center"><img src='http://www.hit-counts.com/counter.php?t=MTM5OTk2Mw==' border='0' alt='Free Hit Counter'></a><BR><p style="font-family: Arial;color: #00bcd4; bottom: 08%">Visitor Counter</p></div>
+  <div class="alert alert-success" id="resultcount" style="display:none;text-align: center" align='center'>
+    <strong >Total No: of Results:</strong>
+  </div>
+  <div class="alert alert-danger" id="noresult" style="display:none;text-align: center" align='center'>
+    <strong >No result found for above selection</strong>
+  </div>
 
 <div id="footer">
     <p style="text-align: center; color: #fff">Disclaimer: The responsibility for the correctness of data in the portal is the responsibility of the facility which has self-registered the data. The Government is only responsible for the dissemination of this information through this portal.</p>

@@ -4,6 +4,7 @@ var base = "../../";
 var url=base+"dhis-web-commons-security/login.action";
 var orgid="wSslG6mcGXl";
 var ouid=[];
+var sel="";
 var filterhospital,service,owner,healthfacility;
 var hospital;
 var defavail="avHST8wLPnX&dimension=jXCd8k2841l&dimension=txl9e6UJFP4";
@@ -400,9 +401,14 @@ Ext.onReady( function() {
     });
 
     $("#drop_ownership").change(function () {
-        defowner="XEiMcaGi6vv";
-        defowner = defowner+":IN:"+$(this).find("option:selected").text();
 
+         var singlechar="A";
+        defowner="XEiMcaGi6vv:IN";
+        var selected = $("#drop_ownership option:selected");
+        selected.each(function () {
+            defowner = defowner+"%3"+singlechar+$(this).text();
+            singlechar="B";
+        });
     });
 
     $("#drop2").change(function () {
@@ -490,6 +496,7 @@ function myJoin(array){
 function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility) {
     $("#footer").hide();
     $("#visitorcounter").hide();
+    document.getElementById("resultcount").style.display = "none";
     var analyticsMap = [
 
         {
@@ -900,11 +907,14 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
 
         if(data.rows.length==0)
         {
-            alert("No result found for above selection");
+            document.getElementById("noresult").style.display = "block";
+            //alert("No result found for above selection");
             document.getElementById("loader").style.display = "none";
         }
+
         for(var k=0;k<data.rows.length;k++){
 
+            document.getElementById("noresult").style.display = "none";
             arrayMap["special"] = special;
             arrayMap["name"] = name;
             arrayMap["address"] = addressjoin;
@@ -1433,11 +1443,12 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
 
         if(data.rows.length==0)
         {
-            alert("No result found for above selection");
+            document.getElementById("noresult").style.display = "block";
+            //alert("No result found for above selection");
             document.getElementById("loader").style.display = "none";
         }
         for(var k=0;k<data.rows.length;k++){
-
+            document.getElementById("noresult").style.display = "none";
             arrayMap["special"] = special;
             arrayMap["name"] = name;
             arrayMap["address"] = addressjoin;
