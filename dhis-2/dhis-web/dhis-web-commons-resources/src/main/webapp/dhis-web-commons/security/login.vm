@@ -10,6 +10,9 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
     <!--  new Libraries-->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
     <script src="lib/js/jquerymin.js"></script>
     <script src="//dhis2-cdn.org/v221/ext/ext-all.js"></script>
     <link rel="stylesheet" href="lib/css/bootstrapmin.css" integrity="" crossorigin="anonymous" />
@@ -144,7 +147,7 @@
                         </form>
                         #end
                         #if( $failed == true )
-                        <div id="loginMessage" >Wrong username or password   <script>
+                        <div id="loginMessage" ><h2 style="text-align:center; color:White; font-style: normal; background: #D86422">Wrong user name or password</h2><script>
                             (function () {
                                 $('#myModal').modal('show');
                             })();
@@ -189,29 +192,32 @@
     <div style="text-align: center">
         <div class="w3-row-padding w3-padding-bottom" style="margin-top: 2%; margin-left: 5%">
             <div  class="w3-col w3-container" style="width:17%">
+                <label for="Orgunit">Please Select State/District</label>
                 <select id="drop1" class="selectpicker"  data-live-search="true" >
-                    <option value="" disabled selected hidden>Please Select State/District</option>
+                    <option value="" disabled selected hidden>State/District</option>
                     <option value="wSslG6mcGXl">Select Entire State (Punjab)</option>
                 </select>
             </div>
             <div  class="w3-col w3-container" style="width:17%">
+                <label for="Orgunit">Search by Hospital Name</label>
                 <select id="drophospital"  class="selectpicker"  data-live-search="true" >
                     <option value="" disabled selected hidden>Search by Hospital Name</option>
                 </select>
             </div>
             <div class="w3-col w3-container"  style="width:17%">
-                <select id="drop2"  class="selectpicker"  data-live-search="true">
-                    <option value=""  disabled selected hidden>Search by speciality</option>
+                <label for="Orgunit">Search by speciality</label>
+                <select id="drop2"  class="selectpicker"  multiple data-live-search="true" >
                 </select>
             </div>
             <div class="w3-col w3-container" style="width:17%">
+                <label for="Orgunit">Search by Ownership</label>
                 <select id="drop_ownership"  class="selectpicker"   data-live-search="true">
                     <option value="" disabled selected hidden>Search by Ownership</option>
                 </select>
             </div>
             <div class="w3-col w3-container" style="width:17%;">
-                <select id="droptype"  class="selectpicker"  data-live-search="true">
-                    <option value="" disabled selected hidden>Type of Health Facility</option>
+                <label for="Orgunit">Type of Health Facility</label>
+                <select id="droptype"  class="selectpicker" multiple  data-live-search="true">
                 </select>
 
             </div>
@@ -222,27 +228,32 @@
     </br>
 
     <div id="content1">
-        <table>
+        <table style="width:100%; margin-bottom:5%" >
             <tr>
-                <td><div style="width: 650px">
-                    <h3 style="text-align: center; margin-top: 5%">About Us</h3>
-                    <p style="text-align:justify; margin-left: 50px">The Government of Punjab is pleased to announce the launch of the “Punjab Health Facility Portal” where all public and private health facilities are invited to self-report on the various health services they provide in their respective health facilities. This information will be made available to citizens through this portal to allow them to make more informed choices of what health services they can access from where. The information will help the Punjab Government to identify gaps and strengthen health services delivery and improve citizen satisfaction.
-                        </br></br>We request you to partner with the State to make this important venture a resounding success. For this, healthcare providers are requested to self-register by clicking on “Register Facility/Login” button. Please note this portal will be dynamic and allow for changes to be made as they take place in future. Users of health facilities are requested to provide feedback.
-                        </br></br>We hope that citizens of state find this portal useful and provide feedback regarding services.</p>
-                </div></td>
-                <td>
+                <td style="width:50%">
+                    <div style="margin-right: 5%">
+                        <h3 style="text-align: center; margin-top: 5%">About Us</h3>
+
+                        <p style="text-align:justify; margin-left: 50px">The Government of Punjab is pleased to announce the launch of the “Punjab Health Facility Portal” where all public and private health facilities are invited to self-report on the various health services they provide in their respective health facilities. This information will be made available to citizens through this portal to allow them to make more informed choices of what health services they can access from where. The information will help the Punjab Government to identify gaps and strengthen health services delivery and improve citizen satisfaction.
+                            </br></br>We request you to partner with the State to make this important venture a resounding success. For this, healthcare providers are requested to self-register by clicking on “Register Facility/Login” button. Please note this portal will be dynamic and allow for changes to be made as they take place in future. Users of health facilities are requested to provide feedback.
+                            </br></br>We hope that citizens of state find this portal useful and provide feedback regarding services.</p>
+                    </div>
+                </td>
+
+                <td style="width:50%">
                     <div id="map" ></div>
-                    <!--<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1750772.7212624417!2d74.27996482023067!3d31.012930230614476!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391964aa569e7355%3A0x8fbd263103a38861!2sPunjab!5e0!3m2!1sen!2sin!4v1478332283034" width="600" height="350"  frameborder="0" style="border:0;margin-top: 5%" allowfullscreen> </iframe></td>-->
+                </td>
             </tr>
         </table>
     </div>
 </div>
 <div id="map1" ></div>
-<div align='center' style="bottom: 08%;text-align: center"><img src='http://www.hit-counts.com/counter.php?t=MTM5OTk2Mw==' border='0' alt='Free Hit Counter'></a><BR><p style="font-family: Arial;color: #00bcd4; bottom: 08%">Visitor Counter</p></div>
+<MARQUEE >
+    <p style="font-family: Arial;font-weight: bold;color: #0f0f0f">Please call on 9643208385 for any kind of technical support.</p>
+</MARQUEE>
+<div id="visitorcounter" align='center' style="bottom: 08%;text-align: center"><img src='http://www.hit-counts.com/counter.php?t=MTM5OTk2Mw==' border='0' alt='Free Hit Counter'></a><BR><p style="font-family: Arial;color: #00bcd4; bottom: 08%">Visitor Counter</p></div>
 <div id="resultcount" align='center' style="bottom: 08%;display:none;text-align: center"><p id="resultcount">Total No: of Results: </p></div>
-  <MARQUEE >
-            <p style="font-family: Arial;font-weight: bold">Contact on 9643208385 From 10:00 a.m-6:00 p.m for any queries.</p>
-        </MARQUEE>
+
 <div id="footer">
     <p style="text-align: center; color: #fff">Disclaimer: The responsibility for the correctness of data in the portal is the responsibility of the facility which has self-registered the data. The Government is only responsible for the dissemination of this information through this portal.</p>
 </div>
