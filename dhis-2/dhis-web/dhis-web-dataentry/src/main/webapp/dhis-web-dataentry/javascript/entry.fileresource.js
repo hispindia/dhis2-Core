@@ -80,7 +80,7 @@
                     }
                 } );
             } );
-            $button.button( isDisabled( $field ) ? 'disable' : 'enable' );
+            $button.button( 'enable' );
         };
 
         var setButtonUpload = function() {
@@ -95,7 +95,7 @@
             {
                 $fileInput.click();
             } );
-            $button.button( isDisabled( $field ) ? 'disable' : 'enable' );
+            $button.button( 'enable' );
         };
 
         var setButtonBlocked = function() {
@@ -221,10 +221,5 @@
                 } );
             }
         } );
-
-        function isDisabled( jqField ) {
-            var value = jqField.data( 'disabled' );
-            return value == 'undefined' ? false : value;
-        }
     };
 } )( jQuery );
