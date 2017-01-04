@@ -31,7 +31,6 @@ package org.hisp.dhis.dxf2.metadata2;
 import com.google.common.base.MoreObjects;
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.common.MergeMode;
-import org.hisp.dhis.dxf2.metadata2.feedback.ImportReportMode;
 import org.hisp.dhis.dxf2.metadata2.objectbundle.ObjectBundleMode;
 import org.hisp.dhis.dxf2.metadata2.objectbundle.ObjectBundleParams;
 import org.hisp.dhis.importexport.ImportStrategy;
@@ -64,8 +63,6 @@ public class MetadataImportParams
     private MergeMode mergeMode = MergeMode.MERGE;
 
     private FlushMode flushMode = FlushMode.AUTO;
-
-    private ImportReportMode importReportMode = ImportReportMode.ERRORS;
 
     private boolean skipSharing;
 
@@ -122,10 +119,9 @@ public class MetadataImportParams
         return importStrategy;
     }
 
-    public MetadataImportParams setImportStrategy( ImportStrategy importStrategy )
+    public void setImportStrategy( ImportStrategy importStrategy )
     {
         this.importStrategy = importStrategy;
-        return this;
     }
 
     public AtomicMode getAtomicMode()
@@ -156,17 +152,6 @@ public class MetadataImportParams
     public void setFlushMode( FlushMode flushMode )
     {
         this.flushMode = flushMode;
-    }
-
-    public ImportReportMode getImportReportMode()
-    {
-        return importReportMode;
-    }
-
-    public MetadataImportParams setImportReportMode( ImportReportMode importReportMode )
-    {
-        this.importReportMode = importReportMode;
-        return this;
     }
 
     public boolean isSkipSharing()
@@ -238,8 +223,8 @@ public class MetadataImportParams
     {
         ObjectBundleParams params = new ObjectBundleParams();
         params.setUser( user );
-        params.setSkipSharing( skipSharing );
-        params.setSkipValidation( skipValidation );
+        params.setSkipSharing(skipSharing);
+        params.setSkipValidation( skipValidation);
         params.setImportStrategy( importStrategy );
         params.setAtomicMode( atomicMode );
         params.setObjects( objects );
@@ -248,7 +233,6 @@ public class MetadataImportParams
         params.setObjectBundleMode( importMode );
         params.setMergeMode( mergeMode );
         params.setFlushMode( flushMode );
-        params.setImportReportMode( importReportMode );
 
         return params;
     }

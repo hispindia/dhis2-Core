@@ -28,6 +28,15 @@ package org.hisp.dhis.analytics.table;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,11 +65,6 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 /**
  * @author Lars Helge Overland
@@ -214,19 +218,6 @@ public abstract class AbstractJdbcTableManager
     }
 
     @Override
-    public void analyzeTables( List<AnalyticsTable> tables )
-    {
-        for ( AnalyticsTable table : tables )
-        {
-            final String sql = "analyze " + table.getTempTableName() + ";";
-            
-            log.debug( "Analyze table SQL: " + sql );
-            
-            jdbcTemplate.execute( sql );
-        }
-    }
-    
-    @Override
     public void dropTable( String tableName )
     {
         final String realTable = tableName.replaceFirst( TABLE_TEMP_SUFFIX, "" );
@@ -336,7 +327,7 @@ public abstract class AbstractJdbcTableManager
      */
     protected void populateAndLog( String sql, String tableName )
     {
-        log.info( "Populate table: " + tableName + " SQL: " + sql );
+        log.debug( "Populate table: " + tableName + " SQL: " + sql );
 
         Timer timer = new SystemTimer().start();
         

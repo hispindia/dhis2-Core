@@ -54,7 +54,6 @@ public class DataValueSet
     protected static final String FIELD_IDSCHEME = "idScheme";
     protected static final String FIELD_DATAELEMENTIDSCHEME = "dataElementIdScheme";
     protected static final String FIELD_ORGUNITIDSCHEME = "orgUnitIdScheme";
-    protected static final String FIELD_CATEGORYOPTCOMBOIDSCHEME = "categoryOptionComboIdScheme";
     protected static final String FIELD_DRYRUN = "dryRun";
     protected static final String FIELD_IMPORTSTRATEGY = "importStrategy";
 
@@ -75,9 +74,7 @@ public class DataValueSet
     protected String dataElementIdScheme;
 
     protected String orgUnitIdScheme;
-    
-    protected String categoryOptionComboIdScheme;
-    
+
     protected Boolean dryRun;
 
     protected String strategy;
@@ -149,19 +146,6 @@ public class DataValueSet
     public void setOrgUnitIdScheme( String orgUnitIdScheme )
     {
         this.orgUnitIdScheme = orgUnitIdScheme;
-    }
-
-    @JsonProperty
-    @JsonView( { DetailedView.class, ExportView.class } )
-    @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
-    public String getCategoryOptionComboIdScheme()
-    {
-        return categoryOptionComboIdScheme;
-    }
-
-    public void setCategoryOptionComboIdScheme( String categoryOptionComboIdScheme )
-    {
-        this.categoryOptionComboIdScheme = categoryOptionComboIdScheme;
     }
 
     @JsonProperty
@@ -338,7 +322,11 @@ public class DataValueSet
      */
     public IdScheme getDataElementIdSchemeProperty()
     {
-        return getIdScheme( getDataElementIdScheme() );
+        String dataElementScheme = getDataElementIdScheme();
+        String scheme = getIdScheme();
+
+        scheme = defaultIfEmpty( dataElementScheme, scheme );
+        return IdScheme.from( scheme );
     }
 
     /**
@@ -348,26 +336,13 @@ public class DataValueSet
      */
     public IdScheme getOrgUnitIdSchemeProperty()
     {
-        return getIdScheme( getOrgUnitIdScheme() );
-    }
-
-    /**
-     * Returns the category option combo identifier scheme. Falls back to the general
-     * identifier scheme if not set. IdScheme.NULL is returned if no scheme has
-     * been set.
-     */
-    public IdScheme getCategoryOptionComboIdSchemeProperty()
-    {
-        return getIdScheme( getCategoryOptionComboIdScheme() );
-    }
-
-    private IdScheme getIdScheme( String objectIdScheme )
-    {
+        String orgUnitScheme = getOrgUnitIdScheme();
         String scheme = getIdScheme();
-        scheme = defaultIfEmpty( objectIdScheme, scheme );
+
+        scheme = defaultIfEmpty( orgUnitScheme, scheme );
         return IdScheme.from( scheme );
     }
-    
+
     //--------------------------------------------------------------------------
     // toString
     //--------------------------------------------------------------------------

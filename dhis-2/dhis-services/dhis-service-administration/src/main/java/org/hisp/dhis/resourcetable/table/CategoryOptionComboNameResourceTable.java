@@ -28,16 +28,17 @@ package org.hisp.dhis.resourcetable.table;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.google.common.collect.Lists;
-import org.hisp.dhis.dataelement.DataElementCategoryCombo;
-import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
-import org.hisp.dhis.resourcetable.ResourceTable;
+import static org.hisp.dhis.dataapproval.DataApprovalLevelService.APPROVAL_LEVEL_HIGHEST;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hisp.dhis.dataapproval.DataApprovalLevelService.APPROVAL_LEVEL_HIGHEST;
+import org.hisp.dhis.dataelement.DataElementCategoryCombo;
+import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
+import org.hisp.dhis.resourcetable.ResourceTable;
+
+import com.google.common.collect.Lists;
 
 /**
  * @author Lars Helge Overland
@@ -61,8 +62,7 @@ public class CategoryOptionComboNameResourceTable
     {
         return "create table " + getTempTableName() + 
             " (categoryoptioncomboid integer not null primary key, " +
-            "categoryoptioncomboname varchar(255), approvallevel integer, " +
-            "startdate date, enddate date)";
+            "categoryoptioncomboname varchar(255), approvallevel integer)";
     }
 
     @Override
@@ -91,8 +91,6 @@ public class CategoryOptionComboNameResourceTable
                 values.add( coc.getId() );
                 values.add( coc.getName() );
                 values.add( coc.isIgnoreApproval() ? APPROVAL_LEVEL_HIGHEST : null );
-                values.add( coc.getLatestStartDate() );
-                values.add( coc.getEarliestEndDate() );
 
                 batchArgs.add( values.toArray() );
             }

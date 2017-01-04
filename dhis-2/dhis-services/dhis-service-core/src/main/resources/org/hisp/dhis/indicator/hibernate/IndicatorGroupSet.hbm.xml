@@ -33,7 +33,11 @@
     <set name="translations" table="indicatorgroupsettranslations" cascade="delete-orphan">
       <cache usage="read-write" />
       <key column="indicatorgroupsetid" foreign-key="fk_objecttranslation_indicatorgroupsetid" />
-      <many-to-many class="org.hisp.dhis.translation.ObjectTranslation" column="objecttranslationid" unique="true" />
+
+      <many-to-many class="org.hisp.dhis.translation.ObjectTranslation">
+        <column name="objecttranslationid" unique="true" />
+        <filter name="locale" condition="locale = :locale" />
+      </many-to-many>
     </set>
 
     <!-- Access properties -->
@@ -49,4 +53,8 @@
 
   </class>
 
-</hibernate-mapping>
+  <filter-def name="locale">
+    <filter-param name="locale" type="string" />
+  </filter-def>
+
+  </hibernate-mapping>

@@ -1088,7 +1088,6 @@
         <value>engender_health</value>
         <value>eritrea</value>
         <value>ethiopia</value>
-        <value>equatorial_guinea</value>
         <value>fhi360</value>
         <value>forut</value>
         <value>gambia</value>
@@ -1133,7 +1132,6 @@
         <value>peru</value>
         <value>psi</value>
         <value>rwanda</value>
-        <value>save_the_children</value>
         <value>senegal</value>
         <value>sierra_leone</value>
         <value>sierra_leone_coat_of_arms</value>
@@ -1632,10 +1630,6 @@
     <property name="jdbcTemplate" ref="jdbcTemplate" />
   </bean>
 
-  <bean id="org.hisp.dhis.dataelement.DataElementOperandDeletionHandler" class="org.hisp.dhis.dataelement.DataElementOperandDeletionHandler">
-    <property name="jdbcTemplate" ref="jdbcTemplate" />
-  </bean>
-
   <bean id="org.hisp.dhis.dataelement.DataElementGroupDeletionHandler" class="org.hisp.dhis.dataelement.DataElementGroupDeletionHandler" />
 
   <bean id="org.hisp.dhis.dataelement.DataElementCategoryOptionDeletionHandler"
@@ -1710,8 +1704,6 @@
   <bean id="org.hisp.dhis.organisationunit.OrganisationUnitGroupSetDeletionHandler"
     class="org.hisp.dhis.organisationunit.OrganisationUnitGroupSetDeletionHandler" />
 
-  <bean id="org.hisp.dhis.user.UserCredentialsDeletionHandler" class="org.hisp.dhis.user.UserCredentialsDeletionHandler" />
-  
   <bean id="org.hisp.dhis.user.UserDeletionHandler" class="org.hisp.dhis.user.UserDeletionHandler" />
 
   <bean id="org.hisp.dhis.user.UserGroupDeletionHandler" class="org.hisp.dhis.user.UserGroupDeletionHandler">

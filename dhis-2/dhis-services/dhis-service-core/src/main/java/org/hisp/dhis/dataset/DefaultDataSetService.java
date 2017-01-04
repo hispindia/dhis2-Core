@@ -51,6 +51,7 @@ import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
+import org.joda.time.DateTime;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
@@ -376,7 +377,11 @@ public class DefaultDataSetService
     @Override
     public boolean isLockedPeriod( DataSet dataSet, Period period, OrganisationUnit organisationUnit, Date now )
     {
-        return dataSet.isLocked( period, now ) && lockExceptionStore.getCount( dataSet, period, organisationUnit ) == 0L;
+        now = now != null ? now : new Date();
+
+        boolean expired = dataSet.getExpiryDays() != DataSet.NO_EXPIRY && new DateTime( period.getEndDate() ).plusDays( dataSet.getExpiryDays() ).isBefore( new DateTime( now ) );
+
+        return expired && lockExceptionStore.getCount( dataSet, period, organisationUnit ) == 0L;
     }
 
     @Override

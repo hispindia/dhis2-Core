@@ -175,8 +175,7 @@ public class DefaultIdentifiableObjectManager
         persistedObject.getTranslations().clear();
         session.flush();
 
-        translations.forEach( translation ->
-        {
+        translations.forEach( translation -> {
             session.save( translation );
             persistedObject.getTranslations().add( translation );
         } );
@@ -283,20 +282,6 @@ public class DefaultIdentifiableObjectManager
         }
 
         return null;
-    }
-
-    @Override
-    @SuppressWarnings( "unchecked" )
-    public <T extends IdentifiableObject> List<T> get( Class<T> clazz, Collection<String> uids )
-    {
-        GenericIdentifiableObjectStore<IdentifiableObject> store = getIdentifiableObjectStore( clazz );
-
-        if ( store == null )
-        {
-            return null;
-        }
-
-        return (List<T>) store.getByUid( uids );
     }
 
     @Override

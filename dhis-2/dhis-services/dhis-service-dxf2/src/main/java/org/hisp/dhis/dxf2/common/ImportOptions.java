@@ -148,10 +148,9 @@ public class ImportOptions
         return mergeMode;
     }
 
-    public ImportOptions setMergeMode( MergeMode mergeMode )
+    public void setMergeMode( MergeMode mergeMode )
     {
         this.mergeMode = mergeMode;
-        return this;
     }
 
     public boolean isSkipExistingCheck()

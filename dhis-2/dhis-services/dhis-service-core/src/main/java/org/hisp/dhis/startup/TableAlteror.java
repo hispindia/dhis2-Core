@@ -867,7 +867,7 @@ public class TableAlteror
         executeSql( "update program set enrollmentdatelabel = dateofenrollmentdescription where enrollmentdatelabel is null" );
         executeSql( "update program set incidentdatelabel = dateofincidentdescription where incidentdatelabel is null" );
         executeSql( "update programinstance set incidentdate = dateofincident where incidentdate is null" );
-        executeSql( "alter table programinstance alter column incidentdate drop not null" );
+        executeSql( "alter table programinstance alter column incidentdate set not null" );
         executeSql( "alter table program drop column dateofenrollmentdescription" );
         executeSql( "alter table program drop column dateofincidentdescription" );
         executeSql( "alter table programinstance drop column dateofincident" );
@@ -1508,8 +1508,6 @@ public class TableAlteror
         addTranslationTable( listTables, "ValidationCriteria", "validationcriteriatranslations", "validationcriteria", "validationcriteriaid" );
         addTranslationTable( listTables, "ValidationRule", "validationruletranslations", "validationrule", "validationruleid" );
         addTranslationTable( listTables, "ValidationRuleGroup", "validationrulegrouptranslations", "validationrulegroup", "validationrulegroupid" );
-
-        executeSql( "alter table translation add column objectid integer;" );
 
         String sql;
 

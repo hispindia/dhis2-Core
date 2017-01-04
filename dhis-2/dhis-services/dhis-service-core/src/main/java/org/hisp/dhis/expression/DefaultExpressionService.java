@@ -288,7 +288,7 @@ public class DefaultExpressionService
         }
         if (comboId == null)
         {
-            Double sum = null;
+            Double sum = 0.0;
             final Set<DataElementCategoryOptionCombo> combos = categoryCombo.getOptionCombos();
 
             for (DataElementCategoryOptionCombo combo : combos)
@@ -297,10 +297,6 @@ public class DefaultExpressionService
                 Double v = valueMap.get(deo);
                 if (v != null)
                 {
-                    if ( sum == null )
-                    {
-                        sum = 0.0;
-                    }
                     sum = sum + v;
                 }
             }

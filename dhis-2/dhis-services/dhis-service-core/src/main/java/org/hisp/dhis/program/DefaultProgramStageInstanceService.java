@@ -126,6 +126,7 @@ public class DefaultProgramStageInstanceService
     {
         dataValueAuditService.deleteTrackedEntityDataValueAudits( programStageInstance );
         programStageInstanceStore.delete( programStageInstance );
+        
     }
 
     @Override
@@ -187,7 +188,8 @@ public class DefaultProgramStageInstanceService
     {
         return programStageInstanceStore.getSendMessageEvents();
     }
-
+    
+    
     @Override
     public void completeProgramStageInstance( ProgramStageInstance programStageInstance, boolean sendNotifications,
         I18nFormat format )

@@ -28,6 +28,7 @@ package org.hisp.dhis.program.hibernate;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import org.hibernate.Query;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
@@ -425,4 +426,21 @@ public class HibernateProgramStageInstanceStore
             + "       and (  DATE(now()) - DATE(psi.duedate) ) = prm.daysallowedsendmessage "
             + "       and prm.whentosend is null " + "       and prm.sendto = " + TrackedEntityInstanceReminder.SEND_TO_USER_GROUP;
     }
+    
+    
+    @Override
+    @SuppressWarnings( "unchecked" )
+    public List<ProgramStageInstance> getFilteredProgramStageInstances( String programStageInstanceIdsByComma, int min, int max )
+    {
+        String hql = "";
+        
+        hql = "SELECT psi FROM ProgramStageInstance AS psi " +
+              " WHERE psi.id IN (" + programStageInstanceIdsByComma  + " ) ORDER BY psi.executionDate ASC";
+        
+        Query query = getQuery( hql ).setFirstResult( min ).setMaxResults( max );
+
+        return query.list();
+        
+    }    
+    
 }

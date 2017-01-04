@@ -154,7 +154,6 @@ public class DefaultMaintenanceService
     }
 
     @Override
-    @Transactional
     public int removeExpiredInvitations()
     {
         UserQueryParams params = new UserQueryParams();

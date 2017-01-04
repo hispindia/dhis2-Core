@@ -71,12 +71,6 @@ public class StreamingJsonDataValueSet extends DataValueSet
     {
         writeObjectField( FIELD_ORGUNITIDSCHEME, orgUnitIdScheme );
     }
-    
-    @Override
-    public void setCategoryOptionComboIdScheme( String categoryOptionComboIdScheme )
-    {
-        writeObjectField( FIELD_CATEGORYOPTCOMBOIDSCHEME, categoryOptionComboIdScheme );
-    }
 
     @Override
     public void setDataSet( String dataSet )

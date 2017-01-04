@@ -150,7 +150,6 @@ public class JdbcCompletenessTargetTableManager
                 "inner join organisationunit ou on doc.organisationunitid=ou.organisationunitid " +
                 "left join _orgunitstructure ous on doc.organisationunitid=ous.organisationunitid " +
                 "left join _organisationunitgroupsetstructure ougs on doc.organisationunitid=ougs.organisationunitid " +
-                "left join categoryoptioncombo ao on doc.attributeoptioncomboid=ao.categoryoptioncomboid " +
                 "left join _categorystructure acs on doc.attributeoptioncomboid=acs.categoryoptioncomboid ";
 
             populateAndLog( sql, tableName );
@@ -202,9 +201,8 @@ public class JdbcCompletenessTargetTableManager
         AnalyticsTableColumn coStart = new AnalyticsTableColumn( quote( "costartdate" ), "date", "doc.costartdate" );
         AnalyticsTableColumn coEnd = new AnalyticsTableColumn( quote( "coenddate" ), "date", "doc.coenddate" );
         AnalyticsTableColumn ds = new AnalyticsTableColumn( quote( "dx" ), "character(11) not null", "ds.uid" );
-        AnalyticsTableColumn ao = new AnalyticsTableColumn( quote( "ao" ), "character(11) not null", "ao.uid" );
         
-        columns.addAll( Lists.newArrayList( ouOpening, ouClosed, coStart, coEnd, ds, ao ) );
+        columns.addAll( Lists.newArrayList( ouOpening, ouClosed, coStart, coEnd, ds ) );
         
         return columns;
     }

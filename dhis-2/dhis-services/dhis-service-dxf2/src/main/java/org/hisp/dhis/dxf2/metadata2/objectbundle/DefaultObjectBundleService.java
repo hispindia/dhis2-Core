@@ -36,7 +36,6 @@ import org.hisp.dhis.cache.HibernateCacheManager;
 import org.hisp.dhis.common.BaseIdentifiableObject;
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.common.IdentifiableObjectManager;
-import org.hisp.dhis.common.IdentifiableObjectUtils;
 import org.hisp.dhis.common.MergeMode;
 import org.hisp.dhis.dbms.DbmsManager;
 import org.hisp.dhis.dxf2.metadata2.FlushMode;
@@ -192,7 +191,6 @@ public class DefaultObjectBundleService implements ObjectBundleService
             if ( Preheat.isDefault( object ) ) continue;
 
             ObjectReport objectReport = new ObjectReport( klass, idx, object.getUid() );
-            objectReport.setDisplayName( IdentifiableObjectUtils.getDisplayName( object ) );
             typeReport.addObjectReport( objectReport );
 
             preheatService.connectReferences( object, bundle.getPreheat(), bundle.getPreheatIdentifier() );
@@ -241,7 +239,6 @@ public class DefaultObjectBundleService implements ObjectBundleService
             if ( Preheat.isDefault( object ) ) continue;
 
             ObjectReport objectReport = new ObjectReport( klass, idx, object.getUid() );
-            objectReport.setDisplayName( IdentifiableObjectUtils.getDisplayName( object ) );
             typeReport.addObjectReport( objectReport );
 
             IdentifiableObject persistedObject = bundle.getPreheat().get( bundle.getPreheatIdentifier(), object );
@@ -295,7 +292,6 @@ public class DefaultObjectBundleService implements ObjectBundleService
         {
             IdentifiableObject object = persistedObjects.get( idx );
             ObjectReport objectReport = new ObjectReport( klass, idx, object.getUid() );
-            objectReport.setDisplayName( IdentifiableObjectUtils.getDisplayName( object ) );
             typeReport.addObjectReport( objectReport );
 
             objectBundleHooks.forEach( hook -> hook.preDelete( object, bundle ) );

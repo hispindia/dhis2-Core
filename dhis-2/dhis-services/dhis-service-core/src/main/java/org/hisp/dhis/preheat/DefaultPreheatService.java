@@ -172,18 +172,15 @@ public class DefaultPreheatService implements PreheatService
             {
                 for ( Class<? extends IdentifiableObject> klass : uidMap.keySet() )
                 {
-                    List<List<String>> identifiers = Lists.partition( Lists.newArrayList( uidMap.get( klass ) ), 20000 );
+                    Collection<String> identifiers = uidMap.get( klass );
 
                     if ( !identifiers.isEmpty() )
                     {
-                        for ( List<String> ids : identifiers )
-                        {
-                            Query query = Query.from( schemaService.getDynamicSchema( klass ) );
-                            query.setUser( preheat.getUser() );
-                            query.add( Restrictions.in( "id", ids ) );
-                            List<? extends IdentifiableObject> objects = queryService.query( query );
-                            preheat.put( PreheatIdentifier.UID, objects );
-                        }
+                        Query query = Query.from( schemaService.getDynamicSchema( klass ) );
+                        query.setUser( preheat.getUser() );
+                        query.add( Restrictions.in( "id", identifiers ) );
+                        List<? extends IdentifiableObject> objects = queryService.query( query );
+                        preheat.put( PreheatIdentifier.UID, objects );
                     }
                 }
             }
@@ -192,18 +189,15 @@ public class DefaultPreheatService implements PreheatService
             {
                 for ( Class<? extends IdentifiableObject> klass : codeMap.keySet() )
                 {
-                    List<List<String>> identifiers = Lists.partition( Lists.newArrayList( codeMap.get( klass ) ), 20000 );
+                    Collection<String> identifiers = codeMap.get( klass );
 
                     if ( !identifiers.isEmpty() )
                     {
-                        for ( List<String> ids : identifiers )
-                        {
-                            Query query = Query.from( schemaService.getDynamicSchema( klass ) );
-                            query.setUser( preheat.getUser() );
-                            query.add( Restrictions.in( "code", ids ) );
-                            List<? extends IdentifiableObject> objects = queryService.query( query );
-                            preheat.put( PreheatIdentifier.CODE, objects );
-                        }
+                        Query query = Query.from( schemaService.getDynamicSchema( klass ) );
+                        query.setUser( preheat.getUser() );
+                        query.add( Restrictions.in( "code", identifiers ) );
+                        List<? extends IdentifiableObject> objects = queryService.query( query );
+                        preheat.put( PreheatIdentifier.CODE, objects );
                     }
                 }
             }
@@ -293,8 +287,7 @@ public class DefaultPreheatService implements PreheatService
 
                 if ( attribute.isMandatory() )
                 {
-                    attribute.getSupportedClasses().forEach( klass ->
-                    {
+                    attribute.getSupportedClasses().forEach( klass -> {
                         if ( !preheat.getMandatoryAttributes().containsKey( klass ) ) preheat.getMandatoryAttributes().put( klass, new HashSet<>() );
                         preheat.getMandatoryAttributes().get( klass ).add( attribute.getUid() );
                     } );
@@ -302,8 +295,7 @@ public class DefaultPreheatService implements PreheatService
 
                 if ( attribute.isUnique() )
                 {
-                    attribute.getSupportedClasses().forEach( klass ->
-                    {
+                    attribute.getSupportedClasses().forEach( klass -> {
                         if ( !preheat.getUniqueAttributes().containsKey( klass ) ) preheat.getUniqueAttributes().put( klass, new HashSet<>() );
                         preheat.getUniqueAttributes().get( klass ).add( attribute.getUid() );
                     } );
@@ -321,10 +313,8 @@ public class DefaultPreheatService implements PreheatService
 
         preheat.getUniqueAttributeValues().put( klass, new HashMap<>() );
 
-        objects.forEach( object ->
-        {
-            object.getAttributeValues().forEach( attributeValue ->
-            {
+        objects.forEach( object -> {
+            object.getAttributeValues().forEach( attributeValue -> {
                 Set<String> uids = preheat.getUniqueAttributes().get( klass );
 
                 if ( uids != null && uids.contains( attributeValue.getAttribute().getUid() ) )
@@ -441,8 +431,7 @@ public class DefaultPreheatService implements PreheatService
 
             for ( IdentifiableObject object : identifiableObjects )
             {
-                identifiableProperties.forEach( p ->
-                {
+                identifiableProperties.forEach( p -> {
                     if ( !p.isCollection() )
                     {
                         Class<? extends IdentifiableObject> klass = (Class<? extends IdentifiableObject>) p.getKlass();
@@ -465,8 +454,7 @@ public class DefaultPreheatService implements PreheatService
 
                         if ( DataElementOperand.class.isAssignableFrom( p.getItemKlass() ) )
                         {
-                            reference.forEach( identifiableObject ->
-                            {
+                            reference.forEach( identifiableObject -> {
                                 DataElementOperand dataElementOperand = (DataElementOperand) identifiableObject;
                                 addIdentifiers( map, dataElementOperand.getDataElement() );
                                 addIdentifiers( map, dataElementOperand.getCategoryOptionCombo() );
@@ -484,9 +472,12 @@ public class DefaultPreheatService implements PreheatService
                     List<TrackedEntityAttributeDimension> attributeDimensions = analyticalObject.getAttributeDimensions();
                     List<TrackedEntityProgramIndicatorDimension> programIndicatorDimensions = analyticalObject.getProgramIndicatorDimensions();
 
-                    dataDimensionItems.forEach( dataDimensionItem ->
-                    {
-                        addIdentifiers( map, dataDimensionItem.getDimensionalItemObject() );
+                    dataDimensionItems.forEach( dataDimensionItem -> {
+                        addIdentifiers( map, dataDimensionItem.getIndicator() );
+                        addIdentifiers( map, dataDimensionItem.getDataElement() );
+                        addIdentifiers( map, dataDimensionItem.getReportingRate() );
+                        addIdentifiers( map, dataDimensionItem.getProgramDataElement() );
+                        addIdentifiers( map, dataDimensionItem.getProgramAttribute() );
 
                         if ( dataDimensionItem.getDataElementOperand() != null )
                         {
@@ -495,26 +486,22 @@ public class DefaultPreheatService implements PreheatService
                         }
                     } );
 
-                    categoryDimensions.forEach( categoryDimension ->
-                    {
+                    categoryDimensions.forEach( categoryDimension -> {
                         addIdentifiers( map, categoryDimension.getDimension() );
                         categoryDimension.getItems().forEach( item -> addIdentifiers( map, item ) );
                     } );
 
-                    dataElementDimensions.forEach( trackedEntityDataElementDimension ->
-                    {
+                    dataElementDimensions.forEach( trackedEntityDataElementDimension -> {
                         addIdentifiers( map, trackedEntityDataElementDimension.getDataElement() );
                         addIdentifiers( map, trackedEntityDataElementDimension.getLegendSet() );
                     } );
 
-                    attributeDimensions.forEach( trackedEntityAttributeDimension ->
-                    {
+                    attributeDimensions.forEach( trackedEntityAttributeDimension -> {
                         addIdentifiers( map, trackedEntityAttributeDimension.getAttribute() );
                         addIdentifiers( map, trackedEntityAttributeDimension.getLegendSet() );
                     } );
 
-                    programIndicatorDimensions.forEach( programIndicatorDimension ->
-                    {
+                    programIndicatorDimensions.forEach( programIndicatorDimension -> {
                         addIdentifiers( map, programIndicatorDimension.getProgramIndicator() );
                         addIdentifiers( map, programIndicatorDimension.getLegendSet() );
                     } );
@@ -524,16 +511,14 @@ public class DefaultPreheatService implements PreheatService
                 {
                     ValidationRule validationRule = (ValidationRule) object;
 
-                    if ( validationRule.getLeftSide() != null )
+                    if ( validationRule.getLeftSide() != null && !validationRule.getLeftSide().getDataElementsInExpression().isEmpty() )
                     {
                         validationRule.getLeftSide().getDataElementsInExpression().forEach( de -> addIdentifiers( map, de ) );
-                        validationRule.getLeftSide().getSampleElementsInExpression().forEach( de -> addIdentifiers( map, de ) );
                     }
 
-                    if ( validationRule.getRightSide() != null )
+                    if ( validationRule.getRightSide() != null && !validationRule.getRightSide().getDataElementsInExpression().isEmpty() )
                     {
                         validationRule.getRightSide().getDataElementsInExpression().forEach( de -> addIdentifiers( map, de ) );
-                        validationRule.getRightSide().getSampleElementsInExpression().forEach( de -> addIdentifiers( map, de ) );
                     }
                 }
 
@@ -616,8 +601,7 @@ public class DefaultPreheatService implements PreheatService
             {
                 objectReferenceMap.put( object.getUid(), new HashMap<>() );
 
-                properties.forEach( p ->
-                {
+                properties.forEach( p -> {
                     if ( !p.isCollection() )
                     {
                         IdentifiableObject reference = ReflectionUtils.invokeMethod( object, p.getGetterMethod() );
@@ -679,8 +663,7 @@ public class DefaultPreheatService implements PreheatService
 
         schema.getProperties().stream()
             .filter( p -> p.isPersisted() && p.isOwner() && (PropertyType.REFERENCE == p.getPropertyType() || PropertyType.REFERENCE == p.getItemPropertyType()) )
-            .forEach( p ->
-            {
+            .forEach( p -> {
                 if ( skipConnect( p.getKlass() ) || skipConnect( p.getItemKlass() ) )
                 {
                     return;
@@ -775,8 +758,7 @@ public class DefaultPreheatService implements PreheatService
 
         for ( IdentifiableObject object : objects )
         {
-            uniqueProperties.forEach( property ->
-            {
+            uniqueProperties.forEach( property -> {
                 if ( !map.containsKey( property.getName() ) ) map.put( property.getName(), new HashMap<>() );
                 Object value = ReflectionUtils.invokeMethod( object, property.getGetterMethod() );
                 if ( value != null ) map.get( property.getName() ).put( value, object.getUid() );

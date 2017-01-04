@@ -70,14 +70,14 @@ public class DataElementDeletionHandler
     @Override
     public void deleteDataElementCategoryCombo( DataElementCategoryCombo categoryCombo )
     {
-        DataElementCategoryCombo defaultCategoryCombo = categoryService
+        DataElementCategoryCombo default_ = categoryService
             .getDataElementCategoryComboByName( DEFAULT_CATEGORY_COMBO_NAME );
 
         for ( DataElement dataElement : idObjectManager.getAllNoAcl( DataElement.class ) )
         {
-            if ( dataElement != null && dataElement.getCategoryCombo().equals( categoryCombo ) )
+            if ( dataElement.getCategoryCombo().equals( categoryCombo ) )
             {
-                dataElement.setCategoryCombo( defaultCategoryCombo );
+                dataElement.setCategoryCombo( default_ );
 
                 idObjectManager.updateNoAcl( dataElement );
             }

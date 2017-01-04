@@ -37,7 +37,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.util.XMLChar;
-import org.hibernate.SessionFactory;
 import org.hisp.dhis.common.IdentifiableObjectManager;
 import org.hisp.dhis.common.IdentifiableProperty;
 import org.hisp.dhis.dataelement.CategoryComboMap;
@@ -110,9 +109,6 @@ public class DefaultAdxDataService
 
     @Autowired
     private IdentifiableObjectManager identifiableObjectManager;
-    
-    @Autowired
-    private SessionFactory sessionFactory;
 
     @Autowired
     private Notifier notifier;
@@ -249,10 +245,10 @@ public class DefaultAdxDataService
         // submit each ADX group to DXF importer as a datavalueSet
         while ( adxReader.moveToStartElement( AdxDataService.GROUP, AdxDataService.NAMESPACE ) )
         {
-            try ( PipedOutputStream pipeOut = new PipedOutputStream() )
+            try (PipedOutputStream pipeOut = new PipedOutputStream())
             {
                 Future<ImportSummary> futureImportSummary;
-                futureImportSummary = executor.submit( new AdxPipedImporter( dataValueSetService, importOptions, id, pipeOut, sessionFactory ) );
+                futureImportSummary = executor.submit( new AdxPipedImporter( dataValueSetService, importOptions, id, pipeOut ) );
                 XMLOutputFactory factory = XMLOutputFactory.newInstance();
                 XMLStreamWriter dxfWriter = factory.createXMLStreamWriter( pipeOut );
 

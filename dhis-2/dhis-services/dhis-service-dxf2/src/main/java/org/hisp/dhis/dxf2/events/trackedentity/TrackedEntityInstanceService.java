@@ -58,6 +58,10 @@ public interface TrackedEntityInstanceService
 
     TrackedEntityInstance getTrackedEntityInstance( org.hisp.dhis.trackedentity.TrackedEntityInstance entityInstance, boolean expandRelative );
 
+    // add for association between event and list of tracked entity instances for save events members
+    // for getting eventMember inside Events
+    TrackedEntityInstance getTrackedEntityInstance( int id );
+    
     // -------------------------------------------------------------------------
     // CREATE
     // -------------------------------------------------------------------------

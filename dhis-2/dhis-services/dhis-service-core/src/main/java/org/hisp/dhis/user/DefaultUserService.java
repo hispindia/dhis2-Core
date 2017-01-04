@@ -28,30 +28,26 @@ package org.hisp.dhis.user;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.google.common.collect.Lists;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hisp.dhis.common.AuditLogUtil;
 import org.hisp.dhis.commons.filter.FilterUtils;
 import org.hisp.dhis.dataset.DataSet;
-import org.hisp.dhis.feedback.ErrorCode;
-import org.hisp.dhis.feedback.ErrorReport;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.security.PasswordManager;
 import org.hisp.dhis.setting.SettingKey;
 import org.hisp.dhis.setting.SystemSettingManager;
-import org.hisp.dhis.system.deletion.DeletionManager;
 import org.hisp.dhis.system.filter.UserAuthorityGroupCanIssueFilter;
 import org.hisp.dhis.system.util.DateUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import com.google.common.collect.Lists;
 
 /**
  * @author Chau Thu Tran
@@ -115,9 +111,6 @@ public class DefaultUserService
         this.passwordManager = passwordManager;
     }
 
-    @Autowired
-    private DeletionManager deletionManager;
-
     // -------------------------------------------------------------------------
     // UserService implementation
     // -------------------------------------------------------------------------
@@ -147,11 +140,7 @@ public class DefaultUserService
     {
         AuditLogUtil.infoWrapper( log, currentUserService.getCurrentUsername(), user, AuditLogUtil.ACTION_DELETE );
 
-        // Invoke deletion manager directly for credentials, not intercepted
-
-        deletionManager.execute( user.getUserCredentials() );
-
-        // Credentials deleted through deletion handler
+        userCredentialsStore.delete( user.getUserCredentials() );
 
         userStore.delete( user );
     }
@@ -270,19 +259,19 @@ public class DefaultUserService
 
     public boolean validateUserQueryParams( UserQueryParams params )
     {
-        if ( params.isCanManage() && (params.getUser() == null || !params.getUser().hasManagedGroups()) )
+        if ( params.isCanManage() && ( params.getUser() == null || !params.getUser().hasManagedGroups() ) )
         {
             log.warn( "Cannot get managed users as user does not have any managed groups" );
             return false;
         }
 
-        if ( params.isAuthSubset() && (params.getUser() == null || !params.getUser().getUserCredentials().hasAuthorities()) )
+        if ( params.isAuthSubset() && ( params.getUser() == null || !params.getUser().getUserCredentials().hasAuthorities() ) )
         {
             log.warn( "Cannot get users with authority subset as user does not have any authorities" );
             return false;
         }
 
-        if ( params.isDisjointRoles() && (params.getUser() == null || !params.getUser().getUserCredentials().hasUserAuthorityGroups()) )
+        if ( params.isDisjointRoles() && ( params.getUser() == null || !params.getUser().getUserCredentials().hasUserAuthorityGroups() ) )
         {
             log.warn( "Cannot get users with disjoint roles as user does not have any user roles" );
             return false;
@@ -339,12 +328,8 @@ public class DefaultUserService
     @Override
     public boolean canAddOrUpdateUser( Collection<String> userGroups )
     {
-        return canAddOrUpdateUser( userGroups, currentUserService.getCurrentUser() );
-    }
+        User currentUser = currentUserService.getCurrentUser();
 
-    @Override
-    public boolean canAddOrUpdateUser( Collection<String> userGroups, User currentUser )
-    {
         if ( currentUser == null )
         {
             return false;
@@ -507,14 +492,14 @@ public class DefaultUserService
         {
             return; // Leave unchanged if internal authentication and no password supplied
         }
-
+        
         if ( userCredentials.isExternalAuth() )
         {
             userCredentials.setPassword( UserService.PW_NO_INTERNAL_LOGIN );
-
+            
             return; // Set unusable, not-encoded password if external authentication
         }
-
+        
         boolean isNewPassword = StringUtils.isBlank( userCredentials.getPassword() ) ||
             !passwordManager.matches( rawPassword, userCredentials.getPassword() );
 
@@ -524,7 +509,7 @@ public class DefaultUserService
         }
 
         // Encode and set password
-
+        
         userCredentials.setPassword( passwordManager.encode( rawPassword ) );
     }
 
@@ -589,53 +574,5 @@ public class DefaultUserService
         int months = DateUtils.monthsBetween( credentials.getPasswordLastUpdated(), new Date() );
 
         return months < credentialsExpires;
-    }
-
-    @Override
-    public List<ErrorReport> validateUser( User user, User currentUser )
-    {
-        List<ErrorReport> errors = new ArrayList<>();
-
-        if ( currentUser == null || currentUser.getUserCredentials() == null || user == null || user.getUserCredentials() == null )
-        {
-            return errors;
-        }
-
-        // validate user role
-        boolean canGrantOwnUserAuthorityGroups = (Boolean) systemSettingManager.getSystemSetting( SettingKey.CAN_GRANT_OWN_USER_AUTHORITY_GROUPS );
-
-        user.getUserCredentials().getUserAuthorityGroups().forEach( ur ->
-        {
-            if ( !currentUser.getUserCredentials().canIssueUserRole( ur, canGrantOwnUserAuthorityGroups ) )
-            {
-                errors.add( new ErrorReport( UserAuthorityGroup.class, ErrorCode.E3003, currentUser, ur ) );
-            }
-        } );
-
-        // validate group
-        boolean canAdd = currentUser.getUserCredentials().isAuthorized( UserGroup.AUTH_USER_ADD );
-
-        if ( canAdd )
-        {
-            return errors;
-        }
-
-        boolean canAddInGroup = currentUser.getUserCredentials().isAuthorized( UserGroup.AUTH_USER_ADD_IN_GROUP );
-
-        if ( !canAddInGroup )
-        {
-            errors.add( new ErrorReport( UserGroup.class, ErrorCode.E3004, currentUser ) );
-            return errors;
-        }
-
-        user.getGroups().forEach( ug ->
-        {
-            if ( ! ( currentUser.canManage( ug ) || userGroupService.canAddOrRemoveMember( ug.getUid() ) ) )
-            {
-                errors.add( new ErrorReport( UserGroup.class, ErrorCode.E3005, currentUser, ug ) );
-            }
-        } );
-
-        return errors;
     }
 }

@@ -36,7 +36,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 
@@ -58,7 +57,6 @@ import org.hisp.dhis.trackedentity.TrackedEntityAttribute;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
 /**
@@ -67,8 +65,6 @@ import com.google.common.collect.Lists;
 public class JdbcEventAnalyticsTableManager
     extends AbstractJdbcTableManager
 {
-    private static final Set<ValueType> NO_INDEX_VAL_TYPES = ImmutableSet.of( ValueType.TEXT, ValueType.LONG_TEXT );
-    
     @Override
     @Transactional
     public List<AnalyticsTable> getTables( Date earliest )
@@ -208,7 +204,7 @@ public class JdbcEventAnalyticsTableManager
                 "inner join organisationunit ou on psi.organisationunitid=ou.organisationunitid " +
                 "left join _orgunitstructure ous on psi.organisationunitid=ous.organisationunitid " +
                 "left join _organisationunitgroupsetstructure ougs on psi.organisationunitid=ougs.organisationunitid " +
-                "inner join _categorystructure acs on psi.attributeoptioncomboid=acs.categoryoptioncomboid " +
+                "left join _categorystructure acs on psi.attributeoptioncomboid=acs.categoryoptioncomboid " +
                 "left join _dateperiodstructure dps on " + psiExecutionDate + "=dps.dateperiod " +
                 "where psi.executiondate >= '" + start + "' " + 
                 "and psi.executiondate <= '" + end + "' " +
@@ -272,7 +268,7 @@ public class JdbcEventAnalyticsTableManager
             String dataType = getColumnType( valueType );
             String dataClause = dataElement.isNumericType() ? numericClause : dataElement.getValueType().isDate() ? dateClause : "";
             String select = getSelectClause( valueType );
-            boolean skipIndex = NO_INDEX_VAL_TYPES.contains( dataElement.getValueType() ) && !dataElement.hasOptionSet();
+            boolean skipIndex = ValueType.LONG_TEXT == dataElement.getValueType() && !dataElement.hasOptionSet();
 
             String sql = "(select " + select + " from trackedentitydatavalue where programstageinstanceid=psi.programstageinstanceid " + 
                 "and dataelementid=" + dataElement.getId() + dataClause + ") as " + quote( dataElement.getUid() );
@@ -298,7 +294,7 @@ public class JdbcEventAnalyticsTableManager
             String dataType = getColumnType( attribute.getValueType() );
             String dataClause = attribute.isNumericType() ? numericClause : attribute.isDateType() ? dateClause : "";
             String select = getSelectClause( attribute.getValueType() );
-            boolean skipIndex = NO_INDEX_VAL_TYPES.contains( attribute.getValueType() ) && !attribute.hasOptionSet();
+            boolean skipIndex = ValueType.LONG_TEXT == attribute.getValueType() && !attribute.hasOptionSet();
 
             String sql = "(select " + select + " from trackedentityattributevalue where trackedentityinstanceid=pi.trackedentityinstanceid " + 
                 "and trackedentityattributeid=" + attribute.getId() + dataClause + ") as " + quote( attribute.getUid() );

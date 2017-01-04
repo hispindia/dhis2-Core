@@ -39,7 +39,6 @@ import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementCategory;
 import org.hisp.dhis.dataelement.DataElementCategoryCombo;
 import org.hisp.dhis.dataelement.DataElementCategoryOption;
-import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
 import org.hisp.dhis.dataelement.DataElementGroup;
 import org.hisp.dhis.dataelement.DataElementOperand;
 import org.hisp.dhis.dataset.DataSet;
@@ -544,6 +543,7 @@ public class ObjectBundleServiceTest
         assertFalse( user.getOrganisationUnits().isEmpty() );
         assertEquals( "PdWlltZnVZe", user.getOrganisationUnit().getUid() );
     }
+
 
     @Test
     public void testCreateDataSetsWithUgaUID() throws IOException
@@ -1299,53 +1299,6 @@ public class ObjectBundleServiceTest
     }
 
     @Test
-    public void testCreateMetadataWithDuplicateDataElementUid() throws IOException
-    {
-        createUserAndInjectSecurityContext( true );
-
-        Map<Class<? extends IdentifiableObject>, List<IdentifiableObject>> metadata = renderService.fromMetadata(
-            new ClassPathResource( "dxf2/de_duplicate_uid.json" ).getInputStream(), RenderFormat.JSON );
-
-        ObjectBundleParams params = new ObjectBundleParams();
-        params.setObjectBundleMode( ObjectBundleMode.COMMIT );
-        params.setImportStrategy( ImportStrategy.CREATE_AND_UPDATE );
-        params.setAtomicMode( AtomicMode.NONE );
-        params.setObjects( metadata );
-
-        ObjectBundle bundle = objectBundleService.create( params );
-        objectBundleValidationService.validate( bundle );
-
-        objectBundleService.commit( bundle );
-
-        assertEquals( 1, manager.getAll( DataElement.class ).size() );
-
-        DataElement dataElement = manager.get( DataElement.class, "CCwk5Yx440o" );
-        assertEquals( "CCwk5Yx440o", dataElement.getUid() );
-        assertEquals( "DataElementB", dataElement.getName() );
-    }
-
-    @Test
-    public void testCreateMetadataWithDuplicateDataElementUidALL() throws IOException
-    {
-        createUserAndInjectSecurityContext( true );
-
-        Map<Class<? extends IdentifiableObject>, List<IdentifiableObject>> metadata = renderService.fromMetadata(
-            new ClassPathResource( "dxf2/de_duplicate_uid.json" ).getInputStream(), RenderFormat.JSON );
-
-        ObjectBundleParams params = new ObjectBundleParams();
-        params.setObjectBundleMode( ObjectBundleMode.COMMIT );
-        params.setImportStrategy( ImportStrategy.CREATE_AND_UPDATE );
-        params.setObjects( metadata );
-
-        ObjectBundle bundle = objectBundleService.create( params );
-        objectBundleValidationService.validate( bundle );
-
-        objectBundleService.commit( bundle );
-
-        assertEquals( 0, manager.getAll( DataElement.class ).size() );
-    }
-
-    @Test
     public void testCreateOrgUnitWithLevels() throws IOException
     {
         Map<Class<? extends IdentifiableObject>, List<IdentifiableObject>> metadata = renderService.fromMetadata(
@@ -1425,62 +1378,6 @@ public class ObjectBundleServiceTest
 
         assertNotNull( section1.getDataSet() );
         assertNotNull( section2.getDataSet() );
-    }
-
-    @Test
-    public void testCreateOrgUnitWithPersistedParent() throws IOException
-    {
-        OrganisationUnit parentOu = createOrganisationUnit( 'A' );
-        parentOu.setUid( "ImspTQPwCqd" );
-        manager.save( parentOu );
-
-        Map<Class<? extends IdentifiableObject>, List<IdentifiableObject>> metadata = renderService.fromMetadata(
-            new ClassPathResource( "dxf2/orgunit_create_with_persisted_parent.json" ).getInputStream(), RenderFormat.JSON );
-
-        ObjectBundleParams params = new ObjectBundleParams();
-        params.setObjectBundleMode( ObjectBundleMode.COMMIT );
-        params.setImportStrategy( ImportStrategy.CREATE );
-        params.setObjects( metadata );
-
-        ObjectBundle bundle = objectBundleService.create( params );
-        objectBundleValidationService.validate( bundle );
-        objectBundleService.commit( bundle );
-
-        assertEquals( 3, manager.getAll( OrganisationUnit.class ).size() );
-
-        assertNull( manager.get( OrganisationUnit.class, "ImspTQPwCqd" ).getParent() );
-
-        assertNotNull( manager.get( OrganisationUnit.class, "bFzxXwTkSWA" ).getParent() );
-        assertEquals( "ImspTQPwCqd", manager.get( OrganisationUnit.class, "bFzxXwTkSWA" ).getParent().getUid() );
-
-        assertNotNull( manager.get( OrganisationUnit.class, "B8eJEMldsP7" ).getParent() );
-        assertEquals( "bFzxXwTkSWA", manager.get( OrganisationUnit.class, "B8eJEMldsP7" ).getParent().getUid() );
-    }
-
-    @Test
-    public void testCreateDuplicateDefault() throws IOException
-    {
-        Map<Class<? extends IdentifiableObject>, List<IdentifiableObject>> metadata = renderService.fromMetadata(
-            new ClassPathResource( "dxf2/metadata_duplicate_default.json" ).getInputStream(), RenderFormat.JSON );
-
-        ObjectBundleParams params = new ObjectBundleParams();
-        params.setObjectBundleMode( ObjectBundleMode.COMMIT );
-        params.setImportStrategy( ImportStrategy.CREATE );
-        params.setObjects( metadata );
-
-        ObjectBundle bundle = objectBundleService.create( params );
-        objectBundleValidationService.validate( bundle );
-        objectBundleService.commit( bundle );
-
-        List<DataElementCategory> categories = manager.getAllByName( DataElementCategory.class, "default" );
-        List<DataElementCategoryOption> categoryOptions = manager.getAllByName( DataElementCategoryOption.class, "default" );
-        List<DataElementCategoryCombo> categoryCombos = manager.getAllByName( DataElementCategoryCombo.class, "default" );
-        List<DataElementCategoryOptionCombo> categoryOptionCombos = manager.getAllByName( DataElementCategoryOptionCombo.class, "default" );
-
-        assertEquals( 1, categories.size() );
-        assertEquals( 1, categoryOptions.size() );
-        assertEquals( 1, categoryCombos.size() );
-        assertEquals( 1, categoryOptionCombos.size() );
     }
 
     private void defaultSetup()

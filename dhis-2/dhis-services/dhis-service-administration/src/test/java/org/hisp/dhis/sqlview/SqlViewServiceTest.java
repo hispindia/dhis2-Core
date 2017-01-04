@@ -170,7 +170,50 @@ public class SqlViewServiceTest
         assertEquals( "_view_sqlviewc", sqlViewC.getViewName() );
         assertNotSame( "_view_sqlviewc", sqlViewD.getViewName() );
     }
+    
+    @Test
+    public void testSubsituteSql()
+    {
+        Map<String, String> variables = new HashMap<>();
+        variables.put( "level", "4" );
+        variables.put( "id", "abc" );
+        
+        String sql = "select * from datavalue where level=${level} and id='${id}'";
+        
+        String expected = "select * from datavalue where level=4 and id='abc'";
+        
+        String actual = sqlViewService.substituteSql( sql, variables );
+        
+        assertEquals( expected, actual );
+    }
 
+    @Test
+    public void testSubsituteSqlMalicious()
+    {
+        Map<String, String> variables = new HashMap<>();
+        variables.put( "level", "; delete from datavalue;" );
+        
+        String sql = "select * from datavalue where level=${level}";
+        
+        String expected = "select * from datavalue where level=${level}";
+        
+        String actual = sqlViewService.substituteSql( sql, variables );
+        
+        assertEquals( expected, actual );
+    }
+    
+    @Test
+    public void testGetVariables()
+    {
+        String sql = "select * from dataelement where valuetype = '${valueType} and aggregationtype = '${aggregationType}'";
+        
+        Set<String> expected = Sets.newHashSet( "valueType", "aggregationType" );
+        
+        Set<String> actual = sqlViewService.getVariables( sql );
+        
+        assertEquals( expected, actual );
+    }
+    
     @Test( expected = IllegalQueryException.class )
     public void testValidateIllegalKeywords()
     {
@@ -182,18 +225,9 @@ public class SqlViewServiceTest
     @Test (expected = IllegalQueryException.class)
     public void testValidateIllegalKeywordsCTE()
     {
-        SqlView sqlView = new SqlView( "Name", "WITH foo as (delete FROM dataelement returning *) SELECT * FROM foo;", SqlViewType.QUERY );
+        SqlView sqlView = new SqlView( "Name", "WITH foo as (delete FROM dataelement returning * ) SELECT * FROM foo;", SqlViewType.QUERY );
 
-        sqlViewService.validateSqlView( sqlView, null, null );
-
-    }
-
-    @Test (expected = IllegalQueryException.class)
-    public void testValidateIllegalKeywordsAtEnd()
-    {
-        SqlView sqlView = new SqlView( "Name", "WITH foo as (SELECT * FROM organisationunit) commit", SqlViewType.QUERY );
-
-        sqlViewService.validateSqlView( sqlView, null, null );
+         sqlViewService.validateSqlView( sqlView, null, null );
 
     }
 
@@ -201,15 +235,7 @@ public class SqlViewServiceTest
     public void testValidateProtectedTables()
     {
         SqlView sqlView = new SqlView( "Name", "select * from userinfo where userinfoid=1", SqlViewType.QUERY );
-
-        sqlViewService.validateSqlView( sqlView, null, null );
-    }
-
-    @Test( expected = IllegalQueryException.class )
-    public void testValidateProtectedTables2()
-    {
-        SqlView sqlView = new SqlView( "Name", "select * from \"userinfo\" where userinfoid=1", SqlViewType.QUERY );
-
+        
         sqlViewService.validateSqlView( sqlView, null, null );
     }
 
@@ -236,15 +262,7 @@ public class SqlViewServiceTest
     public void testValidateNotSelectQuery()
     {
         SqlView sqlView = new SqlView( "Name", "* from dataelement", SqlViewType.QUERY );
-
-        sqlViewService.validateSqlView( sqlView, null, null );
-    }
-
-    @Test( expected = IllegalQueryException.class )
-    public void testValidateTableList()
-    {
-        SqlView sqlView = new SqlView( "Name", "select username,password from users,dataapprovallevel", SqlViewType.QUERY );
-
+        
         sqlViewService.validateSqlView( sqlView, null, null );
     }
 
@@ -266,20 +284,12 @@ public class SqlViewServiceTest
         
         sqlViewService.validateSqlView( sqlView, null, null );
     }
-
+    
     @Test
     public void testValidateSuccessC()
     {
         SqlView sqlView = new SqlView( "Name", "SELECT a.dataelementid as dsd_id,a.name as dsd_name,b.dataelementid as ta_id,b.ta_name FROM dataelement a", SqlViewType.QUERY );
-
-        sqlViewService.validateSqlView( sqlView, null, null );
-    }
-
-    @Test
-    public void testValidateSuccessD()
-    {
-        SqlView sqlView = new SqlView( "Name", "SELECT name, created, lastupdated FROM dataelement", SqlViewType.QUERY );
-
+        
         sqlViewService.validateSqlView( sqlView, null, null );
     }
 
