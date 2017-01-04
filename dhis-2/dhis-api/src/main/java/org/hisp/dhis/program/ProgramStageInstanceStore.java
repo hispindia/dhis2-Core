@@ -119,4 +119,8 @@ public interface ProgramStageInstanceStore
      * @return true/false depending on result
      */
     boolean exists( String uid );
+    
+    
+    
+    List<ProgramStageInstance> getFilteredProgramStageInstances( String programStageInstanceIdsByComma, int min, int max );
 }

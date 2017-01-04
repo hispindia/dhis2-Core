@@ -35,8 +35,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.hisp.dhis.attribute.AttributeValue;
 import org.hisp.dhis.common.annotation.Description;
@@ -53,12 +51,12 @@ import org.hisp.dhis.translation.TranslationProperty;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserGroupAccess;
 import org.hisp.dhis.user.UserSettingKey;
+import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -110,11 +108,7 @@ public class BaseIdentifiableObject
      */
     protected Set<ObjectTranslation> translations = new HashSet<>();
 
-    /**
-     * Cache for object translations, where the cache key is a combination of
-     * locale and translation property, and value is the translated value.
-     */
-    protected Map<String, String> translationCache = new HashMap<>();
+    protected Map<TranslationProperty, ObjectTranslation> translationCache = new HashMap<>();
 
     /**
      * This object is available as external read-only
@@ -181,20 +175,10 @@ public class BaseIdentifiableObject
     // Comparable implementation
     // -------------------------------------------------------------------------
 
-    /**
-     * Compares objects based on display name. A null display name is ordered
-     * after a non-null display name.
-     */
     @Override
     public int compareTo( IdentifiableObject object )
     {
-        if ( this.getDisplayName() == null )
-        {
-            return object.getDisplayName() == null ? 0 : 1;
-        }
-        
-        return object.getDisplayName() == null ? -1 : 
-            this.getDisplayName().compareToIgnoreCase( object.getDisplayName() );
+        return name == null ? (object.getDisplayName() == null ? 0 : -1) : name.compareTo( object.getDisplayName() );
     }
 
     // -------------------------------------------------------------------------
@@ -328,57 +312,36 @@ public class BaseIdentifiableObject
         return translations;
     }
 
-    /**
-     * Clears out cache when setting translations.
-     */
+    // automatically clear out cache on setting translations
     public void setTranslations( Set<ObjectTranslation> translations )
     {
         this.translationCache.clear();
         this.translations = translations;
     }
 
-    /**
-     * Returns a translated value for this object for the given property. The
-     * current locale is read from the user context.
-     * 
-     * @param property the translation property.
-     * @param defaultValue the value to use if there are no translations.
-     * @return a translated value.
-     */
     protected String getTranslation( TranslationProperty property, String defaultValue )
     {
-        Locale locale = UserContext.getUserSetting( UserSettingKey.DB_LOCALE, Locale.class );
-        
-        defaultValue = defaultValue != null ? defaultValue.trim() : null;
-        
-        if ( locale == null || property == null )
+        // if either no translations available, or user context does not have locale set, then assume unfiltered list and use default value
+        if ( !UserContext.haveUserSetting( UserSettingKey.DB_LOCALE ) || translations.isEmpty() )
         {
-            return defaultValue;
+            return defaultValue != null ? defaultValue.trim() : null;
         }
-        
-        loadTranslationsCacheIfEmpty();
-        
-        String cacheKey = ObjectTranslation.getCacheKey( locale.toString(), property );
-        
-        return translationCache.getOrDefault( cacheKey, defaultValue );
-    }
-    
-    /**
-     * Populates the translationsCache map unless it is already populated.
-     */
-    private void loadTranslationsCacheIfEmpty()
-    {
-        if ( translationCache.isEmpty() )
+
+        if ( translationCache.containsKey( property ) )
         {
-            for ( ObjectTranslation translation : translations )
+            return translationCache.get( property ).getValue();
+        }
+
+        for ( ObjectTranslation translation : translations )
+        {
+            if ( property == translation.getProperty() && !StringUtils.isEmpty( translation.getValue() ) )
             {
-                if ( translation.getLocale() != null && translation.getProperty() != null && !StringUtils.isEmpty( translation.getValue() ) )
-                {
-                    String key = ObjectTranslation.getCacheKey( translation.getLocale(), translation.getProperty() );            
-                    translationCache.put( key, translation.getValue() );
-                }
+                translationCache.put( property, translation );
+                return translation.getValue();
             }
         }
+
+        return defaultValue != null ? defaultValue.trim() : null;
     }
 
     @Override

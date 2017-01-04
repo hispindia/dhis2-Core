@@ -614,7 +614,6 @@ public class Attribute
             sqlViewAttribute = attribute.isSqlViewAttribute();
             mandatory = attribute.isMandatory();
             unique = attribute.isUnique();
-            optionSet = attribute.getOptionSet();
 
             if ( mergeMode.isReplace() )
             {

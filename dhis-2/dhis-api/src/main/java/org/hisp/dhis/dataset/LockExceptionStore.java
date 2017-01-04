@@ -52,6 +52,4 @@ public interface LockExceptionStore
     long getCount( DataElement dataElement, Period period, OrganisationUnit organisationUnit );
 
     long getCount( DataSet dataSet, Period period, OrganisationUnit organisationUnit );
-    
-    boolean anyExists();
 }

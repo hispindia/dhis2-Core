@@ -42,9 +42,6 @@ public enum ErrorCode
     E3000( "User {0} is not allowed to create objects of type {1}." ),
     E3001( "User {0} is not allowed to update object {1}." ),
     E3002( "User {0} is not allowed to delete object {1}." ),
-    E3003( "User {0} is not allowed to grant users access to user role {1}." ),
-    E3004( "User {0} is not allowed to grant users access to user groups." ),
-    E3005( "User {0} is not allowed to grant users access to user group {1}." ),
 
     /* Metadata Validation Errors */
     E4000( "Missing required property `{0}`." ),
@@ -64,8 +61,7 @@ public enum ErrorCode
     E5000( "Found matching object for given reference, but import mode is CREATE. Identifier was {0}, and object was {1}." ),
     E5001( "No matching object for given reference. Identifier was {0}, and object was {1}." ),
     E5002( "Invalid reference {0} on object {1} for association `{2}`." ),
-    E5003( "Property `{0}` with value `{1}` on object {2} already exists on object {3}." ),
-    E5004( "Id `{0}` for type `{1}` exists on more than 1 object in the payload, removing all but the first found." );
+    E5003( "Property `{0}` with value `{1}` on object {2} already exists on object {3}." );
 
     private String message;
 

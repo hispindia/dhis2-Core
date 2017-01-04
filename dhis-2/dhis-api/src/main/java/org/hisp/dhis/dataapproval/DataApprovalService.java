@@ -132,6 +132,14 @@ public interface DataApprovalService
     DataApproval getDataApproval( DataApproval approval );
 
     /**
+     * Finds the lowest level (if any) at which data would be approved.
+     *
+     * @param approval approval param
+     * @return
+     */
+    DataApproval lowestApproval( DataApproval approval );
+
+    /**
      * Tells whether data is approved (and therefore locked by approval.)
      *
      * @param workflow workflow to check for approval.

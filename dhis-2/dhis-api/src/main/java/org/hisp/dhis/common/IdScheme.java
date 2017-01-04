@@ -1,7 +1,5 @@
 package org.hisp.dhis.common;
 
-import org.apache.commons.lang3.StringUtils;
-
 /*
  * Copyright (c) 2004-2016, University of Oslo
  * All rights reserved.
@@ -32,6 +30,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
+
+import org.springframework.util.StringUtils;
 
 /**
  * @author Morten Olav Hansen <mortenoh@gmail.com>
@@ -151,28 +151,11 @@ public class IdScheme
         return IdentifiableProperty.ATTRIBUTE == identifiableProperty && !StringUtils.isEmpty( attribute );
     }
 
-    /**
-     * Returns a canonical String name representation of this id scheme.
-     * 
-     * @return a canonical String name representation of this id scheme.
-     */
-    public String name()
-    {      
-        if ( IdentifiableProperty.ATTRIBUTE == identifiableProperty && attribute != null )
-        {
-            return ATTR_ID_SCHEME_PREFIX + attribute;
-        }
-        else
-        {
-            return identifiableProperty.name();
-        }
-    }
-    
     public static boolean isAttribute( String str )
     {
         return !StringUtils.isEmpty( str ) && str.toUpperCase().startsWith( ATTR_ID_SCHEME_PREFIX ) && str.length() == 21;
-    }  
-    
+    }
+
     @Override
     public String toString()
     {

@@ -28,17 +28,20 @@ package org.hisp.dhis.program;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.hisp.dhis.common.BaseIdentifiableObject;
 import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
 import org.hisp.dhis.event.EventStatus;
 import org.hisp.dhis.message.MessageConversation;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.sms.outbound.OutboundSms;
+import org.hisp.dhis.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.trackedentitycomment.TrackedEntityComment;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author Abyot Asalefew
@@ -77,6 +80,9 @@ public class ProgramStageInstance
 
     private Date completedDate;
 
+    // association between event and list of tracked entity instances
+    private Set<TrackedEntityInstance> programStageInstanceMembers = new HashSet<>();
+    
     // -------------------------------------------------------------------------
     // Constructors
     // -------------------------------------------------------------------------
@@ -249,5 +255,16 @@ public class ProgramStageInstance
     public EventStatus getStatus()
     {
         return status;
+    }
+    
+    // getter and setter for association between event and list of tracked entity instances
+    public Set<TrackedEntityInstance> getProgramStageInstanceMembers()
+    {
+        return programStageInstanceMembers;
+    }
+
+    public void setProgramStageInstanceMembers( Set<TrackedEntityInstance> programStageInstanceMembers )
+    {
+        this.programStageInstanceMembers = programStageInstanceMembers;
     }
 }

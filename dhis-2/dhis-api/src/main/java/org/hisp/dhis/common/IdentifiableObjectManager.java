@@ -201,6 +201,4 @@ public interface IdentifiableObjectManager
     <T extends IdentifiableObject> List<T> getBetweenNoAcl( Class<T> clazz, int first, int max );
 
     void updateTranslations( IdentifiableObject persistedObject, Set<ObjectTranslation> translations );
-
-    <T extends IdentifiableObject> List<T> get( Class<T> clazz, Collection<String> uids );
 }

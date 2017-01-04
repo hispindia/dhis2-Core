@@ -150,8 +150,9 @@ public class ProgramRuleVariable
     }
     
     @JsonProperty
+    @JsonSerialize( as = BaseIdentifiableObject.class )
     @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
-    public Boolean getUseCodeForOptionSet()
+    public Boolean isUseCodeForOptionSet()
     {
         return useCodeForOptionSet;
     }
@@ -227,7 +228,7 @@ public class ProgramRuleVariable
                 this.sourceType = programRuleVariable.getSourceType();
                 this.attribute = programRuleVariable.getAttribute();
                 this.dataElement = programRuleVariable.getDataElement();
-                this.useCodeForOptionSet = programRuleVariable.getUseCodeForOptionSet();
+                this.useCodeForOptionSet = programRuleVariable.isUseCodeForOptionSet();
                 this.programStage = programRuleVariable.getProgramStage();
             }
             else if ( mergeMode.isMerge() )
@@ -235,7 +236,7 @@ public class ProgramRuleVariable
                 this.sourceType = programRuleVariable.getSourceType() == null ? sourceType : programRuleVariable.getSourceType();
                 this.attribute = programRuleVariable.getAttribute() == null ? attribute : programRuleVariable.getAttribute();
                 this.dataElement = programRuleVariable.getDataElement() == null ? dataElement : programRuleVariable.getDataElement();
-                this.useCodeForOptionSet = programRuleVariable.getUseCodeForOptionSet() == null ? useCodeForOptionSet : programRuleVariable.getUseCodeForOptionSet();
+                this.useCodeForOptionSet = programRuleVariable.isUseCodeForOptionSet() == null ? useCodeForOptionSet : programRuleVariable.isUseCodeForOptionSet();
                 this.programStage = programRuleVariable.getProgramStage() == null ? programStage : programRuleVariable.getProgramStage();
             }
         }

@@ -28,36 +28,30 @@ package org.hisp.dhis.common;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import org.hisp.dhis.util.ObjectUtils;
-
 import com.google.common.base.MoreObjects;
 
 /**
- * Identifier schemes used to map meta data. The general identifier
- * scheme can be overridden by id schemes specific to individual
- * object types. The default id scheme is UID.
- * 
  * @author Morten Olav Hansen <mortenoh@gmail.com>
  */
 public class IdSchemes
 {
-    private IdScheme idScheme = IdScheme.UID;
+    private IdScheme idScheme;
 
-    private IdScheme dataElementIdScheme;
+    private IdScheme dataElementIdScheme = IdScheme.UID;
 
-    private IdScheme categoryOptionComboIdScheme;
+    private IdScheme categoryOptionComboIdScheme = IdScheme.UID;
     
-    private IdScheme categoryOptionIdScheme;
+    private IdScheme categoryOptionIdScheme = IdScheme.UID;
 
-    private IdScheme orgUnitIdScheme;
+    private IdScheme orgUnitIdScheme = IdScheme.UID;
 
-    private IdScheme programIdScheme;
+    private IdScheme programIdScheme = IdScheme.UID;
 
-    private IdScheme programStageIdScheme;
+    private IdScheme programStageIdScheme = IdScheme.UID;
 
-    private IdScheme trackedEntityIdScheme;
+    private IdScheme trackedEntityIdScheme = IdScheme.UID;
 
-    private IdScheme trackedEntityAttributeIdScheme;
+    private IdScheme trackedEntityAttributeIdScheme = IdScheme.UID;
 
     public IdSchemes()
     {
@@ -65,7 +59,7 @@ public class IdSchemes
 
     public IdScheme getScheme( IdScheme idScheme )
     {
-        return IdScheme.from( ObjectUtils.firstNonNull( idScheme, this.idScheme ) );
+        return IdScheme.from( this.idScheme != null ? this.idScheme : idScheme );
     }
 
     public IdScheme getIdScheme()
@@ -78,10 +72,6 @@ public class IdSchemes
         this.idScheme = IdScheme.from( idScheme );
         return this;
     }
-
-    //--------------------------------------------------------------------------
-    // Object type id schemes
-    //--------------------------------------------------------------------------
 
     public IdScheme getDataElementIdScheme()
     {
@@ -149,20 +139,15 @@ public class IdSchemes
         return this;
     }
 
-    public IdScheme getTrackedEntityIdScheme()
-    {
-        return getScheme( trackedEntityIdScheme );
-    }
-
     public IdSchemes setTrackedEntityIdScheme( String idScheme )
     {
         this.trackedEntityIdScheme = IdScheme.from( idScheme );
         return this;
     }
 
-    public IdScheme getTrackedEntityAttributeIdScheme()
+    public IdScheme getTrackedEntityIdScheme()
     {
-        return getScheme( trackedEntityAttributeIdScheme );
+        return trackedEntityIdScheme;
     }
 
     public IdSchemes setTrackedEntityAttributeIdScheme( String idScheme )
@@ -171,9 +156,10 @@ public class IdSchemes
         return this;
     }
 
-    //--------------------------------------------------------------------------
-    // Get value methods
-    //--------------------------------------------------------------------------
+    public IdScheme getTrackedEntityAttributeIdScheme()
+    {
+        return trackedEntityAttributeIdScheme;
+    }
 
     public static String getValue( String uid, String code, IdentifiableProperty identifiableProperty )
     {
@@ -222,8 +208,6 @@ public class IdSchemes
             .add( "orgUnitIdScheme", orgUnitIdScheme )
             .add( "programIdScheme", programIdScheme )
             .add( "programStageIdScheme", programStageIdScheme )
-            .add( "trackedEntityIdScheme", trackedEntityIdScheme )
-            .add( "trackedEntityAttributeIdScheme", trackedEntityAttributeIdScheme )
             .toString();
     }
 }

@@ -42,18 +42,16 @@ public class CodeGeneratorTest
     @Test
     public void testCode()
     {
-        int numberOfCodes = 500;
+        // set this as high as your heap space allows
+        int numberOfCodes = 1000;
 
         Set<String> codes = new HashSet<>();
         for ( int n = 0; n < numberOfCodes; ++n )
         {
             String code = CodeGenerator.generateCode();
-                        
-            // Test syntax
-            assertTrue( code.substring( 0, 1 ).matches( "[a-zA-Z]" ) );
+            // test syntax
             assertTrue( code.matches( "[0-9a-zA-Z]{11}" ) );
-            
-            // Test uniqueness
+            // test uniqueness
             assertTrue( codes.add( code ) );
         }
     }

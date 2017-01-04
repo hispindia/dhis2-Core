@@ -455,27 +455,22 @@ public class DataElement
     }
 
     /**
-     * Returns the maximum number of expiry days from the data sets of this data
-     * element. Returns {@link DataSet.NO_EXPIRY} if any data set has no expiry.
+     * Returns the minimum number of expiry days from the data sets of this data
+     * element. Returns {@link DataSet.NO_EXPIRY} if no data sets has expiry.
      */
     public int getExpiryDays()
     {
-        int expiryDays = Integer.MIN_VALUE;
+        int expiryDays = Integer.MAX_VALUE;
 
-        for ( DataSet dataSet : getDataSets() )
+        for ( DataSet dataSet : dataSets )
         {
-            if ( dataSet.getExpiryDays() == NO_EXPIRY )
-            {
-                return NO_EXPIRY;
-            }
-
-            if ( dataSet.getExpiryDays() > expiryDays )
+            if ( dataSet.getExpiryDays() != NO_EXPIRY && dataSet.getExpiryDays() < expiryDays )
             {
                 expiryDays = dataSet.getExpiryDays();
             }
         }
 
-        return expiryDays == Integer.MIN_VALUE ? NO_EXPIRY : expiryDays;
+        return expiryDays == Integer.MAX_VALUE ? NO_EXPIRY : expiryDays;
     }
 
     /**

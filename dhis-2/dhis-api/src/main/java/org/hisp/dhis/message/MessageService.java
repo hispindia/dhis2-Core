@@ -74,8 +74,6 @@ public interface MessageService
     int sendFeedback( String subject, String text, String metaData );
 
     int sendSystemNotification( String subject, String text );
-    
-    int sendSystemErrorNotification( String subject, Throwable t );
 
     void sendReply( MessageConversation conversation, String text, String metaData, boolean internal );
 
