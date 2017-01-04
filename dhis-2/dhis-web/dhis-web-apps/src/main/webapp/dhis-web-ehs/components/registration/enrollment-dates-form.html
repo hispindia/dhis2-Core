@@ -1,0 +1,147 @@
+<!--
+<div class="section-label vertical-spacing">
+    {{'enrollment'| translate}}
+    {{'address_details'| translate}}
+</div>
+-->
+<table class="dhis2-list-table-striped default-form-table">
+  <!-- added for ehs start -->
+
+    <!--
+    <tr>
+      <td>
+        {{'country' | translate}}
+      </td>
+      <td class="absorbing-column">
+        <input type="text" class="form-control" value={{rootOrgUnit.name}} ng-disabled="true"/>
+      </td>
+    </tr>
+    -->
+    <tr>
+      <td>
+        {{'country' | translate}}
+      </td>
+
+
+
+  <td class="absorbing-column">
+
+
+     <!-- <ui-select  ng-model="selectedCountry"
+                  theme="select2"
+
+                  name="foo"
+                  d2-attribute-validator
+
+                  ng-disabled="countryList.length < 1"
+                  ng-change="getDistrict(selectedCountry)"
+                  ng-style="{'width': '100%'}">
+          <ui-select-match allow-clear="true"  class="form-control-ui-select"  placeholder="{{'select_or_search' | translate}}">{{$select.selected.displayName  || $select.selected}}</ui-select-match>
+          <ui-select-choices  repeat="option.displayName as option in optionSets[attributesById[attribute.id].optionSet.id].options | filter: $select.search | limitTo:maxOptionSize">
+
+          </ui-select-choices>
+      </ui-select>-->
+       <select ng-model="selectedCountry" ng-change="getDistrict(selectedCountry)"
+                class="form-control"
+
+                ng-options="country.name as country.name for country in countryList"
+                ng-disabled="countryList.length < 1">
+
+                <option value="">{{'please_select'| translate}}</option>
+        </select>
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        {{'district' | translate}}
+      </td>
+      <td class="absorbing-column" ng-if="tempSelectedCountry != rootOrgUnit.name">
+        <div>
+          <input type="text" class="form-control" name="input" ng-model="selectedDistrict" ng-change="getAnotherDistrict( selectedDistrict )">
+        </div>
+      </td>
+      <td class="absorbing-column" ng-if="tempSelectedCountry === rootOrgUnit.name">
+        <div>
+          <select ng-model="selectedDistrict" ng-change="getCommunity(selectedDistrict)"
+                  class="form-control"
+                  ng-options="districtOrgUnit.id as districtOrgUnit.name for districtOrgUnit in districtOrgUnits | orderBy: 'name'"
+                  ng-disabled="districtOrgUnits.length < 1">
+           <option value="">{{'please_select'| translate}}</option>
+          </select>
+        </div>
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        {{'city_community' | translate}}
+      </td>
+      <td class="absorbing-column" ng-if="tempSelectedCountry != rootOrgUnit.name">
+        <div>
+          <input type="text" class="form-control" name="input" ng-model="selectedCommunity" ng-change="getAnotherCommunity( selectedCommunity )">
+        </div>
+      </td>
+      <td class="absorbing-column" ng-if="tempSelectedCountry === rootOrgUnit.name">
+        <div>
+          <select ng-model="selectedCommunity" ng-change="getEnrollingOrgunit(selectedCommunity)"
+                  class="form-control"
+                  ng-options="communityOrgUnit.id as communityOrgUnit.name for communityOrgUnit in communityOrgUnits | orderBy: 'name'"
+                  ng-disabled="communityOrgUnits.length < 1">
+            <option value="">{{'please_select'| translate}}</option>
+          </select>
+        </div>
+      </td>
+    </tr>
+  <!-- added for ehs start -->
+
+  <!--
+  <div id ="hideDefaultEnrollOrgUnit" ng-show = "false">
+    <tr>
+        <td>
+            {{'enrolling_orgunit' | translate}}
+        </td>
+        <td class="absorbing-column">
+            <input type="text" class="form-control" value={{selectedEnrollment.orgUnitName}} ng-disabled="true"/>
+        </td>
+    </tr>
+  </div>
+  -->
+
+    <tr>
+        <td>
+            {{selectedProgram.enrollmentDateLabel}}
+        </td>
+        <td class="absorbing-column">
+            <input type="text"
+                   placeholder="{{dhis2CalendarFormat.keyDateFormat}}"
+                   name="enrollmentDate"
+                   class="form-control hideInPrint"
+                   d2-date
+                   ng-model="selectedEnrollment.enrollmentDate"
+                   max-date="selectedProgram.selectEnrollmentDatesInFuture ? '' : 0"
+                   min-date=""
+                   ng-disabled="true"
+                   ng-required="true"/>
+            <input type="text" class="form-control not-for-screen"/>
+            <span ng-show="outerForm.submitted && outerForm.enrollmentDate.$invalid" class="error">{{'required'| translate}}</span>
+        </td>
+    </tr>
+    <tr ng-if="selectedProgram.displayIncidentDate">
+        <td>
+            {{selectedProgram.incidentDateLabel}}
+        </td>
+        <td class="absorbing-column">
+            <input type="text"
+                   placeholder="{{dhis2CalendarFormat.keyDateFormat}}"
+                   name="incidentDate"
+                   class="form-control hideInPrint"
+                   d2-date
+                   max-date="selectedProgram.selectIncidentDatesInFuture ? '' : 0"
+                   min-date=""
+                   ng-model="selectedEnrollment.incidentDate"/>
+            <input type="text" class="form-control not-for-screen"/>
+        </td>
+    </tr>
+
+</table>

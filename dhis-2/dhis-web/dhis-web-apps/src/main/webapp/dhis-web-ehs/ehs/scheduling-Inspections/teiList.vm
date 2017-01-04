@@ -1,0 +1,77 @@
+<h3>$i18n.getString( "establishment_list" )</h3>
+
+<table class="mainPageTable">
+  <tr>
+    <td style="vertical-align:top">
+		<table width="100%">
+			<tr>
+				<!--
+				<td>
+					#filterDiv( "trackedEntity" )
+				</td>
+				-->
+			</tr>
+		</table>
+		<hr />
+		<table class="listTable" id="listTable">
+            <colgroup>
+    			<col />
+				<col />
+                <col />
+                <col />
+                <col />
+    		</colgroup>
+			<thead>
+			  <tr>
+                <th>#</th>
+                <th>$i18n.getString( "establishment_id" )</th>
+				<th>$i18n.getString( "establishment_name" )</th>
+                <th>$i18n.getString( "district" )</th>
+				<th>$i18n.getString( "community" )</th> 
+				<!--<th class="{sorter: false}" style="text-align:center;">$i18n.getString( "operations" )</th>-->
+			  </tr>
+			</thead>
+			<tbody id="list">
+				   #set( $count=1 )
+                   #foreach( $trackedEntityInstance in $trackedEntityInstances )
+                        #set( $nameKey = $trackedEntityInstance.id + ":" + 89 )
+						#set( $communityKey = $trackedEntityInstance.id + ":" + 699 )
+						#set( $districtKey = $trackedEntityInstance.id + ":" + 698 )
+						
+						<tr id="tr${trackedEntityInstance.id}" onclick="selectDetails( '$trackedEntityInstance.id', '$!teiValueMap.get( $nameKey )','$!teiValueMap.get( $districtKey )','$!teiValueMap.get( $communityKey )' );">
+                            <td>
+                                $count
+                            </td>
+							<td>$!trackedEntityInstance.id</td>
+							<td>$!teiValueMap.get( $nameKey )</td>
+							<td>$!teiValueMap.get( $districtKey )</td>
+							<td>$!teiValueMap.get( $communityKey )</td>
+                        </tr>
+						#set($count = $count + 1)
+                    #end				
+			</tbody>
+      </table>
+    	<p></p>
+    	
+		<!--
+		<div class="paging-container">
+    		#parse( "/dhis-web-commons/paging/paging.vm" )
+        </div>
+		-->
+    </td>
+  </tr>	
+</table>
+
+<script type="text/javascript">
+
+	jQuery(document).ready(function(){
+        setTableStyles();
+        //tableSorter( 'listTable' ); 
+    });
+    
+    jQuery(document).ready(function(){	
+		tableSorter( 'listTable' );	
+	});
+    
+	var i18n_confirm_delete = '$encoder.jsEscape( $i18n.getString( "confirm_delete_scheduled_inspection" ) , "'" )';
+</script>

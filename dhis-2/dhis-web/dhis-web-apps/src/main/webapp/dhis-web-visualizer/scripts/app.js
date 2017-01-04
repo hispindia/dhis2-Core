@@ -1293,7 +1293,7 @@ Ext.onReady( function() {
 
 					if (id && name) {
 						Ext.Ajax.request({
-							url: encodeURI(ns.core.init.contextPath + '/api/charts/' + id + '.json?fields=' + ns.core.conf.url.analysisFields.join(',')),
+							url: ns.core.init.contextPath + '/api/charts/' + id + '.json?fields=' + ns.core.conf.url.analysisFields.join(','),
 							method: 'GET',
 							failure: function(r) {
 								ns.core.web.mask.show();
@@ -2443,7 +2443,7 @@ Ext.onReady( function() {
 				}
 
 				Ext.Ajax.request({
-					url: encodeURI(init.contextPath + '/api/charts/' + id + '.json?fields=' + ns.core.conf.url.analysisFields.join(',')),
+					url: init.contextPath + '/api/charts/' + id + '.json?fields=' + ns.core.conf.url.analysisFields.join(','),
 					failure: function(r) {
 						web.mask.hide(ns.app.centerRegion);
 
@@ -3027,7 +3027,7 @@ Ext.onReady( function() {
                 ns.core.web.mask.show(indicatorAvailable.boundList);
 
                 Ext.Ajax.request({
-                    url: encodeURI(ns.core.init.contextPath + '/api' + path),
+                    url: ns.core.init.contextPath + '/api' + path,
                     params: params,
                     success: function(r) {
                         var response = Ext.decode(r.responseText),
@@ -3074,7 +3074,7 @@ Ext.onReady( function() {
 			fields: ['id', 'name', 'index'],
 			proxy: {
 				type: 'ajax',
-				url: encodeURI(ns.core.init.contextPath + '/api/indicatorGroups.json?fields=id,displayName|rename(name)&paging=false'),
+				url: ns.core.init.contextPath + '/api/indicatorGroups.json?fields=id,displayName|rename(name)&paging=false',
 				reader: {
 					type: 'json',
 					root: 'indicatorGroups'
@@ -3172,80 +3172,100 @@ Ext.onReady( function() {
             },
             loadTotalsPage: function(uid, filter, append, noPaging, fn) {
                 var store = this,
-                    params = {},
-                    baseUrl = ns.core.init.contextPath + '/api/dataElements.json?',
-                    fieldsUrl = 'fields=dimensionItem|rename(id),' + namePropertyUrl,
-                    filterUrl = '&filter=domainType:eq:AGGREGATE' + (filter ? '&filter=' + nameProperty + ':ilike:' + filter : '');
-
-                var url = baseUrl + fieldsUrl + filterUrl;
+					params = {},
+                    types = ns.core.conf.valueType.aAggregateTypes.join(','),
+                    path;
 
                 if (store.nextPage === store.lastPage) {
                     return;
                 }
 
-                if (Ext.isString(uid)) {
-                    url += '&filter=dataElementGroups.id:eq:' + uid;
-                }
+				if (Ext.isString(uid)) {
+					path = '/dataElements.json?fields=dimensionItem|rename(id),' + namePropertyUrl + '&filter=valueType:in:[' + types + ']&filter=dataElementGroups.id:eq:' + uid + (filter ? '&filter=' + nameProperty + ':ilike:' + filter : '');
+				}
+				else if (uid === 0) {
+					path = '/dataElements.json?fields=dimensionItem|rename(id),' + namePropertyUrl + '&filter=valueType:in:[' + types + ']&filter=domainType:eq:AGGREGATE' + '' + (filter ? '&filter=' + nameProperty + ':ilike:' + filter : '');
+				}
 
-                if (noPaging) {
-                    params.paging = false;
-                }
-                else {
-                    params.page = store.nextPage;
-                    params.pageSize = 50;
-                }
+				if (!path) {
+					return;
+				}
+
+				if (noPaging) {
+					params.paging = false;
+				}
+				else {
+					params.page = store.nextPage;
+					params.pageSize = 50;
+				}
 
                 store.isPending = true;
                 ns.core.web.mask.show(dataElementAvailable.boundList);
 
-                $.getJSON(encodeURI(url), params, function(response) {
-                    var data = response.dataElements || [],
-                        pager = response.pager;
+                Ext.Ajax.request({
+                    url: ns.core.init.contextPath + '/api' + path,
+                    params: params,
+                    success: function(r) {
+                        var response = Ext.decode(r.responseText),
+                            data = response.dataElements || [],
+                            pager = response.pager;
 
-                    store.loadStore(data, pager, append, fn);
-                }).complete(function() {
-                    store.isPending = false;
-                    ns.core.web.mask.hide(dataElementAvailable.boundList);
+                        store.loadStore(data, pager, append, fn);
+                    },
+                    callback: function() {
+                        store.isPending = false;
+                        ns.core.web.mask.hide(dataElementAvailable.boundList);
+                    }
                 });
             },
 			loadDetailsPage: function(uid, filter, append, noPaging, fn) {
                 var store = this,
-                    params = {},
-                    baseUrl = ns.core.init.contextPath + '/api/dataElementOperands.json?',
-                    fieldsUrl = 'fields=dimensionItem|rename(id),' + namePropertyUrl,
-                    filterUrl = filter ? '&filter=' + nameProperty + ':ilike:' + filter : '';
-
-                var url = baseUrl + fieldsUrl + filterUrl;
+					params = {},
+                    types = ns.core.conf.valueType.aAggregateTypes.join(','),
+                    path;
 
                 if (store.nextPage === store.lastPage) {
                     return;
                 }
 
-                if (Ext.isString(uid)) {
-                    url += '&filter=dataElement.dataElementGroups.id:eq:' + uid;
-                }
+				if (Ext.isString(uid)) {
+					path = '/dataElementOperands.json?fields=dimensionItem|rename(id),' + namePropertyUrl + '&filter=valueType:in:[' + types + ']&filter=dataElement.dataElementGroups.id:eq:' + uid + (filter ? '&filter=' + nameProperty + ':ilike:' + filter : '');
+				}
+				else if (uid === 0) {
+					path = '/dataElementOperands.json?fields=dimensionItem|rename(id),' + namePropertyUrl + '&filter=valueType:in:[' + types + ']' + (filter ? '&filter=' + nameProperty + ':ilike:' + filter : '');
+				}
 
-                if (noPaging) {
-                    params.paging = false;
-                }
-                else {
-                    params.page = store.nextPage;
-                    params.pageSize = 50;
-                }
+				if (!path) {
+					return;
+				}
+
+				if (noPaging) {
+					params.paging = false;
+				}
+				else {
+					params.page = store.nextPage;
+					params.pageSize = 50;
+				}
 
                 store.isPending = true;
                 ns.core.web.mask.show(dataElementAvailable.boundList);
 
-                $.getJSON(encodeURI(url), params, function(response) {
-                    var data = response.objects || response.dataElementOperands || [],
-                        pager = response.pager;
+                Ext.Ajax.request({
+                    url: ns.core.init.contextPath + '/api' + path,
+                    params: params,
+                    success: function(r) {
+                        var response = Ext.decode(r.responseText),
+							data = response.objects || response.dataElementOperands || [],
+                            pager = response.pager;
 
-                    store.loadStore(data, pager, append, fn);
-                }).complete(function() {
-                    store.isPending = false;
-                    ns.core.web.mask.hide(dataElementAvailable.boundList);
+                        store.loadStore(data, pager, append, fn);
+                    },
+                    callback: function() {
+                        store.isPending = false;
+                        ns.core.web.mask.hide(dataElementAvailable.boundList);
+                    }
                 });
-            },
+			},
             loadStore: function(data, pager, append, fn) {
 				pager = pager || {};
 
@@ -3276,7 +3296,7 @@ Ext.onReady( function() {
 			fields: ['id', 'name', 'index'],
 			proxy: {
 				type: 'ajax',
-				url: encodeURI(ns.core.init.contextPath + '/api/dataElementGroups.json?fields=id,' + ns.core.init.namePropertyUrl + '&paging=false'),
+				url: ns.core.init.contextPath + '/api/dataElementGroups.json?fields=id,' + ns.core.init.namePropertyUrl + '&paging=false',
 				reader: {
 					type: 'json',
 					root: 'dataElementGroups'
@@ -3373,7 +3393,7 @@ Ext.onReady( function() {
                 ns.core.web.mask.show(dataSetAvailable.boundList);
 
                 Ext.Ajax.request({
-                    url: encodeURI(ns.core.init.contextPath + '/api' + path),
+                    url: ns.core.init.contextPath + '/api' + path,
                     params: params,
                     success: function(r) {
                         var response = Ext.decode(r.responseText),
@@ -3509,7 +3529,7 @@ Ext.onReady( function() {
 			fields: ['id', 'name'],
 			proxy: {
 				type: 'ajax',
-				url: encodeURI(ns.core.init.contextPath + '/api/programs.json?fields=id,displayName|rename(name)&paging=false'),
+				url: ns.core.init.contextPath + '/api/programs.json?fields=id,displayName|rename(name)&paging=false',
 				reader: {
 					type: 'json',
 					root: 'programs'
@@ -3652,7 +3672,7 @@ Ext.onReady( function() {
 			isLoaded: false,
 			pageSize: 10,
 			page: 1,
-			defaultUrl: encodeURI(ns.core.init.contextPath + '/api/charts.json?fields=id,displayName|rename(name),access'),
+			defaultUrl: ns.core.init.contextPath + '/api/charts.json?fields=id,displayName|rename(name),access',
 			loadStore: function(url) {
 				this.proxy.url = url || this.defaultUrl;
 
@@ -4525,7 +4545,7 @@ Ext.onReady( function() {
             var types = ns.core.conf.valueType.tAggregateTypes.join(',');
 
             Ext.Ajax.request({
-                url: encodeURI(ns.core.init.contextPath + '/api/programDataElements.json?program=' + programId + '&filter=valueType:in:[' + types + ']&fields=dimensionItem|rename(id),name,valueType&paging=false'),
+                url: ns.core.init.contextPath + '/api/programDataElements.json?program=' + programId + '&filter=valueType:in:[' + types + ']&fields=dimensionItem|rename(id),name,valueType&paging=false',
                 disableCaching: false,
                 success: function(r) {
                     var elements = Ext.decode(r.responseText).programDataElements,
@@ -4533,7 +4553,7 @@ Ext.onReady( function() {
                         isO = Ext.isObject;
 
                     Ext.Ajax.request({
-                        url: encodeURI(ns.core.init.contextPath + '/api/programs.json?filter=id:eq:' + programId + '&filter=programTrackedEntityAttributes.trackedEntityAttribute.confidential:eq:false&filter=programTrackedEntityAttributes.valueType:in:[' + types + ']&fields=programTrackedEntityAttributes[dimensionItem|rename(id),' + namePropertyUrl + '|rename(name),valueType]&paging=false'),
+                        url: ns.core.init.contextPath + '/api/programs.json?filter=id:eq:' + programId + '&filter=programTrackedEntityAttributes.trackedEntityAttribute.confidential:eq:false&filter=programTrackedEntityAttributes.valueType:in:[' + types + ']&fields=programTrackedEntityAttributes[dimensionItem|rename(id),' + namePropertyUrl + '|rename(name),valueType]&paging=false',
                         disableCaching: false,
                         success: function(r) {
                             var attributes = (Ext.decode(r.responseText).programs[0] || {}).programTrackedEntityAttributes || [],
@@ -4775,7 +4795,7 @@ Ext.onReady( function() {
             }
 
             Ext.Ajax.request({
-                url: encodeURI(ns.core.init.contextPath + '/api/programs.json?filter=id:eq:' + programId + '&fields=programIndicators[dimensionItem|rename(id),' + namePropertyUrl + ']&paging=false'),
+                url: ns.core.init.contextPath + '/api/programs.json?filter=id:eq:' + programId + '&fields=programIndicators[dimensionItem|rename(id),' + namePropertyUrl + ']&paging=false',
 				disableCaching: false,
 				success: function(r) {
                     var indicators = (Ext.decode(r.responseText).programs[0] || {}).programIndicators || [],
@@ -5680,7 +5700,7 @@ Ext.onReady( function() {
 					format: 'json',
 					noCache: false,
 					extraParams: {
-						fields: encodeURI('children[id,' + namePropertyUrl + ',children::isNotEmpty|rename(hasChildren)&paging=false')
+						fields: 'children[id,' + namePropertyUrl + ',children::isNotEmpty|rename(hasChildren)&paging=false'
 					},
 					url: ns.core.init.contextPath + '/api/organisationUnits',
 					reader: {
@@ -6148,7 +6168,7 @@ Ext.onReady( function() {
 						ns.core.web.mask.show(available.boundList);
 
 						Ext.Ajax.request({
-							url: encodeURI(ns.core.init.contextPath + '/api' + path),
+							url: ns.core.init.contextPath + '/api' + path,
 							params: params,
 							success: function(r) {
 								var response = Ext.decode(r.responseText),
@@ -7957,7 +7977,7 @@ Ext.onReady( function() {
 
                                         // root nodes
                                         requests.push({
-                                            url: encodeURI(contextPath + '/api/organisationUnits.json?userDataViewFallback=true&paging=false&fields=id,' + namePropertyUrl),
+                                            url: contextPath + '/api/organisationUnits.json?userDataViewFallback=true&paging=false&fields=id,' + namePropertyUrl,
                                             success: function(r) {
                                                 init.rootNodes = Ext.decode(r.responseText).organisationUnits || [];
                                                 fn();
@@ -7966,7 +7986,7 @@ Ext.onReady( function() {
 
                                         // organisation unit levels
                                         requests.push({
-                                            url: encodeURI(contextPath + '/api/organisationUnitLevels.json?fields=id,displayName|rename(name),level&paging=false'),
+                                            url: contextPath + '/api/organisationUnitLevels.json?fields=id,displayName|rename(name),level&paging=false',
                                             success: function(r) {
                                                 init.organisationUnitLevels = Ext.decode(r.responseText).organisationUnitLevels || [];
 
@@ -7980,7 +8000,7 @@ Ext.onReady( function() {
 
                                         // user orgunits and children
                                         requests.push({
-                                            url: encodeURI(contextPath + '/api/organisationUnits.json?userOnly=true&fields=id,' + namePropertyUrl + ',children[id,' + namePropertyUrl + ']&paging=false'),
+                                            url: contextPath + '/api/organisationUnits.json?userOnly=true&fields=id,' + namePropertyUrl + ',children[id,' + namePropertyUrl + ']&paging=false',
                                             success: function(r) {
                                                 var organisationUnits = Ext.decode(r.responseText).organisationUnits || [],
                                                     ou = [],
@@ -8011,7 +8031,7 @@ Ext.onReady( function() {
 
                                         // dimensions
                                         requests.push({
-                                            url: encodeURI(contextPath + '/api/dimensions.json?fields=id,' + namePropertyUrl + '&paging=false'),
+                                            url: contextPath + '/api/dimensions.json?fields=id,' + namePropertyUrl + '&paging=false',
                                             success: function(r) {
                                                 init.dimensions = Ext.decode(r.responseText).dimensions || [];
                                                 fn();

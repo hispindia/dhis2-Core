@@ -1,0 +1,173 @@
+<!--<script type="text/javascript" src="../dhis-web-ehs/ehs/scheduling-Inspections/javascript/schedulingInspections.js"></script>-->
+#macro( validate $type $require )
+	#if( $type == "NUMBER" || $type == "number" )
+    {validate:{ number:true #if($require), required:true #end }}
+
+	#elseif( $type == "int" )
+    {validate:{ integer:true #if($require), required:true #end }}
+
+	#elseif( $type == "positiveNumber" )
+    {validate:{ positive_integer:true #if($require), required:true #end }}
+
+	#elseif( $type == "negativeNumber" )
+    {validate:{ negative_integer:true #if($require), required:true #end }}
+
+
+	#elseif( $require )
+    {validate:{required:true}}
+	#end
+#end
+<script>
+/*
+  jQuery(document).ready(	function(){
+  	validation2( 'addAttributeForm', function( form )
+  	{
+  		form.submit();
+  	}, {
+  		'rules' : getValidationRules( "trackedEntityAttribute" ),
+      	'beforeValidateHandler' : function() {
+        #tblDynamicAttributesJavascript()
+      }
+  	} );
+
+  	checkValueIsExist( "name", "validateAttribute.action");
+  	checkValueIsExist( "shortName", "validateAttribute.action");
+  	checkValueIsExist( "code", "validateAttribute.action");
+    checkValueIsExist( "pattern", "validateAttribute.action");
+  });
+  */
+  
+    jQuery(document).ready( function(){
+	
+        validation( 'updateScheduledInspectionForm', function(form){
+            if( isSubmit ) {
+                form.submit(i18n_field_is_required);
+            }
+        }, function( ){
+            isSubmit = true;
+        }); 
+    }); 
+
+</script>
+
+<h3>$i18n.getString( "update_scheduled_inspection_form" )</h3>
+
+<form id="updateScheduledInspectionForm" name="updateScheduledInspectionForm" action="updateScheduledInspection.action" method="post" class="inputForm">
+<div>
+	<input type="hidden" id="programStageInstanceId" name="programStageInstanceId" value="$!programStageInstance.id">
+	<input type="hidden" id="listAll" name="listAll" value="true">
+	<!--
+	<input type="hidden" id="programId" name="programId" value="115">
+	<input type="hidden" id="programStageId" name="programStageId" value="130">
+	-->
+</div>		
+<table> 
+	<thead>
+		<tr><th colspan="2">$i18n.getString( "scheduled_inspection_details" )</th></tr>
+    </thead>
+    <tbody>
+
+    <tr>
+        <td><label for="scheduleDate">$i18n.getString( "schedule_date" )</label><em title="$i18n.getString( 'required' )" class="required">*</em></td>
+        <td><input type="text" id="deps1951" name="deps1951" value ="$!teInstanceDataValueMap.get( 1951 )" class="{validate:{required:true}}"/></td>
+		<script type="text/javascript">
+        	datePicker( 'deps1951' );
+        </script>    
+        <td></td>
+    </tr>
+
+    <tr>
+        <td><label for="scheduleDuration">$i18n.getString( "schedule_duration" )<em title="$i18n.getString( 'required' )" class="required">*</em></label></td>
+        <td><input type="text" id="deps1952" name="deps1952" value ="$!teInstanceDataValueMap.get( 1952 )" class="{validate:{required:true}}"/></td>
+        <td></td>
+    </tr>	
+	
+	
+	<tr>
+		<td><label for="programId">$i18n.getString( "Program Area" )<em title="$i18n.getString( 'required' )" class="required">*</em></label></td>
+		<td><input type="text" id="programId" name="programId" value="$!programStageInstance.getProgramInstance().getProgram().getName()" readonly="readonly"   /></td>
+	</tr>		
+	
+	<tr>
+		<td><label for="programStageId">$i18n.getString( "Program Stage Area" )<em title="$i18n.getString( 'required' )" class="required">*</em></label></td>
+		<td><input type="text" id="programStageId" name="programStageId" value="$!programStageInstance.getProgramStage().getName()" readonly="readonly"  /></td>
+	</tr>			
+
+	<tr>
+		<td><label for="inspectionTypeId">$i18n.getString( "Inspection Type" )<em title="$i18n.getString( 'required' )" class="required">*</em></label></td>
+		<td>
+			#set( $inspectionTypeValue = $!teInstanceDataValueMap.get( 1953 ) )
+			
+			<select id="deps1953" name="deps1953" class="{validate:{required:true}}">
+		    <option value="">[$i18n.getString('please_select')]</option>
+			#foreach($option in $options)
+				<option value="$option.code" #if($inspectionTypeValue == $option.code ) selected="selected" #end>$encoder.htmlEncode($option.name)</option>
+			#end
+			</select>
+		</td>
+	</tr>	
+	<tr>
+		<td><label for="establishmentNameId">$i18n.getString( "establishment_name" )<em title="$i18n.getString( 'required' )" class="required">*</em></label></td>
+		<td><input type="text" id="establishmentName" name="establishmentName" value="$!teiName" readonly="readonly"  /></td>
+	</tr>
+	<tr>
+		<td><label for="assignedInspectorId">$i18n.getString( "assigned_inspector" )<em title="$i18n.getString( 'required' )" class="required">*</em></label></td>
+		<td>
+			#set( $assignedInspectorValue = $!teInstanceDataValueMap.get( 1954 ) )
+			
+			<select id="deps1954" name="deps1954" class="{validate:{required:true}}">
+		    <option value="">[$i18n.getString('please_select')]</option>
+			#foreach($user in $users)
+				<option value="$user.getName()" #if($assignedInspectorValue == $user.getName() ) selected="selected" #end>$encoder.htmlEncode($user.getName())</option>
+			#end
+			</select>
+		</td>
+	</tr>	
+    
+    <tr>
+        <td><label for="district">$i18n.getString( "district" )</label></td>
+        <td><input type="text" id="district" name="district" value="$!teiDistrictName" readonly="readonly" /></td>
+        <td></td>
+    </tr>	
+	
+	<tr>
+        <td><label for="community">$i18n.getString( "community" )</label></td>
+        <td><input type="text" id="community" name="community" value="$!teiCommunityName" readonly="readonly" /></td>
+        <td></td>
+    </tr>   	
+
+    <tr>
+        <td><label for="remarks">$i18n.getString( "remarks" )</label></td>
+        <td><textarea name="deps1955" id="deps1955">$!teInstanceDataValueMap.get( 1955 )</textarea></td>
+        <td></td>
+    </tr>	
+	
+  </tbody>
+</table>
+
+<table>
+	<tr>
+		<td colspan="2" style="padding-top:15px">
+			<input type="submit" value="$i18n.getString( 'update' )" style="width:10em" />
+			<input type="button" value="$i18n.getString( 'cancel' )" onclick="window.location.href='schedulingInspectionsList.action?listAll=true'" style="width:10em" />
+		</td>
+	</tr>
+</table>
+<span id='message'></span>
+
+</form>   
+
+<script type="text/javascript">
+	var isSubmit = true;
+</script>
+
+<script type="text/javascript">
+	
+	var i18n_organisation_unit_not_selected = '$encoder.jsEscape( $i18n.getString( "organisation_unit_not_selected" ) , "'")';
+	var i18n_period_not_selected = '$encoder.jsEscape( $i18n.getString( "period_not_selected" ) , "'")';
+	var i18n_dataset_not_selected = '$encoder.jsEscape( $i18n.getString( "dataset_not_selected" ) , "'")';
+	
+	var i18n_program_not_selected = '$encoder.jsEscape( $i18n.getString( "program_select" ) , "'")';
+	var i18n_field_is_required = '$encoder.jsEscape( $i18n.getString( "this_field_required" ) , "'")';
+	
+</script>

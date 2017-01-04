@@ -1,0 +1,31 @@
+<div id="leftBar">
+    <div id="hideLeftBar">
+        <a href="index.action" title="{{'show_home_page'| translate}}" id="showMainMenuLink"><i class="fa fa-home leftBarIcon"></i></a>
+        <!--
+        <a href="javascript:dhis2.leftBar.hideAnimated()" title="{{'hide_menu'| translate}}" id="hideMainMenuLink"><i class="fa fa-arrow-left leftBarIcon"></i></a>
+        <a href="javascript:dhis2.leftBar.extendAnimated()" title="{{'extend_menu'| translate}}" id="extendMainMenuLink"><i class="fa fa-arrow-right leftBarIcon"></i></a>
+        -->
+    </div>
+    <div class="left-bar-menu" ng-controller="LeftBarMenuController">
+        <ul class="nav nav-pills nav-stacked">
+            <li><a href="index.action" title="{{'show_home_page'| translate}}"><h2>{{'back'| translate}}</h2></a></li>
+
+        </ul>
+    </div>
+</div>
+
+<div id="mainPage">
+    <h1>{{'water_safety_program_list'| translate}}</h1>
+
+    <!--  <select size="6" name="ngvalueselect" ng-model="data.model" multiple>
+          <option ng-repeat="item in foodsafetyprograms" ng-value="item.id">{{item.name}}</option>
+      </select>-->
+    <table width="70%">
+        <tr >
+
+            <td width="70%" height="100" ng-repeat="item in foodsafetyprograms"   ng-model="example" ng-click=waterSafety(item.id) style="cursor: pointer"><h2>{{item.name}}</h2> </td>
+            <!-- <div class="col-sm-6 ehs-home-container" ng-click="foodSafety()" style="cursor: pointer">-->
+        <tr>
+    </table>
+
+</div>

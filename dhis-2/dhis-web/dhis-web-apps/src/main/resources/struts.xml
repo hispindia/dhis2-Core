@@ -100,5 +100,110 @@
 			<result name="success" type="redirect">index.html</result>
 		</action>
 	</package>
+	
+	
+	<!-- Environmental Health System -->
+	<package name="dhis-web-ehs" extends="dhis-web-commons" namespace="/dhis-web-ehs">
+		<action name="index" class="org.hisp.dhis.commons.action.NoAction">
+			<result name="success" type="redirect">index.html</result>
+		</action>
+		
+		<!-- Scheduling Inspections List -->
+		<action name="schedulingInspectionsList" class="org.hisp.dhis.schedulinginspections.action.GetSchedulingInspectionsListAction">
+       		<result name="success" type="velocity">/main.vm</result>
+      		<param name="page">/dhis-web-ehs/ehs/scheduling-Inspections/schedulingInspectionsList.vm</param>
+      		<param name="menu">/dhis-web-ehs/ehs/scheduling-Inspections/menu.vm</param>
+      		<param name="javascripts">../dhis-web-ehs/ehs/scheduling-Inspections/javascript/schedulingInspections.js</param>
+      		<param name="stylesheets">../dhis-web-ehs/ehs/scheduling-Inspections/css/style.css</param>
+ 		</action>
+		
+		<!--  Add Scheduled Inspection Form -->
+	    <action name="showAddScheduledInspectionForm" class="org.hisp.dhis.schedulinginspections.action.ShowAddScheduledInspectionFormAction">
+	      <result name="success" type="velocity">/main.vm</result>
+	      <param name="page">/dhis-web-ehs/ehs/scheduling-Inspections/addScheduledInspectionForm.vm</param>
+	      <param name="menu">/dhis-web-ehs/ehs/scheduling-Inspections/menu.vm</param>
+	      <param name="javascripts">../dhis-web-ehs/ehs/scheduling-Inspections/javascript/schedulingInspections.js</param>
+	      <!--
+	      
+	      <param name="stylesheets">style/basic.css</param>
+	      <param name="anyAuthorities">F_TRACKED_ENTITY_ATTRIBUTE_PUBLIC_ADD, F_TRACKED_ENTITY_ATTRIBUTE_PRIVATE_ADD</param>
+	      -->
+	      <param name="anyAuthorities">F_SCHEDULE_INSECPTION_ADD</param>
+	    </action>
+	    
+		<!--  Add Scheduled Inspection -->
+	    <action name="addScheduledInspection" class="org.hisp.dhis.schedulinginspections.action.AddScheduledInspectionAction">
+	      <result name="success" type="redirect">schedulingInspectionsList.action?listAll=${listAll}</result>
+	      <param name="listAll">true</param>
+	      <param name="anyAuthorities">F_SCHEDULE_INSECPTION_ADD</param>	
+	    </action>	    
+	    <!--  -->
+	    
+		<!--  Update Scheduled Inspection Form -->
+	    <action name="showUpdateScheduledInspectionForm" class="org.hisp.dhis.schedulinginspections.action.ShowUpdateScheduledInspectionFormAction">
+	      <result name="success" type="velocity">/main.vm</result>
+	      <param name="page">/dhis-web-ehs/ehs/scheduling-Inspections/updateScheduledInspectionForm.vm</param>
+	      <param name="menu">/dhis-web-ehs/ehs/scheduling-Inspections/menu.vm</param>
+	      <param name="javascripts">../dhis-web-ehs/ehs/scheduling-Inspections/javascript/schedulingInspections.js</param>
+	      <param name="anyAuthorities">F_SCHEDULE_INSECPTION_UPDATE</param>
+	    </action>	
+	        
+		<!--  Update Scheduled Inspection -->
+	    <action name="updateScheduledInspection" class="org.hisp.dhis.schedulinginspections.action.UpdateScheduledInspectionAction">
+	      <result name="success" type="redirect">schedulingInspectionsList.action?listAll=${listAll}</result>
+	      <param name="anyAuthorities">F_SCHEDULE_INSECPTION_UPDATE</param>	
+	    </action>	    
+	    
+		<!--  Remove Scheduled Inspection -->
+	    <action name="removeScheduledInspection" class="org.hisp.dhis.schedulinginspections.action.RemoveScheduledInspectionAction">
+	      <result name="success" type="velocity-json">/dhis-web-commons/ajax/jsonResponseSuccess.vm</result>
+      	  <result name="error" type="velocity-json">/dhis-web-commons/ajax/jsonResponseError.vm</result>
+	      <param name="anyAuthorities">F_SCHEDULE_INSECPTION_DELETE</param>	
+	    </action>		    
+	    	   
+	    <!-- Get Program Stage List-->
+		<action name="getprogramStageList" class="org.hisp.dhis.schedulinginspections.action.GetProgramStageListAction">
+			<result name="success" type="velocity-xml">/dhis-web-ehs/ehs/scheduling-Inspections/responseProgramStageList.vm</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+		
+		<!--  TEI Attribute Details -->
+        <action name="getTEIAttributeDetails" class="org.hisp.dhis.schedulinginspections.action.GetTEIAttributeSetailsAction">
+            <result name="success" type="velocity-xml">/dhis-web-ehs/ehs/scheduling-Inspections/responseTEIAttributeDetails.vm</result>
+            <param name="onExceptionReturn">plainTextError</param>
+        </action>	    
 
+		<!--  TEI List -->
+        <action name="showTEIList" class="org.hisp.dhis.schedulinginspections.action.GetTEIListAction">
+            <result name="success" type="velocity">/content.vm</result>
+            <param name="page">/dhis-web-ehs/ehs/scheduling-Inspections/teiList.vm</param>
+        </action>
+        
+	    <!-- Get Children OrgUnit List-->
+		<action name="getChildrenOrganisationList" class="org.hisp.dhis.schedulinginspections.action.GetChildOrgUnitListAction">
+			<!--<result name="success" type="velocity-xml">/dhis-web-ehs/ehs/scheduling-Inspections/responsechildOrgUnitList.vm</result>-->
+			<result name="success" type="velocity-json">/dhis-web-ehs/ehs/scheduling-Inspections/responseJsonChildOrgUnitList.vm</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+		
+		<!-- Escalations List -->
+		<action name="escalationsList" class="org.hisp.dhis.escalations.action.GetEscalationsListAction">
+       		<result name="success" type="velocity">/main.vm</result>
+      		<param name="page">/dhis-web-ehs/ehs/escalations/escalationsList.vm</param>
+      		<param name="menu">/dhis-web-ehs/ehs/escalations/menu.vm</param>
+      		<param name="javascripts">../dhis-web-ehs/ehs/escalations/javascript/escalations.js</param>
+      		<param name="stylesheets">../dhis-web-ehs/ehs/escalations/css/style.css</param>
+ 		</action>
+ 			
+		<!--  Update Escalations status -->
+	    <action name="updateEscalationsStatus" class="org.hisp.dhis.escalations.action.UpdateEscalationsStatusAction">
+	      <result name="success" type="velocity-json">/dhis-web-commons/ajax/jsonResponseSuccess.vm</result>
+	    </action>		
+		
+		<!--  Update Escalations status Authorities -->
+	    <action name="updateEscalationsStatusAuthorities" class="org.hisp.dhis.commons.action.NoAction">
+	      <param name="anyAuthorities">F_ESCALATION_STATUS_UPDATE</param>
+	    </action>		
+		
+	</package>
 </struts>

@@ -43,12 +43,11 @@ import org.hisp.dhis.user.UserService;
 import org.hisp.dhis.webapi.controller.exception.NotAuthenticatedException;
 import org.hisp.dhis.webapi.mvc.annotation.ApiVersion;
 import org.hisp.dhis.webapi.service.ContextService;
-import org.hisp.dhis.dxf2.utils.WebMessageUtils;
+import org.hisp.dhis.webapi.utils.WebMessageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -121,12 +120,7 @@ public class MeController
 
         User user = renderService.fromJson( request.getInputStream(), User.class );
         merge( currentUser, user );
-
-        if ( user.getUserCredentials() != null )
-        {
-            updatePassword( currentUser, user.getUserCredentials().getPassword() );
-        }
-
+        updatePassword( currentUser, user );
         manager.update( currentUser );
 
         if ( fields.isEmpty() )
@@ -153,12 +147,7 @@ public class MeController
 
         User user = renderService.fromXml( request.getInputStream(), User.class );
         merge( currentUser, user );
-
-        if ( user.getUserCredentials() != null )
-        {
-            updatePassword( currentUser, user.getUserCredentials().getPassword() );
-        }
-
+        updatePassword( currentUser, user );
         manager.update( currentUser );
 
         if ( fields.isEmpty() )
@@ -178,28 +167,6 @@ public class MeController
 
         response.setContentType( MediaType.APPLICATION_JSON_VALUE );
         renderService.toJson( response.getOutputStream(), currentUser.getUserCredentials().getAllAuthorities() );
-    }
-
-    @RequestMapping( value = "/password", method = { RequestMethod.POST, RequestMethod.PUT }, consumes = "text/*" )
-    public @ResponseBody RootNode changePassword( @RequestBody String password, HttpServletResponse response )
-        throws WebMessageException, NotAuthenticatedException
-    {
-        User currentUser = currentUserService.getCurrentUser();
-
-        if ( currentUser == null )
-        {
-            throw new NotAuthenticatedException();
-        }
-
-        if ( !ValidationUtils.passwordIsValid( password ) )
-        {
-            throw new WebMessageException( WebMessageUtils.conflict( "Password must have at least 8 characters, one digit, one uppercase" ) );
-        }
-
-        updatePassword( currentUser, password );
-        manager.update( currentUser );
-
-        return null;
     }
 
     //------------------------------------------------------------------------------------------------
@@ -228,13 +195,13 @@ public class MeController
         currentUser.setLanguages( stringWithDefault( user.getLanguages(), currentUser.getLanguages() ) );
     }
 
-    private void updatePassword( User currentUser, String password ) throws WebMessageException
+    private void updatePassword( User currentUser, User user ) throws WebMessageException
     {
-        if ( !StringUtils.isEmpty( password ) )
+        if ( user.getUserCredentials() != null && !StringUtils.isEmpty( user.getUserCredentials().getPassword() ) )
         {
-            if ( ValidationUtils.passwordIsValid( password ) )
+            if ( ValidationUtils.passwordIsValid( user.getUserCredentials().getPassword() ) )
             {
-                userService.encodeAndSetPassword( currentUser.getUserCredentials(), password );
+                userService.encodeAndSetPassword( currentUser.getUserCredentials(), user.getUserCredentials().getPassword() );
             }
             else
             {

@@ -59,7 +59,7 @@ import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.schema.descriptors.DataSetSchemaDescriptor;
 import org.hisp.dhis.webapi.mvc.annotation.ApiVersion;
 import org.hisp.dhis.webapi.utils.FormUtils;
-import org.hisp.dhis.dxf2.utils.WebMessageUtils;
+import org.hisp.dhis.webapi.utils.WebMessageUtils;
 import org.hisp.dhis.webapi.view.ClassPathUriResolver;
 import org.hisp.dhis.webapi.webdomain.WebOptions;
 import org.hisp.dhis.webapi.webdomain.form.Form;
@@ -67,6 +67,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -304,7 +305,7 @@ public class DataSetController
         i18nService.internationalise( dataSet.getDataElements() );
         i18nService.internationalise( dataSet.getSections() );
 
-        Form form = FormUtils.fromDataSet( dataSets.get( 0 ), metaData, null );
+        Form form = FormUtils.fromDataSet( dataSets.get( 0 ), metaData );
 
 
         Set<String> options = null;
@@ -339,7 +340,7 @@ public class DataSetController
     }
 
     @RequestMapping( value = { "/{uid}/customDataEntryForm", "/{uid}/form" }, method = { RequestMethod.PUT, RequestMethod.POST }, consumes = "text/html" )
-    @ResponseStatus( HttpStatus.NO_CONTENT )
+    @PreAuthorize( "hasRole('ALL')" )
     public void updateCustomDataEntryFormHtml( @PathVariable( "uid" ) String uid,
         @RequestBody String formContent,
         HttpServletResponse response ) throws Exception
@@ -370,7 +371,7 @@ public class DataSetController
     }
 
     @RequestMapping( value = "/{uid}/form", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE )
-    @ResponseStatus( HttpStatus.NO_CONTENT )
+    @PreAuthorize( "hasRole('ALL')" )
     @ApiVersion( value = ApiVersion.Version.ALL, exclude = ApiVersion.Version.V23 )
     public void updateCustomDataEntryFormJson( @PathVariable( "uid" ) String uid, HttpServletRequest request ) throws WebMessageException
     {
@@ -424,7 +425,8 @@ public class DataSetController
     }
 
     @RequestMapping( value = "/{uid}/metadata", method = RequestMethod.GET )
-    public @ResponseBody RootNode getDataSetWithDependencies( @PathVariable( "uid" ) String pvUid, HttpServletResponse response ) throws WebMessageException, IOException
+    public @ResponseBody RootNode getDataSetWithDependencies( @PathVariable( "uid" ) String pvUid, HttpServletResponse response )
+        throws WebMessageException, IOException
     {
         DataSet dataSet = dataSetService.getDataSet( pvUid );
 

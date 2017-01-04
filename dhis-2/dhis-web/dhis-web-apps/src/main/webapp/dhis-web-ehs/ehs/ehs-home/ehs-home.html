@@ -1,0 +1,27 @@
+<div id="leftBar">   
+    <div class="left-bar-menu" ng-controller="LeftBarMenuController">
+        <!--
+        <ul class="nav nav-pills nav-stacked">
+            <li><a href ng-click="showHome()">{{'registration_and_data_entry'| translate}}</a></li>
+            <li><a href ng-click="showReportTypes()">{{'reports'| translate}}</a></li>
+        </ul>
+        -->
+    </div>    
+</div>
+<div id="mainPage">
+    <h1>{{'ehs'| translate}}</h1>
+    <div style="width: 90%;" class="row col-sm-12">
+        <div class="col-sm-6 ehs-home-container" ng-click="foodSafetyProgram()" style="cursor: pointer">
+            <h2><span class="horizontal-spacing">{{'food_safety'| translate}}</span></h2>
+        </div>
+        <div class="col-sm-6 ehs-home-container" ng-click="waterSafetyProgram()" style="cursor: pointer">
+            <h2><span class="horizontal-spacing">{{'water_safety'| translate}}</span></h2>
+        </div>
+        <div class="col-sm-6 ehs-home-container">
+            <h2><span class="horizontal-spacing">{{'food_safety'| translate}}</span></h2>
+        </div>
+        <div class="col-sm-6 ehs-home-container">
+            <h2><span class="horizontal-spacing">{{'food_safety'| translate}}</span></h2>
+        </div>
+    </div>
+</div>

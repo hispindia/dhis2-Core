@@ -31,7 +31,6 @@ package org.hisp.dhis.webapi.controller;
 import com.google.common.io.ByteSource;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hisp.dhis.calendar.CalendarService;
 import org.hisp.dhis.common.IdentifiableObjectManager;
 import org.hisp.dhis.common.ValueType;
 import org.hisp.dhis.dataelement.DataElement;
@@ -50,7 +49,6 @@ import org.hisp.dhis.fileresource.FileResourceDomain;
 import org.hisp.dhis.fileresource.FileResourceService;
 import org.hisp.dhis.fileresource.FileResourceStorageStatus;
 import org.hisp.dhis.i18n.I18nManager;
-import org.hisp.dhis.option.OptionSet;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.period.Period;
@@ -60,7 +58,7 @@ import org.hisp.dhis.setting.SystemSettingManager;
 import org.hisp.dhis.system.util.ValidationUtils;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.webapi.mvc.annotation.ApiVersion;
-import org.hisp.dhis.dxf2.utils.WebMessageUtils;
+import org.hisp.dhis.webapi.utils.WebMessageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -125,9 +123,6 @@ public class DataValueController
     @Autowired
     private I18nManager i18nManager;
 
-    @Autowired
-    private CalendarService calendarService;
-
     // ---------------------------------------------------------------------
     // POST
     // ---------------------------------------------------------------------
@@ -182,13 +177,6 @@ public class DataValueController
         if ( commentValid != null )
         {
             throw new WebMessageException( WebMessageUtils.conflict( "Invalid comment: " + comment ) );
-        }
-
-        OptionSet optionSet = dataElement.getOptionSet();
-        
-        if ( optionSet != null && !optionSet.getOptionCodesAsSet().contains( value ) )
-        {
-            throw new WebMessageException( WebMessageUtils.conflict( "Data value is not a valid option of the data element option set: " + dataElement.getUid() ) );
         }
 
         // ---------------------------------------------------------------------
@@ -398,6 +386,12 @@ public class DataValueController
         OrganisationUnit organisationUnit = getAndValidateOrganisationUnit( ou );
 
         // ---------------------------------------------------------------------
+        // Locking validation
+        // ---------------------------------------------------------------------
+
+        validateDataSetNotLocked( dataElement, period, organisationUnit, attributeOptionCombo );
+
+        // ---------------------------------------------------------------------
         // Get data value
         // ---------------------------------------------------------------------
 
@@ -448,6 +442,12 @@ public class DataValueController
         Period period = getAndValidatePeriod( pe );
 
         OrganisationUnit organisationUnit = getAndValidateOrganisationUnit( ou );
+
+        // ---------------------------------------------------------------------
+        // Locking validation
+        // ---------------------------------------------------------------------
+
+        validateDataSetNotLocked( dataElement, period, organisationUnit, attributeOptionCombo );
 
         // ---------------------------------------------------------------------
         // Get data value
@@ -633,7 +633,7 @@ public class DataValueController
     {
         Period latestFuturePeriod = dataElement.getLatestOpenFuturePeriod();
 
-        if ( period.isAfter( latestFuturePeriod ) && calendarService.getSystemCalendar().isIso8601() )
+        if ( period.isAfter( latestFuturePeriod ) )
         {
             throw new WebMessageException( WebMessageUtils.conflict( "Period: " +
                 period.getIsoDate() + " is after latest open future period: " + latestFuturePeriod.getIsoDate() + " for data element: " + dataElement.getUid() ) );

@@ -1,0 +1,9 @@
+#set( $size = $organisationUnits.size() )
+{ "organisationUnits": [
+#foreach( $organisationUnit in $organisationUnits )
+  {
+    "id": $!{organisationUnit.id},
+	"name" : "$!encoder.xmlEncode( $organisationUnit.getName() )"
+  }#if( $velocityCount < $size ),#end    
+#end
+] }

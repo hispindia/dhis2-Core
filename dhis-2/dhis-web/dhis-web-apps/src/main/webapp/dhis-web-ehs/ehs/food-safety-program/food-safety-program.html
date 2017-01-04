@@ -1,0 +1,21 @@
+<div id="leftBar">
+    <div id="hideLeftBar">
+        <a href="index.action" title="{{'show_home_page'| translate}}" id="showMainMenuLink"><i class="fa fa-home leftBarIcon"></i></a>
+        <!--
+        <a href="javascript:dhis2.leftBar.hideAnimated()" title="{{'hide_menu'| translate}}" id="hideMainMenuLink"><i class="fa fa-arrow-left leftBarIcon"></i></a>
+        <a href="javascript:dhis2.leftBar.extendAnimated()" title="{{'extend_menu'| translate}}" id="extendMainMenuLink"><i class="fa fa-arrow-right leftBarIcon"></i></a>
+        -->
+    </div>
+    <div class="left-bar-menu" ng-controller="LeftBarMenuController">
+        <ul class="nav nav-pills nav-stacked">
+            <li><a href="index.action#/food-safety-program-list" title="{{'show_home_page'| translate}}"><h2>{{'back'| translate}}</h2></a></li>
+            <li><a href ng-click="showEstablishmentsRegistration()">{{"establishments_registration"| translate}}</a></li>
+            <li><a href ng-click="showOperatorsRegistration()">{{"operators_registration"| translate}}</a></li>
+            <li><a href="schedulingInspectionsList.action?listAll=true">Scheduling Inspections&nbsp;</a></li>
+            <li><a href="escalationsList.action?listAll=true">Escalations&nbsp;</a></li>
+        </ul>
+    </div>
+</div>
+<div id="mainPage">
+    <h1>{{'food_safety'| translate}}</h1>
+</div>

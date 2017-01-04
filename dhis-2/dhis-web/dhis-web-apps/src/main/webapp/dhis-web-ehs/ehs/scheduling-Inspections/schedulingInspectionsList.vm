@@ -1,0 +1,240 @@
+<h3>$list</h3><div id="search_details" style="width:100px;height:30px;" align="left"><a href="javascript:showSearchCriteria()">$i18n.getString( "search_criteria" )</a></div>
+<hr />
+<div class="inputForm" id="search_cat" >
+    <form id="searchCriteriaForm">
+    	<table id="searchCriteria" style="display:none" >
+            <tbody>
+            <tr>
+                <td><label for="scheduleStartDate">$i18n.getString( "start_date" )</label></td>
+                <td><input type="text" id="scheduleStartDate" name="scheduleStartDate" value="$!scheduleStartDate" style="width:150px;height:15px;"/></td>
+                <script type="text/javascript">
+                    datePicker( 'scheduleStartDate' );
+                </script>
+                <td>&nbsp;</td>
+                <td><label for="scheduleEndDate">$i18n.getString( "end_date" )</label></td>
+                <td><input type="text" id="scheduleEndDate" name="scheduleEndDate" value="$!scheduleEndDate" style="width:150px;height:15px;"/></td>
+                <script type="text/javascript">
+                    datePicker( 'scheduleEndDate' );
+                </script>
+                <td>&nbsp;</td>
+                <td><label for="programId">$i18n.getString( "Program Area" )</label></td>
+                <td>
+                    <select id="programId" name="programId" style="width:160px;height:30px;">
+                        <option value="">[$i18n.getString('please_select')]</option>
+    					#foreach($program in $programs)
+                            <option value="$program.id" #if($!programId == $program.id ) selected="selected" #end>$encoder.htmlEncode($program.name)</option>
+    					#end
+                    </select>
+                </td>
+				<td>&nbsp;</td>
+                <td><label for="status">$i18n.getString( "status" )</label></td>
+                <td>
+                    <select id="status" name="status" style="width:185px;height:30px;">
+                        <option value="">[$i18n.getString('please_select')]</option>
+    					<option value="ACTIVE">$i18n.getString('active')</option>
+						<option value="SCHEDULE">$i18n.getString('schedule')</option>
+						<option value="VISITED">$i18n.getString('visited')</option>
+						<option value="COMPLETED">$i18n.getString('completed')</option>
+						<option value="OVERDUE">$i18n.getString('overdue')</option>
+						<option value="SKIPPED">$i18n.getString('skipped')</option>
+                    </select>
+                </td>				
+            </tr>
+            <tr>
+                <td><label for="districtName">$i18n.getString( "district" )</label></td>
+                <td>
+                    <select id="districtName" name="districtName" style="width:160px;height:30px;" onchange="getCommunityList()">
+                        <option value="">[$i18n.getString('please_select')]</option>
+    					#foreach($district in $districtList)
+                            <option value="$district.name" #if($!districtName == $district.name ) selected="selected" #end>$encoder.htmlEncode($district.name)</option>
+    					#end
+                    </select>
+                </td>
+				<td>&nbsp;</td>
+                <td><label for="communityName">$i18n.getString( "community" )</label></td>
+                <td>
+                    <select id="communityName" name="communityName" style="width:160px;height:30px;">
+                        <option value="">[$i18n.getString('please_select')]</option>
+                    </select>
+                </td>				
+				<td>&nbsp;</td>
+                <td><label for="inspectionType">$i18n.getString( "Inspection Type" )</label></td>
+                <td>
+					<select id="inspectionType" name="inspectionType" style="width:160px;height:30px;">
+                        <option value="">[$i18n.getString('please_select')]</option>
+        				#foreach($option in $options)
+                            <option value="$option.code" #if($!inspectionType == $option.code ) selected="selected" #end >$encoder.htmlEncode($option.name)</option>
+        				#end
+					</select>
+                </td>
+				<td>&nbsp;</td>
+                <td><label for="assignedInspector">$i18n.getString( "assigned_inspector" )</label></td>
+                <td><select id="assignedInspector" name="assignedInspector" style="width:185px;height:30px;">
+                    <option value="">[$i18n.getString('please_select')]</option>
+    				#foreach($user in $users)
+                        <option value="$user.getName()" #if($!assignedInspector == $user.getName() ) selected="selected" #end>$encoder.htmlEncode($user.getName())</option>
+    				#end
+                </select>
+                </td>
+			</tr>	
+			<tr>
+    			<td colspan="10" style="padding-top:15px">
+					<input type="button" value="$i18n.getString( "search" )" onclick="filterScheduleInspection();" style="width:70px;height:30px;">
+    				<input type="button" id="clearButton" name="clearButton" value="$i18n.getString( "clear" )" onclick="reSetSearch();" style="width:70px;height:30px;">
+    				<input type="button" value="$i18n.getString( "list_all" )" onclick="window.location.href='schedulingInspectionsList.action?listAll=true'" style="width:70px;height:30px;">
+					
+				</td>
+            </tr>
+            </tbody>
+        </table>
+	</form>	
+	
+</div>
+
+
+
+
+
+<!--
+<h3>$i18n.getString( "tracked_entity_management" ) #openHelp('tracked_entity')</h3>
+
+<div id="contextMenu" class="contextMenu">
+  <ul id="contextMenuItems" class="contextMenuItems">
+    <li><a data-target-fn="showUpdateTrackedEntityForm"><i class="fa fa-edit"></i>&nbsp;&nbsp;$i18n.getString( "edit" )</a></li>
+    <li><a data-target-fn="translateWithContext"><i class="fa fa-globe"></i>&nbsp;&nbsp;$i18n.getString( "translation_translate" )</a></li>
+    <li><a data-target-fn="removeTrackedEntity"><i class="fa fa-trash-o"></i>&nbsp;&nbsp;$i18n.getString( "remove" )</a></li>
+    <li><a data-target-fn="showTrackedEntityDetails"><i class="fa fa-info-circle"></i>&nbsp;&nbsp;$i18n.getString( "show_details" )</a></li>
+  </ul>
+</div>
+-->
+<table class="mainPageTable">
+  <tr>
+    <td style="vertical-align:top">
+		<table width="100%">
+			<tr>
+				
+				<td>
+					##filterDiv( "trackedEntity" )
+					Total -- $programStageInstances.size()
+				</td>
+				
+				<td colspan="3" style="text-align:right"><input type="button" value="$i18n.getString( "Add New" )" onclick="window.location.href='showAddScheduledInspectionForm.action'" style="width:70px"></td>				
+			</tr>
+		</table>
+		<hr />
+		<table class="listTable" id="listTable">
+            <colgroup>
+    			<col />
+				<col />
+                <col />
+                <col />
+                <col />
+                <col />
+                <col />
+                <col />
+                <col />
+				<col />
+    		</colgroup>
+			<thead>
+			  <tr>
+				<!--<th>$i18n.getString( "name" )</th>-->
+                <th>#</th>
+                <th>$i18n.getString( "establishment_name" )</th>
+                <th>$i18n.getString( "inspection_type" )</th>
+                <th>$i18n.getString( "assigned_inspector" )</th>
+                <th>$i18n.getString( "district" )</th>
+				<th>$i18n.getString( "community" )</th> 
+                <th>$i18n.getString( "due_date" )</th>
+                <th>$i18n.getString( "schedule_duration" )</th>
+				<th>$i18n.getString( "status" )</th>
+				<!--<th>$i18n.getString( "execution_date" )</th>-->
+				<th class="{sorter: false}" style="text-align:center;">$i18n.getString( "operations" )</th>
+			  </tr>
+			</thead>
+			<tbody id="list">
+                   #foreach( $programStageInstance in $programStageInstances )
+                        <tr id="tr${programStageInstance.id}">
+                            <td>#set( $nr = ( ( $paging.getCurrentPage() - 1  ) * $paging.pageSize ) + $velocityCount )
+                                $nr
+                            </td>
+							
+							#set( $nameKey = $programStageInstance.getProgramInstance().getEntityInstance().id + ":" + 89 )
+							#set( $communityKey = $programStageInstance.getProgramInstance().getEntityInstance().id + ":" + 699 )
+							#set( $districtKey = $programStageInstance.getProgramInstance().getEntityInstance().id + ":" + 698 )
+							
+							#set( $inspectionTypeKey = $programStageInstance.id + ":" + 1953 )
+							#set( $assignedInspectorKey = $programStageInstance.id + ":" + 1954 )
+							#set( $scheduleDateKey = $programStageInstance.id + ":" + 1951 )
+							#set( $durationKey = $programStageInstance.id + ":" + 1952 )
+							#set( $remarksKey = $programStageInstance.id + ":" + 1955 )
+							
+							<td>$!teiValueMap.get( $nameKey )</td>
+                            <td>$!teInstanceDataValueMap.get( $inspectionTypeKey )</td>
+                            <td>$!teInstanceDataValueMap.get( $assignedInspectorKey )</td>
+							<td>$!teiValueMap.get( $districtKey )</td>
+							<td>$!teiValueMap.get( $communityKey )</td>
+							<td>$!format.formatDate( $programStageInstance.getDueDate() )</td>
+							<td>$!teInstanceDataValueMap.get( $durationKey )</td>
+							<td>$!encoder.htmlEncode( $programStageInstance.getStatus().toString() )</td>
+							<!--<td>$!format.formatDate( $programStageInstance.getExecutionDate() )</td>-->
+							<!-- for operations -->
+							<td>
+								#if( $auth.hasAccess( "dhis-web-ehs", "showUpdateScheduledInspectionForm") )
+									<a href="javascript:showUpdateScheduledInspectionForm( '$programStageInstance.id','$!teiValueMap.get( $nameKey )', '$!teiValueMap.get( $districtKey )', '$!teiValueMap.get( $communityKey )' )" title='$i18n.getString( "update" )'><img src="../images/edit.png" alt='$i18n.getString( "update" )'></a>&nbsp;&nbsp;
+								#end
+								#if( $auth.hasAccess( "dhis-web-ehs", "removeScheduledInspection") )
+									&nbsp;&nbsp;<a href="javascript:removeScheduledInspection( '$programStageInstance.id','$!teiValueMap.get( $nameKey )', '$!teiValueMap.get( $districtKey )', '$!teiValueMap.get( $communityKey )' )" title='$i18n.getString( "delete" )'><img src="../images/delete.png" alt='$i18n.getString( "delete" )'></a>
+								#end
+								
+								$programStageInstance.id
+						   </td>
+                        </tr>
+                    #end				
+			</tbody>
+      </table>
+    	<p></p>
+    	<div class="paging-container">
+    		#parse( "/dhis-web-commons/paging/paging.vm" )
+        </div>
+    </td>
+  </tr>	
+</table>
+
+<script type="text/javascript">
+
+	jQuery(document).ready(function(){
+        setTableStyles();
+        //tableSorter( 'listTable' ); 
+        var startDateId = "scheduleStartDate";
+        var endDateId = "scheduleEndDate"
+        jQuery( "#" + startDateId ).attr("readonly", false );
+        jQuery( "#" + endDateId ).attr("readonly", false );
+    });
+    
+    jQuery(document).ready(function(){	
+		tableSorter( 'listTable' );	
+	});
+    
+	var i18n_confirm_delete = '$encoder.jsEscape( $i18n.getString( "confirm_delete_scheduled_inspection" ) , "'" )';
+	
+	
+	var flag = 0;
+	function showSearchCriteria()
+	{
+		reSetSearch();
+		if( flag == 1 )
+		{
+			document.getElementById("searchCriteria").style.display = "none";
+			flag = 0;
+		}
+		else
+		{
+			document.getElementById("searchCriteria").style.display = "block";
+			flag = 1;
+		}
+	}	
+	
+	
+
+
+</script>

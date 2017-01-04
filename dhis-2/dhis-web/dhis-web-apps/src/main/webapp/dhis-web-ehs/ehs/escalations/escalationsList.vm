@@ -1,0 +1,219 @@
+
+<h3>$list</h3>
+<div id="search_details" style="width:100px;height:30px;" align="left"><a href="javascript:showSearchCriteria()">$i18n.getString( "Search Criteria" )</a></div>
+<hr />
+<div class="inputForm" id="search_cat" >
+    <form id="escalationSearchCriteriaForm">
+    	<table id="searchCriteria" style="display:none" >
+            <tbody>
+            <tr>
+                <td><label for="programId">$i18n.getString( "Program Area" )</label></td>
+                <td>
+                    <select id="programId" name="programId" style="width:160px;height:30px;">
+                        <option value="">[$i18n.getString('please_select')]</option>
+    					#foreach($program in $programs)
+                            <option value="$program.id" #if($!programId == $program.id ) selected="selected" #end>$encoder.htmlEncode($program.name)</option>
+    					#end
+                    </select>
+                </td>
+				<td>&nbsp;</td>
+				
+				<td><label for="escalationStartDate">$i18n.getString( "Escalation Start Date" )</label></td>
+                <td><input type="text" id="escalationStartDate" name="escalationStartDate" value="$!escalationStartDate" style="width:150px;height:15px;"/></td>
+                <script type="text/javascript">
+                    datePicker( 'escalationStartDate' );
+                </script>
+                <td>&nbsp;</td>
+				
+				<td><label for="escalationEndDate">$i18n.getString( "Escalation End Date" )</label></td>
+                <td><input type="text" id="escalationEndDate" name="escalationEndDate" value="$!escalationEndDate" style="width:150px;height:15px;"/></td>
+                <script type="text/javascript">
+                    datePicker( 'escalationEndDate' );
+                </script>
+                <td>&nbsp;</td>
+				
+				<td><label for="establishmentName">$i18n.getString( "Establishment Name" )</label></td>
+                <td><input type="text" id="establishmentName" name="establishmentName" value="$!establishmentName" style="width:150px;height:15px;"/></td>
+                <td>&nbsp;</td>
+				
+            </tr>
+            <tr>
+                <td><label for="establishmentType">$i18n.getString( "Establishment Type" )</label></td>
+                <td>
+                    <select id="establishmentType" name="establishmentType" style="width:160px;height:30px;">
+                        <option value="">[$i18n.getString('please_select')]</option>
+    					#foreach($establishmentType in $establishmentTypes)
+                            <option value="$establishmentType.name" #if($!establishmentType == $establishmentType.name ) selected="selected" #end>$encoder.htmlEncode($establishmentType.name)</option>
+    					#end
+                    </select>
+                </td>
+				<td>&nbsp;</td>
+				
+				<td><label for="ownerName">$i18n.getString( "Owner" )</label></td>
+                <td><input type="text" id="ownerName" name="ownerName" value="$!ownerName" style="width:150px;height:15px;"/></td>
+                <td>&nbsp;</td>
+				
+				<td><label for="decisionStartDate">$i18n.getString( "Decision Start Date" )</label></td>
+                <td><input type="text" id="decisionStartDate" name="decisionStartDate" value="$!decisionStartDate" style="width:150px;height:15px;"/></td>
+                <script type="text/javascript">
+                    datePicker( 'decisionStartDate' );
+                </script>
+                <td>&nbsp;</td>
+				
+				<td><label for="decisionEndDate">$i18n.getString( "Decision End Date" )</label></td>
+                <td><input type="text" id="decisionEndDate" name="decisionEndDate" value="$!decisionEndDate" style="width:150px;height:15px;"/></td>
+                <script type="text/javascript">
+                    datePicker( 'decisionEndDate' );
+                </script>
+                <td>&nbsp;</td>
+			</tr>
+			<tr>
+				<td><label for="escalationStatus">$i18n.getString( "Escalation Status" )</label></td>
+                <td>
+					<select id="escalationStatus" name="escalationStatus" style="width:160px;height:30px;">
+                        <option value="">[$i18n.getString('please_select')]</option>
+        				#foreach($option in $options)
+                            <option value="$option.name" #if($!escalationStatus == $option.name ) selected="selected" #end >$encoder.htmlEncode($option.name)</option>
+        				#end
+					</select>
+                </td>
+			</tr>
+			<tr>
+    			<td colspan="10" style="padding-top:15px">
+					<input type="button" value="$i18n.getString( "Search" )" onclick="filterEscalation();" style="width:70px;height:30px;">
+    				<input type="button" id="clearButton" name="clearButton" value="$i18n.getString( "clear" )" onclick="reSetSearch();" style="width:70px;height:30px;">
+    				<input type="button" value="$i18n.getString( "List All" )" onclick="window.location.href='escalationsList.action?listAll=true'" style="width:70px;height:30px;">
+					
+				</td>
+            </tr>
+            </tbody>
+        </table>
+	</form>	
+	
+</div>
+
+
+<!--
+<h3>$i18n.getString( "tracked_entity_management" ) #openHelp('tracked_entity')</h3>
+
+<div id="contextMenu" class="contextMenu">
+  <ul id="contextMenuItems" class="contextMenuItems">
+    <li><a data-target-fn="showUpdateTrackedEntityForm"><i class="fa fa-edit"></i>&nbsp;&nbsp;$i18n.getString( "edit" )</a></li>
+    <li><a data-target-fn="translateWithContext"><i class="fa fa-globe"></i>&nbsp;&nbsp;$i18n.getString( "translation_translate" )</a></li>
+    <li><a data-target-fn="removeTrackedEntity"><i class="fa fa-trash-o"></i>&nbsp;&nbsp;$i18n.getString( "remove" )</a></li>
+    <li><a data-target-fn="showTrackedEntityDetails"><i class="fa fa-info-circle"></i>&nbsp;&nbsp;$i18n.getString( "show_details" )</a></li>
+  </ul>
+</div>
+-->
+<table class="mainPageTable">
+  <tr>
+    <td style="vertical-align:top">
+		<table width="100%">
+			<tr>
+				
+				<td>
+					##filterDiv( "trackedEntity" )
+					Total -- $programStageInstances.size()
+				</td>
+				
+				<!--<td colspan="3" style="text-align:right"><input type="button" value="$i18n.getString( "Add New" )" onclick="window.location.href='showAddScheduledInspectionForm.action'" style="width:70px"></td>-->				
+			</tr>
+		</table>
+		<hr />
+		<table class="listTable" id="listTable">
+            <colgroup>
+    			<col />
+				<col />
+                <col />
+                <col />
+                <col />
+                <col />
+                <col />
+                <col />
+    		</colgroup>
+			<thead>
+			  <tr>
+                <th>#</th>
+				<th>$i18n.getString( "Program" )</th>
+				<th>$i18n.getString( "Escalation Date" )</th>
+                <th>$i18n.getString( "Establishment" )</th>
+                <th>$i18n.getString( "Establishment Type" )</th>
+                <th>$i18n.getString( "Owner" )</th>
+				<th>$i18n.getString( "Decision Date" )</th> 
+				<th>$i18n.getString( "Escalation Status" )</th>
+				<!--<th class="{sorter: false}" style="text-align:center;">$i18n.getString( " " )</th>-->
+			  </tr>
+			</thead>
+			<tbody id="list">
+                   #foreach( $programStageInstance in $programStageInstances )
+                        <tr id="tr${programStageInstance.id}" onclick="goToDashboard( '$programStageInstance.getUid()', '$programStageInstance.getProgramInstance().getEntityInstance().getUid()','$programStageInstance.getProgramInstance().getProgram().getUid()', '$programStageInstance.getOrganisationUnit().getUid()')">
+                            <td>#set( $nr = ( ( $paging.getCurrentPage() - 1  ) * $paging.pageSize ) + $velocityCount )
+                                $nr
+                            </td>
+							
+							#set( $nameKey = $programStageInstance.getProgramInstance().getEntityInstance().id + ":" + 89 )
+							#set( $establishmentTypeKey = $programStageInstance.getProgramInstance().getEntityInstance().id + ":" + 88 )
+							#set( $ownerKey = $programStageInstance.getProgramInstance().getEntityInstance().id + ":" + 94 )
+							#set( $statusKey = $programStageInstance.id + ":" + 3460 )
+							
+							<td>$!encoder.htmlEncode( $programStageInstance.getProgramInstance().getProgram().getName() )</td>
+							<td>$!format.formatDate( $programStageInstance.getExecutionDate() )</td>
+							<td>$!teiValueMap.get( $nameKey )</td>
+                            <td>$!teiValueMap.get( $establishmentTypeKey )</td>
+							<td>$!teiAttributeValueMap.get( $!teiValueMap.get( $ownerKey ))</td>
+							<td>$!format.formatDate( $programStageInstance.getCompletedDate())</td>
+							<td>$!escalationStatusMap.get( $!teInstanceDataValueMap.get( $statusKey ) )</td>
+							
+                        </tr>
+                    #end				
+			</tbody>
+      </table>
+    	<p></p>
+    	<div class="paging-container">
+    		#parse( "/dhis-web-commons/paging/paging.vm" )
+        </div>
+    </td>
+  </tr>	
+</table>
+
+<script type="text/javascript">
+
+	jQuery(document).ready(function(){
+        setTableStyles();
+        //tableSorter( 'listTable' ); 
+        var escalationStartDateId = "escalationStartDate";
+		var escalationEndDateId = "escalationEndDate";
+        var decisionStartDateId = "decisionStartDate"
+		var decisionEndDateId = "decisionEndDate"
+        jQuery( "#" + escalationStartDateId ).attr("readonly", false );
+        jQuery( "#" + escalationEndDateId ).attr("readonly", false );
+		jQuery( "#" + decisionStartDateId ).attr("readonly", false );
+        jQuery( "#" + decisionEndDateId ).attr("readonly", false );
+		
+		
+    });
+    
+    jQuery(document).ready(function(){	
+		tableSorter( 'listTable' );	
+	});
+    
+	var i18n_confirm_delete = '$encoder.jsEscape( $i18n.getString( "confirm_delete_scheduled_inspection" ) , "'" )';
+	
+	
+	var flag = 0;
+	function showSearchCriteria()
+	{
+		reSetSearch();
+		if( flag == 1 )
+		{
+			document.getElementById("searchCriteria").style.display = "none";
+			flag = 0;
+		}
+		else
+		{
+			document.getElementById("searchCriteria").style.display = "block";
+			flag = 1;
+		}
+	}	
+	
+</script>
