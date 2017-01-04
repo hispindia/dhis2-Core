@@ -96,7 +96,7 @@ public class ExpandSubtreeAction
 
         if ( parent == null )
         {
-            return INPUT;
+            throw new RuntimeException( "OrganisationUnit with id " + parentId + " doesn't exist" );
         }
 
         addParentWithChildren( parent );

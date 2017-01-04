@@ -93,7 +93,7 @@ public class ExcludableShallowEtagHeaderFilter
     {
         String uri = request.getRequestURI();
 
-        if ( pattern != null && pattern.matcher( uri ).find() )
+        if ( pattern != null && pattern.matcher( uri ).matches() )
         {
             filterChain.doFilter( request, response ); // Proceed without invoking this filter
         }
