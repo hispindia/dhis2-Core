@@ -28,7 +28,6 @@ package org.hisp.dhis;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -134,6 +133,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -1812,21 +1812,21 @@ public abstract class DhisConvenienceTest
     {
         Assert.notNull( userService, "UserService must be injected in test" );
 
-        Set<String> authorities = new HashSet<>();
-        
+        UserAuthorityGroup userAuthorityGroup = new UserAuthorityGroup();
+        userAuthorityGroup.setName( "Superuser" );
+
         if ( allAuth )
         {
-            authorities.add( UserAuthorityGroup.AUTHORITY_ALL );
+            userAuthorityGroup.getAuthorities().add( "ALL" );
         }
 
         if ( auths != null )
         {
-            authorities.addAll( Lists.newArrayList( auths ) );
+            for ( String auth : auths )
+            {
+                userAuthorityGroup.getAuthorities().add( auth );
+            }
         }
-
-        UserAuthorityGroup userAuthorityGroup = new UserAuthorityGroup();
-        userAuthorityGroup.setName( "Superuser" );
-        userAuthorityGroup.getAuthorities().addAll( authorities );
 
         userService.addUserAuthorityGroup( userAuthorityGroup );
 
@@ -1847,12 +1847,13 @@ public abstract class DhisConvenienceTest
         user.getUserCredentials().setUserInfo( user );
         userService.addUserCredentials( user.getUserCredentials() );
 
-        Set<GrantedAuthority> grantedAuths = authorities.stream().map( a -> new SimpleGrantedAuthority( a ) ).collect( Collectors.toSet() );
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add( new SimpleGrantedAuthority( "ALL" ) );
 
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-            user.getUserCredentials().getUsername(), user.getUserCredentials().getPassword(), grantedAuths );
+            user.getUserCredentials().getUsername(), user.getUserCredentials().getPassword(), authorities );
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken( userDetails, "", grantedAuths );
+        Authentication authentication = new UsernamePasswordAuthenticationToken( userDetails, "", authorities );
         SecurityContextHolder.getContext().setAuthentication( authentication );
 
         return user;

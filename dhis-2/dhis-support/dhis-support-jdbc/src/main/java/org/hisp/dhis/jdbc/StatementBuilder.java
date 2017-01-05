@@ -200,6 +200,12 @@ public interface StatementBuilder
      */
     String getDaysBetweenDates( String fromColumn, String toColumn );
     
+    /**
+     * Creates a delete datavalue statement.
+     * @return a delete datavalue statement.
+     */
+    String getDeleteZeroDataValues();
+
     String getAddDate( String dateField, int days );
     
     String queryDataElementStructureForOrgUnit();

@@ -46,6 +46,7 @@ import org.hisp.dhis.attribute.Attribute;
 import org.hisp.dhis.attribute.AttributeValue;
 import org.hisp.dhis.common.AuditLogUtil;
 import org.hisp.dhis.common.BaseIdentifiableObject;
+import org.hisp.dhis.common.UserContext;
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.dashboard.Dashboard;
 import org.hisp.dhis.hibernate.exception.CreateAccessDeniedException;
@@ -59,6 +60,7 @@ import org.hisp.dhis.security.acl.AccessStringHelper;
 import org.hisp.dhis.security.acl.AclService;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
+import org.hisp.dhis.user.UserSettingKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -66,6 +68,7 @@ import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author Lars Helge Overland
@@ -156,7 +159,15 @@ public class HibernateGenericStore<T>
      */
     protected final Session getSession()
     {
-        return sessionFactory.getCurrentSession();
+        Session session = sessionFactory.getCurrentSession();
+        Locale dbLocale = UserContext.getUserSetting( UserSettingKey.DB_LOCALE, Locale.class );
+
+        if ( dbLocale != null )
+        {
+            session.enableFilter( "locale" ).setParameter( "locale", dbLocale.toString() );
+        }
+
+        return session;
     }
 
     /**

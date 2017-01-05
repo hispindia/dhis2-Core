@@ -57,7 +57,7 @@ public class PostgreSQLStatementBuilder
     @Override
     public String getVacuum( String table )
     {
-        return "vacuum " + table + ";";
+        return "vacuum analyze " + table + ";";
     }
     
     @Override
@@ -112,6 +112,18 @@ public class PostgreSQLStatementBuilder
     public String getCharAt( String str, String n )
     {
         return "substring(" + str + " from " + n + " for 1)";
+    }
+
+    @Override
+    public String getDeleteZeroDataValues()
+    {
+        return
+            "DELETE FROM datavalue " +
+            "USING dataelement " +
+            "WHERE datavalue.dataelementid = dataelement.dataelementid " +
+            "AND dataelement.aggregationtype = 'sum' " +
+            "AND dataelement.zeroissignificant = false " +
+            "AND datavalue.value = '0'";
     }
 
     @Override
