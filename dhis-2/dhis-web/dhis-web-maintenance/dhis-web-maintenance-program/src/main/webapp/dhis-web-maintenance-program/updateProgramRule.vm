@@ -203,8 +203,8 @@
 											<select style='width:100%;'>                                                                                                
                                                                                             #if( $action.dataElement )
                                                                                                 <option class='actionDEs' value="$action.dataElement.uid">$!encoder.htmlEncode( $action.dataElement.displayName )</option>
-                                                                                            #elseif( $action.attribute )
-                                                                                                <option class='actionDEs' value="$action.attribute.uid">$!encoder.htmlEncode( $action.attribute.name )</option>
+                                                                                            #elseif( $action.trackedEntityAttribute )
+                                                                                                <option class='actionDEs' value="$action.attribute.id">$!encoder.htmlEncode( $action.attribute.name )</option>
                                                                                             #else
                                                                                                 <option class='actionDEs' value="">$i18n.getString('none')</option>
                                                                                             #end

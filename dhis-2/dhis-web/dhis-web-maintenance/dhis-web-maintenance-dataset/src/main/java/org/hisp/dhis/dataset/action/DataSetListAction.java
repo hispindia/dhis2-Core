@@ -30,12 +30,14 @@ package org.hisp.dhis.dataset.action;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.dataset.DataSetService;
 import org.hisp.dhis.paging.ActionPagingSupport;
+import org.hisp.dhis.user.User;
 
 /**
  * @author Kristian
@@ -81,7 +83,7 @@ public class DataSetListAction
     {
         this.key = key;
     }
-
+    
     // -------------------------------------------------------------------------
     // Execute
     // -------------------------------------------------------------------------
@@ -105,6 +107,8 @@ public class DataSetListAction
 
         Collections.sort( dataSets );
 
+        
+        
         return SUCCESS;
     }
 }

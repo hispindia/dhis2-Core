@@ -13,7 +13,7 @@
   	checkValueIsExist( "name", "validateAttribute.action");
   	checkValueIsExist( "shortName", "validateAttribute.action");
   	checkValueIsExist( "code", "validateAttribute.action");
-        checkValueIsExist( "pattern", "validateAttribute.action");
+    checkValueIsExist( "pattern", "validateAttribute.action");
   });
 </script>
 <h3>$i18n.getString( "create_new_tracked_entity_attribute" ) #openHelp( "tracked_entity_attribute_information" )</h3>

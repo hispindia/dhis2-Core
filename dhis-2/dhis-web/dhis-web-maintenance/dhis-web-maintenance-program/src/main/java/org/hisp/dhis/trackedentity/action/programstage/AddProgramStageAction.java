@@ -104,12 +104,18 @@ public class AddProgramStageAction
         this.periodService = periodService;
     }
 
-    @Autowired
     private AttributeService attributeService;
-
+    
+    public void setAttributeService( AttributeService attributeService )
+    {
+        this.attributeService = attributeService;
+    }
+    
+    
     // -------------------------------------------------------------------------
     // Input/Output
     // -------------------------------------------------------------------------
+
 
     private int id;
 
@@ -443,14 +449,18 @@ public class AddProgramStageAction
 
         programStage.setReminders( reminders );
         program.getProgramStages().add( programStage );
-
+        
+        programStageService.saveProgramStage( programStage );
+        
         if ( jsonAttributeValues != null )
         {
             attributeService.updateAttributeValues( programStage, jsonAttributeValues );
         }
 
-        programStageService.saveProgramStage( programStage );
-
+        //programStageService.saveProgramStage( programStage );
+        
+        programStageService.updateProgramStage( programStage );
+        
         // Data elements
 
         for ( int i = 0; i < this.selectedDataElementsValidator.size(); i++ )
