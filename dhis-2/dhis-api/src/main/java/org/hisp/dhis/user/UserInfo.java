@@ -1,4 +1,4 @@
-package org.hisp.dhis.commons.collection;
+package org.hisp.dhis.user;
 
 /*
  * Copyright (c) 2004-2016, University of Oslo
@@ -28,67 +28,70 @@ package org.hisp.dhis.commons.collection;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Objects;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
- * Utility methods for operations on various collections.
- *
- * @author Morten Olav Hansen
+ * Represents minimal user information.
+ * 
+ * @author Lars Helge Overland
  */
-public class CollectionUtils
+public class UserInfo
 {
-    public static final String[] STRING_ARR = new String[0];
-
-    /**
-     * Returns the intersection of the given Collections.
-     *
-     * @param c1  the first Collection.
-     * @param c2  the second Collection.
-     * @param <T> the type.
-     * @return the intersection of the Collections.
-     */
-    public static <T> Collection<T> intersection( Collection<T> c1, Collection<T> c2 )
+    private int id;
+    
+    private String username;
+    
+    private Set<String> authorities = new HashSet<>();
+    
+    protected UserInfo()
     {
-        Set<T> set1 = new HashSet<>( c1 );
-        set1.retainAll( new HashSet<>( c2 ) );
-        return set1;
+    }
+    
+    public UserInfo( int id, String username, Set<String> authorities )
+    {
+        this.id = id;
+        this.username = username;
+        this.authorities = authorities;
     }
 
-    /**
-     * Searches for and returns the first string which starts with the given
-     * prefix. Removes the match from the collection.
-     *
-     * @param collection the collection.
-     * @param prefix     the string prefix.
-     * @return a string, or null if no matches.
-     */
-    public static String popStartsWith( Collection<String> collection, String prefix )
+    // -------------------------------------------------------------------------
+    // Logic
+    // -------------------------------------------------------------------------
+    
+    public boolean isSuper()
     {
-        Iterator<String> iterator = collection.iterator();
-
-        while ( iterator.hasNext() )
+        return authorities.contains( UserAuthorityGroup.AUTHORITY_ALL );
+    }
+    
+    public static UserInfo fromUser( User user )
+    {
+        if ( user == null )
         {
-            String element = iterator.next();
-
-            if ( element != null && element.startsWith( prefix ) )
-            {
-                iterator.remove();
-                return element;
-            }
+            return null;
         }
+        
+        UserCredentials credentials = user.getUserCredentials();
+        
+        return new UserInfo( credentials.getId(), credentials.getUsername(), credentials.getAllAuthorities() );
+    }
+    
+    // -------------------------------------------------------------------------
+    // Get methods
+    // -------------------------------------------------------------------------
 
-        return null;
+    public int getId()
+    {
+        return id;
     }
 
-    public static <E> void nullSafeForEach( Collection<E> collection, Consumer<E> consumer )
+    public String getUsername()
     {
-        collection.stream()
-            .filter( Objects::nonNull )
-            .forEach( consumer );
+        return username;
+    }
+
+    public Set<String> getAuthorities()
+    {
+        return authorities;
     }
 }
