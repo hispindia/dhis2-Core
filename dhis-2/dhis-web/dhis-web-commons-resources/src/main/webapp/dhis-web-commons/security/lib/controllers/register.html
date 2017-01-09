@@ -89,68 +89,75 @@
 
 
     function submitdata(){
+
         var userinfoid;
         var orgname=document.getElementById("hospital").value;
         var password=document.getElementById("password").value;
         var username=document.getElementById("username").value;
         var email=document.getElementById("email").value;
+        var phone=document.getElementById("phoneno").value;
+
+        var phonecheck="",emailcheck="",usernamecheck="",validationcheck=true;
+
         var header = {
 
             "Authorization": "Basic " + btoa( "homepage" + ':' + "Homepage123" )
 
         };
-
-        var orgunit = {
-
-            name:orgname,
-            code : orgname,
-            parent:{
-                id : orgid
-            },
-            openingDate:"2016-01-01",
-            shortName: orgname,
-            phoneNumber : "98566"
-        }
-
         $.ajax({
             async : false,
-            type: "POST",
+            type: "GET",
             dataType: "json",
             contentType: "application/json",
             header : header,
-            url: '../../../../api/organisationUnits/',
-            data: JSON.stringify(orgunit),
+            url: '../../../../api/users.json?fields=name,firstName,email,phoneNumber,userCredentials[username]&paging=false',
             success: function(response){
-                var orgid=response.response.uid;
-                assignprogram(orgid);
-                createUser(orgid);
+
+                $.each(response.users, function (index, item) {
+                    if(email==""||username==""||password==""||phone==""||orgname=="")
+                    {
+                        alert("Please enter all fields first");
+                    }
+                    else {
+
+
+                        if (item.email == email) {
+                            emailcheck = "true";
+                            alert("Email already registered, Please try again with different Email");
+                            validationcheck = false;
+                        }
+                      if (item.phoneNumber == phone) {
+                            phonecheck = "true";
+                            alert("Phone already registered,Please try again with different Phone Number");
+                            validationcheck = false;
+                        }
+                  if (item.userCredentials.username == username) {
+                            usernamecheck = "true";
+                            alert("Username already registered, Please try again with different username");
+                            validationcheck = false;
+                        }
+
+                    }
+
+                });
 
             },
             error: function(response){
 
             }
         });
+        if(validationcheck==true) {
+            var orgunit = {
 
-
-
-
-
-        function  assignprogram(orgid)
-        {
-            $.ajax({
-                async : false,
-                type: "POST",
-                dataType: "json",
-                contentType: "application/json",
-                header : header,
-                url: '../../../../api/programs/tzR46QRZ6FJ/organisationUnits/'+orgid,
-                success: function(response){
-
+                name:orgname,
+                code : orgname,
+                parent:{
+                    id : orgid
                 },
-                error: function(response){
-
-                }
-            });
+                openingDate:"2016-01-01",
+                shortName: orgname,
+                phoneNumber : "98566"
+            }
 
             $.ajax({
                 async : false,
@@ -158,8 +165,12 @@
                 dataType: "json",
                 contentType: "application/json",
                 header : header,
-                url: '../../../../api/programs/oKibT84LSdV/organisationUnits/'+orgid,
+                url: '../../../../api/organisationUnits/',
+                data: JSON.stringify(orgunit),
                 success: function(response){
+                    var orgid=response.response.uid;
+                    assignprogram(orgid);
+                    createUser(orgid);
 
                 },
                 error: function(response){
@@ -167,71 +178,130 @@
                 }
             });
 
-        }
+            function  assignprogram(orgid)
+            {
+                $.ajax({
+                    async : false,
+                    type: "POST",
+                    dataType: "json",
+                    contentType: "application/json",
+                    header : header,
+                    url: '../../../../api/programs/tzR46QRZ6FJ/organisationUnits/'+orgid,
+                    success: function(response){
 
+                    },
+                    error: function(response){
 
-        function  createUser(orgid)
-        {
+                    }
+                });
 
-            $.ajax({
-                async : false,
-                type: "GET",
-                dataType: "json",
-                contentType: "application/json",
-                header : header,
-                url: '../../../../api/system/id',
-                success: function(response){
-                    userinfoid = response.codes;
+                $.ajax({
+                    async : false,
+                    type: "POST",
+                    dataType: "json",
+                    contentType: "application/json",
+                    header : header,
+                    url: '../../../../api/programs/oKibT84LSdV/organisationUnits/'+orgid,
+                    success: function(response){
 
-                },
-                error: function(response){
+                    },
+                    error: function(response){
 
-                }
-            });
-            var user = {
+                    }
+                });
+                $.ajax({
+                    async : false,
+                    type: "POST",
+                    dataType: "json",
+                    contentType: "application/json",
+                    header : header,
+                    url: '../../../../api/programs/PIhrNhsvPEr/organisationUnits/'+orgid,
+                    success: function(response){
 
-                firstName:username,
-                surname : username,
-                id:userinfoid[0],
-                email:email,
-                userCredentials: {
-                    "username": username,
-                    "password": password,
-                    "userInfo": {"id": userinfoid[0] },
-                    "userRoles": [ {
-                        "id": "ccSI4dsXeFI"
-                    } ]
-                },
+                    },
+                    error: function(response){
 
-                organisationUnits:[{
+                    }
+                });
 
-                    id:orgid
-                }]
             }
 
 
-            $.ajax({
-                async : false,
-                type: "POST",
-                dataType: "json",
-                contentType: "application/json",
-                header : header,
-                url: '../../../../api/users/',
-                data: JSON.stringify(user),
-                success: function(response){
+            function  createUser(orgid)
+            {
 
-                    alert("User successfully registered please login to continue!")
-                    window.close();
-                },
-                error: function(response){
+                $.ajax({
+                    async : false,
+                    type: "GET",
+                    dataType: "json",
+                    contentType: "application/json",
+                    header : header,
+                    url: '../../../../api/system/id',
+                    success: function(response){
+                        userinfoid = response.codes;
 
-                    alert("Error successfully registered please login to continue!")
+                    },
+                    error: function(response){
+
+                    }
+                });
+                var user = {
+
+                    firstName:username,
+                    surname : username,
+                    id:userinfoid[0],
+                    email:email,
+                    phoneNumber:phone,
+
+                    userCredentials: {
+                        "username": username,
+                        "password": password,
+                        "userInfo": {"id": userinfoid[0] },
+                        "userRoles": [ {
+                            "id": "ccSI4dsXeFI"
+                        } ]
+                    },
+
+                    organisationUnits:[{
+
+                        id:orgid
+                    }]
                 }
-            });
+
+
+                $.ajax({
+                    async : false,
+                    type: "POST",
+                    dataType: "json",
+                    contentType: "application/json",
+                    header : header,
+                    url: '../../../../api/users/',
+                    data: JSON.stringify(user),
+                    success: function(response){
+
+                        alert("User successfully registered please login to continue!")
+                        window.close();
+                    },
+                    error: function(response){
+
+                        alert("Error successfully registered please login to continue!")
+                    }
+                });
+
+            }
+
+
 
         }
+        else if(validationcheck==false)
+        {
+           document.getElementById("phoneno").value="";
+           document.getElementById("username").value="";
+           document.getElementById("email").value="";
+           document.getElementById("password").value="";
 
-
+        }
+        validationcheck="";
 
     }
 
@@ -251,6 +321,7 @@
     <div id="formHeader" class="w3-container">
         <h2 style="color:white; font-weight: bold; text-align:center">Registration Form</h2>
     </div>
+
     <form style="margin-left:10px; margin-right:10px;">
         <p>
             <select class="w3-select w3-border" name="option" id="drop1">
@@ -262,6 +333,10 @@
         <p>
             <label>Email: </label>
             <input class="w3-input" type="email" id="email"></p>
+        <p>
+        <p>
+            <label>Phone No: </label>
+            <input class="w3-input" type="phone" id="phoneno"></p>
         <p>
             <label>Password</label>
             <input class="w3-input" type="password" id="password"></p>
