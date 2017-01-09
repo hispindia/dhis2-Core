@@ -2229,21 +2229,29 @@ trackerCapture.controller('DataEntryController',
                 }
                 $scope.completebutton = function() {
                     var dataelement = "oYNscX4WRDk";
-                    var issue = 3;
+                    var issue = -1;
 
 
                     $scope.saveDataValueForEvent1(dataelement, issue, null, $scope.currentEvent, false);
                 }
 
 
-                $scope.SendBack = function() {
+                $scope.SendBack = function(inTableView, outerDataEntryForm) {
 
-                    $scope.currentEvent1 = $scope.currentEvent;
-                    $scope.escalate1 = "sendback";
+                   var dataelement = "oYNscX4WRDk";
+                    var issue = 3;
 
 
+                    $scope.saveDataValueForEvent1(dataelement, issue, null, $scope.currentEvent, false);
+					var dataelement1="WggL0QDVcRG";
+					var issue1="";
+					 $scope.saveDataValueForEvent1(dataelement1, issue1, null, $scope.currentEvent, false);
+					 var dataelement2="obqAPIKe6hs";
+					var issue2="";
+					  $scope.saveDataValueForEvent1(dataelement2, issue2, null, $scope.currentEvent, false)
 
-                    $scope.completeIncompleteEvent1(inTableView, outerDataEntryForm, $scope.escalate1, $scope.currentEvent1);
+
+                    //$scope.completeIncompleteEvent1(inTableView, outerDataEntryForm, $scope.escalate1, $scope.currentEvent1);
 
                 }
 
@@ -3312,12 +3320,9 @@ trackerCapture.controller('DataEntryController',
                             //   $scope.saveDataValueForEvent1(dataelement,outerDataEntryForm,issue, null, $scope.currentEvent, false);
                         }
                         if (dhis2Event.programStage == "pPC6amo408x") {
-                            if (issuelicensecall == "completed") {
+                            if (issuelicensecall == "complete") {
                                 $scope.completebutton(currentEvent1);
-                            } else if (issuelicensecall == "complete") {
-
-                                $scope.SendBack1(currentEvent1);
-                            }
+                            } 
 
                         }
                     }
