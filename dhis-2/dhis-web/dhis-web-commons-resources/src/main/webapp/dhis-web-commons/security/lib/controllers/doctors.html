@@ -107,8 +107,8 @@
                 htmlstring='<table id="doctors" class="w3-table w3-striped w3-hoverable"><tr style=" background-color: #2978B3; color: white;"><th style="width:20%"><p><strong>Doctors List</strong></p></th><th style="width:30%"><p><strong>Name</strong></p></th><th style="width:50%"><p><strong>Highest qualification</strong></p></th></tr>'
                 for(var i =0;i<=dNames.length-1;i++)
                 {
-                    document.getElementById("nurses").innerHTML= "Number of Nurses="+nursecount;
-                    document.getElementById("paramedical").innerHTML= "Number of Paramedical Staff="+paracount;
+                    document.getElementById("nurses").innerHTML= "<Strong>Number of Nurses :- </strong>"+nursecount;
+                    document.getElementById("paramedical").innerHTML= "<strong>Number of Paramedical Staff :-</strong>"+paracount;
                     htmlstring+='<tr><td><p>'+dMedical[i]+'</p></td><td><p>'+dNames[i]+'</p></td><td><p>'+dQual[i]+'</p></td></tr>'
 
                 }
@@ -150,7 +150,15 @@
 </div>
 
 </br>
-<div class="w3-table w3-striped w3-hoverable" align="center" style=" background-color: #2978B3;margin-left: 20%;margin-right: 20%; color: white;"><p id="nurses"><strong>Number of Nurses:</strong></p><p id="paramedical"><strong>Number of Paramedical:</strong></p></div>
+<div  class="w3-card-2" style=" background-color: #2978B3;margin-left: 20%;margin-right: 20%; color: white;">
+    <table class="w3-table">
+        <tr>
+            <td style="text-align: center"><p id="nurses"></p></td>
+            <td><p id="paramedical"></p></td>
+        </tr>
+    </table>
+</div>
+
 <div class="w3-card-4" style="margin-left:20%; margin-right:20%;background-color:white;">
     <div id="procedureid" class="w3-container" style="padding-top: 10px; padding-bottom: 10px;"></div>
 </div>
