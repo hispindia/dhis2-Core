@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html class="loginPage">
 <head>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <!-- Default Dhis -->
     <title>Punjab Health Transparency Portal</title>
     <link rel="icon" href="./img/logo1n.png" type="image/x-icon">
@@ -62,25 +62,82 @@
     }
 
     #map1 {
-        border:3px solid black;
-        display:none;
-        position: absolute;
-        top: 60%;
-        left: 50%;
-        right: 50%;
-
+        margin-left:10%;
+        margin-right:10%;
+        position: relative;
         width: 1200px;
         height:450px;
-        transform: translate(-50%, -50%)
+
     }
     #header{
-
         color: white;
         background-color: #2978B3;
         height:auto;
         width:100%;
     }
+    /*Footer Css*/
+    #footer1{
+        background: #2978B3;
+        height: 80px;
+    }
 
+    /* Dropdown Button */
+    .dropbtn {
+        background-color: #D86422;
+        color: white;
+        /*padding:5px;
+        margin-top: 10%;
+        font-size: 14px;*/
+        border: none;
+        cursor: -webkit-grab;
+    }
+
+    /* The container <div> - needed to position the dropdown content */
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    /* Dropdown Content (Hidden by Default) */
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 2;
+    }
+
+    /* Links inside the dropdown */
+    .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+
+    /* Change color of dropdown links on hover */
+    .dropdown-content a:hover {background-color: #f1f1f1}
+
+    /* Show the dropdown menu on hover */
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
+    /* Change the background color of the dropdown button when the dropdown content is shown */
+    .dropdown:hover .dropbtn {
+        background-color: #D86422;
+    }
+
+
+    .bootstrap-select:not([class*=col-]):not([class*=form-control]):not(.input-group-btn) {
+        width: 170px;
+    }
+
+    #dropdown1 li{
+        margin-right: 2%;
+        padding-bottom: 2%;
+    }
 </style>
 <body>
 <!-- Modal -->
@@ -103,7 +160,7 @@
 
                         <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post" style="text-align: center;">
                             <div>
-                                  <div id="signInLabel"><p><strong>Sign in</strong></p></div>
+                                <div id="signInLabel"><p><strong>Sign in</strong></p></div>
                                 </br>
                                 <div><input type="text" autofocus="autofocus" id="j_username" name="j_username" placeholder="Username"></div>
                                 </br>
@@ -140,11 +197,11 @@
                         </form>
                         #end
                         #if( $failed == true )
-                   <div id="loginMessage" >Wrong username or password   <script>
-                                              (function () {
-                                                  $('#myModal').modal('show');
-                                              })();
-                                          </script></div>
+                        <div id="loginMessage" >Wrong username or password   <script>
+                            (function () {
+                                $('#myModal').modal('show');
+                            })();
+                        </script></div>
                         #end
                         #if ( $keyApplicationNotification )
                         <div id="notificationArea">$!{keyApplicationNotification}</div>
@@ -161,7 +218,7 @@
 
     </div>
 </div>
-<div >
+<div style="width: 100%">
     <!--Header -->
     <header  id="header" class="w3-hover-shadow ">
         <table>
@@ -173,20 +230,42 @@
                     <p style="color:#fff"><strong>Punjab Health Facility Portal</strong></p>
                 </td>
                 <td>
-                    <ul style="list-style-type:none;">
-                        <li class="w3-btn"><a onclick="window.location.reload()" target="_blank" style="color:#fff; margin-left: 25%">Home</a></li>
-                        <li class="w3-btn"><a href="http://pbhealth.gov.in/" target="_blank" style="color:#fff"> Punjab Health Department</a></li>
-                          <li class="w3-btn"><a href="#" onclick="window.open('docs/SOP.pdf'); return false;" style="color:#fff">User Manual</a></li>
-                        <li class="w3-btn" id="b1" class="button12" data-toggle="modal"  style="color:#fff" data-target="#myModal"><b>Register Facility/Login</b></li>
-                    </ul>
+                    <!--  <ul style="list-style-type:none;">
+                          <li class="w3-btn"><a onclick="window.location.reload()" target="_blank" style="color:#fff; margin-left: 25%">Home</a></li>
+                          <li class="w3-btn"><a href="http://pbhealth.gov.in/" target="_blank" style="color:#fff"> Punjab Health Department</a></li>
+                            <li class="w3-btn"><a href="#" onclick="window.open('docs/SOP.pdf'); return false;" style="color:#fff">User Manual</a></li>
+                          <li class="w3-btn" id="b1" class="button12" data-toggle="modal"  style="color:#fff" data-target="#myModal"><b>Register Facility/Login</b></li>
+                      </ul>-->
+
+                    <div style="float:right">
+                        <ul style="list-style-type:none;display: -webkit-inline-box;">
+                            <li style="margin-right: 1%"><button onclick="window.location.reload()" target="_blank" style="color:#fff; background: #d86422;border: none;">Home</button></li>
+                            <li style="margin-right: 1%"><button onclick="window.open('http://pbhealth.gov.in/')" target="_blank" style="color:#fff; background: #d86422;border: none;"> Punjab Health Department</button></li>
+                            <li style="margin-right: 1%">
+                                <div class="dropdown">
+                                    <button class="dropbtn">User Manual</button>
+                                    <div class="dropdown-content">
+                                        <a href="#" onclick="window.open('docs/SOP.pdf'); return false;">User SOP</a>
+                                        <a href="#">Hospital Registration SOP</a>
+                                        <a href="#">FAQ</a>
+                                    </div>
+                                </div>
+                            </li>
+                            <!--<li class="w3-btn"><a href="#" onclick="window.open('docs/SOP.pdf'); return false;" style="color:#fff">User Manual</a></li>-->
+                            <li  id="b1" class="button12" data-toggle="modal"  style="color:#fff" data-target="#myModal "><button style="background: #d86422;border:none;">Register Facility/Login</button></li>
+
+                        </ul>
+
+                    </div>
                 </td>
             </tr>
         </table>
+
     </header>
 
 
     <!--DropDown Bar-->
-    <div  class="w3-row " style="text-align:center; padding-top: 20px">
+    <!--<div  class="w3-row " style="text-align:center; padding-top: 20px">
         <div class="w3-col w3-container" style="width:30%">
             <select id="drop1" class="selectpicker"  data-live-search="true" >
                 <option value="" disabled selected hidden>Please Select State/District</option>
@@ -220,7 +299,37 @@
             <button type="button" onclick="generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfacility);">List View</button>
         </div>
 
-    </div>
+    </div>-->
+    <ul id="dropdown1" class="w3-card-2" style="display: inline-flex;list-style-type: none; padding-top: 2%;width: 100%; margin-top:1%;background-color: aliceblue;">
+        <li>
+            <label for="Orgunit">Select State/District</label>
+            <select id="drop1" class="selectpicker" multiple data-live-search="true" >
+                <option value="wSslG6mcGXl"  hidden>Entire State (Punjab)</option>
+            </select></li>
+        <li>
+            <label for="Orgunit">Search Hospital Name</label>
+            <select id="drophospital"  class="selectpicker"  multiple data-live-search="true" >
+
+            </select>
+        </li>
+        <li>
+            <label for="Orgunit">Search speciality</label>
+            <select id="drop2"  class="selectpicker"  multiple data-live-search="true"></select>
+        </li>
+        <li>
+            <label for="Orgunit">Search Ownership</label>
+            <select id="drop_ownership"  class="selectpicker"  multiple  data-live-search="true"></select>
+        </li>
+        <li>
+            <label for="Orgunit">Type of Health Facility</label>
+            <select id="droptype"  class="selectpicker" multiple  data-live-search="true"> </select>
+        </li>
+    </ul>
+
+
+
+    <button style="margin-left: 50%; text-align: center; margin-top: 2%" type="button" class="btn btn-success" onclick="generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility);">Map View</button>
+    <button style="margin-top: 2%" type="button" class="btn btn-primary" onclick="generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfacility);">List View</button>
 
     <!--<div clas="w3-col w3-container" style="width: 100%; text-align: center">-->
     <!--<button type="button" onclick="generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility);">Go</button>-->
@@ -237,16 +346,28 @@
                 </div></td>
             </tr>
         </table>
-        <div id="map" style="width: 650px" ></div>
+        <div><img src="img/punjab.png"></div>
     </div>
 </div>
 <div id="map1" ></div>
-<div align='center' style="bottom: 08%;text-align: center"><img src='http://www.hit-counts.com/counter.php?t=MTM5OTk2Mw==' border='0' alt='Free Hit Counter'></a><BR><p style="font-family: Arial;color: #00bcd4; bottom: 08%">Visitor Counter</p></div>
-<div id="resultcount" align='center' style="bottom: 08%;display:none;text-align: center"><p id="resultcount">Total No: of Results: </p></div>
-  <MARQUEE >
-            <p style="font-family: Arial;font-weight: bold">Contact on 9643208385 From 10:00 a.m-6:00 p.m for any queries.</p>
-        </MARQUEE>
-<div id="footer">
+<MARQUEE style="background: navajowhite;" >
+    <p style="font-family: Arial;font-weight: bold;color: #0f0f0f">Please call on 9643208385 for any kind of technical support.</p>
+</MARQUEE>
+
+<!--Hit counter-->
+<!--<div align='center' id="visitorcounter"style="bottom:08%;text-align: center"><img src='http://www.hit-counts.com/counter.php?t=MTM5OTk2Mw==' border='0' alt='Visitor Counter'></a><p style="font-family: Arial;color: #00bcd4; bottom: 08%">Visitor Counter</p></div>-->
+
+<!-- Start of SimpleHitCounter Code -->
+<div align="center"><a href="http://pbhealthportal.in/pbhealthportal/dhis-web-commons/security/login.action" target="_blank"><img src="http://simplehitcounter.com/hit.php?uid=2215201&f=0&b=16777215" border="0" height="18" width="83" alt="PBhealth portal"></a><br><a href="#"  style="text-decoration:none;">Visitor Counter</a></div>
+<!-- End of SimpleHitCounter Code -->
+<div class="alert alert-success" id="resultcount" style="display:none;text-align: center" align='center'>
+    <strong >Total No: of Results:</strong>
+</div>
+<div class="alert alert-danger" id="noresult" style="display:none;text-align: center" align='center'>
+    <strong >No result found for above selection</strong>
+</div>
+
+<div id="footer1">
     <p style="text-align: center; color: #fff">Disclaimer: The responsibility for the correctness of data in the portal is the responsibility of the facility which has self-registered the data. The Government is only responsible for the dissemination of this information through this portal.</p>
 </div>
 
