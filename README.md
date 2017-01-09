@@ -1,6 +1,8 @@
 
 # DHIS 2
 
+Created NIE-2.25 New Branch 09/01/2017
+
 DHIS 2 is a flexible information system for data capture, management, validation, analytics and visualization. It allows for data capture through clients ranging from Web browsers, Android devices, Java feature phones and SMS. DHIS 2 features data visualization apps for dashboards, pivot tables, charting and GIS. It provides metadata management and configuration. The data model and services are exposed through a RESTful Web API.
 
 ## Overview
