@@ -4,6 +4,7 @@ var base = "../../";
 var url=base+"dhis-web-commons-security/login.action";
 var orgid="wSslG6mcGXl";
 var ouid=[];
+var drop2org=[];
 var sel="";
 var filterhospital,service,owner,healthfacility;
 var hospital;
@@ -29,11 +30,26 @@ var blueMarker = L.AwesomeMarkers.icon({
     markerColor: 'blue'
 });
 
-var map1 =L.map('map1').setView([31.1471, 75.3412], 10);
+var cloudmade1 = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+    key: 'BC9A493B41014CAABB9dsfsdfds8F0471D759707'
+});
+//var cloudmade = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+//    maxZoom: 18,
+//    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+//    key: 'BC9A493B41014CAABB9dsfsdfds8F0471D759707'
+//});
 
-L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map1);
+var map1 = L.map('map1')
+    .setView([31.1471, 75.3412], 8)
+    .addLayer(cloudmade1);
+
+//var map = L.map('map')
+//    .setView([31.1471, 75.3412], 8)
+//    .addLayer(cloudmade);
+
+var markers = new L.FeatureGroup();
 
 var header = {
 
@@ -96,252 +112,68 @@ Ext.onReady( function() {
 
     function setLinks() {
 
-
         document.getElementById("map1").style.display = "none";
-        //document.getElementById("map1").style.border = "none";
+        $.ajax({
 
-        //var greenIcon = L.icon({
-        //    iconUrl: 'hospital.png',
-        //
-        //    iconSize:     [10, 20], // size of the icon
-        //    shadowSize:   [50, 64], // size of the shadow
-        //    iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
-        //    shadowAnchor: [4, 62],  // the same for the shadow
-        //    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
-        //});
+            async : false,
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json",
+            headers : header,
+            url: '../../api/optionSets/dGdSkUKNC0I.json?fields=options[id,name]',
+            success: function(data){
+                $.each(data.options, function (index, item) {
+                    $('#drop_ownership').append($('<option></option>').val(item.id).html(item.name).text(item.name)
+                    );
+                });
 
-        ////
-        //L.marker([51.941196,4.512291], {icon: redMarker}).addTo(map);
-        //
-        var map =L.map('map').setView([31.1471, 75.3412], 8);
+            },
+            error: function(response){
 
-        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+            }
+        });
 
-
-        L.marker([30.37550547,75.54520121], {icon: blueMarker}).addTo(map).bindPopup('Barnala DH').openPopup();
-        //L.marker([31.80871582,75.21504738], {icon: blueMarker}).addTo(map).bindPopup('Batala SDH').openPopup();
-        L.marker([30.195269,74.948875], {icon: blueMarker}).addTo(map).bindPopup('Bathinda DH').openPopup();
-        //L.marker([31.80801415,75.66609161], {icon: blueMarker}).addTo(map).bindPopup('Dasuya SDH').openPopup();
-        //L.marker([30.58493912,76.84537522], {icon: blueMarker}).addTo(map).bindPopup('Dera Bassi SDH').openPopup();
-        //L.marker([30.36701341,75.86064861], {icon: blueMarker}).addTo(map).bindPopup('Dhuri SDH').openPopup();
-        L.marker([30.67916,74.76056], {icon: blueMarker}).addTo(map).bindPopup('Faridkot DH').openPopup();
-        L.marker([30.64654063,76.39065742], {icon: blueMarker}).addTo(map).bindPopup('Fatehgarh Sahib DH').openPopup();
-        L.marker([30.40692,74.02465], {icon: blueMarker}).addTo(map).bindPopup('Fazilka DH').openPopup();
-        L.marker([30.95201,74.60811], {icon: blueMarker}).addTo(map).bindPopup('Ferozpur DH').openPopup();
-        //L.marker([31.2133338,76.15022645], {icon: blueMarker}).addTo(map).bindPopup('Garhshankar SDH').openPopup();
-        //L.marker([30.21606572,74.64781269], {icon: blueMarker}).addTo(map).bindPopup('Gidderbaha SDH').openPopup();
-        L.marker([32.04073,75.40306], {icon: blueMarker}).addTo(map).bindPopup('Gurdaspur DH').openPopup();
-        L.marker([31.52922237,75.89993167], {icon: blueMarker}).addTo(map).bindPopup('Hoshiarpur DH').openPopup();
-        //L.marker([30.81121602,75.477995], {icon: blueMarker}).addTo(map).bindPopup('Jagraon SDH').openPopup();
-        L.marker([31.3262145,75.57351424], {icon: blueMarker}).addTo(map).bindPopup('Jalandhar DH').openPopup();
-
-        //L.marker([31.42239039,75.10375804], {icon: blueMarker}).addTo(map).bindPopup('Khadoor Sahib SDH').openPopup();
-        //L.marker([30.70351313,76.22276782], {icon: blueMarker}).addTo(map).bindPopup('Khanna SDH').openPopup();
-        //L.marker([30.75275677,76.63298919], {icon: blueMarker}).addTo(map).bindPopup('Kharar SDH').openPopup();
-        //L.marker([30.584712,74.819477], {icon: blueMarker}).addTo(map).bindPopup('Kot Kapura SDH').openPopup();
-        L.marker([30.90672481,75.86081254], {icon: blueMarker}).addTo(map).bindPopup('Ludhiana DH').openPopup();
-        //L.marker([30.51947437,75.87631838], {icon: blueMarker}).addTo(map).bindPopup('Malerkotla SDH').openPopup();
-        //L.marker([30.18659814,74.4952944], {icon: blueMarker}).addTo(map).bindPopup('Malout SDH').openPopup();
-        //L.marker([30.66815731,76.29482029], {icon: blueMarker}).addTo(map).bindPopup('Mandi Gobindgarh SDH').openPopup();
-        L.marker([29.9854766666666,75.4028283333333], {icon: blueMarker}).addTo(map).bindPopup('Mansa DH').openPopup();
-        L.marker([30.8115504023731,75.1687670480491], {icon: blueMarker}).addTo(map).bindPopup('Moga DH').openPopup();
-        //L.marker([31.95013172,75.61338068], {icon: blueMarker}).addTo(map).bindPopup('Mukerian SDH').openPopup();
-        //L.marker([31.21798862,75.19219881], {icon: blueMarker}).addTo(map).bindPopup('Sultanpur Lodhi SDH').openPopup();
-        //L.marker([30.1379447,75.80376698], {icon: blueMarker}).addTo(map).bindPopup('Sunam SDH').openPopup();
-        //L.marker([29.98855225,75.08340907], {icon: blueMarker}).addTo(map).bindPopup('Talwandi Sabo SDH').openPopup();
-        //L.marker([30.30710418,75.37256897], {icon: blueMarker}).addTo(map).bindPopup('Tappa SDH').openPopup();
-        L.marker([31.45811,74.92324], {icon: blueMarker}).addTo(map).bindPopup('Tarn Taran DH').openPopup();
-        //L.marker([30.9689826,74.99135592], {icon: blueMarker}).addTo(map).bindPopup('Zira SDH').openPopup();
-        //L.marker([29.9252016666666,75.5579733333333], {icon: blueMarker}).addTo(map).bindPopup('Bhudlada SDH').openPopup();
-        //L.marker([30.12685385,74.79407916], {icon: blueMarker}).addTo(map).bindPopup('Ghudda SDH').openPopup();
-        //L.marker([29.82178179,75.87980863], {icon: blueMarker}).addTo(map).bindPopup('Moonak SDH').openPopup();
-        L.marker([30.46327,74.53723], {icon: blueMarker}).addTo(map).bindPopup('Muktsar DH').openPopup();
-        //L.marker([30.37233541,76.14592193], {icon: blueMarker}).addTo(map).bindPopup('Nabha SDH').openPopup();
-        //L.marker([31.12822406,75.47563157], {icon: blueMarker}).addTo(map).bindPopup('Nakodar SDH').openPopup();
-        L.marker([32.28217178,75.65333879], {icon: blueMarker}).addTo(map).bindPopup('Pathankot DH').openPopup();
-        L.marker([30.33780603,76.39953685], {icon: blueMarker}).addTo(map).bindPopup('Patiala DH').openPopup();
-        //L.marker([31.27465805,74.85364882], {icon: blueMarker}).addTo(map).bindPopup('Patti SDH').openPopup();
-        //L.marker([31.230178,75.76264578], {icon: blueMarker}).addTo(map).bindPopup('Phagwara SDH').openPopup();
-        //L.marker([31.02171817,75.79010622], {icon: blueMarker}).addTo(map).bindPopup('Phillaur SDH').openPopup();
-        //L.marker([30.64373869,75.58089011], {icon: blueMarker}).addTo(map).bindPopup('Raikot SDH').openPopup();
-        //L.marker([30.47829002,76.58439128], {icon: blueMarker}).addTo(map).bindPopup('Rajpura SDH').openPopup();
-        //L.marker([30.32280885,75.24355099], {icon: blueMarker}).addTo(map).bindPopup('Rampura Phul SDH').openPopup();
-        L.marker([30.96655,76.52503], {icon: blueMarker}).addTo(map).bindPopup('Ropar DH').openPopup();
-        //L.marker([30.15946692,76.20282606], {icon: blueMarker}).addTo(map).bindPopup('Samana SDH').openPopup();
-        //L.marker([30.83910716,76.18747948], {icon: blueMarker}).addTo(map).bindPopup('Samrala SDH').openPopup();
-        L.marker([30.25216211,75.83589949], {icon: blueMarker}).addTo(map).bindPopup('Sangrur DH').openPopup();
-        //L.marker([29.6910283333333,75.2380716666666], {icon: blueMarker}).addTo(map).bindPopup('Sardulgarh SDH').openPopup();
-        //L.marker([31.5391409,75.50770497], {icon: blueMarker}).addTo(map).bindPopup('Bhulath SDH').openPopup();
-        L.marker([30.73882964,76.71369736], {icon: blueMarker}).addTo(map).bindPopup('Mohali DH').openPopup();
-        L.marker([31.11652967,76.15569411], {icon: blueMarker}).addTo(map).bindPopup('Nawanshahr DH').openPopup();
-
-        //
-        L.marker([30.90926,75.86416], {icon: redMarker}).addTo(map).bindPopup('Christian medical college').openPopup();
-        L.marker([30.69541,76.73423], {icon: redMarker}).addTo(map).bindPopup('Fortis Mohali').openPopup();
-        L.marker([30.58577,76.84173], {icon: redMarker}).addTo(map).bindPopup('SRI RAM HOSPITAL').openPopup();
-        L.marker([30.7406,76.67444], {icon: redMarker}).addTo(map).bindPopup('Kamboj Multispeciality hospital').openPopup();
-        L.marker([30.6970005,75.7683411], {icon: redMarker}).addTo(map).bindPopup('Ranipur PHC').openPopup();
-        L.marker([30.97322,76.52601], {icon: redMarker}).addTo(map).bindPopup('Sangha Hospital').openPopup();
-        L.marker([30.9625,76.51973], {icon: redMarker}).addTo(map).bindPopup('Max City Hospital').openPopup();
-        L.marker([30.76232,76.63054], {icon: redMarker}).addTo(map).bindPopup('Rajeev Eye hospital').openPopup();
-        L.marker([30.21728,74.94581], {icon: redMarker}).addTo(map).bindPopup('Chhabra Hospital').openPopup();
-        L.marker([30.8365993,75.4187164], {icon: redMarker}).addTo(map).bindPopup('Care & Cure Medicity Hospital').openPopup();
-        L.marker([30.63024,76.81883], {icon: redMarker}).addTo(map).bindPopup('Chaudhary Hospital').openPopup();
-        L.marker([31.65915,74.8725], {icon: redMarker}).addTo(map).bindPopup('Preet Hospital').openPopup();
-        L.marker([31.61746,74.8621], {icon: redMarker}).addTo(map).bindPopup('Choudhary ENT & Maternity Hospital').openPopup();
-        L.marker([31.6339,74.8555499], {icon: redMarker}).addTo(map).bindPopup('Lifeline Hospital').openPopup();
-        L.marker([30.47754,76.58428], {icon: redMarker}).addTo(map).bindPopup('Baweja Multispeciality Hospital').openPopup();
-        L.marker([30.709,76.80246], {icon: redMarker}).addTo(map).bindPopup('Eden Critical Care hospital Ltd').openPopup();
-        L.marker([30.82948,75.16471], {icon: redMarker}).addTo(map).bindPopup('Garg Hospital').openPopup();
-        L.marker([30.67542,76.22782], {icon: redMarker}).addTo(map).bindPopup('Rani Eye hospital').openPopup();
-        L.marker([30.33193,76.37918], {icon: redMarker}).addTo(map).bindPopup('Prime Multispeciality Hospital (A Unit Of Hope Health Ways)').openPopup();
-        L.marker([30.34231,76.45401], {icon: redMarker}).addTo(map).bindPopup('Rama Atray Memorial eye Hospital').openPopup();
-        L.marker([30.34867,76.39142], {icon: redMarker}).addTo(map).bindPopup('Garg Eye Hospital').openPopup();
-        L.marker([30.14313,74.2122], {icon: redMarker}).addTo(map).bindPopup('Loona Nursing Home').openPopup();
-        L.marker([30.37965,76.36246], {icon: redMarker}).addTo(map).bindPopup('Randhawa Eye Hospital& Lasik Centre').openPopup();
-        L.marker([30.47562,76.58569], {icon: redMarker}).addTo(map).bindPopup('Neelam Hospital').openPopup();
-        L.marker([31.64268,74.89598], {icon: redMarker}).addTo(map).bindPopup('Apex Hospital').openPopup();
-        L.marker([30.22191,74.95694], {icon: redMarker}).addTo(map).bindPopup('Badyal Multispeciality hospital & Trauma Centre').openPopup();
-        L.marker([30.74119,76.74019], {icon: redMarker}).addTo(map).bindPopup('SANTOKH HOSPITAL').openPopup();
-        L.marker([31.63285,74.84357], {icon: redMarker}).addTo(map).bindPopup('Gumber Eye & Dental Care Centre').openPopup();
-        L.marker([31.64287,74.8962899], {icon: redMarker}).addTo(map).bindPopup('The corporate hospital').openPopup();
-        L.marker([30.35258,76.374], {icon: redMarker}).addTo(map).bindPopup('A.P.Healthcare & Trauma Centre').openPopup();
-        L.marker([31.33428,75.56743], {icon: redMarker}).addTo(map).bindPopup('Shakuntala devi. VIG Hospital').openPopup();
-        L.marker([31.82191,75.19866], {icon: redMarker}).addTo(map).bindPopup('Satsar Hospital').openPopup();
-        L.marker([31.33443,75.56227], {icon: redMarker}).addTo(map).bindPopup('Makkar Hospital').openPopup();
-        L.marker([30.8877,75.80504], {icon: redMarker}).addTo(map).bindPopup('N.K. Aggarwal Joints & Spine Centre').openPopup();
-        L.marker([30.68029,76.7382499], {icon: redMarker}).addTo(map).bindPopup('I Med Hospital').openPopup();
-        L.marker([30.4777,74.50962], {icon: redMarker}).addTo(map).bindPopup('New Delhi Hospital & Nursing Home').openPopup();
-        L.marker([31.23289,75.7862899], {icon: redMarker}).addTo(map).bindPopup('Mitra Eye Hospital').openPopup();
-        L.marker([30.20886,74.94574], {icon: redMarker}).addTo(map).bindPopup('Aman Hospital').openPopup();
-        L.marker([30.77698,76.55861], {icon: redMarker}).addTo(map).bindPopup('Healthsure Multispeciality Hospital').openPopup();
-        L.marker([31.35661,76.3833], {icon: redMarker}).addTo(map).bindPopup('Shri Krishna Netralaya and Dantalaya').openPopup();
-        L.marker([31.62106,74.9021999], {icon: redMarker}).addTo(map).bindPopup('Gupta Hospital').openPopup();
-        L.marker([30.8365993,75.4187164], {icon: redMarker}).addTo(map).bindPopup('Rajpal Hospital').openPopup();
-        L.marker([31.64395,74.80026], {icon: redMarker}).addTo(map).bindPopup('Jai Kamal Eye Hospital').openPopup();
-        L.marker([30.21231,74.94462], {icon: redMarker}).addTo(map).bindPopup('Nagpal Superspeciality Hospital').openPopup();
-        L.marker([30.47272,74.5193], {icon: redMarker}).addTo(map).bindPopup('Dr. Arpanas U/S Maternity Centre').openPopup();
-        L.marker([30.35258,76.374], {icon: redMarker}).addTo(map).bindPopup('Aggarwal Health Care & Eye Hospital').openPopup();
-        L.marker([30.33493,76.42367], {icon: redMarker}).addTo(map).bindPopup('Sodhi Eye Hospital').openPopup();
-        L.marker([31.51631,75.87824], {icon: redMarker}).addTo(map).bindPopup('Nova Hospital').openPopup();
-        L.marker([30.3789,75.54185], {icon: redMarker}).addTo(map).bindPopup('Lifeline Multispeciality Hospital').openPopup();
-        L.marker([31.30991,75.57359], {icon: redMarker}).addTo(map).bindPopup('Thind Eye Hospital').openPopup();
-        L.marker([30.81682,75.1676899], {icon: redMarker}).addTo(map).bindPopup('Dr. Satya Pal Mittal Hospital').openPopup();
-        L.marker([30.33148,76.41767], {icon: redMarker}).addTo(map).bindPopup('Guru nanak hospital.').openPopup();
-        L.marker([30.26362,76.0377], {icon: redMarker}).addTo(map).bindPopup('Ravi Eye Hospital and Lasik Laser Centre').openPopup();
-        L.marker([30.73746,76.7757], {icon: redMarker}).addTo(map).bindPopup('Laser Eye Clinic').openPopup();
-        L.marker([30.48278,74.54282], {icon: redMarker}).addTo(map).bindPopup('Platinum Nursing Home').openPopup();
-        L.marker([30.22213,74.94327], {icon: redMarker}).addTo(map).bindPopup('Gem Hospital').openPopup();
-        L.marker([30.36972,75.54191], {icon: redMarker}).addTo(map).bindPopup('Dr.Naresh Hospital Heart Center').openPopup();
-        L.marker([30.22213,74.94327], {icon: redMarker}).addTo(map).bindPopup('Major Gupta Bone & Joint Hospital').openPopup();
-        L.marker([30.5232,75.87734], {icon: redMarker}).addTo(map).bindPopup('Ekjyot Eye hospital.').openPopup();
-        L.marker([30.20871,74.96707], {icon: redMarker}).addTo(map).bindPopup('Deol Bone and Joint Hospital').openPopup();
-        L.marker([31.22006,75.78059], {icon: redMarker}).addTo(map).bindPopup('Ekjyot shrama eye hospital').openPopup();
-        L.marker([30.36596,75.53904], {icon: redMarker}).addTo(map).bindPopup('sood nursing home').openPopup();
-        L.marker([31.70114,74.82171], {icon: redMarker}).addTo(map).bindPopup('Ivy Hospital (Ivy Health & Life Science Pvt Ltd) Amritsar').openPopup();
-        L.marker([30.33047,76.38458], {icon: redMarker}).addTo(map).bindPopup('Saronwala Hospital').openPopup();
-        L.marker([31.34613,75.56153], {icon: redMarker}).addTo(map).bindPopup('Oxford hospital Pvt. Ltd').openPopup();
-        L.marker([31.68149,74.83413], {icon: redMarker}).addTo(map).bindPopup('Surjit Hospital').openPopup();
-        L.marker([30.9259,75.84564], {icon: redMarker}).addTo(map).bindPopup('Dr. Shamsher Singh Health Care').openPopup();
-        L.marker([30.45306,74.53483], {icon: redMarker}).addTo(map).bindPopup('Kavita Maternity Hospital').openPopup();
-        L.marker([31.33443,75.56227], {icon: redMarker}).addTo(map).bindPopup('Joshi hospital multi superspeciality hospital').openPopup();
-        L.marker([30.22213,74.94327], {icon: redMarker}).addTo(map).bindPopup('Pardeep Memorial Goyal Multispeciality Hospital').openPopup();
-        L.marker([30.81792,75.19998], {icon: redMarker}).addTo(map).bindPopup('Gill Eye hospital').openPopup();
-
-        L.marker([31.33428,75.56743], {icon: redMarker}).addTo(map).bindPopup('Karan Hospital').openPopup();
-        L.marker([32.02774,75.39031], {icon: redMarker}).addTo(map).bindPopup('Abrol Medical Centre').openPopup();
-        L.marker([30.62618,76.39361], {icon: redMarker}).addTo(map).bindPopup('Rana Nursing Home').openPopup();
-        L.marker([30.33699,76.38368], {icon: redMarker}).addTo(map).bindPopup('Preet Surgical Centre & Maternity Hospital').openPopup();
-        L.marker([30.47272,74.5193], {icon: redMarker}).addTo(map).bindPopup('Gawri Nursing Home').openPopup();
-        L.marker([31.37516702,75.38252558], {icon: blueMarker}).addTo(map).bindPopup('Kapurthala DH').openPopup();
-
-    }
-
-    $.ajax({
-        async : false,
-        type: "GET",
-        dataType: "json",
-        contentType: "application/json",
-        headers : header,
-        url: '../../api/optionSets/dGdSkUKNC0I.json?fields=options[id,name]',
-        success: function(data){
-            $.each(data.options, function (index, item) {
-                $('#drop_ownership').append($('<option></option>').val(item.id).html(item.name).text(item.name)
-                );
+        $.getJSON("../../api/dataElementGroups/fX1ACo0Ffid.json?fields=dataElements[id,name,code]", function (data) {
+            var dataElements=data.dataElements;
+            dataElements.sort(function(a, b) {
+                var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
+                if (nameA < nameB) //sort string ascending
+                    return -1
+                if (nameA > nameB)
+                    return 1
+                return 0 //default return value (no sorting)
             });
 
-        },
-        error: function(response){
-        }
-    });
 
-    $.getJSON("../../api/dataElementGroups/fX1ACo0Ffid.json?fields=dataElements[id,name,code]", function (data) {
-        var dataElements=data.dataElements;
-        dataElements.sort(function(a, b) {
-            var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-            if (nameA < nameB) //sort string ascending
-                return -1
-            if (nameA > nameB)
-                return 1
-            return 0 //default return value (no sorting)
+            $.each(dataElements, function (index, item) {
+                $('#drop2').append($('<option></option>').val(item.id).html(item.name).text(item.name)
+                );
+            });
+        });
+
+        $.getJSON("../../api/dataElementGroups/y1WarsbVwrv.json?fields=dataElements[id,name]", function (data) {
+
+            var dataElements=data.dataElements;
+            dataElements.sort(function(a, b) {
+                var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
+                if (nameA < nameB) //sort string ascending
+                    return -1
+                if (nameA > nameB)
+                    return 1
+                return 0 //default return value (no sorting)
+            });
+
+            $.each(dataElements, function (index, item) {
+                $('#droptype').append($('<option></option>').val(item.id).html(item.name).text(item.name)
+                );
+            });
         });
 
 
-        $.each(dataElements, function (index, item) {
-            $('#drop2').append($('<option></option>').val(item.id).html(item.name).text(item.name)
-            );
-        });
-    });
 
-    $.getJSON("../../api/dataElementGroups/y1WarsbVwrv.json?fields=dataElements[id,name]", function (data) {
+        $.getJSON("../../api/organisationUnitGroups/mH15ENlpG4v.json?fields=organisationUnits[id,name,code]", function (data) {
 
-        var dataElements=data.dataElements;
-        dataElements.sort(function(a, b) {
-            var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-            if (nameA < nameB) //sort string ascending
-                return -1
-            if (nameA > nameB)
-                return 1
-            return 0 //default return value (no sorting)
-        });
-
-        $.each(dataElements, function (index, item) {
-            $('#droptype').append($('<option></option>').val(item.id).html(item.name).text(item.name)
-            );
-        });
-    });
-
-
-
-    $.getJSON("../../api/organisationUnitGroups/mH15ENlpG4v.json?fields=organisationUnits[id,name,code]", function (data) {
-
-        var organisationUnits=data.organisationUnits;
-        organisationUnits.sort(function(a, b) {
-            var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-            if (nameA < nameB) //sort string ascending
-                return -1
-            if (nameA > nameB)
-                return 1
-            return 0 //default return value (no sorting)
-        });
-
-        $.each(organisationUnits, function (index, item) {
-            $('#drop1').append($('<option></option>').val(item.id).html(item.name).text(item.name)
-            );
-        });
-    });
-
-    $("#drop1").change(function () {
-        $('#drophospital').prop('selectedIndex',0);
-        orgid = $(this).find("option:selected").val();
-        var organisationUnits;
-
-        $.getJSON("../../api/organisationUnits/"+orgid+"?paging=false&fields=children[id,name,children[id,name]]", function (data) {
-            var organisationUnits=data.children;
-
-
+            var organisationUnits=data.organisationUnits;
             organisationUnits.sort(function(a, b) {
                 var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
                 if (nameA < nameB) //sort string ascending
@@ -350,51 +182,116 @@ Ext.onReady( function() {
                     return 1
                 return 0 //default return value (no sorting)
             });
-            var element = document.getElementById("drophospital");
-            for (var i = element.length-1; i >= 0; i--) {
 
-                if(element[i].selected)
-
-                {
-
-                }
-                else {
-                    element[i].remove();
-                }
-            }
-
-
-            $.each(organisationUnits, function (index1, item1) {
-                if(item1.children.length>0)
-                {
-                    var organisationUnitschildren=item1.children;
-                    organisationUnitschildren.sort(function(a, b) {
-                        var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-                        if (nameA < nameB) //sort string ascending
-                            return -1
-                        if (nameA > nameB)
-                            return 1
-                        return 0 //default return value (no sorting)
-                    });
-                    $.each(organisationUnitschildren, function (index1, item1) {
-
-                        $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
-                    });
-                }
-
-
-                $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name)
-
+            $.each(organisationUnits, function (index, item) {
+                $('#drop1').append($('<option></option>').val(item.id).html(item.name).text(item.name)
                 );
             });
-            $('#drophospital').selectpicker('refresh');
         });
+
+        $.ajax({
+            async : false,
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json",
+            header : header,
+            url: '../../api/organisationUnitGroups/w70fxv91JLT.json?fields=organisationUnits[id,name,code]',
+            success: function(response){
+                Subcentregroup=response.organisationUnits;
+                $.each(Subcentregroup, function (index1, item1) {
+
+                    Subgroup.push(item1.id);
+
+                });
+            },
+            error: function(response){
+            }
+        });
+    }
+
+
+
+    $("#drop1").change(function () {
+        drop2org=[];
+        $('#drophospital').prop('selectedIndex',0);
+        var selected = $("#drop1 option:selected");
+        orgid="";
+        selected.each(function () {
+            drop2org.push($(this).val());
+            orgid = orgid+$(this).val()+";";
+        });
+        var organisationUnits;
+        for(var i=0;i<drop2org.length;i++)
+        {
+
+            $.getJSON("../../api/organisationUnits/"+drop2org[i]+"?paging=false&fields=children[id,name,children[id,name]]", function (data) {
+                var organisationUnits=data.children;
+
+
+                organisationUnits.sort(function(a, b) {
+                    var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
+                    if (nameA < nameB) //sort string ascending
+                        return -1
+                    if (nameA > nameB)
+                        return 1
+                    return 0 //default return value (no sorting)
+                });
+                var element = document.getElementById("drophospital");
+                for (var i = element.length-1; i >= 0; i--) {
+
+                    if(element[i].selected)
+
+                    {
+
+                    }
+                    else {
+                        element[i].remove();
+                    }
+                }
+
+
+                $.each(organisationUnits, function (index1, item1) {
+                    if(item1.children.length>0)
+                    {
+                        var organisationUnitschildren=item1.children;
+                        organisationUnitschildren.sort(function(a, b) {
+                            var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
+                            if (nameA < nameB) //sort string ascending
+                                return -1
+                            if (nameA > nameB)
+                                return 1
+                            return 0 //default return value (no sorting)
+                        });
+                        $.each(organisationUnitschildren, function (index1, item1) {
+
+                            $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
+                        });
+                    }
+
+
+                    $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name)
+
+                    );
+                });
+                $('#drophospital').selectpicker('refresh');
+            });
+
+        }
+
+
         //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
         //jQuery('#sel').html('');
     });
 
     $("#drophospital").change(function () {
-        hospital = $(this).find("option:selected").val();
+        hospital="";
+        var selected = $("#drophospital option:selected");
+        selected.each(function () {
+            drop2org.push($(this).val());
+            orgid = orgid+$(this).val()+";";
+            hospital = hospital+$(this).val()+";";
+        });
+
         orgid=hospital;
         //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
         //jQuery('#sel').html('');
@@ -448,24 +345,6 @@ Ext.onReady( function() {
         //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
     });
 
-    $.ajax({
-        async : false,
-        type: "GET",
-        dataType: "json",
-        contentType: "application/json",
-        header : header,
-        url: '../../api/organisationUnitGroups/w70fxv91JLT.json?fields=organisationUnits[id,name,code]',
-        success: function(response){
-            Subcentregroup=response.organisationUnits;
-            $.each(Subcentregroup, function (index1, item1) {
-
-                Subgroup.push(item1.id);
-
-            });
-        },
-        error: function(response){
-        }
-    });
 
 });
 
@@ -494,6 +373,8 @@ function myJoin(array){
     return result.substr(0,result.length-2);
 }
 function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility) {
+    map1.removeLayer(markers);
+    markers.clearLayers();
     $("#footer").hide();
     $("#visitorcounter").hide();
     document.getElementById("resultcount").style.display = "none";
@@ -900,7 +781,6 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
 
 
     $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:LAST_5_YEARS&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs"+defservice+"&dimension="+defavail+"&dimension="+defowner+defhealthfacility+"&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
-        console.log("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:LAST_5_YEARS&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs"+defservice+"&dimension="+defowner+defhealthfacility+"&dimension=jXCd8k2841l&dimension=RkP5neDLbHv&dimension=avHST8wLPnX&dimension=txl9e6UJFP4&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME");
         var constants={key:name, value: value}
 
         analyticsMap = calculateIndex(data.headers,analyticsMap);
@@ -1000,6 +880,10 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
                 }
             });
         }
+
+
+
+
         for (var i = 0; i < ouid.length; i++) {
 
 
@@ -1009,22 +893,27 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
             }
             else
             {
+
                 if(ownership[i]=="Public")
                 {
-                    L.marker([longitude[i], latitude[i]], {icon: blueMarker}).addTo(map1).bindPopup(name[i]+","+" </br><strong>Contact:</strong>"+  mobile[i]+ "</br><strong>Schemes:</strong>"+hfschemes[i]+"</br><strong>Availabilities: </strong>"+availspecialiti[i]+"</br>GoTo List View for more details").openPopup();
-
+                    var marker = L.marker([longitude[i], latitude[i]], {icon: blueMarker}).bindPopup(name[i]+","+" </br><strong>Contact:</strong>"+  mobile[i]+ "</br><strong>Schemes:</strong>"+hfschemes[i]+"</br><strong>Availabilities: </strong>"+availspecialiti[i]+"</br>GoTo List View for more details").openPopup();
+                    markers.addLayer(marker);
+                    map1.addLayer(markers);
                 }
                 else if(ownership[i]=="Private")
                 {
-                    L.marker([longitude[i], latitude[i]], {icon: redMarker}).addTo(map1).bindPopup(name[i]).openPopup();
-
+                    var marker=L.marker([longitude[i], latitude[i]], {icon: redMarker}).bindPopup(name[i]).openPopup();
+                    markers.addLayer(marker);
+                    map1.addLayer(markers);
                 }
 
             }
 
         }
 
+
     });
+
     document.getElementById("loader").style.display = "none";
 }
 
@@ -1436,7 +1325,6 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
 
 
     $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:LAST_5_YEARS&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs"+defservice+"&dimension="+defavail+"&dimension="+defowner+defhealthfacility+"&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
-        console.log("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:LAST_5_YEARS&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs"+defservice+"&dimension="+defowner+defhealthfacility+"&dimension=jXCd8k2841l&dimension=RkP5neDLbHv&dimension=avHST8wLPnX&dimension=txl9e6UJFP4&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME");
         var constants={key:name, value: value}
 
         analyticsMap = calculateIndex(data.headers,analyticsMap);
@@ -1448,6 +1336,7 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
             document.getElementById("loader").style.display = "none";
         }
         for(var k=0;k<data.rows.length;k++){
+
             document.getElementById("noresult").style.display = "none";
             arrayMap["special"] = special;
             arrayMap["name"] = name;
@@ -1506,9 +1395,6 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
             nothfacilities = [];
             schemes = [];
             notschemes = [];
-
-
-
 
         }
 
