@@ -28,9 +28,18 @@ package org.hisp.dhis.dxf2.events.event;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Maps;
+import static org.hisp.dhis.system.notification.NotificationLevel.ERROR;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,6 +70,7 @@ import org.hisp.dhis.dxf2.utils.InputUtils;
 import org.hisp.dhis.event.EventStatus;
 import org.hisp.dhis.fileresource.FileResourceService;
 import org.hisp.dhis.i18n.I18nManager;
+import org.hisp.dhis.organisationunit.CoordinatesTuple;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.period.Period;
@@ -84,6 +94,7 @@ import org.hisp.dhis.system.util.DateUtils;
 import org.hisp.dhis.system.util.ValidationUtils;
 import org.hisp.dhis.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceService;
+import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValue;
 import org.hisp.dhis.trackedentitycomment.TrackedEntityComment;
 import org.hisp.dhis.trackedentitycomment.TrackedEntityCommentService;
 import org.hisp.dhis.trackedentitydatavalue.TrackedEntityDataValue;
@@ -95,17 +106,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.hisp.dhis.system.notification.NotificationLevel.ERROR;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
 
 /**
  * @author Morten Olav Hansen <mortenoh@gmail.com>
@@ -733,6 +736,9 @@ public abstract class AbstractEventService
 
         String completedBy = getCompletedBy( event, null, user );
 
+        programStageInstance.setDueDate( dueDate );
+        programStageInstance.setOrganisationUnit( organisationUnit );
+        
         if ( event.getStatus() == EventStatus.ACTIVE )
         {
             programStageInstance.setStatus( EventStatus.ACTIVE );
@@ -747,6 +753,9 @@ public abstract class AbstractEventService
 
             if ( programStageInstance.isCompleted() )
             {
+                //for NIE
+                programStageInstance.setOrganisationUnit( getOrganisationUnitByTEIAttributeValue( programStageInstance ) );
+                
                 programStageInstanceService.completeProgramStageInstance( programStageInstance,
                     importOptions.isSkipNotifications(), i18nManager.getI18nFormat() );
             }
@@ -761,8 +770,8 @@ public abstract class AbstractEventService
             programStageInstance.setStatus( EventStatus.SCHEDULE );
         }
 
-        programStageInstance.setDueDate( dueDate );
-        programStageInstance.setOrganisationUnit( organisationUnit );
+        //programStageInstance.setDueDate( dueDate );
+        //programStageInstance.setOrganisationUnit( organisationUnit );
 
         if ( !singleValue )
         {
@@ -776,6 +785,15 @@ public abstract class AbstractEventService
                 programStageInstance.setLatitude( null );
                 programStageInstance.setLongitude( null );
             }
+            
+            // for update Longitude and Latitude for NIE
+            String longitudeLatitude = getLongitudeAndLatitude( programStageInstance );
+            if( longitudeLatitude != null )
+            {
+                programStageInstance.setLongitude( Double.parseDouble( longitudeLatitude.split( "," )[0]) );
+                programStageInstance.setLatitude( Double.parseDouble( longitudeLatitude.split( "," )[1]) );
+            }
+            
         }
 
         Program program = getProgram( importOptions.getIdSchemes().getProgramIdScheme(), event.getProgram() );
@@ -1179,6 +1197,7 @@ public abstract class AbstractEventService
                 programStageInstance = createProgramStageInstance( programStage, programInstance, organisationUnit,
                     dueDate, executionDate, event.getStatus().getValue(), event.getCoordinate(), completedBy,
                     event.getEvent(), coc, importOptions );
+                
             }
             else
             {
@@ -1324,7 +1343,15 @@ public abstract class AbstractEventService
                 programStageInstance.setLatitude( coordinate.getLatitude() );
             }
         }
-
+        
+        // for update Longitude and Latitude for NIE
+        String longitudeLatitude = getLongitudeAndLatitude( programStageInstance );
+        if( longitudeLatitude != null )
+        {
+            programStageInstance.setLongitude( Double.parseDouble( longitudeLatitude.split( "," )[0]) );
+            programStageInstance.setLatitude( Double.parseDouble( longitudeLatitude.split( "," )[1]) );
+        }
+        
         programStageInstance.setStatus( EventStatus.fromInt( status ) );
 
         if ( programStageInstance.getId() == 0 )
@@ -1344,6 +1371,11 @@ public abstract class AbstractEventService
             programStageInstance.setCompletedDate( new Date() );
             programStageInstance.setCompletedBy( completedBy );
 
+            // change event/programStageInstance organisationUnit after complete
+            
+            System.out.println( " 1 -- orgUnitId -- " + getOrganisationUnitByTEIAttributeValue( programStageInstance ).getId() );
+            programStageInstance.setOrganisationUnit( getOrganisationUnitByTEIAttributeValue( programStageInstance ) );
+         
             programStageInstanceService.completeProgramStageInstance( programStageInstance,
                 importOptions.isSkipNotifications(), i18nManager.getI18nFormat() );
         }
@@ -1557,4 +1589,70 @@ public abstract class AbstractEventService
 
         dbmsManager.clearSession();
     }
+    
+    // for getLongitudeAndLatitude By OrgUnitCode For NIE
+    private String getLongitudeAndLatitude( ProgramStageInstance programStageInstance )
+    {
+        String longitudeLatitude = null;
+        
+        String orgUnitCode = null;
+        for( TrackedEntityAttributeValue trackedEntityAttributeValue : programStageInstance.getProgramInstance().getEntityInstance().getTrackedEntityAttributeValues() )
+        {
+            //System.out.println( trackedEntityAttributeValue.getAttribute().getId() + " -- " + trackedEntityAttributeValue.getValue() );
+            
+            if ( trackedEntityAttributeValue.getAttribute().getId() == 4525 )
+            {
+                System.out.println( " to be taken " + trackedEntityAttributeValue.getAttribute().getId() + " -- " + trackedEntityAttributeValue.getValue() );
+                
+                orgUnitCode = trackedEntityAttributeValue.getValue();
+            }
+        }
+        
+        System.out.println( " orgUnitCode -- " + orgUnitCode );
+        if( orgUnitCode != null && !orgUnitCode.equals( "" ))
+        {
+            OrganisationUnit orgUnit = organisationUnitService.getOrganisationUnitByCode( orgUnitCode );
+            
+            if( orgUnit != null )
+            {
+                for( CoordinatesTuple cordTuple : orgUnit.getCoordinatesAsList() )
+                {
+                    longitudeLatitude = cordTuple.getCoordinatesTuple().get( cordTuple.getCoordinatesTuple().size()/2 );
+                }
+            }
+        }
+
+        return longitudeLatitude;
+    } 
+ 
+    // for getOrganisationUnit By OrgUnitCode For NIE
+    private OrganisationUnit getOrganisationUnitByTEIAttributeValue( ProgramStageInstance programStageInstance )
+    {
+        OrganisationUnit organisationUnit = null;
+        
+        String orgUnitCode = null;
+        for( TrackedEntityAttributeValue trackedEntityAttributeValue : programStageInstance.getProgramInstance().getEntityInstance().getTrackedEntityAttributeValues() )
+        {
+            if ( trackedEntityAttributeValue.getAttribute().getId() == 4525 )
+            {
+                orgUnitCode = trackedEntityAttributeValue.getValue();
+            }
+        }
+        
+        if( orgUnitCode != null && !orgUnitCode.equals( "" ))
+        {
+            OrganisationUnit orgUnit = organisationUnitService.getOrganisationUnitByCode( orgUnitCode );
+            
+            if( orgUnit != null )
+            {
+                organisationUnit = organisationUnitService.getOrganisationUnitByCode( orgUnitCode );
+            }
+        }
+
+        return organisationUnit;
+    } 
+    
+    
+    
+    
 }
