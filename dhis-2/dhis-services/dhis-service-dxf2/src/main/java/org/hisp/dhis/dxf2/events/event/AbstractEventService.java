@@ -53,6 +53,8 @@ import org.hisp.dhis.common.OrganisationUnitSelectionMode;
 import org.hisp.dhis.common.Pager;
 import org.hisp.dhis.commons.collection.CachingMap;
 import org.hisp.dhis.commons.util.DebugUtils;
+import org.hisp.dhis.constant.Constant;
+import org.hisp.dhis.constant.ConstantService;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
 import org.hisp.dhis.dataelement.DataElementCategoryService;
@@ -118,6 +120,7 @@ public abstract class AbstractEventService
     implements EventService
 {
     private static final Log log = LogFactory.getLog( AbstractEventService.class );
+    private final String  TE_ATTRIBUTE_ID = "TE_ATTRIBUTE_ID";
 
     // -------------------------------------------------------------------------
     // Dependencies
@@ -183,6 +186,9 @@ public abstract class AbstractEventService
     protected static final int FLUSH_FREQUENCY = 50;
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    
+    @Autowired
+    protected ConstantService constantService;
 
     // -------------------------------------------------------------------------
     // Caches
@@ -1595,20 +1601,17 @@ public abstract class AbstractEventService
     {
         String longitudeLatitude = null;
         
+        Constant teaId = constantService.getConstantByName( TE_ATTRIBUTE_ID );
+
         String orgUnitCode = null;
         for( TrackedEntityAttributeValue trackedEntityAttributeValue : programStageInstance.getProgramInstance().getEntityInstance().getTrackedEntityAttributeValues() )
         {
-            //System.out.println( trackedEntityAttributeValue.getAttribute().getId() + " -- " + trackedEntityAttributeValue.getValue() );
-            
-            if ( trackedEntityAttributeValue.getAttribute().getId() == 4525 )
+            if ( trackedEntityAttributeValue.getAttribute().getId() == (int)teaId.getValue() )
             {
-                System.out.println( " to be taken " + trackedEntityAttributeValue.getAttribute().getId() + " -- " + trackedEntityAttributeValue.getValue() );
-                
                 orgUnitCode = trackedEntityAttributeValue.getValue();
             }
         }
         
-        System.out.println( " orgUnitCode -- " + orgUnitCode );
         if( orgUnitCode != null && !orgUnitCode.equals( "" ))
         {
             OrganisationUnit orgUnit = organisationUnitService.getOrganisationUnitByCode( orgUnitCode );
@@ -1629,11 +1632,12 @@ public abstract class AbstractEventService
     private OrganisationUnit getOrganisationUnitByTEIAttributeValue( ProgramStageInstance programStageInstance )
     {
         OrganisationUnit organisationUnit = null;
+        Constant teaId = constantService.getConstantByName( TE_ATTRIBUTE_ID );
         
         String orgUnitCode = null;
         for( TrackedEntityAttributeValue trackedEntityAttributeValue : programStageInstance.getProgramInstance().getEntityInstance().getTrackedEntityAttributeValues() )
         {
-            if ( trackedEntityAttributeValue.getAttribute().getId() == 4525 )
+            if ( trackedEntityAttributeValue.getAttribute().getId() == (int)teaId.getValue() )
             {
                 orgUnitCode = trackedEntityAttributeValue.getValue();
             }
@@ -1651,8 +1655,4 @@ public abstract class AbstractEventService
 
         return organisationUnit;
     } 
-    
-    
-    
-    
 }
