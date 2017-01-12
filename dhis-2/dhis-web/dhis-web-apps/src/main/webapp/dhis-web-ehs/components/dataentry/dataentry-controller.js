@@ -605,6 +605,8 @@ trackerCapture.controller('DataEntryController',
                 $scope.saveDataValueForEvent1(dataelement1, issue, null, currentEvent1, false);
                 console.log($scope.licensestage);
 
+
+
                 for (var i = 0; i < $scope.licensestage.length; i++) {
                     var expired = 2;
                     var month = currentTime.getMonth() + 1;
@@ -618,6 +620,8 @@ trackerCapture.controller('DataEntryController',
                     }
                     var date = year + "-" + month + "-" + date1;
                     value1 = date;
+
+
                     if ($scope.currentEvent1.event != $scope.licensestage[i].event) {
                         $scope.saveDataValueForEvent1(dataelement, value1, null, $scope.licensestage[i], false);
                         $scope.saveDataValueForEvent1(dataelement1, expired, null, $scope.licensestage[i], false);
@@ -673,6 +677,34 @@ trackerCapture.controller('DataEntryController',
                     //check for input validity
                     $scope.updateSuccess = false;
                 }
+
+             /*   for (var i = 0; i < eventToSave.dataValues.length; i++) {
+                    $scope.reopen = false;
+                    $scope.enableissuebutton = false;
+                    $scope.enablecancelbutton = false;
+                    if (eventToSave.dataValues[i].dataElement === 'AWprRTJ8phx') {
+
+                        if (eventToSave.AWprRTJ8phx == "Valid" || eventToSave.AWprRTJ8phx == "Canceled") {
+                            if (eventToSave.AWprRTJ8phx == "Valid") {
+                                $scope.licensestatus2 = true;
+                            }
+
+                            if ($scope.eventToSave.status == "COMPLETED") {
+                                $scope.reopen = true;
+                            }
+
+                        } else {
+                            $scope.licensestatus2 = false;
+                            $scope.reopen = false;
+                        }
+
+
+                        break;
+
+                    }
+
+
+                }*/
                 var value = buttonvalue;
 
                 if (!backgroundUpdate) {
@@ -1059,6 +1091,7 @@ trackerCapture.controller('DataEntryController',
             $scope.headerCombineStages = {};
 
             $scope.getHeaderStages = function() {
+
                 angular.forEach($scope.programStages, function(stage) {
                     if ((angular.isUndefined($scope.bottomLineItems) || angular.isUndefined($scope.bottomLineItems[stage.id]) || $scope.bottomLineItems[stage.id] === false) &&
                         (angular.isUndefined($scope.neverShowItems) || angular.isUndefined($scope.neverShowItems[stage.id]) || $scope.neverShowItems[stage.id] === false) &&
@@ -1136,6 +1169,24 @@ trackerCapture.controller('DataEntryController',
             $scope.topLineEvents = [];
 
             function getTopLineEvents(allEvents) {
+                if($scope.currentEvent) {
+                    if ($scope.currentEvent.programStage == "e3FhRD3D1Nf") {
+                        if ($scope.currentEvent.status == "COMPLETED") {
+
+                            if (($scope.currentEvent.AWprRTJ8phx == "Valid") || ($scope.currentEvent.AWprRTJ8phx == undefined)) {
+                                $scope.reopen = true;
+                            }
+                            else {
+                                $scope.reopen = false;
+                            }
+                        }
+
+                        else {
+
+                            $scope.reopen = false;
+                        }
+                    }
+                }
                 if (!topLineEventsIsFiltered()) {
                     $scope.topLineEvents = $scope.allEventsSorted;
                     // if($scope.topLineEvents==)
@@ -1220,6 +1271,7 @@ trackerCapture.controller('DataEntryController',
             };
 
             $scope.executeRules = function() {
+
                 //$scope.allEventsSorted cannot be used, as it is not reflecting updates that happened within the current session
                 var allSorted = [];
                 for (var ps = 0; ps < $scope.programStages.length; ps++) {
@@ -1459,7 +1511,7 @@ trackerCapture.controller('DataEntryController',
                                         }
                                     } else {
 
-                                        $scope.eventWiseLicenseScoreStatusMap[dhis2Event.event] = 'null';
+                                        $scope.eventWiseLicenseScoreStatusMap[dhis2Event.event] = ' ';
                                     }
                                 }
 
@@ -1890,7 +1942,7 @@ trackerCapture.controller('DataEntryController',
                                 if (ev.programStage === "e3FhRD3D1Nf") {
                                     $timeout(function() {
 
-                                        $scope.eventWiseLicenseScoreStatusMap[ev.event] = 'null';
+                                        $scope.eventWiseLicenseScoreStatusMap[ev.event] = ' ';
                                     }, 0);
                                 }
                                 if (ev.programStage === "pPC6amo408x") {
@@ -2115,6 +2167,7 @@ trackerCapture.controller('DataEntryController',
             };
 
             $scope.getDataEntryForm = function() {
+
                 $scope.currentFileNames = $scope.fileNames[$scope.currentEvent.event] ? $scope.fileNames[$scope.currentEvent.event] : [];
                 $scope.currentStage = $scope.stagesById[$scope.currentEvent.programStage];
                 $scope.currentStageEvents = $scope.eventsByStage[$scope.currentEvent.programStage];
@@ -2174,6 +2227,26 @@ trackerCapture.controller('DataEntryController',
                             $scope.tempFinalScore = responseScore;
                             $scope.referenceScoreValue = responseScore;
                             $scope.eventWiseInspectionScoreValueMap[$scope.currentEvent.event] = responseScore;
+
+                            if (parseInt(responseScore) >= $scope.thresholdValueForFS) {
+                                $scope.eventWiseInspectionScoreStatusMap[$scope.currentEvent.event] = 'Passed';
+                            } else {
+                                $scope.eventWiseInspectionScoreStatusMap[$scope.currentEvent.event] = 'Failed';
+                            }
+                        });
+
+                    }, 0);
+                }
+
+
+
+                if ($scope.currentEvent.programStage === "e3FhRD3D1Nf") {
+                    $timeout(function() {
+                        AjaxCalls.getEventDataValue($scope.currentEvent.event, 'AWprRTJ8phx').then(function(responseScore) {
+
+                            $scope.tempFinalScore = responseScore;
+                            $scope.referenceScoreValue = responseScore;
+                            $scope.eventWiseEscalationStatusMap[$scope.currentEvent.event] = responseScore;
 
                             if (parseInt(responseScore) >= $scope.thresholdValueForFS) {
                                 $scope.eventWiseInspectionScoreStatusMap[$scope.currentEvent.event] = 'Passed';
@@ -2261,6 +2334,12 @@ trackerCapture.controller('DataEntryController',
 
 
                     $scope.saveDataValueForEvent1(dataelement, issue, null, $scope.currentEvent, false);
+					var dataelement1="WggL0QDVcRG";
+					var issue1="";
+					 $scope.saveDataValueForEvent1(dataelement1, issue1, null, $scope.currentEvent, false);
+					 var dataelement2="obqAPIKe6hs";
+					var issue2="";
+					  $scope.saveDataValueForEvent1(dataelement2, issue2, null, $scope.currentEvent, false)
 
 
 
@@ -2507,6 +2586,11 @@ trackerCapture.controller('DataEntryController',
                     }
                 }
 
+
+
+
+
+
                 if (eventToSave.programStage === "pPC6amo408x") {
 
                     if ($scope.currentEvent.oYNscX4WRDk == "undefined") {
@@ -2549,7 +2633,6 @@ trackerCapture.controller('DataEntryController',
                 if (oldValue !== value) {
 
                     value = CommonUtils.formatDataValue(eventToSave.event, value, prStDe.dataElement, $scope.optionSets, 'API');
-
 
 
 
@@ -2623,6 +2706,45 @@ trackerCapture.controller('DataEntryController',
                                          */
                                         console.log(" final score -- " + responseInspectionScore);
                                     });
+
+                                }, 0);
+                            }
+
+                            if ($scope.currentStage.id === "e3FhRD3D1Nf") {
+                                $timeout(function() {
+
+
+
+                                            $scope.eventWiseLicenseScoreStatusMap[$scope.currentEvent.event] = 'Valid';
+
+
+                                        /*
+                                         var events = CurrentSelection.getSelectedTeiEvents();
+                                         events = $filter('filter')(events, {program: $scope.selectedProgram.id});
+                                         if (angular.isObject(events)) {
+                                         angular.forEach(events, function (dhis2Event) {
+
+                                         if(dhis2Event.programStage === 'zECUNUHCGeZ' )
+                                         {
+                                         if(dhis2Event.event === $scope.currentEvent.event ) {
+                                         $timeout(function() {
+                                         AjaxCalls.getEventDataValue($scope.currentEvent.event, $scope.inspectionScoreDataElement).then(function( responseScore ) {
+
+                                         $scope.eventWiseInspectionScoreValueMap[ $scope.currentEvent.event ] = responseScore;
+                                         dhis2Event.inspectionScore = responseScore;
+
+                                         });
+
+                                         }, 0);
+                                         }
+                                         else{
+                                         }
+                                         }
+
+                                         });
+                                         }
+                                         */
+
 
                                 }, 0);
                             }
