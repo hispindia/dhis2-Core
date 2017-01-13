@@ -12,7 +12,8 @@ trackerCapture.controller('RelationshipController',
                 RelationshipFactory,
                 ModalService,
                 DialogService,
-                CommonUtils) {
+                CommonUtils,
+                AjaxCalls) {
     $scope.dashboardReady = false;
     $rootScope.showAddRelationshipDiv = false;    
     $scope.relatedProgramRelationship = false;
@@ -28,17 +29,37 @@ trackerCapture.controller('RelationshipController',
         $scope.attributesById = CurrentSelection.getAttributesById();
         
         $scope.attributes = [];
-        for(var key in $scope.attributesById){
-            if($scope.attributesById.hasOwnProperty(key)){
-                $scope.attributes.push($scope.attributesById[key]);
-            }            
+
+        if( $scope.selectedProgram.name === 'Food Handlers')
+        {
+            //get attributes for display in association widget
+            AjaxCalls.getAssociationWidgetAttributes().then(function(associationWidgetAttributes){
+                $scope.attributes = associationWidgetAttributes;
+            });
         }
-        
+        else if( $scope.selectedProgram.name === 'Food Establishments')
+        {
+            //get attributes for display in association widget
+            AjaxCalls.getFoodEstablishmentRelationShipWidgetAttributes().then(function(relationShipWidgetAttributes){
+                $scope.attributes = relationShipWidgetAttributes;
+            });
+        }
+        else
+        {
+            for(var key in $scope.attributesById){
+                if($scope.attributesById.hasOwnProperty(key)){
+                    $scope.attributes.push($scope.attributesById[key]);
+                }
+            }
+        }
+
         $scope.trackedEntity = $scope.selections.te;
         $scope.selectedEnrollment = $scope.selections.selectedEnrollment;
         $scope.selectedProgram = $scope.selections.pr;
         $scope.programs = $scope.selections.pr;
-        
+
+        console.log( $scope.selectedProgram.name + "--" + $scope.selectedProgram.id);
+
         RelationshipFactory.getAll().then(function(rels){
             $scope.relationshipTypes = rels;    
             angular.forEach(rels, function(rel){

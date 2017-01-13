@@ -279,18 +279,28 @@ trackerCapture.controller('RegistrationController',
 
         $scope.getCommunity = function( districtUid ){
 
-            //alert(districtUid);
-            OrganisationUnitService.getChildrenOrganisationUnits( districtUid ).then(function(communityOrganisationUnits){
-                $scope.communityOrgUnits = communityOrganisationUnits.children;
+            if( districtUid === null)
+            {
+                //alert(districtUid);
+                $scope.communityOrgUnits = {};
 
-                OrganisationUnitService.getOrganisationUnitObject( districtUid ).then(function(orgUnitObject){
-                    //$scope.selectedDistrict = orgUnitObject;
-                    $scope.selectedDistrictName = orgUnitObject.displayName;
-                    $scope.selectedDistrict1=orgUnitObject.id;
+            }
+
+            else
+            {
+                OrganisationUnitService.getChildrenOrganisationUnits( districtUid ).then(function(communityOrganisationUnits){
+                    $scope.communityOrgUnits = communityOrganisationUnits.children;
+
+                    OrganisationUnitService.getOrganisationUnitObject( districtUid ).then(function(orgUnitObject){
+                        //$scope.selectedDistrict = orgUnitObject;
+                        $scope.selectedDistrictName = orgUnitObject.displayName;
+                        $scope.selectedDistrict1=orgUnitObject.id;
+
+                    });
 
                 });
+            }
 
-            });
         };
 
         $scope.getEnrollingOrgunit = function( enrollingOrgUnitUid ){
@@ -368,8 +378,21 @@ trackerCapture.controller('RegistrationController',
         }
 
         $scope.isDisabled = function(attribute) {
-            return attribute.generated || $scope.assignedFields[attribute.id] || $scope.editingDisabled;
+
+            if( attribute.code === 'current_license_status' || attribute.code === 'current_license_expiry_date' )
+            {
+                return true;
+            }
+            else
+            {
+                return attribute.generated || $scope.assignedFields[attribute.id] || $scope.editingDisabled;
+            }
+
         };
+
+
+
+
 
         OrgUnitFactory.getOrgUnit(($location.search()).ou).then(function(orgUnit) {
             $scope.selectedOrgUnit = orgUnit;
