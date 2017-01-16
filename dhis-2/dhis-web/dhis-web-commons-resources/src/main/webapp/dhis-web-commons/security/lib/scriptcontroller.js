@@ -299,7 +299,7 @@ Ext.onReady( function() {
 
     $("#drop_ownership").change(function () {
 
-         var singlechar="A";
+        var singlechar="A";
         defowner="XEiMcaGi6vv:IN";
         var selected = $("#drop_ownership option:selected");
         selected.each(function () {
@@ -780,7 +780,7 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
     var arrayMap = [];latitude=[];longitude=[];
 
 
-    $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:LAST_5_YEARS&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs"+defservice+"&dimension="+defavail+"&dimension="+defowner+defhealthfacility+"&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
+    $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR;LAST_5_YEARS&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs"+defservice+"&dimension="+defavail+"&dimension="+defowner+defhealthfacility+"&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
         var constants={key:name, value: value}
 
         analyticsMap = calculateIndex(data.headers,analyticsMap);
@@ -1324,7 +1324,7 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
     var arrayMap = [];latitude=[];longitude=[];
 
 
-    $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:LAST_5_YEARS&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs"+defservice+"&dimension="+defavail+"&dimension="+defowner+defhealthfacility+"&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
+    $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR;LAST_5_YEARS&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs"+defservice+"&dimension="+defavail+"&dimension="+defowner+defhealthfacility+"&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
         var constants={key:name, value: value}
 
         analyticsMap = calculateIndex(data.headers,analyticsMap);
@@ -1444,7 +1444,7 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
     div.id = 'sel';
     div.style = "width:auto;"
 
-    $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:LAST_5_YEARS&dimension=ou:"+ouid+"&dimension=eH2F2xuLmoY&dimension=kfDoQ3V1RQK&dimension=csjh8jewk7x&dimension=WXnr5Qk8Qgo&dimension=UwGx1EmJyIf&dimension=rzNUVjOm5ZJ&dimension=tpm9TIh7IeQ&dimension=pUYrErSv4Kf&dimension=hq5P29o8auc&dimension=KBgdegZWYDc&dimension=Mpo7Zm6z9WL&dimension=xtGxtg2I1SH&dimension=EhBs6eq4ebt&dimension=ThPPuHVPTsZ&dimension=hK82b1FNhui&dimension=aLY8DrZ88WN&dimension=XfstNyl31ca&dimension=fOLmSsSSlVI&dimension=aLnsQJ6De8p&dimension=LFDq2RYMt88&displayProperty=NAME", function (cdata) {
+    $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR;LAST_5_YEARS&dimension=ou:"+ouid+"&dimension=eH2F2xuLmoY&dimension=kfDoQ3V1RQK&dimension=csjh8jewk7x&dimension=WXnr5Qk8Qgo&dimension=UwGx1EmJyIf&dimension=rzNUVjOm5ZJ&dimension=tpm9TIh7IeQ&dimension=pUYrErSv4Kf&dimension=hq5P29o8auc&dimension=KBgdegZWYDc&dimension=Mpo7Zm6z9WL&dimension=xtGxtg2I1SH&dimension=EhBs6eq4ebt&dimension=ThPPuHVPTsZ&dimension=hK82b1FNhui&dimension=aLY8DrZ88WN&dimension=XfstNyl31ca&dimension=fOLmSsSSlVI&dimension=aLnsQJ6De8p&dimension=LFDq2RYMt88&displayProperty=NAME", function (cdata) {
 
 
         for(var p=0;p<cdata.rows.length;p++)
