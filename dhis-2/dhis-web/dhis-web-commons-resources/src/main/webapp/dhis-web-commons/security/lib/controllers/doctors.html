@@ -80,7 +80,7 @@
             var header = {
                 "Authorization": "Basic " + btoa("homepage" + ':' + "Homepage123")
             };
-            $.getJSON("../../../../api/analytics/events/query/oKibT84LSdV.json?stage=jujDNAJZEU8&dimension=pe:LAST_5_YEARS&dimension=ou:"+ouid+"&dimension=VdaNJktWZ7E&dimension=O2k16XtvCQ8&dimension=l8VDWUvIHmv&displayProperty=NAME", function (data) {
+            $.getJSON("../../../../api/analytics/events/query/oKibT84LSdV.json?stage=jujDNAJZEU8&dimension=pe:THIS_YEAR;LAST_5_YEARS&dimension=ou:"+ouid+"&dimension=l8VDWUvIHmv&dimension=O2k16XtvCQ8&dimension=VdaNJktWZ7E&displayProperty=NAME", function (data) {
                 var dNames=[],dQual=[],dMedical=[],dOrgunit=[];
                 var nursecount= 0,paracount=0;
                 for(var i=0;i<data.rows.length;i++){
@@ -97,9 +97,9 @@
                     else if(data.rows[i][9]=="Doctors")
                     {
                         dOrgunit.push(data.rows[i][5]);
-                        dQual.push(data.rows[i][8])
+                        dQual.push(data.rows[i][10])
                         dMedical.push(data.rows[i][9]);
-                        dNames.push(data.rows[i][10]);
+                        dNames.push(data.rows[i][8]);
                     }
 
                 }
