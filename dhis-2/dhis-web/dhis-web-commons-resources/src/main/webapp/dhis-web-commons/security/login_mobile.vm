@@ -1,15 +1,19 @@
 <!DOCTYPE HTML>
 <html class="loginPage">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
     <!-- Default Dhis -->
     <title>Punjab Health Transparency Portal</title>
     <link rel="icon" href="./img/logo1n.png" type="image/x-icon">
     <meta name="description" content="DHIS 2">
     <meta name="keywords" content="DHIS 2">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
 
     <!--  new Libraries-->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
     <script src="lib/js/jquerymin.js"></script>
     <script src="//dhis2-cdn.org/v221/ext/ext-all.js"></script>
     <link rel="stylesheet" href="lib/css/bootstrapmin.css" integrity="" crossorigin="anonymous" />
@@ -19,20 +23,23 @@
     <link rel="stylesheet" href="lib/css/bootstrap-selectmin.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+
     <!--W3schools-->
     <link rel="stylesheet" href="lib/css/w3.css">
     <link rel="stylesheet" href="lib/css/style.css">
 
 
-    <link rel="stylesheet" href="lib/font-awesome.css">
-    <link rel="stylesheet" href="lib/leaflet.css" />
-    <script src="lib/leaflet.js"></script>
+
+    <link href="lib/leaflet.css" rel="stylesheet" type="text/css" />
+    <script src="lib/leaflet-src.js"></script>
+    <link href="lib/leaflet.awesome-markers.css" rel="stylesheet" type="text/css" />
     <script src="lib/leaflet.awesome-markers.js"></script>
-    <link rel="stylesheet" href="lib/ionicons.min.css">
-    <link rel="stylesheet" href="lib/leaflet.awesome-markers.css">
+
+
 
 </head>
 <style>
+    /*Loader css*/
     .loader {
         position: fixed;
         top: 50%;
@@ -56,25 +63,32 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
+    .no-js #loader { display: none;  }
+    .js #loader { display: block; position: absolute; left: 100px; top: 0; }
+    .se-pre-con {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        background: url(images/loader-64x/Preloader_2.gif) center no-repeat #fff;
+    }
     #map {
-        width: 650px;
+        width: 720px;
         height:400px;
     }
 
-    #map1 {
+    #map1  {
+
         margin-left:10%;
         margin-right:10%;
         position: relative;
-        width: 1200px;
+        width:720px;
         height:450px;
 
     }
-    #header{
-        color: white;
-        background-color: #2978B3;
-        height:auto;
-        width:100%;
-    }
+
     /*Footer Css*/
     #footer1{
         background: #2978B3;
@@ -158,7 +172,7 @@
                             <img src="" style="border:none">
                         </div>
 
-                        <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post" style="text-align: center;">
+                        <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post" style="text-align: center;" onsubmit="return validateEditReport()">
                             <div>
                                 <div id="signInLabel"><p><strong>Sign in</strong></p></div>
                                 </br>
@@ -167,11 +181,12 @@
                                 <div><input type="password" id="j_password" name="j_password" autocomplete="off" placeholder="Password"></div>
                                 </br>
                             </div>
-                            <div style="padding-bottom: 10px">
-                                <a id="createAccountLink" target="_blank" href="lib/controllers/register.html">Create an account</a>
-                            </div>
+
                             <div id="submitDiv">
                                 <input id="submit" class="button" type="submit" value="Sign in">
+                            </div>
+                            <div style="padding-bottom: 10px">
+                                <a id="createAccountLink" target="_blank" href="lib/controllers/register.html">New Hospital registration</a>
                             </div>
                             #if( $keyAccountRecovery )
                             <div style="padding-bottom: 10px">
@@ -197,7 +212,7 @@
                         </form>
                         #end
                         #if( $failed == true )
-                        <div id="loginMessage" >Wrong username or password   <script>
+                        <div id="loginMessage" ><h2 style="text-align:center; color:White; font-style: normal; background: #D86422">Wrong user name or password</h2><script>
                             (function () {
                                 $('#myModal').modal('show');
                             })();
@@ -218,89 +233,41 @@
 
     </div>
 </div>
-<div style="width: 100%">
+
     <!--Header -->
-    <header  id="header" class="w3-hover-shadow ">
-        <table>
-            <tr>
-                <td rowspan="2">
-                    <img src="img/Punjab_logo.png"  style="height: 80px">
-                </td>
-                <td>
-                    <p style="color:#fff"><strong>Punjab Health Facility Portal</strong></p>
-                </td>
-                <td>
-                    <!--  <ul style="list-style-type:none;">
-                          <li class="w3-btn"><a onclick="window.location.reload()" target="_blank" style="color:#fff; margin-left: 25%">Home</a></li>
-                          <li class="w3-btn"><a href="http://pbhealth.gov.in/" target="_blank" style="color:#fff"> Punjab Health Department</a></li>
-                            <li class="w3-btn"><a href="#" onclick="window.open('docs/SOP.pdf'); return false;" style="color:#fff">User Manual</a></li>
-                          <li class="w3-btn" id="b1" class="button12" data-toggle="modal"  style="color:#fff" data-target="#myModal"><b>Register Facility/Login</b></li>
-                      </ul>-->
-
-                    <div style="float:right">
-                        <ul style="list-style-type:none;display: -webkit-inline-box;">
-                            <li style="margin-right: 1%"><button onclick="window.location.reload()" target="_blank" style="color:#fff; background: #d86422;border: none;">Home</button></li>
-                            <li style="margin-right: 1%"><button onclick="window.open('http://pbhealth.gov.in/')" target="_blank" style="color:#fff; background: #d86422;border: none;"> Punjab Health Department</button></li>
-                            <li style="margin-right: 1%">
-                                <div class="dropdown">
-                                    <button class="dropbtn">User Manual</button>
-                                    <div class="dropdown-content">
-                                        <a href="#" onclick="window.open('docs/SOP.pdf'); return false;">User SOP</a>
-                                        <a href="#">Hospital Registration SOP</a>
-                                        <a href="#">FAQ</a>
-                                    </div>
-                                </div>
-                            </li>
-                            <!--<li class="w3-btn"><a href="#" onclick="window.open('docs/SOP.pdf'); return false;" style="color:#fff">User Manual</a></li>-->
-                            <li  id="b1" class="button12" data-toggle="modal"  style="color:#fff" data-target="#myModal "><button style="background: #d86422;border:none;">Register Facility/Login</button></li>
-
-                        </ul>
-
+    <header class="w3-hover-shadow ">
+        <div style="float:left; width:100px;">
+            <img src="img/Punjab_logo.png" height="100px";>
+        </div>
+        <div style="display:inline-block;margin:0 auto;width:auto;">
+            <h1 style="color:#fff">Punjab Health Facility Portal</h1>
+        </div>
+        <div style="float:right">
+            <ul style="list-style-type:none;display: -webkit-inline-box;">
+                <li style="margin-right: 1%"><button onclick="window.location.reload()" target="_blank" style="color:#fff; background: #d86422;border: none;">Home</button></li>
+                <li style="margin-right: 1%"><button onclick="window.open('http://pbhealth.gov.in/')" target="_blank" style="color:#fff; background: #d86422;border: none;"> Punjab Health Department</button></li>
+                <li style="margin-right: 1%">
+                    <div class="dropdown">
+                        <button class="dropbtn">User Manual</button>
+                        <div class="dropdown-content">
+                            <a href="#" onclick="window.open('docs/SOP.pdf'); return false;">User SOP</a>
+                            <a href="#">Hospital Registration SOP</a>
+                            <a href="#">FAQ</a>
+                        </div>
                     </div>
-                </td>
-            </tr>
-        </table>
+                </li>
+                <!--<li class="w3-btn"><a href="#" onclick="window.open('docs/SOP.pdf'); return false;" style="color:#fff">User Manual</a></li>-->
+                <li  id="b1" class="button12" data-toggle="modal"  style="color:#fff" data-target="#myModal "><button style="background: #d86422;border:none;">Register Facility/Login</button></li>
+
+            </ul>
+
+        </div>
 
     </header>
 
 
     <!--DropDown Bar-->
-    <!--<div  class="w3-row " style="text-align:center; padding-top: 20px">
-        <div class="w3-col w3-container" style="width:30%">
-            <select id="drop1" class="selectpicker"  data-live-search="true" >
-                <option value="" disabled selected hidden>Please Select State/District</option>
-                <option value="wSslG6mcGXl">Select Entire State (Punjab)</option>
-            </select>
-        </div>
-        <div class="w3-col w3-container" style="width:30%">
-            <select id="drophospital" class="selectpicker" data-live-search="true" >
-                <option value="all" disabled selected hidden>Search by Hospital Name</option>
-            </select>
-        </div>
-        <div class="w3-col w3-container" style="width:30%">
-            <select id="drop2"  class="selectpicker"  data-live-search="true">
-                <option disabled selected hidden>Search by speciality</option>
-            </select>
-        </div>
-    </div>
-    <div class="w3-row" style="padding-top:10px">
-        <div class="w3-col w3-container" style="width:50%; text-align: center">
-            <select id="drop_ownership"  class="selectpicker"   data-live-search="true">
-                <option value="" disabled selected hidden>Search by Ownership</option>
-            </select>
-        </div>
-        <div class="w3-col w3-container" style="width: 40%">
-            <select id="droptype"  class="selectpicker"  data-live-search="true">
-                <option disabled selected hidden>Type of Health Facility</option>
-            </select>
-        </div>
-        <div class="w3-col w3-container" style="width: 10%">
-            <button type="button" onclick="generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility);">Map View</button>
-            <button type="button" onclick="generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfacility);">List View</button>
-        </div>
-
-    </div>-->
-    <ul id="dropdown1" class="w3-card-2" style="display: inline-flex;list-style-type: none; padding-top: 2%;width: 100%; margin-top:1%;background-color: aliceblue;">
+    <ul id="dropdown1" class="w3-card-2" style="display: inline-flex;list-style-type: none;padding-top: 2%;width: 100%; margin-top:1%;background-color: aliceblue;">
         <li>
             <label for="Orgunit">Select State/District</label>
             <select id="drop1" class="selectpicker" multiple data-live-search="true" >
@@ -324,42 +291,54 @@
             <label for="Orgunit">Type of Health Facility</label>
             <select id="droptype"  class="selectpicker" multiple  data-live-search="true"> </select>
         </li>
-    </ul>
+       </ul> 
+      <table style="width: 100%"> 
+          <tr style="text-align:center">
+        <td  style="margin-top: 2%; width: 50%">
+            <button type="button" class="btn btn-success" onclick="generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility);">Map View</button>
+        </td>
+        <td style="margin-top: 2%; width: 50%">
+            <button type="button" class="btn btn-primary" onclick="generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfacility);">List View</button>
+        </td>
+        </tr>
+    </table>
 
+    </br>
 
-
-    <button style="margin-left: 50%; text-align: center; margin-top: 2%" type="button" class="btn btn-success" onclick="generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility);">Map View</button>
-    <button style="margin-top: 2%" type="button" class="btn btn-primary" onclick="generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfacility);">List View</button>
-
-    <!--<div clas="w3-col w3-container" style="width: 100%; text-align: center">-->
-    <!--<button type="button" onclick="generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility);">Go</button>-->
-    <!--</div>-->
-
-    <div id="content1" style="padding-left: 10%; padding-right: 10%">
-        <table>
+    <div id="content1">
+        <table style="width:100%; height:600px; margin-bottom:5%;">
             <tr>
-                <td><div style="width: 650px">
-                    <h3 style="text-align: center; margin-top: 5%">About Us</h3>
-                    <p style="text-align:justify">The Government of Punjab is pleased to announce the launch of the “Punjab Health Facility Portal” where all public and private health facilities are invited to self-report on the various health services they provide in their respective health facilities. This information will be made available to citizens through this portal to allow them to make more informed choices of what health services they can access from where. The information will help the Punjab Government to identify gaps and strengthen health services delivery and improve citizen satisfaction.
-                        </br></br>We request you to partner with the State to make this important venture a resounding success. For this, healthcare providers are requested to self-register by clicking on “Register Facility/Login” button. Please note this portal will be dynamic and allow for changes to be made as they take place in future. Users of health facilities are requested to provide feedback.
-                        </br></br>We hope that citizens of state find this portal useful and provide feedback regarding services.</p>
-                </div></td>
+                <td style="width:50%">
+                    <div style="margin-right: 5%">
+                        <h3 style="text-align: center; margin-top: 0%">About Us</h3>
+
+                        <p style="text-align:justify; margin-left: 50px; margin-top:10%;">The Government of Punjab is pleased to announce the launch of the “Punjab Health Facility Portal” where all public and private health facilities are invited to self-report on the various health services they provide in their respective health facilities. This information will be made available to citizens through this portal to allow them to make more informed choices of what health services they can access from where. The information will help the Punjab Government to identify gaps and strengthen health services delivery and improve citizen satisfaction.
+                            </br></br>We request you to partner with the State to make this important venture a resounding success. For this, healthcare providers are requested to self-register by clicking on “Register Facility/Login” button. Please note this portal will be dynamic and allow for changes to be made as they take place in future. Users of health facilities are requested to provide feedback.
+                            </br></br>We hope that citizens of state find this portal useful and provide feedback regarding services.</p>
+                    </div>
+                </td>
+
+                <td style="width:50%">
+                    <div><img src="img/punjab.png"></div>
+                </td>
             </tr>
         </table>
-        <div><img src="img/punjab.png"></div>
     </div>
 </div>
-<div id="map1" ></div>
-<MARQUEE style="background: navajowhite;" >
-    <p style="font-family: Arial;font-weight: bold;color: #0f0f0f">Please call on 9643208385 for any kind of technical support.</p>
+<div id="map1"></div>
+<MARQUEE style="background: navajowhite;">
+    <p style="font-family: Arial;font-weight: bold;color: #0f0f0f;  text-align:center " >Please call on 9643208385 for any kind of technical support.</p>
 </MARQUEE>
 
 <!--Hit counter-->
 <!--<div align='center' id="visitorcounter"style="bottom:08%;text-align: center"><img src='http://www.hit-counts.com/counter.php?t=MTM5OTk2Mw==' border='0' alt='Visitor Counter'></a><p style="font-family: Arial;color: #00bcd4; bottom: 08%">Visitor Counter</p></div>-->
 
 <!-- Start of SimpleHitCounter Code -->
-<div align="center"><a href="http://pbhealthportal.in/pbhealthportal/dhis-web-commons/security/login.action" target="_blank"><img src="http://simplehitcounter.com/hit.php?uid=2215201&f=0&b=16777215" border="0" height="18" width="83" alt="PBhealth portal"></a><br><a href="#"  style="text-decoration:none;">Visitor Counter</a></div>
+<div align="center" id="visitorcounter"><a href="http://pbhealthportal.in/pbhealthportal/dhis-web-commons/security/login.action" target="_blank"><img src="http://simplehitcounter.com/hit.php?uid=2215201&f=0&b=16777215" border="0" height="18" width="83" alt="PBhealth portal"></a><br><a href="#"  style="text-decoration:none;">Visitor Counter</a></div>
 <!-- End of SimpleHitCounter Code -->
+
+
+
 <div class="alert alert-success" id="resultcount" style="display:none;text-align: center" align='center'>
     <strong >Total No: of Results:</strong>
 </div>
@@ -368,7 +347,7 @@
 </div>
 
 <div id="footer1">
-    <p style="text-align: center; color: #fff">Disclaimer: The responsibility for the correctness of data in the portal is the responsibility of the facility which has self-registered the data. The Government is only responsible for the dissemination of this information through this portal.</p>
+    <p style="text-align: center; color: #fff; margin-top:2%"><strong>Disclaimer:</strong> The responsibility for the correctness of data in the portal is the responsibility of the facility which has self-registered the data. The Government is only responsible for the dissemination of this information through this portal.</p>
 </div>
 
 
