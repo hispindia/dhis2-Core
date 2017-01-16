@@ -29,12 +29,11 @@
     <link rel="stylesheet" href="lib/css/style.css">
 
 
-    <link rel="stylesheet" href="lib/font-awesome.css">
-    <link rel="stylesheet" href="lib/leaflet.css" />
-    <script src="lib/leaflet.js"></script>
+    <link href="lib/leaflet.css" rel="stylesheet" type="text/css" />
+    <script src="lib/leaflet-src.js"></script>
+
+    <link href="lib/leaflet.awesome-markers.css" rel="stylesheet" type="text/css" />
     <script src="lib/leaflet.awesome-markers.js"></script>
-    <link rel="stylesheet" href="lib/ionicons.min.css">
-    <link rel="stylesheet" href="lib/leaflet.awesome-markers.css">
 
 
 
@@ -87,6 +86,7 @@
         position: relative;
         width: 1200px;
         height:450px;
+
 
     }
 
