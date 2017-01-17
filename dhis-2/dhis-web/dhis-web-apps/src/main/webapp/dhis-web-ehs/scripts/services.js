@@ -546,7 +546,7 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
             var tei = angular.copy(existingTei);            
             tei.attributes = [];
             var formEmpty = true;
-            formTei.orgUnit="savita";
+            //formTei.orgUnit="savita";
             for(var k in attributesById){
 
                 if( countryName != null && districtName != null && communityName != null )

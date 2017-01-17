@@ -33,7 +33,8 @@ trackerCapture.controller('DataEntryController',
             EHSService,
             OrganisationUnitService,
             EventDataValueService,
-            utilityService) {
+            utilityService,
+            EHSUpdateAttributeService ) {
 
             $scope.foodsafetyprograms = [];
             $scope.licensereason = false;
@@ -65,6 +66,11 @@ trackerCapture.controller('DataEntryController',
             $scope.userGroupMember = [];
             $scope.dataElementMetaAttrMap = [];
 
+            //for license status and valid up to
+            $scope.licenStatusDeUid = 'AWprRTJ8phx';
+            $scope.licenStatusAttributeUid = 'LqYf0osGEQi';
+            $scope.licenValidUpToDeUid = 'nPcT1HabdNa';
+            $scope.licenValidUpToAttributeUid = 'edTbYj3fk12';
 
             AjaxCalls.getUserGroupMember($scope.inspectorUserGroupUid).then(function(responseUserGroupMember) {
 
@@ -592,7 +598,7 @@ trackerCapture.controller('DataEntryController',
             $scope.issuelicensebutton1 = function(currentEvent1) {
 
 
-                var dataelement = "nPcT1HabdNa";
+                var dataelement = $scope.licenValidUpToDeUid;
                 var issue = 1;
                 var currentTime = new Date();
                 var year = currentTime.getFullYear();
@@ -600,12 +606,23 @@ trackerCapture.controller('DataEntryController',
                 var date1 = "31";
                 var date = year + "-" + month + "-" + date1;
                 value = date;
-                var dataelement1 = "AWprRTJ8phx";
+                var dataelement1 = $scope.licenStatusDeUid;
                 $scope.saveDataValueForEvent1(dataelement, value, null, currentEvent1, false);
                 $scope.saveDataValueForEvent1(dataelement1, issue, null, currentEvent1, false);
+
+                var updateResponseStatus = EHSUpdateAttributeService.updateAttributeValue( $scope.currentEvent1.trackedEntityInstance, $scope.licenStatusAttributeUid, issue, $scope.optionSets, $scope.attributesById);
+                updateResponseStatus.then(function(response) {
+                    if (response.status == 'OK') {
+
+                        var updateResponseValidity = EHSUpdateAttributeService.updateAttributeValue( $scope.currentEvent1.trackedEntityInstance, $scope.licenValidUpToAttributeUid, value, $scope.optionSets, $scope.attributesById);
+                        updateResponseValidity.then(function(response) {
+                            if (response.status == 'OK') {
+                            }
+                        });
+                    }
+                });
+
                 console.log($scope.licensestage);
-
-
 
                 for (var i = 0; i < $scope.licensestage.length; i++) {
                     var expired = 2;
@@ -638,11 +655,17 @@ trackerCapture.controller('DataEntryController',
                 //$scope.completeIncompleteEvent (inTableView, outerDataEntryForm) ;
             }
             $scope.cancellicensecall = function(currentEvent1) {
-                var dataelement = "nPcT1HabdNa";
-                var cancel = 0;
-                var dataelement1 = "AWprRTJ8phx";
+                var dataelement =  $scope.licenValidUpToDeUid;
+                var cancel = -1;
+                var dataelement1 = $scope.licenStatusDeUid;
                 // $scope.saveDataValueForEvent1(dataelement,cancel, null, currentEvent1, false);
                 $scope.saveDataValueForEvent1(dataelement1, cancel, null, currentEvent1, false);
+
+                var updateResponseStatus = EHSUpdateAttributeService.updateAttributeValue( $scope.currentEvent1.trackedEntityInstance, $scope.licenStatusAttributeUid, cancel, $scope.optionSets, $scope.attributesById);
+                updateResponseStatus.then(function(response) {
+                    if (response.status == 'OK') {
+                    }
+                });
 
                 for (var i = 0; i < $scope.licensestage.length - 1; i++) {
 
@@ -667,7 +690,6 @@ trackerCapture.controller('DataEntryController',
                 }
 
             }
-
 
             $scope.saveDataValueForEvent1 = function(prStDe, buttonvalue, field, eventToSave, backgroundUpdate) {
                 //Do not change the input notification variables for background updates
@@ -2635,6 +2657,29 @@ trackerCapture.controller('DataEntryController',
                     value = CommonUtils.formatDataValue(eventToSave.event, value, prStDe.dataElement, $scope.optionSets, 'API');
 
 
+                    // for  save dataElement value to Attribute
+                    if( prStDe.dataElement.id == $scope.licenStatusDeUid )
+                    {
+                        var attributeUid = $scope.licenStatusAttributeUid;
+                        var updateResponse = EHSUpdateAttributeService.updateAttributeValue( $scope.currentEvent.trackedEntityInstance, attributeUid, value, $scope.optionSets, $scope.attributesById);
+                        updateResponse.then(function(response) {
+                            if (response.status == 'OK') {
+                            }
+                        });
+                    }
+
+                    // for  save dataElement value to Attribute
+                    if( prStDe.dataElement.id == $scope.licenValidUpToDeUid )
+                    {
+                        var attributeUid = $scope.licenValidUpToAttributeUid;
+                        var updateResponse = EHSUpdateAttributeService.updateAttributeValue( $scope.currentEvent.trackedEntityInstance, attributeUid, value, $scope.optionSets, $scope.attributesById);
+                        updateResponse.then(function(response) {
+                            if (response.status == 'OK') {
+                            }
+                        });
+                    }
+
+                    // end code
 
                     //Do not change the input notification variables for background updates
                     if (!backgroundUpdate) {
