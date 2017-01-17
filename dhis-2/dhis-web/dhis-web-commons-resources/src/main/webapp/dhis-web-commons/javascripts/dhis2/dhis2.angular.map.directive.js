@@ -6,6 +6,7 @@ d2Directives.directive('d2GoogleMap', function ($http, $translate, $q, $window, 
         if (angular.isObject(storedFormat) && storedFormat.keyGoogleMapsApiKey ) {
             googleMapApiUrl += '&key=' + storedFormat.keyGoogleMapsApiKey;
         }
+		/*
         else{
             var dialogOptions = {
                 headerText: 'warning',
@@ -14,7 +15,8 @@ d2Directives.directive('d2GoogleMap', function ($http, $translate, $q, $window, 
 
             DialogService.showDialog({}, dialogOptions);
         }	
-       
+		*/
+		
         var deferred = $q.defer();
         $window.initMap = function() {
             deferred.resolve();
