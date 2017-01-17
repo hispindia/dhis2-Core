@@ -688,4 +688,207 @@ trackerCapture
                 //return promise;
             }
         };
-    });
+    })
+
+// http://127.0.0.1:8090/dhis/api/trackedEntityAttributes/edTbYj3fk12.json
+/* Update Attribute value */
+.service('EHSUpdateAttributeService', function($http, SessionStorageService, EHSProgram, TEIService, TrackedEntityAttributeService) {
+    var orgUnit, orgUnitPromise, rootOrgUnitPromise;
+    var roles = SessionStorageService.get('USER_ROLES');
+    return {
+        updateAttributeValue: function (trackedEntityInstance, attributeUid, attributeValue, optionSets, attributesById ) {
+            var def = $.Deferred();
+            var promiseTei = EHSProgram.getTrackedEntityInstance(trackedEntityInstance);
+            promiseTei.then(function (tei) {
+                var attributeExists = false;
+                angular.forEach(tei.attributes, function (att) {
+                    if (att.attribute === attributeUid ) {
+                        att.value = attributeValue;
+                        attributeExists = true;
+                    }
+                });
+
+                if (!attributeExists) {
+
+                    TrackedEntityAttributeService.getAllTrackedEntityAttributes().then(function( teAttributes ){
+                        var trackedEntityAttributes = teAttributes.trackedEntityAttributes;
+                        for (var i=0;i<trackedEntityAttributes.length;i++)
+                        {
+                            if (trackedEntityAttributes[i].id === attributeUid )
+                            {
+                                tei.attributes.push({attribute: attributeUid, value: attributeValue, displayName: trackedEntityAttributes[i].displayName, valueType: trackedEntityAttributes[i].valueType});
+                            }
+                        }
+                        TEIService.update(tei, optionSets, attributesById).then(function (updateResponse) {
+                            def.resolve(updateResponse);
+                        });
+                    });
+                }
+
+                TEIService.update(tei, optionSets, attributesById).then(function (updateResponse) {
+                    def.resolve(updateResponse);
+                });
+            });
+
+            return def;
+        }
+
+    };
+})
+
+/* Service to Related to EHS Program */
+//http://127.0.0.1:8080/api/dataElements.json?filter=domaintype:eq:TRACKER&fields=[id,name]&paging=false
+.service('EHSProgram', function ($http, $q, $rootScope, SessionStorageService, TCStorageService) {
+
+    var userHasValidRole = function(program, userRoles){
+
+        var hasRole = false;
+
+        if($.isEmptyObject(program.userRoles)){
+            return !hasRole;
+        }
+
+        for(var i=0; i < userRoles.length && !hasRole; i++){
+            if( program.userRoles.hasOwnProperty( userRoles[i].id ) ){
+                hasRole = true;
+            }
+        }
+        return hasRole;
+    };
+
+    return {
+        getProgramsByTe: function(teId)
+        {
+            var roles = SessionStorageService.get('USER_ROLES');
+            var userRoles = roles && roles.userCredentials && roles.userCredentials.userRoles ? roles.userCredentials.userRoles : [];
+            var def = $q.defer();
+
+            TCStorageService.currentStore.open().done(function () {
+                TCStorageService.currentStore.getAll('programs').done(function (prs) {
+                    var programs = [];
+                    angular.forEach(prs, function (pr) {
+
+                        if ( userHasValidRole(pr, userRoles) && pr.trackedEntity.id == teId) {
+                            programs.push(pr);
+
+                        }
+                    });
+
+                    $rootScope.$apply(function () {
+                        def.resolve({programs: programs});
+                    });
+                });
+            });
+
+            return def.promise;
+        },
+        getTrackedEntityInstancesByProgram: function (programId, ouId) {
+            var promise = $http.get('../api/trackedEntityInstances.json?ou=' + ouId + '&program=' + programId + '&skipPaging=true').then(function (response) {
+                var tei = response.data;
+                return tei;
+            });
+            return promise;
+        },
+
+        getTrackedEntityInstance:function(uid){
+            var promise = $http.get( '../api/trackedEntityInstances/' +  uid + '.json').then(function(response){
+                var tei = response.data;
+                return tei;
+            });
+
+            return promise;
+        },
+
+        getProgramsByOuAndTe: function (ou, selectedProgram, teId, showModalFlag) {
+            var roles = SessionStorageService.get('USER_ROLES');
+            var userRoles = roles && roles.userCredentials && roles.userCredentials.userRoles ? roles.userCredentials.userRoles : [];
+            var def = $q.defer();
+
+            TCStorageService.currentStore.open().done(function () {
+                TCStorageService.currentStore.getAll('programs').done(function (prs) {
+                    var programs = [];
+                    angular.forEach(prs, function (pr) {
+                        if (showModalFlag) {
+                            if (pr.organisationUnits.hasOwnProperty(ou.id) && userHasValidRole(pr, userRoles) && pr.trackedEntity.id == teId) {
+                                programs.push(pr);
+                            }
+                        } else {
+                            if (pr.organisationUnits.hasOwnProperty(ou.id) && userHasValidRole(pr, userRoles) && pr.trackedEntity.id != teId) {
+                                programs.push(pr);
+                            }
+                        }
+                    });
+
+                    if (programs.length === 0) {
+                        selectedProgram = null;
+                    }
+                    else if (programs.length === 1) {
+                        selectedProgram = programs[0];
+                    }
+                    else {
+                        if (selectedProgram) {
+                            var continueLoop = true;
+                            for (var i = 0; i < programs.length && continueLoop; i++) {
+                                if (programs[i].id === selectedProgram.id) {
+                                    selectedProgram = programs[i];
+                                    continueLoop = false;
+                                }
+                            }
+                            if (continueLoop) {
+                                selectedProgram = null;
+                            }
+                        }
+                    }
+
+                    $rootScope.$apply(function () {
+                        def.resolve({programs: programs, selectedProgram: selectedProgram});
+                    });
+                });
+            });
+
+            return def.promise;
+        },
+        getByUid: function (entityUid) {
+            var promise = $http.get('../api/trackedEntityInstances/' + entityUid + '.json').then(function (response) {
+                var tei = response.data;
+                return tei;
+            });
+            return promise;
+        },
+        deleteByUid: function(entityUid){
+            var promise = $http.delete('../api/trackedEntityInstances/' + entityUid + '.json').then(function (response) {
+                return response.data;
+            });
+            return promise;
+        }
+
+    };
+})
+
+/* Service to get all tracker dataElements */
+//http://127.0.0.1:8080/api/dataElements.json?filter=domaintype:eq:TRACKER&fields=[id,name]&paging=false
+.service('DataElementService', function ($http) {
+
+    return {
+        getAllTrackerDataElement: function () {
+            var promise = $http.get('../api/dataElements.json?filter=domaintype:eq:TRACKER&fields=[id,name]&paging=false').then(function (response) {
+                return response.data ;
+            });
+            return promise;
+        }
+    };
+})
+/* Service to get all tracker dataElements */
+//http://127.0.0.1:8080/api/dataElements.json?filter=domaintype:eq:TRACKER&fields=[id,name]&paging=false
+.service('TrackedEntityAttributeService', function ($http) {
+
+    return {
+        getAllTrackedEntityAttributes: function () {
+            var promise = $http.get('../api/trackedEntityAttributes.json?fields=[id,name,displayName,code,valueType]&paging=false').then(function (response) {
+                return response.data ;
+            });
+            return promise;
+        }
+
+    };
+});
