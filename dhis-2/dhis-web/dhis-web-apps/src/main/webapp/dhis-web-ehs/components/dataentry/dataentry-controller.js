@@ -593,6 +593,29 @@ trackerCapture.controller('DataEntryController',
             $scope.issuelicense = function(inTableView, outerDataEntryForm) {
                 $scope.currentEvent1 = $scope.currentEvent;
                 $scope.issuelicensecall = true;
+				      var dataelement = $scope.licenValidUpToDeUid;
+                var issue = 1;
+                var currentTime = new Date();
+                var year = currentTime.getFullYear();
+                var month = "12";
+                var date1 = "31";
+                var date = year + "-" + month + "-" + date1;
+                value = date;
+                var dataelement1 = $scope.licenStatusDeUid;
+				        var updateResponseStatus = EHSUpdateAttributeService.updateAttributeValue(  $scope.currentEvent.trackedEntityInstance, $scope.licenStatusAttributeUid, issue, $scope.optionSets, $scope.attributesById);
+                updateResponseStatus.then(function(response) {
+                    if (response.status == 'OK') {
+
+                        var updateResponseValidity1 = EHSUpdateAttributeService.updateAttributeValue(  $scope.currentEvent.trackedEntityInstance, $scope.licenValidUpToAttributeUid, value, $scope.optionSets, $scope.attributesById);
+                        updateResponseValidity1.then(function(response) {
+                            if (response.status == 'OK') {
+								
+								
+								
+                            }
+                        });
+                    }
+                });
                 $scope.completeIncompleteEvent1(inTableView, outerDataEntryForm, $scope.issuelicensecall, $scope.currentEvent1);
             }
             $scope.issuelicensebutton1 = function(currentEvent1) {
@@ -610,17 +633,7 @@ trackerCapture.controller('DataEntryController',
                 $scope.saveDataValueForEvent1(dataelement, value, null, currentEvent1, false);
                 $scope.saveDataValueForEvent1(dataelement1, issue, null, currentEvent1, false);
 
-                var updateResponseStatus = EHSUpdateAttributeService.updateAttributeValue( $scope.currentEvent1.trackedEntityInstance, $scope.licenStatusAttributeUid, issue, $scope.optionSets, $scope.attributesById);
-                updateResponseStatus.then(function(response) {
-                    if (response.status == 'OK') {
-
-                        var updateResponseValidity = EHSUpdateAttributeService.updateAttributeValue( $scope.currentEvent1.trackedEntityInstance, $scope.licenValidUpToAttributeUid, value, $scope.optionSets, $scope.attributesById);
-                        updateResponseValidity.then(function(response) {
-                            if (response.status == 'OK') {
-                            }
-                        });
-                    }
-                });
+        
 
                 console.log($scope.licensestage);
 
@@ -639,17 +652,27 @@ trackerCapture.controller('DataEntryController',
                     value1 = date;
 
 
-                    if ($scope.currentEvent1.event != $scope.licensestage[i].event) {
+                     if (($scope.currentEvent1.event != $scope.licensestage[i].event) &&($scope.licensestage[i].AWprRTJ8phx=='Valid')){
                         $scope.saveDataValueForEvent1(dataelement, value1, null, $scope.licensestage[i], false);
                         $scope.saveDataValueForEvent1(dataelement1, expired, null, $scope.licensestage[i], false);
                     }
                 }
+				location.reload(true);
 
             }
 
             $scope.cancellicense = function(inTableView, outerDataEntryForm) {
                 $scope.currentEvent1 = $scope.currentEvent;
                 $scope.issuelicensecall = false;
+				
+				   var dataelement =  $scope.licenValidUpToDeUid;
+                var cancel = -1;
+                var dataelement1 = $scope.licenStatusDeUid;
+				 var updateResponseStatus = EHSUpdateAttributeService.updateAttributeValue( $scope.currentEvent1.trackedEntityInstance, $scope.licenStatusAttributeUid, cancel, $scope.optionSets, $scope.attributesById);
+                updateResponseStatus.then(function(response) {
+                    if (response.status == 'OK') {
+                    }
+                });
                 $scope.completeIncompleteEvent1(inTableView, outerDataEntryForm, $scope.issuelicensecall, $scope.currentEvent1);
 
                 //$scope.completeIncompleteEvent (inTableView, outerDataEntryForm) ;
@@ -658,16 +681,13 @@ trackerCapture.controller('DataEntryController',
                 var dataelement =  $scope.licenValidUpToDeUid;
                 var cancel = -1;
                 var dataelement1 = $scope.licenStatusDeUid;
+			
                 // $scope.saveDataValueForEvent1(dataelement,cancel, null, currentEvent1, false);
                 $scope.saveDataValueForEvent1(dataelement1, cancel, null, currentEvent1, false);
 
-                var updateResponseStatus = EHSUpdateAttributeService.updateAttributeValue( $scope.currentEvent1.trackedEntityInstance, $scope.licenStatusAttributeUid, cancel, $scope.optionSets, $scope.attributesById);
-                updateResponseStatus.then(function(response) {
-                    if (response.status == 'OK') {
-                    }
-                });
+               
 
-                for (var i = 0; i < $scope.licensestage.length - 1; i++) {
+                for (var i = 0; i < $scope.licensestage.length ; i++) {
 
                     var expired = 2;
                     var currentTime = new Date();
@@ -683,12 +703,12 @@ trackerCapture.controller('DataEntryController',
                     }
                     var date = year + "-" + month + "-" + date1;
                     value1 = date;
-                    if ($scope.currentEvent1.event != $scope.licensestage[i].event) {
+                     if (($scope.currentEvent1.event != $scope.licensestage[i].event) &&($scope.licensestage[i].AWprRTJ8phx=='Valid')){
                         $scope.saveDataValueForEvent1(dataelement, value1, null, $scope.licensestage[i], false);
                         $scope.saveDataValueForEvent1(dataelement1, expired, null, $scope.licensestage[i], false);
                     }
                 }
-
+ location.reload(true);
             }
 
             $scope.saveDataValueForEvent1 = function(prStDe, buttonvalue, field, eventToSave, backgroundUpdate) {
@@ -1195,7 +1215,7 @@ trackerCapture.controller('DataEntryController',
                     if ($scope.currentEvent.programStage == "e3FhRD3D1Nf") {
                         if ($scope.currentEvent.status == "COMPLETED") {
 
-                            if (($scope.currentEvent.AWprRTJ8phx == "Valid") || ($scope.currentEvent.AWprRTJ8phx == undefined)) {
+                            if (($scope.currentEvent.AWprRTJ8phx == "Valid") ||($scope.currentEvent.AWprRTJ8phx == "Canceled")|| ($scope.currentEvent.AWprRTJ8phx == undefined)) {
                                 $scope.reopen = true;
                             }
                             else {
@@ -2760,7 +2780,7 @@ trackerCapture.controller('DataEntryController',
 
 
 
-                                            $scope.eventWiseLicenseScoreStatusMap[$scope.currentEvent.event] = 'Valid';
+                                            //$scope.eventWiseLicenseScoreStatusMap[$scope.currentEvent.event] = 'Valid';
 
 
                                         /*
