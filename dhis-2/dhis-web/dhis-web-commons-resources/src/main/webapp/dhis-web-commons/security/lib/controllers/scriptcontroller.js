@@ -3,13 +3,13 @@
  */
 
 
-var peid,orgid,cpeid,mpeid,corgid,morgid;
+var peid, orgid, cpeid, mpeid, corgid, morgid;
 //var base = "http://localhost:8090/dhis/";
 var base = "../../";
 var orgname;
-var deids=[],denames=[];
-var arr=[];
-var degroupid,degroupname="",dename="",deid="";
+var deids = [], denames = [];
+var arr = [];
+var degroupid, degroupname = "", dename = "", deid = "";
 var organisationUnits,corganisationUnits,morganisationUnits;
 var indicators,mindicators,cindicators;
 var mpeid,morgid;
@@ -29,19 +29,11 @@ var mperiodarr=[],mpearr=[];
 var cperiodarr=[],cpearr=[];
 var url=base+"dhis-web-commons-security/login.action";
 var cdegroupid,cdegroupname,cdename="",cdeid="";
-// Login - if OK, call the setLinks function
 $(document).ready(function() {
-    $("a#meta").fancybox({
-        'hideOnContentClick': true
-    });
-
-
-
 
 });
 Ext.onReady( function() {
 
-    //document.getElementById("drop1").multiple = false;
     Ext.Ajax.request({
         url: base + "dhis-web-commons-security/login.action",
         method: "POST",
@@ -54,111 +46,125 @@ Ext.onReady( function() {
         'j_username': 'publicdashboard',
         'j_password': 'D@SHbo@rd20!6'
     }, function (data, status, xhr) {
-        //console.log(data);
-        //console.log(status);
-        //console.log(xhr);
-        $.getJSON("../../api/dataElementGroups.json?fields=id,name,dataElementGroups[id,name]", function (data) {
 
-            $.each(data.dataElementGroups, function (index, item) {
-                $('#drop3').append(
-                    $('<option></option>').val(item.id).html(item).text(item.name)
-                );
-            });	$.each(data.dataElementGroups, function (index, item) {
-                $('#dropm3').append(
-                    $('<option></option>').val(item.id).html(item).text(item.name)
-                );
-            });	$.each(data.dataElementGroups, function (index, item) {
-                $('#dropc3').append(
-                    $('<option></option>').val(item.id).html(item).text(item.name)
-                );
-            });
+        $.ajax({
+            async : false,
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json",
+            url: '../../api/dataElementGroups.json?fields=id,name,dataElementGroups[id,name]',
+            success: function(data){
+                $.each(data.dataElementGroups, function (index, item) {
+                    $('#drop3').append(
+                        $('<option></option>').val(item.id).html(item).text(item.name)
+                    );
+                });	$.each(data.dataElementGroups, function (index, item) {
+                    $('#dropm3').append(
+                        $('<option></option>').val(item.id).html(item).text(item.name)
+                    );
+                });	$.each(data.dataElementGroups, function (index, item) {
+                    $('#dropc3').append(
+                        $('<option></option>').val(item.id).html(item).text(item.name)
+                    );
+                });
+            },
+            error: function(response){
+
+            }
         });
-
 
         $('.selectpicker').selectpicker('refresh');
-        $.getJSON("../../api/sqlViews/n0UQzBeeixt/data.json", function (data) {
 
-            $.each(data.rows, function (index, item) {
-                var res = item[2].slice(0,4);
-                periodarr.push(item[2]);
-                mperiodarr.push(item[2]);
-                cperiodarr.push(item[2]);
+        $.ajax({
 
+            async : false,
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json",
+            url: '../../api/sqlViews/n0UQzBeeixt/data.json',
+            success: function(data){
 
-                pearr.push(res);
-                mpearr.push(res);
-                cpearr.push(res);
+                $.each(data.rows, function (index, item) {
+                    var res = item[2].slice(0,4);
+                    periodarr.push(item[2]);
+                    mperiodarr.push(item[2]);
+                    cperiodarr.push(item[2]);
 
+                    pearr.push(res);
+                    mpearr.push(res);
+                    cpearr.push(res);
 
-
-                pearr.sort(function(a, b) {
-                    var nameA=a.toLowerCase(), nameB=b.toLowerCase()
-                    if (nameA < nameB) //sort string ascending
-                        return -1
-                    if (nameA > nameB)
-                        return 1
-                    return 0 //default return value (no sorting)
-                });mpearr.sort(function(a, b) {
-                    var nameA=a.toLowerCase(), nameB=b.toLowerCase()
-                    if (nameA < nameB) //sort string ascending
-                        return -1
-                    if (nameA > nameB)
-                        return 1
-                    return 0 //default return value (no sorting)
-                });cpearr.sort(function(a, b) {
-                    var nameA=a.toLowerCase(), nameB=b.toLowerCase()
-                    if (nameA < nameB) //sort string ascending
-                        return -1
-                    if (nameA > nameB)
-                        return 1
-                    return 0 //default return value (no sorting)
+                    pearr.sort(function(a, b) {
+                        var nameA=a.toLowerCase(), nameB=b.toLowerCase()
+                        if (nameA < nameB) //sort string ascending
+                            return -1
+                        if (nameA > nameB)
+                            return 1
+                        return 0 //default return value (no sorting)
+                    });mpearr.sort(function(a, b) {
+                        var nameA=a.toLowerCase(), nameB=b.toLowerCase()
+                        if (nameA < nameB) //sort string ascending
+                            return -1
+                        if (nameA > nameB)
+                            return 1
+                        return 0 //default return value (no sorting)
+                    });cpearr.sort(function(a, b) {
+                        var nameA=a.toLowerCase(), nameB=b.toLowerCase()
+                        if (nameA < nameB) //sort string ascending
+                            return -1
+                        if (nameA > nameB)
+                            return 1
+                        return 0 //default return value (no sorting)
+                    });
                 });
-            });
-            //	console.log(periodarr);
-            //console.log(pearr);
-            $.each(pearr, function (index, item) {
-                $('#drop5').append(
-                    $('<option></option>').val(item).html(item).text(item)
-                );
-            });
-            $.each(mpearr, function (index, item) {
-                $('#dropm5').append(
-                    $('<option></option>').val(item).html(item).text(item)
-                );
-            });$.each(cpearr, function (index, item) {
-                $('#dropc5').append(
-                    $('<option></option>').val(item).html(item).text(item)
-                );
-            });
+                //	console.log(periodarr);
+                //console.log(pearr);
+                $.each(pearr, function (index, item) {
+                    $('#drop5').append(
+                        $('<option></option>').val(item).html(item).text(item)
+                    );
+                });
+                $.each(mpearr, function (index, item) {
+                    $('#dropm5').append(
+                        $('<option></option>').val(item).html(item).text(item)
+                    );
+                });$.each(cpearr, function (index, item) {
+                    $('#dropc5').append(
+                        $('<option></option>').val(item).html(item).text(item)
+                    );
+                });
+            },
+            error: function(response){
 
+            }
         });
-        $.getJSON("../../api/organisationUnitGroups.json?fields=id,code,name&level=3&order=code:asc", function (data) {
-            $.each(data.organisationUnitGroups, function (index, item) {
-                $('#drop1').append(
-                    $('<option></option>').val(item.id).html(item.name).text(item.name)
-                );
+
+        $.ajax({
+
+            async : false,
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json",
+            url: '../../api/organisationUnitGroups.json?fields=id,code,name&level=3&order=code:asc',
+            success: function(data){
+                $.each(data.organisationUnitGroups, function (index, item) {
+                    $('#drop1').append(
+                        $('<option></option>').val(item.id).html(item.name).text(item.name)
+                    );
 //					$('#dropm1').append(
 //							$('<option></option>').val(item.id).html(item.name).text(item.name)
 //					);
 
-                $('#dropc1').append(
-                    $('<option></option>').val(item.id).html(item.name).text(item.name)
-                );
-            });
-            $('.selectpicker').selectpicker('refresh');
+                    $('#dropc1').append(
+                        $('<option></option>').val(item.id).html(item.name).text(item.name)
+                    );
+                });
+                $('.selectpicker').selectpicker('refresh');
+            },
+            error: function(response){
 
-
-            //$('.selectpicker').selectpicker('selectAll');
-
-
-
-            //$('.selectpicker').selectpicker('selectAll');
-
-            //$.getJSON("../../api/sqlViews/n0UQzBeeixt/data.json", function (data) {
-
-
+            }
         });
-
 
         $("#drop5").change(function () {
             var selected = $("#drop5 option:selected");
@@ -177,7 +183,8 @@ Ext.onReady( function() {
             selected.each(function () {
                 mpeid += ";" + $(this).val();
             });
-        });$("#dropc5").change(function () {
+        });
+        $("#dropc5").change(function () {
 
             var selected = $("#dropc5 option:selected");
 
@@ -215,7 +222,7 @@ Ext.onReady( function() {
 
                 {
 
-                    alert(element[i].selected);
+//            hide(element[i].selected);
                 }
                 else {
                     element[i].remove();
@@ -236,30 +243,40 @@ Ext.onReady( function() {
 
             });
 
-            $.getJSON("../../api/dataElementGroups/" + degroupid + ".json?fields=dataElements[id,name]", function (data) {
+            $.ajax({
 
-                indicators = data.dataElements;
+                async : false,
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json",
+                url: '../../api/dataElementGroups/' + degroupid + '.json?fields=dataElements[id,name]',
+                success: function(data){
+                    indicators = data.dataElements;
 
-                indicators.sort(function(a, b) {
-                    var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-                    if (nameA < nameB) //sort string ascending
-                        return -1
-                    if (nameA > nameB)
-                        return 1
-                    return 0 //default return value (no sorting)
-                });
-                $.each(indicators, function (index, item) {
-                    $('#drop4').append(
-                        $('<option></option>').val(item.id).html(item).text(item.name)
-                    );
-                });
+                    indicators.sort(function(a, b) {
+                        var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
+                        if (nameA < nameB) //sort string ascending
+                            return -1
+                        if (nameA > nameB)
+                            return 1
+                        return 0 //default return value (no sorting)
+                    });
+                    $.each(indicators, function (index, item) {
+                        $('#drop4').append(
+                            $('<option></option>').val(item.id).html(item).text(item.name)
+                        );
+                    });
 
-                $('.selectpicker').selectpicker('refresh');
+                    $('.selectpicker').selectpicker('refresh');
+                },
+                error: function(response){
+
+                }
             });
 
         });
         $("#dropc3").change(function () {
-
+            var ccountry = {};
 
             cdegroupid = "";
 
@@ -269,24 +286,25 @@ Ext.onReady( function() {
 
 
 
-            $.each($("#drop4 option:selected"), function(index,item ){
-                var ccountry = {};
+            $.each($("#dropc4 option:selected"), function(index,item ){
+
                 ccountry.id =  item.value;
                 ccountry.name = item.innerHTML;
                 ccountries.push(ccountry);
             });
 
             var element = document.getElementById("dropc4");
-//				for (var i = element.length-1; i >= 0; i--) {
-//					element[i].remove()
-//				}
+            var selected=[];
+
             for (var i = element.length-1; i >= 0; i--) {
 
                 if(element[i].selected)
 
                 {
 
-//						alert(element[i].selected);
+                    selected.push(element[i].value);
+                    delete ccountries['id',element[i].value];
+                    console.log(i);
                 }
                 else {
                     element[i].remove();
@@ -294,39 +312,56 @@ Ext.onReady( function() {
             }
 
 
+
+
             $.each(ccountries, function(index,item){
 
+                if(selected.includes(item.id))
+                {
+                    delete ccountries['id',item.id];
+                    //ccountries.removeValue('id',item.id);
+                    //delete ccountries["id", item.id];
 
-
-                //countries.push(document.getElementById("drop4").selectedIndex);
-
-                $('#dropc4').append(
-                    $('<option></option>').val(item.id).html(item.name).text(item.name)
-                );
-
-            });
-
-            $.getJSON("../../api/dataElementGroups/" + cdegroupid + ".json?fields=dataElements[id,name]", function (data) {
-
-
-
-                cindicators = data.dataElements;
-
-                cindicators.sort(function(a, b) {
-                    var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-                    if (nameA < nameB) //sort string ascending
-                        return -1
-                    if (nameA > nameB)
-                        return 1
-                    return 0 //default return value (no sorting)
-                });
-                $.each(cindicators, function (index, item) {
+                }
+                else
+                {
                     $('#dropc4').append(
-                        $('<option></option>').val(item.id).html(item).text(item.name)
+                        $('<option></option>').val(item.id).html(item.name).text(item.name)
                     );
-                });
-                $('.selectpicker').selectpicker('refresh');
+                }
+                //countries.push(document.getElementById("drop4").selectedIndex);
             });
+
+            $.ajax({
+
+                async : false,
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json",
+                url: '../../api/dataElementGroups/' + cdegroupid + '.json?fields=dataElements[id,name]',
+                success: function(data){
+                    cindicators = data.dataElements;
+
+                    cindicators.sort(function(a, b) {
+                        var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
+                        if (nameA < nameB) //sort string ascending
+                            return -1
+                        if (nameA > nameB)
+                            return 1
+                        return 0 //default return value (no sorting)
+                    });
+                    $.each(cindicators, function (index, item) {
+                        $('#dropc4').append(
+                            $('<option></option>').val(item.id).html(item).text(item.name)
+                        );
+                    });
+                    $('.selectpicker').selectpicker('refresh');
+                },
+                error: function(response){
+
+                }
+            });
+
 
         });
         $("#dropm3").change(function () {
@@ -337,25 +372,34 @@ Ext.onReady( function() {
 
             mdegroupid = $(this).find("option:selected").val();
 
+            $.ajax({
 
-            $.getJSON("../../api/dataElementGroups/" + mdegroupid + ".json?fields=dataElements[id,name]", function (data) {
+                async : false,
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json",
+                url: '../../api/dataElementGroups/' + mdegroupid + '.json?fields=dataElements[id,name]',
+                success: function(data){
+                    mindicators = data.dataElements;
 
-                mindicators = data.dataElements;
+                    mindicators.sort(function(a, b) {
+                        var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
+                        if (nameA < nameB) //sort string ascending
+                            return -1
+                        if (nameA > nameB)
+                            return 1
+                        return 0 //default return value (no sorting)
+                    });
+                    $.each(mindicators, function (index, item) {
+                        $('#dropm4').append(
+                            $('<option></option>').val(item.id).html(item).text(item.name)
+                        );
+                    });
+                    $('.selectpicker').selectpicker('refresh');
+                },
+                error: function(response){
 
-                mindicators.sort(function(a, b) {
-                    var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-                    if (nameA < nameB) //sort string ascending
-                        return -1
-                    if (nameA > nameB)
-                        return 1
-                    return 0 //default return value (no sorting)
-                });
-                $.each(mindicators, function (index, item) {
-                    $('#dropm4').append(
-                        $('<option></option>').val(item.id).html(item).text(item.name)
-                    );
-                });
-                $('.selectpicker').selectpicker('refresh');
+                }
             });
 
         });
@@ -368,18 +412,28 @@ Ext.onReady( function() {
 
             cdegroupid = $(this).find("option:selected").val();
 
+            $.ajax({
 
-            $.getJSON("../../api/dataElementGroups/" + cdegroupid + ".json?fields=dataElements[id,name]", function (data) {
-                $.each(data.dataElements, function (index, item) {
-                    // deids.push(item.id);
-                    //denames.push(item.name);
+                async : false,
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json",
+                url: '../../api/dataElementGroups/' + cdegroupid + '.json?fields=dataElements[id,name]',
+                success: function(data){
+                    $.each(data.dataElements, function (index, item) {
+                        // deids.push(item.id);
+                        //denames.push(item.name);
 
-                    $('#dropc4').append(
-                        $('<option></option>').val(item.id).html(item).text(item.name)
-                    );
+                        $('#dropc4').append(
+                            $('<option></option>').val(item.id).html(item).text(item.name)
+                        );
 
-                });
-                $('.selectpicker').selectpicker('refresh');
+                    });
+                    $('.selectpicker').selectpicker('refresh');
+                },
+                error: function(response){
+
+                }
             });
 
         });
@@ -396,20 +450,14 @@ Ext.onReady( function() {
                 //alert(dename);
                 arr.push({"id": deid, "name": dename});
             });
-            //alert(dename);
-            //arr=[];
 
-            //dename = "";
-            //deid = "";
-            //getFilteredOrgUnitList();
-            //console.log("Data Elements" + arr);
         });
         $("#dropm4").change(function () {
             var selected = $("#dropm4 option:selected");
             mdename = "";
             mdeid = "";
             selected.each(function () {
-                mdeid +=  $(this).val();
+                mdeid += $(this).val();
                 mdename += $(this).text();
 
             });
@@ -419,21 +467,28 @@ Ext.onReady( function() {
 
         });
         $("#dropc4").change(function () {
-            var selected = $("#dropc4 option:selected");
+
+            var selected =$("#dropc4 option:selected");
             cdename = "";
             cdeid = "";
+            var  xcdeid = "";
+            var  xcdename = "";
             selected.each(function () {
 
-                //cdeid = "";
-                cdeid += ";" + $(this).val();
-                cdename += $(this).text()+",";
+                xcdeid += ";" + $(this).val();
+                xcdename += $(this).text()+",";
+
+                cdeid=xcdeid.split(';').filter(function(allItems,i,a){
+                    return i==a.indexOf(allItems);
+                }).join(';');
+
+                cdename=xcdename.split(',').filter(function(allItems,i,a){
+                    return i==a.indexOf(allItems);
+                }).join(',');
 
                 carr.push({"id": cdeid, "name": cdename});
 
             });
-            //carr = [];
-
-            //getFilteredOrgUnitList();
 
         });
 
@@ -443,70 +498,88 @@ Ext.onReady( function() {
 
             if(drop1.value=="MhXp46Y40hA" || drop1.value=="KQKjaCQNIlV")
             {
-            var element = document.getElementById("drop2");
-            for (var i = element.length-1; i >= 1; i--) {
-                element[i].remove()
-            }
+                var element = document.getElementById("drop2");
+                for (var i = element.length-1; i >= 1; i--) {
+                    element[i].remove()
+                }
             }
 
 
             var orglevel = $(this).find("option:selected").val();
-            $.getJSON("../../api/organisationUnitGroups/" + orglevel + ".json", function (data) {
-                organisationUnits = data.organisationUnits;
 
-                organisationUnits.sort(function(a, b) {
-                    var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-                    if (nameA < nameB) //sort string ascending
-                        return -1
-                    if (nameA > nameB)
-                        return 1
-                    return 0 //default return value (no sorting)
-                });
+            $.ajax({
 
-                $.each(organisationUnits, function (index, item) {
-                    $('#drop2').append(
-                        $('<option></option>').val(item.id).html(item).text(item.name)
-                    );
-                });
-                $('.selectpicker').selectpicker('refresh');
+                async : false,
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json",
+                url: '../../api/organisationUnitGroups/' + orglevel + '.json',
+                success: function(data){
+                    organisationUnits = data.organisationUnits;
 
-                //$('.selectpicker').selectpicker('selectAll');
+                    organisationUnits.sort(function(a, b) {
+                        var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
+                        if (nameA < nameB) //sort string ascending
+                            return -1
+                        if (nameA > nameB)
+                            return 1
+                        return 0 //default return value (no sorting)
+                    });
 
+                    $.each(organisationUnits, function (index, item) {
+                        $('#drop2').append(
+                            $('<option></option>').val(item.id).html(item).text(item.name)
+                        );
+                    });
+                    $('.selectpicker').selectpicker('refresh');
+                },
+                error: function(response){
+
+                }
             });
-            //document.getElementById("drop2").innerHTML = "";
+
         });
         $("#dropc1").change(function () {
 
             if(dropc1.value=="MhXp46Y40hA" || dropc1.value=="KQKjaCQNIlV")
             {
-            var element = document.getElementById("dropc2");
-            for (var i = element.length-1; i >= 0; i--) {
-                element[i].remove()
-            }
+                var element = document.getElementById("dropc2");
+                for (var i = element.length-1; i >= 1; i--) {
+                    element[i].remove()
+                }
 
             }
             var corglevel = $(this).find("option:selected").val();
-            $.getJSON("../../api/organisationUnitGroups/" + corglevel + ".json", function (data) {
-                corganisationUnits = data.organisationUnits;
+            $.ajax({
 
-                corganisationUnits.sort(function(a, b) {
-                    var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-                    if (nameA < nameB) //sort string ascending
-                        return -1
-                    if (nameA > nameB)
-                        return 1
-                    return 0 //default return value (no sorting)
-                });
-                $.each(corganisationUnits, function (index, item) {
-                    $('#dropc2').append(
-                        $('<option></option>').val(item.id).html(item).text(item.name)
-                    );
-                });
-                $('.selectpicker').selectpicker('refresh');
+                async : false,
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json",
+                url: '../../api/organisationUnitGroups/' + corglevel + '.json',
+                success: function(data){
+                    corganisationUnits = data.organisationUnits;
 
-                //$('.selectpicker').selectpicker('selectAll');
+                    corganisationUnits.sort(function(a, b) {
+                        var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
+                        if (nameA < nameB) //sort string ascending
+                            return -1
+                        if (nameA > nameB)
+                            return 1
+                        return 0 //default return value (no sorting)
+                    });
+                    $.each(corganisationUnits, function (index, item) {
+                        $('#dropc2').append(
+                            $('<option></option>').val(item.id).html(item).text(item.name)
+                        );
+                    });
+                    $('.selectpicker').selectpicker('refresh');
+                },
+                error: function(response){
 
+                }
             });
+
         });
 
 
@@ -565,28 +638,7 @@ Ext.onReady( function() {
             //	console.log("org id"+orgid);
 
         });
-//			$("#dropm2").change(function () {
-//				if(dropm2.value=="all")
-//				{
-//
-//					$('#dropm2').selectpicker('selectAll');
-//
-//				}
-//				var selected = $("#dropm2 option:selected");
-//				morgname="";
-//				morgid = "";
-//				selected.each(function () {
-//					morgname=$(this).val();
-//					morgid += ";" + $(this).val();
-//
-//				});
-//
-//				morgname = $(this).find("option:selected").text();
-//
-//				// orgid += $(this).find("option:selected").val()+";";
-//
-//
-//			});
+
         morgid="eGtybcKtVeq";
 
 
@@ -615,7 +667,6 @@ Ext.onReady( function() {
             corgname = $(this).find("option:selected").text();
 
             // orgid += $(this).find("option:selected").val()+";";
-
 
         });
 
@@ -690,25 +741,6 @@ function validatetable() {
 
     }
 
-//
-//		open = function(verb, url, data, target) {
-//			var form = document.createElement("form");
-//			form.action = url;
-//			form.method = verb;
-//			form.target = target || "_self";
-//			if (data) {
-//				for (var key in data) {
-//					var input = document.createElement("textarea");
-//					input.name = key;
-//					input.value = typeof data[key] === "object" ? JSON.stringify(data[key]) : data[key];
-//					form.appendChild(input);
-//				}
-//			}
-//			form.style.display = 'none';
-//			document.body.appendChild(form);
-//			form.submit();
-//		};
-
 }
 
 function validatechart() {
@@ -770,6 +802,8 @@ function validatechart() {
     }
     else ( isValidated === "true")
     {
+
+
 
         window.open('lib/controllers/highcharts1.html?cdegroupid='+cdegroupid+'&cpeid='+cpeid+'&cdegroupname='+cdegroupname+'&cdeid='+cdeid+'&cdename='+encodeURIComponent(cdename)+'&corgid='+corgid+'&corgname='+corgname);
     }
