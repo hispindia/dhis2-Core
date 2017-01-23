@@ -544,7 +544,7 @@
         </tbody>
     </table>
 	
-	<div style="width:90%;margin:auto;" >
+	
     	<table id="the-table" cellspacing="0" style="width: 50%;">
         	<thead>
             	<tr >
@@ -643,7 +643,7 @@
                 <td colspan="5">$i18n.getString( "inline_security_warning" )</td>
             </tr>
         </table>
-    </div>    
+     
 	</div>
 </form>
 <div id="shareLinkToUser" title="Share Link to User">
