@@ -421,9 +421,20 @@
 
                         #if($dataElement.valueType == 'NUMBER')
                        
-                            <td style="width:18%" >
-                                <input type="text"  placeholder="Enter Number"  style="width:130px;" #if( $deUpdateStatus == "no" ) disabled #end name="${dataEntryId}" id="${dataEntryId}" value="$!dataValue.get(${getter})"  onblur="javascript:saveValue('$!dataValue.get(${getter})', '$!dataComments.get(${getter})', '$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataElement.valueType')" />
-                                <script>
+                            <td style="width:18%"  id="my" >
+                                <input type="text"  placeholder="Enter Number" style="width:130px;"   #if( $deUpdateStatus == "no" ) disabled #end name="${dataEntryId}" id="${dataEntryId}" value="$!dataValue.get(${getter})"  onblur="javascript:saveValue('$!dataValue.get(${getter})', '$!dataComments.get(${getter})', '$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataElement.valueType')" onchange="javascript:checkno(this)"  />
+                                <script> function checkno(field)
+								{
+								
+								
+								 if (isNaN(field.value)) 
+  {field.value='';
+    alert("Enter numbers only ");
+   
+  }
+									
+								}
+								
                                     function formatNumber()
                                     {
                                         for (var i = 0; i < percentageRequiredList.length; i++)
