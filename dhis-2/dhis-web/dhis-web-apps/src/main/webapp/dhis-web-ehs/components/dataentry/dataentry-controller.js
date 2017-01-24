@@ -584,15 +584,27 @@ trackerCapture.controller('DataEntryController',
             };
 
 
-            $scope.reopen = function(inTableView, outerDataEntryForm) {
+            $scope.Reopen = function(inTableView, outerDataEntryForm) {
+                $scope.currentEvent1 = $scope.currentEvent;
+                $scope.issuelicensecall = "open";
+                $scope.completeIncompleteEvent1(inTableView, outerDataEntryForm, $scope.issuelicensecall, $scope.currentEvent1);
 
-                $scope.completeIncompleteEvent(inTableView, outerDataEntryForm);
+
+
+            }
+            $scope.reopenlicense = function(currentEvent1) {
+                var dataelement1 = $scope.licenStatusDeUid;
+                value="";
+
+                $scope.saveDataValueForEvent1(dataelement1, value, null, currentEvent1, false);
 
             }
 
+
+
             $scope.issuelicense = function(inTableView, outerDataEntryForm) {
                 $scope.currentEvent1 = $scope.currentEvent;
-                $scope.issuelicensecall = true;
+                $scope.issuelicensecall = "issue";
 				      var dataelement = $scope.licenValidUpToDeUid;
                 var issue = 1;
                 var currentTime = new Date();
@@ -663,7 +675,7 @@ trackerCapture.controller('DataEntryController',
 
             $scope.cancellicense = function(inTableView, outerDataEntryForm) {
                 $scope.currentEvent1 = $scope.currentEvent;
-                $scope.issuelicensecall = false;
+                $scope.issuelicensecall = "cancel";
 				
 				   var dataelement =  $scope.licenValidUpToDeUid;
                 var cancel = -1;
@@ -3497,11 +3509,18 @@ trackerCapture.controller('DataEntryController',
                             }
                         }
                         if (dhis2Event.programStage == "e3FhRD3D1Nf") {
-                            if ($scope.issuelicensecall) {
+                            if ($scope.issuelicensecall=="issue") {
                                 $scope.issuelicensebutton1(currentEvent1);
-                            } else {
+                            } else if ($scope.issuelicensecall=="cancel"){
+
                                 $scope.cancellicensecall(currentEvent1);
                             }
+                            else if ($scope.issuelicensecall=="open"){
+
+                                $scope.reopenlicense(currentEvent1);
+
+                            }
+
                             //         var dataelement="oYNscX4WRDk";
                             //     var issue=1;
                             //   $scope.saveDataValueForEvent1(dataelement,outerDataEntryForm,issue, null, $scope.currentEvent, false);
