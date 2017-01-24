@@ -742,6 +742,14 @@ trackerCapture.controller('RegistrationController',
 
                 else
                 {
+                    if($scope.selectedCountryName==null)
+                    {
+                        $scope.selectedCountryName=$scope.teiOriginal.kbBDKjtFNEp;
+                    }
+                    if($scope.selectedDistrictName==null)
+                    {
+                        $scope.selectedDistrictName=$scope.teiOriginal.DmZxOpX64Sn;
+                    }
                     var result = RegistrationService.processForm($scope.tei, $scope.selectedTei, $scope.teiOriginal, $scope.attributesById, $scope.selectedCountryName, $scope.selectedDistrictName, $scope.selectedCommunityName  );
                     $scope.formEmpty = result.formEmpty;
                     $scope.tei = result.tei;
@@ -759,6 +767,11 @@ trackerCapture.controller('RegistrationController',
             };
 
             $scope.executeRules = function () {
+
+//for profile edit //
+                OrganisationUnitService.getChildrenOrganisationUnits( $scope.selectedDistrict1 ).then(function(communityOrganisationUnits){
+                    $scope.communityOrgUnits = communityOrganisationUnits.children;
+        //for profile edit//
                 //repopulate attributes with updated values
                 $scope.selectedTei.attributes = [];
                 angular.forEach($scope.attributes, function (metaAttribute) {
