@@ -770,7 +770,7 @@ trackerCapture.controller('RegistrationController',
 
 //for profile edit //
                 OrganisationUnitService.getChildrenOrganisationUnits( $scope.selectedDistrict1 ).then(function(communityOrganisationUnits){
-                    $scope.communityOrgUnits = communityOrganisationUnits.children;
+				$scope.communityOrgUnits = communityOrganisationUnits.children;});
         //for profile edit//
                 //repopulate attributes with updated values
                 $scope.selectedTei.attributes = [];
