@@ -75,5 +75,11 @@
 			<result name="success" type="redirect">index.html</result>
 		</action>
 	</package>
-    
+
+	<package name="dhis-web-redirectapp" extends="dhis-web-commons" namespace="/dhis-web-redirectapp">
+		<action name="index" class="org.hisp.dhis.commons.action.NoAction">
+			<result name="success" type="redirect">index.html</result>
+		</action>
+	</package>
+
 </struts>
