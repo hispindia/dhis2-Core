@@ -597,6 +597,7 @@ trackerCapture.controller('DataEntryController',
                 value="";
 
                 $scope.saveDataValueForEvent1(dataelement1, value, null, currentEvent1, false);
+				 location.reload(true);
 
             }
 
