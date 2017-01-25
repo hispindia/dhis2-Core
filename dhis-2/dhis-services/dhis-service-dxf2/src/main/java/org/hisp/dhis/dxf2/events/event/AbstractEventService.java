@@ -1341,6 +1341,14 @@ public abstract class AbstractEventService
         programStageInstance.setOrganisationUnit( organisationUnit );
         programStageInstance.setAttributeOptionCombo( coc );
 
+        // for update Longitude and Latitude for NIE
+        String longitudeLatitude = getLongitudeAndLatitude( programStageInstance );
+        if( longitudeLatitude != null )
+        {
+            programStageInstance.setLongitude( Double.parseDouble( longitudeLatitude.split( "," )[0]) );
+            programStageInstance.setLatitude( Double.parseDouble( longitudeLatitude.split( "," )[1]) );
+        }
+        
         if ( programStage.getCaptureCoordinates() )
         {
             if ( coordinate != null && coordinate.isValid() )
@@ -1349,14 +1357,7 @@ public abstract class AbstractEventService
                 programStageInstance.setLatitude( coordinate.getLatitude() );
             }
         }
-        
-        // for update Longitude and Latitude for NIE
-        String longitudeLatitude = getLongitudeAndLatitude( programStageInstance );
-        if( longitudeLatitude != null )
-        {
-            programStageInstance.setLongitude( Double.parseDouble( longitudeLatitude.split( "," )[0]) );
-            programStageInstance.setLatitude( Double.parseDouble( longitudeLatitude.split( "," )[1]) );
-        }
+      
         
         programStageInstance.setStatus( EventStatus.fromInt( status ) );
 
@@ -1616,12 +1617,21 @@ public abstract class AbstractEventService
         {
             OrganisationUnit orgUnit = organisationUnitService.getOrganisationUnitByCode( orgUnitCode );
             
+            //System.out.println( orgUnit.getId() + " -- orgUnitCoordinate -- " + orgUnit.getCoordinates().length());
+            
             if( orgUnit != null )
             {
+                longitudeLatitude = orgUnit.getCoordinates().substring( 1, orgUnit.getCoordinates().length()-1);
+                
+                //System.out.println( orgUnit.getId() + " -- orgUnitCoordinate -- " + longitudeLatitude.split( "," )[0] + " -- " + longitudeLatitude.split( "," )[1] );
+                
+                /*
                 for( CoordinatesTuple cordTuple : orgUnit.getCoordinatesAsList() )
                 {
                     longitudeLatitude = cordTuple.getCoordinatesTuple().get( cordTuple.getCoordinatesTuple().size()/2 );
                 }
+                */
+                
             }
         }
 
