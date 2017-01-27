@@ -167,7 +167,7 @@ var validationRules = {
             "rangelength" : [ 0, 50 ]
         },
         "expiryDays": {
-            "integer" : true
+            "digits" : true
         },
         "frequencySelect" : {
             "required" : true
