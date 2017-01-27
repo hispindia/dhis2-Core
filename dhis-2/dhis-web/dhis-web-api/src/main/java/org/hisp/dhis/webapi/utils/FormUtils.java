@@ -160,11 +160,44 @@ public class FormUtils
                     {
                         for ( DataElementCategoryOption dataElementCategoryOption : dataElementCategoryOptions )
                         {
+<<<<<<< HEAD
                             Option option = new Option();
                             option.setId( dataElementCategoryOption.getUid() );
                             option.setLabel( dataElementCategoryOption.getName() );
 
                             category.getOptions().add( option );
+=======
+                            if ( option.getAccess() != null && !option.getAccess().isRead() )
+                            {
+                                continue;
+                            }
+
+                            Option o = new Option();
+                            o.setId( option.getUid() );
+                            o.setLabel( option.getDisplayName() );
+                            o.setStartDate( option.getStartDate() );
+                            o.setEndDate( option.getEndDate() );
+
+                            Set<OrganisationUnit> catOptionOUs = option.getOrganisationUnits();
+
+                            if ( userOrganisationUnits == null || userOrganisationUnits.isEmpty() || catOptionOUs == null || catOptionOUs.isEmpty() )
+                            {
+                                c.getOptions().add( o );
+                            }
+                            else if ( userOrganisationUnits != null && catOptionOUs != null && !Collections.disjoint( userOrganisationUnits, catOptionOUs ) )
+                            {
+                                HashSet<OrganisationUnit> organisationUnits = new HashSet<>();
+
+                                catOptionOUs.stream().filter( ou -> userOrganisationUnits.contains( ou ) ).forEach( ou -> {
+                                    organisationUnits.add( ou );
+                                    organisationUnits.addAll( getChildren( ou , new HashSet<>() ) ) ;
+                                });
+
+                                o.setOrganisationUnits( organisationUnits );
+
+                                c.getOptions().add( o );
+                            }
+>>>>>>> origin/2.24
                         }
                     }
 
@@ -276,11 +309,11 @@ public class FormUtils
 
                     if ( categoryOptionCombo.isDefault() )
                     {
-                        field.setLabel( dataElement.getFormNameFallback() );
+                        field.setLabel( dataElement.getDisplayFormName() );
                     }
                     else
                     {
-                        field.setLabel( dataElement.getFormNameFallback() + " " + categoryOptionCombo.getDisplayName() );
+                        field.setLabel( dataElement.getDisplayFormName() + " " + categoryOptionCombo.getDisplayName() );
                     }
 
                     field.setDataElement( dataElement.getUid() );
