@@ -21,13 +21,13 @@
    	
    	
    	<task:scheduled-tasks scheduler="scheduleUpdateLicenseStatus">
-        <task:scheduled ref="org.hisp.dhis.dataadmin.action.schedulingupdatelicensestatus.ScheduleUpdateLicenseStatus" method="execute" cron="0 0/3 * * * ?"/>
+        <task:scheduled ref="org.hisp.dhis.dataadmin.action.schedulingupdatelicensestatus.ScheduleUpdateLicenseStatus" method="execute" cron="0 0 0/1 1/1 * ?"/>
    	</task:scheduled-tasks>
 	
 	<!-- 0 0 0/1 1/1 * ? schedule  every day every hour -->
 	<!-- value="0 0 22 * * ?" // for 10 PM daily -->
 	<!-- value="0 0/30 * * * ?" // for every 30 minute -->
-	
+	<!-- cron="0 0/3 * * * ?" // every 3 min -->
 	
 	<task:scheduler id="scheduleUpdateLicenseStatus" pool-size="1"/>
 	<bean id="org.hisp.dhis.dataadmin.action.schedulingupdatelicensestatus.ScheduleUpdateLicenseStatus"

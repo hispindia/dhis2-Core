@@ -86,9 +86,10 @@ public class ScheduleUpdateLicenseStatus implements Action
                         //System.out.println( " Indide Update " );
                         
                         String updateQuery = " UPDATE trackedentitydatavalue SET VALUE = " + licenseExpireStatusCode + ", lastupdated = '" + lastUpdatedDate + "', storedby = '" + storedBy 
-                                               + "' WHERE programstageinstanceid = " + programStageInstance.getId() + " AND dataelementid = " + LICENSE_STATUS_DATAELEMENT_ID;
+                                               + "' WHERE programstageinstanceid = " + programStageInstance.getId() + " AND dataelementid = " + LICENSE_STATUS_DATAELEMENT_ID + " AND value = '1' ";
 
                         jdbcTemplate.update( updateQuery );
+                        System.out.println( " updateQuery -- " + updateQuery );
                         
                         updateCount++;
                     }
