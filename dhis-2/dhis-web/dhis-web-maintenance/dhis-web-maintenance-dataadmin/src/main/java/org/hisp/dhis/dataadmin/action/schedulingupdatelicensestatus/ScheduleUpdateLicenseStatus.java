@@ -57,7 +57,8 @@ public class ScheduleUpdateLicenseStatus implements Action
         
         System.out.println("INFO: scheduler job has started at : " + new Date() );
         
-        String storedBy = currentUserService.getCurrentUsername();
+        //String storedBy = currentUserService.getCurrentUsername();
+        String storedBy = "admin";
         String licenseExpireStatusCode = "2";
         Integer updateCount = 0;
         Integer insertCount = 0;
@@ -89,7 +90,7 @@ public class ScheduleUpdateLicenseStatus implements Action
                                                + "' WHERE programstageinstanceid = " + programStageInstance.getId() + " AND dataelementid = " + LICENSE_STATUS_DATAELEMENT_ID + " AND value = '1' ";
 
                         jdbcTemplate.update( updateQuery );
-                        System.out.println( " updateQuery -- " + updateQuery );
+                        //System.out.println( " updateQuery -- " + updateQuery );
                         
                         updateCount++;
                     }
