@@ -258,6 +258,7 @@ trackerCapture.controller('TEIAddController',
                 if ($scope.selectedSearchMode === $scope.searchMode.freeText) {
 
                     if (!$scope.searchText.value) {
+                        $scope.search('LIST_ALL');
                         $scope.emptySearchText = true;
                         $scope.teiFetched = false;
                         $scope.teiCount = null;
