@@ -46,8 +46,12 @@ trackerCapture.controller('EstablishmentsSelectionController',
                 $location.path('/operators-registration').search();
             };
 
-            $scope.showUpdateForm = function( selectedTEI ){
-                alert(selectedTEI.id);
+            $scope.showUpdateForm = function( selectedTEI, selectedProgramId ){
+                alert(selectedTEI.id + "--" + selectedProgramId);
+
+                var url = 'schedulingInspectionsList.action?listAll=true&selectedTEIUid=' + selectedTEI.id + "&selectedProgramUid=" + selectedProgramId;
+                window.location.href = url;
+
             };
 
             OrganisationUnitService.getRootOrganisationUnit().then(function(rootOrganisationUnit){
