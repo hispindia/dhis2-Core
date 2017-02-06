@@ -14,7 +14,7 @@ var organisationUnits,corganisationUnits,morganisationUnits;
 var indicators,mindicators,cindicators;
 var mpeid,morgid;
 var countries = [];
-var ccountries = [];
+var ccountries = [],tcountries=[];
 var morgname;
 var mdeids=[],mdenames=[];
 var marr;
@@ -34,13 +34,14 @@ $(document).ready(function() {
 });
 Ext.onReady( function() {
 
+
+
     Ext.Ajax.request({
         url: base + "dhis-web-commons-security/login.action",
         method: "POST",
         params: {j_username: "publicdashboard", j_password: "D@SHbo@rd20!6"},
 
     });
-
 
     $.post(url, {
         'j_username': 'publicdashboard',
@@ -216,15 +217,22 @@ Ext.onReady( function() {
             });
 
             var element = document.getElementById("drop4");
+            var tselected=[];
             for (var i = element.length-1; i >= 0; i--) {
 
                 if(element[i].selected)
 
                 {
 
-//            hide(element[i].selected);
                 }
                 else {
+                    if (!('remove' in Element.prototype)) {
+                        Element.prototype.remove = function() {
+                            if (this.parentNode) {
+                                this.parentNode.removeChild(this);
+                            }
+                        };
+                    }
                     element[i].remove();
                 }
             }
@@ -233,13 +241,23 @@ Ext.onReady( function() {
 
             $.each(countries, function(index,item){
 
+                if(tselected.includes(item.id))
+                {
+                    delete countries['id',item.id];
+                    //ccountries.removeValue('id',item.id);
+                    //delete ccountries["id", item.id];
 
+                }
+                else
+                {
+                    $('#drop4').append(
+                        $('<option></option>').val(item.id).html(item.name).text(item.name)
+                    );
+
+                }
 
                 //countries.push(document.getElementById("drop4").selectedIndex);
 
-                $('#drop4').append(
-                    $('<option></option>').val(item.id).html(item.name).text(item.name)
-                );
 
             });
 
@@ -439,19 +457,28 @@ Ext.onReady( function() {
         });
         $("#drop4").change(function () {
             var selected = $("#drop4 option:selected");
-            //dename = "";
-            //deid = "";
+            dename = "";
+            deid = "";
+            var  xcdeid = "";
+            var  xcdename = "";
             selected.each(function () {
-                dename = "";
-                deid = "";
-                deid += ";" + $(this).val();
-                dename += ";" + $(this).text();
+                xcdeid += ";" + $(this).val();
+                xcdename += $(this).text()+",";
+
+                deid=xcdeid.split(';').filter(function(allItems,i,a){
+                    return i==a.indexOf(allItems);
+                }).join(';');
+
+                dename=xcdename.split(',').filter(function(allItems,i,a){
+                    return i==a.indexOf(allItems);
+                }).join(',');
 
                 //alert(dename);
-                arr.push({"id": deid, "name": dename});
-            });
 
+            });
+            
         });
+        
         $("#dropm4").change(function () {
             var selected = $("#dropm4 option:selected");
             mdename = "";
@@ -677,6 +704,8 @@ Ext.onReady( function() {
 
 
 function validatetable() {
+arr=[];
+    arr.push({"id": deid, "name": dename});
     var isValidated = "true";
 
     //orgUnit Related
@@ -736,8 +765,10 @@ function validatetable() {
 
     else ( isValidated === "true")
     {
+        
 
         window.open('newtab.html?arr='+encodeURIComponent(JSON.stringify(arr))+'&peid='+peid+'&orgid='+orgid+'&orgname='+orgname);
+        // window.open('newtab.html?deid='+deid+'&peid='+peid+'&orgid='+orgid+'&orgname='+orgname);
 
     }
 
