@@ -1,13 +1,15 @@
 ﻿<!DOCTYPE HTML>
 <html class="loginPage">
-<head> 
-	<title>WHO-HIP</title>
+<head>
+    <!--For Page Automatic refresh
+    <meta http-equiv="refresh" content="30" >-->
+    <title>WHO-HIP</title>
     <link rel="icon" href="./img/logo1n.png" type="image/x-icon">
-	
+
     <meta name="description" content="DHIS 2">
     <meta name="keywords" content="DHIS 2">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="lib/jquery.min.js"></script>
     <!--<script type="text/javascript" src="../javascripts/jQuery/jquery.min.js"></script>-->
     <script type="text/javascript" src="login.js"></script>
     <link type="text/css" rel="stylesheet" href="../css/widgets.css">
@@ -15,34 +17,30 @@
     <link type="text/css" rel="stylesheet" href="../../api/files/style/external" />
     <script src="//dhis2-cdn.org/v221/ext/ext-all.js"></script>
 
-
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="lib/bootstrap.min.css" integrity="" crossorigin="anonymous">
 
     <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <link rel="stylesheet" href="lib/bootstrap-theme.min.css" integrity="" crossorigin="anonymous">
 
     <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script src="lib/bootstrap.min.js" integrity="" crossorigin="anonymous"></script>
     <!--<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">-->
 
     <!--<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>-->
 
     <!--Bootstrap Select Library-->
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="lib/bootstrap-select.min.css">
 
     <!-- Latest compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
+    <script src="lib/bootstrap-select.min.js"></script>
 
-    <!-- (Optional) Latest compiled and minified JavaScript translation files -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/i18n/defaults-*.min.js"></script>
 
     <!--W3schools-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
-
-    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="stylesheet" href="lib/css/w3.css">
+    <link rel="stylesheet" href="lib/css/style.css">
     <style type="text/css">
         .slidingDiv {
             height:500px;
@@ -100,7 +98,7 @@
 		background-color: #228B22;
 		}
 		.sociallink{
-	 display:flex;  
+	 display:flex;
 	list-style:none;
 	position:absolute;
 	float:right;
@@ -108,9 +106,9 @@
     top: 53px;
     right: 20px;
 	}
-	
+
 	.sociallink1{
-	 display:flex;  
+	 display:flex;
 	list-style:none;
 	position:absolute;
 	float:right;
@@ -129,7 +127,7 @@
 <div class="page-header">
 	<div style="height:100px">
 		<p style="text-align:center;"><img src="./img/logo.png" style="height:85px;width:210px;"></a>
-		
+
 		<ul class="sociallink">
             <li><a href="http://www.who.int/about/licensing/rss/en/"><img src="./img/rss.png"  width="30px" height="30px"></a></li>
             <li><a href="http://www.youtube.com/whosoutheastasia"><img src="./img/youtube.png"  width="30px" height="30px"></a></li>
@@ -141,11 +139,10 @@
 </div>
  <div style="color:white;background:#1E7FB8;text-align:center;" >
      <ul class="w3-navbar w3-center" >
-         <li style="width:30%">&nbsp;</li>
          <li ><a href="../../dhis-web-commons/security/login.action" class="show_hidee"><img src="./img/home.png" height="20px" width="20px"></a></li>
          <li ><a href="#" class="show_hide">Indicators & metadata</a></li>
-         <li ><a href="#" class="show_hidee">Reports & Publications</a></li>
-         <li ><a href="#" class="show_hidee">Help</a></li>
+         <li ><a href="http://www.searo.who.int/about/administration_structure/hsd/publications/en/"  target="_blank" class="show_hidee">Reports & Publications</a></li>
+         <li ><a href="portal.pdf" class="show_hidee">Help</a></li>
          <li class="w3-right" ><a type="button" id="b1" class="button12" data-toggle="modal" data-target="#myModal"><b>DHIS2 Login</b></a></li>
      </ul>
  </div>
@@ -165,6 +162,8 @@
                         <div id="loginArea">
                             <div id="bannerArea">
                                     <img src="./img/logo.png" style="border: none">
+                                <hr>
+                                <p> Login to DHIS2 with username "Guest" and password "Guest2016".</p>
                             </div>
 
                             <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">
@@ -183,15 +182,15 @@
                                     <a id="forgotPasswordLink" href="recovery.action">Forgot password?</a>
                                 </div>
 
-						
+
                                 <div style="padding-bottom: 10px">
                                     <a id="createAccountLink" href="account.action">Create an account</a>
                                 </div>
 
-					
+
                             </form>
 
-					
+
                             <!--<form id="openIdLoginForm" action="../../dhis-web-commons-security/openid.action" method="post">-->
                                 <!--<input name="openid_identifier" type="hidden" value="$keyOpenIdProvider" />-->
                                 <!--<div id="submitDiv">-->
@@ -214,7 +213,7 @@
 					<!---->
                             <!--<div id="notificationArea">$!{keyApplicationNotification}</div>-->
                             <!--#end-->
-					
+
                             <!--[if lte IE 8]>
 						<div id="notificationArea" style="color: white; background-color: red;">$i18n.getString( "unsupported_browser" )</div>
 						<![endif]-->
@@ -1068,7 +1067,7 @@
         <div>
             <p id="p1" align="center" style="line-height: 200%;background:#16629E;color:white;">Click on the Dashboard toolbox below to view details</p>
         </div>
-        
+
 			</br>
      <div class="row">
 	 <div class="col-sm-1">
@@ -1093,13 +1092,13 @@
           <div class="col-sm-3">
                 <div class="w3-card-4" style="width:100%" onclick="_blank">
                     <header class="w3-container w3-light-grey thumb-custom">
-                        <a href="SDGHome1.html" target="_blank"><h5>Sustainable Development Goals </br> (SDG)<h5></a>
+                        <a href="http://apps.searo.who.int/sdg/" target="_blank"><h5>Sustainable Development Goals </br> (SDG)<h5></a>
                     </header>
                     <div class="w3-container">
                         <p style="padding-top: 10px; text-align:center">
-                            <a href="SDGHome1.html" target="_blank">      <img src="img/sdg-thumb.jpg" alt="SDG" class="img-thumbnail" style="height:95px;"/></a>
+                            <a href="http://apps.searo.who.int/sdg/" target="_blank">      <img src="img/sdg-thumb.jpg" alt="SDG" class="img-thumbnail" style="height:95px;"/></a>
                         </p>
-                        <br /> 
+                        <br />
                     </div>
 
                 </div>
@@ -1109,13 +1108,13 @@
                    <div class="col-sm-3">
                 <div class="w3-card-4" style="width: 100%" onclick="_blank">
                     <header class="w3-container w3-light-grey thumb-custom">
-                        <a href="http://sebi.searo.who.int/t/HST/views/Global_Leprosy/Globalleprosyoverview2004-2014?:embed=Y&:customViews=y&:tabs=yes&:toolbar=y#3" target="_blank"><h5>Health Theme Dashboards<br /></h5> &nbsp;</a>
+                        <a href="http://apps.searo.who.int/HealthTheme/" target="_blank"><h5>Health Theme Dashboards<br /></h5> &nbsp;</a>
                     </header>
                     <div class="w3-container">
                         <p style="padding-top: 10px; text-align:center">
-                            <a href="http://sebi.searo.who.int/t/HST/views/Global_Leprosy/StoryGloballeprosy?:embed=Y&:customViews=y&:tabs=yes&:toolbar=y#3" target="_blank">     <img src="img/tech-thumb.png" alt="TUD" class="img-thumbnail" style="height:95px"/></a>
+                            <a href="http://apps.searo.who.int/HealthTheme/" target="_blank">     <img src="img/tech-thumb.png" alt="TUD" class="img-thumbnail" style="height:95px"/></a>
                         </p>
-                           <br /> 
+                           <br />
                     </div>
                 </div>
             </div>
@@ -1133,8 +1132,8 @@
                     </div>
 
                 </div>
-            </div> 
-           
+            </div>
+
             <div class="col-sm-2">
                 <div class="w3-card-4" style="width: 110%" onclick="_blank">
                     <header class="w3-container w3-light-grey thumb-custom">
@@ -1150,7 +1149,7 @@
 
                 </div>
             </div> -->
-  
+
             <div class="col-sm-1">
             </div>
         </div>
@@ -1830,14 +1829,14 @@
 	<div class="container">
 		<div class="row">
 			<div class="col-sm-3">
-			<img src="./img/SEAROLogo.gif" width="250px">
-			<ul class="sociallink1">
-                <li><a href="http://www.who.int/about/licensing/rss/en/"><img src="./img/rss.png"  width="30px" height="30px"></a></li>
-                <li><a href="http://www.youtube.com/whosoutheastasia"><img src="./img/youtube.png"  width="30px" height="30px"></a></li>
-                <li><a href="https://twitter.com/WHOSEARO"><img src="./img/twitter.png"  width="30px" height="30px"></a></li>
-                <li><a href="https://www.facebook.com/WHOSEARO"><img src="./img/facebook.png" width="30px" height="30px"></a></li>
-                <li><a href="https://plus.google.com/+who/posts"><img src="./img/google.png"  width="30px" height="30px"></a></li>
-			</ul>
+			<!--<img src="./img/SEAROLogo.gif" width="250px">-->
+			<!--<ul class="sociallink1">-->
+                <!--<li><a href="http://www.who.int/about/licensing/rss/en/"><img src="./img/rss.png"  width="30px" height="30px"></a></li>-->
+                <!--<li><a href="http://www.youtube.com/whosoutheastasia"><img src="./img/youtube.png"  width="30px" height="30px"></a></li>-->
+                <!--<li><a href="https://twitter.com/WHOSEARO"><img src="./img/twitter.png"  width="30px" height="30px"></a></li>-->
+                <!--<li><a href="https://www.facebook.com/WHOSEARO"><img src="./img/facebook.png" width="30px" height="30px"></a></li>-->
+                <!--<li><a href="https://plus.google.com/+who/posts"><img src="./img/google.png"  width="30px" height="30px"></a></li>-->
+			<!--</ul>-->
 			</div>
 			<div class="col-sm-3"><ul id="ul1" style="list-style-type:none"><li><a href="http://www.who.int/gho/en/" target="_blank">Global Health Observatory</a></li><li><a>Contact us</a></li></ul></div>
 			<div class="col-sm-3">
@@ -1846,7 +1845,7 @@
 					<li><a href="http://www.aho.afro.who.int/" target="_blank">Africa</a></li>
 					<li><a href=" http://www.paho.org/hq/index.php?option=com_content&view=article&id=2470&Itemid=2003&lang=en" target="_blank">Americas</a></li>
 					 <li><a href="http://www.emro.who.int/entity/statistics/statistics.html" target="_blank">Eastern Mediterranean</a></li>
-					<li><a href="http://portal.euro.who.int/en/" target="_blank">Europe</a></li>
+					<li><a href="http://gateway.euro.who.int/en" target="_blank">Europe</a></li>
 					<li><a href="http://hiip.wpro.who.int/portal/default.aspx" target="_blank">Western Pacific</a></li>
 					<ul>
 			</div>
