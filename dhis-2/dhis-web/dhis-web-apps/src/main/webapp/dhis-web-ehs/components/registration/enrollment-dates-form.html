@@ -43,10 +43,8 @@
       </ui-select>-->
        <select ng-model="selectedCountry" ng-change="getDistrict(selectedCountry)"
                 class="form-control"
-
                 ng-options="country.name as country.name for country in countryList"
                 ng-disabled="countryList.length < 1">
-
                 <option value="">{{'please_select'| translate}}</option>
         </select>
       </td>

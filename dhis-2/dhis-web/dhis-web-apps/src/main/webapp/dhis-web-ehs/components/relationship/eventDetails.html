@@ -1,0 +1,33 @@
+
+<div class="panel panel-info">
+    <div class="panel-heading handle bold">
+        {{event_details | translate}} Event Details
+    </div>
+</div>
+
+<div class="panel-heading handle bold">
+    {{programStageName}} Details
+</div>
+<div class="small-vertical-spacing" ng-if="programStageDataElements.length > 0">
+    <table class="table table-striped dhis2-table-hover table-bordered">
+        <thead>
+        <tr ng-repeat="programStageDataElement in programStageDataElements">
+            <div class='col-md-1'>
+                <th>
+                    <span>{{programStageDataElement.dataElement.formName}}</span>
+                </th>
+            </div>
+            <div class='col-md-16'>
+                <td>
+                    <span>{{lastUpdatedEventDataValue[programStageDataElement.dataElement.id]}}</span>
+                </td>
+            </div>
+        </tr>
+        </thead>
+    </table>
+
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-default" data-ng-click="closeWindow()">{{'close'| translate}}</button>
+</div>

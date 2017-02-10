@@ -27,7 +27,9 @@ trackerCapture.controller('RelationshipController',
         $scope.optionSets = $scope.selections.optionSets;
         $scope.selectedTei = angular.copy($scope.selections.tei);        
         $scope.attributesById = CurrentSelection.getAttributesById();
-        
+
+        //$scope.showTeiList = true;
+
         $scope.attributes = [];
 
         if( $scope.selectedProgram.name === 'Food Handlers')
@@ -57,6 +59,8 @@ trackerCapture.controller('RelationshipController',
         $scope.selectedEnrollment = $scope.selections.selectedEnrollment;
         $scope.selectedProgram = $scope.selections.pr;
         $scope.programs = $scope.selections.pr;
+
+
 
         console.log( $scope.selectedProgram.name + "--" + $scope.selectedProgram.id);
 
@@ -154,8 +158,45 @@ trackerCapture.controller('RelationshipController',
             }
         });        
     };
-    
-    $scope.showDashboard = function(teiId, relId){
+
+// show events Details
+
+
+    $scope.width = "50%";
+    $scope.height = "50%";
+    $scope.maxWidth = undefined;
+    $scope.maxHeight = undefined;
+    $scope.minWidth = undefined;
+    $scope.minHeight = undefined;
+    $scope.showEventDetails = function(relatedTEIId) {
+        if(relatedTEIId != undefined){
+            var modalInstance = $modal.open({
+                templateUrl: 'components/relationship/eventDetails.html',
+                controller: 'EventDetailsController',
+                windowClass: 'modal-custom-window',
+                resolve: {
+                    selectedTei: function(){
+                        return relatedTEIId;
+                    },
+                    selectedProgram: function(){
+                        return $scope.selectedProgram;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function () {
+            }, function () {
+            });
+        }
+    };
+
+
+
+
+
+
+
+       $scope.showDashboard = function(teiId, relId){
         
         var dashboardProgram = null;
         

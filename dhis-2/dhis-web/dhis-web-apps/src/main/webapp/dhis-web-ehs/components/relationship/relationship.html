@@ -46,6 +46,10 @@
                         <td ng-click="removeRelationship(rel)" title="{{'delete_relationship'| translate}}" ng-if="!selectedTei.inactive">
                             <i class="fa fa-trash-o red"></i>
                         </td>
+
+                        <td ng-click="showEventDetails(rel.trackedEntityInstance)" title="{{'show_details'| translate}}" ng-if="!selectedTei.inactive">
+                            {{rel.trackedEntityInstance}}
+                        </td>
                     </tr>
                 </table>           
             </div>
