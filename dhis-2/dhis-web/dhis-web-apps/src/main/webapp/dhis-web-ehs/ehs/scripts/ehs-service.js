@@ -891,4 +891,58 @@ trackerCapture
         }
 
     };
+})
+
+//
+.service('ProgramStageEventService',  function ($http,  $q){
+    return {
+        // http://127.0.0.1:8090/dhis/api/programStages/tYH9SE3PLSm.json?fields=id,name,programStageDataElements[dataElement[id,name]]&paging=false
+
+        getProgramStageDataElements: function ( programStageUid ) {
+            var def = $q.defer();
+            $http.get('../api/programStages/' + programStageUid + ".json?fields=id,name,programStageDataElements[dataElement[id,name,formName]]&paging=false").then(function (response) {
+                def.resolve(response.data);
+            });
+            return def.promise;
+        },
+
+        //http://127.0.0.1:8090/dhis/api/events.json?trackedEntityInstance=dlSdzK671oP&programStage=APrTTktTDOf&order=eventDate:DESC&skipPaging=true
+        getLastUpdatedEventDetails: function ( teiUid, programStageUid ) {
+            var def = $q.defer();
+            $http.get('../api/events.json?trackedEntityInstance=' + teiUid + '&programStage=' + programStageUid + "&order=eventDate:DESC&skipPaging=true").then(function (response) {
+                def.resolve(response.data);
+            });
+            return def.promise;
+        }
+
+        /*
+         getTEAttributesAttributeAndValue: function () {
+         var def = $q.defer();
+         $http.get('../api/trackedEntityAttributes.json?fields=id,name,valueType,attributeValues[attribute[id,name,code],value]&paging=false').then(function (response) {
+
+         def.resolve(response.data);
+         });
+         return def.promise;
+         },
+
+         getTotalTeiByProgram: function ( programUid ) {
+         var def = $q.defer();
+         $http.get('../api/trackedEntityInstances.json?program=' + programUid + "&ouMode=ALL&skipPaging=true").then(function (response) {
+
+         def.resolve(response.data);
+         });
+         return def.promise;
+         },
+
+         getOrgunitCode: function ( orgUnitUid ) {
+         var def = $q.defer();
+         $http.get('../api/organisationUnits/' + orgUnitUid + ".json?fields=id,name,code,parent[id],attributeValues[attribute[id,name,code],value]&paging=false").then(function (response) {
+
+         def.resolve(response.data);
+         });
+         return def.promise;
+         }
+         */
+
+    };
 });

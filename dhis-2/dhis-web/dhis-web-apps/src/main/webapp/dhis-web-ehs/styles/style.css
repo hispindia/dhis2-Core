@@ -792,6 +792,11 @@ table.table-striped tr td.optionset {
     width: 75%;
 }
 
+.modal-custom-window .modal-dialog {
+    width: 50%;
+}
+
+
 .modal-footer .btn {
     margin-top: 5px;
 }
