@@ -81,18 +81,25 @@
                             <option value="">{{'please_select_a_program'| translate}}</option>
                         </select>                
                     </div>
-                    <div class="input-group col-sm-8 vertical-spacing">
-                        <input type="text" placeholder="{{'type_your_search_criteria_here'| translate}}" ng-model="searchText.value" d2-enter="search(searchMode.freeText)" class="form-control expanded" ng-class="{true: 'invalid - input'} [!searchText && emptySearchText]" ng-focus="showHideSearch(true)">
-                        <div class="input-group-btn">
-                            <button class="btn btn-default without-border-radius trim" type="button" title="{{'advanced_search'| translate}}" ng-click="showHideSearch(false)"><i class="fa fa-caret-down"></i></button>
-                            <button class="btn btn-primary without-border-radius trim" type="button" title="{{'search'| translate}}" ng-click="search(searchMode.freeText)"><i class="fa fa-search"></i></button>                            
-                            <button class="btn btn-default without-border-radius trim" type="button" title="{{'list_all'| translate}}" ng-disabled="showRegistrationDiv" ng-click="search(searchMode.listAll)"><i class="fa fa-list"></i></button>
-                            <button class="btn btn-success trim" type="button" title="{{'register'| translate}}" ng-click="showRegistration()"><i class="fa fa-plus-square"></i></button>                            
-                            
-                        </div>                
-                    </div>                    
+                    <div ng-if="showTeiList">
+                        <div class="input-group col-sm-8 vertical-spacing">
+                            <input type="text" placeholder="{{'type_your_search_criteria_here'| translate}}" ng-model="searchText.value" d2-enter="search(searchMode.freeText)" class="form-control expanded" ng-class="{true: 'invalid - input'} [!searchText && emptySearchText]" ng-focus="showHideSearch(true)">
+                            <div class="input-group-btn">
+                                <button class="btn btn-default without-border-radius trim" type="button" title="{{'advanced_search'| translate}}" ng-click="showHideSearch(false)"><i class="fa fa-caret-down"></i></button>
+                                <button class="btn btn-primary without-border-radius trim" type="button" title="{{'search'| translate}}" ng-click="search(searchMode.freeText)"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-default without-border-radius trim" type="button" title="{{'list_all'| translate}}" ng-disabled="showRegistrationDiv" ng-click="search(searchMode.listAll)"><i class="fa fa-list"></i></button>
+                                <button class="btn btn-success trim" type="button" title="{{'register'| translate}}" ng-click="showRegistration()"><i class="fa fa-plus-square"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-if="!showTeiList">
+                        <div class="input-group col-sm-12 vertical-spacing" align="right">
+                            <button type="button" class="btn btn-primary" ng-click="showRegistration()">
+                                {{'add'| translate}}
+                            </button>
+                        </div>
+                    </div>
                 </div>
-
                 <div ng-if="showAdvancedSearchDiv">
                     <div ng-include="'views/advanced-search.html'"></div>     
                     <span>&nbsp;</span>
@@ -101,7 +108,10 @@
                 <!-- entity grid begins -->
                 <!--<i ng-if="!teiFetched" class="fa fa-spinner fa-spin fa-2x"></i>-->
                 <div class="row" ng-if="!showRegistrationDiv">
-                    <div class="col-sm-12" ng-include="'views/tei.html'"></div>               
+                    <!--{{selectedProgram.name}} --- {{selectedProgram.id}} -- {{showTeiList}}-->
+                    <div ng-if="showTeiList">
+                        <div class="col-sm-12"  ng-include="'views/tei.html'"></div>
+                    </div>
                 </div>
                 <!-- entity grid ends -->
 

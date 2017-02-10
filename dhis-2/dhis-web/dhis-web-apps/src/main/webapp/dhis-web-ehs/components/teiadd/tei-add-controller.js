@@ -55,6 +55,8 @@ trackerCapture.controller('TEIAddController',
             });
         }
 
+        $scope.showTeiList = true;
+
         $scope.today = DateUtils.getToday();
         $scope.relationshipTypes = relationshipTypes;
         $scope.addingRelationship = addingRelationship;
@@ -178,6 +180,11 @@ trackerCapture.controller('TEIAddController',
                         }
                     });
                 }
+            }
+
+            if( $scope.selectedProgram.id === 'TeBSCKYRo3q')
+            {
+                $scope.showTeiList = false;
             }
 
             //watch for selection of relationship
@@ -545,6 +552,7 @@ trackerCapture.controller('TEIAddController',
 
     .controller('TEIRegistrationController',
     function($rootScope,
+             $modal,
              $scope,
              $timeout,
              AttributesFactory,
@@ -563,7 +571,9 @@ trackerCapture.controller('TEIAddController',
              TrackerRulesExecutionService,
              TEIGridService,
              $translate,
-             OrganisationUnitService ) {
+             OrganisationUnitService,
+             EHSService ) {
+
         $scope.selectedOrgUnit = SessionStorageService.get('SELECTED_OU');
         $scope.enrollment = {enrollmentDate: '', incidentDate: ''};
         $scope.attributesById = CurrentSelection.getAttributesById();
@@ -590,7 +600,10 @@ trackerCapture.controller('TEIAddController',
         $scope.selectedCountryName = null;
         $scope.selectedDistrictName = null;
         $scope.selectedCommunityName = null;
-
+        $scope.countryList = [];
+        $scope.tempCountryList = [];
+        $scope.tempOrgUnit=[];
+        $scope.optionSetUid = 'RyHTAVjHjGt';
 
         OrganisationUnitService.getRootOrganisationUnit().then(function(rootOrganisationUnit){
             $scope.rootOrgUnit = rootOrganisationUnit.organisationUnits[0];
@@ -602,17 +615,82 @@ trackerCapture.controller('TEIAddController',
 
         });
 
-        $scope.getCommunity = function( districtUid ){
-            //alert(districtUid);
-            OrganisationUnitService.getChildrenOrganisationUnits( districtUid ).then(function(communityOrganisationUnits){
-                $scope.communityOrgUnits = communityOrganisationUnits.children;
+        OrganisationUnitService.getRootOrganisationUnit().then(function(rootOrganisationUnit){
+            $scope.rootOrgUnit = rootOrganisationUnit.organisationUnits[0];
 
-                OrganisationUnitService.getOrganisationUnitObject( districtUid ).then(function(orgUnitObject){
-                    //$scope.selectedDistrict = orgUnitObject;
-                    $scope.selectedDistrictName = orgUnitObject.displayName;
-                });
+            $scope.tempOrgUnit['code'] = rootOrganisationUnit.organisationUnits[0].name;
+            $scope.tempOrgUnit['name'] = rootOrganisationUnit.organisationUnits[0].name;
+            $scope.tempCountryList.push($scope.tempOrgUnit);
 
+            EHSService.getOptionsByOptionSet( $scope.optionSetUid ).then(function( optionMembers ){
+                $scope.optionSetOptions = optionMembers.options;
+                $scope.countryList = $scope.tempCountryList.concat($scope.optionSetOptions);
             });
+
+        });
+
+        $scope.getDistrict = function( selectedCountry ) {
+            //alert( selectedCountry );
+            $scope.selectedCountry1=selectedCountry;
+            $scope.selectedCountryName = selectedCountry;
+
+            $scope.districtOrgUnits = {};
+            $scope.communityOrgUnits = {};
+            //$scope.selectedCountry1=selectedcountry;
+            $scope.tempSelectedCountry = selectedCountry;
+            $scope.tempSelectedCountry1 = selectedCountry;
+            if( selectedCountry == $scope.rootOrgUnit.name ){
+                //  $scope.selectedCountry1=selectedcountry.displayName;
+                OrganisationUnitService.getLevel2OrganisationUnit().then(function(level2OrgUnit){
+                    $scope.districtOrgUnits = level2OrgUnit.organisationUnits;
+
+                });
+            }
+            else{
+                $scope.selectedDistrict1="";
+                $scope.selectedCommunity1="";
+                $scope.selectedCommunityUid = $scope.rootOrgUnit.id;
+            }
+        };
+
+        $scope.getAnotherDistrict = function( anotherDistrictName ){
+            $scope.selectedDistrict1=anotherDistrictName;
+            //alert( anotherDistrictName );
+            $scope.selectedCommunityUid = $scope.rootOrgUnit.id;
+            $scope.selectedDistrictName = anotherDistrictName;
+        };
+
+        $scope.getCommunity = function( districtUid ){
+
+            if( districtUid === null)
+            {
+                //alert(districtUid);
+                $scope.communityOrgUnits = {};
+
+            }
+
+            else
+            {
+                OrganisationUnitService.getChildrenOrganisationUnits( districtUid ).then(function(communityOrganisationUnits){
+                    $scope.communityOrgUnits = communityOrganisationUnits.children;
+
+                    OrganisationUnitService.getOrganisationUnitObject( districtUid ).then(function(orgUnitObject){
+                        //$scope.selectedDistrict = orgUnitObject;
+                        $scope.selectedDistrictName = orgUnitObject.displayName;
+                        $scope.selectedDistrict1=orgUnitObject.id;
+
+                    });
+
+                });
+            }
+
+        };
+
+        $scope.getAnotherCommunity = function( anotherCommunityName ){
+            //alert( anotherCommunityName );
+            $scope.selectedCommunity1=anotherCommunityName;
+            $scope.selectedCommunityUid = $scope.rootOrgUnit.id;
+            $scope.selectedCommunityName = anotherCommunityName;
         };
 
         $scope.getEnrollingOrgunit = function( enrollingOrgUnitUid ){
@@ -627,10 +705,6 @@ trackerCapture.controller('TEIAddController',
             });
         };
         // end
-
-
-
-
 
         $scope.attributesById = CurrentSelection.getAttributesById();
         if(!$scope.attributesById){
@@ -714,6 +788,70 @@ trackerCapture.controller('TEIAddController',
 
         });
 
+        $scope.getTrackerAssociate = function (selectedAttribute, existingAssociateUid) {
+            var modalInstance = $modal.open({
+                templateUrl: 'components/teiadd/tei-add.html',
+                controller: 'TEIAddController',
+                windowClass: 'modal-full-window',
+                resolve: {
+                    relationshipTypes: function () {
+                        return $scope.relationshipTypes;
+                    },
+                    addingRelationship: function () {
+                        return false;
+                    },
+                    selections: function () {
+                        return CurrentSelection.get();
+                    },
+                    selectedTei: function () {
+                        return $scope.selectedTei;
+                    },
+                    selectedAttribute: function () {
+                        return selectedAttribute;
+                    },
+                    existingAssociateUid: function () {
+                        return existingAssociateUid;
+                    },
+                    selectedProgram: function () {
+                        return $scope.selectedProgram;
+                    },
+                    relatedProgramRelationship: function () {
+                        return $scope.relatedProgramRelationship;
+                    }
+                }
+            });
+            modalInstance.result.then(function (res) {
+                if (res && res.id) {
+                    $scope.selectedTei[selectedAttribute.id] = res.id;
+
+                    $scope.ownerName = res.tyXd890iVJG;
+                    /* if(res && res.tyXd890iVJG) {
+                     $scope.ownerName = res.tyXd890iVJG;
+                     }
+                     else {
+                     $scope.ownerName =" ";
+                     }*/
+                }
+            });
+        };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         $scope.trackedEntities = {available: []};
         TEService.getAll().then(function(entities){
             $scope.trackedEntities.available = entities;
@@ -730,7 +868,12 @@ trackerCapture.controller('TEIAddController',
 
             //form is valid, continue the registration
             //get selected entity
-            var selectedTrackedEntity = $scope.trackedEntities.selected.id;
+            var selectedTrackedEntity = "";
+            if( $scope.trackedEntities.available.length > 0 )
+            {
+                selectedTrackedEntity = $scope.trackedEntities.selected.id;
+            }
+
             if($scope.selectedProgramForRelative){
                 selectedTrackedEntity = $scope.selectedProgramForRelative.trackedEntity.id;
             }
