@@ -8,7 +8,11 @@
         <span class="nav-pills" ng-if="selectedTei  && !selectedTei.inactive">
             | <a href ng-click="showAddRelationship(false)" title="{{'add_relationship'| translate}}"><span ng-class="{true: 'widget-link-active', false: 'widget-link'} [showAddRelationshipDiv]">{{'add' | translate}}</span></a>
         </span>
-        
+
+        <span class="nav-pills" ng-if="selectedTei  && !selectedTei.inactive">
+            | <a href ng-click="showRelationShipDetails()" title="{{'Details'| translate}}"><span>{{'Details' | translate}}</span></a>
+        </span>
+
         <span class="pull-right widget-link">
             <a class="small-horizontal-spacing" href ng-click="expandCollapse(relationshipsWidget)">
                 <span ng-show="relationshipsWidget.expand"><i class="fa fa-chevron-up" title="{{collapseLabel}}"></i></span>

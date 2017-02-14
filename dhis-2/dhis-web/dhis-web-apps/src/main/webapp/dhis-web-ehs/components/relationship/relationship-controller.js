@@ -4,7 +4,7 @@ var trackerCapture = angular.module('trackerCapture');
 trackerCapture.controller('RelationshipController',
         function($scope,
                 $rootScope,
-                $modal,                
+                $modal,$window,
                 $location,
                 TEIService,
                 AttributesFactory,
@@ -162,6 +162,40 @@ trackerCapture.controller('RelationshipController',
 // show events Details
 
 
+    $scope.showRelationShipDetails = function(){
+        //alert(selectedTEI.id + "--" + selectedProgramId);
+
+        //var url = 'schedulingInspectionsList.action?listAll=true&selectedTEIUid=' + selectedTEI.id + "&selectedProgramUid=" + selectedProgramId;
+        //window.location.href = url;
+
+    	//alert( $scope.selectedTei.trackedEntityInstance + " -- " + $scope.relatedProgramRelationship );
+        jQuery('#listTEIDiv').dialog('destroy').remove();
+        jQuery('<div id="listTEIDiv">' ).load( 'showMessEventConcessionierDetailsList.action?selectedTeiUid='+ $scope.selectedTei.trackedEntityInstance ).dialog({
+            title: 'aaaa',
+            maximize: true,
+            closable: true,
+            modal:true,
+            overlay:{background:'#000000', opacity:0.1},
+            width: 1000,
+            height: 450
+        });
+        
+
+        /*
+        var $popup = $window.open("showTEIList.action?programId=115", "popup", "width=250,height=100,left=10,top=150");
+        $popup.Name = "Test";
+        */
+    	
+    	/*
+        $scope.modalInstance=$modal.open({
+            templateUrl: 'showTEIList.action?programId=115',
+            windowClass: 'modal-custom-window'
+        });
+        */
+    	
+
+    };
+
     $scope.width = "50%";
     $scope.height = "50%";
     $scope.maxWidth = undefined;
@@ -172,6 +206,7 @@ trackerCapture.controller('RelationshipController',
         if(relatedTEIId != undefined){
             var modalInstance = $modal.open({
                 templateUrl: 'components/relationship/eventDetails.html',
+                //templateUrl: 'showTEIList.action?programId=115',
                 controller: 'EventDetailsController',
                 windowClass: 'modal-custom-window',
                 resolve: {
@@ -189,11 +224,6 @@ trackerCapture.controller('RelationshipController',
             });
         }
     };
-
-
-
-
-
 
 
        $scope.showDashboard = function(teiId, relId){

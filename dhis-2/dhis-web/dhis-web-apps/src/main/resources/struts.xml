@@ -176,7 +176,7 @@
 		<!--  TEI List -->
         <action name="showTEIList" class="org.hisp.dhis.schedulinginspections.action.GetTEIListAction">
             <result name="success" type="velocity">/content.vm</result>
-            <param name="page">/dhis-web-ehs/ehs/scheduling-Inspections/teiList.vm</param>
+            <param name="page">/dhis-web-ehs/ehs/scheduling-Inspections/teiList_11.vm</param>
         </action>
         
 	    <!-- Get Children OrgUnit List-->
@@ -204,6 +204,16 @@
 	    <action name="updateEscalationsStatusAuthorities" class="org.hisp.dhis.commons.action.NoAction">
 	      <param name="anyAuthorities">F_ESCALATION_STATUS_UPDATE</param>
 	    </action>		
+		
+		<!--  TEI List -->
+        <action name="showMessEventConcessionierDetailsList" class="org.hisp.dhis.schedulinginspections.action.GetMessEventConcessionierDetailsListAction">
+            <result name="success" type="velocity">/content.vm</result>
+            <param name="page">/dhis-web-ehs/ehs/scheduling-Inspections/concessionierDetailsList.vm</param>
+        </action>		
+		
+		
+		
+		
 		
 	</package>
 </struts>

@@ -1,0 +1,75 @@
+<h3>$i18n.getString( "Concessionaire List" )</h3>
+<table class="mainPageTable">
+  <tr>
+    <td style="vertical-align:top">
+		<hr />
+		<table class="listTable" id="listTable">
+            <colgroup>
+    			<col />
+				<col />
+                <col />
+                <col />
+                <col />
+				<col />
+				<col />
+                <col />
+                <col />
+    		</colgroup>
+			<thead>
+			  <tr>
+				<th>#</th>
+                <th>$i18n.getString( "Concessionaire" )</th>
+				<th>$i18n.getString( "Contact Persion" )</th>
+                <th>$i18n.getString( "Temp License" )</th>
+				<th>$i18n.getString( "Food Hanlders" )</th>
+				<th>$i18n.getString( "Valid Health Cards" )</th>
+				<th>$i18n.getString( "Atired" )</th>
+				<th>$i18n.getString( "BBQ Covered" )</th>
+				<th>$i18n.getString( "Animals" )</th>
+				<th>$i18n.getString( "Storage" )</th>
+			  </tr>
+			</thead>
+			<tbody id="list">
+    			#set( $count=1 )
+				#set( $mark = false )
+    			#foreach( $trackedEntityInstance in $trackedEntityInstances )
+                    #set( $nameKey = $trackedEntityInstance.id + ":" + 89 )
+    				#set( $contactPersonKey = $trackedEntityInstance.id + ":" + 97 )
+    				#set( $tempLicKey = $trackedEntityInstance.id + ":" + 2736 )
+    				
+    				<tr #alternate($mark) id="tr${trackedEntityInstance.id}">
+    					<td>
+                            $count
+                        </td>
+    					<td>$!teiAttributeValueMap.get( $nameKey )</td>
+    					<td>$!teiAttributeValueMap.get( $contactPersonKey )</td>
+    					<td>$!teiAttributeValueMap.get( $tempLicKey )</td>
+    					<td>&nbsp;</td>
+    					<td>&nbsp;</td>
+    					<td>&nbsp;</td>
+    					<td>&nbsp;</td>
+    					<td>&nbsp;</td>
+    					<td>&nbsp;</td>
+                    </tr>
+					#set( $mark = !$mark)	
+    				#set($count = $count + 1)
+                #end				
+			</tbody>
+      </table>
+    	<p></p>
+    	
+    </td>
+  </tr>	
+  
+</table>
+<hr />
+<div align = "right"> <input type="button" value="$i18n.getString( "Close" )" onclick="closeModel()" style="width:70px"> </div>
+
+<script type="text/javascript">
+	
+	function closeModel()
+	{
+      alert("close");
+      jQuery('#listTEIDiv').dialog('destroy').remove();
+	}
+</script>
