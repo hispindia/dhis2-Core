@@ -1,7 +1,7 @@
 
 <div class="panel panel-info">
     <div class="panel-heading handle bold">
-        {{event_details | translate}} Event Details
+        Concessionaires Details
     </div>
 </div>
 
@@ -9,6 +9,42 @@
     {{programStageName}} Details
 </div>
 <div class="small-vertical-spacing" ng-if="programStageDataElements.length > 0">
+            <table class="table table-striped dhis2-table-hover table-bordered">
+                <tr>
+                    <th>
+                        {{'Name' | translate}}
+                    </th>
+                    <th>
+                        {{'Contact Person' | translate}}
+                    </th>
+                    <th>
+                        {{'Temp License' | translate}}
+                    </th>
+                    <th ng-repeat="programStageDataElement in programStageDataElements">
+                        <span>{{programStageDataElement.dataElement.formName}}</span>
+                    </th>
+                </tr>
+                <tr ng-repeat="rel in relatedTeis">
+                    <td>
+                        {{rel.attributes['MaCVsKG7pjb']}}
+                    </td>
+                    <td>
+                        {{rel.attributes['v9dlF13XghP']}}
+                    </td>
+                    <td>
+                        {{rel.attributes['LqYf0osGEQi']}}
+                    </td>
+                    <td ng-repeat="programStageDataElement in programStageDataElements">
+                        <span>{{lastUpdatedEventDataValue[rel.trackedEntityInstance][programStageDataElement.dataElement.id]}}</span>
+                    </td>
+                </tr>
+            </table>
+
+
+
+
+
+<!--
     <table class="table table-striped dhis2-table-hover table-bordered">
         <thead>
         <tr ng-repeat="programStageDataElement in programStageDataElements">
@@ -25,7 +61,7 @@
         </tr>
         </thead>
     </table>
-
+-->
 </div>
 
 <div class="modal-footer">

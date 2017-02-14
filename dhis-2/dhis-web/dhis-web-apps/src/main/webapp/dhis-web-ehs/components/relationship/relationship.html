@@ -3,14 +3,14 @@
         {{relationshipsWidget.title| translate}}
         <span class="nav-pills" ng-if="selectedTei && selectedProgram.relationshipText  && !selectedTei.inactive">
             | <a href ng-click="showAddRelationship(true)" title="{{'add_relationship'| translate}}"><span ng-class="{true: 'widget-link-active', false: 'widget-link'} [showAddRelationshipDiv]">{{selectedProgram.relationshipText}}</span></a>
-        </span>        
-        
-        <span class="nav-pills" ng-if="selectedTei  && !selectedTei.inactive">
+        </span>
+
+        <span class="nav-pills" ng-if="selectedTei  && !selectedTei.inactive && selectedProgram.name != 'Mass Events'">
             | <a href ng-click="showAddRelationship(false)" title="{{'add_relationship'| translate}}"><span ng-class="{true: 'widget-link-active', false: 'widget-link'} [showAddRelationshipDiv]">{{'add' | translate}}</span></a>
         </span>
 
-        <span class="nav-pills" ng-if="selectedTei  && !selectedTei.inactive">
-            | <a href ng-click="showRelationShipDetails()" title="{{'Details'| translate}}"><span>{{'Details' | translate}}</span></a>
+        <span class="nav-pills" ng-if="selectedTei && !selectedTei.inactive && selectedProgram.name === 'Mass Events'">
+            | <a href ng-click="showEventDetails()" title="{{'Concessionaires Details'| translate}}"><span>{{'Details' | translate}}</span></a>
         </span>
 
         <span class="pull-right widget-link">
@@ -50,10 +50,11 @@
                         <td ng-click="removeRelationship(rel)" title="{{'delete_relationship'| translate}}" ng-if="!selectedTei.inactive">
                             <i class="fa fa-trash-o red"></i>
                         </td>
-
+                        <!--
                         <td ng-click="showEventDetails(rel.trackedEntityInstance)" title="{{'show_details'| translate}}" ng-if="!selectedTei.inactive">
                             {{rel.trackedEntityInstance}}
                         </td>
+                        -->
                     </tr>
                 </table>           
             </div>

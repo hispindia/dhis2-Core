@@ -168,9 +168,9 @@ trackerCapture.controller('RelationshipController',
         //var url = 'schedulingInspectionsList.action?listAll=true&selectedTEIUid=' + selectedTEI.id + "&selectedProgramUid=" + selectedProgramId;
         //window.location.href = url;
 
-    	//alert( $scope.selectedTei.trackedEntityInstance + " -- " + $scope.relatedProgramRelationship );
+        alert( $scope.selectedTei.trackedEntityInstance + " -- " + $scope.relatedProgramRelationship );
         jQuery('#listTEIDiv').dialog('destroy').remove();
-        jQuery('<div id="listTEIDiv">' ).load( 'showMessEventConcessionierDetailsList.action?selectedTeiUid='+ $scope.selectedTei.trackedEntityInstance ).dialog({
+        jQuery('<div id="listTEIDiv">' ).load( 'showTEIList.action?programId='+ 115 ).dialog({
             title: 'aaaa',
             maximize: true,
             closable: true,
@@ -179,43 +179,48 @@ trackerCapture.controller('RelationshipController',
             width: 1000,
             height: 450
         });
-        
+
 
         /*
         var $popup = $window.open("showTEIList.action?programId=115", "popup", "width=250,height=100,left=10,top=150");
         $popup.Name = "Test";
         */
-    	
-    	/*
+
+        /*
         $scope.modalInstance=$modal.open({
-            templateUrl: 'showTEIList.action?programId=115',
-            windowClass: 'modal-custom-window'
+            templateUrl: 'showTEIList.action?programId=115'
         });
         */
-    	
+
 
     };
 
-    $scope.width = "50%";
-    $scope.height = "50%";
-    $scope.maxWidth = undefined;
-    $scope.maxHeight = undefined;
-    $scope.minWidth = undefined;
-    $scope.minHeight = undefined;
-    $scope.showEventDetails = function(relatedTEIId) {
-        if(relatedTEIId != undefined){
+    //$scope.width = "50%";
+    //$scope.height = "50%";
+    //$scope.maxWidth = undefined;
+    //$scope.maxHeight = undefined;
+    //$scope.minWidth = undefined;
+    //$scope.minHeight = undefined;
+    //
+    $scope.showEventDetails = function() {
+        if($scope.relatedTeis != undefined){
             var modalInstance = $modal.open({
                 templateUrl: 'components/relationship/eventDetails.html',
                 //templateUrl: 'showTEIList.action?programId=115',
                 controller: 'EventDetailsController',
-                windowClass: 'modal-custom-window',
+                windowClass: 'modal-full-window',
                 resolve: {
-                    selectedTei: function(){
-                        return relatedTEIId;
-                    },
+                    //selectedTei: function(){
+                    //    return relatedTEIId;
+                    //},
                     selectedProgram: function(){
                         return $scope.selectedProgram;
+                    },
+                    relatedTeis: function(){
+                        return $scope.relatedTeis;
                     }
+
+
                 }
             });
 

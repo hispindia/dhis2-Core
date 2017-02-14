@@ -2,24 +2,26 @@
 
 var trackerCapture = angular.module('trackerCapture');
 trackerCapture.controller('EventDetailsController',
-        function($scope,
+        function($scope,$timeout,
                 $rootScope,
                 $modalInstance,
-                selectedTei,
                 selectedProgram,
+                relatedTeis,
                 ProgramStageEventService) {
 
 
       $scope.programStageUid = 'APrTTktTDOf';
       //$scope.teiUid = 'KsJSPgQywKX';
-      $scope.teiUid = selectedTei;
+      //$scope.teiUid = selectedTei;
+      $scope.relatedTeis = relatedTeis;
+
       $scope.programStageDataElements = [];
       $scope.programStageName = "";
       $scope.eventDataValueMap = [];
-      $scope.lastUpdatedEventDataValue = {};
+      $scope.lastUpdatedEventDataValue = [];
 
-      alert( selectedTei + " --- " + selectedProgram.id );
-      console.log( selectedTei + " --- " + selectedProgram.id );
+      //alert( relatedTeis + " --- " + selectedProgram.id );
+      //console.log( selectedTei + " --- " + selectedProgram.id );
 
       if( $scope.programStageUid != undefined ){
         //  $scope.selectedCountry1=selectedcountry.displayName;
@@ -29,32 +31,61 @@ trackerCapture.controller('EventDetailsController',
 
         });
       }
+          //$timeout( function (){
 
-      if($scope.programStageUid != undefined && $scope.teiUid != undefined){
-          ProgramStageEventService.getLastUpdatedEventDetails($scope.teiUid, $scope.programStageUid ).then(function(events){
+            if($scope.programStageUid != undefined && $scope.relatedTeis != undefined){
 
-            $scope.programStageUid;
-            $scope.teiUid;
-            $scope.lastUpdatedEventDataValue = events.events[0].dataValues;
+              for( var i=0; i<$scope.relatedTeis.length; i++)
+              {
+                var tempTEI = $scope.relatedTeis[i].trackedEntityInstance;
+
+                //$timeout( function (){
+
+                //$http.get('../api/events.json?trackedEntityInstance=' + teiUid + '&programStage=' + programStageUid + "&order=eventDate:DESC&skipPaging=true"
+
+                $.ajax({
+                  async:false,
+                  type: "GET",
+                  url: '../api/events.json?trackedEntityInstance=' + tempTEI + '&programStage=' + $scope.programStageUid + "&order=eventDate:DESC&skipPaging=true",
+                  success: function(response){
+
+                    $scope.tempLastUpdatedEventDataValues = response.events[0].dataValues;
+
+                    for( var j=0; j<$scope.tempLastUpdatedEventDataValues.length; j++)
+                    {
+                      if (!$scope.lastUpdatedEventDataValue[tempTEI]){
+                        $scope.lastUpdatedEventDataValue[tempTEI] = [];
+                      }
+                      $scope.lastUpdatedEventDataValue[tempTEI][$scope.tempLastUpdatedEventDataValues[j].dataElement] = $scope.tempLastUpdatedEventDataValues[j].value;
+                    }
+
+                  },
+                    error: function(response){
+                  }
+
+                });
+
+                /*
+                ProgramStageEventService.getLastUpdatedEventDetails( tempTEI, $scope.programStageUid ).then(function(events){
+
+                    $scope.tempLastUpdatedEventDataValues = events.events[0].dataValues;
+
+                    for( var j=0; j<$scope.tempLastUpdatedEventDataValues.length; j++)
+                    {
+                      if (!$scope.lastUpdatedEventDataValue[tempTEI]){
+                        $scope.lastUpdatedEventDataValue[tempTEI] = [];
+                      }
+                      $scope.lastUpdatedEventDataValue[tempTEI][$scope.tempLastUpdatedEventDataValues[j].dataElement] = $scope.tempLastUpdatedEventDataValues[j].value;
+                    }
+                  });
+                */
+                //},200);
 
 
-            angular.forEach($scope.lastUpdatedEventDataValue, function(dataValue){
-              $scope.lastUpdatedEventDataValue[dataValue.dataElement] = dataValue.value;
-            });
-          });
-      }
+              }
+            }
 
-
-
-
-
-
-
-
-
-
-
-
+          //},2000);
 
    // close popUp Window
     $scope.closeWindow = function () {

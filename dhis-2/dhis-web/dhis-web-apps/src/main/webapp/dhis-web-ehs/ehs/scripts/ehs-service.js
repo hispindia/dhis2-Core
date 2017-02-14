@@ -908,11 +908,13 @@ trackerCapture
 
         //http://127.0.0.1:8090/dhis/api/events.json?trackedEntityInstance=dlSdzK671oP&programStage=APrTTktTDOf&order=eventDate:DESC&skipPaging=true
         getLastUpdatedEventDetails: function ( teiUid, programStageUid ) {
-            var def = $q.defer();
+            //var def = $q.defer();
+            var def = $.Deferred();
             $http.get('../api/events.json?trackedEntityInstance=' + teiUid + '&programStage=' + programStageUid + "&order=eventDate:DESC&skipPaging=true").then(function (response) {
                 def.resolve(response.data);
             });
-            return def.promise;
+            //return def.promise;
+            return def;
         }
 
         /*
