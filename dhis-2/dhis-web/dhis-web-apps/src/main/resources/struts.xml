@@ -176,7 +176,7 @@
 		<!--  TEI List -->
         <action name="showTEIList" class="org.hisp.dhis.schedulinginspections.action.GetTEIListAction">
             <result name="success" type="velocity">/content.vm</result>
-            <param name="page">/dhis-web-ehs/ehs/scheduling-Inspections/teiList_11.vm</param>
+            <param name="page">/dhis-web-ehs/ehs/scheduling-Inspections/teiList.vm</param>
         </action>
         
 	    <!-- Get Children OrgUnit List-->
