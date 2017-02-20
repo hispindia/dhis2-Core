@@ -28,8 +28,18 @@ package org.hisp.dhis.dxf2.events.event;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.hisp.dhis.system.notification.NotificationLevel.ERROR;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,6 +69,7 @@ import org.hisp.dhis.dxf2.importsummary.ImportSummary;
 import org.hisp.dhis.dxf2.utils.InputUtils;
 import org.hisp.dhis.event.EventStatus;
 import org.hisp.dhis.i18n.I18nManager;
+import org.hisp.dhis.organisationunit.CoordinatesTuple;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.program.Program;
@@ -89,17 +100,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.hisp.dhis.system.notification.NotificationLevel.ERROR;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Morten Olav Hansen <mortenoh@gmail.com>
@@ -700,6 +702,15 @@ public abstract class AbstractEventService
                 programStageInstance.setLatitude( null );
                 programStageInstance.setLongitude( null );
             }
+            // for push PSI Coordinate in IVB
+            
+            // for update Longitude and Latitude
+            String longitudeLatitude = getLongitudeAndLatitude( organisationUnit );
+            if( longitudeLatitude != null )
+            {
+                programStageInstance.setLongitude( Double.parseDouble( longitudeLatitude.split( "," )[0]) );
+                programStageInstance.setLatitude( Double.parseDouble( longitudeLatitude.split( "," )[1]) );
+            }
         }
 
         programStageInstanceService.updateProgramStageInstance( programStageInstance );
@@ -1089,6 +1100,14 @@ public abstract class AbstractEventService
         programStageInstance.setOrganisationUnit( organisationUnit );
         programStageInstance.setAttributeOptionCombo( coc );
 
+        // for update Longitude and Latitude for IVB
+        String longitudeLatitude = getLongitudeAndLatitude( organisationUnit );
+        if( longitudeLatitude != null )
+        {
+            programStageInstance.setLongitude( Double.parseDouble( longitudeLatitude.split( "," )[0]) );
+            programStageInstance.setLatitude( Double.parseDouble( longitudeLatitude.split( "," )[1]) );
+        }
+        
         if ( programStage.getCaptureCoordinates() )
         {
             if ( coordinate != null && coordinate.isValid() )
@@ -1296,5 +1315,21 @@ public abstract class AbstractEventService
     private DataElement getDataElement( String dataElementId )
     {
         return dataElementCache.get( dataElementId, new IdentifiableObjectCallable<>( manager, DataElement.class, dataElementId ) );
-    }    
+    }
+    
+    // for getLongitudeAndLatitude By OrgUnitCode For IVB
+    private String getLongitudeAndLatitude( OrganisationUnit organisationUnit )
+    {
+        String longitudeLatitude = null;
+        
+        if( organisationUnit != null )
+        {            
+        	for( CoordinatesTuple cordTuple : organisationUnit.getCoordinatesAsList() )
+            {
+                longitudeLatitude = cordTuple.getCoordinatesTuple().get( cordTuple.getCoordinatesTuple().size()/2 );
+            }
+        }
+
+        return longitudeLatitude;
+    }        
 }
