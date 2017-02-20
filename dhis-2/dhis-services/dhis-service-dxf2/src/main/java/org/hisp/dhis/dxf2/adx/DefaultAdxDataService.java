@@ -39,6 +39,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.util.XMLChar;
 import org.hisp.dhis.common.IdentifiableObjectManager;
 import org.hisp.dhis.common.IdentifiableProperty;
+import org.hisp.dhis.commons.util.DebugUtils;
+import org.hisp.dhis.commons.util.StreamUtils;
 import org.hisp.dhis.dataelement.CategoryComboMap;
 import org.hisp.dhis.dataelement.CategoryComboMap.CategoryComboMapException;
 import org.hisp.dhis.dataelement.DataElement;
@@ -230,6 +232,20 @@ public class DefaultAdxDataService
     @Transactional
     public ImportSummaries saveDataValueSet( InputStream in, ImportOptions importOptions, TaskId id )
     {
+        try
+        {
+            in = StreamUtils.wrapAndCheckCompressionFormat( in );        
+            return saveDataValueSetInternal( in, importOptions, id );
+        }
+        catch ( IOException ex )
+        {
+            log.warn( "Import failed: " + DebugUtils.getStackTrace( ex ) );
+            return new ImportSummaries().addImportSummary( new ImportSummary( ImportStatus.ERROR, "ADX import failed" ) );
+        }
+    }
+    
+    private ImportSummaries saveDataValueSetInternal( InputStream in, ImportOptions importOptions, TaskId id )
+    {
         notifier.clear( id ).notify( id, "ADX parsing process started" );
 
         XMLReader adxReader = XMLFactory.getXMLReader( in );
@@ -275,7 +291,7 @@ public class DefaultAdxDataService
                 importSummary.setDescription( "Data set import failed for group number: " + count );
                 importSummary.getConflicts().add( ex.getImportConflict() );
                 importSummaries.addImportSummary( importSummary );
-                log.warn( "Import failed: " + ex );
+                log.warn( "Import failed: " + DebugUtils.getStackTrace( ex ) );
             }
             catch ( IOException | XMLStreamException | InterruptedException | ExecutionException | TimeoutException ex )
             {
@@ -283,7 +299,7 @@ public class DefaultAdxDataService
                 importSummary.setStatus( ImportStatus.ERROR );
                 importSummary.setDescription( "Data set import failed for group number: " + count );
                 importSummaries.addImportSummary( importSummary );
-                log.warn( "Import failed: " + ex );
+                log.warn( "Import failed: " + DebugUtils.getStackTrace( ex ) );
             }
 
             count++;
