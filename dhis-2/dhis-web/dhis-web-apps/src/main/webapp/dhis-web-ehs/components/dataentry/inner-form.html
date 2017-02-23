@@ -48,7 +48,7 @@
         </div>
     </div>
     <div ng-if="!prStDe.dataElement.optionSetValue" ng-switch="prStDe.dataElement.valueType">
-        <div ng-switch-when="NUMBER">
+        <div ng-switch-when="NUMBER"  ng-if="prStDe.dataElement.id != 'KnnmsZeAMrQ' && prStDe.dataElement.id != 'odBaHyRlR5K'">
             <div class="hideInPrint">
                 <input type="number"
                        number-type={{prStDe.dataElement.valueType}}
@@ -65,6 +65,55 @@
                 <input type="text" class="form-control" value={{currentEvent[prStDe.dataElement.id]}}>
             </div>
         </div>
+
+        <div ng-switch-when="NUMBER" ng-if="prStDe.dataElement.id === 'KnnmsZeAMrQ'">
+          <div class="hideInPrint">
+            <input type="number"
+                   number-type={{prStDe.dataElement.valueType}}
+                   class="form-control"
+                   ng-class="getInputNotifcationClass(prStDe.dataElement.id,false, currentEvent)"
+                   ng-model="currentEvent[prStDe.dataElement.id]"
+                   d2-number-validator
+                   ng-required={{prStDe.compulsory}}
+                   ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || assignedFields[currentEvent.event][prStDe.dataElement.id]"
+                   ng-blur="saveDatavalue(prStDe, innerForm.foo)"
+                   ng-change="kgToLbs(currentEvent[prStDe.dataElement.id])"
+                   name="foo"/>
+          </div>
+          <div class="not-for-screen">
+            <input type="text" class="form-control" value={{currentEvent[prStDe.dataElement.id]}}>
+          </div>
+        </div>
+
+
+        <div ng-switch-when="NUMBER" ng-if="prStDe.dataElement.id === 'odBaHyRlR5K'">
+          <div class="hideInPrint">
+            <input type="number"
+                   number-type={{prStDe.dataElement.valueType}}
+                   class="form-control"
+                   ng-class="getInputNotifcationClass(prStDe.dataElement.id,false, currentEvent)"
+                   ng-model="currentEvent[prStDe.dataElement.id]"
+                   d2-number-validator
+                   ng-required={{prStDe.compulsory}}
+                   ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || assignedFields[currentEvent.event][prStDe.dataElement.id]"
+                   ng-blur="saveDatavalue(prStDe, innerForm.foo)"
+                   ng-change="lbsToKg(currentEvent[prStDe.dataElement.id])"
+                   name="foo"/>
+          </div>
+          <div class="not-for-screen">
+            <input type="text" class="form-control" value={{currentEvent[prStDe.dataElement.id]}}>
+          </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
         <div ng-switch-when="INTEGER">
             <div class="hideInPrint">
                 <input type="number"
@@ -151,10 +200,8 @@
         </div>
         <div ng-switch-when="TEXT">
             <div class="hideInPrint">
-              {{operatorMemberList.length}}
-
               <!--
-              {{dataElementMetaAttrSeniorInspMap[prStDe.dataElement.id].seniorInspectorUserGroup}} --- {{dataElementMetaAttrMap[prStDe.dataElement.id].inspectorUserGroup}}
+              {{dataElementMetaAttrSeniorInspMap[prStDe.dataElement.id].seniorInspectorUserGroup}} --- {{dataElementMetaAttrMap[prStDe.dataElement.id].inspectorUserGroup}} ---- {{operatorMemberList.length}}
               <input type="text"
                        ng-class="getInputNotifcationClass(prStDe.dataElement.id,false, currentEvent)"
                        class="form-control"
