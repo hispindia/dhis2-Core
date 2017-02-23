@@ -151,6 +151,36 @@
         </div>
         <div ng-switch-when="TEXT">
             <div class="hideInPrint">
+              {{operatorMemberList.length}}
+
+              <!--
+              {{dataElementMetaAttrSeniorInspMap[prStDe.dataElement.id].seniorInspectorUserGroup}} --- {{dataElementMetaAttrMap[prStDe.dataElement.id].inspectorUserGroup}}
+              <input type="text"
+                       ng-class="getInputNotifcationClass(prStDe.dataElement.id,false, currentEvent)"
+                       class="form-control"
+                       ng-model="currentEvent[prStDe.dataElement.id]"
+                       ng-required={{prStDe.compulsory}}
+                       ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || assignedFields[currentEvent.event][prStDe.dataElement.id]"
+                       ng-blur="saveDatavalue(prStDe, innerForm.foo)"
+                       name="foo"/>
+
+              -->
+              <div ng-if="dataElementMetaAttrMap[prStDe.dataElement.id].inspectorUserGroup == 'true'">
+                <ui-select ng-model="currentEvent[prStDe.dataElement.id]"
+                            theme="select2"
+                            ng-required={{prStDe.compulsory}}
+                            ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || assignedFields[currentEvent.event][prStDe.dataElement.id]"
+                            name="foo"
+                            on-select="saveDatavalue(prStDe, innerForm.foo)"
+                            ng-style="{'width':'100%'}">
+                  <ui-select-match allow-clear="true" ng-class="getInputNotifcationClass(prStDe.dataElement.id,false, currentEvent)" class="form-control-ui-select"  placeholder="{{'select_or_search' | translate}}">{{$select.selected.name  || $select.selected}}</ui-select-match>
+                  <ui-select-choices  repeat="user.name as user in userGroupMember | filter: $select.search | limitTo:maxOptionSize">
+                    <span ng-bind-html="user.name | highlight: $select.search"></span>
+                  </ui-select-choices>
+                </ui-select>
+              </div>
+
+              <div ng-if="dataElementMetaAttrMap[prStDe.dataElement.id].inspectorUserGroup == 'NA' && dataElementMetaAttrSeniorInspMap[prStDe.dataElement.id].seniorInspectorUserGroup == 'NA' && dataElementMetaAttrfoodDistributorMap[prStDe.dataElement.id].foodDistributor == 'NA'">
                 <input type="text"
                        ng-class="getInputNotifcationClass(prStDe.dataElement.id,false, currentEvent)"
                        class="form-control"
@@ -159,6 +189,87 @@
                        ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || assignedFields[currentEvent.event][prStDe.dataElement.id]"
                        ng-blur="saveDatavalue(prStDe, innerForm.foo)"
                        name="foo"/>
+
+              </div>
+
+              <div ng-if="dataElementMetaAttrMap[prStDe.dataElement.id].inspectorUserGroup == 'false'">
+                <input type="text"
+                       ng-class="getInputNotifcationClass(prStDe.dataElement.id,false, currentEvent)"
+                       class="form-control"
+                       ng-model="currentEvent[prStDe.dataElement.id]"
+                       ng-required={{prStDe.compulsory}}
+                       ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || assignedFields[currentEvent.event][prStDe.dataElement.id]"
+                       ng-blur="saveDatavalue(prStDe, innerForm.foo)"
+                       name="foo"/>
+              </div>
+              <!--senior inspector -->
+
+              <div ng-if="dataElementMetaAttrSeniorInspMap[prStDe.dataElement.id].seniorInspectorUserGroup == 'true'">
+                <ui-select ng-model="currentEvent[prStDe.dataElement.id]"
+                           theme="select2"
+                           ng-required={{prStDe.compulsory}}
+                           ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || assignedFields[currentEvent.event][prStDe.dataElement.id]"
+                           name="foo"
+                           on-select="saveDatavalue(prStDe, innerForm.foo)"
+                           ng-style="{'width':'100%'}">
+                  <ui-select-match allow-clear="true" ng-class="getInputNotifcationClass(prStDe.dataElement.id,false, currentEvent)" class="form-control-ui-select"  placeholder="{{'select_or_search' | translate}}">{{$select.selected.name  || $select.selected}}</ui-select-match>
+                  <ui-select-choices  repeat="user.name as user in seniorInspectoruserGroupMember | filter: $select.search | limitTo:maxOptionSize">
+                    <span ng-bind-html="user.name | highlight: $select.search"></span>
+                  </ui-select-choices>
+                </ui-select>
+              </div>
+              <!--
+              <div ng-if="dataElementMetaAttrSeniorInspMap[prStDe.dataElement.id].seniorInspectorUserGroup == 'NA'">
+                <input type="text"
+                       ng-class="getInputNotifcationClass(prStDe.dataElement.id,false, currentEvent)"
+                       class="form-control"
+                       ng-model="currentEvent[prStDe.dataElement.id]"
+                       ng-required={{prStDe.compulsory}}
+                       ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || assignedFields[currentEvent.event][prStDe.dataElement.id]"
+                       ng-blur="saveDatavalue(prStDe, innerForm.foo)"
+                       name="foo"/>
+              </div>
+              -->
+              <div ng-if="dataElementMetaAttrSeniorInspMap[prStDe.dataElement.id].seniorInspectorUserGroup == 'false'">
+                <input type="text"
+                       ng-class="getInputNotifcationClass(prStDe.dataElement.id,false, currentEvent)"
+                       class="form-control"
+                       ng-model="currentEvent[prStDe.dataElement.id]"
+                       ng-required={{prStDe.compulsory}}
+                       ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || assignedFields[currentEvent.event][prStDe.dataElement.id]"
+                       ng-blur="saveDatavalue(prStDe, innerForm.foo)"
+                       name="foo"/>
+              </div>
+              <div ng-if="dataElementMetaAttrfoodDistributorMap[prStDe.dataElement.id].foodDistributor == 'true'">
+                <ui-select ng-model="currentEvent[prStDe.dataElement.id]"
+                           theme="select2"
+                           ng-required={{prStDe.compulsory}}
+                           ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || assignedFields[currentEvent.event][prStDe.dataElement.id]"
+                           name="foo"
+                           on-select="saveDatavalue(prStDe, innerForm.foo)"
+                           ng-style="{'width':'100%'}">
+                  <ui-select-match allow-clear="true" ng-class="getInputNotifcationClass(prStDe.dataElement.id,false, currentEvent)" class="form-control-ui-select"  placeholder="{{'select_or_search' | translate}}">{{$select.selected.name  || $select.selected}}</ui-select-match>
+                  <ui-select-choices  repeat="operator as operator in operatorMemberList | filter: $select.search | limitTo:maxOptionSize">
+                    <span ng-bind-html="operator | highlight: $select.search"></span>
+                  </ui-select-choices>
+                </ui-select>
+              </div>
+              <div ng-if="dataElementMetaAttrfoodDistributorMap[prStDe.dataElement.id].foodDistributor == 'false'">
+                <input type="text"
+                       ng-class="getInputNotifcationClass(prStDe.dataElement.id,false, currentEvent)"
+                       class="form-control"
+                       ng-model="currentEvent[prStDe.dataElement.id]"
+                       ng-required={{prStDe.compulsory}}
+                       ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || assignedFields[currentEvent.event][prStDe.dataElement.id]"
+                       ng-blur="saveDatavalue(prStDe, innerForm.foo)"
+                       name="foo"/>
+              </div>
+
+
+
+
+
+
             </div>
             <div class="not-for-screen">
                 <input type="text" class="form-control" value={{currentEvent[prStDe.dataElement.id]}}>

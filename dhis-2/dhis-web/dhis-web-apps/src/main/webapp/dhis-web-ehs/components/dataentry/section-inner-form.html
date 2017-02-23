@@ -206,7 +206,9 @@
     <div ng-switch-when="TEXT">
       <div class="hideInPrint">
         <!--{{ dataElementMetaAttrMap[prStDes[de.dataElement.id].dataElement.id].inspectorUserGroup }}-->
+
         <div ng-if="dataElementMetaAttrMap[prStDes[de.dataElement.id].dataElement.id].inspectorUserGroup === 'true'">
+
           <!--
           <select class="form-control"
                  ng-class="getInputNotifcationClass(prStDes[de.dataElement.id].dataElement.id,false, currentEvent)"
@@ -252,6 +254,61 @@
                  ng-blur="saveDatavalue(prStDes[de.dataElement.id], innerForm.foo)"
                  name="foo"/>
         </div>
+
+        <!--
+        <div ng-if="dataElementMetaAttrSeniorInspMap[prStDes[de.dataElement.id].dataElement.id].seniorInspectorUseGroup === 'true'">
+          <ui-select  ng-model="currentEvent[prStDes[de.dataElement.id].dataElement.id]"
+                      theme="select2"
+                      ng-required={{isCompulsory(de.dataElement)}}
+                      ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || assignedFields[currentEvent.event][de.dataElement.id]"
+                      name="foo"
+                      on-select="saveDatavalue(prStDes[de.dataElement.id], innerForm.foo)"
+                      ng-style="{'width':'100%'}">
+            <ui-select-match allow-clear="true" ng-class="getInputNotifcationClass(prStDes[de.dataElement.id].dataElement.id,true, currentEvent)"  class="form-control-ui-select"  placeholder="{{'select_or_search' | translate}}">{{$select.selected.name  || $select.selected}}</ui-select-match>
+            <ui-select-choices  repeat="seniorUser.name as seniorUser in seniorInspectoruserGroupMember | filter: $select.search | limitTo:maxOptionSize">
+              <span ng-bind-html="seniorUser.name | highlight: $select.search"></span>
+            </ui-select-choices>
+          </ui-select>
+        </div>
+
+        <div ng-if="dataElementMetaAttrSeniorInspMap[prStDes[de.dataElement.id].dataElement.id].seniorInspectorUseGroup === 'NA'">
+          <input type="text"
+                 class="form-control"
+                 ng-class="getInputNotifcationClass(prStDes[de.dataElement.id].dataElement.id,false, currentEvent)"
+                 ng-model="currentEvent[prStDes[de.dataElement.id].dataElement.id]"
+                 ng-required={{isCompulsory(de.dataElement)}}
+                 ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || assignedFields[currentEvent.event][de.dataElement.id]"
+                 ng-blur="saveDatavalue(prStDes[de.dataElement.id], innerForm.foo)"
+                 name="foo"/>
+        </div>
+        <div ng-if="dataElementMetaAttrSeniorInspMap[prStDes[de.dataElement.id].dataElement.id].seniorInspectorUseGroup === 'false'">
+          <input type="text"
+                 class="form-control"
+                 ng-class="getInputNotifcationClass(prStDes[de.dataElement.id].dataElement.id,false, currentEvent)"
+                 ng-model="currentEvent[prStDes[de.dataElement.id].dataElement.id]"
+                 ng-required={{isCompulsory(de.dataElement)}}
+                 ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || assignedFields[currentEvent.event][de.dataElement.id]"
+                 ng-blur="saveDatavalue(prStDes[de.dataElement.id], innerForm.foo)"
+                 name="foo"/>
+        </div>
+        -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       </div>
 
       <div class="not-for-screen">

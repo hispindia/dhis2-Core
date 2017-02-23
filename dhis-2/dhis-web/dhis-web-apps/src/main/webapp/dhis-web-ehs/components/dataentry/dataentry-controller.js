@@ -62,9 +62,16 @@ trackerCapture.controller('DataEntryController',
             $scope.sendbackbutton = false;
             $scope.closedbtton = false;
             $scope.inspectorUserGroupUid = 'JNI1blJo433';
+            $scope.seniorInspectorUserGroupUid = 'SdO03We4Azx';
             const dataElementMetaAttrCode = "inspectorUserGroup"; // for inspectorName
+            const deMetaAttCodeSeniorInsp = "seniorInspectorUserGroup";// for Senior inspector Name
+            const dataElementMetaAttrFoodDisCode = "foodDistributor";// // for food Distributor Name
             $scope.userGroupMember = [];
+            $scope.seniorInspectoruserGroupMember = [];
             $scope.dataElementMetaAttrMap = [];
+            $scope.dataElementMetaAttrSeniorInspMap = [];
+            $scope.operatorMemberList = [];
+            $scope.dataElementMetaAttrfoodDistributorMap = [];
 
             //for license status and valid up to
             $scope.licenStatusDeUid = 'AWprRTJ8phx';
@@ -72,27 +79,95 @@ trackerCapture.controller('DataEntryController',
             $scope.licenValidUpToDeUid = 'nPcT1HabdNa';
             $scope.licenValidUpToAttributeUid = 'edTbYj3fk12';
 
+            $scope.operatorProgramUid = 'ieLe1vT4Vad';
+            $scope.rootOrgUnitUid = 'Jgc02tIKupW';
+            $scope.teiList = [];
+
+            // get operators prrogramTEI List
+            // for inspector Name
+            AjaxCalls.getTEIByProgramAndRootOrgUnit($scope.operatorProgramUid, $scope.rootOrgUnitUid ).then(function(responseTeis) {
+
+                $scope.teiList = responseTeis.trackedEntityInstances;
+                for (var i in responseTeis.trackedEntityInstances) {
+
+                    for (var j in responseTeis.trackedEntityInstances[i].attributes) {
+                        if (responseTeis.trackedEntityInstances[i].attributes[j].displayName == 'Operator/Owner Name' ) {
+                            $scope.operatorMemberList.push(responseTeis.trackedEntityInstances[i].attributes[j].value);
+
+                        }
+                    }
+                }
+
+            });
+
+            // for inspector Name
             AjaxCalls.getUserGroupMember($scope.inspectorUserGroupUid).then(function(responseUserGroupMember) {
 
                 $scope.userGroupMember = responseUserGroupMember.users;
 
             });
+
+            // for Senior inspector Name
+            AjaxCalls.getUserGroupMember($scope.seniorInspectorUserGroupUid).then(function(responseSeniorInspUserGroupMember) {
+
+                $scope.seniorInspectoruserGroupMember = responseSeniorInspUserGroupMember.users;
+
+            });
+
             AjaxCalls.getAllDataElements().then(function(des) {
 
                 $scope.dataElementMetaAttrMap = des;
+                $scope.dataElementMetaAttrSeniorInspMap = des;
+                $scope.dataElementMetaAttrfoodDistributorMap = des;
 
                 for (var key in des.dataElements) {
 
+                    // for inspector Name
                     var value = utilityService.extractMetaAttributeValue(des.dataElements[key].attributeValues, dataElementMetaAttrCode);
                     $scope.dataElementMetaAttrMap[des.dataElements[key].id] = des.dataElements[key];
 
-                    if (value) {
+                    if( value ) {
                         $scope.dataElementMetaAttrMap[des.dataElements[key].id][dataElementMetaAttrCode] = value;
                         console.log("key-" + key);
-                    } else {
+                    }
+
+                    else {
                         $scope.dataElementMetaAttrMap[des.dataElements[key].id][dataElementMetaAttrCode] = "NA";
                     }
+
                 }
+
+                // for Senior inspector Name
+                for (var key1 in des.dataElements) {
+
+                    var seniorInspctorValue = utilityService.extractMetaAttributeValue(des.dataElements[key1].attributeValues, deMetaAttCodeSeniorInsp);
+                    $scope.dataElementMetaAttrSeniorInspMap[des.dataElements[key1].id] = des.dataElements[key1];
+
+                    if( seniorInspctorValue ) {
+                        $scope.dataElementMetaAttrSeniorInspMap[des.dataElements[key1].id][deMetaAttCodeSeniorInsp] = seniorInspctorValue;
+                        console.log("Senior Inspector key-" + key1);
+                    }
+
+                    else {
+                        $scope.dataElementMetaAttrSeniorInspMap[des.dataElements[key1].id][deMetaAttCodeSeniorInsp] = "NA";
+                    }
+                }
+                // for Food Dist Name
+                for (var key2 in des.dataElements) {
+
+                    var foodDisValue = utilityService.extractMetaAttributeValue(des.dataElements[key2].attributeValues, dataElementMetaAttrFoodDisCode);
+                    $scope.dataElementMetaAttrfoodDistributorMap[des.dataElements[key2].id] = des.dataElements[key2];
+
+                    if (foodDisValue) {
+                        $scope.dataElementMetaAttrfoodDistributorMap[des.dataElements[key2].id][dataElementMetaAttrFoodDisCode] = foodDisValue;
+                        console.log("Food Dis Inspector key-" + key2);
+                    }
+
+                    else {
+                        $scope.dataElementMetaAttrfoodDistributorMap[des.dataElements[key2].id][dataElementMetaAttrFoodDisCode] = "NA";
+                    }
+            }
+
             });
 
             AjaxCalls.getALLTEIBYOperate().then(function(data) {
