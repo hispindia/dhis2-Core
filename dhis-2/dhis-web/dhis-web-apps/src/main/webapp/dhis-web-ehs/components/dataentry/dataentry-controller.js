@@ -83,6 +83,11 @@ trackerCapture.controller('DataEntryController',
             $scope.rootOrgUnitUid = 'Jgc02tIKupW';
             $scope.teiList = [];
 
+            $scope.weightKG ='KnnmsZeAMrQ';
+            $scope.weightLBS = 'odBaHyRlR5K';
+
+
+
             // get operators prrogramTEI List
             // for inspector Name
             AjaxCalls.getTEIByProgramAndRootOrgUnit($scope.operatorProgramUid, $scope.rootOrgUnitUid ).then(function(responseTeis) {
@@ -202,6 +207,45 @@ trackerCapture.controller('DataEntryController',
                         $scope.regulationnumber = optionsetmember.options[i].code;
                 }
             });
+
+            $scope.kgToLbs = function (kiloGram) {
+                //alert(kiloGram);
+                var tempValueLbs = kiloGram*(2.20462);
+                $scope.toLbsValue = Number(tempValueLbs.toFixed(2));
+                $scope.currentEvent[$scope.weightLBS] = $scope.toLbsValue; //put calculated value in lbs from kg into text box
+                $timeout(function() {
+                    EventDataValueService.saveTrackedEntityDataValue( $scope.currentEvent, $scope.weightLBS, $scope.toLbsValue ).then(function(responseSavedValue) {
+                        console.log(" Saved LBS Value -- " + responseSavedValue);
+                    });
+
+                }, 0);
+            };
+
+
+            $scope.lbsToKg = function (lbs) {
+                //alert(lbs);
+                var tempValueKg = lbs*(0.453592);
+                $scope.toKiloGramValue = Number(tempValueKg.toFixed(2));
+                $scope.currentEvent[$scope.weightKG] = $scope.toKiloGramValue; //put calculated value in kg from lbs into text box
+                $timeout(function() {
+                    EventDataValueService.saveTrackedEntityDataValue( $scope.currentEvent, $scope.weightKG, $scope.toKiloGramValue ).then(function(responseSavedValue) {
+                        console.log(" Saved KG Value -- " + responseSavedValue);
+                    });
+
+                }, 0);
+
+
+            };
+
+
+
+
+
+
+
+
+
+
             // for License and its Score
             $scope.eventWiseLicenseScoreStatusMap = [];
 
