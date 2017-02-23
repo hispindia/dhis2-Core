@@ -114,6 +114,20 @@ trackerCapture
                 return promise;
             },
 
+            //http://127.0.0.1:8090/dhis/api/trackedEntityInstances.json?program=ieLe1vT4Vad&ou=Jgc02tIKupW&ouMode=DESCENDANTS&skipPaging=true
+            getTEIByProgramAndRootOrgUnit : function( programUid, rootOrgUnitUid ){
+                var promise = $http.get('../api/trackedEntityInstances.json?program=' + programUid + '&ou=' + rootOrgUnitUid+'&ouMode=DESCENDANTS&skipPaging=true').then(function (response) {
+
+                    return response.data;
+                });
+                return promise;
+            },
+
+
+
+
+
+
             getInvitationAndAttendedWidgetAttributes : function(){
                 var promise = $http.get(  '../api/trackedEntityAttributes?fields=*,attributeValues[*,attribute[id,name,code]]&paging=false').then(function(response){
                     var associationWidgets = [];
