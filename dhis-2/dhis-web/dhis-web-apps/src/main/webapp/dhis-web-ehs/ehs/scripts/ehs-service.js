@@ -642,14 +642,37 @@ trackerCapture
                 if (eventFrom.eventMembers)
                     eventTo.eventMembers = eventFrom.eventMembers;
                 return eventTo;
+            },
+
+            saveTrackedEntityDataValue: function ( eventForSave, dataElementUid, updatedValue) {
+                var def = $.Deferred();
+                var teiDataValue = {event: eventForSave.event,
+                    orgUnit: eventForSave.orgUnit,
+                    program: eventForSave.program,
+                    programStage: eventForSave.programStage,
+                    status: eventForSave.status,
+                    trackedEntityInstance: eventForSave.trackedEntityInstance,
+                    dataValues: [
+                        {
+                            dataElement: dataElementUid,
+                            value: updatedValue,
+                            providedElsewhere: eventForSave.providedElsewhere[dataElementUid] ? true : false
+                        }
+                    ]
+                };
+
+                DHIS2EventFactory.updateForSingleValue(teiDataValue).then(function ( dataValueSaveResponse ) {
+
+                    if( dataValueSaveResponse.httpStatus === "OK")
+                    {
+                        def.resolve( updatedValue );
+                    }
+                });
+
+                return def;
             }
-
-
-
-
         }
     })
-
 
     // add new service for create new organisation unit while registration of establishment
     .service('CustomOrganisationUnitService',  function ($http, $q){
