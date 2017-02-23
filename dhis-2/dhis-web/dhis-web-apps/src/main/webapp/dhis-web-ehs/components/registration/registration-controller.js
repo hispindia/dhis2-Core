@@ -5,7 +5,6 @@ trackerCapture.controller('RegistrationController',
     function($rootScope,
              $scope,
              $location,
-
              $timeout,
              $modal,
              $translate,
