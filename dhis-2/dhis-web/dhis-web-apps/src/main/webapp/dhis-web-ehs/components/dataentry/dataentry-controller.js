@@ -208,6 +208,7 @@ trackerCapture.controller('DataEntryController',
                 }
             });
 
+            //put calculated value in lbs from kg into text box
             $scope.kgToLbs = function (kiloGram) {
                 //alert(kiloGram);
                 var tempValueLbs = kiloGram*(2.20462);
@@ -221,7 +222,7 @@ trackerCapture.controller('DataEntryController',
                 }, 0);
             };
 
-
+            //put calculated value in kg from lbs into text box
             $scope.lbsToKg = function (lbs) {
                 //alert(lbs);
                 var tempValueKg = lbs*(0.453592);
@@ -236,14 +237,6 @@ trackerCapture.controller('DataEntryController',
 
 
             };
-
-
-
-
-
-
-
-
 
 
             // for License and its Score
