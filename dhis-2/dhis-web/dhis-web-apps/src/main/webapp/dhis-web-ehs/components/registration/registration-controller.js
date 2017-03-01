@@ -58,9 +58,9 @@ trackerCapture.controller('RegistrationController',
         $scope.districtOrgUnits = {};
         $scope.communityOrgUnits = {};
 
-        $scope.selectedCommunityUid = null;
+        //$scope.selectedCommunityUid = null;
 
-
+        $scope.selectedCommunityUid = 'Jgc02tIKupW';
         $scope.selectedCountryName = null;
         $scope.selectedDistrictName = null;
         $scope.selectedCommunityName = null;
@@ -247,18 +247,38 @@ trackerCapture.controller('RegistrationController',
             //$scope.selectedCountry1=selectedcountry;
             $scope.tempSelectedCountry = selectedCountry;
             $scope.tempSelectedCountry1 = selectedCountry;
-            if( selectedCountry == $scope.rootOrgUnit.name ){
-                //  $scope.selectedCountry1=selectedcountry.displayName;
-                OrganisationUnitService.getLevel2OrganisationUnit().then(function(level2OrgUnit){
-                    $scope.districtOrgUnits = level2OrgUnit.organisationUnits;
 
-                });
+            if( $scope.rootOrgUnit != null )
+            {
+                if( selectedCountry == $scope.rootOrgUnit.name ){
+                    //  $scope.selectedCountry1=selectedcountry.displayName;
+                    OrganisationUnitService.getLevel2OrganisationUnit().then(function(level2OrgUnit){
+                        $scope.districtOrgUnits = level2OrgUnit.organisationUnits;
+
+                    });
+                }
+                else{
+                    $scope.selectedDistrict1="";
+                    $scope.selectedCommunity1="";
+                    $scope.selectedCommunityUid = $scope.rootOrgUnit.id;
+                }
             }
-            else{
-                $scope.selectedDistrict1="";
-                $scope.selectedCommunity1="";
-                $scope.selectedCommunityUid = $scope.rootOrgUnit.id;
+            else
+            {
+                if( selectedCountry === 'SAINT LUCIA' ){
+                    OrganisationUnitService.getLevel2OrganisationUnit().then(function(level2OrgUnit){
+                        $scope.districtOrgUnits = level2OrgUnit.organisationUnits;
+
+                    });
+                }
+                else{
+                    $scope.selectedDistrict1="";
+                    $scope.selectedCommunity1="";
+                    $scope.selectedCommunityUid = 'Jgc02tIKupW';
+                }
             }
+
+
         };
 
         $scope.getAnotherDistrict = function( anotherDistrictName ){
@@ -456,7 +476,16 @@ trackerCapture.controller('RegistrationController',
                 if ($scope.registrationMode === 'PROFILE') {
                     $scope.selectedEnrollment = args.enrollment;
                     //$scope.ownerName = args.selectedTei.trackedEntityInstance;
-                    $scope.ownerName = $scope.trackerAssociateInstancesMap[args.selectedTei.THGyyoT23tr];
+
+                    if( args.enrollment.program === 'zuVSFlvcchx')
+                    {
+                        $scope.ownerName = $scope.trackerAssociateInstancesMap[args.selectedTei.MGyIMsppZp3];
+                    }
+                    else if( args.enrollment.program === 'tITlMGNJTbJ' )
+                    {
+                        $scope.ownerName = $scope.trackerAssociateInstancesMap[args.selectedTei.THGyyoT23tr];
+                    }
+
                 }
 
                 $scope.getAttributes($scope.registrationMode);
