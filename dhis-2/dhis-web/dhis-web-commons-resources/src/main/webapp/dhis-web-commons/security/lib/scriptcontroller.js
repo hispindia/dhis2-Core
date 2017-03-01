@@ -1,3 +1,6 @@
+/**
+ * Created by rohil on 2/8/2017.
+ */
 
 
 var base = "../../";
@@ -6,6 +9,10 @@ var orgid="wSslG6mcGXl";
 var ouid=[];
 var drop2org=[];
 var sel="";
+var orgcoid=[];
+var oldorg;
+var eventOrgGroup=[];
+var eventOrg=[];
 var filterhospital,service,owner,healthfacility;
 var hospital;
 var defavail="avHST8wLPnX&dimension=jXCd8k2841l&dimension=txl9e6UJFP4";
@@ -19,83 +26,81 @@ var servicename,serviceid;
 var name=[],address=[],pincode=[],village=[],mobile=[],owner=[],special=[];
 var toAdd,spec=[],specialjoin;
 var resultcount=0;
-var redMarker = L.AwesomeMarkers.icon({
-    icon: 'coffee',
-    markerColor: 'red'
-});
-var Subcentregroup=[];
+// var redMarker = L.AwesomeMarkers.icon({
+//     icon: 'coffee',
+//     markerColor: 'red'
+// });
+// var Subcentregroup=[];
 var Subgroup=[];
-var blueMarker = L.AwesomeMarkers.icon({
-    icon: 'coffee',
-    markerColor: 'blue'
-});
 
-var cloudmade1 = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    maxZoom: 18,
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-    key: 'BC9A493B41014CAABB9dsfsdfds8F0471D759707'
-});
-//var cloudmade = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-//    maxZoom: 18,
-//    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-//    key: 'BC9A493B41014CAABB9dsfsdfds8F0471D759707'
-//});
+var markers=[];
+// var blueMarker = L.AwesomeMarkers.icon({
+//     icon: 'coffee',
+//     markerColor: 'blue'
+// });
+//
+// var cloudmade1 = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+//     maxZoom: 18,
+//     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+//     key: 'BC9A493B41014CAABB9dsfsdfds8F0471D759707'
+// });
 
-var map1 = L.map('map1')
-    .setView([31.1471, 75.3412], 8)
-    .addLayer(cloudmade1);
-
-//var map = L.map('map')
-//    .setView([31.1471, 75.3412], 8)
-//    .addLayer(cloudmade);
-
-var markers = new L.FeatureGroup();
+//
+// var map1 = L.map('map1')
+//     .setView([31.1471, 75.3412], 8)
+//     .addLayer(cloudmade1);
+//
+// //var map = L.map('map')
+// //    .setView([31.1471, 75.3412], 8)
+// //    .addLayer(cloudmade);
+//
+// var markers = new L.FeatureGroup();
 
 var header = {
 
     "Authorization": "Basic " + btoa( "homepage" + ':' + "Homepage123" )
 
 };
-var legend = L.control({position: 'bottomright'});
+// var legend = L.control({position: 'bottomright'});
 
-legend.onAdd = function (map) {
-
-    var div = L.DomUtil.create('div', 'info legend'),
-        grades = ["Red","Private","Blue","Public","Green","NGO"],
-        labels = [],
-        from, to;
-
-    for (var i = 0; i < grades.length;) {
-        from = grades[i];
-        to = grades[i + 1];
-
-
-        labels.push(
-            '<i style="background:' + getColor(from + 1) + '"></i> ' +
-            from + (to ? '&ndash;' + to : '+'));
-        i=i+2;
-    }
-
-    div.innerHTML = labels.join('<br>');
-    return div;
-};
-
-legend.addTo(map1);
-
-function getColor(d) {
-    return d > 1000 ? '#800026' :
-        d > 500  ? '#BD0026' :
-            d > 200  ? '#E31A1C' :
-                d > 100  ? '#FC4E2A' :
-                    d == "Green"   ? '#FD8D3C' :
-                        d == "Blue"   ? '#FEB24C' :
-                            d == "Red"   ? '#FED976' :
-                                '#FFEDA0';
-}
+// legend.onAdd = function (map) {
+//
+//     var div = L.DomUtil.create('div', 'info legend'),
+//         grades = ["Red","Private","Blue","Public","Green","NGO"],
+//         labels = [],
+//         from, to;
+//
+//     for (var i = 0; i < grades.length;) {
+//         from = grades[i];
+//         to = grades[i + 1];
+//
+//
+//         labels.push(
+//             '<i style="background:' + getColor(from + 1) + '"></i> ' +
+//             from + (to ? '&ndash;' + to : '+'));
+//         i=i+2;
+//     }
+//
+//     div.innerHTML = labels.join('<br>');
+//     return div;
+// };
+//
+// legend.addTo(map1);
+//
+// function getColor(d) {
+//     return d > 1000 ? '#800026' :
+//         d > 500  ? '#BD0026' :
+//             d > 200  ? '#E31A1C' :
+//                 d > 100  ? '#FC4E2A' :
+//                     d == "Green"   ? '#FD8D3C' :
+//                         d == "Blue"   ? '#FEB24C' :
+//                             d == "Red"   ? '#FED976' :
+//                                 '#FFEDA0';
+// }
 
 
 Ext.onReady( function() {
-
+ 
     var header = {
 
         "Authorization": "Basic " + btoa( "homepage" + ':' + "Homepage123" )
@@ -112,7 +117,7 @@ Ext.onReady( function() {
 
     function setLinks() {
 
-        document.getElementById("map1").style.display = "none";
+
         $.ajax({
 
             async : false,
@@ -132,61 +137,106 @@ Ext.onReady( function() {
 
             }
         });
+        $.ajax({
+            async : false,
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json",
+            header : header,
+            url: '../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR;LAST_5_YEARS&dimension=ou:wSslG6mcGXl&dimension=XEiMcaGi6vv:IN%3APrivate%3BPublic%3BCharitable%20hospital%2FNGO&displayProperty=NAME',
+            success: function(response){
+                eventOrgGroup=response.rows;
+                $.each(eventOrgGroup, function (index1, item1) {
 
-        $.getJSON("../../api/dataElementGroups/fX1ACo0Ffid.json?fields=dataElements[id,name,code]", function (data) {
-            var dataElements=data.dataElements;
-            dataElements.sort(function(a, b) {
-                var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-                if (nameA < nameB) //sort string ascending
-                    return -1
-                if (nameA > nameB)
-                    return 1
-                return 0 //default return value (no sorting)
-            });
+                    eventOrg.push(item1[7]);
 
 
-            $.each(dataElements, function (index, item) {
-                $('#drop2').append($('<option></option>').val(item.id).html(item.name).text(item.name)
-                );
-            });
+                });
+            },
+            error: function(response){
+            }
+        });
+        $.ajax({
+            async : false,
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json",
+            header : header,
+            url: '../../api/dataElementGroups/fX1ACo0Ffid.json?fields=dataElements[id,name,code]',
+            success: function(data){
+                var dataElements=data.dataElements;
+                dataElements.sort(function(a, b) {
+                    var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
+                    if (nameA < nameB) //sort string ascending
+                        return -1
+                    if (nameA > nameB)
+                        return 1
+                    return 0 //default return value (no sorting)
+                });
+
+
+                $.each(dataElements, function (index, item) {
+                    $('#drop2').append($('<option></option>').val(item.id).html(item.name).text(item.name)
+                    );
+                });
+            },
+            error: function(response){
+            }
         });
 
-        $.getJSON("../../api/dataElementGroups/y1WarsbVwrv.json?fields=dataElements[id,name]", function (data) {
 
-            var dataElements=data.dataElements;
-            dataElements.sort(function(a, b) {
-                var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-                if (nameA < nameB) //sort string ascending
-                    return -1
-                if (nameA > nameB)
-                    return 1
-                return 0 //default return value (no sorting)
-            });
+        $.ajax({
+            async : false,
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json",
+            header : header,
+            url: '../../api/dataElementGroups/y1WarsbVwrv.json?fields=dataElements[id,name]',
+            success: function(data){
+                var dataElements=data.dataElements;
+                dataElements.sort(function(a, b) {
+                    var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
+                    if (nameA < nameB) //sort string ascending
+                        return -1
+                    if (nameA > nameB)
+                        return 1
+                    return 0 //default return value (no sorting)
+                });
 
-            $.each(dataElements, function (index, item) {
-                $('#droptype').append($('<option></option>').val(item.id).html(item.name).text(item.name)
-                );
-            });
+                $.each(dataElements, function (index, item) {
+                    $('#droptype').append($('<option></option>').val(item.id).html(item.name).text(item.name)
+                    );
+                });
+            },
+            error: function(response){
+            }
         });
 
+        $.ajax({
+            async : false,
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json",
+            header : header,
+            url: '../../api/organisationUnitGroups/mH15ENlpG4v.json?fields=organisationUnits[id,name,code]',
+            success: function(data){
+                var organisationUnits=data.organisationUnits;
+                organisationUnits.sort(function(a, b) {
+                    var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
+                    if (nameA < nameB) //sort string ascending
+                        return -1
+                    if (nameA > nameB)
+                        return 1
+                    return 0 //default return value (no sorting)
+                });
 
-
-        $.getJSON("../../api/organisationUnitGroups/mH15ENlpG4v.json?fields=organisationUnits[id,name,code]", function (data) {
-
-            var organisationUnits=data.organisationUnits;
-            organisationUnits.sort(function(a, b) {
-                var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-                if (nameA < nameB) //sort string ascending
-                    return -1
-                if (nameA > nameB)
-                    return 1
-                return 0 //default return value (no sorting)
-            });
-
-            $.each(organisationUnits, function (index, item) {
-                $('#drop1').append($('<option></option>').val(item.id).html(item.name).text(item.name)
-                );
-            });
+                $.each(organisationUnits, function (index, item) {
+                    $('#drop1').append($('<option></option>').val(item.id).html(item.name).text(item.name)
+                    );
+                });
+            },
+            error: function(response){
+            }
         });
 
         $.ajax({
@@ -207,23 +257,23 @@ Ext.onReady( function() {
             error: function(response){
             }
         });
+
+
     }
-
-
 
     $("#drop1").change(function () {
         drop2org=[];
-        $('#drophospital').prop('selectedIndex',0);
+        // $('#drophospital').prop('selectedIndex',0);
         var selected = $("#drop1 option:selected");
         orgid="";
         selected.each(function () {
             drop2org.push($(this).val());
             orgid = orgid+$(this).val()+";";
         });
+        oldorg=orgid;
         var organisationUnits;
         for(var i=0;i<drop2org.length;i++)
         {
-
             $.getJSON("../../api/organisationUnits/"+drop2org[i]+"?paging=false&fields=children[id,name,children[id,name]]", function (data) {
                 var organisationUnits=data.children;
 
@@ -264,37 +314,61 @@ Ext.onReady( function() {
                         });
                         $.each(organisationUnitschildren, function (index1, item1) {
 
-                            $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
-                        });
-                    }
+                            if(Subgroup.includes(item1.id))
+                            {
+                            }
+                            else
+                            {
 
+        if(eventOrg.includes(item1.id)){
+            $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
+        }
 
-                    $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name)
-
-                    );
-                });
-                $('#drophospital').selectpicker('refresh');
-            });
-
+        else
+        {
         }
 
 
-        //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
-        //jQuery('#sel').html('');
-    });
+                            }});}
+
+
+    if(eventOrg.includes(item1.id))
+    {
+        $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
+
+    }
+
+    else
+{
+   
+}
+
+
+
+                });
+                $('#drophospital').selectpicker('refresh');});
+        }});
 
     $("#drophospital").change(function () {
-        hospital="";
-        var selected = $("#drophospital option:selected");
-        selected.each(function () {
-            drop2org.push($(this).val());
-            orgid = orgid+$(this).val()+";";
-            hospital = hospital+$(this).val()+";";
-        });
 
-        orgid=hospital;
-        //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
-        //jQuery('#sel').html('');
+        var selected = $("#drophospital option:selected");
+     if($(this).val()!=null)
+     {
+         hospital="";
+         selected.each(function () {
+             drop2org.push($(this).val());
+             orgid = orgid+$(this).val()+";";
+             hospital = hospital+$(this).val()+";";
+         });
+
+         orgid=hospital;
+     }
+
+        else
+     {
+         orgid=oldorg;
+     }
+
     });
 
     $("#drop_ownership").change(function () {
@@ -341,8 +415,6 @@ Ext.onReady( function() {
 
         });
 
-        //defhealthfacility=$(this).find("option:selected").val()+":IN:1";
-        //generatefilterrecord(orgid,defservice,defowner,defhealthfacility);
     });
 
 
@@ -372,12 +444,19 @@ function myJoin(array){
     }
     return result.substr(0,result.length-2);
 }
-function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacility) {
-    map1.removeLayer(markers);
-    markers.clearLayers();
+
+
+
+/*Google Maps*/
+
+function initialize(orgid,defservice,defavail,defowner,defhealthfacility) {
+
+    document.getElementById("loader").style.display = "block";
+    $('section').css('-webkit-filter','blur(2px)');
     $("#footer").hide();
     $("#visitorcounter").hide();
     document.getElementById("resultcount").style.display = "none";
+
     var analyticsMap = [
 
         {
@@ -761,17 +840,16 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
         }
 
     ]
-    document.getElementById("loader").style.display = "block";
+
+
     $("#content1").hide();
-    document.getElementById("map1").style.display = "block";
 
 
-    //$("#map1").show();
-
-
+    $('.list-item').html('');
+    $('.list-item').css('display','none');
+    document.getElementById("map_canvas").style.display = "block";
+    document.getElementById("map_wrapper").style.display = "block";
     $("#footer1").hide();
-    jQuery('#sel').html('');
-    $(".w3-card-4").remove();
 
 
     var addressjoin=[],ouid=[],availspecialitiesjoin,availspecialities=[],avaialabilityjoin,name=[],address=[],pincode=[],village=[],mobile=[],special=[],notspecial=[],hfacilities=[],nothfacilities=[],schemes=[],notschemes=[],contactpname=[],contactpnumber=[];
@@ -781,143 +859,243 @@ function generatefilterrecord(orgid,defservice,defavail,defowner,defhealthfacili
 
 
     $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR;LAST_5_YEARS&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs"+defservice+"&dimension="+defavail+"&dimension="+defowner+defhealthfacility+"&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
-        var constants={key:name, value: value}
+                var constants={key:name, value: value}
 
-        analyticsMap = calculateIndex(data.headers,analyticsMap);
+            analyticsMap = calculateIndex(data.headers,analyticsMap);
 
-        if(data.rows.length==0)
-        {
-            document.getElementById("noresult").style.display = "block";
-            //alert("No result found for above selection");
-            document.getElementById("loader").style.display = "none";
-        }
-
-        for(var k=0;k<data.rows.length;k++){
-
-            document.getElementById("noresult").style.display = "none";
-            arrayMap["special"] = special;
-            arrayMap["name"] = name;
-            arrayMap["address"] = addressjoin;
-            arrayMap["pincode"] = pincode;
-            arrayMap["village"] = village;
-            arrayMap["mobile"] = mobile;
-            arrayMap["notspecial"] = notspecial;
-            arrayMap["hfacilities"] = hfacilities;
-            arrayMap["nothfacilities"] = nothfacilities;
-            arrayMap["schemes"] = schemes;
-            arrayMap["notschemes"] = notschemes;
-            arrayMap["contactpname"] = contactpname;
-            arrayMap["contactpnumber"] = contactpnumber;
-            arrayMap["availspecialities"] = availspecialities;
-            arrayMap["ownership"] = ownership;
-            arrayMap["ouid"] = ouid;
-
-            for (var j=0;j<analyticsMap.length;j++){
-
-                if (analyticsMap[j].index > 0){
-                    var value = data.rows[k][analyticsMap[j].index];
-                    if (value == 1){
-                        value = data.headers[analyticsMap[j].index].column;
-                    }
-
-                    if (!value || value == 0){
-                        value = "";
-                    }
-                    if(arrayMap[analyticsMap[j].arrayName]){
-                        arrayMap[analyticsMap[j].arrayName].push(value);
-                    }
-                }
+            if(data.rows.length==0)
+            {
+                document.getElementById("noresult").style.display = "block";
             }
-            specialjoin = myJoin(special);
-            availspecialitiesjoin = myJoin(availspecialities);
-            notspecialjoin = myJoin(notspecial);
-            hfacilitiesjoin = myJoin(hfacilities);
-            nothfacilitiesjoin = myJoin(nothfacilities);
-            schemesjoin = myJoin(schemes);
-            notschemesjoin = myJoin(notschemes);
 
-            spec.push(specialjoin);
-            notspec.push(notspecialjoin);
-            owner.push(hfacilitiesjoin);
-            availspecialiti.push(availspecialitiesjoin);
-            notowner.push(nothfacilitiesjoin);
-            hfschemes.push(schemesjoin);
-            nothfschemes.push(notschemesjoin);
+            for(var k=0;k<data.rows.length;k++){
 
+                document.getElementById("noresult").style.display = "none";
+                arrayMap["special"] = special;
+                arrayMap["name"] = name;
+                arrayMap["address"] = addressjoin;
+                arrayMap["pincode"] = pincode;
+                arrayMap["village"] = village;
+                arrayMap["mobile"] = mobile;
+                arrayMap["notspecial"] = notspecial;
+                arrayMap["hfacilities"] = hfacilities;
+                arrayMap["nothfacilities"] = nothfacilities;
+                arrayMap["schemes"] = schemes;
+                arrayMap["notschemes"] = notschemes;
+                arrayMap["contactpname"] = contactpname;
+                arrayMap["contactpnumber"] = contactpnumber;
+                arrayMap["availspecialities"] = availspecialities;
+                arrayMap["ownership"] = ownership;
+                arrayMap["ouid"] = ouid;
 
-            availspecialities=[];
-            special = [];
-            notspecial = [];
-            hfacilities = [];
-            nothfacilities = [];
-            schemes = [];
-            notschemes = [];
+                for (var j=0;j<analyticsMap.length;j++){
 
+                    if (analyticsMap[j].index > 0){
+                        var value = data.rows[k][analyticsMap[j].index];
+                        if (value == 1){
+                            value = data.headers[analyticsMap[j].index].column;
+                        }
 
-
-
-        }
-        var header = {
-            "Authorization": "Basic " + btoa( "homepage" + ':' + "Homepage123@123" )
-        };
-        for (var i = 0; i < name.length; i++) {
-            $.ajax({
-                async: false,
-                type: "GET",
-                dataType: "json",
-                contentType: "application/json",
-                header: header,
-                url: '../../api/organisationUnits/' + ouid[i] + '.json?fields=[id,name,coordinates]',
-                success: function (response) {
-                    var coordinates = JSON.parse(response.coordinates);
-                    latitude.push(coordinates[0]);
-                    longitude.push(coordinates[1]);
-
-
-                },
-                error: function (response) {
-
+                        if (!value || value == 0){
+                            value = "";
+                        }
+                        if(arrayMap[analyticsMap[j].arrayName]){
+                            arrayMap[analyticsMap[j].arrayName].push(value);
+                        }
+                    }
                 }
-            });
+                specialjoin = myJoin(special);
+                availspecialitiesjoin = myJoin(availspecialities);
+                notspecialjoin = myJoin(notspecial);
+                hfacilitiesjoin = myJoin(hfacilities);
+                nothfacilitiesjoin = myJoin(nothfacilities);
+                schemesjoin = myJoin(schemes);
+                notschemesjoin = myJoin(notschemes);
+
+                spec.push(specialjoin);
+                notspec.push(notspecialjoin);
+                owner.push(hfacilitiesjoin);
+                availspecialiti.push(availspecialitiesjoin);
+                notowner.push(nothfacilitiesjoin);
+                hfschemes.push(schemesjoin);
+                nothfschemes.push(notschemesjoin);
+
+
+                availspecialities=[];
+                special = [];
+                notspecial = [];
+                hfacilities = [];
+                nothfacilities = [];
+                schemes = [];
+                notschemes = [];
+
+            }
+            var header = {
+                "Authorization": "Basic " + btoa( "homepage" + ':' + "Homepage123@123" )
+            };
+            for (var i = 0; i < name.length; i++) {
+                $.ajax({
+                    async: false,
+                    type: "GET",
+                    dataType: "json",
+                    contentType: "application/json",
+                    header: header,
+                    url: '../../api/organisationUnits/' + ouid[i] + '.json?fields=[id,name,coordinates]',
+                    success: function (response) {
+
+                        if(Object.keys(response).length==3)
+                        {
+                                var coordinates = JSON.parse(response.coordinates);
+                                orgcoid.push(ouid[i]);
+                                latitude.push(coordinates[0]);
+                                longitude.push(coordinates[1]);
+                        }
+                        else
+                        {
+
+                        }
+
+                    },
+                    error: function (response) {
+
+                    }
+                });
+            }
+
+
+
+
+
+        // google Map start
+
+        var map;
+        var bounds = new google.maps.LatLngBounds();
+        var mapOptions = {
+            mapTypeId: 'roadmap',
+        };
+
+        // Display a map on the page
+        map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+        map.setTilt(45);
+
+        markers=[];
+        // Multiple Markers
+        for(var x=0;x<longitude.length;x++) {
+            markers.push([name[x], longitude[x], latitude[x],orgcoid[x]]);
         }
+        // Display multiple markers on a map
+        var infoWindow = new google.maps.InfoWindow(), marker, i;
 
-
-
-
-        for (var i = 0; i < ouid.length; i++) {
+        // Loop through our array of markers & place each one on the map
+        for( i = 0; i < markers.length; i++ ) {
 
 
             if(Subgroup.includes(ouid[i]))
             {
 
             }
+
             else
             {
+                if(ownership[i]=="Private")
+                {
 
-                if(ownership[i]=="Public")
-                {
-                    var marker = L.marker([longitude[i], latitude[i]], {icon: blueMarker}).bindPopup(name[i]+","+" </br><strong>Contact:</strong>"+  mobile[i]+ "</br><strong>Schemes:</strong>"+hfschemes[i]+"</br><strong>Availabilities: </strong>"+availspecialiti[i]+"</br>GoTo List View for more details").openPopup();
-                    markers.addLayer(marker);
-                    map1.addLayer(markers);
+                    var position = new google.maps.LatLng(markers[i][1], markers[i][2]);
+                    bounds.extend(position);
+                    marker = new google.maps.Marker({
+                        position: position,
+                        map: map,
+                        title: markers[i][0],
+                        icon:'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                        scrollwheel:false
+
+                    });
+
+                    // Allow each marker to have an info window
+                    google.maps.event.addListener(marker, 'click', (function(marker, i) {
+                        return function() {
+                            // infoWindow.setContent(infoWindowContent[0]);
+                            infoWindow.setContent(name[i]+","+" </br><strong>Contact:</strong>"+  mobile[i]+ "</br><strong>Schemes:</strong>"+hfschemes[i]+"</br><strong>Availabilities: </strong>"+availspecialiti[i]+"</br>GoTo List View for more details");
+                            infoWindow.open(map, marker);
+                        }
+
+                    })(marker, i));
+                    map.fitBounds(bounds);
                 }
-                else if(ownership[i]=="Private")
+                else if(ownership[i]="Public")
                 {
-                    var marker=L.marker([longitude[i], latitude[i]], {icon: redMarker}).bindPopup(name[i]).openPopup();
-                    markers.addLayer(marker);
-                    map1.addLayer(markers);
+
+                    var position = new google.maps.LatLng(markers[i][1], markers[i][2]);
+                    bounds.extend(position);
+                    marker = new google.maps.Marker({
+                        position: position,
+                        map: map,
+                        title: markers[i][0],
+                        icon:'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                        scrollwheel:false
+
+                    });
+
+                    // Allow each marker to have an info window
+                    google.maps.event.addListener(marker, 'click', (function(marker, i) {
+                        return function() {
+                            // infoWindow.setContent(infoWindowContent[0]);
+                            infoWindow.setContent(name[i]+","+" </br><strong>Contact:</strong>"+  mobile[i]+ "</br><strong>Schemes:</strong>"+hfschemes[i]+"</br><strong>Availabilities: </strong>"+availspecialiti[i]+"</br>GoTo List View for more details");
+                            infoWindow.open(map, marker);
+                        }
+
+                    })(marker, i));
+                    map.fitBounds(bounds);
+                }
+                else if(ownership[i]="Charitable hospital/NGO")
+                {
+
+                    var position = new google.maps.LatLng(markers[i][1], markers[i][2]);
+                    bounds.extend(position);
+                    marker = new google.maps.Marker({
+                        position: position,
+                        map: map,
+                        title: markers[i][0],
+                        icon:'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+
+                    });
+
+                    // Allow each marker to have an info window
+                    google.maps.event.addListener(marker, 'click', (function(marker, i) {
+                        return function() {
+                            // infoWindow.setContent(infoWindowContent[0]);
+                            infoWindow.setContent(name[i]+","+" </br><strong>Contact:</strong>"+  mobile[i]+ "</br><strong>Schemes:</strong>"+hfschemes[i]+"</br><strong>Availabilities: </strong>"+availspecialiti[i]+"</br>GoTo List View for more details");
+                            infoWindow.open(map, marker);
+                        }
+
+                    })(marker, i));
+                    map.fitBounds(bounds);
                 }
 
             }
-
         }
 
+        // Override our map zoom level once our fitBounds function runs (Make sure it only runs once)
+        var boundsListener = google.maps.event.addListener((map), 'bounds_changed', function(event) {
+            this.setZoom(10);
+            google.maps.event.removeListener(boundsListener);
+        });
 
+
+// google maps ends
+        document.getElementById("loader").style.display = "none";
+        $('section').css('-webkit-filter','');
     });
 
-    document.getElementById("loader").style.display = "none";
+
+
+
 }
 
 function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfacility) {
+        $('section').css('-webkit-filter','blur(2px)');
+        document.getElementById("loader").style.display = "block";
+
     $("#footer").hide();
     $("#visitorcounter").hide();
     var analyticsMap = [
@@ -1305,18 +1483,17 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
     ]
 
     document.getElementById("resultcount").style.display = "block";
-    document.getElementById("loader").style.display = "block";
+
     resultcount=0;
     $("#content1").hide();
-    //$("#map1").hide();
-    document.getElementById("map1").style.display = "none";
-
     $("#footer1").hide();
+    document.getElementById("map_canvas").style.display = "none";
+    document.getElementById("map_wrapper").style.display = "none";
+    $('.list-item').html('');
+    $('.list-item').css('display','none');
 
 
-
-    jQuery('#sel').html('');
-    $(".w3-card-4").remove();
+    // $(".w3-card-4").remove();
 
     var addressjoin=[],ouid=[],availspecialitiesjoin,availspecialities=[],avaialabilityjoin,name=[],address=[],pincode=[],village=[],mobile=[],special=[],notspecial=[],hfacilities=[],nothfacilities=[],schemes=[],notschemes=[],contactpname=[],contactpnumber=[];
     var toAdd,spec=[],email=[],specialjoin,notspecialjoin,notspec=[],owner=[],notowner=[],hfacilitiesjoin,nothfacilitiesjoin,schemesjoin,notschemesjoin,hfschemes=[],nothfschemes=[];
@@ -1333,7 +1510,7 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
         {
             document.getElementById("noresult").style.display = "block";
             //alert("No result found for above selection");
-            document.getElementById("loader").style.display = "none";
+
         }
         for(var k=0;k<data.rows.length;k++){
 
@@ -1412,6 +1589,8 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
             }
 
         }
+        document.getElementById("loader").style.display = "none";
+        $('section').css('-webkit-filter','');
 
         document.getElementById('resultcount').innerHTML = '<strong>Total number of Results:</strong>'+ resultcount;
     });
@@ -1441,11 +1620,8 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
 //this.avgRating = avgRating;
 
     var div = document.createElement('div');
-    div.id = 'sel';
-    div.style = "width:auto;"
-
+    div.class = 'selList';
     $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR;LAST_5_YEARS&dimension=ou:"+ouid+"&dimension=eH2F2xuLmoY&dimension=kfDoQ3V1RQK&dimension=csjh8jewk7x&dimension=WXnr5Qk8Qgo&dimension=UwGx1EmJyIf&dimension=rzNUVjOm5ZJ&dimension=tpm9TIh7IeQ&dimension=pUYrErSv4Kf&dimension=hq5P29o8auc&dimension=KBgdegZWYDc&dimension=Mpo7Zm6z9WL&dimension=xtGxtg2I1SH&dimension=EhBs6eq4ebt&dimension=ThPPuHVPTsZ&dimension=hK82b1FNhui&dimension=aLY8DrZ88WN&dimension=XfstNyl31ca&dimension=fOLmSsSSlVI&dimension=aLnsQJ6De8p&dimension=LFDq2RYMt88&displayProperty=NAME", function (cdata) {
-
 
         for(var p=0;p<cdata.rows.length;p++)
         {
@@ -1475,47 +1651,44 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
 
     });
 
-
-    div.innerHTML='\
-    <div class="w3-card-4" style="margin-left:15%;margin-right:15%;" id="test1">\
-    <div >\
-     <header  style="background-color:#2978B3;height: 3%" >\
-      <table width="100px">\
-      <tr>\
-       <td width="8%"><i class="fa fa-h-square" style="font-size:36px; color:White;"></i></td>\
-       <td width="72%"><h3 style="color:white;" class="title"></h3></td>\
-        <td width="20%"><p> <a id="createAccountLink" style="color: white" target="_blank" href="lib/controllers/feedback.html?ouid='+ouid+'">Rate This Facility</a></p></td>\
-       </tr>\
-       </table>\
-        </header>\
+    if(ownership=="Public")
+    {
+        div.innerHTML='\
+ <div class="col-xs-12 list-item">\
+        <div class="col-xs-12 col-sm-4 list-image text-center">\
+        <img src="./assets/img/i9.png" alt=""/>\
+        <h4>Public Facility</h4>\
+    </div>\
+    <div class="col-xs-12 col-sm-8 list-content">\
+        <div class="col-xs-12 list-title">\
+        <h4 class="title"></h4>\
+<p><a id="createAccountLink" target="_blank" href="lib/controllers/feedback.html?ouid='+ouid+'">Rate this Facility</a></p>\
+    </div>\
+    <div class="col-xs-12 list-main">\
+        <ul>\
+        <li class="address  location"">Near Civil Hospital, Phase-VI, Sector 56A, Sahibzada Ajit Singh Nagar, Punjab 160055, India</li>\
+        <li class="mobile phone">0-991-5199-525</li>\
+        <li class="pincode votes">144001</li>\
+        </ul>\
+        </div>\
+        <div class="col-xs-12 col-sm-6 col-lg-3">\
+        <a class="btn btn-default btn-blue-border" id="createAccountLink" target="_blank" href="lib/controllers/procedures.html?ouid='+ouid+'&ownership='+ownership+'"> Procedure LIst</a>\
+    </div>\
+    <div class="col-xs-12 col-sm-6 col-lg-3">\
+        <a  class="btn btn-default btn-blue-border" id="createAccountLink" target="_blank" href="lib/controllers/doctors.html?ouid='+ouid+'">Doctors List</a>\
+    </div>\
+    <div class="col-xs-12 col-lg-3 hidden-xs hidden-sm hidden-md">&nbsp;</div>\
+    <div class="col-xs-12 col-sm-6 col-sm-push-3 col-lg-push-0 col-lg-3">\
+        <a  class="btn btn-default btn-violet" onclick="myfunc(\''+ouid+'\')">More Details</a>\
+        </div>\
         </br>\
-        <div class="w3-container">\
-        <table width="100%" style="background-color: aliceblue">\
-         <tr>\
-        <td width="20%"><p><strong>Address</strong></p></td>\
-        <td width="50%"><p class="address"></p></td>\
-        <td width="10%"><p><strong>Pincode</strong></p></td>\
-        <td width="18%" class="pincode"><p></p></td></td>\
-        </tr>\
-        </table>\
-        <table width="100%">\
-        <tr>\
-            <td width="20%" ><strong>Contact Number</strong></td>\
-            <td width="20%"><p class="mobile"></p></td>\
-            <td width="20%"><p> <a id="createAccountLink" target="_blank" href="lib/controllers/procedures.html?ouid='+ouid+'">Procedure List</a></p></td>\
-            <td width="20%"><p> <a id="createAccountLink" target="_blank" href="lib/controllers/doctors.html?ouid='+ouid+'">Doctor List</a></p></td>\
-        </tr>\
-    </table>\
-</div>\
-     <button class="w3-btn-block w3-dark-grey" onclick="myfunc(\''+ouid+'\')">More Details</button>\
-    </br>\
         <div class="noDisplay" id="'+ouid+'">\
           </br>\
-        <table width="100%" class="w3-table w3-striped w3-bordered w3-hoverable">\
+        <table width="100%"  class="table table-striped" style="background-color: #00acc1">\
         <tr>\
         <td width="20%"><p><strong style="margin-left: 10%">Specialities</strong></p></td>\
         <td width="80%"><p style="text-align: justify;" class="specialty"></p></td>\
-    </tr>\
+     </tr>\
     <tr>\
     <td width="20%"><p><strong style="margin-left: 10%">Health Facilites</strong></p></td>\
     <td><p class="owner"></p></td>\
@@ -1546,10 +1719,162 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
         </tr>\
         </table>\
         </br>\
-        </div>\
-        </div>\
-        </div>\
+    </div>\
+    </div>\
+    </div>\
     ';
+
+    }
+
+    else if(ownership=="Private")
+    {
+        div.innerHTML='\
+ <div class="col-xs-12 list-item">\
+        <div class="col-xs-12 col-sm-4 list-image text-center">\
+        <img src="./assets/img/i11.png" alt=""/>\
+        <h4>Private Facility</h4>\
+    </div>\
+    <div class="col-xs-12 col-sm-8 list-content">\
+        <div class="col-xs-12 list-title">\
+        <h4 class="title"></h4>\
+<p><a id="createAccountLink"  target="_blank" href="lib/controllers/feedback.html?ouid='+ouid+'">Rate this Facility</a></p>\
+    </div>\
+    <div class="col-xs-12 list-main">\
+        <ul>\
+        <li class="address  location"">Near Civil Hospital, Phase-VI, Sector 56A, Sahibzada Ajit Singh Nagar, Punjab 160055, India</li>\
+        <li class="mobile phone">0-991-5199-525</li>\
+        <li class="pincode votes">144001</li>\
+        </ul>\
+        </div>\
+        <div class="col-xs-12 col-sm-6 col-lg-3">\
+        <a  class="btn btn-default btn-blue-border" id="createAccountLink" target="_blank" href="lib/controllers/procedures.html?ouid='+ouid+'&ownership='+ownership+'"> Procedure LIst</a>\
+    </div>\
+    <div class="col-xs-12 col-sm-6 col-lg-3">\
+        <a  class="btn btn-default btn-blue-border" id="createAccountLink" target="_blank" href="lib/controllers/doctors.html?ouid='+ouid+'">Doctors List</a>\
+    </div>\
+    <div class="col-xs-12 col-lg-3 hidden-xs hidden-sm hidden-md">&nbsp;</div>\
+    <div class="col-xs-12 col-sm-6 col-sm-push-3 col-lg-push-0 col-lg-3">\
+        <a  class="btn btn-default btn-violet" onclick="myfunc(\''+ouid+'\')">More Details</a>\
+        </div>\
+        </br>\
+        <div class="noDisplay" id="'+ouid+'">\
+          </br>\
+        <table width="100%" class="table table-striped" style="background-color: #00acc1">\
+        <tr>\
+        <td width="20%"><p><strong style="margin-left: 10%">Specialities</strong></p></td>\
+        <td width="80%"><p style="text-align: justify;" class="specialty"></p></td>\
+     </tr>\
+    <tr>\
+    <td width="20%"><p><strong style="margin-left: 10%">Health Facilites</strong></p></td>\
+    <td><p class="owner"></p></td>\
+    </tr>\
+    <tr>\
+    <td width="20%"><p><strong style="margin-left: 10%">Services</strong></p></td>\
+        <td width="80%"><p class="availability"></p></td>\
+    </tr>\
+    <tr>\
+    <td width="20%"><p><strong style="margin-left: 10%">Contact Person</strong></p></td>\
+    <td width="80%"><p class="contactperson"></p></td>\
+    </tr>\
+        <tr>\
+    <td width="20%"><p><strong style="margin-left: 10%">Email</p></strong></td>\
+    <td width="80%"><p class="email"></p></td>\
+    </tr>\
+     <tr>\
+    <td width="20%"><p><strong style="margin-left: 10%">Phone:</strong></p></td>\
+    <td width="80%"><p class="contactpnumber"></p></td>\
+    </tr>\
+    <tr>\
+    <td width="20%"><strong style="margin-left: 10%">Schemes</strong></td>\
+        <td width="80%"><p class="hfschemes"></p></td>\
+    </tr>\
+    <tr>\
+    <td width="20%"><strong style="margin-left:10%">Ownership</strong></td>\
+        <td width="80%"><p class="ownership"></p></td>\
+        </tr>\
+        </table>\
+        </br>\
+    </div>\
+    </div>\
+    </div>\
+    ';
+
+
+    }
+    else if(ownership="Cheritable Hospital/Ngo")
+    {
+        div.innerHTML='\
+ <div class="col-xs-12 list-item">\
+        <div class="col-xs-12 col-sm-4 list-image text-center">\
+        <img src="./assets/img/i10.png" alt=""/>\
+        <h4>Cheritable Hospital/Ngo</h4>\
+    </div>\
+    <div class="col-xs-12 col-sm-8 list-content">\
+        <div class="col-xs-12 list-title">\
+        <h4 class="title"></h4>\
+<p><a id="createAccountLink" target="_blank" href="lib/controllers/feedback.html?ouid='+ouid+'">Rate this Facility</a></p>\
+    </div>\
+    <div class="col-xs-12 list-main">\
+        <ul>\
+        <li class="address  location"">Near Civil Hospital, Phase-VI, Sector 56A, Sahibzada Ajit Singh Nagar, Punjab 160055, India</li>\
+        <li class="mobile phone">0-991-5199-525</li>\
+        <li class="pincode votes">144001</li>\
+        </ul>\
+        </div>\
+        <div class="col-xs-12 col-sm-6 col-lg-3">\
+        <a class="btn btn-default btn-blue-border" id="createAccountLink" target="_blank" href="lib/controllers/procedures.html?ouid='+ouid+'&ownership='+ownership+'"> Procedure LIst</a>\
+    </div>\
+    <div class="col-xs-12 col-sm-6 col-lg-3">\
+        <a  class="btn btn-default btn-blue-border" id="createAccountLink" target="_blank" href="lib/controllers/doctors.html?ouid='+ouid+'">Doctors List</a>\
+    </div>\
+    <div class="col-xs-12 col-lg-3 hidden-xs hidden-sm hidden-md">&nbsp;</div>\
+    <div class="col-xs-12 col-sm-6 col-sm-push-3 col-lg-push-0 col-lg-3">\
+        <a  class="btn btn-default btn-violet" onclick="myfunc(\''+ouid+'\')">More Details</a>\
+        </div>\
+        </br>\
+        <div class="noDisplay" id="'+ouid+'">\
+          </br>\
+        <table width="100%" class="table table-striped" style="background-color: #00acc1">\
+        <tr>\
+        <td width="20%"><p><strong style="margin-left: 10%">Specialities</strong></p></td>\
+        <td width="80%"><p style="text-align: justify;" class="specialty"></p></td>\
+     </tr>\
+    <tr>\
+    <td width="20%"><p><strong style="margin-left: 10%">Health Facilites</strong></p></td>\
+    <td><p class="owner"></p></td>\
+    </tr>\
+    <tr>\
+    <td width="20%"><p><strong style="margin-left: 10%">Services</strong></p></td>\
+        <td width="80%"><p class="availability"></p></td>\
+    </tr>\
+    <tr>\
+    <td width="20%"><p><strong style="margin-left: 10%">Contact Person</strong></p></td>\
+    <td width="80%"><p class="contactperson"></p></td>\
+    </tr>\
+        <tr>\
+    <td width="20%"><p><strong style="margin-left: 10%">Email</p></strong></td>\
+    <td width="80%"><p class="email"></p></td>\
+    </tr>\
+     <tr>\
+    <td width="20%"><p><strong style="margin-left: 10%">Phone:</strong></p></td>\
+    <td width="80%"><p class="contactpnumber"></p></td>\
+    </tr>\
+    <tr>\
+    <td width="20%"><strong style="margin-left: 10%">Schemes</strong></td>\
+        <td width="80%"><p class="hfschemes"></p></td>\
+    </tr>\
+    <tr>\
+    <td width="20%"><strong style="margin-left:10%">Ownership</strong></td>\
+        <td width="80%"><p class="ownership"></p></td>\
+        </tr>\
+        </table>\
+        </br>\
+    </div>\
+    </div>\
+    </div>\
+    ';
+
+    }
 
     this.parent.appendChild(div);
     div.getElementsByClassName('title')[0].innerHTML = this.title?this.title:"";
@@ -1567,14 +1892,15 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
 
 //        div.getElementsByClassName('rating')[0].innerHTML = "3.0";
 //        div.getElementsByClassName('rating')[0].innerHTML = this.avgRating;
+
     this.parent="";
-    document.getElementById("loader").style.display = "none";
     document.getElementById("resultcount")== "asdsadsa";
+    document.getElementById("loader").style.display = "none";
+    $('section').css('-webkit-filter','');
 }
 
 
 function myfunc(ouid){
-//      var div = $("#"+thiz)[0];
-//              div.className="";
+
     $("#"+ouid).slideToggle(1000);
 }

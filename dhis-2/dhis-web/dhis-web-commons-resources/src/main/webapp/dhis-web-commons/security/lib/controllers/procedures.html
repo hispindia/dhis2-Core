@@ -60,10 +60,11 @@
 
 
     Ext.onReady( function() {
+
         var procedures=[],costs=[];
         var dNames=[],dQual=[],dMedical=[],dOrgunit=[];
         var query = decodeURIComponent(window.location.search);
-        var ouid;
+        var ouid,ownership;
         var title;
         query = query.substring(1);
         var params = query.split("&");
@@ -72,43 +73,100 @@
             switch(param[0]) {
                 case "ouid":
                     ouid = param[1];
-                    setLinks(ouid);
+                     break;
+                case "ownership":
+                    ownership = param[1];
+                      break;
+
 
             }
+
         }
-        function setLinks(ouid) {
+        setLinks(ouid,ownership);
+        function setLinks(ouid,ownership) {
+
+
+
             var header = {
                 "Authorization": "Basic " + btoa("homepage" + ':' + "Homepage123")
             };
-            $.getJSON("../../../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR;LAST_5_YEARS&dimension=ou:"+ouid+"&dimension=eH2F2xuLmoY&dimension=kfDoQ3V1RQK&dimension=csjh8jewk7x&dimension=WXnr5Qk8Qgo&dimension=UwGx1EmJyIf&dimension=rzNUVjOm5ZJ&dimension=tpm9TIh7IeQ&dimension=pUYrErSv4Kf&dimension=hq5P29o8auc&dimension=KBgdegZWYDc&dimension=Mpo7Zm6z9WL&dimension=xtGxtg2I1SH&dimension=EhBs6eq4ebt&dimension=ThPPuHVPTsZ&dimension=hK82b1FNhui&dimension=aLY8DrZ88WN&dimension=XfstNyl31ca&dimension=fOLmSsSSlVI&dimension=aLnsQJ6De8p&dimension=LFDq2RYMt88&displayProperty=NAME", function (cdata) {
-                console.log("ouid:"+ouid);
-                for(var p=0;p<cdata.rows.length;p++)
-                {
-                    for(var k=8;k<27;k++)
+
+
+            if(ownership=="Public")
+            {
+
+                //change local sqlview=U4nqpKkg1d4, production=GrhGlx3yg5u
+                $.getJSON("../../../../api/sqlViews/GrhGlx3yg5u/data.json", function (cdata) {
+                    for(var p=0;p<cdata.rows.length;p++)
                     {
-                        if(cdata.rows[p][k]!=""&&cdata.rows[p][k]!=0)
-                        {
-                            procedures.push(cdata.rows[p][k]);
-                            costs.push(cdata.rows[p][k+1]);
-                        }
-                        k++;
+
+                        procedures.push(cdata.rows[p][0]);
+                        costs.push(cdata.rows[p][1]);
+
                     }
 
+                    var htmlstring="";
+                    htmlstring='<table id="procedure" class="w3-table w3-striped w3-hoverable"><tr><td colspan="2" style="text-align: center"><h4 id="facility">Health Facility Name:</h4></td></tr><tr style=" background-color: #2978B3; color: white;"><th style="width:30%"><p>Procedure</p></th><th style="width:30%"><p>Cost</p></th></tr>'
 
-                }
+                    $.getJSON("../../../../api/organisationUnits/"+ouid+"?fields=displayName", function (data) {
 
-                var htmlstring="";
-                htmlstring='<table id="procedure" class="w3-table w3-striped w3-hoverable"><tr style=" background-color: #2978B3; color: white;"><th style="width:30%"><p>Procedure</p></th><th style="width:30%"><p>Cost</p></th></tr>'
-                for(var i =0;i<=procedures.length-1;i++)
-                {
-                    htmlstring+='<tr><td><p>'+procedures[i]+'</p></td><td><p>'+costs[i]+'</p></td></tr>'
+                        document.getElementById('facility').innerHTML = '<strong>Health Facility Name : </strong>'+data.displayName;
 
-                }
-                htmlstring+='</table>';
-                $("#procedureid").empty();
-                $("#procedureid").append(htmlstring);
+                    });
 
-            });
+                    for(var i =0;i<=procedures.length-1;i++)
+                    {
+                        htmlstring+='<tr><td><p>'+procedures[i]+'</p></td><td><p>'+costs[i]+'</p></td></tr>'
+
+                    }
+                    htmlstring+='</table>';
+                    $("#procedureid").empty();
+                    $("#procedureid").append(htmlstring);
+
+                });
+            }
+
+            else
+            {
+
+                $.getJSON("../../../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR;LAST_5_YEARS&dimension=ou:"+ouid+"&dimension=eH2F2xuLmoY&dimension=kfDoQ3V1RQK&dimension=csjh8jewk7x&dimension=WXnr5Qk8Qgo&dimension=UwGx1EmJyIf&dimension=rzNUVjOm5ZJ&dimension=tpm9TIh7IeQ&dimension=pUYrErSv4Kf&dimension=hq5P29o8auc&dimension=KBgdegZWYDc&dimension=Mpo7Zm6z9WL&dimension=xtGxtg2I1SH&dimension=EhBs6eq4ebt&dimension=ThPPuHVPTsZ&dimension=hK82b1FNhui&dimension=aLY8DrZ88WN&dimension=XfstNyl31ca&dimension=fOLmSsSSlVI&dimension=aLnsQJ6De8p&dimension=LFDq2RYMt88&displayProperty=NAME", function (cdata) {
+                    console.log("ouid:"+ouid);
+                    for(var p=0;p<cdata.rows.length;p++)
+                    {
+                        for(var k=8;k<27;k++)
+                        {
+                            if(cdata.rows[p][k]!=""&&cdata.rows[p][k]!=0)
+                            {
+                                procedures.push(cdata.rows[p][k]);
+                                costs.push(cdata.rows[p][k+1]);
+                            }
+                            k++;
+                        }
+
+
+                    }
+
+                    var htmlstring="";
+                    htmlstring='<table id="procedure" class="w3-table w3-striped w3-hoverable"><tr><td colspan="2" style="text-align: center"><h4 id="facility">Health Facility Name:</h4></td></tr><tr style=" background-color: #2978B3; color: white;"><th style="width:30%"><p>Procedure</p></th><th style="width:30%"><p>Cost</p></th></tr>'
+
+                    $.getJSON("../../../../api/organisationUnits/"+ouid+"?fields=displayName", function (data) {
+
+                        document.getElementById('facility').innerHTML = '<strong>Health Facility Name : </strong>'+data.displayName;
+
+                    });
+                    for(var i =0;i<=procedures.length-1;i++)
+                    {
+                        htmlstring+='<tr><td><p>'+procedures[i]+'</p></td><td><p>'+costs[i]+'</p></td></tr>'
+
+                    }
+                    htmlstring+='</table>';
+                    $("#procedureid").empty();
+                    $("#procedureid").append(htmlstring);
+
+                });
+            }
+
+
         }
     });
 
@@ -129,7 +187,6 @@
 <body>
 <header class="w3-card" >
     <h2 style="color:#fff; text-align:center;  font-weight: bold;">Procedure Cost Detail</h2>
-
 </header>
 <div  style="margin-left:20%; margin-right:20%;">
     <table>
