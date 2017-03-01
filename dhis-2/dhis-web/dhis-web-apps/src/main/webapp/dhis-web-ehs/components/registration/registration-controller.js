@@ -64,7 +64,7 @@ trackerCapture.controller('RegistrationController',
         $scope.selectedCountryName = null;
         $scope.selectedDistrictName = null;
         $scope.selectedCommunityName = null;
-
+        $scope.testCountry = "SAINT LUCIA";
 
         $scope.sqMetre ='P1vO4ogrIwe';
         $scope.sqFeet = 'Qxn31k5t1zR';
@@ -90,21 +90,25 @@ trackerCapture.controller('RegistrationController',
         $scope.selectedEntityinstance = selections.tei;
         $scope.districtmap =[];
         $scope.communitymap =[];
+
+        $scope.selectedCountry = "SAINT LUCIA";
+
+        //$scope.getDistrict( $scope.selectedCountry );
+
+        $scope.init = function () {
+            $scope.getDistrict( $scope.selectedCountry );
+        };
+
         if ($scope.selectedEntityinstance) {
 
             for (var i = 0; i < $scope.selectedEntityinstance.attributes.length; i++) {
 
-
-                if ($scope.selectedEntityinstance.attributes[i].displayName == "Country") {
-                    $scope.selectedCountry1 = $scope.selectedEntityinstance.attributes[i].value;
-                    $scope.tempSelectedCountry1 = $scope.selectedCountry1;
-
-
-                }
+                    if ($scope.selectedEntityinstance.attributes[i].displayName == "Country") {
+                        $scope.selectedCountry1 = $scope.selectedEntityinstance.attributes[i].value;
+                        $scope.tempSelectedCountry1 = $scope.selectedCountry1;
+                    }
                 }
         }
-
-
 
         if ($scope.selectedEntityinstance) {
             if ($scope.tempSelectedCountry1 == "SAINT LUCIA") {
@@ -134,7 +138,6 @@ trackerCapture.controller('RegistrationController',
                             if ($scope.selectedEntityinstance.attributes[i].displayName == "Country") {
                                 $scope.selectedCountry1 = $scope.selectedEntityinstance.attributes[i].value;
                                 $scope.tempSelectedCountry1 = $scope.selectedCountry1;
-
 
 
                             }
@@ -169,22 +172,6 @@ trackerCapture.controller('RegistrationController',
 
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         OrganisationUnitService.getRootOrganisationUnit().then(function(rootOrganisationUnit){
             $scope.rootOrgUnit = rootOrganisationUnit.organisationUnits[0];
@@ -223,15 +210,32 @@ trackerCapture.controller('RegistrationController',
                  $scope.countryList.push(tempOption);
                  }
                  */
+
                 //$scope.countryList = $scope.optionSetOptions;
 
                 $scope.countryList = $scope.tempCountryList.concat($scope.optionSetOptions);
-
+                //$scope.selectedCountry = 0;
+                //$scope.selectedCountry  = $scope.tempCountryList.concat($scope.optionSetOptions);
                 //$scope.countryList.add[$scope.optionSetOptions];
                 //$scope.selectedCountryName = rootOrganisationUnit.organisationUnits[0].name;
             });
 
+            /*
+            $timeout(function() {
+                //$scope.selectedCountry = $scope.countryList[1];
+                $scope.lastItem = $scope.countryList[$scope.countryList.length - 1];
+
+                //alert( $scope.lastItem );
+            }, 100);
+            */
+
+            //$scope.selectedCountry = $scope.countryList[1].name;
+
         });
+
+
+        //$scope.selectedCountry.setDefault = $scope.countryList[0];
+
 
         $scope.getDistrict = function( selectedCountry ) {
             //alert( selectedCountry );

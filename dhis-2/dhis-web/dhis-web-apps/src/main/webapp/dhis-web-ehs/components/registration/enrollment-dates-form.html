@@ -41,12 +41,21 @@
 
           </ui-select-choices>
       </ui-select>-->
-       <select ng-model="selectedCountry" ng-change="getDistrict(selectedCountry)"
+
+
+       <select name="selectedCountry" id="selectedCountry" ng-model="selectedCountry" ng-change="getDistrict(selectedCountry)"
                 class="form-control"
                 ng-options="country.name as country.name for country in countryList"
                 ng-disabled="countryList.length < 1">
-                <option value="">{{'please_select'| translate}}</option>
+                <!--<option value="">{{'please_select'| translate}}</option>-->
         </select>
+        <!--
+          <select ng-model="selectedCountry">
+            <option ng-selected= "{{country.name == selectedCountry}}" ng-repeat="country in countryList"
+                    value="{{country.name}}">{{country.name}}
+            </option>
+          </select>
+          -->
       </td>
     </tr>
 
