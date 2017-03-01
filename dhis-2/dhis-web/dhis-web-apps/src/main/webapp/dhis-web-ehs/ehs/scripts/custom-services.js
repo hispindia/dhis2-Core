@@ -26,7 +26,7 @@ angular.module('trackerCaptureServices')
             //http://127.0.0.1:8090/dhis/api/organisationUnits.json?fields=id,name&filter=level:eq:2&sortOrder=ASC&paging=false
             getLevel2OrganisationUnit: function () {
               var def = $q.defer();
-              $http.get('../api/organisationUnits.json.json?fields=id,name&filter=level:eq:2&sortOrder=ASC&paging=false').then(function (response) {
+              $http.get('../api/organisationUnits.json?fields=id,name&filter=level:eq:2&sortOrder=ASC&paging=false').then(function (response) {
                 def.resolve(response.data);
               });
             return def.promise;
