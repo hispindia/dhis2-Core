@@ -120,11 +120,13 @@ console.log( $scope.orgUnitMapping );
 			$scope.startBuilding = function(){
 				$("#templateProgress").html("Making things ready...");
 				$.each( $scope.dataSets , function( i, d ){
-					$("#imDataSetId").append("<option value='"+ d.id +"' > " + d.name +" </option>");
+					//$("#imDataSetId").append("<option value='"+ d.id +"' > " + d.name +" </option>");
+					$("#imDataSetId").append("<option value='"+ d.id +"' > " + d.displayName +" </option>");
 				});
 
 				$.each( $scope.orgUnitGroups , function( i, o ){
-					$("#imOrgUnitGrp").append("<option value='"+ o.id +"' > " + o.name +" </option>");
+					//$("#imOrgUnitGrp").append("<option value='"+ o.id +"' > " + o.name +" </option>");
+					$("#imOrgUnitGrp").append("<option value='"+ o.id +"' > " + o.displayName +" </option>");
 				});
 			};
 

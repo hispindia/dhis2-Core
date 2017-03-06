@@ -68,11 +68,13 @@ excelUpload.controller('TemplateController',
 	$scope.startBuilding = function(){
 		$("#templateProgress").html("Making things ready...");
 		$.each( $scope.dataSets , function( i, d ){
-			$("#dataSetSelect").append("<option value='"+ d.id +"' > " + d.name +" </option>");
+			//$("#dataSetSelect").append("<option value='"+ d.id +"' > " + d.name +" </option>");
+			$("#dataSetSelect").append("<option value='"+ d.id +"' > " + d.displayName +" </option>");
 		});
 		
 		$.each( $scope.orgUnitGroups , function( i, o ){
-			$("#orgUnitGroupSelect").append("<option value='"+ o.id +"' > " + o.name +" </option>");
+			//$("#orgUnitGroupSelect").append("<option value='"+ o.id +"' > " + o.name +" </option>");
+			$("#orgUnitGroupSelect").append("<option value='"+ o.id +"' > " + o.displayName +" </option>");
 		});
 	};
 	

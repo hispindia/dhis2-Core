@@ -111,11 +111,13 @@ excelUpload.controller('ImportController',
 	$scope.startBuilding = function(){
 		$("#templateProgress").html("Making things ready...");
 		$.each( $scope.dataSets , function( i, d ){
-			$("#imDataSetId").append("<option value='"+ d.id +"' > " + d.name +" </option>");
+			//$("#imDataSetId").append("<option value='"+ d.id +"' > " + d.name +" </option>");
+			$("#imDataSetId").append("<option value='"+ d.id +"' > " + d.displayName +" </option>");
 		});
 		
 		$.each( $scope.orgUnitGroups , function( i, o ){
-			$("#imOrgUnitGrp").append("<option value='"+ o.id +"' > " + o.name +" </option>");
+			//$("#imOrgUnitGrp").append("<option value='"+ o.id +"' > " + o.name +" </option>");
+			$("#imOrgUnitGrp").append("<option value='"+ o.id +"' > " + o.displayName +" </option>");
 		});
 	};
 	
@@ -192,12 +194,16 @@ excelUpload.controller('ImportController',
 
 console.log("orgUnitGroup id : " + $("#imOrgUnitGrp").val());
 		if( $("#imOrgUnitGrp").val() != "" ){
-			var url = "../api/organisationUnitGroups/" + $("#imOrgUnitGrp").val() + ".json";
-console.log("url : " + url);
+			//api/organisationUnitGroups/FwEp1sq4nCQ.json?fields=id,name,displayName,code,organisationUnits[id,name]
+			//var url = "../api/organisationUnitGroups/" + $("#imOrgUnitGrp").val() + ".json";
+			var url = "../api/organisationUnitGroups/" + $("#imOrgUnitGrp").val() + ".json?fields=id,name,displayName,code,organisationUnits[id,name]";
+			console.log("url : " + url);
 			$.get(url, function(oug){
 				var imOrgUnitHTML = "";
 				$.each( oug.organisationUnits , function( i, ou ){
 					imOrgUnitHTML = imOrgUnitHTML + "<option value='"+ ou.id +"' > " + ou.name +" </option>";
+					//imOrgUnitHTML = imOrgUnitHTML + "<option value='"+ ou.id +"' > " + ou.displayName +" </option>";
+
 				});
 				$("#imOrgUnit").html("");
 				$("#imOrgUnit").append(imOrgUnitHTML);
