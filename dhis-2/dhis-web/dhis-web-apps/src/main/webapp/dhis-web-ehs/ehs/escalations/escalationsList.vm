@@ -1,4 +1,12 @@
+<script type="text/javascript">
 
+  function exportToExcel()
+  {
+    document.getElementById('htmlCode').value = document.getElementById('escalationListDiv').innerHTML;
+    return true;
+  }
+
+</script>
 <h3>$list</h3>
 <div id="search_details" style="width:100px;height:30px;" align="left"><a href="javascript:showSearchCriteria()">$i18n.getString( "Search Criteria" )</a></div>
 <hr />
@@ -105,7 +113,13 @@
   </ul>
 </div>
 -->
-<table class="mainPageTable">
+<form id="form1" name="form1" action="exportToWorkBook.action" method="post" onsubmit="return exportToExcel()" target="_newtab">
+  <div align="right">
+    <input type="submit" value="Export to Excel" style="width:10em" />
+  </div>
+<div id='escalationListDiv'>
+  <input type="hidden" name="htmlCode" id="htmlCode" />
+  <table class="mainPageTable">
   <tr>
     <td style="vertical-align:top">
 		<table width="100%">
@@ -175,7 +189,8 @@
     </td>
   </tr>	
 </table>
-
+ </div>
+</form>
 <script type="text/javascript">
 
 	jQuery(document).ready(function(){

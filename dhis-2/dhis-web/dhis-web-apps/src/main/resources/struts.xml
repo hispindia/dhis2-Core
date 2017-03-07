@@ -195,6 +195,15 @@
       		<param name="stylesheets">../dhis-web-ehs/ehs/escalations/css/style.css</param>
  		</action>
  			
+        <action name="exportToWorkBook" class="org.hisp.dhis.escalations.action.ExportToExcelAction">
+	        <result name="success" type="stream">
+	            <param name="contentType">application/vnd.ms-excel</param>
+	            <param name="inputName">inputStream</param>
+	            <param name="contentDisposition">attachment;filename="${fileName}"</param>
+	            <param name="bufferSize">1024</param>
+	        </result>
+        </action> 			
+ 			
 		<!--  Update Escalations status -->
 	    <action name="updateEscalationsStatus" class="org.hisp.dhis.escalations.action.UpdateEscalationsStatusAction">
 	      <result name="success" type="velocity-json">/dhis-web-commons/ajax/jsonResponseSuccess.vm</result>
