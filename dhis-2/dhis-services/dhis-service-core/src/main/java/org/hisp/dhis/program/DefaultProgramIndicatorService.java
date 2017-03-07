@@ -275,7 +275,7 @@ public class DefaultProgramIndicatorService
         }
 
         expression = TextUtils.removeNewlines( expression );
-        
+
         expression = getSubstitutedVariablesForAnalyticsSql( expression );
         
         expression = getSubstitutedFunctionsAnalyticsSql( expression, false );
@@ -362,7 +362,7 @@ public class DefaultProgramIndicatorService
         
         StringBuffer buffer = new StringBuffer();
 
-        Matcher matcher = ProgramIndicator.EXPRESSION_PATTERN.matcher( expression );
+        Matcher matcher = ProgramIndicator.EXPRESSION_EQUALSZEROOREMPTY_PATTERN.matcher( expression );
 
         while ( matcher.find() )
         {
@@ -370,17 +370,36 @@ public class DefaultProgramIndicatorService
             String el1 = matcher.group( 2 );
             String el2 = matcher.group( 3 );
             
-            if ( ProgramIndicator.KEY_DATAELEMENT.equals( key ) )
-            {
-                String de = ignoreMissingValues ? getIgnoreNullSql( statementBuilder.columnQuote( el2 ) ) : statementBuilder.columnQuote( el2 );
+            boolean equalsZero = matcher.group( 4 ) != null && matcher.group( 4 ).matches( ProgramIndicator.EQUALSZERO );
+            boolean equalsEmpty = matcher.group( 4 ) != null && matcher.group( 4 ).matches( ProgramIndicator.EQUALSEMPTY );
+
+            if ( ProgramIndicator.KEY_DATAELEMENT.equals( key ) || ProgramIndicator.KEY_ATTRIBUTE.equals( key ) )
+            {                
+                String columnName;
                 
-                matcher.appendReplacement( buffer, de );
-            }
-            else if ( ProgramIndicator.KEY_ATTRIBUTE.equals( key ) )
-            {
-                String at = ignoreMissingValues ? getIgnoreNullSql( statementBuilder.columnQuote( el1 ) ) : statementBuilder.columnQuote( el1 );
-                
-                matcher.appendReplacement( buffer, at );
+                if ( ProgramIndicator.KEY_DATAELEMENT.equals( key ) )
+                {
+                    columnName = statementBuilder.columnQuote( el2 );                }
+                else
+                {
+                    //For KEY_ATTRIBUTE:
+                    columnName = statementBuilder.columnQuote( el1 );
+                }
+                    
+                if ( equalsZero )
+                {
+                    columnName = getNumericIgnoreNullSql( columnName ) + " == 0 ";
+                }
+                else if ( equalsEmpty )
+                {
+                    columnName = getTextIgnoreNullSql( columnName ) + " == '' ";
+                }
+                else if ( ignoreMissingValues )
+                {
+                    columnName = getNumericIgnoreNullSql( columnName );
+                }
+
+                matcher.appendReplacement( buffer, columnName );
             }
             else if ( ProgramIndicator.KEY_CONSTANT.equals( key ) )
             {
@@ -453,7 +472,7 @@ public class DefaultProgramIndicatorService
 
         return ProgramIndicator.VALID;
     }
-
+    
     /**
      * Generates an expression where all items are substituted with a sample value
      * in order to maintain a valid expression syntax.
@@ -603,8 +622,13 @@ public class DefaultProgramIndicatorService
         return null;
     }
 
-    private String getIgnoreNullSql( String column )
+    private String getNumericIgnoreNullSql( String column )
     {
         return "coalesce(" + column + ",0)";
+    }
+    
+    private String getTextIgnoreNullSql( String column )
+    {
+        return "coalesce(" + column + ",'')";
     }
 }
