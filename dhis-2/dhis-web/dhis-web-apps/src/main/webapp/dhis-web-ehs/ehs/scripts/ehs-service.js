@@ -7,6 +7,8 @@ trackerCapture
 
     .service('AjaxCalls', function($http) {
         var foodsafetyid;
+        var selectedtei;
+        var attributeid;
         return{
 
             getTEIbyId : function(id){
@@ -122,8 +124,6 @@ trackerCapture
                 });
                 return promise;
             },
-
-
 
 
 
@@ -244,6 +244,24 @@ trackerCapture
             {
                 return foodsafetyid;
             },
+
+            setselectedtei: function(tei)
+            {
+                selectedtei=tei;
+            },
+            getselectedtei: function()
+            {
+                return selectedtei;
+            },
+            setselectedattributeid: function(attribute)
+            {
+                attributeid=attribute;
+            },
+            getselectedattributeid: function()
+            {
+                return attributeid;
+            },
+
             // get all program in food safety//
 
             getFoodSafetyProgram : function(){

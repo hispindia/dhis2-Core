@@ -208,15 +208,25 @@
                                 <span style="font-size:12pt">
                                    {{ownerName}}
                                </span>
+
                             <span class="input-group-btn">
                                 <button class="btn btn-grp hideInPrint trim"
-                                        ng-if="!selectedTei[attribute.id]" 
+                                        ng-if="!selectedTei[attribute.id]&& selectedProgram.id=='TeBSCKYRo3q'"
                                         ng-class="{true: 'disable-clicks'} [editingDisabled]"
                                         type="button" 
                                         title="{{'add'| translate}} {{attribute.displayName}}"
-                                        ng-click="getTrackerAssociate(attribute, selectedTei[attribute.id])">
+                                        ng-click="getTrackerAssociate2(attribute, selectedTei[attribute.id])">
                                         <i class="fa fa-external-link"></i>                             
                                 </button>
+
+                                  <button class="btn btn-grp hideInPrint trim"
+                                          ng-if="!selectedTei[attribute.id] && selectedProgram.id!=='TeBSCKYRo3q'"
+                                          ng-class="{true: 'disable-clicks'} [editingDisabled]"
+                                          type="button"
+                                          title="{{'add'| translate}} {{attribute.displayName}}"
+                                          ng-click="getTrackerAssociate(attribute, selectedTei[attribute.id])">
+                                      <i class="fa fa-external-link"></i>
+                                  </button>
                                 <button class="btn btn-grp hideInPrint trim"
                                         ng-if="selectedTei[attribute.id]" 
                                         ng-class="{true: 'disable-clicks'} [editingDisabled]"

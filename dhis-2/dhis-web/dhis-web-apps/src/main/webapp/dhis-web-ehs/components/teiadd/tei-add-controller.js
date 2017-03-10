@@ -7,7 +7,9 @@ trackerCapture.controller('TEIAddController',
              $translate,
              $modalInstance,
              $location,
+             AjaxCalls,
              DateUtils,
+             $modal,
              CurrentSelection,
              OperatorFactory,
              AttributesFactory,
@@ -31,6 +33,7 @@ trackerCapture.controller('TEIAddController',
 
         $scope.operatorsProgram = 'ieLe1vT4Vad';
 
+        $scope.selectedTei = {};
         $scope.attributesById = CurrentSelection.getAttributesById();
         if(!$scope.attributesById){
             $scope.attributesById = [];
@@ -197,6 +200,41 @@ trackerCapture.controller('TEIAddController',
                 }
             });
 
+
+            $scope.getTrackerAssociate2 = function (selectedAttribute, existingAssociateUid) {
+                var modalInstance = $modal.open({
+                    templateUrl: 'components/addestablishment/addAssociation1.html',
+                    controller: 'AddAssociationController1',
+                    windowClass: 'modal-full-window',
+                    resolve: {
+
+                    }
+                });
+
+               // modalInstance.selectedEvent = $scope.selectedEvent;
+
+             //   var value = utilityService.extractMetaAttributeValue($scope.programStagesMap[$scope.selectedEvent.programStage].attributeValues,"areMultipleAssociationAllowed")
+               // modalInstance.areMultipleAssociationAllowed = value;
+
+                modalInstance.result.then(function (res) {
+                    if (res && res.id) {
+                        $scope.selectedTei = {};
+                        $scope.selectedTei[selectedAttribute.id] = res.id;
+
+                        $scope.ownerName = res.MaCVsKG7pjb;
+                        $scope.ownerName1 = res.id;
+                       // TEIService.putselectedtei(res.id);
+                        AjaxCalls.setselectedtei(res.id);
+                        AjaxCalls.setselectedattributeid(selectedAttribute.id);
+                        /* if(res && res.tyXd890iVJG) {
+                         $scope.ownerName = res.tyXd890iVJG;
+                         }
+                         else {
+                         $scope.ownerName =" ";
+                         }*/
+                    }
+                });
+            };
             function resetFields() {
 
                 $scope.teiForRelationship = null;
@@ -554,6 +592,7 @@ trackerCapture.controller('TEIAddController',
     function($rootScope,
              $modal,
              $scope,
+             AjaxCalls,
              $timeout,
              AttributesFactory,
              MetaDataFactory,
@@ -581,6 +620,7 @@ trackerCapture.controller('TEIAddController',
         $scope.trackedEntityForm = null;
         $scope.customForm = null;
         $scope.selectedTei = {};
+
         $scope.teiOriginal = {};
         $scope.tei = {};
         $scope.hiddenFields = {};
@@ -630,6 +670,10 @@ trackerCapture.controller('TEIAddController',
         });
 
         $scope.getDistrict = function( selectedCountry ) {
+
+            var selectedatributeid=AjaxCalls.getselectedattributeid();
+
+            $scope.selectedTei[selectedatributeid] = AjaxCalls.getselectedtei();
             //alert( selectedCountry );
             $scope.selectedCountry1=selectedCountry;
             $scope.selectedCountryName = selectedCountry;
@@ -834,8 +878,6 @@ trackerCapture.controller('TEIAddController',
                 }
             });
         };
-
-
 
 
 
