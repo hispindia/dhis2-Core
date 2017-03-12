@@ -80,36 +80,43 @@
             var header = {
                 "Authorization": "Basic " + btoa("homepage" + ':' + "Homepage123")
             };
-            $.getJSON("../../../../api/analytics/events/query/oKibT84LSdV.json?stage=jujDNAJZEU8&dimension=pe:THIS_YEAR;LAST_5_YEARS&dimension=ou:"+ouid+"&dimension=l8VDWUvIHmv&dimension=O2k16XtvCQ8&dimension=VdaNJktWZ7E&displayProperty=NAME", function (data) {
-                var dNames=[],dQual=[],dMedical=[],dOrgunit=[];
+
+            $.getJSON("../../../../api/organisationUnits/"+ouid+"?fields=displayName", function (data) {
+
+                document.getElementById('facility').innerHTML = '<strong>Name of Health Facility : </strong>'+data.displayName;
+
+            });
+            $.getJSON("../../../../api/analytics/events/query/oKibT84LSdV.json?stage=jujDNAJZEU8&dimension=pe:THIS_YEAR;LAST_5_YEARS&dimension=ou:"+ouid+"&dimension=O2k16XtvCQ8&dimension=VdaNJktWZ7E&dimension=l8VDWUvIHmv&dimension=OQZwDkZiisR&displayProperty=NAME", function (data) {
+                var dNames=[],dQual=[],dMedical=[],dOrgunit=[],dSpecialities=[];
                 var nursecount= 0,paracount=0;
                 for(var i=0;i<data.rows.length;i++){
 
 
-                    if(data.rows[i][9]=="Nurses")
+                    if(data.rows[i][8]=="Nurses")
                     {
                         nursecount++
                     }
-                    else if(data.rows[i][9]=="Paramedical")
+                    else if(data.rows[i][8]=="Paramedical")
                     {
                         paracount++;
                     }
-                    else if(data.rows[i][9]=="Doctors")
+                    else if(data.rows[i][8]=="Doctors")
                     {
                         dOrgunit.push(data.rows[i][5]);
-                        dQual.push(data.rows[i][10])
-                        dMedical.push(data.rows[i][9]);
-                        dNames.push(data.rows[i][8]);
+                        dQual.push(data.rows[i][9])
+                        dMedical.push(data.rows[i][8]);
+                        dNames.push(data.rows[i][10]);
+                        dSpecialities.push(data.rows[i][11]);
                     }
 
                 }
                 var htmlstring="";
-                htmlstring='<table id="doctors" class="w3-table w3-striped w3-hoverable"><tr style=" background-color: #2978B3; color: white;"><th style="width:20%"><p><strong>Doctors List</strong></p></th><th style="width:30%"><p><strong>Name</strong></p></th><th style="width:50%"><p><strong>Highest qualification</strong></p></th></tr>'
+                htmlstring='<table id="doctors" class="w3-table w3-striped w3-hoverable"><tr style=" background-color: #2978B3; color: white;"><th style="width:20%"><p><strong>Doctors List</strong></p></th><th style="width:30%"><p><strong>Name</strong></p></th><th style="width:50%"><p><p><strong>Highest qualification</strong></p></th><th style="width:50%"><p><strong></strong></p><p><strong>Specialities</strong></p></th></tr>'
                 for(var i =0;i<=dNames.length-1;i++)
                 {
                     document.getElementById("nurses").innerHTML= "<Strong>Number of Nurses :- </strong>"+nursecount;
-                    document.getElementById("paramedical").innerHTML= "<strong>Number of Paramedical Staff :-</strong>"+paracount;
-                    htmlstring+='<tr><td><p>'+dMedical[i]+'</p></td><td><p>'+dNames[i]+'</p></td><td><p>'+dQual[i]+'</p></td></tr>'
+                  document.getElementById("paramedical").innerHTML= "<strong>Number of Paramedical Staff :-</strong>"+paracount;
+                    htmlstring+='<tr><td><p>'+dMedical[i]+'</p></td><td><p>'+dNames[i]+'</p></td><td><p>'+dQual[i]+'</p></td><td><p>'+dSpecialities[i]+'</p></td></tr>'
 
                 }
                 htmlstring+='</table>';
@@ -152,9 +159,16 @@
 </br>
 <div  class="w3-card-2" style=" background-color: #2978B3;margin-left: 20%;margin-right: 20%; color: white;">
     <table class="w3-table">
+
+        <tr>
+            <td colspan="2" style="text-align:center"><h4 id="facility">Facility</h4>
+            </td>
+
+        </tr>
+
         <tr>
             <td style="text-align: center"><p id="nurses"></p></td>
-            <td><p id="paramedical"></p></td>
+            <td style="text-align: center"><p id="paramedical"></p></td>
         </tr>
     </table>
 </div>

@@ -39,59 +39,60 @@
 <script type="text/javascript">
     var orgid;
     $(document)
-            .ready(function() {
-                var header = {
+        .ready(function() {
+            var header = {
 
-                    "Authorization": "Basic " + btoa( "homepage" + ':' + "Homepage123" )
+                "Authorization": "Basic " + btoa( "homepage" + ':' + "Homepage123" )
 
-                };
+            };
 
-                $.ajax({
-                    async : false,
-                    type: "GET",
-                    dataType: "json",
-                    contentType: "application/json",
-                    header : header,
-                    url: '../../../../api/organisationUnitGroups/mH15ENlpG4v.json?fields=organisationUnits[id,name,code]',
-                    success: function(response){
-                        var organisationUnits = response.organisationUnits;
+            $.ajax({
+                async : false,
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json",
+                header : header,
+                url: '../../../../api/organisationUnitGroups/mH15ENlpG4v.json?fields=organisationUnits[id,name,code]',
+                success: function(response){
+                    var organisationUnits = response.organisationUnits;
 
-                        organisationUnits.sort(function(a, b) {
-                            var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
-                            if (nameA < nameB) //sort string ascending
-                                return -1
-                            if (nameA > nameB)
-                                return 1
-                            return 0 //default return value (no sorting)
-                        });
-                        $.each(organisationUnits, function (index, item) {
-                            $('#drop1').append(
-                                    $('<option></option>').val(item.id).html(item.name).text(item.name)
-                            );
+                    organisationUnits.sort(function(a, b) {
+                        var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
+                        if (nameA < nameB) //sort string ascending
+                            return -1
+                        if (nameA > nameB)
+                            return 1
+                        return 0 //default return value (no sorting)
+                    });
+                    $.each(organisationUnits, function (index, item) {
+                        $('#drop1').append(
+                            $('<option></option>').val(item.id).html(item.name).text(item.name)
+                        );
 //
-                        });
+                    });
 
-                    },
-                    error: function(response){
+                },
+                error: function(response){
 
-                    }
-                });
+                }
+            });
 
-                $("#drop1").change(function () {
-                    orgid = $(this).find("option:selected").val();
+            $("#drop1").change(function () {
+                orgid = $(this).find("option:selected").val();
 
-                    jQuery('#sel').html('');
+                jQuery('#sel').html('');
 
-
-                });
 
             });
+
+        });
 
 
     function submitdata(){
 
         var userinfoid;
         var orgname=document.getElementById("hospital").value;
+        var shortname=orgname.substring(0,10);
         var password=document.getElementById("password").value;
         var username=document.getElementById("username").value;
         var email=document.getElementById("email").value;
@@ -126,12 +127,12 @@
                             alert("Email already registered, Please try again with different Email");
                             validationcheck = false;
                         }
-                      if (item.phoneNumber == phone) {
+                        if (item.phoneNumber == phone) {
                             phonecheck = "true";
                             alert("Phone already registered,Please try again with different Phone Number");
                             validationcheck = false;
                         }
-                  if (item.userCredentials.username == username) {
+                        if (item.userCredentials.username == username) {
                             usernamecheck = "true";
                             alert("Username already registered, Please try again with different username");
                             validationcheck = false;
@@ -150,12 +151,12 @@
             var orgunit = {
 
                 name:orgname,
-                code : orgname,
+                code : shortname,
                 parent:{
                     id : orgid
                 },
                 openingDate:"2016-01-01",
-                shortName: orgname,
+                shortName: shortname,
                 phoneNumber : "98566"
             }
 
@@ -295,10 +296,10 @@
         }
         else if(validationcheck==false)
         {
-           document.getElementById("phoneno").value="";
-           document.getElementById("username").value="";
-           document.getElementById("email").value="";
-           document.getElementById("password").value="";
+            document.getElementById("phoneno").value="";
+            document.getElementById("username").value="";
+            document.getElementById("email").value="";
+            document.getElementById("password").value="";
 
         }
         validationcheck="";
