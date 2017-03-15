@@ -35,7 +35,8 @@ table.tablesorter tbody td {
     vertical-align: middle;
 }
 table.tablesorter tbody tr.odd td {
-    background-color:#F0F0F6;
+    //background-color:#F0F0F6;
+	background-color:#ffffff ;
 }
 table.tablesorter thead tr .headerSortUp {
     background-image: url(asc.gif);
@@ -160,7 +161,7 @@ jQuery(function() {
                     <th width="15%" align="center" style="vertical-align: middle;">Comment of $i18n.getString( "hq_availability" )</th>
                     <th width="5%" align="center" style="vertical-align: middle;">$i18n.getString( "total" )</th>
                     <th width="5%" align="center" style="vertical-align: middle;">$i18n.getString( "hq_priority" )</th>
-                    <th width="5%" align="center" style="vertical-align: middle;">$i18n.getString( "ro_requested" )</th>
+                   <!-- <th width="5%" align="center" style="vertical-align: middle;">$i18n.getString( "ro_requested" )</th>-->
                     <th width="25%" align="center" style="vertical-align: middle;">$i18n.getString( "additional_comments" )</th>
                     
                 </tr>
@@ -182,7 +183,8 @@ jQuery(function() {
                             #else
                                 #set( $mark = true )
                             #end                        
-                            <tr #if( $mark ) bgcolor = "#F0F0F6" #else bgcolor="#FFFFFF"  #end>
+                           <!-- <tr #if( $mark ) bgcolor = "#F0F0F6" #else bgcolor="#FFFFFF"  #end>-->
+						   <tr>
                                 <td style="vertical-align: middle;">$orgUnit.code</td>
                                 <td align="left" style="vertical-align: middle;">$!orgUnit.getParent().shortName</td>
                                 <!--<td style="vertical-align: middle;">$orgUnit.getGroupInGroupSet( $unicefRegionsGroupSet ).getShortName()</td>-->
@@ -214,7 +216,7 @@ jQuery(function() {
                                 <td style="vertical-align: middle;">$!reviewList.get(5)</td>
                                 <td style="vertical-align: middle;">$!reviewList.get(9)</td>
                                 <td style="vertical-align: middle;">$!reviewList.get(6)</td>
-                                <td style="vertical-align: middle;">$!reviewList.get(7)</td>
+                                <!--<td style="vertical-align: middle;">$!reviewList.get(7)</td>-->
                                 <td style="vertical-align: middle;">$!reviewList.get(8)</td>
                                 
                             </tr>
