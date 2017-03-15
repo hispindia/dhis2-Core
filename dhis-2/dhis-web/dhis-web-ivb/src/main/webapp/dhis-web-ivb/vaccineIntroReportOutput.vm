@@ -109,8 +109,9 @@ $(function() {
 		<input type="button" value="Print" onclick="javascript:printDiv('htmlContent')" />
 		<input type="button" value="Share" onclick="javascript: getShareLink()"/>
 	</div>
+  
 
- <div id="htmlContent" style="width:90%;margin:auto;" >     
+ <div id="htmlContent" style="width:90%;margin:auto;" >   
 
 		  <div id="htmlContent" style="width:90%;margin:auto;" >        
         <h2>Vaccine Introductions</h2>
@@ -121,7 +122,7 @@ $(function() {
 		</h3>
         <h3>GAVI application date: $introStartDate to $introEndDate</h3>        
 		
-		<table cellspacing="0" cellpadding="0" style="display:none;margin:auto;table-layout:fixed;width:100%;">
+		<!--<table cellspacing="0" cellpadding="0" style="display:none;margin:auto;table-layout:fixed;width:100%;">
 			<thead>
 				<tr width="100%" bgcolor="#A9D0F5">
 					<th align="left">ISO code</th>
@@ -180,7 +181,7 @@ $(function() {
 			<tr>
 				<td colspan="6">$i18n.getString( "report_inline_security_warning" )</td>
 			</tr>
-		</table>
+		</table>-->
 	</div>
 	<br/>
 	
@@ -390,14 +391,29 @@ $(function() {
 	
 	function exportToExcel()
 	{
-		var oldHtml = document.getElementById('htmlContent').innerHTML;
-		$('.asc').remove();
-		$('.desc').remove();	
-		$('#htmlContent a').contents().unwrap();
-		document.getElementById('htmlCode').value = document.getElementById('htmlContent').innerHTML;				
-		document.getElementById('htmlContent').innerHTML = oldHtml;
+		 var currentFlaggedImgPath = $('.flagedImg').find('img').attr('src');
+		var currentUnFlaggedImgPath = $('.unFlagedImg').find('img').attr('src');
+		
+		var redFlag = $('#redFlag').val();
+		var greyFlag = $('#greyFlag').val();
+		
+		
+		$('.flagedImg').find('img').remove();
+		$('.unFlagedImg').find('img').remove();
+		
+		$('.flagedImg').append('<font size=\"20\" color=\"red\">*</font>')
+		$('.unFlagedImg').append('<font size=\"20\" color=\"#A4A4A4\">*</font>');
+		
+		document.getElementById('htmlCode').value = document.getElementById('htmlContent').innerHTML;
+		
+		$('.flagedImg').text('');
+		$('.unFlagedImg').text('');	
+		
+		$('.flagedImg').append('<img src=\"'+currentFlaggedImgPath+'\" width=\"20\" height=\"20\" style=\"float:left;\" \>');
+		$('.unFlagedImg').append('<img src=\"'+currentUnFlaggedImgPath+'\" width=\"20\" height=\"20\" style=\"float:left;\" \>');
         return true;
 	}
+	
 	
 	function printDiv( divID ) 
 	{
