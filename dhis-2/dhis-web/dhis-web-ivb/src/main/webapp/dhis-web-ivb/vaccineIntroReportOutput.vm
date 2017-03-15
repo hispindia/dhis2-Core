@@ -120,7 +120,7 @@ $(function() {
 						$dataSetSection.name &nbsp; 
 					#end
 		</h3>
-        <h3>GAVI application date: $introStartDate to $introEndDate</h3>        
+        <h3>Introduction Dates: $introStartDate to $introEndDate</h3>        
 		
 		<!--<table cellspacing="0" cellpadding="0" style="display:none;margin:auto;table-layout:fixed;width:100%;">
 			<thead>
