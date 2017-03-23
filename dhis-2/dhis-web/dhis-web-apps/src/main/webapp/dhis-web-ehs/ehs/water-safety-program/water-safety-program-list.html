@@ -15,7 +15,7 @@
 </div>
 
 <div id="mainPage">
-    <h1>{{'water_safety_program_list'| translate}}</h1>
+   <h1>{{'water_safety_program_list'| translate}}</h1>
 
     <!--  <select size="6" name="ngvalueselect" ng-model="data.model" multiple>
           <option ng-repeat="item in foodsafetyprograms" ng-value="item.id">{{item.name}}</option>
@@ -23,7 +23,7 @@
     <table width="70%">
         <tr >
 
-            <td width="70%" height="100" ng-repeat="item in foodsafetyprograms"   ng-model="example" ng-click=waterSafety(item.id) style="cursor: pointer"><h2>{{item.name}}</h2> </td>
+            <td  ng-repeat="item in foodsafetyprograms"   ng-model="example" ng-click=waterSafety(item.id) style="cursor: pointer"><img src="../dhis-web-ehs/images/{{item.id}}.png"  style="height:120px; width:120px;"/> </td>
             <!-- <div class="col-sm-6 ehs-home-container" ng-click="foodSafety()" style="cursor: pointer">-->
         <tr>
     </table>
