@@ -28,3 +28,8 @@ cd dhis-web
 mvn install
 </pre>
 [![Build Status](https://travis-ci.org/dhis2/dhis2-core.svg?branch=master)](https://travis-ci.org/dhis2/dhis2-core)
+
+## Project Overview
+
+IVB - WHO Immunization Repository, an online forum for managing and reviewing information on new vaccine introduction, 
+strengthening immunization services and accelerated disease control activities in countries.
