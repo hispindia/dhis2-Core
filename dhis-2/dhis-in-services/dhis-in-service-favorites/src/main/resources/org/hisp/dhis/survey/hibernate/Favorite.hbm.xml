@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  
+  <class name="org.hisp.dhis.favorite.Favorite" table="favorite">
+    <id name="id" column="favoriteid">
+      <generator class="native"/>
+    </id>
+
+    <property name="name" not-null="true" unique="true" length="160"/>
+    
+    <property name="favType" column="favType" length="60" type="text"/>
+   
+    <property name="created" />
+    
+    <property name="lastUpdated" />
+    
+    <property name="storedBy" />
+    
+    <property name="showAll" />
+    
+    <list name="dataElements" table="favorite_dataelements">
+      <cache usage="read-write" />
+      <key column="favoriteid" foreign-key="fk_favorite_dataelements_favoriteid" />
+      <list-index column="sort_order" base="0" />      
+      <many-to-many column="dataelementid" class="org.hisp.dhis.dataelement.DataElement"
+        foreign-key="fk_favorite_dataelements_dataelementid" />
+    </list>
+    
+    <list name="datavalueTypes" table="favorite_datavaluetypes" >
+      <cache usage="read-write" />
+      <key column="favoriteid" foreign-key="fk_favorite_datavaluetype_favoriteid" />
+      <list-index/>
+      <element column="dataValueType" type="text"></element>
+    </list>
+    
+  	<list name="organisationUnits" table="favorite_organisationunits">
+      <cache usage="read-write" />
+      <key column="favoriteid" foreign-key="fk_favorite_organisationunits_favoriteid" />
+      <list-index column="sort_order" base="0" />
+      <many-to-many column="organisationunitid" class="org.hisp.dhis.organisationunit.OrganisationUnit"
+        foreign-key="fk_favorite_organisationunits_organisationunitid" />
+    </list>
+    
+     <list name="users" table="favorite_users">
+      <cache usage="read-write" />
+      <key column="favoriteid" foreign-key="fk_favorite_users_favoriteid" />
+      <list-index column="sort_order" base="0" /> 
+      <many-to-many column="userid" class="org.hisp.dhis.user.User"
+        foreign-key="fk_favorite_users_userid" />
+    </list>
+    
+    <many-to-one name="userGroup" class="org.hisp.dhis.user.UserGroup" column="usergroupid" foreign-key="fk_favorite_usergroupid" />
+    
+    <property name="userGroupAccess" />
+    
+  </class>
+  
+</hibernate-mapping>

@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+  <class name="org.hisp.dhis.ivb.kfa.KeyFlagAnalytics" table="keyflag_analytics">
+
+    <composite-id> 
+      <key-many-to-one name="organisationUnit" class="org.hisp.dhis.organisationunit.OrganisationUnit" column="orgunitid" foreign-key="fk_kfa_organisationunitid" />
+      <key-many-to-one name="indicator" class="org.hisp.dhis.indicator.Indicator" column="indicatorid" foreign-key="fk_kfa_indicatorid" />
+    </composite-id>
+
+    <property name="keyFlagValue" column="keyflagvalue" length="360" />
+
+    <property name="comment" length="360" />
+
+ 	<property name="source" />
+    
+    <property name="user" />
+    
+    <property name="period" />
+    
+    <property name="color" length="32" />
+    
+    <property name="deValue" column="devalue" />
+    
+    <property name="lastUpdated" column="lastupdated" />
+    
+	<property name="lastScheduled" column="lastscheduled" type="timestamp" />
+
+  </class>
+
+</hibernate-mapping>

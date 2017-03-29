@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+	  
+<!-- Favorite Service definitions -->
+
+  <bean id="org.hisp.dhis.favorite.FavoriteStore" class="org.hisp.dhis.favorite.hibernate.HibernateFavoriteStore">
+    <property name="clazz" value="org.hisp.dhis.favorite.Favorite" />
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="jdbcTemplate" ref="jdbcTemplate" />
+    <property name="cacheable" value="true" />
+  </bean>
+
+  <bean id="org.hisp.dhis.favorite.FavoriteService" class="org.hisp.dhis.favorite.DefaultFavoriteService">   
+    <property name="favoriteStore" ref="org.hisp.dhis.favorite.FavoriteStore" />   
+    <property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+  </bean>
+ 
+  <bean id="org.hisp.dhis.ivb.kfa.KeyFlagAnalyticsStore" class="org.hisp.dhis.ivb.kfa.hibernate.HibernateKeyFlagAnalyticsStore">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="jdbcTemplate" ref="jdbcTemplate" />
+  </bean> 
+
+
+  <bean id="org.hisp.dhis.ivb.kfa.KeyFlagAnalyticsService" class="org.hisp.dhis.ivb.kfa.DefaultKeyFlagAnalyticsService">   
+    <property name="regionalReportStore" ref="org.hisp.dhis.ivb.kfa.KeyFlagAnalyticsStore" />   
+  </bean>
+ 
+ 
+</beans>
