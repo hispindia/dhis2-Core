@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+	<!-- Store definitions -->	
+    <bean id="org.hisp.dhis.lookup.LookupStore" class="org.hisp.dhis.lookup.hibernate.HibernateLookupStore">
+        <property name="clazz" value="org.hisp.dhis.lookup.Lookup"/>
+        <property name="sessionFactory" ref="sessionFactory" />
+    	<property name="jdbcTemplate" ref="jdbcTemplate" />
+    	<property name="cacheable" value="true" />
+    </bean>
+
+	<!-- Service definitions -->
+    <bean id="org.hisp.dhis.lookup.LookupService" class="org.hisp.dhis.lookup.DefaultLookupService">
+        <property name="lookupStore" ref="org.hisp.dhis.lookup.LookupStore" />
+    </bean>
+  <!-- demapping Store definitions -->
+    <bean id="org.hisp.dhis.ivb.demapping.DeMappingStore" class="org.hisp.dhis.demapping.hibernate.HibernateDeMappingStore">
+        <property name="clazz" value="org.hisp.dhis.ivb.demapping.DeMapping"/>
+        <property name="sessionFactory" ref="sessionFactory" />
+        <property name="jdbcTemplate" ref="jdbcTemplate" />
+        <property name="cacheable" value="true" />
+    </bean>
+
+    <!-- demapping Service definitions -->
+    <bean id="org.hisp.dhis.ivb.demapping.DeMappingService" class="org.hisp.dhis.demapping.DefaultDeMappingService">
+        <property name="demappingStore" ref="org.hisp.dhis.ivb.demapping.DeMappingStore" />
+    </bean>
+    
+    
+    <!-- useractivity Store definitions -->
+  <bean id="org.hisp.dhis.ivb.useractivity.UserActivityStore" class="org.hisp.dhis.useractivity.hibernate.HibernateUserActivityStore">
+        <property name="clazz" value="org.hisp.dhis.ivb.useractivity.UserActivity"/>
+        <property name="sessionFactory" ref="sessionFactory" />
+    <property name="jdbcTemplate" ref="jdbcTemplate" /> 
+        <property name="cacheable" value="true" />
+    </bean>
+
+    <!-- useractivity Service definitions -->
+   <bean id="org.hisp.dhis.ivb.useractivity.UserActivityService" class="org.hisp.dhis.useractivity.DefaultUserActivityService">
+        <property name="useractivityStore" ref="org.hisp.dhis.ivb.useractivity.UserActivityStore" />
+    </bean>
+
+    
+</beans>
