@@ -79,6 +79,7 @@ function filterEscalation()
 	  window.location.href = url;
 }
 
+/*
 function clearSearch()
 {
 	alert("Clear");
@@ -91,16 +92,21 @@ function clearSearch()
 	
 	//document.getElementById("textarea").value="";
 }
+*/
 
 
 
 function reSetSearch() 
 {
-    document.getElementById("escalationSearchCriteriaForm").reset();
-//	var programId = document.getElementById("programId");
-//	clearList( programId );
-//	var districtName = document.getElementById("districtName");
-//	clearList( districtName );
+	document.getElementById("programId").value="";
+	document.getElementById("escalationStartDate").value="";
+	document.getElementById("escalationEndDate").value="";
+	document.getElementById("establishmentName").value="";
+	document.getElementById("establishmentType").value="";
+	document.getElementById("ownerName").value="";
+	document.getElementById("decisionStartDate").value="";
+	document.getElementById("decisionEndDate").value="";
+	document.getElementById("escalationStatus").value="";
 }
 
 

@@ -321,7 +321,7 @@ public class GetEscalationsListAction extends ActionPagingSupport<ProgramStageIn
     @Override
     public String execute() throws Exception
     {
-        list = "Escalations List";
+        list = "List of Escalations";
         
         System.out.println( "listAll -- " + listAll);
         simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");

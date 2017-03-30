@@ -81,7 +81,7 @@
 					<select id="escalationStatus" name="escalationStatus" style="width:160px;height:30px;">
                         <option value="">[$i18n.getString('please_select')]</option>
         				#foreach($option in $options)
-                            <option value="$option.name" #if($!escalationStatus == $option.name ) selected="selected" #end >$encoder.htmlEncode($option.name)</option>
+                            <option value="$option.code" #if($!escalationStatus == $option.name ) selected="selected" #end >$encoder.htmlEncode($option.name)</option>
         				#end
 					</select>
                 </td>
@@ -218,7 +218,7 @@
 	var flag = 0;
 	function showSearchCriteria()
 	{
-		reSetSearch();
+		//reSetSearch();
 		if( flag == 1 )
 		{
 			document.getElementById("searchCriteria").style.display = "none";

@@ -186,7 +186,7 @@
 									&nbsp;&nbsp;<a href="javascript:removeScheduledInspection( '$programStageInstance.id','$!teiValueMap.get( $nameKey )', '$!teiValueMap.get( $districtKey )', '$!teiValueMap.get( $communityKey )' )" title='$i18n.getString( "delete" )'><img src="../images/delete.png" alt='$i18n.getString( "delete" )'></a>
 								#end
 								
-								$programStageInstance.id
+								##$programStageInstance.id
 						   </td>
                         </tr>
                     #end				

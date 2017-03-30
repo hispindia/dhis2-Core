@@ -492,34 +492,36 @@ trackerCapture.controller('DashboardController',
             selection.load();
             if(foodlist.includes($scope.selectedProgramId))
             {
-                $location.path('/establishments-registration').search({program: $scope.selectedProgramId});
+                window.history.back();
+
+                //$location.path('/establishments-registration').search({program: $scope.selectedProgramId});
+
             }
 
-  /*  if ($scope.selectedProgramId === $scope.foodsafetyprograms[0].id) {
-        $location.path('/establishments-registration').search({program: $scope.selectedProgramId});
+          /*  if ($scope.selectedProgramId === $scope.foodsafetyprograms[0].id) {
+                $location.path('/establishments-registration').search({program: $scope.selectedProgramId});
 
 
-    }
-    else if ($scope.selectedProgramId === $scope.foodsafetyprograms[1].id) {
-        $location.path('/establishments-registration').search({program: $scope.selectedProgramId});
+            }
+            else if ($scope.selectedProgramId === $scope.foodsafetyprograms[1].id) {
+                $location.path('/establishments-registration').search({program: $scope.selectedProgramId});
 
-    }*/
+            }*/
 
-    else if ($scope.selectedProgramId === 'ieLe1vT4Vad') {
-        $location.path('/operators-registration').search({program: $scope.selectedProgramId});
+        else if ($scope.selectedProgramId === 'ieLe1vT4Vad') {
+            $location.path('/operators-registration').search({program: $scope.selectedProgramId});
 
-    }
-    else if ($scope.selectedProgramId === 'JlYxDLMZJhK') {
-        $location.path('/water-establishments-registration').search({program: $scope.selectedProgramId});
-
-    }
-
-else {
-            $location.path('/').search({program: $scope.selectedProgramId});
+        }
+        else if ($scope.selectedProgramId === 'JlYxDLMZJhK') {
+            $location.path('/water-establishments-registration').search({program: $scope.selectedProgramId});
         }
 
-}
+        else {
+                $location.path('/').search({program: $scope.selectedProgramId});
 
+            }
+
+        }
         else {
 
             $rootScope.$broadcast('DashboardBackClicked');
