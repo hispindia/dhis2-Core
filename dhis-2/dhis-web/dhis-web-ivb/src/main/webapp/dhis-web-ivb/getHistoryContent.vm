@@ -1,0 +1,127 @@
+<script>	
+	function deleteHistory(id)
+	{
+		var dataValue = {
+        'dataValueAuditId' : id       
+    	};
+    	if (confirm('Are You Sure You Want to Delete this Indicator')) {
+   			jQuery.ajax( {
+            url: 'removeHistory.action',
+            data: dataValue,
+            dataType: 'json',
+            success: handleSuccess,
+            error: handleError
+        } );
+		} else {   		
+		}    	
+    function handleSuccess( json )
+    {
+    	alert(document.getElementById("tr_"+id));
+    	jQuery( "#historyDiv").find( "#tr_"+id).remove();
+    	jQuery( "#historyDiv" ).trigger("update");
+    	showSuccessMessage( "Indicator History Deleted" );
+    }
+    function handleError( json )
+    {
+    	showWarningMessage( json.message );
+    }
+}
+function editComment(id,comment)
+{
+	//alert($("#comment_"+id).html());
+	$("#comment_"+id).html('');
+	$("#comment_"+id).append("<textarea cols='35' rows='1' id='textComment_"+id+"' onblur='javascript:saveCurrentComment(\""+id+"\",\""+comment+"\")' onload='javascript:textAreaAdjust(this)'>"+comment+"</textarea>");
+	document.getElementById('textComment_'+id).focus()
+}
+function textAreaAdjust(o) {
+    o.style.height = "1px";
+    o.style.height = (25+o.scrollHeight)+"px";
+}
+function saveCurrentComment(id,comment)
+{
+	var text_comment = document.getElementById('textComment_'+id).value;
+	var dataValue = {
+        'dataValueAuditId' : id,
+        'comment' : text_comment      
+    	};
+    jQuery.ajax( {
+            url: 'editHistoryAction.action',
+            data: dataValue,
+            dataType: 'json',
+            success: handleSuccess,
+            error: handleError
+        } );        
+    function handleSuccess( json )
+    {
+    	$("#comment_"+id).html(text_comment);
+    }
+    function handleError( json )
+    {
+    	alert("error");
+    }
+	
+}
+function hideDataValueAudit(id)
+{	
+	var dataValue = {
+        'dataValueAuditId' : id
+    	};
+    	if (confirm('Are You Sure You Want to Hide this Indicator')) {
+    jQuery.ajax( {
+            url: 'editHistoryAction.action',
+            data: dataValue,
+            dataType: 'json',
+            success: handleSuccess,
+            error: handleError
+        } );
+       }else
+       {}        
+    function handleSuccess( json )
+    {
+    	jQuery( "#list" ).find( "#tr" + id ).remove();
+    	jQuery( "#list" ).find( "#tr" + id ).trigger("update");
+    	alert("successfully hide");
+    }
+    function handleError( json )
+    {
+    	alert("error");
+    }
+	
+}
+
+</script>
+
+<table align="center" class="altrowstable" id="alternatecolor2" cellspacing="0" cellpadding="0" style="margin:0cm 0cm 0cm 0cm;" width="100%">	
+			
+			#foreach($history in $historyList)
+					<tr id="tr_$history.id">
+					<td width="10%">$!history.timeStamp</td>
+					<td width="8%">$!history.storedBy</td>
+					<td width="10%" >
+						#if( $periodTypeName == "Quarterly" )
+							$simpleDateFormat1.format( $!history.dataValue.period.startDate ) - $simpleDateFormat2.format( $!history.dataValue.period.endDate )
+						#else
+							$simpleDateFormat1.format( $!history.dataValue.period.startDate )
+						#end				
+					</td>	
+					<td width="15%">$!history.value</td>
+					#if($deleteAuthority == "Yes" || $hideAuthority == "Yes" || $editAuthority == "Yes")
+						<td width="35%" id="comment_${history.id}">$!history.comment</td>
+						<td width="15%">
+							#if($deleteAuthority == "Yes")
+								<a href="javascript:deleteHistory('$history.id')"><img src="images/delete.png" width="20px"/></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							#end
+							#if($editAuthority == "Yes")
+								<a href="javascript:editComment('$history.id','$!history.comment')"><img src="images/pencil.png" width="20px"/></a>&nbsp;&nbsp;
+							#end
+							#if($hideAuthority == "Yes")
+								<a href="javascript:hideDataValueAudit('$history.id')"><img src="images/hide.png" width="20px"/></a>
+							#end							
+						</td>
+					#else
+						<td width="45%" id="comment_${history.id}">$!history.comment</td>
+					#end					
+					</tr>
+			#end
+	
+</table>

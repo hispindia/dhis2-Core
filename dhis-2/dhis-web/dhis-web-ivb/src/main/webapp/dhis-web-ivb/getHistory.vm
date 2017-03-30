@@ -1,0 +1,789 @@
+ <script>
+ 
+function PagerDis(tableName, itemsPerPage) {
+            this.tableName = tableName;
+            this.itemsPerPage = itemsPerPage;
+            this.currentPage = 1;
+            this.pages = 0;
+            this.inited = false;
+            this.showRecords = function(from, to) {
+            var rows = document.getElementById(tableName).rows;
+            for (var i = 1; i < rows.length; i++) {
+            if (i < from || i > to)
+            rows[i].style.display = 'none';
+            else
+            rows[i].style.display = '';
+	}
+}
+
+this.showPage = function(pageNumber) {
+        if (! this.inited) {
+        alert("not inited");
+        return;
+}
+
+var oldPageAnchor = document.getElementById('dis_pg'+this.currentPage);
+if(oldPageAnchor)
+ {oldPageAnchor.className = 'pg-normal';}
+this.currentPage = pageNumber;
+var newPageAnchor = document.getElementById('dis_pg'+this.currentPage);
+if(newPageAnchor)
+ {newPageAnchor.className = 'pg-selected';}
+var from = (pageNumber - 1) * itemsPerPage + 1;
+var to = from + itemsPerPage - 1;
+this.showRecords(from, to);
+}
+
+this.prev = function() {
+if (this.currentPage > 1)
+this.showPage(this.currentPage - 1);
+}
+
+this.next = function() {
+if (this.currentPage < this.pages) {
+this.showPage(this.currentPage + 1);
+}
+}
+
+this.init = function() {
+
+var rows = document.getElementById(tableName).rows;
+
+var records = (rows.length - 1);
+
+this.pages = Math.ceil(records / itemsPerPage);
+
+this.inited = true;
+
+}
+
+this.showPageNav = function(pagerName, positionId) {
+
+if (! this.inited) {
+
+alert("not inited");
+
+return;
+
+}
+
+var element = document.getElementById(positionId);
+
+var pagerHtml = '';
+
+for (var page = 1; page <= this.pages; page++)
+
+pagerHtml += '<span id="dis_pg' + page + '" class="pg-normal" onclick="' + pagerName + '.showPage(' + page + ');">' + page + '</span> ';
+
+element.innerHTML = pagerHtml;
+
+}
+
+}
+
+function PagerHis(tableName, itemsPerPage) {
+        this.tableName = tableName;
+        this.itemsPerPage = itemsPerPage;
+        this.currentPage = 1;
+        this.pages = 0;
+        this.inited = false;
+        this.showRecords = function(from, to) 
+		{
+            var rows = document.getElementById(tableName).rows;
+            for (var i = 1; i < rows.length; i++) 
+    		{
+                    if (i < from || i > to)
+                    rows[i].style.display = 'none';
+                    else
+                    rows[i].style.display = '';
+            }
+		}
+
+this.showPage = function(pageNumber) {
+if (! this.inited) {
+alert("not inited");
+return;
+}
+
+var oldPageAnchor = document.getElementById('his_pg'+this.currentPage);
+if(oldPageAnchor)
+ {oldPageAnchor.className = 'pg-normal';}
+
+this.currentPage = pageNumber;
+var newPageAnchor = document.getElementById('his_pg'+this.currentPage);
+if(newPageAnchor)
+ {newPageAnchor.className = 'pg-selected';}
+var from = (pageNumber - 1) * itemsPerPage + 1;
+var to = from + itemsPerPage - 1;
+this.showRecords(from, to);
+}
+
+this.prev = function() {
+if (this.currentPage > 1)
+this.showPage(this.currentPage - 1);
+}
+
+this.next = function() {
+if (this.currentPage < this.pages) {
+this.showPage(this.currentPage + 1);
+}
+}
+
+this.init = function() {
+
+var rows = document.getElementById(tableName).rows;
+
+var records = (rows.length - 1);
+
+this.pages = Math.ceil(records / itemsPerPage);
+
+this.inited = true;
+
+}
+
+this.showPageNav = function(pagerName, positionId) {
+
+if (! this.inited) {
+
+alert("not inited");
+
+return;
+
+}
+
+var element = document.getElementById(positionId);
+
+var pagerHtml = '';
+
+for (var page = 1; page <= this.pages; page++)
+
+pagerHtml += '<span id="his_pg' + page + '" class="pg-normal" onclick="' + pagerName + '.showPage(' + page + ');">' + page + '</span> ';
+
+element.innerHTML = pagerHtml;
+
+}
+
+}
+function PagerTech(tableName, itemsPerPage) {
+this.tableName = tableName;
+this.itemsPerPage = itemsPerPage;
+this.currentPage = 1;
+this.pages = 0;
+this.inited = false;
+this.showRecords = function(from, to) {
+var rows = document.getElementById(tableName).rows;
+for (var i = 1; i < rows.length; i++) {
+if (i < from || i > to)
+rows[i].style.display = 'none';
+else
+rows[i].style.display = '';
+}
+}
+
+this.showPage = function(pageNumber) {
+if (! this.inited) {
+alert("not inited");
+return;
+}
+
+var oldPageAnchor = document.getElementById('tech_pg'+this.currentPage);
+if(oldPageAnchor)
+ {oldPageAnchor.className = 'pg-normal';}
+this.currentPage = pageNumber;
+var newPageAnchor = document.getElementById('tech_pg'+this.currentPage);
+if(newPageAnchor)
+ {newPageAnchor.className = 'pg-selected';}
+
+var from = (pageNumber - 1) * itemsPerPage + 1;
+var to = from + itemsPerPage - 1;
+this.showRecords(from, to);
+}
+
+this.prev = function() {
+if (this.currentPage > 1)
+this.showPage(this.currentPage - 1);
+}
+
+this.next = function() {
+if (this.currentPage < this.pages) {
+this.showPage(this.currentPage + 1);
+}
+}
+
+this.init = function() {
+
+var rows = document.getElementById(tableName).rows;
+
+var records = (rows.length - 1);
+
+this.pages = Math.ceil(records / itemsPerPage);
+
+this.inited = true;
+
+}
+
+this.showPageNav = function(pagerName, positionId) {
+
+if (! this.inited) {
+
+alert("not inited");
+
+return;
+
+}
+
+var element = document.getElementById(positionId);
+
+var pagerHtml = '';
+
+for (var page = 1; page <= this.pages; page++)
+
+pagerHtml += '<span id="tech_pg' + page + '" class="pg-normal" onclick="' + pagerName + '.showPage(' + page + ');">' + page + '</span> ';
+
+element.innerHTML = pagerHtml;
+
+}
+
+}
+	$(function() {
+		$( "#tabs" ).tabs();
+		$( "#addComment" ).button();
+		$( "#addDiscussion" ).button();
+		
+		$( "#confictMsg" ).dialog({
+			autoOpen: false,
+			resizable: false,			
+			modal: true,
+			width: 400,			
+			buttons: {
+				"Yes": function() {
+				    
+                						
+				},
+				"No": function() {
+					$( this ).dialog( "close" );					
+				}
+			}
+		});
+	
+	});
+	function resetDataValue()
+	{
+	  var today = new Date();
+	  var dd = today.getDate();
+	  var mm = today.getMonth()+1;//January is 0!`
+
+	   var yyyy = today.getFullYear();
+	   if(dd<10){dd='0'+dd}
+	   if(mm<10){mm='0'+mm}
+	
+	   var today = yyyy+'-'+mm+'-'+dd;
+	
+	   var conflict = $("#isconflict").val();
+	   var reset = document.getElementById("reset");
+	   var status;
+	   var r = false;	   
+	   if(reset.checked == true)
+	   {
+	     r=confirm("Are you sure you want to reset data value");	      
+	   }
+	   else
+	   {
+	     r=confirm("Are you sure you want to add conflict");	    
+	   }
+		
+        if (r==true)
+        {
+            var dataValue = {
+                    'dataElementId' : $dataValue.dataElement.id,
+                    'optionComboId' : $dataValue.optionCombo.id,
+                    'organisationUnitId' : $dataValue.source.id,
+                    'periodId' : $("#selectedPeriodId").val(),
+					'value' : '',
+					'comment': '',
+					'conflict': conflict
+                    };
+                     jQuery.ajax( {
+                     url: 'resetDataValue.action',
+                     data: dataValue,           
+                     dataType: 'json',
+                     success: handleSuccess,
+                     error: handleError
+                     } );
+                     return true;
+        }
+        else
+        { }	
+        function handleSuccess( json )
+        {
+			document.getElementById("curValueDiv").innerHTML = json.curValueDiv;
+    		document.getElementById("curCommentDiv").innerHTML = json.curCommentDiv;
+    		document.getElementById("curStoredByDiv").innerHTML = "$userName" + "(" + today +")";
+            //alert("Value Reset");        
+        }
+        function handleError( jqXHR, textStatus, errorThrown )
+        {       
+           alert("Value not Reset");
+        }
+	}
+	
+	function getConflictStatus()
+	{
+	   var conflict = document.getElementById("conflict2");
+	   var status;
+	   var r;	   
+	   if(conflict.checked == false)
+	   {
+	     r=confirm("Are you sure you want to remove conflict? ");
+	     status='false';  
+	   }
+	   else
+	   {
+	     r=confirm("Are you sure you want to add conflict? ");
+	     status='true';
+	   }
+		
+        if (r==true)
+        {
+            var dataValue = {
+                    'dataElementId' : $dataValue.dataElement.id,
+                    'optionComboId' : $dataValue.optionCombo.id,
+                    'organisationUnitId' : $dataValue.source.id,
+                    'periodId' : $dataValue.period.id,
+                    'status' : status
+                    };
+                     jQuery.ajax( {
+                     url: 'removeConflict.action',
+                     data: dataValue,           
+                     dataType: 'json',
+                     success: handleSuccess,
+                     error: handleError
+                     } );
+                     return true;
+        }
+        else
+        { }	
+    function handleSuccess( json )
+    {
+        alert("Conflict Successfully Resolved.");        
+    }
+    function handleError( jqXHR, textStatus, errorThrown )
+    {       
+       alert("Conflict Not Resolved");
+    }
+	}
+	</script>
+	
+	<style type="text/css">
+	.pg-normal {
+		color: #333333;
+		font-family: arial,verdana,sans-serif;
+		font-size:15px;
+		font-weight:bold;
+		cursor: pointer;
+		background: #A9D0F5;
+		padding: 2px 4px 2px 4px;
+	}
+	.pg-selected {
+		color: #333333;
+		font-family: arial,verdana,sans-serif;
+		font-size:15px;
+		font-weight:bold;
+		background: #E0ECF8;
+		padding: 2px 4px 2px 4px;
+	}
+</style>
+<script type="text/javascript">
+
+var pager = new PagerDis('alternatecolor4', 5);
+pager.init();
+pager.showPageNav('pager', 'pagingControls3');
+pager.showPage(1);
+altRows('alternatecolor4');
+
+
+var pager2 = new PagerTech('alternatecolor3', 5);
+pager2.init();
+pager2.showPageNav('pager2', 'pagingControls2');
+pager2.showPage(1);
+altRows('alternatecolor3');
+
+var pager3 = new PagerHis('alternatecolor2', 6);
+pager3.init();
+pager3.showPageNav('pager3', 'pagingControls');
+pager3.showPage(1);
+altRows('alternatecolor2');
+</script>
+<input type="hidden" name="conflict" id="isconflict" value="$conflict"/>
+<input type="hidden" name="selectedPeriodId" id="selectedPeriodId" value="$!currentPeriod"/>
+<div width="100%" style="background-color:#3366CC;color:white;padding:8px;"><strong>Tools Box: $dataElementName</strong></div><br/>
+<table style="width:100%;background-color:#E0ECF8;" cellspacing="0" cellpadding="2">
+	<tr>		
+		#if($conflictAuthority == "Yes" && $dataValue.followup == true)			
+			<td width="40%">$i18n.getString( "latest_value" ) : <span id="curValueDiv">$!dataValue.value</span></td>
+			<td width="25%">
+				$i18n.getString( "reporting_period" ) : $!reportingPeriod</td>
+			<td width="15%">$i18n.getString( "dv_conflict" ) : <input type="checkbox" id="conflict2" name="conflict" onclick="getConflictStatus()" checked/></td>
+		#else
+			<td width="55%" colspan="2">$i18n.getString( "latest_value" ) : <span id="curValueDiv">$!dataValue.value</span></td>
+			<td width="25%">$i18n.getString( "reporting_period" ) : $!reportingPeriod</td>
+		#end
+	</tr>
+	<tr>
+		#if($updateStatus == "yes" && $deleteAuthority == "Yes")
+			<td width="40%" >$i18n.getString( "latest_comment" ) : <span id="curCommentDiv">$!dataValue.comment</span></td>
+			<td width="25%">$i18n.getString( "latest_user" ) : <span id="curStoredByDiv">
+				#if($dataValue.lastUpdated)
+					$!dataValue.storedBy ( $starndardDateFormat.format( $!dataValue.lastUpdated ) )
+				#end
+				</span></td>
+			<td width="15%">$i18n.getString( "reset_datavalue" ) : <input type="checkbox" id="reset" name="reset" onclick="resetDataValue()"/></td>	
+		#else
+			<td width="70%" colspan="2">$i18n.getString( "latest_comment" ) : <span id="curCommentDiv">$!dataValue.comment</span></td>
+			<td width="30%">
+				$i18n.getString( "latest_user" ) : 
+				<span id="curStoredByDiv">$!dataValue.storedBy ( $starndardDateFormat.format( $!dataValue.lastUpdated ) )</span>
+			</td>
+		#end
+		
+	</tr>
+</table>
+<div id="tabs" width="100%">
+	<ul>
+		<li><a href="#tabs-1" ><img src="images/history.png" width="20" alt="$dataElement.name History"/>History</a></li>
+		<li><a href="#tabs-2" ><img src="images/icon_techsupport.png" width="20" alt="$dataElement.name Technical Assistance Comments"/>Technical Assistance</a></li>	
+		<li><a href="#tabs-3" ><img src="images/comment.png" width="20" alt="$dataElement.name Discussion"/>Discussion</a></li>	
+	</ul>
+	<br/>
+	<div id="tabs-1" style="height:400px;" >
+		<script>
+			altRows('alternatecolor2');
+		</script>
+		<div style="height:300px;" id="historyDiv">
+		<table align="center" class="altrowstable" id="alternatecolor2" cellspacing="0" cellpadding="0" style="margin:0cm 0cm 0cm 0cm;" width="100%">
+			<thead>
+				<tr>		
+					<th width="10%" align="left">$i18n.getString( "last_updated" )</th>
+					<th width="8%" align="left">$i18n.getString( "source" )</th>	
+					<th width="10%" align="left">$i18n.getString( "period" )</th>   	
+					<th width="15%" align="left">$i18n.getString( "value" )</th>
+					#if($deleteAuthority == "Yes" || $hideAuthority == "Yes" || $editAuthority == "Yes")
+						<th width="32%" align="left">$i18n.getString( "comment" )</th>
+						<th width="18%" align="left">
+							#if($deleteAuthority == "Yes")
+							    $i18n.getString( "copy" )
+								$i18n.getString( "delete" )
+							#end
+							#if($editAuthority == "Yes")
+								$i18n.getString( "edit" )
+							#end
+							#if($hideAuthority == "Yes")
+								$i18n.getString( "hide" )
+							#end
+						</th>
+					#else
+						<th width="45%" align="left">$i18n.getString( "comment" )</th>
+					#end
+				</tr>
+			</thead>
+			<tbody>				
+			#foreach($history in $historyList)
+				#set( $tr = "tr-${history.id}" )
+				#if("$history.commentType" == "H")						
+					<tr>
+						<td width="10%" id="td_${history.id}" align="left">$starndardDateFormat.format( $!history.timestamp )</td>
+						<td width="8%" align="left">$!history.modifiedBy</td>
+						<td width="10%" align="left">
+							#if( $yearlyDataElement == "YES" )
+                                $yearFormat.format( $!history.period.startDate )
+							#elseif( $periodTypeName == "Quarterly" )
+								$simpleDateFormat1.format( $!history.period.startDate ) - $simpleDateFormat2.format( $!history.period.endDate )
+							#else
+								$simpleDateFormat1.format( $!history.period.startDate )
+							#end				
+						</td>
+                        <td id="${history.id}" width="15%" align="left">$history.value</td>
+                        <script>
+
+                            function test1(id , value){
+
+                                if(isNaN(value))
+                                {
+                                    return;
+                                }
+                                else
+                                {
+                                    console.log("value 1: "+value);
+
+                                    if($checkNumberType){
+                                        document.getElementById(id).innerHTML = numberToPercentageFormat(value);
+                                    }else
+                                    {
+                                        document.getElementById(id).innerHTML = numberToCurreny(value);
+                                    }
+                                }
+                            }
+                            test1('$history.id','$history.value');
+                        </script>
+
+                        #if($deleteAuthority == "Yes" || $hideAuthority == "Yes" || $editAuthority == "Yes")
+							<td width="32%" id="comment_${history.id}" align="left">$!history.comment</td>
+							<td width="18%" align="left">
+                                #if( $deleteAuthority == "Yes" )
+                                    <a href="javascript:moveHistoryDataToCurrentPeriod( '$history.id' )"><img src="images/copy.png" width="17px"/></a>&nbsp;&nbsp;
+                                #end							
+								#if($deleteAuthority == "Yes")
+									<a href="javascript:deleteHistory('$history.id')"><img src="images/delete.png" width="17px"/></a>&nbsp;&nbsp;
+								#end
+								#if($editAuthority == "Yes")
+									<a href="javascript:editComment('$history.id','$!history.comment')" ><img src="images/pencil.png" width="17px"/></a>&nbsp;&nbsp;
+								#end
+								#if($hideAuthority == "Yes")
+									#if($history.status == 1 )
+										<a href="javascript:hideDataValueAudit('$history.id','$hideUnhideAuthority')" id="link_hide_${history.id}"><img id="hide_${history.id}" src="images/hide.png" width="17px"/></a>
+									#else
+										<a href="javascript:unhideDataValueAudit('$history.id')" id="link_hide_${history.id}"><img id="unhide_${history.id}" src="images/unhide.png" width="17px"/></a>
+									#end
+									
+								#end							
+							</td>
+						#else
+							<td width="45%" id="comment_${history.id}" align="left">$!history.comment</td>
+						#end
+					</tr>					
+				#end	
+			#end
+		</tbody>
+		</table>
+		</div> 
+		<br/><br/><br/>
+		<div id="pagingControls" style="float:right;"></div><br/>		
+	</div>	
+	<div id="tabs-2" style="height:400px;">
+		<div style="height:270px;" id="technicalDiv">
+				<table align="center" class="altrowstable" id="alternatecolor3" cellspacing="0" cellpadding="0" style="margin:0cm 0cm 0cm 0cm;" width="100%">
+				<tr>		
+					<th width="10%" align="left">$i18n.getString( "last_updated" )</th>
+					<th width="8%" align="left">$i18n.getString( "source" )</th>	
+					<th width="10%" align="left">$i18n.getString( "period" )</th>   	
+					<th width="15%" align="left">$i18n.getString( "value" )</th>
+					#if($deleteAuthority == "Yes" || $hideAuthority == "Yes" || $editAuthority == "Yes")
+					<th width="35%" align="left">$i18n.getString( "comment" )</th>
+					<th width="15%" align="left">
+						#if($deleteAuthority == "Yes")
+							$i18n.getString( "delete" )
+						#end
+						#if($editAuthority == "Yes")
+							$i18n.getString( "edit" )
+						#end
+						#if($hideAuthority == "Yes")
+							$i18n.getString( "hide" )
+						#end
+					</th>	
+				#else
+					<th width="45%" align="left">$i18n.getString( "comment" )</th>
+				#end				
+				</tr>				
+				#foreach($history in $historyList)
+					#if( "$history.commentType" == "T")					
+					#if("$!history.comment.trim()" == "")
+					#else
+					<tr >
+						<td width="10%" id="tech_td_${history.id}" align="left">$starndardDateFormat.format( $!history.timestamp )</td>
+						<td width="8%" align="left">$!history.modifiedBy</td>
+						<td width="10%" align="left">
+							#if( $yearlyDataElement == "YES" )
+                                $yearFormat.format( $!history.period.startDate ) )							
+							#elseif( $periodTypeName == "Quarterly" )
+								$simpleDateFormat1.format( $!history.period.startDate ) - $simpleDateFormat2.format( $!history.period.endDate )
+							#else
+								$simpleDateFormat1.format( $!history.period.startDate )
+							#end
+						</td>
+
+                            <td id="${history.id}-1" width="15%" align="left">$history.value</td>
+                            <script>
+                                function test1(id , value){
+                                    if(isNaN(value))
+                                    {
+                                        return;
+                                    }
+                                    else
+                                    {
+                                        console.log("value : "+value);
+                                        if($checkNumberType){
+                                            document.getElementById(id+"-1").innerHTML = numberToPercentageFormat(value);
+                                        }else
+                                        {
+                                            document.getElementById(id+"-1").innerHTML = numberToCurreny(value);
+                                        }
+                                    }
+                                }
+                                test1('$history.id', '$history.value');
+                            </script>
+
+						#if($deleteAuthority == "Yes" || $hideAuthority == "Yes" || $editAuthority == "Yes")
+							<td width="35%" id="techcomment_${history.id}" align="left">$!history.comment</td>
+							<td width="15%" align="left">
+								#if($deleteAuthority == "Yes")
+									<a href="javascript:deleteTechnicalAssistance('$history.id')"><img src="images/delete.png" width="20px"/></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								#end
+								#if($editAuthority == "Yes")
+									<a href="javascript:editTechnicalComment('$history.id','$!history.comment')"><img src="images/pencil.png" width="20px"/></a>&nbsp;&nbsp;
+								#end
+								#if($hideAuthority == "Yes")
+									#if($history.status == 1 )
+										<a href="javascript:techHideDataValueAudit('$history.id','$hideUnhideAuthority')" id="link_techhide_${history.id}"><img id="tech_hide_${history.id}" src="images/hide.png" width="20px"/></a>
+									#else
+										<a href="javascript:techUnhideDataValueAudit('$history.id')" id="link_techhide_${history.id}"><img id="tech_unhide_${history.id}" src="images/unhide.png" width="20px"/></a>
+									#end									
+								#end							
+							</td>
+						#else
+							<td width="45%" id="comment_${history.id}" align="left">$!history.comment</td>
+						#end						
+					</tr>
+					#end
+						
+				#end
+				#end	
+			</table> 
+			</div>
+			<br/><br/>
+			<div id="pagingControls2" style="float:right;"></div><br/><br/>			
+			<div>
+			<table width="90%">
+				<tr >
+					<td ><textarea cols="70" id="dvComment" rows="1" ></textarea> </td>
+					<td valign="middle" ><input type="button" value="Add Request" id="addComment" 
+					onclick="javascript:saveDataComment('$!dataValue.dataElement.id','$!dataValue.source.id',
+					'$!dataValue.optionCombo.id','$!dataValue.value','$!dataValue.lastUpdated',
+					'$userName','$selectedPeriod','$deleteAuthority','$editAuthority','$hideAuthority')" /> </td>			
+				</tr>
+			</table>
+			</div>		
+	</div>
+	<div id="tabs-3" style="height:400px;">
+	<div style="height:250px;" id="DiscussionDiv">
+	<table align="center" class="altrowstable" id="alternatecolor4" cellspacing="0" cellpadding="0" style="margin:0cm 0cm 0cm 0cm;" width="100%">
+				<tr>
+					<th width="15%" align="left">$i18n.getString( "source" )</th>	
+					<th width="15%" align="left">$i18n.getString( "last_updated" )</th>
+					#if($deleteAuthority == "Yes" || $hideAuthority == "Yes" || $editAuthority == "Yes")
+					<th width="45%" align="left">$i18n.getString( "comment" )</th>
+					<th width="25%" align="left">
+						#if($deleteAuthority == "Yes")						    
+							$i18n.getString( "delete" )
+						#end
+						#if($editAuthority == "Yes")
+							$i18n.getString( "edit" )
+						#end
+						#if($hideAuthority == "Yes")
+							$i18n.getString( "hide" )
+						#end
+					</th>	
+				#else
+					<th width="70%" align="left">$i18n.getString( "comment" )</th>
+				#end				
+				</tr>			
+				#if( $dataValue.status == 0  && $closeDiscussionAuthority == "Yes")
+					<tr >
+						<td style="color:red;" id="disMsg" colspan="4"><b>The discussion for this data element is currently closed.</b></td>
+					</tr>		
+				#foreach($history in $historyList)
+				#if( "$history.commentType" == "D" && "$simpleDateFormat1.format( $history.period.startDate )-$simpleDateFormat2.format( $history.period.endDate )" == "$currentPeriod")
+					#if( "$!history.comment.trim()" == "")
+					#else
+					<tr >
+						<td width="15%" id="dis_td_${history.id}" align="left">$!history.modifiedBy</td>
+						<td width="15%" align="left">$starndardDateFormat.format( $!history.timestamp )</td>
+						#if($deleteAuthority == "Yes" || $hideAuthority == "Yes" || $editAuthority == "Yes")
+							<td width="45%" id="dis_${history.id}" align="left">$!history.comment</td>
+							<td width="25%" align="left">
+								#if($deleteAuthority == "Yes")
+									<a href="javascript:deleteDiscussion('$history.id')"><img src="images/delete.png" width="20px"/></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								#end
+								#if($editAuthority == "Yes")
+									<a href="javascript:editDiscussionComment('$history.id','$!history.comment')"><img src="images/pencil.png" width="20px"/></a>&nbsp;&nbsp;
+								#end
+								#if($hideAuthority == "Yes")
+									#if($history.status == 1 )
+										<a href="javascript:discussionHideDataValueAudit('$history.id','$hideUnhideAuthority')" id="link_dishide_${history.id}"><img id="dis_hide_${history.id}" src="images/hide.png" width="20px"/></a>
+									#else
+										<a href="javascript:discussionUnhideDataValueAudit('$history.id')" id="link_dishide_${history.id}"> <img id="dis_unhide_${history.id}" src="images/unhide.png" width="20px"/></a>
+									#end									
+								#end							
+							</td>
+						#else
+							<td width="70%" id="discussion_${history.id}" align="left">$!history.comment</td>
+						#end						
+					</tr>
+					#end
+				#end
+				#end
+				#elseif( $dataValue.status == 0 && $closeDiscussionAuthority != "Yes")
+					<tr >
+						<td style="color:red;" colspan="4" id="disMsg"><b>The discussion for this data element is currently closed.</b></td>
+					</tr>
+				#else
+					#foreach($history in $historyList)
+				#if( "$history.commentType" == "D" && "$simpleDateFormat1.format( $history.period.startDate )-$simpleDateFormat2.format( $history.period.endDate )" == "$currentPeriod")
+					#if( "$!history.comment.trim()" == "")
+					#else
+					<tr >
+						<td width="15%" id="dis_td_${history.id}" align="left">$!history.modifiedBy</td>
+						<td width="15%" align="left">$starndardDateFormat.format( $!history.timestamp )</td>
+						#if($deleteAuthority == "Yes" || $hideAuthority == "Yes" || $editAuthority == "Yes")
+							<td width="45%" id="dis_${history.id}" align="left">$!history.comment</td>
+							<td width="25%" align="left">
+								#if($deleteAuthority == "Yes")
+									<a href="javascript:deleteDiscussion('$history.id')"><img src="images/delete.png" width="20px"/></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								#end
+								#if($editAuthority == "Yes")
+									<a href="javascript:editDiscussionComment('$history.id','$!history.comment')"><img src="images/pencil.png" width="20px"/></a>&nbsp;&nbsp;
+								#end
+								#if($hideAuthority == "Yes")
+									#if($history.status == 1 )
+										<a href="javascript:discussionHideDataValueAudit('$history.id','$hideUnhideAuthority')"><img id="dis_hide_${history.id}" src="images/hide.png" width="20px"/></a>
+									#else
+										<a href="javascript:disUnhideDataValueAudit('$history.id')"><img id="dis_unhide_${history.id}" src="images/unhide.png" width="20px"/></a>
+									#end									
+								#end							
+							</td>
+						#else
+							<td width="70%" id="discussion_${history.id}" align="left">$!history.comment</td>
+						#end						
+					</tr>
+					#end
+				#end
+				#end
+				#end
+			</table> 
+			</div>
+			<br/><br/>
+			<div id="pagingControls3" style="float:right;"></div><br/><br/>
+			<div #if( $dataValue.status == 0 ) style="display:none;" #end id="discussionComment" >
+				<table width="90%">
+					<tr >
+						<td ><textarea cols="70" id="disComment" rows="1" ></textarea> </td>
+						<td valign="middle" >
+							<input type="button" value="Add Discussion" id="addDiscussion" onclick="javascript:saveDiscussion('$!dataValue.dataElement.id','$!dataValue.source.id', '$!dataValue.optionCombo.id','$!dataValue.value','$!dataValue.lastUpdated', '$userName' 
+							,'$deleteAuthority','$editAuthority','$hideAuthority' )"/>
+						</td>			
+					</tr>
+				</table>
+			</div>	
+			#if($closeDiscussionAuthority == "Yes") 				
+				<div id="openAndClose">
+				<input type="button" value="Close Discussion" id="closeDisButton" #if( $dataValue.status == 0 ) disabled="true" #end onclick="javascript:closeDiscussion('$dataValue.dataElement.id','$dataValue.source.id','$dataValue.optionCombo.id','$dataValue.period.id')" />
+				&nbsp;&nbsp;
+				<input type="button" value="Re-Open Discussion" id="openDisButton" #if( $dataValue.status == 1 ) disabled="true" #end onclick="javascript:openDiscussion('$dataValue.dataElement.id','$dataValue.source.id','$dataValue.optionCombo.id','$dataValue.period.id')" />
+			</div>
+			#end 
+		</div>
+	
+	</div>	
+<br/>
+<div id="confictMsg">
+	<p>Are You sure You want to remove this conflict</p>
+</div>

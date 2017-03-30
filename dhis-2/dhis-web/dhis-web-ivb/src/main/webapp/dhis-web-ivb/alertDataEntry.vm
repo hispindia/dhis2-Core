@@ -1,0 +1,695 @@
+<style>
+    .ui-tooltip, .arrow1:after {
+        background: white;
+        border: 2px solid #086B96;
+    }
+    .ui-tooltip {
+        padding: 10px 20px;
+        color: black;
+        border-radius: 20px;
+        font: bold 12px "Helvetica Neue", Sans-Serif;
+        box-shadow: 0 0 7px black;
+    }
+    .arrow1 {
+        width: 70px;
+        height: 16px;
+        overflow: hidden;
+        position: absolute;
+        left: 50%;
+        margin-left: -35px;
+        bottom: -16px;
+    }
+    .arrow1.top {
+        top: -16px;
+        bottom: auto;
+    }
+    .arrow1.left {
+        left: 20%;
+    }
+    .arrow1:after {
+        content: "";
+        position: relative;
+        left: 20px;
+        top: -20px;
+        width: 25px;
+        height: 25px;
+        box-shadow: 6px 5px 9px -9px black;
+        -webkit-transform: rotate(45deg);
+        -moz-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        -o-transform: rotate(45deg);
+        tranform: rotate(45deg);
+    }
+    .arrow1.top:after {
+        bottom: -20px;
+        top: auto;
+    }
+    input, textarea, select{
+        font-family: arial,verdana,sans-serif;
+        font-size:12px;
+        font-weight:normal;
+    }
+</style>
+<script type="text/javascript">
+    // var commentRequiredDeList =[28,29,30];
+    var commentRequiredDeList = $commentRequiredDe;
+    var percentageRequiredList= $percentageRequiredDe;
+    var checkNumberType=false ;
+    $(document).ready(function(){
+        $('#myjquerymenu').find('#dataentry').addClass("selected");
+        pageName = 'dataElementWiseEntry';
+
+    });
+</script>
+<style>
+    #overlay {
+        z-index:9998;
+        position:absolute;
+        top:0;
+        bottom:0;
+        left:0;
+        width:100%;
+        background:#000;
+        opacity:0.45;
+        -moz-opacity:0.45;
+        filter:alpha(opacity=45);
+        visibility:hidden;
+    }
+    #overlayImg{ width: 50px; height: 50px; z-index: 9999; position: absolute; left:50%}
+    body{
+        min-height:600px;
+        height:auto;
+    }
+    input[type=checkbox].css-checkbox {
+        position: absolute;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        height:1px;
+        width:1px;
+        margin:-1px;
+        padding:0;
+        border:0;
+    }
+
+    input[type=checkbox].css-checkbox + label.css-label {
+        padding-left:20px;
+        height:15px;
+        display:inline-block;
+        line-height:15px;
+        background-repeat:no-repeat;
+        background-position: 0 0;
+        font-size:15px;
+        vertical-align:middle;
+        cursor:pointer;
+    }
+
+    input[type=checkbox].css-checkbox:checked + label.css-label {
+        background-position: 0 -15px;
+    }
+
+    .css-label{
+        /*background-image:url(images/dark-check-green.png);*/
+    }
+
+    /*specific classes related to Checkbox skins*/
+
+    .mac-style{background-image:url(images/mac-style.png);}
+
+</style>
+<div id="overlay">
+    <div id="overlayImg"><img  width="50" height="50" src="images/ajax-loader.gif" style="margin:auto;position:fixed;top: 50%;left: 50%;"/></div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function()
+    {
+        $('.fancybox').fancybox();
+    });
+
+</script>
+
+<style type="text/css">
+    .fancybox-custom .fancybox-skin {
+        box-shadow: 0 0 50px #222;
+    }
+</style>
+
+<script>
+    $(document).ready(function(){
+        $("#exportButton").prop('disabled', false).button('refresh');
+        $("#alternatecolor").tablesorter();
+      });
+    $(function() {
+
+        $("#alternatecolor textarea, #alternatecolor input").on("propertychange, change, keyup, paste, input", function(){
+            $("#exportButton").prop('disabled', true).button('refresh');
+        });
+        $("#alternatecolor select").on("change", function(){
+            $("#exportButton").prop('disabled', true).button('refresh');
+        });
+        $( document ).tooltip({
+            position: {
+                my: "center bottom-20",
+                at: "center top",
+                using: function( position, feedback ) {
+                    $( this ).css( position );
+                    $( "<div>" )
+                            .addClass( "arrow1" )
+                            .addClass( feedback.vertical )
+                            .addClass( feedback.horizontal )
+                            .appendTo( this );
+                }
+            }
+        });
+    });
+    function textAreaAdjust(o) {
+        o.style.height = "1px";
+        o.style.height = (25+o.scrollHeight)+"px";
+    }
+    function showContent(o) {
+        alert(o.value);
+    }
+</script>
+<script>
+    $(function() {
+        $('#dataElements option').attr('selected', 'selected');
+        $('#orgUnits option').attr('selected', 'selected');
+
+        var dataElemts = document.getElementById('dataElements').value;
+        var orgUnits = document.getElementById('orgUnits').value;
+
+
+        $( "#delete-bookmark" ).button().click(function() {
+            var dataValue = {
+                'favoriteName' : $("#delete-bookmark-hidden").val()
+            };
+
+            if (!confirm("Do you want to delete this bookmark ?")){
+                return false;
+            }
+            else
+            {
+                jQuery.ajax( {
+                    url: 'deleteFavorite.action',
+                    data: dataValue,
+                    dataType: 'json',
+                    success: handleSuccessFavorite,
+                    error: handleErrorFavorite
+                } );
+
+            }
+        });
+        function handleSuccessFavorite( json )
+        {
+            //showSuccessMessage( "Bookmark deleted successfully.. Redirecting to custom data entry page " );
+            alert("Bookmark deleted successfully.. Redirecting to custom data entry page");
+            location.href='loadDataElementwiseDataEntryParams.action'
+        }
+        function handleErrorFavorite( json )
+        {
+            showErrorMessage( "Error while deleting bookmark " );
+        }
+
+        $( "#create-bookmark" )
+                .button()
+                .click(function() {
+                    $( "#favorite" ).dialog( "open" );
+                });
+
+        $( "#favorite" ).dialog({
+            autoOpen: false,
+            width: 450,
+            modal: true,
+            buttons: {
+                "Save Bookmark": function() {
+                    var showAll;
+                    var bValue = false;
+                    if(document.getElementById("publicView").checked == true)
+                    {
+                        showAll = "true";
+                    }
+                    else
+                    {
+                        showAll = "false";
+                    }
+
+                    if(('$favorite.name' != '' && '$favorite.showAll' == '2') || '$favorite.storedBy' == '$userName')
+                    {
+                        var dataValue = {
+                            'name' : $("#favoriteName").val(),
+                            'dataElements' : dataElemts,
+                            'organisationUnits' : orgUnits,
+                            'favoriteId' : '$favorite.id',
+                            'showAll' : showAll,
+                            'favoriteType' : $("#favoriteType").val()
+                        };
+                    }
+                    else
+                    {
+                        var fList = $favoriteList;
+                        for(var i=0; i<=fList.length-1; i++)
+                        {
+                            if(fList[i] == $("#favoriteName").val())
+                            {
+                                bValue = true;
+                            }
+                        }
+                        var dataValue = {
+                            'name' : $("#favoriteName").val(),
+                            'dataElements' : dataElemts,
+                            'organisationUnits' : orgUnits,
+                            'showAll' : showAll,
+                            'favoriteType' : $("#favoriteType").val()
+                        };
+                    }
+                    if(bValue)
+                    {
+                        alert("Bookmark name already exist");
+                    }
+                    else
+                    {
+
+                        jQuery.ajax( {
+                            url: 'createFavorite.action',
+                            data: dataValue,
+                            dataType: 'json',
+                            success: handleSuccess,
+                            error: handleError
+                        } );
+                    }
+                },
+                Cancel: function() {
+                    $( this ).dialog( "close" );
+                }
+            },
+            close: function() {
+            }
+        });
+        function handleSuccess( json )
+        {
+            showSuccessMessage( "Bookmark saved" );
+            $( "#favorite" ).dialog( "close" );
+        }
+        function handleError( json )
+        {
+            showWarningMessage( "Bookmark not saved" );
+            $( "#favorite" ).dialog( "close" );
+        }
+    });
+    function sorting()
+    {
+        if($('.asc').css('display') == "block")
+        {
+            $('.asc').css('display', 'none');
+            $('.desc').css('display', 'block');
+            altRows('alternatecolor');
+        }
+        else
+        {
+            $('.asc').css('display', 'block');
+            $('.desc').css('display', 'none');
+            altRows('alternatecolor');
+        }
+    }
+    function exportToExcel()
+    {
+        document.getElementById('htmlCode').value = document.getElementById('htmlContent').innerHTML;
+        return true;
+    }
+    function backData()
+    {
+        window.location.href = "loadAlertDataEntryForm.action";
+    }
+    function viewUserRole()
+    {
+        var publicView = document.getElementById("publicView");
+        if(publicView.checked == true)
+        {
+            jQuery("#userGrpId").attr('disabled', 'disabled');
+            jQuery("#userGrpAccess").attr('disabled', 'disabled');
+        }
+        else
+        {
+            jQuery("#userGrpId").removeAttr('disabled');
+            jQuery("#userGrpAccess").removeAttr('disabled');
+        }
+    }
+
+
+    function goFullscreen( id )
+    {
+        // Get the element that we want to take into fullscreen mode
+        var element = document.getElementById(id);
+
+        // These function will not exist in the browsers that don't support fullscreen mode yet,
+        // so we'll have to check to see if they're available before calling them.
+
+        if (element.mozRequestFullScreen) {
+            // This is how to go into fullscren mode in Firefox
+            // Note the "moz" prefix, which is short for Mozilla.
+            element.mozRequestFullScreen();
+        } else if (element.webkitRequestFullScreen) {
+            // This is how to go into fullscreen mode in Chrome and Safari
+            // Both of those browsers are based on the Webkit project, hence the same prefix.
+            element.webkitRequestFullScreen();
+        }
+
+    }
+</script>
+<form action="exportToWorkBook.action" method="post" target="_newtab">
+<input type="hidden" name="selectedPeriodId" id="selectedPeriodId" value="$currentPeriod"/>
+<input type="hidden" name="orgUnitUid" id="orgUnitUid" value="$orgUnitUid"/>
+<input type="hidden" name="dataSetId" id="dataSetId" value="$dataSetId"/>
+<input type="hidden" name="favoriteType" id="favoriteType" value="$favoriteType"/>
+    #set( $count = 0 )
+<div id="favorite" #if(($favorite && $favorite.showAll == 2) || $favorite.storedBy == $userName) title="Edit Bookmark" #else title="Create Bookmark" #end>
+    <table style="width:100%">
+        <tr >
+            <td>Bookmark Name:</td>
+            <td colspan="2"><input type="text" #if(($favorite && $favorite.showAll == 2) || $favorite.storedBy == $userName) value="$!favorite.name" #else value="" #end name="favoriteName" id="favoriteName" class="text ui-widget-content ui-corner-all" style="width:100%;"/></td>
+
+        </tr>
+        <tr >
+            <td>Public View:</td>
+            <td colspan="2">
+                <input type="checkbox" name="publicView" id="publicView" />
+            </td>
+        </tr>
+        <!--
+                    <tr >
+                        <td>Select User Group:</td>
+                        <td>
+                            <select name="userGrpId" id="userGrpId" style="width:100%;">
+                                #foreach($userGrp in $userGrpList)
+                                    <option value="$userGrp.id" #if($favorite && $favorite.userGroup.id == $userGrp.id) selected #end>$encoder.htmlEncode( $!userGrp.displayName )</option>
+                                #end
+                            </select>
+                        </td>
+                        <td >
+                            <select name="userGrpAccess" id="userGrpAccess" style="width:100%;">
+                                <option value="2" #if($favorite && $favorite.userGroupAccess == 2) selected #end>Can View and Edit</option>
+                                <option value="1" #if($favorite && $favorite.userGroupAccess == 1) selected #end>Can View</option>
+                                <option value="0" #if($favorite && $favorite.userGroupAccess == 0) selected #end>None</option>
+                            </select>
+                        </td>
+                    </tr>
+                    -->
+    </table>
+</div>
+<input type="hidden" name="htmlCode" id="htmlCode" />
+<br/>
+<div style="width:95%;margin:auto;padding-top:8px;padding-bottom:3px;">
+    <input id="conflict" name="conflict" type="checkbox" class="css-checkbox" #if($conflictAuthority != "Yes") style="display:none" #end />
+    <label for="conflict" class="css-label mac-style" #if($conflictAuthority != "Yes") style="display:none" #end>Skip Conflict</label>
+    #if(($favorite && $favorite.showAll == 2) || $favorite.storedBy == $userName )
+        <input type="button" id="delete-bookmark" value="Delete Bookmark" style="float:right;display:none;" />
+        <input type="button" id="create-bookmark" value="Edit Bookmark" style="float:right;display:none;" />
+        <input type="hidden" id="delete-bookmark-hidden" value="$favorite.name" />
+    #else
+        <input type="button" id="create-bookmark" value="Create Bookmark" style="float:right;display:none;"/>
+    #end
+
+    &nbsp;&nbsp;<input type="submit" id="exportButton" style="float:right;" value="Export to Excel" onclick="exportToExcel()" />
+    &nbsp;&nbsp;<input type="button" id="backButton" style="float:right;" value="Back" onclick="backData()" />
+    &nbsp;&nbsp;<input type="button" value="Full Screen" style="float:right;" onclick="goFullscreen( 'dataentrydiv' )" />
+</div>
+<br/><br/>
+<div style="width:60%;margin:auto;display:none">
+    #set( $deIds = "" )
+    #foreach($dataElement in $dataElementList)
+        #set( $deIds = $deIds + $dataElement.id + "," )
+    #end
+    <input type="text" id="dataElements" name="dataElements" value="$deIds" />
+
+    #set( $ouIds = "" )
+    #foreach( $orgUnit in $orgUnitList)
+        #set( $ouIds =  $ouIds + $orgUnit.id + "," )
+    #end
+    <input type="text" id="orgUnits" name="orgUnits" value="$ouIds" />
+
+    <select id="orgUnits" name="orgUnits">
+        #foreach($orgUnit in $orgUnitList)
+            <option value="$orgUnit.id">$orgUnit.name</option>
+        #end
+    </select>
+</div>
+<div id="htmlContent" style="width:60%;margin:auto;display:none">
+    <table cellspacing="0" cellpadding="0" style="margin:auto;width:900px;" class="altrowstable">
+        <thead>
+	        <tr bgcolor="#A9D0F5" style="height:30px;">
+	            <th align="left" style="vertical-align: middle;width:180px;">Areas of Work</th>
+	            <th align="left" style="vertical-align: middle;">$i18n.getString( "iso_code" )</th>
+	            <th align="left" style="vertical-align: middle;">$i18n.getString( "region" )</th>
+	            <th align="left" style="vertical-align: middle;">$i18n.getString( "unicef_region" )</th>
+	            <th align="left" style="vertical-align: middle;width:120px;">Country</th>
+	            <th align="left" style="vertical-align: middle;">$i18n.getString( "income_level" )</th>
+	            <th align="left" style="vertical-align: middle;">$i18n.getString( "gavi_eligibility_status" )</th>
+	
+	            <th align="left" style="vertical-align: middle;width:200px;">Data Element</th>
+	            <th align="left" style="vertical-align: middle;width:100px;">Value</th>
+	            <th align="left" style="vertical-align: middle;width:180px;">Comment</th>
+	            <th align="left" style="vertical-align: middle;width:120px;">Last Entry</th>
+	        </tr>
+		</thead>
+        #set( $mark = false )
+        #foreach($orgUnit in $orgUnitList)
+            #foreach( $dataElement in $dataElementList )
+            	#set( $getter1 = "" )
+            	#set( $alertResult = "" )
+            	#set( $alertResult = $alertResultMap.get( "$orgUnit.getId():$dataElement.getId()" ) )
+            	#if( $alertResult == "YES" )                	
+                
+                    #if( $mark )
+                        #set( $mark = false )
+                    #else
+                        #set( $mark = true )
+                    #end
+                    #set( $getter = "${orgUnit.uid}-${dataElement.uid}")
+
+	                <tr #if( $mark ) bgcolor="#E0ECF8" #else bgcolor = "#FFFFFF" #end>
+	                    <td style="vertical-align: middle;">$!dataSetMap.get($dataElement.uid)</td>
+	                    <td style="vertical-align: middle;">$orgUnit.code</td>
+	                    <td style="vertical-align: middle;">$!orgUnit.getParent().shortName</td>
+	                    <td style="vertical-align: middle;">$orgUnit.getGroupInGroupSet( $unicefRegionsGroupSet ).getShortName()</td>
+	                    <td style="vertical-align: middle;">$orgUnit.getName()</td>
+	
+	
+	                    #set( $headergetter = "" )
+	                    #set( $headergetter = "$orgUnit.id:3" )
+	                    #if('$!headerDataValueMap.get($headergetter)' != 'null' )
+	                        <td style="vertical-align: middle;">$!headerDataValueMap.get($headergetter).value</td>
+	                    #else
+	                        <td style="vertical-align: middle;">&nbsp;</td>
+	                    #end
+	
+	                    #set( $headergetter = "" )
+	                    #set( $headergetter = "$orgUnit.id:4" )
+	                    #if('$!headerDataValueMap.get($headergetter)' != 'null' )
+	                        <td style="vertical-align: middle;">$!headerDataValueMap.get($headergetter).value</td>
+	                    #else
+	                        <td style="vertical-align: middle;">&nbsp;</td>
+	                    #end
+	
+	                    <td style="vertical-align: middle;">$dataElement.displayName</td>
+	                    <td style="vertical-align: middle;">$!dataValue.get(${getter})</td>
+	                    <td style="vertical-align: middle;">$!dataComments.get(${getter})</td>
+	                    <td style="vertical-align: middle;">$!dataStoredBy.get(${getter})</td>
+	                </tr>
+					#end
+                #end
+            #end
+
+        </thead>
+    </table>
+</div>
+
+<script type="text/javascript">
+    function goFullscreen( id )
+    {
+        var $win = $(window);
+        $("#dataentrydiv").height( $win.height() );
+
+        // Get the element that we want to take into fullscreen mode
+        var element = document.getElementById( id );
+
+        // These function will not exist in the browsers that don't support fullscreen mode yet,
+        // so we'll have to check to see if they're available before calling them.
+
+        if( element.requestFullscreen)
+        {
+            element.requestFullscreen();
+        }
+        else if( element.mozRequestFullScreen)
+        {
+            // This is how to go into fullscren mode in Firefox
+            // Note the "moz" prefix, which is short for Mozilla.
+            element.mozRequestFullScreen();
+        }
+        else if( element.webkitRequestFullScreen )
+        {
+            // This is how to go into fullscreen mode in Chrome and Safari
+            // Both of those browsers are based on the Webkit project, hence the same prefix.
+            element.webkitRequestFullScreen( Element.ALLOW_KEYBOARD_INPUT );
+        }
+        else if( element.msRequestFullscreen )
+        {
+            element.msRequestFullscreen();
+        }
+    }
+</script>
+<div id="dataentrydiv" style="width:100%;margin:auto;height:350px;overflow:auto;">
+    <table class="altrowstable tablesorter" id="alternatecolor" cellspacing="0" cellpadding="0" style="margin:auto;" width="100%">
+        <col/>
+        <col/>
+        <thead>
+        <tr style="height:30px;">
+            <th style="width:2%;">$i18n.getString( "status" )</th>
+            <th style="width:2%;">$i18n.getString( "type" )</th>
+            <th width="10%" class="{sorter: false}">$i18n.getString( "areas_of_work" )</th>
+            <th width="15%" onclick="sorting()">$i18n.getString( "country" )<img src="images/asc.gif" class="asc" style="display:block;float:right;"/><img src="images/desc.gif" class="desc" style="display:none;float:right;"/></th>
+            <th width="20%" onclick="sorting()">$i18n.getString( "data_element" )<img src="images/asc.gif" class="asc" style="display:block;float:right;"/><img src="images/desc.gif" class="desc" style="display:none;float:right;"/></th>
+            <th width="15%" class="{sorter: false}">$i18n.getString( "value" )</th>
+            <th width="20%" class="{sorter: false}">$i18n.getString( "comment" )</th>
+            <th width="10%" class="{sorter: false}">$i18n.getString( "last_entry" )</th>
+            <th width="3%" class="{sorter: false}">$i18n.getString( "copy" )</th>
+            <th style="width:3%" class="{sorter: false}" title="View history ,discussion and TA">$i18n.getString( "more" )</th>
+        </tr>
+        </thead>
+        <tbody id="list">
+		
+		<!-- ******************************************************************************************************************************************** -->
+		   #foreach($orgUnit in $orgUnitList)
+                #foreach( $dataElement in $dataElementList )                	
+                	#set( $getter1 = "" )
+                	#set( $alertResult = "" )
+                	#set( $alertResult = $alertResultMap.get( "$orgUnit.getId():$dataElement.getId()" ) )
+                	#if( $alertResult == "YES" )                	
+						#set( $isDEhiddenForThisOrgUnit = false )
+						#set( $orgUnitsOfThisDE = $dataElement.getOrgUnits() )
+						
+						#foreach( $ou in $orgUnitsOfThisDE )
+							#if($orgUnit==$ou)
+								#set( $isDEhiddenForThisOrgUnit = true )
+							#end
+						#end
+							
+						#if(!$isDEhiddenForThisOrgUnit)	
+							
+							#set( $getter = "${orgUnit.uid}-${dataElement.uid}")
+							#set( $count = $count + 1 )
+							#set( $dataEntryId = "${dataElement.id}-${orgUnit.id}-${dataElementCategoryOptionCombo.id}-${count}-val" )
+							#set( $dataEntryComment = "${dataElement.id}-${orgUnit.id}-${dataElementCategoryOptionCombo.id}-${count}-comment" )
+							#set( $off_pri_val = $off_pri_de_map.get( $dataElement ) )
+							#set( $comment = $encoder.jsEscape( $!dataComments.get(${getter}) , "'") )
+							#set( $comment = ${encoder.htmlEncode( $comment )} )
+							
+							#if( $userDataElements.contains( $dataElement ) )
+								#set( $deUpdateStatus = "yes" )
+							#else
+								#set( $deUpdateStatus = "no" )
+							#end
+
+							<tr  style="height:20px;">
+								<td style="width:5%" align="center">
+									#if($conflictMap.get(${getter})=="Yes")
+										<img src="images/notification_warning.png" width="20"/ >
+									#else
+										&nbsp;
+									#end
+								</td>
+								<td style="width:5%" align="center">
+									#if( $!off_pri_val == "official" && $deUpdateStatus == "no" )
+										<img src="images/official.ico" width="20" title="Official Data"/>
+									#elseif( $!off_pri_val == "private" && $deUpdateStatus == "no" )
+										<img src="images/private.ico" width="20"/>
+									#elseif( $!off_pri_val == "other" && $deUpdateStatus == "no" )
+										&nbsp;
+									#elseif($deUpdateStatus == "yes")
+										<img src="images/pencil.png" width="19" title="Edit"/ >
+									#end
+								</td>
+								<td >$!dataSetMap.get($dataElement.uid)</td>
+								<td >$orgUnit.getName()</td>
+								<td >$dataElement.displayName</td>
+								#if($dataElement.valueType == 'NUMBER')
+									<td><input type="text" style="width:150px;" name="entryfield" id="${dataEntryId}" value="$!dataValue.get(${getter})"  #if( $deUpdateStatus == "no" ) disabled #end onblur="javascript: saveRegionValue('$!comment','$!dataValue.get(${getter})','$dataElement.id','$orgUnit.id','$dataElementCategoryOptionCombo.id','$count','$dataEntryId','$dataElement.valueType')" /></td>									
+									<script>
+										function formatNumber()
+										{
+											for (var i = 0; i < percentageRequiredList.length; i++)
+											{
+												if($dataElement.id == percentageRequiredList[i])
+												{
+													var value = document.getElementById('$dataEntryId').value;
+													document.getElementById('$dataEntryId').value = value+"%";
+													checkNumberType=true;
+													return;
+												}
+											}
+											checkNumberType=false;
+											var value = document.getElementById('$dataEntryId').value;
+											document.getElementById('$dataEntryId').value = numberToCurreny(value);
+										}
+										formatNumber();
+									</script>
+
+									<td><textarea cols="32" onclick="textAreaAdjust(this)" style="overflow:hidden;height:20px;width:100%;" name="entrycomment" id="${dataEntryComment}" value="$!comment"  onblur="javascript: saveComment('$dataValue.get(${getter})','$!comment','$dataElement.id','$orgUnit.id','$dataElementCategoryOptionCombo.id','$count','$dataEntryId','$dataEntryComment','$dataElement.valueType')" ondblclick="javascript:setCommentBoxSize('${dataEntryComment}')">$!dataComments.get(${getter})</textarea></td>
+								#elseif($dataElement.valueType == 'BOOLEAN')
+									<td>
+										<select style="width:150px;" name="entryfield" id="${dataEntryId}"  #if( $deUpdateStatus == "no" ) disabled #end onchange="javascript: saveRegionValue('$!comment','$!dataValue.get(${getter})','$dataElement.id','$orgUnit.id','$dataElementCategoryOptionCombo.id','$count','$dataEntryId','$dataElement.valueType')" />
+										<option value="-1">$i18n.getString( "please_select" )</option>
+										<option #if($!dataValue.get(${getter}).toLowerCase() == 'yes' ) selected #end>Yes</option>
+										<option #if($!dataValue.get(${getter}).toLowerCase() == 'no' ) selected #end>No</option>
+										</select>
+									</td>
+									<td><textarea  cols="32" onclick="textAreaAdjust(this)" style="overflow:hidden;height:20px;width:100%;" name="entrycomment" id="${dataEntryComment}" value="$!comment"  onblur="javascript: saveComment('$dataValue.get(${getter})','$!comment','$dataElement.id','$orgUnits.id','$dataElementCategoryOptionCombo.id','$count','$dataEntryId','$dataEntryComment','$dataElement.valueType')">$!dataComments.get(${getter})</textarea></td>
+								#elseif($dataElement.valueType == 'DATE')
+
+										<td><input type="text" style="width:150px;" value="$!dataValue.get(${getter})" #if( $deUpdateStatus == "no" ) disabled #end onblur="javascript: saveRegionValue('$!comment','$!dataValue.get(${getter})','$dataElement.id','$orgUnit.id','$dataElementCategoryOptionCombo.id','$count','$dataEntryId','$dataElement.valueType')" name="entryfield" id="${dataEntryId}" title="Date Format: YYYY / YYYY-Qn / YYYY-MM / YYYY-MM-DD e.g. 2012 / 2012-Q1 / 2012-01 / 2012-01-01 / NA" /></td>
+										<td><textarea cols="32" onclick="textAreaAdjust(this)" style="overflow:hidden;height:20px;width:100%;" name="entrycomment" id="${dataEntryComment}" value="$!comment"  onblur="javascript: saveComment('$dataValue.get(${getter})','$!comment','$dataElement.id','$orgUnit.id','$dataElementCategoryOptionCombo.id','$count','$dataEntryId','$dataEntryComment','$dataElement.valueType')" ondblclick="javascript:setCommentBoxSize('${dataEntryComment}')">$!dataComments.get(${getter})</textarea></td>
+
+									#elseif($dataElement.valueType == 'TEXT')
+										#if( $dataElement.getOptionSet() )
+											<td>
+												<select style="width:150px;" name="entryfield" id="${dataEntryId}" #if( $deUpdateStatus == "no" ) disabled #end onchange="javascript: saveRegionValueOption('$!comment','$!dataValue.get(${getter})','$dataElement.id','$orgUnit.id','$dataElementCategoryOptionCombo.id','$count','${dataEntryId}')">
+													<option value="-1">$i18n.getString( "please_select" )</option>
+													#foreach( $option in $dataElement.getOptionSet().getOptions() )
+														<option #if($!dataValue.get(${getter}).toLowerCase() == $option.code.toLowerCase() ) selected #end>$option.name</option>
+													#end
+												</select>
+											</td>
+											<td><textarea cols="32" onclick="textAreaAdjust(this)" style="overflow:hidden;height:20px;width:100%;" name="entrycomment" id="${dataEntryComment}" value="$!comment"  onblur="javascript: saveCommentOption('$dataValue.get(${getter})','$!comment','$dataElement.id','$orgUnit.id','$dataElementCategoryOptionCombo.id','$count','$dataEntryId','$dataEntryComment','$dataElement.valueType')">$!dataComments.get(${getter})</textarea></td>
+										#elseif(!($dataElement.getOptionSet()))
+											<td><input type="text" style="width:150px;" name="entryfield" id="${dataEntryId}" #if( $deUpdateStatus == "no" ) disabled #end value="$dataValue.get(${getter})"  onblur="javascript: saveRegionValue('$!comment','$!dataValue.get(${getter})','$dataElement.id','$orgUnit.id','$dataElementCategoryOptionCombo.id','$count','$dataEntryId','$dataElement.valueType')" /></td>
+											<td><textarea cols="32" onclick="textAreaAdjust(this)" style="overflow:hidden;height:20px;width:100%;" name="entrycomment" id="${dataEntryComment}" value="$!comment"  onblur="javascript: saveComment('$dataValue.get(${getter})','$!comment','$dataElement.id','$orgUnit.id','$dataElementCategoryOptionCombo.id','$count','$dataEntryId','$dataEntryComment','$dataElement.valueType')" ondblclick="javascript:setCommentBoxSize('${dataEntryComment}')">$!dataComments.get(${getter})</textarea></td>
+										#end
+									#else
+										<td><input type="text" name="entryfield" id="${dataEntryId}" value="$!dataValue.get(${getter})" #if( $deUpdateStatus == "no" ) disabled #end onblur="javascript: saveRegionValue('$!comment','$!dataValue.get(${getter})','$dataElement.id','$orgUnit.id','$dataElementCategoryOptionCombo.id','$count','$dataEntryId','$dataElement.valueType')"  /></td>
+										<td><textarea cols="32" onclick="textAreaAdjust(this)" style="overflow:hidden;height:20px;width:100%;" name="entrycomment" id="${dataEntryComment}" value="$!comment"  onblur="javascript: saveComment('$dataValue.get(${getter})','$!comment','$dataElement.id','$orgUnit.id','$dataElementCategoryOptionCombo.id','$count','$dataEntryId','$dataEntryComment','$dataElement.valueType')" ondblclick="javascript:setCommentBoxSize('${dataEntryComment}')">$!dataComments.get(${getter})</textarea></td>
+									#end
+
+									<td align="center" id="currentUser_${dataEntryId}">$!dataStoredBy.get(${getter})</td>
+									#if($copyRightMap.get(${getter})=='No' || ( $!dataValue.get(${getter})=='' && $!comment =='' ) || $deUpdateStatus == 'no')
+										<td title="Resubmit current value and comment"><img src="images/disable_copy.png" width="25" /></td>
+									#else
+										#if($dataElement.valueType == 'string' && $dataElement.getOptionSet())
+											<td ><a href="javascript:copyRegionValueAndCommentOption('$dataElement.id','$orgUnit.id','$dataElementCategoryOptionCombo.id','$count','$dataEntryId','$dataEntryComment','$userName')"><img src="images/copy.png" id="copy_${dataEntryId}" width="25" title="Resubmit current  value and comment" /></a></td>
+										#else
+											<td ><a href="javascript:copyRegionValueAndComment('$dataElement.id','$orgUnit.id','$dataElementCategoryOptionCombo.id','$count','$dataEntryId','$dataEntryComment','$userName')"><img src="images/copy.png" id="copy_${dataEntryId}" width="25" title="Resubmit current  value and comment" /></a></td>
+										#end
+									#end
+									<td align="center">
+										<a class="fancybox" href="javascript:getHistory('$selectedPeriod','$dataElement.id','$orgUnit.id','$dataElementCategoryOptionCombo.id','$dataElement.name','yes', checkNumberType);"><img src="images/toolbox_info.png" width="25" /></a>
+
+									</td>
+								</tr>
+								#end
+							#end
+				#end
+			#end
+        </tbody>
+    </table>
+</div>
+<div id="history" style="width:800px;"></div>
+
+</form>

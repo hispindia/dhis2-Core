@@ -1,0 +1,144 @@
+<style>
+    #overlay 
+    {
+        z-index:9998;
+        position:absolute;
+        top:0;
+        bottom:0;
+        left:0;
+        width:100%;
+        background:#000;
+        opacity:0.45;
+        -moz-opacity:0.45;
+        filter:alpha(opacity=45);
+        visibility:hidden;
+    }
+
+    #overlayImg{ width: 50px; height: 50px; z-index: 9999; position: absolute; left:50%}   
+	input[type=checkbox].css-checkbox {
+	  position: absolute; 
+    overflow: hidden; 
+    clip: rect(0 0 0 0); 
+    height:1px; 
+    width:1px; 
+    margin:-1px; 
+    padding:0;
+    border:0;
+}
+
+input[type=checkbox].css-checkbox + label.css-label {
+	padding-left:20px;
+	height:15px; 
+	display:inline-block;
+	line-height:15px;
+	background-repeat:no-repeat;
+	background-position: 0 0;
+	vertical-align:middle;
+	cursor:pointer;
+}
+
+input[type=checkbox].css-checkbox:checked + label.css-label {
+	background-position: 0 -15px;
+}
+
+.css-label{
+	/*background-image:url(images/dark-check-green.png);*/
+}
+
+/*specific classes related to Checkbox skins*/
+
+.mac-style{background-image:url(images/mac-style.png);}
+
+</style>
+
+<div id="overlay">
+    <div id="overlayImg"><img  width="50" height="50" src="images/ajax-loader.gif" /></div>
+</div>
+
+<script>
+
+    function formValidations()
+    {
+        if( document.getElementById('upload').value == null || document.getElementById('upload').value == "" )
+        {
+            alert("Please select upload file"); return false;
+        }
+        
+        showOverlay();
+        
+        return true;
+    }
+    
+    function showOverlay() 
+    {
+        var o = document.getElementById('overlay');
+        o.style.visibility = 'visible';
+        jQuery("#overlay").css({
+            "height": jQuery(document).height()
+        });
+        jQuery("#overlayImg").css({
+            "top":jQuery(window).height()/2
+        });
+    }
+    function hideOverlay() 
+    {
+        var o = document.getElementById('overlay');
+        o.style.visibility = 'hidden';
+    }
+
+</script>
+
+<br/>
+<div style="min-height:400px;">
+<div style="font-size:16px; width:70%; margin:auto;" class="ui-widget-header ui-corner-all"><b>$i18n.getString( "offline_data_upload" )</b></div>
+
+<form id="dataImportForm" name="dataImportForm" method="post" enctype="multipart/form-data" action="uploadOfflineData.action" onsubmit="return formValidations()">
+	<div id="reportFilterDiv" style="width:70%; margin:auto; border-width: 1px;background-color:#E0ECF8;border-color: #A9D0F5; display:block;min-height:350px;">
+    <br>
+    <table width="730" cellspacing="0" cellpadding="0" border="0" align="center" style=" border-collapse: collapse; margin-top: 0;">
+        <tbody><tr>
+            <td class="NormalB">
+                File Format :<br><br>
+                <select id="fileFormat" name="fileFormat" style="width:325px" class="{validate:{required:true}}">
+                    <option value="csv">CSV</option>
+                    <option value="xls">XLS - Country as columns</option>
+                    <option value="XLS_COUNTRY_AS_ROWS">XLS - Country as rows</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="NormalB">&nbsp;</td>
+        </tr>
+		#if($conflictAuthority == "Yes")
+		<tr>
+            <td class="NormalB">
+			  <input id="conflict" name="conflict" type="checkbox" class="css-checkbox" />
+			  <label for="conflict" class="css-label mac-style">$i18n.getString( "skip_conflict" )</label>
+			</td>
+        </tr>
+		#end
+        <tr>
+            <td class="NormalB">&nbsp;</td>
+        </tr>
+        <tr>
+            <td class="NormalB">
+                Upload File :<br><br>
+                <input type="file" id="upload" name="upload" size="45" class="{validate:{required:true}}">
+            </td>
+        </tr>
+        <tr>
+            <td class="NormalB">&nbsp;</td>
+        </tr>
+        <tr>
+            <td class="NormalB">&nbsp;</td>
+        </tr>
+        <tr>
+            <td class="NormalB">
+                <input type="submit" name="importReport" value="Upload Data" style="width:325px">
+            </td>
+        </tr>
+    </tbody></table>
+    </div>
+</form>
+</div>
+</div>

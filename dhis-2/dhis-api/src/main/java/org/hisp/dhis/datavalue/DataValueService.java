@@ -234,4 +234,18 @@ public interface DataValueService
         OrganisationUnit source, Collection<PeriodType> periodTypes, DataElementCategoryOptionCombo attributeCombo,
         Set<CategoryOptionGroup> cogDimensionConstraints, Set<DataElementCategoryOption> coDimensionConstraints,
         MapMap<Integer, DataElementOperand, Date> lastUpdatedMap );
+    
+    // add methods for IVB
+    /**
+     * Gets a Collection of DeflatedDataValues.
+     * 
+     * @param dataElementId the DataElement identifier.
+     * @param periodId the Period identifier.
+     * @param sourceIds the Collection of Source identifiers.
+     */
+    Collection<DeflatedDataValue> getDeflatedDataValues( int dataElementId, int periodId, Collection<Integer> sourceIds );
+    
+    DataValue getLatestDataValue( DataElement dataElement, DataElementCategoryOptionCombo optionCombo, OrganisationUnit organisationUnit );
+    
+    DataValue getLatestDataValue( Integer dataElementId, Integer categoryOptionComboId, Integer ouId );
 }

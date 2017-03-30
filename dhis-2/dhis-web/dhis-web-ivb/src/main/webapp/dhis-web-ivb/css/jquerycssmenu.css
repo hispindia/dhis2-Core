@@ -1,0 +1,115 @@
+.selected
+{	
+	background-color:#DDDDDD;
+    background-image:url(../images/bg-gray.png); background-repeat:repeat-x; background-position:0 -60px;
+    color:#000000;
+}
+.jquerycssmenu{
+	display:block;
+	font-family:Arial;
+}
+
+.jquerycssmenu ul{
+	width:100%;
+    margin:0; /*If above width is not 100% and you want this menu to align in the center of its container, set it as { margin: 0 auto; }*/
+    padding:0;
+    background:#F6F6F9 url(../images/bg-gray.png) repeat-x 0 0;
+    border:1px solid #CCCCCC;
+    display:inline-block;
+    list-style:none;
+    position:relative;
+    font-size:0;
+    *z-index:100000000;
+    border-radius:4px;
+    box-shadow: 0px 2px 5px #DDDDDD;
+}
+
+/*Top level list items*/
+.jquerycssmenu ul li{
+ 	margin:0;
+    padding:0;
+    display:inline-block;
+    position:relative;
+    color:#000000;
+}
+
+/*Top level menu link items style*/
+.jquerycssmenu ul li a{
+	color:#000000;
+    padding:0 22px;
+    line-height:35px;
+    font-size:13px;
+    font-weight:normal;
+    text-decoration:none;
+    display:inline-block;
+    outline:0;
+    position:relative;
+    white-space:nowrap;
+}
+
+.jquerycssmenu ul li a:hover,.indentmenu ul li .current{
+
+color: black !important; /*text color of selected and active item*/
+background: white url(../images/indentbg2.gif) repeat-x 0 0;
+
+}
+	
+/*1st sub level menu*/
+.jquerycssmenu ul li ul{
+position: absolute;
+left: 0;
+display: block;
+visibility: hidden;
+border: 1px solid #CCCCCC; /*dark purple border*/
+border-width: 1px 0;
+background: white url(../images/bg-gray.png) repeat-x 0 0;
+*z-index:100000000;
+}
+
+/*Sub level menu list items (undo style from Top level List Items)*/
+.jquerycssmenu ul li ul li{
+float: none;
+}
+
+/*All subsequent sub menu levels vertical offset after 1st level sub menu */
+.jquerycssmenu ul li ul li ul{
+top: 0;
+}
+
+/* Sub level menu links style */
+.jquerycssmenu ul li ul li a{
+font: normal 13px Arial;
+width: 355px; /*width of sub menus*/
+background: #E6F3FF;
+color: black;
+padding: 4px 5px;
+margin: 0;
+border-top-width: 0;
+border-bottom: 1px solid #CCCCCC;
+}
+
+.jquerycssmenu ul li ul li a:hover{ /*sub menus hover style*/
+background-color:#B0D8F2;
+background-image:none;
+font: normal 13px Arial;
+color: black;
+}
+
+/* ######### CSS classes applied to down and right arrow images  ######### */
+
+.downarrowclass{
+position: absolute;
+top: 9px;
+right: 5px;
+background-repeat:no-repeat;
+background-position:right center;
+border-left:1px solid transparent;
+border-right:1px solid transparent;
+}
+
+.rightarrowclass{
+position: absolute;
+top: 9px;
+right: 5px;
+background-position:right center;
+}

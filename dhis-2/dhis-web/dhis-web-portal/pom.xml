@@ -148,6 +148,16 @@
       <version>${project.version}</version>
       <type>war</type>
     </dependency>
+	
+	<!-- India Module -->
+    <dependency>
+      <groupId>org.hisp.dhis</groupId>
+      <artifactId>dhis-web-ivb</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+    </dependency>		
+	<!-- end -->
+	
   </dependencies>
   <properties>
     <rootDir>../../</rootDir>

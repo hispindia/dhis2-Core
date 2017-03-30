@@ -1,0 +1,245 @@
+<script >
+
+$(document).ready( function(){
+	getReportType();
+});
+
+$(function() {		
+  
+		var userTags = $userList;		
+		$( "#userByName" ).autocomplete({
+			source: userTags,
+			select: function( event, ui ) {	
+				var textValue = ui.item.value;
+				var opts = document.getElementById("selectedUser").options;
+				for(var i = 0; i < opts.length; i++) {					
+    				if(trim(opts[i].text)+'' == trim(textValue)+'') {        				
+						opts[i].selected = true;
+   					 }
+				}
+    			
+			}
+		});
+});
+
+function treeSelected( unitIds )
+{	
+	$("#orgUnitId").val(unitIds);	
+}
+
+function trim (s) 
+{
+    s = s.replace(/(^\s*)|(\s*$)/gi,"");
+    s = s.replace(/[ ]{2,}/gi," ");
+    s = s.replace(/\n /,"\n");
+    return s;
+}
+
+function getReportType()
+{
+	
+	
+		document.getElementById("dataSetTr").style.display = 'none';
+		document.getElementById("userTr").style.display = 'block';
+		$("#userByName").val('');
+	
+}
+function getDateFrom()
+{
+    var dateVal = document.getElementById('dateFrom').value;
+    var dateReg1 = /^\d{4}-(0[1-9]|1[1-2]|10)$/; 
+    var dateReg2 = /^\d{4}$/; 
+    var dateReg3 = /^\d{4}-Q[1-4]$/;
+    var dateReg4 = /^\d{4}-(0[1-9]|1[1-2]|10)-(0[1-9]|1[0-9]|2[0-9]|30|31)$/;
+    
+    if( dateVal == "" || dateVal.match(dateReg1) || dateVal.match(dateReg2) || dateVal.match(dateReg3) || dateVal.match(dateReg4) )
+    {
+    }
+    else
+    {
+        alert("Please enter date in given format YYYY or YYYY-MM or YYYY-Qn or YYYY-MM-DD e.g. 2012 or 2012-01 or 2012-Q1 or 2012-01-01 ");
+        document.getElementById('dateFrom').value = "";
+        return true;
+    }
+}
+
+function getDateTo()
+{
+    var dateVal = document.getElementById('dateTo').value;
+    var dateVal2 = document.getElementById('dateFrom').value;
+    var splitDate1 = dateVal.split("-");
+    var splitDate2 = dateVal2.split("-");
+
+    var dateReg1 = /^\d{4}-(0[1-9]|1[1-2]|10)$/; 
+    var dateReg2 = /^\d{4}$/; 
+    var dateReg3 = /^\d{4}-Q[1-4]$/; 
+    var dateReg4 = /^\d{4}-(0[1-9]|1[1-2]|10)-(0[1-9]|1[0-9]|2[0-9]|30|31)$/;
+
+    var yearTo = splitDate1[0];
+    var monthTo = splitDate1[1];
+    var yearFrom = splitDate2[0];
+    var monthFrom = splitDate2[1];  
+        
+    if( dateVal == "" || dateVal.match(dateReg1) || dateVal.match(dateReg2) || dateVal.match(dateReg3) || dateVal.match(dateReg4) )
+    {
+    }
+    else if(Math.floor(yearTo,1000) == Math.floor(yearFrom,1000))
+    {
+        alert("Please Check date-To value");        
+    }
+    else if(Math.floor(yearTo,1000) < Math.floor(yearFrom,1000))
+    {
+        alert("Please check year(To)");
+    }
+    else
+    {
+        alert("Please enter date in given format YYYY or YYYY-MM or YYYY-Qn or YYYY-MM-DD e.g. 2012 or 2012-01 or 2012-Q1 or 2012-01-01 ");
+        document.getElementById('dateTo').value = "";
+        return true;
+    }
+}
+function filterAvailableUsers()
+{
+	var filter = document.getElementById( "availableUserFilter" ).value;
+    var list = document.getElementById( "alluserList" );
+    
+    list.options.length = 0;
+    
+    var selIndListId = document.getElementById( "selectedUser" );
+    var selIndLength = selIndListId.options.length;
+    for ( var id in alluserList )
+    {
+    	//alert( "id : " + id );
+        var value = alluserList[id];
+        
+        var flag = 1;
+        for( var i =0 ; i<selIndLength; i++ )
+        {
+        	//alert( selIndListId.options[i].text );
+        	//alert( selIndListId.options[i].value );
+        	if( id == selIndListId.options[i].value )
+        		{
+        		flag =2;
+        		//alert("aaaa");
+        		break;
+        		}
+        }
+        if ( value.toLowerCase().indexOf( filter.toLowerCase() ) != -1 && (flag == 1) )
+        {
+            list.add( new Option( value, id ), null );
+        }
+        //alert( flag );
+    }
+}
+function getDateFrom1()
+{
+  $( "#dateFrom" ).datepicker({  dateFormat: "yy-mm-dd"});
+}
+
+function getDateTo1()
+{
+   $( "#dateTo" ).datepicker({  dateFormat: "yy-mm-dd"});
+}
+
+function validateForm1()
+{
+	//alert("inside validate : "+ document.getElementById( 'selectedUser' ).value);
+	
+   	var fromDate1 = document.getElementById( 'dateFrom' ).value;
+    var toDate1 = document.getElementById( 'dateTo' ).value;
+    //var seluser =   document.getElementById( 'selectedUser' ).value;
+	
+	var selIndListId1 = document.getElementById( "selectedUser" );
+    var selIndLength1 = selIndListId1.options.length;
+	
+	//alert("seluser--"+seluser);
+    if( fromDate1 == "" )
+    {
+        alert("Please enter start date");
+        return false;
+    }
+
+    if( toDate1 == "" )
+    {
+        alert("Please enter end date");     
+        return false;
+    }
+	
+
+		if(selIndLength1 == 0)
+		{
+			alert("Please enter user");
+			return false;
+		}
+		
+		else{
+		
+	$("#selectedUser").find("option").attr("selected", "selected");
+		}
+		
+}
+</script>
+
+<div style="font-size:16px; width:93%; margin:auto;" class="ui-widget-header ui-corner-all"><b>$i18n.getString( "user_activity_login_monitoring_report" )</b></div>
+
+<form id="userActivityLoginMonitoringReportForm" action="userActivityLoginMonitoring.action" method="post" onsubmit="return validateForm1()">
+	<div id="reportFilterDiv" >
+ 		<table style="width:90%;margin-left:5em;" cellpadding="4" cellspacing="2">
+			 <tr style="margin-bottom: 15px;">
+				
+					<td width="40%">
+         
+						$i18n.getString( "from" ): <input type="text" id="dateFrom"  name="startDate" title="Date Format: YYYY / YYYY-Qn / YYYY-MM / YYYY-MM-DD e.g. 2012 / 2012-Q1 / 2012-01 / 2012-01-01" onblur="getDateFrom()" size="12" /> &nbsp;
+						$i18n.getString( "to" ): <input type="text" id="dateTo" name="endDate" title="Date Format: YYYY / YYYY-Qn / YYYY-MM / YYYY-MM-DD e.g. 2012 / 2012-Q1 / 2012-01 / 2012-01-01" onblur="getDateTo()" size="12" /><br/><br/>
+
+						<br/><br/>
+						
+					</td>
+			 </tr>
+			   <tr>
+		<td class="NormalB">$i18n.getString( "filter" ):&nbsp;<input type="text" id="availableUserFilter" onkeyup="filterAvailableUsers()" style="width:400px"></td>
+		<td class="NormalB">&nbsp;</td>
+		<td class="NormalB">&nbsp;</td>
+    </tr>
+			 <tr id="userTr">
+			 <td class="NormalB">$i18n.getString( "available_userList" )<br>
+			<select multiple size="7" id="alluserList" name="alluserList"  style="width:450px; height:200px" ondblclick="moveSelectedById( 'alluserList', 'selectedUser' )">
+				#foreach($user in $alluserList)
+						<option value="$user.uid">$user.name ( $user.username )</option>
+					#end
+			</select>
+			</td>
+			
+				<td class="NormalB" align="center">
+			&nbsp;&nbsp;<input type="button" value="&gt;" style="width:40px" onClick="moveSelectedById( 'alluserList', 'selectedUser' )">&nbsp;&nbsp;<br>
+			&nbsp;&nbsp;<input type="button" value="&lt;" style="width:40px" onClick="moveSelectedById( 'selectedUser', 'alluserList' )">&nbsp;&nbsp;<br>
+			&nbsp;&nbsp;<input type="button" value="&gt;&gt;" style="width:40px" onClick="moveAllById( 'alluserList', 'selectedUser' )">&nbsp;&nbsp;<br>
+			&nbsp;&nbsp;<input type="button" value="&lt;&lt;" style="width:40px" onClick="moveAllById( 'selectedUser', 'alluserList' )">&nbsp;&nbsp;
+		</td>
+		<td class="NormalB"> $i18n.getString( "selected_userList" )<br />
+			<select multiple size="7" id="selectedUser" name="selectedUser"  style="width:450px; height:200px" ondblclick="moveSelectedById( 'selectedUser', 'alluserList' )">
+			</select>
+		</td>
+		
+			 </tr>
+			 <tr>
+				<td>
+			 		<input type="submit" value="$i18n.getString( 'get_report' )" />		 		
+	 			</td>
+	 			<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			 </tr>
+		</table>
+	</div>
+	<br/><br/>
+</form>
+
+
+<script type="text/javascript">
+
+	var alluserList = new Object();	
+    #foreach ( $user in $alluserList )
+    	alluserList['$user.uid'] = '$encoder.jsEscape( $user.name, "'" )';
+    #end
+
+</script>

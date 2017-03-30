@@ -1,0 +1,115 @@
+<style>
+	#filterConflictDiv{
+			padding: 15px;
+			background-color: white; 
+			width:75%;
+			margin:auto;
+			display:block;
+			
+			/* outer shadows  (note the rgba is red, green, blue, alpha) */
+			-webkit-box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.4); 
+			-moz-box-shadow: 0px 1px 6px rgba(23, 69, 88, .5);
+	
+			/* rounded corners */
+			-webkit-border-radius: 12px;
+			-moz-border-radius: 7px; 
+			border-radius: 7px;
+			
+			/* gradients */
+			background: -webkit-gradient(linear, left top, left bottom, 
+			color-stop(0%, white), color-stop(15%, white), color-stop(100%, #D7E9F5)); 
+			background: -moz-linear-gradient(top, white 0%, white 0%, #D5E4F3 60%); 
+			box-shadow: 8px 10px 10px rgba(0,0,0,0.5),
+			   inset 8px 10px 10px rgba(255,255,255,0.75);
+			   -o-box-shadow: 8px 10px 10px rgba(0,0,0,0.5),
+			   inset 8px 10px 10px rgba(255,255,255,0.75);
+			   -webkit-box-shadow: 8px 10px 10px rgba(0,0,0,0.5),
+			   inset 8px 10px 10px rgba(255,255,255,0.75);
+			   -moz-box-shadow: 8px 10px 10px rgba(0,0,0,0.5),
+			   inset 8px 10px 10px rgba(255,255,255,0.75);
+		}
+</style>
+<script type="text/javascript">
+    jQuery(function() {
+		 $("form").on("submit", function() {
+		 	$('#dataSetSelectedList option').attr('selected', 'selected');
+			var dataSetSelectedList = document.getElementById('dataSetSelectedList');
+        		if( dataSetSelectedList.options.length <= 0 )
+        		{
+        			alert("Please select Dataset");
+        			return false;
+        		}
+				if(getDateFrom() == false)
+				{
+					return false;
+				}
+		 });
+        
+    });
+	function getDateFrom()
+	{
+		var dateVal = document.getElementById('conflictPeriod').value;
+		var dateReg1 = /^\d{4}-(0[1-9]|1[1-2]|10)$/; 
+		var dateReg2 = /^\d{4}$/; 
+		var dateReg3 = /^\d{4}-Q[1-4]$/; 
+		
+		if( dateVal.match( dateReg3 ) )
+		{
+			return true;
+		}
+		else
+		{
+			alert("Please Enter date in given format YYYY-Qn e.g. 2012-Q1");
+			document.getElementById('conflictPeriod').value = "";
+			return false;
+		}
+	}
+</script>
+
+<div style="width:80%;margin:auto;" id="filterConflictDiv">
+<form id="conflictForm" name="conflictForm" action="loadConflicts.action" method="post" class="inputForm" >
+  
+    <table id="dataSetSelectionArea" style="width:95%">
+			<tr >
+				<td colspan="2" style="width:55%">#organisationUnitSelectionTree1( false, true, false )</td>				
+				<td style="width:45%">$i18n.getString( "select_quarter" ): <input type="text" title="Date Format: YYYY-Qn e.g. 2012-Q1" name="conflictPeriod" id="conflictPeriod" value="$!currentQuarter" onblur="getDateFrom()"/></td>
+            </tr>
+			<tr>
+                <th style="width:45%">$i18n.getString( "available_datasets" )</th>
+                <th style="width:10%">$i18n.getString( "filter" )</th>
+                <th style="width:45%">$i18n.getString( "selected_datasets" )</th>
+            </tr>
+            <tr>
+                <td style="width:45%">
+                    <select id="availableDataSetList" ondblclick="moveSelectedById( 'availableDataSetList', 'dataSetSelectedList' )" multiple="multiple" style="height: 200px; width: 100%;">
+					#foreach($ds in $datasetList)
+						<option value="$!ds.id">$!ds.name</option>
+					#end
+					</select>
+                </td>
+                <td style="width:10%">
+						<input type="button" value="&gt;" title="$i18n.getString( 'move_selected' )" style="width:50px" onclick="moveSelectedById( 'availableDataSetList', 'dataSetSelectedList' );"/><br/>
+			            <input type="button" value="&lt;" title="$i18n.getString( 'remove_selected' )" style="width:50px" onclick="moveSelectedById( 'dataSetSelectedList', 'availableDataSetList' );"/><br/>
+			            <input type="button" value="&gt;&gt;" title="$i18n.getString('move_all')" style="width:50px" onclick="moveAllById( 'availableDataSetList', 'dataSetSelectedList' );"/><br/>
+			            <input type="button" value="&lt;&lt;" title="$i18n.getString('remove_all')" style="width:50px" onclick="moveAllById( 'dataSetSelectedList', 'availableDataSetList' );"/>
+                </td>           
+                <td style="width:45%">
+                    <select id="dataSetSelectedList" name="dataSetSelectedList" ondblclick="moveSelectedById( 'dataSetSelectedList', 'availableDataSetList' )" multiple="multiple" style="height: 200px; width: 100%;"></select>
+                </td>
+				<td>
+                    <a href="javascript:moveUpDataElement('dataSetSelectedList');"><img src="../images/move_up.png"/></a><br/><br/>
+                    <a href="javascript:moveDownDataElement('dataSetSelectedList');"><img src="../images/move_down.png"/></a><br/><br/>
+            	</td> 
+            </tr>
+            <tr>
+                <td>
+                    <input type="submit" id="submitButton" value="$i18n.getString( 'view_conflicts' )" style="width:12em"/>
+                </td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+    </table>
+</form>
+</div>
+<br/>

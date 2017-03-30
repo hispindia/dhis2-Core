@@ -1,0 +1,5 @@
+#if($adminStatus == "Yes")
+    		<a  id="unreadMsg" href="../dhis-web-dashboard-integration/message.action">$i18n.getString( "unread_messages" )($messageCount)</a>
+    	#else
+    		<a  id="contactus" href="#">$i18n.getString( "contact" )</a>
+	    #end	

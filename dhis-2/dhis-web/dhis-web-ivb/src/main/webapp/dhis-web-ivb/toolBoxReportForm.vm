@@ -1,0 +1,177 @@
+
+<script type="text/javascript" >
+
+	$(function() {
+		$( document ).tooltip({
+		position: {
+			my: "center bottom-20",
+			at: "center top",
+			using: function( position, feedback ) {
+		$( this ).css( position );
+		$( "<div>" )
+			.addClass( "arrow1" )
+			.addClass( feedback.vertical )
+			.addClass( feedback.horizontal )
+			.appendTo( this );
+		}
+		}
+		});
+	});
+	var orgUnitId = null;
+	$(document).ready(function(){
+	    $('#myjquerymenu').find('#report').addClass("selected");	 
+	    $("#submit").button(); 
+	    $("#cancel").button(); 	        
+	});
+	
+	function getOrgUnitId(orgUnits)
+	{ 
+		$("#orgUnitId").val(orgUnits[0]);
+	}
+
+	function generateHTMLreport()
+	{
+		$('#selectedListDataset option').attr('selected', 'selected');
+		var dataSetListBox = document.getElementById('selectedListDataset');
+		
+		if( dataSetListBox.options.length <= 0 )
+		{
+			alert("Please select areas of work");
+			return false;
+		}	
+	}
+	
+	function getDateFrom()
+	{
+		var dateVal = document.getElementById('dateFrom').value;
+		var dateReg1 = /^\d{4}-(0[1-9]|1[1-2]|10)$/; 
+		var dateReg2 = /^\d{4}$/; 
+		var dateReg3 = /^\d{4}-Q[1-4]$/; 
+		
+		if( dateVal == "" || dateVal.match( dateReg3 ) )
+		{
+		}
+		else
+		{
+			alert("Please Enter date in given format YYYY-Qn e.g. 2012-Q1");
+			document.getElementById('dateFrom').value = "";
+			return true;
+		}
+	}
+
+	function getDateTo()
+	{
+		var dateVal = document.getElementById('dateTo').value;
+		var dateVal2 = document.getElementById('dateFrom').value;
+		var splitDate1 = dateVal.split("-");
+		var splitDate2 = dateVal2.split("-");
+		var dateReg1 = /^\d{4}-(0[1-9]|1[1-2]|10)$/; 
+		var dateReg2 = /^\d{4}$/; 
+		var dateReg3 = /^\d{4}-Q[1-4]$/; 
+		var yearTo = splitDate1[0];
+		var monthTo = splitDate1[1];
+		var yearFrom = splitDate2[0];
+		var monthFrom = splitDate2[1];	
+			
+		if( dateVal == "" || dateVal.match(dateReg1) || dateVal.match(dateReg2) || dateVal.match(dateReg3))
+		{}
+		else if(Math.floor(yearTo,1000) == Math.floor(yearFrom,1000))
+		{
+			alert("Please Check date-To value");		
+		}
+		else if(Math.floor(yearTo,1000) < Math.floor(yearFrom,1000))
+		{
+			alert("Please check year(To)");
+		}
+		else
+		{
+			alert("Please Enter date in given format YYYY or YYYY-MM or YYYY-Qn e.g. 2012-Q1 or 2012 or 2012-01");
+			document.getElementById('dateFrom').value = "";
+			return true;
+		}
+	}
+</script>
+
+<br/>
+
+<div style="font-size:16px; width:93%; margin:auto;" class="ui-widget-header ui-corner-all"><b>$i18n.getString( "toolbox_flag_report" )</b>( $i18n.getString( "show_history_of_discussions_and_ta" ) )</div>
+
+<form id="keyFlagReportForm" method="get" action="generateToolsBoxReport.action" onsubmit="return generateHTMLreport()">
+
+ 	<input type="hidden" name="orgUnitId" id="orgUnitId" />
+
+ 	<div id="reportFilterDiv" >
+		<table style="width:90%;margin:auto;" cellpadding="4" cellspacing="2">
+			
+			<tr style="margin-bottom: 15px;"> 			
+ 				<td width="45%">
+ 					$i18n.getString( "select_area_of_work" )<br/> 					
+			        <select id="availableListDataset" name="availableListDataset" ondblclick="moveSelectedById( 'availableListDataset', 'selectedListDataset' )" multiple="multiple" style="height: 166px; width: 100%;">
+						#foreach($dataset in $datasetList)
+							<option value="$dataset.id">$dataset.displayName</option>
+						#end
+			        </select>
+    			</td>
+		        <td style="text-align:center" width="10%">
+		            <input type="button" value="&gt;" title="$i18n.getString( 'move_selected' )" style="width:50px" onclick="moveSelectedById( 'availableListDataset', 'selectedListDataset' );"/><br/>
+		            <input type="button" value="&lt;" title="$i18n.getString( 'remove_selected' )" style="width:50px" onclick="moveSelectedById( 'selectedListDataset', 'availableListDataset' );"/><br/>
+		            <input type="button" value="&gt;&gt;" title="$i18n.getString('move_all')" style="width:50px" onclick="moveAllById( 'availableListDataset', 'selectedListDataset' );"/><br/>
+		            <input type="button" value="&lt;&lt;" title="$i18n.getString('remove_all')" style="width:50px" onclick="moveAllById( 'selectedListDataset', 'availableListDataset' );"/>
+		        </td>
+		        <td width="45%">
+		            <select id="selectedListDataset" name="selectedListDataset" ondblclick="moveSelectedById( 'selectedListDataset', 'availableListDataset' )" multiple="multiple" style="height: 166px; width: 100%; margin-top: 22px;"></select>
+		        </td>
+				<td>
+                        <a href="javascript:moveUpDataElement('selectedListDataset');"><img src="../images/move_up.png"/></a><br/><br/>
+                        <a href="javascript:moveDownDataElement('selectedListDataset');"><img src="../images/move_down.png"/></a><br/><br/>
+            	 </td> 
+			</tr>
+
+ 			
+
+ 			<tr>
+				<td width="55%" colspan="2">
+ 					<!-- $i18n.getString( "select_country_or_region" )<br/> -->
+ 					<div id="orgUnitTreeContainer" style="height: 250px; width: 100%;">
+ 						#organisationUnitSelectionTree1( false, true, false )
+ 					</div>
+				</td>
+				<td width="45%" valign="top">				 	
+					$i18n.getString( "select_quarter" ): 
+				 	<input type="text" id="dateFrom" name="introStartDate" value="$!currentQuarter" title="Date Format: YYYY-Qn e.g. 2012-Q1" onblur="getDateFrom()" style="width:100%"/> 
+				 	
+				 	<!--
+				 	$i18n.getString( "use_data_for_selected_organisational_group_only" ) <br/>			 	
+			 		<select style="width:100%;" name="orgUnitGroupId"> 			 		
+			 			<!-- <option value="-1" selected>$i18n.getString( "show_all_countries" )</option> -->
+			 			<!-- 
+						#foreach($orgGrp in $orgUnitGrpList)
+			 				<option value="$orgGrp.id" #if($orgUnitGrpId == $orgGrp.id) selected #end>$orgGrp.name</option>
+			 			#end
+		 			</select>
+					-->
+
+					<br/><br/>
+				 	$i18n.getString( "tool_box_option" ) <br/>			 	
+			 		<select style="width:100%;" name="toolBoxOption">
+                        <option value="ALL" selected>$i18n.getString( "toolbox_all_options" )</option>
+			 			<option value="T">$i18n.getString( "technical_assistance" )</option>
+			 			<option value="D" >$i18n.getString( "discussion" )</option>
+			 			<option value="C" >$i18n.getString( "dv_conflict" )</option>			 			
+		 			</select>
+
+				 </td>				 
+			</tr>
+ 			
+ 			<tr>
+				<td>
+			 		<input type="submit" value="$i18n.getString( 'get_report' )" id="submit" />		 		
+	 			</td>
+	 			<td>&nbsp;</td>
+	 			<td>&nbsp;</td>
+ 			</tr>
+ 			
+		 </table>
+	</div>
+	<br/><br/>
+</form>

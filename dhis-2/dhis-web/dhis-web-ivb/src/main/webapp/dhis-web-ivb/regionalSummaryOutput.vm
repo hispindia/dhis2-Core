@@ -1,0 +1,718 @@
+#set( $reportWarning = "Y" )
+
+<script type="text/javascript">
+jQuery(function() {
+    $('#toUser').show();
+    $('#recipients').select2({
+       minimumInputLength: 1,
+       multiple: true, 
+       width: "546px",      
+       ajax: {
+           url: 'getMessageRecipients.action',
+           dataType: 'json',
+           data: function(term, page) {
+                return {
+                    filter: term
+                }
+           },
+           results: function(data, page) {
+               return { results: data.matches }
+           }
+       }
+    });
+});
+</script>
+
+<script>
+    function getShareLink()
+    {
+        $('#shareSubject').val('Regional Summary Output Report');
+		$('#orgUnitIds option').attr('selected', 'selected');
+        var orgUnitIds = document.getElementById('orgUnitIds').options;
+		var ids = '';
+		for(var i=0;i <= orgUnitIds.length-1 ; i++)
+		{	
+			ids = ids+'&orgUnitIds='+orgUnitIds[i].value;
+		}
+		url = document.location.href +ids;
+        $('#shareText').val('Link to view the report: \n \n' + url);
+        $( "#shareLinkToUser" ).dialog('open');     
+    }
+    
+    function getKeyFlagDetails(value,comment,source,orgName,area)
+    {
+        $('#detailSection').remove();
+        $('#areaAndCountry').find('#content').remove();
+        $('#areaAndCountry').append("<div id='content'><b style='float:left;'> Area: "+area+"</b><b style='float:right;'>Country: "+orgName+"&nbsp;</b> </div>");
+        $('#detailTable').append("<tr id='detailSection'><td>"+value+"</td><td>"+comment+"</td><td>"+source+"</td></tr>")
+        $( '.keyFlagDetail' ).css( 'display','block' );
+    }  
+    
+</script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#myjquerymenu').find('#dashboard').addClass("selected");     
+    });
+    $(function() {
+        
+    });
+</script>
+
+<script>
+    function sorting()
+    {               
+        if($('.asc').css('display') == "block")
+        {                       
+            $('.asc').css('display', 'none');
+            $('.desc').css('display', 'block'); 
+            altRows('alternatecolor');                  
+        }
+        else
+        {
+            $('.asc').css('display', 'block');
+            $('.desc').css('display', 'none');
+            altRows('alternatecolor');                          
+        }
+    }
+</script>
+<style>
+    @media print {
+    @page { margin: 0; }
+        body {
+            margin: 1.6cm;
+            height:auto;             
+         }
+        .ui-tooltip, .arrow1:after {
+            background: white;
+            border: 2px solid #086B96;
+        }
+        .ui-tooltip {
+            padding: 10px 20px;
+            color: black;
+            border-radius: 20px;
+            font: bold 12px "Helvetica Neue", Sans-Serif;           
+            box-shadow: 0 0 7px black;
+        }
+        .arrow1 {
+            width: 70px;
+            height: 16px;
+            overflow: hidden;
+            position: absolute;
+            left: 50%;
+            margin-left: -35px;
+            bottom: -16px;
+        }
+        .arrow1.top {
+            top: -16px;
+            bottom: auto;
+        }
+        .arrow1.left {
+            left: 20%;
+        }
+        .arrow1:after {
+            content: "";
+            position: absolute;
+            left: 20px;
+            top: -20px;
+            width: 25px;
+            height: 25px;
+            box-shadow: 6px 5px 9px -9px black;
+            -webkit-transform: rotate(45deg);
+            -moz-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            -o-transform: rotate(45deg);
+            tranform: rotate(45deg);
+        }
+        .arrow1.top:after {
+            bottom: -20px;
+            top: auto;
+        }
+    
+</style>
+<select id="orgUnitIds" multiple style="display:none;">
+    #foreach( $orgUnit in $orgUnits )
+		<option value="$orgUnit.id"></option>
+    #end
+</select>
+<form id="form1" name="form1" action="exportToWorkBook.action" method="post" onsubmit="return exportToExcel()" target="_newtab">
+    
+    <input type="hidden" name="htmlCode" id="htmlCode" />
+    
+    <div align="right" style="width:95%;margin:auto;padding-top:8px;padding-bottom:3px;">
+        <input type="button" onclick="location.href='regionalReportForm.action'" value="Change Selections"/>&nbsp;
+        <input type="submit" value="Download As Excel"/>&nbsp;
+        <input type="button" value="Print" onclick="javascript:printDiv('htmlContent')" />
+        <input type="button" value="Share" onclick="javascript: getShareLink()"/>
+    </div>
+
+    <br/><hr/>
+    
+    #set( $keyFlagURL1 = $flagFolderPath + "bookmark-star2.png" )
+    <input type="hidden" id="redFlag" value="$keyFlagURL1" />
+    #set( $keyFlagURL2 = $flagFolderPath + "bookmark-star.png" )
+    <input type="hidden" id="greyFlag" value="$keyFlagURL2" />
+    <div id="htmlContent" style="width:90%;margin:auto;height:auto;min-height:950px;">
+    
+        <h2>$i18n.getString( "regional_dashboard" )</h2>
+        <table width="100%" cellspacing="0" cellpadding="0"  bgcolor="#FBEFEF">
+            <tr><td colspan="6"><h3>&nbsp;&nbsp;$!organisationUnit.shortName</h3></td></tr>
+        </table>
+
+        #if($regionalDashboard)
+            <div style="overflow:auto;width:100%;">            
+            <table>
+                <tr>
+                    <td > 
+                    <div style="width:350px;">
+                      <table class="altrowstable" id="alternatecolor1" cellspacing="0" cellpadding="0" style="width:100%;">      
+                                <tbody> 
+                                    <tr style="height:30px;" bgcolor="#A9D0F5">
+                                        <th  align="left" valign="top">$i18n.getString( "area" )</th>                                       
+                                    </tr>
+									
+										#set($actsize = $datasetList.size())
+										#set($size = $actsize - 1)
+										#set($isFirstTime = 1) 
+										#set($skipNum = 0) 
+										#set($x = 0) 
+										#set($y = 0) 
+										#set($z = 0) 
+										
+                                    #set( $mark1 = false )
+									
+                                    #foreach( $dataset in $datasetList )
+									
+										#if($isFirstTime==1 || $skipNum == 0)
+											#set( $indicators = $dataset.getIndicators() )
+											
+											#if( $mark1 )
+												#set( $mark1 = false )
+											#else
+												#set( $mark1 = true )
+											#end
+											
+											
+												#foreach( $indicator in $indicators )
+													#set($skipNum = $indicators.size())
+													
+													#if($x lt $size)
+													#set($x = $x + 1)
+													#end
+													
+													
+													#if($z gt 0)
+													#set($y = $z - 1)
+													#end
+													
+													
+													
+													#set($nextDataset = $datasetList[$x])
+													#set($prevDataset = $datasetList[$y])
+													
+													#if( $indicators.size() > 1 )
+														#set($print = $dataset.displayName+"</br>("+$indicator.shortName+")")
+													#else
+														#set($print = $dataset.displayName)
+													#end													
+
+													#set($z = $z + 1)	
+														
+													<tr  #if( $mark1 ) bgcolor="#E0ECF8" #else bgcolor = "#FFFFFF" #end>                           
+														<td style="height:42px;" title="$indicator.name" align="left" valign="top">$print</td>
+													</tr> 
+												#end
+										#end
+										#set($isFirstTime = 0)
+								
+										#if($skipNum gt 0)
+											#set($skipNum = ($skipNum - 1))
+										#end
+										
+										
+                                    #end
+                                </tbody>   
+                            </table> 
+                    </div>
+                    </td>                   
+                    <td >   
+                        <div >
+                                <table class="altrowstable" id="alternatecolor2"  style="text-align: left;width:100%;"> 
+                                    <tbody>
+                                        <tr style="height:30px;" bgcolor="#A9D0F5" >
+                                           #if($orgUnits.size() == 0)
+                                              <th>&nbsp;</th>
+                                           #end
+                                            #foreach($org in $orgUnits)
+                                                <th title="$!org.name" style="width:85px;" align="left" valign="top">$!org.code</th>
+                                            #end
+                                        </tr>
+                                        #set( $mark2 = false )
+                
+										#set($actsize = $datasetList.size())
+										#set($size = $actsize - 1)
+										#set($isFirstTime = 1) 
+										#set($skipNum = 0) 
+										#set($x = 0) 
+										#set($y = 0) 
+										#set($z = 0) 
+										
+				
+                                        #foreach( $dataset in $datasetList )
+										 #if($isFirstTime==1 || $skipNum == 0)
+                                            #set( $indicator = $dataSet_Indicator_Map.get( $dataset ) )
+                                            #if( $mark2 )
+                                               #set( $mark2 = false )
+                                           #else
+                                              #set( $mark2 = true )
+                                           #end
+										   
+										   #set( $indicators = $dataset.getIndicators() )
+										   #set($skipNum = $indicators.size())
+										  
+										   #foreach( $indicator in $indicators )
+											
+                                            <tr #if( $mark2 ) bgcolor="#E0ECF8" #else bgcolor = "#FFFFFF" #end>
+                                                #if($orgUnits.size() == 0)
+                                                  <td>&nbsp;</td>
+                                                #end
+                                                #foreach($org in $orgUnits)    
+														#if($org.shortName.contains("'"))
+                            								#set( $orgShortName = $org.shortName.replace("'","\'"))
+                            							#else
+                            								#set( $orgShortName = $org.shortName)
+                            							#end
+                                                        #set( $getter = "${indicator.uid}-${org.uid}")
+                                                        #if( $colorMap.get( $getter ) == "RED" )
+                                                            <td style="height:42px;" align="left" valign="top" class="flagedImg">
+                                                                <a href="loadSingleCoutryEntryForm.action?dataSetUId=$dataset.uid&orgUnitUid=$org.uid" onmouseover="javascript:getKeyFlagDetails('$!encoder.jsEscape($!keyIndicatorValueMap.get(${getter}).trim(), "'")','$!encoder.jsEscape($!commentMap.get(${getter}).trim(), "'").replaceAll('"', "")','$!sourceMap.get(${getter})','$orgShortName','$dataset.displayName');">                                                            
+                                                                    <img src="images/bookmark-star2.png" width="20" height="20"/>
+                                                                </a>    
+                                                            </td>
+														#elseif( $colorMap.get( $getter ) == "GREEN" )
+                											<td style="height:42px;" align="left" valign="top" class="unFlagedImg">
+                                                                <a href="loadSingleCoutryEntryForm.action?dataSetUId=$dataset.uid&orgUnitUid=$org.uid" onmouseover="javascript:getKeyFlagDetails('$!encoder.jsEscape($!keyIndicatorValueMap.get(${getter}).trim(), "'")','$!encoder.jsEscape($!commentMap.get(${getter}).trim(), "'").replaceAll('"', "")','$!sourceMap.get(${getter})','$orgShortName','$dataset.displayName');">                                                            
+                                                                    <img src="images/bookmark-star_green.png" width="20" height="20"/>
+                                                                </a>    
+                                                            </td>
+                                                        #else
+															<td style="height:42px;" align="left" valign="top" class="unFlagedImg" style="height:35px;">
+                												<a href="loadSingleCoutryEntryForm.action?dataSetUId=$dataset.uid&orgUnitUid=$org.uid" onmouseover="javascript:getKeyFlagDetails('$!encoder.jsEscape($!keyIndicatorValueMap.get(${getter}).trim(), "'")','$!encoder.jsEscape($!commentMap.get(${getter}).trim(), "'").replaceAll('"', "")','$!sourceMap.get(${getter})','$orgShortName','$dataset.displayName');">
+                												  <img src="images/bookmark-star.png" width="20" height="20"/>
+                												</a>
+                											</td>                                                            
+                                                        #end                                                    
+                                                #end
+                                            </tr>
+											#end
+											#end
+											
+											#set($isFirstTime = 0)
+								
+											#if($skipNum gt 0)
+												#set($skipNum = ($skipNum - 1))
+											#end
+										#end
+										
+                                    </tbody>
+                                </table>  
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            </div>
+        #end
+    
+        <br/><br/>
+       
+        <h3>$i18n.getString( "key_flags_by_country" )</h3>
+        #foreach( $org in $orgUnits )    
+            #if( $keyFlagCountries.contains( $org ) )
+                <table cellspacing="0" cellpadding="0"  bgcolor="#FBEFEF" width="100%">
+                    <tr>
+                        <td align="right" width="5%" >
+                            #set( $falgURL = $flagFolderPath + $!org.code +".png" )
+                            &nbsp;&nbsp;<img src="imageAction.action?imagePath=$falgURL"/></td>
+                        </td>
+                        <td colspan="4"><h3>&nbsp;&nbsp;$!org.name ( $!org.code )</h3></td>
+                    </tr>
+                </table>
+          
+                <table class="altrowstable" id="alternatecolor" cellspacing="0" cellpadding="0" style="margin:auto;table-layout:fixed;width:100%"> 
+                    <col/>          
+                    <col/>
+                    <thead>
+                        <tr style="height:30px;" bgcolor="#A9D0F5">
+                            <th width="4%" align="left">&nbsp;</th>             
+                            <th width="15%" align="left">$i18n.getString( "area" )</th>        
+                            <th width="25%" align="left">$i18n.getString( "key_flag" )</th>
+                            <th width="10%" align="left">$i18n.getString( "value" )</th>
+                            <th width="17%" align="left">$i18n.getString( "comment" )</th>
+                            <th width="8%" align="left">$i18n.getString( "period" )</th>
+                            #if($userSource)
+                            <th width="7%" align="left">$i18n.getString( "source" )</th> 
+                            #end
+                        </tr>
+                    </thead>
+                    <tbody id="list">
+                        #set( $mark = false )                 
+                        #foreach( $dataset in $datasetList )
+                            #if( $mark )
+                                #set( $mark = false )
+                            #else
+                                #set( $mark = true )
+                            #end
+                            #set( $indicator = $dataSet_Indicator_Map.get( $dataset ) )
+                            #set( $getter = "${indicator.uid}-${org.uid}")
+                            #if( $colorMap.get( $getter ) == "RED" )
+                                
+                                <tr #if( $mark ) bgcolor="#E0ECF8" #else bgcolor = "#FFFFFF" #end>
+                                    <td align="left" class="flagedImg"><img src="imageAction.action?imagePath=$keyFlagURL1" width="20" height="20" /></td>
+                                    <td align="left">
+										<a href="loadSingleCoutryEntryForm.action?dataSetUId=$dataset.uid&orgUnitUid=$org.uid">
+										 $dataset.displayName
+										</a>
+					                </td>
+                                    <td align="left">$indicator.displayName</td>
+                                    <td align="left">$!keyIndicatorValueMap.get( $getter )</td>
+                                    <td align="left">$!commentMap.get( $getter )</td>
+                                    <td align="left">$!periodMap.get(${getter})</td>
+                                    #if($userSource)
+                                        <td align="left">$!sourceMap.get( $getter )</td>
+                                    #end
+                                </tr>                                
+                            #end
+                        #end
+                    </tbody>
+                </table>
+                <br/>
+            #end
+        #end
+
+        #if( $blankDataElementValueMap.size() > 0 )
+        	<br/>
+	        #if( $dataElementType == 'SHOW_BLANK_DES' )
+	            <h3>$i18n.getString( "show_blank_des" )</h3>
+	            $i18n.getString( "time_series" ) : $!startDate $i18n.getString( "time_through" ) $!endDate
+	            #foreach( $dataset in $datasetList )
+	                #if( $dataset.sections.size() >= 1 )
+	                    #foreach( $datasetSection in $dataset.sections )        
+	                        <table style="width:100%;margin:auto;background:#FBEFEF">        
+	                            <tr><td colspan="3"><h3>$!dataset.name - $!datasetSection.name</h3></td></tr>
+	                            <tr style="height:30px;" bgcolor="#A9D0F5">
+	                                <th align="left" width="12%">$i18n.getString( "country" )</th>
+	                                <th align="left" width="20%">$i18n.getString( "dataelement" )</th>
+	                                <th align="left" width="8%">$i18n.getString( "period" )</th>
+	                            </tr>
+	                            <tbody>
+	                                #foreach( $orgUnit in $orgUnits )        
+	                                    #foreach( $dataElement in $datasetSection.getDataElements() )
+	                                        #if( $blankDataElementValueMap.get( "$orgUnit.id:$dataElement.id" ).size() > 0 )                                             	
+	                                            #set( $periods = $blankDataElementValueMap.get( "$orgUnit.id:$dataElement.id" ) )
+	                                            #foreach( $period in $periods )
+	                                                <tr>
+	                                                	<td>$!orgUnit.name</td>
+	                                                	<td>$!dataElement.name</td>
+	                                                	<td>$simpleDateFormat1.format( $!period.startDate ) - $simpleDateFormat2.format( $!period.endDate )</td>
+	                                                </tr>
+	                                            #end  
+	                                        #end                                            	
+	                                    #end
+	                                #end
+	                           </tbody>     
+	                        </table>
+	                    #end
+	                #end        	
+	            #end
+	        #end                
+        #end
+        
+        #if($dataValueAuditMap.size() > 0)
+            <br/><br/>
+	        #if( $dataElementType != 'SHOW_KEY_FLAG_ONLY' )
+	            <h3>$i18n.getString( "dataelement_history_by_country" )</h3>
+	            $i18n.getString( "time_series" ) : $!startDate $i18n.getString( "time_through" ) $!endDate
+	    
+	            #foreach( $dataset in $datasetList )
+	            	#if( $dataset.sections.size() > 1)
+                        #foreach( $datasetSection in $dataset.sections )		
+	                        <table style="width:100%;margin:auto;background:#FBEFEF">        
+	                            <tr><td colspan="6"><h3>$!dataset.name - $!datasetSection.name</h3></td></tr>
+	                            <tr style="height:30px;" bgcolor="#A9D0F5">
+	                                <th align="left" style="width:3%;display:none;">$i18n.getString( "iso_code" )</th>
+	                                <th align="left" style="vertical-align: middle;">$i18n.getString( "who_region" )</th>
+	                                <th align="left" style="width:10%;display:none;">$i18n.getString( "unicef_region" )</th>
+	                                <th align="left" width="12%">$i18n.getString( "country" )</th>
+                                    <th align="left" style="width:12%;display:none;">$i18n.getString( "income_level" )</th>
+                                    <th align="left" style="width:12%;display:none;">$i18n.getString( "gavi_eligibility_status" )</th>	                                
+	                                <th align="left" width="20%">$i18n.getString( "dataelement" )</th>
+	                                <th align="left" width="8%">$i18n.getString( "period" )</th>
+	                                <th align="left" width="15%">$i18n.getString( "value" )</th>
+	                                <th align="left" width="25%">$i18n.getString( "comment" )</th>
+	                                <th align="left" width="10%">$i18n.getString( "source" )</th>
+	                            </tr>
+	                            <tbody>
+	                                #foreach( $orgUnit in $orgUnits )        
+	                                    #set( $dataElementAuditMap = $dataValueAuditMap.get( $orgUnit ) )
+	                                    #if( $dataValueAuditMap.get( $orgUnit ).size() > 0 )                        
+	                                        #foreach( $dataElement in $datasetSection.getDataElements() )
+	                                            #set( $dataValueAuditList = '' )
+	                                            #set( $dataValueAuditList = $dataElementAuditMap.get( $dataElement ) )
+	                                            #if( $dataElementAuditMap.get( $dataElement ).size() > 0 )
+	                                                #foreach( $dataValueAudit in $dataValueAuditList )                                        
+	                                                    <tr>
+                                                            <td style="display:none;">$orgUnit.code</td>
+                                                            <td width="10%" align="left">$orgUnit.getParent().getShortName()</td>
+	                                                        <td align="left">$!orgUnit.name</td>
+	                                                        <td style="display:none;">$orgUnit.getGroupInGroupSet( $unicefRegionsGroupSet ).getShortName()</td>
+	                                                        
+                                                            #set( $headergetter = "" )
+                                                            #set( $headergetter = "$orgUnit.id:3" )
+                                                            #if('$!headerDataValueMap.get($headergetter)' != 'null' )
+                                                                <td style="display:none;">$!headerDataValueMap.get($headergetter).value</td>
+                                                            #else   
+                                                                <td style="display:none;">&nbsp;</td>
+                                                            #end
+                                    
+                                                            #set( $headergetter = "" )
+                                                            #set( $headergetter = "$orgUnit.id:4" )
+                                                            #if('$!headerDataValueMap.get($headergetter)' != 'null' )
+                                                                <td style="display:none;">$!headerDataValueMap.get($headergetter).value</td>
+                                                            #else   
+                                                                <td style="display:none;">&nbsp;</td>
+                                                            #end
+	                                                        
+	                                                        <td align="left">
+	                                                            <a href="loadSingleCoutryEntryForm.action?dataSetUId=$dataset.uid&orgUnitUid=$orgUnit.uid">
+	                                                                $!dataElement.name
+	                                                            </a>
+	                                                        </td>
+	                                                        <td align="left">
+	                                                            #if( $dataValueAudit.period.periodType.name == "Quarterly" )
+	                                                                $simpleDateFormat1.format( $!dataValueAudit.period.startDate ) - $simpleDateFormat2.format( $!dataValueAudit.period.endDate )
+	                                                            #else
+	                                                                ##$simpleDateFormat.format( $!dataValueAudit.period.startDate )
+	                                                                $!dataValueAudit.period.startDate
+	                                                            #end
+	                                                        </td>
+	                                                        <td align="left">$!dataValueAudit.value</td>
+	                                                        <td align="left">$!dataValueAudit.comment</td>
+	                                                        #if( $userSource )
+	                                                            <td align="left">$!dataValueAudit.modifiedBy $simpleDateFormat.format( $!dataValueAudit.timestamp )</td>
+	                                                        #end
+	                                                    </tr>                                       
+	                                                #end
+	                                            #end
+	                                        #end
+	                                    #end    
+	                               #end
+	                            </tbody>
+	                        </table>
+	                        <br/>
+                        #end
+	            	#else
+                        <table style="width:100%;margin:auto;background:#FBEFEF">
+                            <tr><td colspan="6"><h3>$!dataset.name</h3></td></tr>
+                            <tr style="height:30px;" bgcolor="#A9D0F5">
+                                <th align="left" style="width:3%;display:none;">$i18n.getString( "iso_code" )</th>
+                                <th align="left" style="vertical-align: middle;">$i18n.getString( "who_region" )</th>
+                                <th align="left" style="width:10%;display:none;">$i18n.getString( "unicef_region" )</th>
+	                            <th align="left" width="12%">$i18n.getString( "country" )</th>
+                                <th align="left" style="width:12%;display:none;">$i18n.getString( "income_level" )</th>
+                                <th align="left" style="width:12%;display:none;">$i18n.getString( "gavi_eligibility_status" )</th>
+	                            <th align="left" width="20%">$i18n.getString( "dataelement" )</th>
+	                            <th align="left" width="8%">$i18n.getString( "period" )</th>
+	                            <th align="left" width="15%">$i18n.getString( "value" )</th>
+	                            <th align="left" width="25%">$i18n.getString( "comment" )</th>
+	                            <th align="left" width="10%">$i18n.getString( "source" )</th>
+	                        </tr>
+	                        <tbody>
+		                        #foreach( $orgUnit in $orgUnits )        
+		                            #set( $dataElementAuditMap = $dataValueAuditMap.get( $orgUnit ) )
+		                            #if( $dataValueAuditMap.get( $orgUnit ).size() > 0 )                        
+		                                #foreach( $dataElement in $dataset.getDataElements() )
+		                                    #set( $dataValueAuditList = '' )
+		                                    #set( $dataValueAuditList = $dataElementAuditMap.get( $dataElement ) )
+		                                    #if( $dataElementAuditMap.get( $dataElement ).size() > 0 )
+		                                        #foreach( $dataValueAudit in $dataValueAuditList )                                        
+		                                            <tr>
+		                                                <td style="display:none;">$orgUnit.code</td>
+		                                                <td width="10%" align="left">$orgUnit.getParent().getShortName()</td>
+		                                                <td style="display:none;">$orgUnit.getGroupInGroupSet( $unicefRegionsGroupSet ).getShortName()</td>
+		                                                <td align="left">$!orgUnit.name</td>
+		                                                
+                                                        #set( $headergetter = "" )
+                                                        #set( $headergetter = "$orgUnit.id:3" )
+                                                        #if('$!headerDataValueMap.get($headergetter)' != 'null' )
+                                                            <td style="display:none;">$!headerDataValueMap.get($headergetter).value</td>
+                                                        #else   
+                                                            <td style="display:none;">&nbsp;</td>
+                                                        #end
+                                
+                                                        #set( $headergetter = "" )
+                                                        #set( $headergetter = "$orgUnit.id:4" )
+                                                        #if('$!headerDataValueMap.get($headergetter)' != 'null' )
+                                                            <td style="display:none;">$!headerDataValueMap.get($headergetter).value</td>
+                                                        #else   
+                                                            <td style="display:none;">&nbsp;</td>
+                                                        #end
+		                                                
+		                                                <td align="left">
+		                                                    <a href="loadSingleCoutryEntryForm.action?dataSetUId=$dataset.uid&orgUnitUid=$orgUnit.uid">
+		                                                        $!dataElement.name
+		                                                    </a>
+		                                                </td>
+		                                                <td align="left">
+		                                                    #if($dataValueAudit.period.periodType.name == "Quarterly")
+		                                                        $simpleDateFormat1.format( $!dataValueAudit.period.startDate ) - $simpleDateFormat2.format( $!dataValueAudit.period.endDate )
+		                                                    #else
+		                                                        ##$simpleDateFormat.format( $!dataValueAudit.period.startDate )
+		                                                        $!dataValueAudit.period.startDate
+		                                                    #end
+		                                                </td>
+		                                                <td align="left">$!dataValueAudit.value</td>
+		                                                <td align="left">$!dataValueAudit.comment</td>
+		                                                #if( $userSource )
+			                                                <td align="left">$!dataValueAudit.modifiedBy $simpleDateFormat.format( $!dataValueAudit.timestamp )</td>
+		                                                #end
+		                                            </tr>                                       
+		                                        #end
+		                                    #end
+		                                #end
+		                            #end    
+	                           #end
+                            </tbody>
+                        </table>
+                        <br/>
+	            	#end
+	            #end
+	        #end
+        #end
+
+    <br/><br/><br/>
+    <table style="margin:auto;display:none;color: #9F6000;background-color: #FEEFB3;border: 1px solid;" width="100%">
+            <tr>
+                <td colspan="5">$i18n.getString( "report_inline_security_warning" )</td>
+            </tr>
+    </table>
+    </div>
+</form>
+<div id="shareLinkToUser" title="Share Link to User">
+        <fieldset>
+            <label for="toUser">$i18n.getString( "maintenance_users" )</label>
+            <input type="hidden" name="recipients" id="recipients" class="text ui-widget-content ui-corner-all" placeholder="Enter User Name"/>
+            <br/><br/>
+            <label for="shareSubject">$i18n.getString( "feedback_subject" )</label>
+            <input type="text" id="shareSubject" name="shareSubject" class="text ui-widget-content ui-corner-all" />
+            <label for="shareText">$i18n.getString( "feedback_text" )</label>
+            <textarea id="shareText" name="shareText" class="text ui-widget-content ui-corner-all" rows="6">                
+            </textarea>
+        </fieldset>
+</div>
+<style>label, #toUser ,#shareText ,#shareSubject{ 
+        display:block;
+    }
+        #recipients ,#shareText ,#shareSubject  { 
+        margin-bottom:12px;
+        width:95%; 
+        padding: .4em; 
+    }   
+    #shareLinkToUser fieldset   { 
+        padding:0;
+        border:0;
+        margin-top:25px;
+    }
+</style>
+<script>
+    jQuery(function() {
+        var emailIds = 'null';
+        $( "#shareLinkToUser" ).dialog({
+                autoOpen: false,
+                height: 420,
+                width: 595,
+                modal: true,
+                show: "blind",
+                hide: "explode",
+                buttons: {
+                "$i18n.getString( 'send' )":function() {                    
+                    location.href = 'mailto:' + $('#recipients').val().replace(/[,]/g,';') +
+                    '?subject=' + $('#shareSubject').val() +
+                    '&body=' + escape(document.getElementById('shareText').value) ;
+                    $( this ).dialog( "close" );
+                },
+                Cancel: function() {
+                    $( this ).dialog( "close" );
+                }
+            },
+            close: function() {             
+            }
+        });
+    });
+</script>
+<script>
+    $(document).ready(function()
+    {           
+        tableSorter( 'alternatecolor' );
+        altRows('alternatecolor');
+            
+    });
+    function sorting()
+    {
+        if($('.asc').css('display') == "block")
+        {
+            $('.asc').css('display', 'none');
+            $('.desc').css('display', 'block');
+            altRows('alternatecolor');          
+        }
+        else
+        {
+            $('.asc').css('display', 'block');
+            $('.desc').css('display', 'none');
+            altRows('alternatecolor');  
+        }
+    }
+    
+    function exportToExcel()
+    {
+        var currentFlaggedImgPath = $('.flagedImg').find('img').attr('src');
+        var currentUnFlaggedImgPath = $('.unFlagedImg').find('img').attr('src');
+        
+        var redFlag = $('#redFlag').val();
+        var greyFlag = $('#greyFlag').val();
+        
+        
+        $('.flagedImg').find('img').remove();
+        $('.unFlagedImg').find('img').remove();
+        
+        $('.flagedImg').append('<font size=\"20\" color=\"red\">*</font>')
+        $('.unFlagedImg').append('<font size=\"20\" color=\"#A4A4A4\">*</font>');
+        
+        document.getElementById('htmlCode').value = document.getElementById('htmlContent').innerHTML;
+        
+        $('.flagedImg').text('');
+        $('.unFlagedImg').text(''); 
+        
+        $('.flagedImg').append('<img src=\"'+currentFlaggedImgPath+'\" width=\"20\" height=\"20\" style=\"float:left;\" \>');
+        $('.unFlagedImg').append('<img src=\"'+currentUnFlaggedImgPath+'\" width=\"20\" height=\"20\" style=\"float:left;\" \>');
+        return true;
+    }
+    
+    function printDiv( divID ) 
+    {
+        //Get the HTML of div
+        var divElements = document.getElementById(divID).innerHTML;
+        
+        //Get the HTML of whole page
+        var oldPage = document.body.innerHTML;
+
+        //Reset the page's HTML with div's HTML only
+        document.body.innerHTML = "<html><head><title></title></head><body>" + divElements + "</body>";
+
+        //Print Page
+        window.print();
+
+        //Restore orignal HTML
+        document.body.innerHTML = oldPage;
+		
+		window.location.reload();			
+    }
+</script>

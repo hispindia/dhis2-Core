@@ -1,0 +1,218 @@
+<style>
+	
+    .hidden 
+    {
+    	display: none;
+    }
+    
+    .visible
+    {
+    	display: block;
+    }
+    
+    .selectedTr{
+    	background-color:#A9D0F5; 
+    }
+    
+    #selectedList tr{
+    	cursor:pointer;
+    }
+    .dataElementDiv tr th{
+    	background-color:#0080FF;
+		color:#FFFFFF;
+    }
+    
+    .dataElementDiv
+    {
+    	overflow:auto; 
+    	height:23.2em; 
+    	border:1px solid #9DA1AA;
+        background-color:#FFFFFF;
+        width:100%;
+    }
+    
+    .dataElementDiv table
+    {
+    	width:100%;
+    }
+</style>
+<script >
+var duplicate = false;
+jQuery( function()
+{
+	jQuery("#availableList").dhisAjaxSelect({
+			source: "../dhis-web-commons-ajax-json/getFilterDataElements.action",
+			iterator: "dataElements",
+			connectedTo: 'selectedDataElementsValidator',
+			handler: function(item) {
+				var option = jQuery("<option data-id='" + item.groups + "' />");
+				option.text( item.name );
+				option.attr( "value", item.id );
+				option.attr( "title", item.name );
+				return option;
+			},
+            filter: {
+                source: "../dhis-web-commons-ajax-json/getDataElementGroups.action",
+                label: 'dataelement group',
+                iterator: "dataElementGroups",
+                handler: function(item) {
+                    return "<option data-key='id' data-value='" + item.id + "'>" + item.name + "</option>";
+                }
+            }
+		});
+	validation( 'tabularReportForm', function( form ){
+	
+		duplicate = false;
+		var selectedDataElementsValidator = jQuery( "#selectedDataElementsValidator" );
+		selectedDataElementsValidator.empty();
+		
+		var values = jQuery( "#values" );
+		values.empty();
+		
+		var comments = jQuery( "#comments" );
+		comments.empty();
+		
+		jQuery("#selectedList").find("tr").each( function( i, item ){ 
+			
+			selectedDataElementsValidator.append( "<option value='" + item.id + "' selected='true'>" + item.id + "</option>" );
+			var value = jQuery( item ).find( "input[name='value']:first");
+			var checked = value.attr('checked') ? true : false;
+			values.append( "<option value='" + checked + "' selected='true'>" + checked + "</option>" );
+			
+			var comment = jQuery( item ).find( "input[name='comment']:first");
+			checked = comment.attr('checked') ? true : false;
+			comments.append( "<option value='" + checked + "' selected='true'>" + checked + "</option>" );
+			
+		});
+		
+		form.submit();
+		});
+		
+	 });
+	
+  function generateHTMLreport()
+    {	
+		var rowCount = 0;
+		$('#selectedList').each(function(index) {
+            rowCount = this.rows.length;
+    	});
+    	
+		if(rowCount <= 0 )
+    	{
+    		alert("Please Select Data Elements");
+			return false;
+    	} 
+    	
+		
+    }
+	function getFavoriteValues()
+	{
+		var favoriteId = $("#favoriteId").val();
+		var favoriteType = $("#favoriteType").val();
+		if(favoriteId == "-1")
+		{
+			alert("Please Select Favorite");
+		}
+		else
+		{
+			window.location.href = "getTabularFavoriteValue.action?favoriteId="+favoriteId+"&favoriteType="+favoriteType;
+		}
+	}
+</script>
+<input type="hidden" name="favoriteType" id="favoriteType" value="$favoriteType" />
+
+<div style="font-size:16px; width:93%; margin:auto;" class="ui-widget-header ui-corner-all"><b>$i18n.getString( "tabular_report" )</b></div>
+<form id="tabularReportForm" action="generateTabularReport.action" method="get" onsubmit="return generateHTMLreport()">
+	<div id="reportFilterDiv" >
+ 		<table style="width:90%;margin-left:5em;" cellpadding="4" cellspacing="2">
+			 <tr style="margin-bottom: 15px;">
+					<td colspan="2" style="width:60%;">						
+						<div id="orgUnitTreeContainer" style="height: 250px; width: 450px;">
+							#organisationUnitSelectionTree1( false, true, true )
+						</div>
+					</td>
+					<td style="width:40%;">
+					#if($favoriteList.size() > 0)
+					Available Bookmarks: 
+                    <select id="favoriteId" name="favoriteId" style="width:90%" onchange="getFavoriteValues()">
+						<option value="-1">Please Select</option>
+						#foreach($favorite in $favoriteList)
+							#if($favoriteMap.get($favorite))
+							<option value="$favorite.id:$favoriteMap.get($favorite)" #if($favoriteId == $favorite.id) selected #end >$favorite.name</option>
+							#end
+						#end
+                    </select>
+					#end
+					
+					<br/><br/>
+					<input type="checkbox" name="isoCode" checked /> $i18n.getString( "iso_code" )<br/>
+		 			<input type="checkbox" name="whoRegion" checked /> $i18n.getString( "who_region" )<br/>
+		 			<input type="checkbox" name="unicefRegion" checked /> $i18n.getString( "unicef_region" )<br/>
+		 			<input type="checkbox" name="incomeLevel" checked /> $i18n.getString( "income_level" )<br/>
+		 			<input type="checkbox" name="gaviEligibleStatus" checked /> $i18n.getString( "gavi_eligibility_status" )<br/>
+					
+					</td>
+			 </tr>
+		<tr>        
+			<th style="width:45%;">$i18n.getString( "available_data_elements" )</th>
+			<th style="width:10%;">&nbsp;</th>
+			<th style="width:45%;">$i18n.getString( "selected_data_elements" )							
+				<select id="selectedDataElementsValidator" name="selectedDataElementsValidator" multiple="multiple" class="hidden"></select>
+				<select id="values" name="values" multiple="multiple" class="hidden"></select>     
+				<select id="comments" name="comments" multiple="multiple" class="hidden"></select>       
+			</th>
+      </tr>
+		<tr>
+		<td style="width:45%;">
+            <select style='width:450px;height: 165px;' size="15" id="availableList" name="availableList" multiple="multiple" ondblclick="selectDataElements()">
+            </select>
+        </td>
+        
+		<td style="text-align:center;width:10%;">
+        	<input type="button" value="&gt;" title="$i18n.getString( 'move_selected' )" style="width:50px;margin-top:40px;"  onclick="selectDataElements();"/><br/>
+            <input type="button" value="&lt;" title="$i18n.getString( 'remove_selected' )" style="width:50px" onclick="unSelectDataElements();"/><br/>
+			<input type="button" value="&gt;&gt;" title="$i18n.getString('move_all')" style="width:50px"  onclick="selectAllDataElements();"/><br/>
+			<input type="button" value="&lt;&lt;" title="$i18n.getString('remove_all')" style="width:50px" onclick="unSelectAllDataElements();"/>
+		</td>
+		
+		<td style="width:45%;">
+			<div class="dataElementDiv" style="width:450px;height: 180px;margin-top:25px;">
+				<table>					
+					<thead>
+						<tr>
+							<th style="width:70%;">$i18n.getString( "dataelement" )</th>
+							<th style="width:15%;">$i18n.getString( "value" )</th>
+							<th style="width:15%;">$i18n.getString( "comment" )</th>
+						</tr>
+					</thead>
+					<tbody id="selectedList">
+						#if( $!favoriteId != -1 && "$!favoriteId" != "" && $!favoriteId != " " )
+							#foreach($dataElement in $dataElementsList)
+								#if($dataElement)
+	    						<tr class='selectedTr' id='$dataElement.id' ondblclick='unSelectDataElement( this )'>
+	        						<td onmousedown='select(this)'>$!dataElement.name</td>
+									<td align='center'><input type='checkbox' name='value' #if($valueMap.get($dataElement.id) == 'V' || $valueMap.get($dataElement.id) == 'VC') checked #end></td>
+									<td align='center'><input type='checkbox' name='comment' #if($valueMap.get($dataElement.id) == 'C' || $valueMap.get($dataElement.id) == 'VC') checked #end></td>
+	    						</tr>
+								#end
+							#end
+						#end	
+					</tbody>
+				</table>				
+			</div>
+			</td>		
+    		<td>
+                <a href="javascript:moveUpDataElement()"><img src="../images/move_up.png"/></a><br/><br/>
+                <a href="javascript:moveDownDataElement()"><img src="../images/move_down.png"/></a><br/><br/>
+    		</td>  
+			 </tr>
+			 <tr >
+				<td colspan="2">
+			 		<input type="submit" value="$i18n.getString( 'get_report' )" id="submit" />		 		
+	 			</td>
+	 			<td>&nbsp;</td>
+			 </tr>
+		</table>
+	</div>
+	<br/><br/>
+</form>

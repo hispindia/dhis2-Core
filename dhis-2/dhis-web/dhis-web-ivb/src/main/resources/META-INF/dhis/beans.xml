@@ -1,0 +1,1674 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   http://www.springframework.org/schema/beans/spring-beans-3.1.xsd 
+	   http://www.springframework.org/schema/task
+	   http://www.springframework.org/schema/task/spring-task.xsd
+	   http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.2.xsd
+	   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+	   http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.2.xsd
+	   http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+	   http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd">
+
+ 
+   <!--  for Report BY Scheduler -->
+   	<task:scheduled-tasks scheduler="reportScheduler">
+         <task:scheduled ref="org.hisp.dhis.ivb.util.ReportScheduler" method="scheduledReport" cron="0 0 5 * * ?"/>        
+         <task:scheduled ref="org.hisp.dhis.ivb.util.ScheduleAggregation" method="execute" cron="0 0 0/3 1/1 * ?"/>
+   	</task:scheduled-tasks>
+
+    <!--<task:scheduled ref="org.hisp.dhis.ivb.util.ScheduleAggregation" method="execute" cron="0 0 23 * * ?"/>-->
+	
+	<task:scheduler id="reportScheduler" pool-size="2"/>
+
+    <bean id="org.hisp.dhis.ivb.util.ReportScheduler"
+        class="org.hisp.dhis.ivb.util.ReportScheduler"
+        scope="prototype">
+        <property name="organisationUnitService" ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+        <!--<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />-->
+        <property name="indicatorService" ref="org.hisp.dhis.indicator.IndicatorService" />
+       	<property name="lookupService" ref="org.hisp.dhis.lookup.LookupService" />
+       	<property name="jdbcTemplate" ref="jdbcTemplate" />
+       	<property name="keyFlagCalculation" ref="org.hisp.dhis.ivb.util.KeyFlagCalculation" />
+       	<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+       	<!--<property name="keyFlagAnalyticsService" ref="org.hisp.dhis.ivb.kfa.KeyFlagAnalyticsService" />-->
+    </bean>    
+    
+    <bean id="org.hisp.dhis.ivb.util.ScheduleAggregation"
+       class="org.hisp.dhis.ivb.util.ScheduleAggregation"
+       scope="prototype">
+      
+   </bean>
+    
+<!--  <property name="cronExpression" value="0 0/1 * * * ?" /> -->
+
+
+	<!-- Home page -->
+	<bean id="org.hisp.dhis.ivb.action.NoAction" class="org.hisp.dhis.ivb.action.NoAction"
+		scope="prototype">
+	</bean>
+
+	<bean id="org.hisp.dhis.ivb.report.action.ExportToExcelAction" class="org.hisp.dhis.ivb.report.action.ExportToExcelAction"
+		scope="prototype">
+	</bean>
+
+	<!-- Single Country DataEntry -->
+	<bean id="org.hisp.dhis.ivb.dataentry.action.GetDataElementsAction"
+		class="org.hisp.dhis.ivb.dataentry.action.GetDataElementsAction"
+		scope="prototype">
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+	</bean>
+
+	<bean id="org.hisp.dhis.ivb.dataentry.action.LoadDataEntryFormAction"
+		class="org.hisp.dhis.ivb.dataentry.action.LoadDataEntryFormAction"
+		scope="prototype">
+		<property name="expressionService" ref="org.hisp.dhis.expression.ExpressionService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="sectionService" ref="org.hisp.dhis.dataset.SectionService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="userService" ref="org.hisp.dhis.user.UserService" />
+		<property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+		<property name="keyFlagCalculation" ref="org.hisp.dhis.ivb.util.KeyFlagCalculation" />
+	</bean>
+
+	<bean id="org.hisp.dhis.ivb.dataentry.action.SaveSingleCountryDataAction"
+		class="org.hisp.dhis.ivb.dataentry.action.SaveSingleCountryDataAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="sectionService" ref="org.hisp.dhis.dataset.SectionService" />
+		<property name="reportScheduler" ref="org.hisp.dhis.ivb.util.ReportScheduler" />
+		<property name="lookupService" ref="org.hisp.dhis.lookup.LookupService" />
+	</bean>
+
+	<!-- Source Wise DataEntry -->
+	<bean
+		id="org.hisp.dhis.ivb.dataentry.action.GetDataElementsSourceWiseAction"
+		class="org.hisp.dhis.ivb.dataentry.action.GetDataElementsSourceWiseAction"
+		scope="prototype">
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="userService" ref="org.hisp.dhis.user.UserService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+	</bean>
+
+	<!-- Alert wise DataEntry -->
+	<bean
+		id="org.hisp.dhis.ivb.dataentry.alert.action.LoadAlertDataEntryFormAction"
+		class="org.hisp.dhis.ivb.dataentry.alert.action.LoadAlertDataEntryFormAction"
+		scope="prototype">
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="configurationService" ref="org.hisp.dhis.configuration.ConfigurationService" />
+	</bean>
+
+	<bean
+		id="org.hisp.dhis.ivb.dataentry.alert.action.LoadAlertDataEntryAction"
+		class="org.hisp.dhis.ivb.dataentry.alert.action.LoadAlertDataEntryAction"
+		scope="prototype">
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="userService" ref="org.hisp.dhis.user.UserService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="userGroupService" ref="org.hisp.dhis.user.UserGroupService" />
+		<property name="favoriteService" ref="org.hisp.dhis.favorite.FavoriteService" />
+
+	</bean>
+
+	<!-- DataElementwise DataEntry -->
+	<bean
+		id="org.hisp.dhis.ivb.dataentry.dewise.action.GetDataElementWiseFormAction"
+		class="org.hisp.dhis.ivb.dataentry.dewise.action.GetDataElementWiseFormAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="userGroupService" ref="org.hisp.dhis.user.UserGroupService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="favoriteService" ref="org.hisp.dhis.favorite.FavoriteService" />
+	</bean>
+	<bean
+		id="org.hisp.dhis.ivb.dataentry.dewise.action.LoadDataElementwiseEntryAction"
+		class="org.hisp.dhis.ivb.dataentry.dewise.action.LoadDataElementwiseEntryAction"
+		scope="prototype">
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="userService" ref="org.hisp.dhis.user.UserService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="userGroupService" ref="org.hisp.dhis.user.UserGroupService" />
+		<property name="favoriteService" ref="org.hisp.dhis.favorite.FavoriteService" />
+
+	</bean>
+
+	<bean
+		id="org.hisp.dhis.ivb.dataentry.dewise.action.DownloadOfflineDataElementWiseFormAction"
+		class="org.hisp.dhis.ivb.dataentry.dewise.action.DownloadOfflineDataElementWiseFormAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+	</bean>
+
+    <bean
+        id="org.hisp.dhis.ivb.dataentry.dewise.action.DownloadOfflineXLSheetAction"
+        class="org.hisp.dhis.ivb.dataentry.dewise.action.DownloadOfflineXLSheetAction"
+        scope="prototype">
+        <property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+        <property name="organisationUnitService"
+            ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+        <property name="selectionTreeManager"
+            ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+        <property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+        <property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+    </bean>
+
+	<bean
+		id="org.hisp.dhis.ivb.dataentry.dewise.action.DownloadOfflineCSVFormAction"
+		class="org.hisp.dhis.ivb.dataentry.dewise.action.DownloadOfflineCSVFormAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+	</bean>
+
+	<!-- Offline DataEntry -->
+	<bean
+		id="org.hisp.dhis.ivb.dataentry.offline.action.OfflineEntryFormAction"
+		class="org.hisp.dhis.ivb.dataentry.offline.action.OfflineEntryFormAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="organisationUnitGroupService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+	</bean>
+
+	<bean
+		id="org.hisp.dhis.ivb.dataentry.offline.action.DownloadOfflineEntryFormAction"
+		class="org.hisp.dhis.ivb.dataentry.offline.action.DownloadOfflineEntryFormAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="organisationUnitGroupService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+		<property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+	</bean>
+
+	<!-- Upload Offline Data -->
+	<bean
+		id="org.hisp.dhis.ivb.dataentry.offline.upload.action.OfflineDataUploadFormAction"
+		class="org.hisp.dhis.ivb.dataentry.offline.upload.action.OfflineDataUploadFormAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+	</bean>
+	<bean
+		id="org.hisp.dhis.ivb.dataentry.offline.upload.action.UploadOfflineDataAction"
+		class="org.hisp.dhis.ivb.dataentry.offline.upload.action.UploadOfflineDataAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+	</bean>
+
+	<!-- Reset Data Value -->
+	<bean id="org.hisp.dhis.ivb.dataentry.action.ResetSingleCountryDataAction"
+		class="org.hisp.dhis.ivb.dataentry.action.ResetSingleCountryDataAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+		<property name="periodService" ref="org.hisp.dhis.period.PeriodService" />
+	</bean>
+
+	<!-- Save Values,Comments,History and T.A. and Discussion -->
+	<bean id="org.hisp.dhis.ivb.dataentry.action.SaveValueAction"
+		class="org.hisp.dhis.ivb.dataentry.action.SaveValueAction" scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<!--<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />-->
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+		<property name="reportScheduler" ref="org.hisp.dhis.ivb.util.ReportScheduler" />
+		<property name="expressionService" ref="org.hisp.dhis.expression.ExpressionService" />
+	</bean>
+	<bean id="org.hisp.dhis.ivb.dataentry.action.SaveKeyDataValueAction"
+		class="org.hisp.dhis.ivb.dataentry.action.SaveKeyDataValueAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+	</bean>
+	<bean id="org.hisp.dhis.ivb.dataentry.action.SaveCommentAction"
+		class="org.hisp.dhis.ivb.dataentry.action.SaveCommentAction" scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+		<property name="reportScheduler" ref="org.hisp.dhis.ivb.util.ReportScheduler" />
+		<property name="expressionService" ref="org.hisp.dhis.expression.ExpressionService" />	
+	</bean>
+	
+	<bean
+		id="org.hisp.dhis.ivb.hiddendeorgunit.HideDataElementAction"
+		class="org.hisp.dhis.ivb.hiddendeorgunit.HideDataElementAction" scope="prototype">
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="selectionTreeManager" ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+	</bean>
+	
+	<bean
+		id="org.hisp.dhis.ivb.hiddendeorgunit.HideDataElementActionForm"
+		class="org.hisp.dhis.ivb.hiddendeorgunit.HideDataElementActionForm" scope="prototype">
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+	</bean>
+	
+	<bean
+		id="org.hisp.dhis.ivb.hiddendeorgunit.FilterOrganisationUnitsAction"
+		class="org.hisp.dhis.ivb.hiddendeorgunit.FilterOrganisationUnitsAction" scope="prototype">
+	</bean>
+	
+	<bean
+		id="org.hisp.dhis.ivb.dataentry.action.SaveTechnicalAssistanceAction"
+		class="org.hisp.dhis.ivb.dataentry.action.SaveTechnicalAssistanceAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+	</bean>
+	<bean id="org.hisp.dhis.ivb.dataentry.action.SaveDiscussionAction"
+		class="org.hisp.dhis.ivb.dataentry.action.SaveDiscussionAction" scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+	</bean>
+
+	<!--Get History and T.A. -->
+	<bean id="org.hisp.dhis.ivb.dataentry.action.GetHistoriesAction"
+		class="org.hisp.dhis.ivb.dataentry.action.GetHistoriesAction" scope="prototype">
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+	</bean>
+	<bean id="org.hisp.dhis.ivb.dataentry.action.GetTechnicalAssistanceAction"
+		class="org.hisp.dhis.ivb.dataentry.action.GetTechnicalAssistanceAction"
+		scope="prototype">
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+	</bean>
+
+	<!--Delete History -->
+	<bean id="org.hisp.dhis.ivb.dataentry.action.RemoveHistoryAction"
+		class="org.hisp.dhis.ivb.dataentry.action.RemoveHistoryAction" scope="prototype">
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+	</bean>
+
+	<!--Get Help -->
+	<bean id="org.hisp.dhis.ivb.dataentry.action.GetHelpAction" class="org.hisp.dhis.ivb.dataentry.action.GetHelpAction"
+		scope="prototype">
+		<property name="indicatorService" ref="org.hisp.dhis.indicator.IndicatorService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="expressionService" ref="org.hisp.dhis.expression.ExpressionService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+	</bean>
+
+	<!--Get Indicator Help -->
+	<bean id="org.hisp.dhis.ivb.dataentry.action.GetIndicatorHelpAction"
+		class="org.hisp.dhis.ivb.dataentry.action.GetIndicatorHelpAction"
+		scope="prototype">
+		<property name="indicatorService" ref="org.hisp.dhis.indicator.IndicatorService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="expressionService" ref="org.hisp.dhis.expression.ExpressionService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+	</bean>
+
+	<!--Change Locale -->
+	<bean id="org.hisp.dhis.ivb.action.ChangeLocateAction" class="org.hisp.dhis.ivb.action.ChangeLocateAction"
+		scope="prototype">
+		<property name="userSettingService" ref="org.hisp.dhis.user.UserSettingService" />
+		<property name="localeManager" ref="org.hisp.dhis.i18n.locale.LocaleManager" />
+	</bean>
+
+	<!--Dashboard -->
+	<bean id="org.hisp.dhis.ivb.dashboard.action.GetKeyIndicatorsAction"
+		class="org.hisp.dhis.ivb.dashboard.action.GetKeyIndicatorsAction"
+		scope="prototype">
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="indicatorService" ref="org.hisp.dhis.indicator.IndicatorService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="expressionService" ref="org.hisp.dhis.expression.ExpressionService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="userService" ref="org.hisp.dhis.user.UserService" />
+		<property name="keyFlagCalculation" ref="org.hisp.dhis.ivb.util.KeyFlagCalculation" />
+		<property name="keyFlagAnalyticsService" ref="org.hisp.dhis.ivb.kfa.KeyFlagAnalyticsService" />
+	</bean>
+	<bean id="org.hisp.dhis.ivb.dashboard.action.GetRegionalDashboardAction"
+		class="org.hisp.dhis.ivb.dashboard.action.GetRegionalDashboardAction"
+		scope="prototype">
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="indicatorService" ref="org.hisp.dhis.indicator.IndicatorService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="expressionService" ref="org.hisp.dhis.expression.ExpressionService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="organisationUnitGroupService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="keyFlagCalculation" ref="org.hisp.dhis.ivb.util.KeyFlagCalculation" />
+		<property name="keyFlagAnalyticsService" ref="org.hisp.dhis.ivb.kfa.KeyFlagAnalyticsService" />
+	</bean>
+
+	<!-- Others -->
+	<bean id="org.hisp.dhis.ivb.dataentry.action.GetOrgInfoAction"
+		class="org.hisp.dhis.ivb.dataentry.action.GetOrgInfoAction" scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="organisationUnitGroupService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+	</bean>
+	<bean id="org.hisp.dhis.ivb.action.GetCurrentUserAction" class="org.hisp.dhis.ivb.action.GetCurrentUserAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="userGroupService" ref="org.hisp.dhis.user.UserGroupService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+	</bean>
+
+	<bean id="org.hisp.dhis.ivb.util.IVBUtil" class="org.hisp.dhis.ivb.util.IVBUtil"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="periodService" ref="org.hisp.dhis.period.PeriodService" />
+		<property name="jdbcTemplate" ref="jdbcTemplate" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="expressionService" ref="org.hisp.dhis.expression.ExpressionService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="sectionService" ref="org.hisp.dhis.dataset.SectionService" />
+		<property name="dataElementCategoryService" ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+	</bean>
+
+	<!-- Copy DataValue -->
+	<bean id="org.hisp.dhis.ivb.dataentry.action.CopyValueAndCommentAction"
+		class="org.hisp.dhis.ivb.dataentry.action.CopyValueAndCommentAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+	</bean>
+
+	<bean
+		id="org.hisp.dhis.ivb.dataentry.action.CopyDataValueFromHistoryAction"
+		class="org.hisp.dhis.ivb.dataentry.action.CopyDataValueFromHistoryAction"
+		scope="prototype">
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+	</bean>
+
+	<!-- Edit DataValueAudit -->
+	<bean id="org.hisp.dhis.ivb.dataentry.action.SaveDataValueAuditAction"
+		class="org.hisp.dhis.ivb.dataentry.action.SaveDataValueAuditAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+	</bean>
+
+	<bean id="org.hisp.dhis.ivb.dataentry.action.UnhideDataValueAuditAction"
+		class="org.hisp.dhis.ivb.dataentry.action.UnhideDataValueAuditAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+	</bean>
+
+	<!-- Update and unhide Discussion -->
+	<bean id="org.hisp.dhis.ivb.dataentry.action.UpdateDiscussionAction"
+		class="org.hisp.dhis.ivb.dataentry.action.UpdateDiscussionAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+	</bean>
+
+	<bean id="org.hisp.dhis.ivb.dataentry.action.UnhideDiscussionAction"
+		class="org.hisp.dhis.ivb.dataentry.action.UnhideDiscussionAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+	</bean>
+
+	<!-- Country File Report -->
+	<bean id="org.hisp.dhis.ivb.report.action.GetCountryFileReportFormAction"
+		class="org.hisp.dhis.ivb.report.action.GetCountryFileReportFormAction"
+		scope="prototype">
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="selectionManager"
+			ref="org.hisp.dhis.ouwt.manager.OrganisationUnitSelectionManager" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+	</bean>
+	<bean id="org.hisp.dhis.ivb.report.action.GenerateHTMLReportAction"
+		class="org.hisp.dhis.ivb.report.action.GenerateHTMLReportAction"
+		scope="prototype">
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="indicatorService" ref="org.hisp.dhis.indicator.IndicatorService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="expressionService" ref="org.hisp.dhis.expression.ExpressionService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="keyFlagCalculation" ref="org.hisp.dhis.ivb.util.KeyFlagCalculation" />
+	</bean>
+
+	<!-- Key Flag Report -->
+	<bean id="org.hisp.dhis.ivb.report.action.GetKeyFlagReportFormAction"
+		class="org.hisp.dhis.ivb.report.action.GetKeyFlagReportFormAction"
+		scope="prototype">
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="selectionManager"
+			ref="org.hisp.dhis.ouwt.manager.OrganisationUnitSelectionManager" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="organisationUnitGroupService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+	</bean>
+	<bean id="org.hisp.dhis.ivb.report.action.GenerateKeyFlagReportAction"
+		class="org.hisp.dhis.ivb.report.action.GenerateKeyFlagReportAction"
+		scope="prototype">
+		<property name="sectionService" ref="org.hisp.dhis.dataset.SectionService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="organisationUnitGroupService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="expressionService" ref="org.hisp.dhis.expression.ExpressionService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="keyFlagCalculation" ref="org.hisp.dhis.ivb.util.KeyFlagCalculation" />
+	</bean>
+
+	<!-- Vaccine Introduction Report -->
+	<bean id="org.hisp.dhis.ivb.report.action.GetVaccineIntroReportFormAction"
+		class="org.hisp.dhis.ivb.report.action.GetVaccineIntroReportFormAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="organisationUnitGroupService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+	</bean>
+
+	<bean
+		id="org.hisp.dhis.ivb.report.action.GenerateVaccineIntroReportAction"
+		class="org.hisp.dhis.ivb.report.action.GenerateVaccineIntroReportAction"
+		scope="prototype">
+		<property name="sectionService" ref="org.hisp.dhis.dataset.SectionService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="organisationUnitGroupService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+	</bean>
+	<bean
+		id="org.hisp.dhis.ivb.report.action.GenerateVaccineIntroReportCommentWiseAction"
+		class="org.hisp.dhis.ivb.report.action.GenerateVaccineIntroReportCommentWiseAction"
+		scope="prototype">
+		<property name="sectionService" ref="org.hisp.dhis.dataset.SectionService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="organisationUnitGroupService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+	</bean>
+
+
+<!-- Maps And Charts -->
+
+
+	<bean
+		id="org.hisp.dhis.ivb.maps.action.GenerateMapsAndCharts"
+		class="org.hisp.dhis.ivb.maps.action.GenerateMapsAndCharts"
+		scope="prototype">
+		<property name="sectionService" ref="org.hisp.dhis.dataset.SectionService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="organisationUnitGroupService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+	</bean>
+
+<bean
+		id="org.hisp.dhis.ivb.maps.action.DEMapping"
+		class="org.hisp.dhis.ivb.maps.action.DEMapping"
+		scope="prototype">
+		<property name="lookupService" ref="org.hisp.dhis.lookup.LookupService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="aggregationConditionService"
+			ref="org.hisp.dhis.caseaggregation.CaseAggregationConditionService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+	</bean>
+
+
+
+    <!-- GAVI Applications report -->
+    <bean id="org.hisp.dhis.ivb.report.action.GaviReportFormAction"
+        class="org.hisp.dhis.ivb.report.action.GaviReportFormAction"
+        scope="prototype">
+        <property name="selectionManager" ref="org.hisp.dhis.ouwt.manager.OrganisationUnitSelectionManager" />
+        <property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+        <property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+        <property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+        <property name="organisationUnitGroupService" ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+        <property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+        <property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+        <property name="configurationService" ref="org.hisp.dhis.configuration.ConfigurationService" />
+        <property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+    </bean>
+
+    <bean
+        id="org.hisp.dhis.ivb.report.action.GaviReportResultAction"
+        class="org.hisp.dhis.ivb.report.action.GaviReportResultAction"
+        scope="prototype">
+        <property name="sectionService" ref="org.hisp.dhis.dataset.SectionService" />
+        <property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+        <property name="organisationUnitGroupService" ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+        <property name="organisationUnitService" ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+        <property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+        <property name="categoryService" ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+        <property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+        <property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+        <property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+        <property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+        <property name="configurationService" ref="org.hisp.dhis.configuration.ConfigurationService" />
+        <property name="selectionTreeManager" ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+    </bean>
+
+    <!-- IPV report -->
+    <bean id="org.hisp.dhis.ivb.report.action.IPVImplementationFormAction"
+        class="org.hisp.dhis.ivb.report.action.IPVImplementationFormAction"
+        scope="prototype">
+        <property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+        <property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+        <property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+        <property name="configurationService" ref="org.hisp.dhis.configuration.ConfigurationService" />
+        <property name="lookupService" ref="org.hisp.dhis.lookup.LookupService" />
+        <property name="organisationUnitGroupService" ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+    </bean>
+
+    <bean id="org.hisp.dhis.ivb.report.action.IPVImplementationResultAction"
+        class="org.hisp.dhis.ivb.report.action.IPVImplementationResultAction"
+        scope="prototype">
+        <property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+        <property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+        <property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+        <property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+        <property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+        <property name="configurationService" ref="org.hisp.dhis.configuration.ConfigurationService" />        
+        <property name="organisationUnitGroupService" ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+        <property name="sectionService" ref="org.hisp.dhis.dataset.SectionService" />
+    </bean>
+
+    <bean id="org.hisp.dhis.ivb.report.action.IMGCallDashboardAction"
+        class="org.hisp.dhis.ivb.report.action.IMGCallDashboardAction"
+        scope="prototype">
+    </bean>
+
+    <!-- PIE Report -->
+    <bean
+        id="org.hisp.dhis.ivb.report.action.PieReportResultAction"
+        class="org.hisp.dhis.ivb.report.action.PieReportResultAction"
+        scope="prototype">
+        <property name="sectionService" ref="org.hisp.dhis.dataset.SectionService" />
+        <property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+        <property name="organisationUnitGroupService" ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+        <property name="organisationUnitService" ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+        <property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+        <property name="categoryService" ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+        <property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+        <property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+        <property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+        <property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+        <property name="configurationService" ref="org.hisp.dhis.configuration.ConfigurationService" />
+        <property name="selectionTreeManager" ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+    </bean>
+    
+    <bean
+        id="org.hisp.dhis.ivb.report.action.PieProgReviewTAReportResultAction"
+        class="org.hisp.dhis.ivb.report.action.PieProgReviewTAReportResultAction"
+        scope="prototype">        
+        <property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+        <property name="organisationUnitGroupService" ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+        <property name="organisationUnitService" ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+        <property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+        <property name="categoryService" ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+        <property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+        <property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+        <property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+        <property name="selectionTreeManager" ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+    </bean>
+    
+	<!-- Tool Box Report -->
+	<bean id="org.hisp.dhis.ivb.report.action.ToolBoxReportFormAction"
+		class="org.hisp.dhis.ivb.report.action.ToolBoxReportFormAction" scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="organisationUnitGroupService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+	</bean>
+	<bean id="org.hisp.dhis.ivb.report.action.GenerateToolBoxReportAction"
+		class="org.hisp.dhis.ivb.report.action.GenerateToolBoxReportAction"
+		scope="prototype">
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="organisationUnitGroupService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+		<property name="periodService" ref="org.hisp.dhis.period.PeriodService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+	</bean>
+
+	<!-- Regional Summary Report -->
+	<bean id="org.hisp.dhis.ivb.report.action.GetRegionalReportFormAction"
+		class="org.hisp.dhis.ivb.report.action.GetRegionalReportFormAction"
+		scope="prototype">
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="organisationUnitGroupService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+	</bean>
+	<bean
+		id="org.hisp.dhis.ivb.report.action.GenerateRegionalSummaryReportAction"
+		class="org.hisp.dhis.ivb.report.action.GenerateRegionalSummaryReportAction"
+		scope="prototype">
+		<property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="indicatorService" ref="org.hisp.dhis.indicator.IndicatorService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="expressionService" ref="org.hisp.dhis.expression.ExpressionService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="organisationUnitGroupService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+		<property name="periodService" ref="org.hisp.dhis.period.PeriodService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="keyFlagCalculation" ref="org.hisp.dhis.ivb.util.KeyFlagCalculation" />
+		<property name="keyFlagAnalyticsService" ref="org.hisp.dhis.ivb.kfa.KeyFlagAnalyticsService" />
+	</bean>
+
+	<!-- BWA Activities Report -->
+	<bean
+		id="org.hisp.dhis.ivb.report.action.BWAActivitiesResultAction"
+		class="org.hisp.dhis.ivb.report.action.BWAActivitiesResultAction"
+		scope="prototype">
+	</bean>
+
+	<!-- HPV Demo Report -->
+	<bean
+		id="org.hisp.dhis.ivb.report.action.LoadHPVDemoReportParamsAction"
+		class="org.hisp.dhis.ivb.report.action.LoadHPVDemoReportParamsAction"
+		scope="prototype">
+	</bean>
+
+	<bean
+		id="org.hisp.dhis.ivb.report.action.HPVDemoReportResultAction"
+		class="org.hisp.dhis.ivb.report.action.HPVDemoReportResultAction"
+		scope="prototype">
+	</bean>
+
+	<!-- Open and Close Discussion -->
+	<bean id="org.hisp.dhis.ivb.dataentry.action.CloseDiscussionAction"
+		class="org.hisp.dhis.ivb.dataentry.action.CloseDiscussionAction"
+		scope="prototype">
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="periodService" ref="org.hisp.dhis.period.PeriodService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+	</bean>
+
+	<bean id="org.hisp.dhis.ivb.dataentry.action.ReOpenDiscussionAction"
+		class="org.hisp.dhis.ivb.dataentry.action.ReOpenDiscussionAction"
+		scope="prototype">
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="periodService" ref="org.hisp.dhis.period.PeriodService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+	</bean>
+
+	<!-- Contact Us -->
+	<bean id="org.hisp.dhis.ivb.action.SendFeedbackAction" class="org.hisp.dhis.ivb.action.SendFeedbackAction"
+		scope="prototype">
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+	</bean>
+
+	<!-- Remove Conflict -->
+	<bean
+		id="org.hisp.dhis.ivb.dataentry.conflict.action.GetConflictFormAction"
+		class="org.hisp.dhis.ivb.dataentry.conflict.action.GetConflictFormAction"
+		scope="prototype">
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+	</bean>
+
+	<bean id="org.hisp.dhis.ivb.dataentry.action.RemoveConflictAction"
+		class="org.hisp.dhis.ivb.dataentry.action.RemoveConflictAction" scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="periodService" ref="org.hisp.dhis.period.PeriodService" />
+	</bean>
+
+	<!-- Main Menu Help -->
+	<bean id="org.hisp.dhis.ivb.help.action.Help" class="org.hisp.dhis.ivb.help.action.Help"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+	</bean>
+
+	<bean id="org.hisp.dhis.ivb.help.action.GetHelpContentAction"
+		class="org.hisp.dhis.ivb.help.action.GetHelpContentAction" scope="prototype">
+		<property name="helpManager" ref="org.hisp.dhis.help.HelpManager" />
+		<property name="localeManager" ref="org.hisp.dhis.i18n.locale.LocaleManager" />
+	</bean>
+
+	<bean id="org.hisp.dhis.ivb.help.action.GetHelpItemsAction" class="org.hisp.dhis.ivb.help.action.GetHelpItemsAction"
+		scope="prototype">
+		<property name="helpManager" ref="org.hisp.dhis.help.HelpManager" />
+		<property name="localeManager" ref="org.hisp.dhis.i18n.locale.LocaleManager" />
+	</bean>
+
+	<bean id="org.hisp.dhis.ivb.help.action.GetAllDocumentsAction"
+		class="org.hisp.dhis.ivb.help.action.GetAllDocumentsAction" scope="prototype">
+		<property name="documentService" ref="org.hisp.dhis.document.DocumentService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+	</bean>
+
+	<!-- User Profile -->
+	<bean id="org.hisp.dhis.ivb.profile.action.GetCurrentUserAction"
+		class="org.hisp.dhis.ivb.profile.action.GetCurrentUserAction" scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+	</bean>
+	<bean id="org.hisp.dhis.ivb.profile.action.UpdateUserAccountAction"
+		class="org.hisp.dhis.ivb.profile.action.UpdateUserAccountAction"
+		scope="prototype">
+		<property name="userService" ref="org.hisp.dhis.user.UserService" />
+		<property name="passwordManager" ref="org.hisp.dhis.security.PasswordManager" />
+	</bean>
+
+	<!-- <bean id="org.hisp.dhis.ivb.dataentry.action.CopyDataValueFromHistoryAction" 
+		class="org.hisp.dhis.ivb.dataentry.action.CopyDataValueFromHistoryAction" 
+		scope="prototype"> <property name="dataValueAuditService" ref="org.hisp.dhis.datavalue.DataValueAuditService" 
+		/> <property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" 
+		/> <property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" 
+		/> <property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" 
+		/> <property name="organisationUnitService" ref="org.hisp.dhis.organisationunit.OrganisationUnitService" 
+		/> <property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" 
+		/> <property name="categoryService" ref="org.hisp.dhis.dataelement.DataElementCategoryService" 
+		/> </bean> -->
+
+	<!-- Resolve Conflicts -->
+	<bean
+		id="org.hisp.dhis.ivb.dataentry.conflict.action.LoadDataValueConflictAction"
+		class="org.hisp.dhis.ivb.dataentry.conflict.action.LoadDataValueConflictAction"
+		scope="prototype">
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="periodService" ref="org.hisp.dhis.period.PeriodService" />
+	</bean>
+
+	<bean
+		id="org.hisp.dhis.ivb.dataentry.conflict.action.ResolveAllConflictAction"
+		class="org.hisp.dhis.ivb.dataentry.conflict.action.ResolveAllConflictAction"
+		scope="prototype">
+		<property name="dataValueAuditService"
+			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+	</bean>
+
+	<bean id="org.hisp.dhis.ivb.action.GetUserAuthorityAction" class="org.hisp.dhis.ivb.action.GetUserAuthorityAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+	</bean>
+
+	<!-- Agenda Report -->
+	<bean id="org.hisp.dhis.ivb.report.action.GenerateAgendaReportAction"
+		class="org.hisp.dhis.ivb.report.action.GenerateAgendaReportAction"
+		scope="prototype">
+		<property name="expressionService" ref="org.hisp.dhis.expression.ExpressionService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="sectionService" ref="org.hisp.dhis.dataset.SectionService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="organisationUnitGroupService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="keyFlagCalculation" ref="org.hisp.dhis.ivb.util.KeyFlagCalculation" />
+		<property name="keyFlagAnalyticsService" ref="org.hisp.dhis.ivb.kfa.KeyFlagAnalyticsService" />
+	</bean>
+
+	<!-- Area of Report -->
+
+	<bean id="org.hisp.dhis.ivb.report.action.CannedReportFormAction"
+		class="org.hisp.dhis.ivb.report.action.CannedReportFormAction" scope="prototype">
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="favoriteService" ref="org.hisp.dhis.favorite.FavoriteService" />
+	</bean>
+
+	<bean id="org.hisp.dhis.ivb.report.action.GenerateAreaOfWorkReportAction"
+		class="org.hisp.dhis.ivb.report.action.GenerateAreaOfWorkReportAction"
+		scope="prototype">
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+	</bean>
+
+	<!-- Favorite -->
+
+	<bean id="org.hisp.dhis.ivb.favorite.action.CreateFavoriteAction"
+		class="org.hisp.dhis.ivb.favorite.action.CreateFavoriteAction" scope="prototype">
+		<property name="favoriteService" ref="org.hisp.dhis.favorite.FavoriteService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="userGroupService" ref="org.hisp.dhis.user.UserGroupService" />
+		<property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+	</bean>
+	
+	
+	<bean id="org.hisp.dhis.ivb.favorite.action.DeleteFavoriteAction"
+		class="org.hisp.dhis.ivb.favorite.action.DeleteFavoriteAction" scope="prototype">
+		<property name="favoriteService" ref="org.hisp.dhis.favorite.FavoriteService" />
+	</bean>
+
+	<bean id="org.hisp.dhis.ivb.favorite.action.GetFavoriteAction"
+		class="org.hisp.dhis.ivb.favorite.action.GetFavoriteAction" scope="prototype">
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="favoriteService" ref="org.hisp.dhis.favorite.FavoriteService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+	</bean>
+
+	<!-- Tabular Report -->
+
+	<bean id="org.hisp.dhis.ivb.report.action.GetTabularReportFormAction"
+		class="org.hisp.dhis.ivb.report.action.GetTabularReportFormAction"
+		scope="prototype">
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="favoriteService" ref="org.hisp.dhis.favorite.FavoriteService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+	</bean>
+
+	<bean id="org.hisp.dhis.ivb.report.action.GenerateTabularReportAction"
+		class="org.hisp.dhis.ivb.report.action.GenerateTabularReportAction"
+		scope="prototype">
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="favoriteService" ref="org.hisp.dhis.favorite.FavoriteService" />
+	</bean>
+
+    <bean id="org.hisp.dhis.ivb.report.action.GeneratePROWGReportAction"
+        class="org.hisp.dhis.ivb.report.action.GeneratePROWGReportAction"
+        scope="prototype">
+        <property name="organisationUnitService" ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+        <property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+        <property name="selectionTreeManager" ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+        <property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+        <property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+        <property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+        <property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+        <property name="configurationService" ref="org.hisp.dhis.configuration.ConfigurationService" />
+        <property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+        <property name="favoriteService" ref="org.hisp.dhis.favorite.FavoriteService" />
+        <property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+        <property name="categoryService" ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+    </bean>
+
+	<!-- User Activity Report -->
+
+	<bean id="org.hisp.dhis.ivb.report.action.GetUserActivityReportFormAction"
+		class="org.hisp.dhis.ivb.report.action.GetUserActivityReportFormAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="userService" ref="org.hisp.dhis.user.UserService" />
+	</bean>
+
+	<bean
+		id="org.hisp.dhis.ivb.report.action.GenerateUserAcitivityReportAction"
+		class="org.hisp.dhis.ivb.report.action.GenerateUserAcitivityReportAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="periodService" ref="org.hisp.dhis.period.PeriodService" />
+		<property name="userService" ref="org.hisp.dhis.user.UserService" />
+	</bean>
+	
+	<!-- User Activity Login Report -->
+	<bean
+		id="org.hisp.dhis.ivb.report.action.GenerateUserAcitivityLoginReportAction"
+		class="org.hisp.dhis.ivb.report.action.GenerateUserAcitivityLoginReportAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService" ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+	</bean>
+
+	<!-- Alert Report -->	
+	<bean id="org.hisp.dhis.ivb.report.action.GenerateAlertsAction"
+		class="org.hisp.dhis.ivb.report.action.GenerateAlertsAction"
+		scope="prototype">
+		<property name="organisationUnitService" ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="selectionTreeManager" ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="configurationService" ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="favoriteService" ref="org.hisp.dhis.favorite.FavoriteService" />
+	</bean>
+	
+	<!-- Dataelement History -->
+	<bean
+		id="org.hisp.dhis.ivb.report.action.DEHistoryReportResultAction"
+		class="org.hisp.dhis.ivb.report.action.DEHistoryReportResultAction"
+		scope="prototype">
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService" ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="selectionTreeManager" ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+		<property name="organisationUnitService" ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+	</bean>
+
+	<!-- Country Activities Dashboard Report -->
+	<bean id="org.hisp.dhis.ivb.report.action.CountryActivitiesFormAction"
+		class="org.hisp.dhis.ivb.report.action.CountryActivitiesFormAction" scope="prototype">
+		<property name="organisationUnitService" ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="selectionTreeManager" ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />		
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />		
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService" ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="lookupService" ref="org.hisp.dhis.lookup.LookupService" />
+	</bean>
+	<bean id="org.hisp.dhis.ivb.report.action.CountryActivitiesResultAction"
+		class="org.hisp.dhis.ivb.report.action.CountryActivitiesResultAction" scope="prototype">
+	</bean>
+
+	<!-- cMYP Development Tracking Report-->
+	<bean id="org.hisp.dhis.ivb.report.action.CMYPDevTrackingFormAction"
+		class="org.hisp.dhis.ivb.report.action.CMYPDevTrackingFormAction" scope="prototype">
+	</bean>
+	<bean id="org.hisp.dhis.ivb.report.action.CMYPDevTrackingResultAction"
+		class="org.hisp.dhis.ivb.report.action.CMYPDevTrackingResultAction" scope="prototype">
+	</bean>
+	
+	<!-- Aggregation Engine -->
+	<bean id="org.hisp.dhis.ivb.aggregation.action.AggregationQueryListAction"
+		class="org.hisp.dhis.ivb.aggregation.action.AggregationQueryListAction"
+		scope="prototype">
+		<property name="aggregationConditionService"
+			ref="org.hisp.dhis.caseaggregation.CaseAggregationConditionService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+	</bean>
+
+	<bean
+		id="org.hisp.dhis.ivb.aggregation.action.ValidateAddAggregationAction"
+		class="org.hisp.dhis.ivb.aggregation.action.ValidateAddAggregationAction"
+		scope="prototype">
+		<property name="aggregationConditionService"
+			ref="org.hisp.dhis.caseaggregation.CaseAggregationConditionService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+	</bean>
+
+	<bean
+		id="org.hisp.dhis.ivb.aggregation.action.AddAggregationQueryFormAction"
+		class="org.hisp.dhis.ivb.aggregation.action.AddAggregationQueryFormAction"
+		scope="prototype">
+		<property name="lookupService" ref="org.hisp.dhis.lookup.LookupService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="aggregationConditionService"
+			ref="org.hisp.dhis.caseaggregation.CaseAggregationConditionService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+	</bean>
+	
+
+	<bean id="org.hisp.dhis.ivb.aggregation.action.AddAggregationQueryAction"
+		class="org.hisp.dhis.ivb.aggregation.action.AddAggregationQueryAction"
+		scope="prototype">
+		<property name="lookupService" ref="org.hisp.dhis.lookup.LookupService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="aggregationConditionService"
+			ref="org.hisp.dhis.caseaggregation.CaseAggregationConditionService" />
+		<property name="dataElementCategoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="aggregationManager" ref="org.hisp.dhis.ivb.util.AggregationManager" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+	</bean>
+
+	<bean
+		id="org.hisp.dhis.ivb.aggregation.action.EditAggregationQueryFormAction"
+		class="org.hisp.dhis.ivb.aggregation.action.EditAggregationQueryFormAction"
+		scope="prototype">
+		<property name="lookupService" ref="org.hisp.dhis.lookup.LookupService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="aggregationConditionService"
+			ref="org.hisp.dhis.caseaggregation.CaseAggregationConditionService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+	</bean>
+
+	<bean
+		id="org.hisp.dhis.ivb.aggregation.action.UpdateAggregationQueryAction"
+		class="org.hisp.dhis.ivb.aggregation.action.UpdateAggregationQueryAction"
+		scope="prototype">
+		<property name="lookupService" ref="org.hisp.dhis.lookup.LookupService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="aggregationConditionService"
+			ref="org.hisp.dhis.caseaggregation.CaseAggregationConditionService" />
+		<property name="dataElementCategoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="aggregationManager" ref="org.hisp.dhis.ivb.util.AggregationManager" />
+	</bean>
+
+	<bean
+		id="org.hisp.dhis.ivb.aggregation.action.DeleteAggregationQueryAction"
+		class="org.hisp.dhis.ivb.aggregation.action.DeleteAggregationQueryAction"
+		scope="prototype">
+		<property name="aggregationConditionService"
+			ref="org.hisp.dhis.caseaggregation.CaseAggregationConditionService" />
+	</bean>
+
+	<bean
+		id="org.hisp.dhis.ivb.aggregation.action.GetAggregationParameterAction"
+		class="org.hisp.dhis.ivb.aggregation.action.GetAggregationParameterAction"
+		scope="prototype">
+		<property name="lookupService" ref="org.hisp.dhis.lookup.LookupService" />
+		<property name="optionService" ref="org.hisp.dhis.option.OptionService" />
+		<property name="dataElementService" ref="org.hisp.dhis.dataelement.DataElementService" />
+		<property name="indicatorService" ref="org.hisp.dhis.indicator.IndicatorService" />
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+	</bean>
+
+	<bean id="org.hisp.dhis.ivb.aggregation.action.RunAggregationQueryAction"
+		class="org.hisp.dhis.ivb.aggregation.action.RunAggregationQueryAction"
+		scope="prototype">
+		<property name="aggregationConditionService"
+			ref="org.hisp.dhis.caseaggregation.CaseAggregationConditionService" />
+		<property name="organisationUnitService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+		<property name="organisationUnitGroupService"
+			ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+		<property name="aggregationManager" ref="org.hisp.dhis.ivb.util.AggregationManager" />
+		<property name="selectionTreeManager"
+			ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+		<property name="periodService" ref="org.hisp.dhis.period.PeriodService" />
+		<property name="ivbUtil" ref="org.hisp.dhis.ivb.util.IVBUtil" />
+		<property name="indicatorService" ref="org.hisp.dhis.indicator.IndicatorService" />
+		<property name="messageService" ref="org.hisp.dhis.message.MessageService" />
+		<property name="configurationService"
+			ref="org.hisp.dhis.configuration.ConfigurationService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="i18nService" ref="org.hisp.dhis.i18n.I18nService" />
+	</bean>
+
+	<bean id="org.hisp.dhis.ivb.util.AggregationManager" class="org.hisp.dhis.ivb.util.AggregationManager">
+		<property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+		<property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
+		<property name="periodService" ref="org.hisp.dhis.period.PeriodService" />
+		<property name="dataElementCategoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+		<property name="expressionService" ref="org.hisp.dhis.expression.ExpressionService" />
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="jdbcTemplate" ref="jdbcTemplate" />
+		<property name="indicatorService" ref="org.hisp.dhis.indicator.IndicatorService" />
+		<property name="keyFlagCalculation" ref="org.hisp.dhis.ivb.util.KeyFlagCalculation" />
+	</bean>
+
+	<!-- Document Management -->
+	<bean id="org.hisp.dhis.ivb.help.action.SaveDocumentAction" class="org.hisp.dhis.ivb.help.action.SaveDocumentAction"
+		scope="prototype">
+		<property name="locationManager" ref="locationManager" />
+		<property name="documentService" ref="org.hisp.dhis.document.DocumentService" />
+	</bean>
+	<bean id="org.hisp.dhis.ivb.help.action.UpdateDocumentAction"
+		class="org.hisp.dhis.ivb.help.action.UpdateDocumentAction" scope="prototype">
+		<property name="locationManager" ref="locationManager" />
+		<property name="documentService" ref="org.hisp.dhis.document.DocumentService" />
+	</bean>
+	<bean id="org.hisp.dhis.ivb.help.action.DeleteDocumentAction"
+		class="org.hisp.dhis.ivb.help.action.DeleteDocumentAction" scope="prototype">
+		<property name="documentService" ref="org.hisp.dhis.document.DocumentService" />
+	</bean>
+
+	<!-- Key Flag Calculation -->
+
+	<bean id="org.hisp.dhis.ivb.util.KeyFlagCalculation" class="org.hisp.dhis.ivb.util.KeyFlagCalculation"
+		scope="prototype">
+		<property name="dataValueService" ref="org.hisp.dhis.datavalue.DataValueService" />
+		<property name="expressionService" ref="org.hisp.dhis.expression.ExpressionService" />
+		<property name="categoryService"
+			ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
+	</bean>
+
+	<!-- Get All Lookups -->
+
+	<bean id="org.hisp.dhis.ivb.lookups.action.GetAllLookupsAction"
+		class="org.hisp.dhis.ivb.lookups.action.GetAllLookupsAction" scope="prototype">
+		<property name="lookupService" ref="org.hisp.dhis.lookup.LookupService" />
+	</bean>
+
+	<!-- Add Lookup -->
+	<bean id="org.hisp.dhis.ivb.lookups.action.AddLookupAction" class="org.hisp.dhis.ivb.lookups.action.AddLookupAction"
+		scope="prototype">
+		<property name="lookupService" ref="org.hisp.dhis.lookup.LookupService" />
+	</bean>
+
+	<!-- Delete Lookup -->
+
+	<bean id="org.hisp.dhis.ivb.lookups.action.DelLookup" class="org.hisp.dhis.ivb.lookups.action.DelLookup"
+		scope="prototype">
+		<property name="lookupService" ref="org.hisp.dhis.lookup.LookupService" />
+	</bean>
+
+	<!-- Edit Lookup -->
+
+	<bean id="org.hisp.dhis.ivb.lookups.action.EditLookupFormAction"
+		class="org.hisp.dhis.ivb.lookups.action.EditLookupFormAction" scope="prototype">
+		<property name="lookupService" ref="org.hisp.dhis.lookup.LookupService" />
+	</bean>
+
+	<!-- Update Lookup -->
+	<bean id="org.hisp.dhis.ivb.lookups.action.UpdateLookupAction"
+		class="org.hisp.dhis.ivb.lookups.action.UpdateLookupAction" scope="prototype">
+		<property name="lookupService" ref="org.hisp.dhis.lookup.LookupService" />
+	</bean>
+
+	<!-- Get Lookup(Show Details) -->
+
+	<bean id="org.hisp.dhis.ivb.lookups.action.GetLookupAction" class="org.hisp.dhis.ivb.lookups.action.GetLookupAction"
+		scope="prototype">
+		<property name="lookupService" ref="org.hisp.dhis.lookup.LookupService" />
+	</bean>
+
+	<!-- Validate Lookup -->
+
+	<bean id="org.hisp.dhis.ivb.lookups.action.ValidateLookupAction"
+		class="org.hisp.dhis.ivb.lookups.action.ValidateLookupAction" scope="prototype">
+		<property name="lookupService" ref="org.hisp.dhis.lookup.LookupService" />
+	</bean>
+	
+	<!--  Manual Report Scheduling Form -->
+	<bean id="org.hisp.dhis.ivb.util.ManualReportSchedulingFormAction"
+		class="org.hisp.dhis.ivb.util.ManualReportSchedulingFormAction" scope="prototype">
+	</bean>
+
+	<!--  Run Manual Scheduling -->
+	<bean id="org.hisp.dhis.ivb.util.ManualReportSchedulingAction"
+		class="org.hisp.dhis.ivb.util.ManualReportSchedulingAction" scope="prototype">
+		<property name="reportScheduler" ref="org.hisp.dhis.ivb.util.ReportScheduler" />
+	</bean>
+	
+	<!-- Add DeMapping -->
+	<bean id="org.hisp.dhis.ivb.demapping.action.AddDeMappingAction" class="org.hisp.dhis.ivb.demapping.action.AddDeMappingAction"
+		  scope="prototype">
+		<property name="demappingService" ref="org.hisp.dhis.ivb.demapping.DeMappingService" />
+	</bean>
+
+	<!-- get DeMapping -->
+	<bean id="org.hisp.dhis.ivb.demapping.action.GetDeMappingAction" class="org.hisp.dhis.ivb.demapping.action.GetDeMappingAction"
+		  scope="prototype">
+		<property name="demappingService" ref="org.hisp.dhis.ivb.demapping.DeMappingService" />
+	</bean>
+
+	<!-- get all DeMappings -->
+	<bean id="org.hisp.dhis.ivb.demapping.action.GetAllDeMappingsAction" class="org.hisp.dhis.ivb.demapping.action.GetAllDeMappingsAction"
+		  scope="prototype">
+		<property name="demappingService" ref="org.hisp.dhis.ivb.demapping.DeMappingService" />
+	</bean>
+
+</beans>

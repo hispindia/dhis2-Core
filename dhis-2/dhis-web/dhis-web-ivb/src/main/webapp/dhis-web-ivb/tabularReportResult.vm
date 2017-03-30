@@ -1,0 +1,778 @@
+   <style>
+		.x-column-header-inner .x-column-header-text {
+		white-space: normal;
+		z-index:-1;
+	}
+
+	.x-column-header-inner {
+		line-height: normal;
+		padding-top: 3px !important;
+		padding-bottom: 3px !important;			
+	}	
+	.x-grid-row .x-grid-cell-inner {
+		white-space: normal;
+	}
+    .x-grid-row-over .x-grid-cell-inner {        
+		white-space: normal;
+    }	 
+   </style>
+	<script type="text/javascript" >
+        var percentageRequiredList= $percentageRequiredDe;
+
+    var windowWidth = $(window).width();
+	var windowHeight = $(window).height();
+	var tableWidth = (parseInt( windowWidth ) * 90) / 100 ;	
+	var columnWidth = (parseInt( windowWidth ) * 10) / 100 ;
+	
+		Ext.Loader.setConfig({
+		enabled: true
+	});
+	Ext.Loader.setPath('Ext.ux.grid', 'javascript');
+	Ext.Loader.setPath('Ext.tip', 'javascript/tips');
+	Ext.require([
+		'Ext.data.*',
+		'Ext.grid.*',
+		'Ext.tip.ToolTip',
+		'Ext.ux.grid.TransformGrid'
+	]);
+	var grid;
+	window.onload=function(){
+	
+			#set( $dataElementSize = $dataElementName.size() )
+			var column = [
+			
+			#if( $isoCode == "ON" )
+			{
+                text     : 'ISO Code',
+    			width    : 80,			
+                locked   : true,            
+                sortable : true
+            },
+            #end
+			
+			#if( $whoRegion == "ON" )
+			{
+                text     : '$i18n.getString( "region" )',
+    			width    : 100,
+				locked   : true,
+                sortable : true
+        	},
+			#end
+
+			#if( $unicefRegion == "ON" )
+			{
+                text     : '$i18n.getString( "unicef_region" )',
+    			width    : 100,
+				locked   : true,
+                sortable : true
+        	},
+			#end
+						
+			{
+                text     : '$i18n.getString( "country" )',
+    			width    : 100, 
+				locked   : true,
+                sortable : true
+        	},
+        
+			#foreach( $hdeName in $headerDataElementName )			
+				#if( $hdeName == "Income status" && $incomeLevel == "ON") 						  						  
+					{
+		                text     : '$hdeName',
+		    			width    : columnWidth,
+						locked   : true,
+		                sortable : true
+		        	},
+				#end
+				
+			#end
+			
+			#if(  $gaviEligibleStatus == "ON" )  						  	
+				
+					{
+		                text     : "GAVI Eligibility status",
+		    			width    : columnWidth,
+						locked   : true,
+		                sortable : true
+		        	},
+				#end			
+		
+			#foreach($headerName in $dataElementName)
+			{
+                	text     : '$headerName',
+    			width    : columnWidth,
+	                sortable : true
+        		},
+			#end 			
+			{
+                	text     : ' ',
+    			width    : columnWidth,
+	                sortable : false
+        		}
+
+			]
+			
+			Ext.QuickTips.init();
+			grid = Ext.create('Ext.ux.grid.TransformGrid', "the-table", {				
+			sortableColumns: true,
+            enableColumnHide: true,
+            enableColumnMove: true,
+            enableColumnResize: true,
+            sortOnLoad: true,
+			width: tableWidth,
+        	height: 360,        	
+        	layout: {
+            	type: 'hbox',
+            	align: 'stretch'
+        	},
+            sorters: {direction: 'ASC'},
+			columns: column
+			});			
+			grid.render();			
+			
+	}
+	</script>
+    <script type="text/javascript">
+
+        function formatNumber( orgunitId, deId, content )
+        {
+        	var cellId = orgunitId + "-" + deId;
+            for( var i = 0; i < percentageRequiredList.length; i++ )
+            {
+                if( deId == percentageRequiredList[i] )
+                {
+                	
+                    document.getElementById( cellId ).innerHTML = content+"%";
+                    return;
+                }
+            }
+            document.getElementById( cellId ).innerHTML =  content.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+	jQuery(function() {
+			$('#dataElements option').attr('selected', 'selected');
+        	$('#orgUnits option').attr('selected', 'selected');
+        	
+        	var dataElemts = document.getElementById('dataElements').value;
+			var values = document.getElementById('values').value;
+			var comments = document.getElementById('comments').value;
+        	var orgUnits = document.getElementById('orgUnits').value;
+
+        $( "#delete-bookmark" ).button().click(function() {
+            var dataValue = {
+                'favoriteName' : $("#delete-bookmark-hidden").val()
+            };
+
+            if (!confirm("Do you want to delete")){
+                return false;
+            }
+            else
+            {
+                jQuery.ajax( {
+                    url: 'deleteFavorite.action',
+                    data: dataValue,
+                    dataType: 'json',
+                    success: handleSuccessFavorite,
+                    error: handleErrorFavorite
+                } );
+            }
+        });
+
+        function handleSuccessFavorite( json )
+        {
+            alert( "Bookmark deleted successfully.. Redirecting to custom report page " );
+            location.href='tabularReportForm.action'
+        }
+        function handleErrorFavorite( json )
+        {
+            showErrorMessage( "Error while deleting bookmark " );
+        }
+
+	$( "#create-bookmark" )
+        			.button()
+        			.click(function() {
+        				$( "#favorite" ).dialog( "open" );
+        			});
+					
+	$( "#favorite" ).dialog({
+			autoOpen: false,
+			width: 450,
+			modal: true,
+			buttons: {
+						"Save Bookmark": function() {						
+						var showAll;
+						var bValue = false;
+						if(document.getElementById("publicView").checked == true)
+						{
+							showAll = "true";
+						}
+						else
+						{
+							showAll = "false";
+						}
+						
+						if(('$favorite.name' != '' && '$favorite.showAll' == '2') || '$favorite.storedBy' == '$userName')
+						{
+        						var dataValue = {
+        		        			'name' : $("#favoriteName").val(),
+        		        			'dataElements' : dataElemts,
+									'values' : values,
+									'comments' : comments,
+        		        			'organisationUnits' : orgUnits,        							
+        		        			'favoriteId' : '$favorite.id',
+									'showAll' : showAll,
+									'favoriteType' : $("#favoriteType").val()
+        		    			};
+						}
+						else
+						{
+								var fList = $favoriteList;
+								for(var i=0; i<=fList.length-1; i++)
+								{
+    								if(fList[i] == $("#favoriteName").val())
+    								{
+    									bValue = true;
+    								}
+								}								
+    							var dataValue = {
+    		        			'name' : $("#favoriteName").val(),
+    		        			'dataElements' : dataElemts,
+								'values' : values,
+								'comments' : comments,
+    		        			'organisationUnits' : orgUnits,    							
+								'showAll' : showAll,
+								'favoriteType' : $("#favoriteType").val()
+    		    		};
+						}
+						if(bValue)
+						{
+							alert("Bookmark name already exist");
+						}
+						else
+						{
+						
+                        jQuery.ajax( {
+                                url: 'createFavorite.action', 
+								data: dataValue,
+                                dataType: 'json',
+                                success: handleSuccess,
+                                error: handleError
+                            } );
+						}
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+			},
+			close: function() {				
+			}
+		});
+		 function handleSuccess( json )
+	    {	    	
+	    	showSuccessMessage( "Bookmark saved" );
+			$( "#favorite" ).dialog( "close" );
+	    }
+	    function handleError( json )
+	    {
+	    	showWarningMessage( "Bookmark not saved" );
+			$( "#favorite" ).dialog( "close" );
+	    }
+		
+    $('#toUser').show();
+    $('#recipients').select2({
+       minimumInputLength: 1,
+       multiple: true, 
+       width: "546px",      
+       ajax: {
+           url: 'getMessageRecipients.action',
+           dataType: 'json',
+           data: function(term, page) {
+                return {
+                    filter: term
+                }
+           },
+           results: function(data, page) {
+		    return {		   	   
+               results: data.matches }
+           }
+       }
+    });
+});
+</script>
+
+<script>
+    function getShareLink()
+    {       
+        $('#shareSubject').val('Tabular Report');
+        $('#orgUnitIds option').attr('selected', 'selected');
+		var orgUnitIds = document.getElementById('orgUnitIds').options;
+		var ids = '';
+		for(var i=0;i <= orgUnitIds.length-1 ; i++)
+		{	
+			ids = ids+'&orgUnitIds='+orgUnitIds[i].value;
+		}
+		url = document.location.href +ids;
+        $('#shareText').val('Link to view the report: \n \n' + url);
+        $( "#shareLinkToUser" ).dialog('open');     
+    }
+	function getKeyFlagDetails(value,comment,source,orgName,area)
+	{
+		$('#detailSection').remove();
+		$('#areaAndCountry').find('#content').remove();
+		$('#areaAndCountry').append("<div id='content'><b style='float:left;'> Area: "+area+"</b><b style='float:right;'>Country: "+orgName+"&nbsp;</b> </div>");
+		$('#detailTable').append("<tr id='detailSection'><td>"+value+"</td><td>"+comment+"</td><td>"+source+"</td></tr>")
+		$( '.keyFlagDetail' ).css( 'display','block' );
+	}
+	$(function() {
+		$( document ).tooltip();
+	});
+</script>
+ <style>
+    @media print {
+    @page { margin: 0; }
+        body { margin: 1.6cm; }
+    }
+        .ui-tooltip, .arrow1:after {
+            background: white;
+            border: 2px solid #086B96;
+        }
+        .ui-tooltip {
+            padding: 10px 20px;
+            color: black;
+            border-radius: 20px;
+            font: bold 12px "Helvetica Neue", Sans-Serif;           
+            box-shadow: 0 0 7px black;
+        }
+        .arrow1 {
+            width: 70px;
+            height: 16px;
+            overflow: hidden;
+            position: absolute;
+            left: 40%;
+            margin-left: -35px;
+            bottom: -16px;
+        }
+        .arrow1.top {
+            top: -16px;
+            bottom: auto;
+        }
+        .arrow1.left {
+            left: 20%;
+        }
+        .arrow1:after {
+            content: "";
+            position: absolute;
+            left: 20px;
+            top: -20px;
+            width: 25px;
+            height: 25px;
+            box-shadow: 6px 5px 9px -9px black;
+            -webkit-transform: rotate(45deg);
+            -moz-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            -o-transform: rotate(45deg);
+            tranform: rotate(45deg);
+        }
+        .arrow1.top:after {
+            bottom: -20px;
+            top: auto;
+        }
+</style>
+<select id="orgUnitIds" multiple style="display:none;">
+    #foreach( $orgUnit in $orgUnitList )
+		<option value="$orgUnit.id"></option>
+    #end
+</select>
+<div style="width:60%;margin:auto;display:none">
+		#set( $deIds = "" )
+		#set( $deValueTypes = "" )
+		#set( $deCmtTypes = "" )
+        #foreach($dataElement in $selectedDataElementsValidator)
+            #set( $deIds = $deIds + $dataElement + "," )
+			#if($valueDeMap.get($dataElement) == 'true')
+			  #set( $deValueTypes = $deValueTypes + 'true' + "," )
+			#else
+			  #set( $deValueTypes = $deValueTypes + 'false' + "," )
+			#end
+			#if($commentDeMap.get($dataElement) == 'true')
+			  #set( $deCmtTypes = $deCmtTypes + 'true' + "," )
+			#else
+			  #set( $deCmtTypes = $deCmtTypes + 'false' + "," )
+			#end			
+        #end	
+	   <input type="text" id="dataElements" name="dataElements" value="$deIds" />
+	   <input type="text" id="values" name="values" value="$deValueTypes" />
+	   <input type="text" id="comments" name="comments" value="$deCmtTypes" />
+	   #set( $ouIds = "" )
+       #foreach( $orgUnit in $orgUnitList)
+        #set( $ouIds =  $ouIds + $orgUnit.id + "," )
+       #end
+       <input type="text" id="orgUnits" name="orgUnits" value="$ouIds" />
+	   
+    	<select id="orgUnits" name="orgUnits">
+    		#foreach($orgUnit in $orgUnitList)
+    			<option value="$orgUnit.id">$orgUnit.name</option>
+    		#end
+    	</select>
+    </div>
+<div id="favorite" #if(($favorite && $favorite.showAll == 2) || $favorite.storedBy == $userName) title="Edit Bookmark" #else title="Create Bookmark" #end>
+		<table style="width:100%">
+			<tr >
+				<td>Bookmark Name:</td>
+				<td colspan="2"><input type="text" #if(($favorite && $favorite.showAll == 2) || $favorite.storedBy == $userName) value="$!favorite.name" #else value="" #end name="favoriteName" id="favoriteName" class="text ui-widget-content ui-corner-all" style="width:100%;"/></td>            
+			</tr>
+			<tr >
+				<td>Public View:</td>
+				<td colspan="2">
+					<input type="checkbox" name="publicView" id="publicView" />					
+				</td>
+            </tr>
+			<!-- 
+			<tr >
+				<td>Select User Group:</td>
+				<td>
+					<select name="userGrpId" id="userGrpId" style="width:100%;">						
+						#foreach($userGrp in $userGrpList)
+							<option value="$userGrp.id" #if($favorite && $favorite.userGroup.id == $userGrp.id) selected #end>$encoder.htmlEncode( $!userGrp.displayName )</option>
+						#end
+					</select>
+				</td>
+				<td >
+					<select name="userGrpAccess" id="userGrpAccess" style="width:100%;">
+						<option value="2" #if($favorite && $favorite.userGroupAccess == 2) selected #end>Can View and Edit</option>
+						<option value="1" #if($favorite && $favorite.userGroupAccess == 1) selected #end>Can View</option>
+						<option value="0" #if($favorite && $favorite.userGroupAccess == 0) selected #end>None</option>
+                    </select>
+				</td>
+            </tr>
+			-->
+        </table>		
+    </div>
+<input type="hidden" name="favoriteType" id="favoriteType" value="$favoriteType"/>
+<form id="form1" name="form1" action="exportToWorkBook.action" method="post" onsubmit="return exportToExcel()" target="_newtab">
+
+    <input type="hidden" name="htmlCode" id="htmlCode" />
+
+    <div align="right" style="width:95%;margin:auto;padding-top:8px;padding-bottom:3px;">
+		#if(($favorite && $favorite.showAll == 2) || $favorite.storedBy == $userName)
+			<input type="button" id="create-bookmark" value="Edit Bookmark" /> 
+			<input type="button" id="delete-bookmark" value="Delete Bookmark" />
+            <input type="hidden" id="delete-bookmark-hidden" value="$favorite.name" />
+
+		#else
+			<input type="button" id="create-bookmark" value="Create Bookmark" /> 
+		#end
+        <input type="button" onclick="location.href='tabularReportForm.action'" value="Back"/>&nbsp;
+        <input type="submit" value="Download As Excel"/>&nbsp;
+        <input type="button" value="Print" onclick="javascript:printDiv('htmlContent')" />
+        <input type="button" value="Share" onclick="javascript: getShareLink()"/>
+    </div>
+
+    <hr/>  
+    
+    <div id="htmlContent" style="width:100%;margin:auto;" >
+		<table style="display:none;">
+        <thead>
+            <tr bgcolor="#A9D0F5">
+            	#if( $isoCode == "ON" )<th align="left" >ISO Code</th>#end
+                #if( $whoRegion == "ON" )  <th align="left" >$i18n.getString( "who_region" )</th>#end
+                #if( $unicefRegion == "ON" )<th align="left">$i18n.getString( "unicef_region" )</th>#end
+				<th align="left" >$i18n.getString( "country" )</th>                    
+				
+				#foreach( $hdeName in $headerDataElementName )			
+				#if( $hdeName == "Income status" && $incomeLevel == "ON") 						  						  
+					<th style="vertical-align: middle;">$hdeName</th>
+				#end
+				
+			#end
+			
+			#if(  $gaviEligibleStatus == "ON" )  						  	
+					<th style="vertical-align: middle;">GAVI Eligibility status</th>
+		            	
+				#end	
+				
+									
+				#foreach($headerName in $dataElementName)
+					<th style="width:10%;"> $headerName </th>
+				#end
+                </tr>
+        </thead>
+        <tbody>
+			#set( $mark = false )
+            #foreach( $orgUnit in $orgUnitList )
+				#if( $mark )
+					#set( $mark = false )
+				#else
+					#set( $mark = true )
+				#end
+					<tr #if( $mark ) bgcolor="#E0ECF8" #else bgcolor = "#FFFFFF" #end>
+					#if( $isoCode == "ON" )<td>$orgUnit.code</td>#end
+					#if( $whoRegion == "ON" )<td>$orgUnit.getParent().shortName</td>#end
+					#if( $unicefRegion == "ON" )<td>$!orgUnit.getGroupInGroupSet( $!unicefRegionsGroupSet ).getShortName()</td>#end
+					<td>$orgUnit.name</td>
+					#foreach($de in $headerDataElements)					
+						#if( $de == "3" && $incomeLevel != "ON" )
+                        #elseif( $de == "4" && $gaviEligibleStatus != "ON")
+                        #else
+							#set($headergetter = "$orgUnit.id:$de" )
+							#if('$!headerDataValueMap.get($headergetter)' != 'null' )
+								<td>$!headerDataValueMap.get($headergetter).value </td>
+							#else
+								<td>&nbsp;</td>
+							#end
+						#end	
+					#end
+					#foreach( $de2 in $selectedDataElementsValidator )
+						#set($getter = "$orgUnit.id:$de2" )	
+							#if( $valueDeList.contains( $de2 ) )
+								#if( '$!dataValueMap.get($getter)' != 'null' )
+									<td>$!dataValueMap.get($getter).value</td>
+								#else
+									<td>&nbsp;</td>	
+								#end								
+							#end
+							#if( $commentDeList.contains( $de2 ) )								
+								#if( '$!dataValueMap.get($getter)' != 'null' )
+									<td> $!dataValueMap.get($getter).comment </td>
+								#else
+									<td>&nbsp;</td>
+								#end
+							#end
+					#end
+					</tr>
+				#end
+        </tbody>
+    </table>
+	</div>
+	<div style="width:90%;margin:auto;" >
+    	<table id="the-table" cellspacing="0" style="width: 50%;">
+        	<thead>
+            	<tr >
+					#if( $isoCode == "ON" )<th align="left" >ISO Code</th>#end
+                    #if( $whoRegion == "ON" )<th align="left" >$i18n.getString( "who_region" )</th>#end
+                    #if( $unicefRegion == "ON" )<td>$!orgUnit.getGroupInGroupSet( $!unicefRegionsGroupSet ).getShortName()</td>#end
+                    <th align="left" >$i18n.getString( "country" )</th>
+					#foreach($hdeName in $headerDataElementName)
+						<th >$hdeName</th>
+					#end					
+					#foreach($headerName in $dataElementName)
+						<th style="width:10%;"> $headerName </th>
+					#end
+					<th>&nbsp;</th>
+		
+                </tr>
+        	</thead>
+        	<tbody>
+            	#foreach( $orgUnit in $orgUnitList )
+            		#set( $hiddenDeList = "" )
+            		#set( $hiddenDeList = $hiddenDes.get( $orgUnit.id ) )				
+					<tr >
+					#if( $isoCode == "ON" )<td>$orgUnit.code</td>#end
+					#if( $whoRegion == "ON" )<td>$orgUnit.getParent().shortName</td>#end
+					#if( $unicefRegion == "ON" )<td>$!orgUnit.getGroupInGroupSet( $!unicefRegionsGroupSet ).getShortName()</td>#end
+					<td>$orgUnit.name</td>
+					#foreach( $de in $headerDataElements )
+						#if( $de == "3" && $incomeLevel != "ON" )
+                        #elseif( $de == "4" && $gaviEligibleStatus != "ON")
+                        #else
+							#set($headergetter = "$orgUnit.id:$de" )
+							#if('$!headerDataValueMap.get($headergetter)' != 'null' )
+								<td>$!headerDataValueMap.get($headergetter).value </td>
+							#else
+								<td>&nbsp;</td>
+							#end
+						#end
+					#end
+					
+					#foreach($de2 in $selectedDataElementsValidator)						
+						#set($getter = "$orgUnit.id:$de2" )	
+						#if( $valueDeList.contains( $de2 ) )
+							#if( '$!dataValueMap.get($getter)' != 'null' )
+								#set( $dataSetL = "" )
+								#set( $dataSetL = $dataElement_DatasetMap.get( $de2 ) )
+								
+								#set( $cellValue = "" )
+								#set( $cellValue = $!dataValueMap.get($getter).value )
+								 
+								#if( $hiddenDeList.contains( $de2 ) )
+									#set( $cellValue = "N/A" )
+								#end
+								#if( $!dataSetL.get(0) == "DS" )
+									<td><a id="${orgUnit.id}-${de2}" href="loadSingleCoutryEntryForm.action?dataSetUId=$dataSetL.get(1)&orgUnitUid=$orgUnit.uid">$!cellValue</a></td>
+								#elseif( $!dataSetL.get(0) == "DSS" )
+									<td><a id="${orgUnit.id}-${de2}" href="loadSingleCoutryEntryForm.action?dataSetSectionId=$dataSetL.get(1)&orgUnitUid=$orgUnit.uid">$!cellValue</a></td>
+								#else
+									<td id="${orgUnit.id}-${de2}">$!cellValue</td>
+								#end
+								
+								## function to format integer type number is called here
+                                #if($typeMap.get($de2) == 'int')
+                                    <script>
+                                        formatNumber( $orgUnit.id, $de2, '$!dataValueMap.get($getter).value');
+                                    </script>
+                                #end
+							#else
+								<td>&nbsp;</td>	
+							#end								
+						#end
+
+						#if( $commentDeList.contains( $de2 ) )
+							
+							#set( $cellValue = "" )
+							#set( $cellValue = $!dataValueMap.get($getter).comment )
+							 
+							#if( $hiddenDeList.contains( $de2 ) )
+								#set( $cellValue = "N/A" )
+							#end								
+							
+							#if( '$!dataValueMap.get($getter)' != 'null' )
+								<td id="C-${orgUnit.id}-${de2}">$!cellValue</td>
+							#else
+								<td id="C-${orgUnit.id}-${de2}">&nbsp;</td>
+							#end
+						#end
+					#end
+					<td>&nbsp;</td>
+					</tr>
+				#end
+        </tbody>
+    </table>
+ <br/><br/><br/>
+        <table style="margin:auto;display:none;color: #9F6000;background-color: #FEEFB3;border: 1px solid;" width="100%">
+            <tr>
+                <td colspan="5">$i18n.getString( "inline_security_warning" )</td>
+            </tr>
+        </table>
+    </div>    
+	
+</form>
+<div id="shareLinkToUser" title="Share Link to User">
+        <fieldset>
+            <label for="toUser">$i18n.getString( "maintenance_users" )</label>
+            <input type="hidden" name="recipients" id="recipients" class="text ui-widget-content ui-corner-all" placeholder="Enter User Name"/>
+            <br/><br/>
+            <label for="shareSubject">$i18n.getString( "feedback_subject" )</label>
+            <input type="text" id="shareSubject" name="shareSubject" class="text ui-widget-content ui-corner-all" />
+            <label for="shareText">$i18n.getString( "feedback_text" )</label>
+            <textarea id="shareText" name="shareText" class="text ui-widget-content ui-corner-all" rows="6">                
+            </textarea>
+        </fieldset>
+		<br/>
+		<hr/>
+		<span style="float:right;">
+        <a id="send" href="#">Send</a>
+		<a id="cancel" href="#">Cancel</a>
+		</span>
+   </div>
+    
+<style>
+    label, #toUser ,#shareText ,#shareSubject{ 
+        display:block;
+    }
+        #recipients ,#shareText ,#shareSubject  { 
+        margin-bottom:12px;
+        width:95%; 
+        padding: .4em; 
+    }   
+    #shareLinkToUser fieldset   { 
+        padding:0;
+        border:0;
+        margin-top:25px;
+    }
+</style>
+<script>
+	
+    jQuery(function() {	
+	
+	$("#send").button();
+	$("#send").click(function() {
+			
+			$("#send").attr("href","mailto:"+$('#recipients').val().replace(/[,]/g,';')+"?subject="+$('#shareSubject').val()+"&body="+escape(document.getElementById('shareText').value));
+    		$("#shareLinkToUser").dialog('close');
+	});
+	$("#cancel").button();
+	$("#cancel").click(function() {
+		$("#shareLinkToUser").dialog('close');
+	});
+        var emailIds = 'null';
+        $( "#shareLinkToUser" ).dialog({
+                autoOpen: false,
+                height: 420,
+                width: 595,
+                modal: true,
+                show: "blind",
+                hide: "explode"               
+           
+        });
+    });
+	function sendMsg()
+	{
+    		
+    
+	}
+</script>
+<script>
+    $(document).ready(function()
+    {
+		$("#table1").tablesorter();		
+    });
+    function sorting()
+    {
+        if($('.asc').css('display') == "block")
+        {
+            $('.asc').css('display', 'none');
+            $('.desc').css('display', 'block');
+            altRows('alternatecolor');          
+        }
+        else
+        {
+            $('.asc').css('display', 'block');
+            $('.desc').css('display', 'none');
+            altRows('alternatecolor');  
+        }
+    }
+    
+    function exportToExcel()
+    {
+        var currentFlaggedImgPath = $('.flagedImg').find('img').attr('src');
+		var currentUnFlaggedImgPath = $('.unFlagedImg').find('img').attr('src');
+		
+		var redFlag = $('#redFlag').val();
+		var greyFlag = $('#greyFlag').val();
+		
+		
+		$('.flagedImg').find('img').remove();
+		$('.unFlagedImg').find('img').remove();
+		
+		$('.flagedImg').append('<font size=\"20\" color=\"red\">*</font>')
+		$('.unFlagedImg').append('<font size=\"20\" color=\"#A4A4A4\">*</font>');
+		
+		document.getElementById('htmlCode').value = document.getElementById('htmlContent').innerHTML;
+		
+		$('.flagedImg').text('');
+		$('.unFlagedImg').text('');	
+		
+		$('.flagedImg').append('<img src=\"'+currentFlaggedImgPath+'\" width=\"20\" height=\"20\" style=\"float:left;\" \>');
+		$('.unFlagedImg').append('<img src=\"'+currentUnFlaggedImgPath+'\" width=\"20\" height=\"20\" style=\"float:left;\" \>');
+        return true;
+    }
+    
+    function printDiv( divID ) 
+    {
+        //Get the HTML of div
+        var divElements = document.getElementById(divID).innerHTML;
+        
+        //Get the HTML of whole page
+        var oldPage = document.body.innerHTML;
+
+        //Reset the page's HTML with div's HTML only
+        document.body.innerHTML = "<html><head><title></title></head><body>" + divElements + "</body>";
+
+        //Print Page
+        window.print();
+
+        //Restore orignal HTML
+        document.body.innerHTML = oldPage;   
+		window.location.reload();	
+    }
+</script>

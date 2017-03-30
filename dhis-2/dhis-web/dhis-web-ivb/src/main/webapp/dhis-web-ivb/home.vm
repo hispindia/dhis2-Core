@@ -1,0 +1,213 @@
+<style>
+    #overlay {
+    z-index:10000000000;
+    position:absolute;
+    top:0;
+    bottom:0;
+    left:0;
+    width:100%;
+    background:#000;
+    opacity:0.45;
+    -moz-opacity:0.45;
+    filter:alpha(opacity=45);
+    visibility:hidden;   
+    }
+    #overlayImg{ width: 50px; height: 50px; z-index: 9999; position: absolute; left:50%}
+    body{
+    min-height:600px;
+    height:auto;
+    }
+</style>
+<div id="overlay">
+    <div id="overlayImg"><img  width="50" height="50" src="images/ajax-loader.gif" style="margin:auto;position:fixed;top: 50%;left: 50%;"/></div>
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+	    $('#myjquerymenu').find('#home').addClass("selected");	
+	    pageName = 'Home';		
+		$('#aSerach').button();
+	});
+	$(function() {		
+		var countryTags = $countryList;	
+		var regionTags = $regionList;
+							
+		var availableTags = regionTags.concat(countryTags);		
+		$( "#orgName" ).autocomplete({
+			source: availableTags,
+			select: function( event, ui ) {	
+			for(var i=0;i<=regionTags.length-1;i++)
+			{
+				if(regionTags[i] == ui.item.value)
+				{
+					var region = ui.item.value;
+					if(region.indexOf("'") != -1)
+					{
+						region = region.replace("'","\'")
+					}	
+					if(region.indexOf('&') != -1)
+					{
+						region = region.replace('&','%26')
+					}
+					document.getElementById('overlay').style.visibility = 'visible';
+					window.location.href="regionalDashboard.action?regionName="+region;
+				}
+			}		
+			for(var j=0;j<=countryTags.length-1;j++)
+			{
+				if(countryTags[j] == ui.item.value)
+				{
+					var country = ui.item.value;
+					if(country.indexOf("'") != -1)
+					{
+						country = country.replace("'","\'")
+					}					
+					if(country.indexOf('&') != -1)
+					{						
+						country = country.replace('&','%26')
+					}					
+					document.getElementById('overlay').style.visibility = 'visible';
+					window.location.href="dashboard.action?countryName="+country;
+				}
+			}			
+		}
+		});
+				
+		$("#search").button();	
+	});
+	function getDashboard()
+	{
+		var orgName = document.getElementById("orgName").value;
+		if(orgName.indexOf("'") != -1)
+		{
+			orgName = orgName.replace("'","\'")
+		}	
+		var countryTags = $countryList;	
+		var regionTags = $regionList;
+		var availableTags = regionTags.concat(countryTags);
+			for(var i=0;i<=regionTags.length-1;i++)
+			{
+				if(regionTags[i].toLowerCase() == orgName.toLowerCase())
+				{
+					var region = orgName;
+					if(region.indexOf('&') != -1)
+					{
+						region = region.replace('&','%26')
+					}
+					document.getElementById('overlay').style.visibility = 'visible';
+					window.location.href="regionalDashboard.action?regionName="+region;
+				}
+			}		
+			for(var j=0;j<=countryTags.length-1;j++)
+			{
+				if(countryTags[j].toLowerCase() == orgName.toLowerCase())
+				{
+					var country = orgName;
+					if(country.indexOf('&') != -1)
+					{
+						country = country.replace('&','%26')
+					}
+					document.getElementById('overlay').style.visibility = 'visible';
+					window.location.href="dashboard.action?countryName="+country;
+				}
+			}
+		
+	}
+	function getRegionalDashboard(orgUnitId)
+	{
+		document.getElementById('overlay').style.visibility = 'visible';
+		window.location.href = "regionalDashboard.action?orgUnitId="+orgUnitId;
+	}
+	function getAdvancedSearch()
+	{
+		$.fancybox.open('#advanceSearchDiv');
+		document.getElementById("selDiv").style.display = "block";				        
+	}
+	function gotoAdvanceSearch()
+	{
+		document.getElementById('overlay').style.visibility = 'visible';
+		window.location.href = "regionalDashboard.action?orgUnitStatus=true";	
+	}
+	
+</script>
+<style>
+	::-webkit-input-placeholder { font-style:italic; }
+	::-moz-placeholder { font-style:italic; } /* firefox 19+ */
+	:-ms-input-placeholder { font-style:italic; } /* ie */
+	input:-moz-placeholder { font-style:italic; }
+</style>
+
+<div id="advanceSearchDiv" title="Advance Search" style="width:550px;height:auto;">
+	<div id="selDiv" style="display:none;" >
+    	<div style="float:left; width:100%;" >		
+    			#organisationUnitSelectionTree1( false, true, false )
+    	<hr/>
+    	<span style="width:95%;">
+    		<input type="button" style="float:right;" value="Go to Dashboard" id="aSerach" onclick="gotoAdvanceSearch()"/>
+    	</span>
+    	</div>	
+	</div>
+</div>
+
+<form id="welcomPage" method="post"> 
+	
+	<div>
+        <table width="100%" >
+            <tr >
+                <td style="float:left;color:#25719C;">
+				    <input id="orgName" name="orgName" onkeypress="getDashboard()" size="55" placeholder="$i18n.getString( 'region_country_search' )" /> &nbsp;
+					<input type="button" class="fancybox" value="$i18n.getString( 'advanced_search' )" id="advSearch" onclick="javascript:getAdvancedSearch()"/>
+                </td>
+                #foreach($orgGrp in $orgUnitGrpList)
+				    <td style="float:right;color:#25719C;">				    	
+					   <a #if($orgUnitGrpId == $orgGrp.id) href="#" style="color:black;" #else style="color:#0174DF;" href="home.action?orgUnitGrpId=$orgGrp.id" #end> $encoder.htmlEncode( $!orgGrp.displayName )</a> |
+				    </td>
+                #end				
+            </tr>
+        </table> 
+	</div>
+			
+ 	<table width="100%" align="center" style="margin:0.1cm 0cm 0cm 0cm;font-family:Arial;font-weight:bold;color:#000000;font-size:12px;text-decoration:none;text-align:center;">
+ 		<tr>
+			#set( $mark = false )
+			#foreach($org in $orgUnitList)
+				#if( $mark )
+					#set( $mark = false )
+				#else
+					#set( $mark = true )
+				#end
+				<td valign="top" align="center" style="width:12%">
+					<div style="background-color:#A9D0F5; height:25px; vertical-align:middle"><a href="javascript:getRegionalDashboard('$org.id')" style="font-family:Arial;">$org.shortName</a></div>
+					<table width="100%" #if( $mark ) bgcolor="#E0ECF8" #else bgcolor = "#FFFFFF" #end>
+						#foreach($orgmap in $orgUnitMap.get($org)) 	
+							#if( $orgmap )
+								<tr>
+									<td align="center">
+										#set( $falgURL = $flagFolderPath + $orgmap.code +".png" )
+										<a href="javascript:getOrgUnitwithDataSet('$orgmap.uid')" style="text-decoration:none;" title='$orgmap.name' )">
+											<img height="33" width="66" src="imageAction.action?imagePath=$falgURL"/>
+										</a>
+										<br/>
+										<a href="javascript:getOrgUnitwithDataSet('$orgmap.uid')" style="font-family:Arial;">$orgmap.shortName</a>
+										<br/><br/>
+									</td>
+								</tr>
+							#end
+						#end
+					</table>
+				</td>					
+			#end
+		</tr>
+	</table> 	
+</form>
+
+<script>
+
+    function onloadFunction()
+    {        
+            selectionTreeSelection.select( 1 );
+            selectionTreeSelection.select( 1 );
+    }       
+    
+    onloadFunction();
+</script>

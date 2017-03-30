@@ -1,0 +1,77 @@
+<script type="text/javascript">
+	$(document).ready(function(){
+	    $('#myjquerymenu').find('#dataentry').addClass("selected");
+	    pageName = 'CountryFileReport';	 
+	    $("#submit").button(); 
+	    $("#cancel").button(); 		    
+	});
+
+
+    function formValidations()
+    {
+    	$('#selectedListDataset option').attr('selected', 'selected');
+    	var dataSetListBox = document.getElementById('selectedListDataset');
+    				
+    	if( dataSetListBox.options.length <= 0 )
+    	{
+    		alert("Please select areas of work");
+    		return false;
+    	}    		
+    }
+	
+</script>
+
+<br/>
+
+<div style="font-size:16px; width:93%; margin:auto;" class="ui-widget-header ui-corner-all"><b>$i18n.getString( "menu_alert_dataentry" )</b></div>
+
+<form id="alertDataEntryForm" method="get" action="loadAlertDataEntry.action" onsubmit="return formValidations()">
+
+ 	<input type="hidden" name="orgUnitId" id="orgUnitId"/>
+
+ 	<div id="reportFilterDiv" >
+
+ 		<table style="width:90%;margin:auto;" cellpadding="4" cellspacing="2">
+ 			<tr>
+ 				<td width="40%">
+ 					<div id="orgUnitTreeContainer" style="height: 250px; width: 500px;">
+                    	#organisationUnitSelectionTree1( false, true, false )
+                    </div>
+				 </td>				 
+ 				 <td width="10%">&nbsp;</td>
+				 <td width="40%">&nbsp;</td>
+			</tr> 			
+ 			<tr style="margin-bottom: 15px;">
+ 					<td width="40%">
+ 						$i18n.getString( "select_area_of_work" )<br/> 					
+			          	<select id="availableListDataset" name="availableListDataset" ondblclick="moveSelectedById( 'availableListDataset', 'selectedListDataset' )" multiple="multiple" style="height: 166px; width: 100%;">
+						#foreach($dataset in $datasetList)
+							<option value="$dataset.id">$dataset.displayName</option>
+						#end
+			          </select>
+        			</td>
+			        <td style="text-align:center" width="10%">
+			            <input type="button" value="&gt;" title="$i18n.getString( 'move_selected' )" style="width:50px" onclick="moveSelectedById( 'availableListDataset', 'selectedListDataset' );"/><br/>
+			            <input type="button" value="&lt;" title="$i18n.getString( 'remove_selected' )" style="width:50px" onclick="moveSelectedById( 'selectedListDataset', 'availableListDataset' );"/><br/>
+			            <input type="button" value="&gt;&gt;" title="$i18n.getString('move_all')" style="width:50px" onclick="moveAllById( 'availableListDataset', 'selectedListDataset' );"/><br/>
+			            <input type="button" value="&lt;&lt;" title="$i18n.getString('remove_all')" style="width:50px" onclick="moveAllById( 'selectedListDataset', 'availableListDataset' );"/>
+			        </td>
+			        <td width="40%">
+			            <select id="selectedListDataset" name="selectedListDataset" ondblclick="moveSelectedById( 'selectedListDataset', 'availableListDataset' )" multiple="multiple" style="height: 166px; width: 100%; margin-top: 22px;"></select>
+			        </td>
+					<td>
+                        <a href="javascript:moveUpDataElement('selectedListDataset');"><img src="../images/move_up.png"/></a><br/><br/>
+                        <a href="javascript:moveDownDataElement('selectedListDataset');"><img src="../images/move_down.png"/></a><br/><br/>
+            		</td> 
+			 </tr>			
+ 			<tr>
+			 	<td>
+			 		<input type="submit" value="$i18n.getString( 'load_alert_dataentry' )" id="submit" />		 		
+	 			</td>
+	 			<td>&nbsp;</td>
+	 			<td>&nbsp;</td>
+ 			</tr>
+		 </table>
+    </div>
+	<br/><br/>
+</form>

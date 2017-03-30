@@ -1,0 +1,352 @@
+<style>
+		.ui-autocomplete { position: absolute; cursor: default;z-index:900 !important;}
+		
+		.x-column-header-inner .x-column-header-text {
+		white-space: normal;
+		z-index:0;		
+	}
+
+	.x-column-header-inner {
+		line-height: normal;
+		padding-top: 5px !important;
+		padding-bottom: 5px !important;	
+		font-weight: bold;
+		height: 45px;
+		border-color: #A9D0F5;
+		background-color:#A9D0F5;
+		color:#333333;
+	}	
+	.x-grid-row .x-grid-cell-inner {
+		white-space: normal;
+		width:100%;
+		margin: 0 auto;
+	}
+    .x-grid-row-over .x-grid-cell-inner {
+        font-weight: bold;
+		white-space: normal;		
+    }
+	.x-grid-row .x-grid-cell { 
+    background-color:#E0ECF8;
+    color:#333333;
+	text-align: center;
+} 
+ 
+.x-grid-row-alt .x-grid-cell { 
+    background-color:white;
+    color:#333333;
+	text-align: center;
+}
+</style>
+<script type="text/javascript" >
+
+	var windowWidth = $(window).width();
+	var windowHeight = $(window).height();
+	var tableWidth = (parseInt( windowWidth ) * 97) / 100 ;	
+	var columnWidth = (parseInt( windowWidth ) * 4.5) / 100 ;
+	
+		Ext.Loader.setConfig({
+		enabled: true
+	});
+	Ext.Loader.setPath('Ext.ux.grid', 'javascript');
+	Ext.Loader.setPath('Ext.tip', 'javascript/tips');
+	Ext.require([
+		'Ext.data.*',
+		'Ext.grid.*',
+		'Ext.tip.ToolTip',
+		'Ext.ux.grid.TransformGrid'
+	]);
+	var grid;
+	window.onload=function(){
+			#set( $orgUnitSize = $orgUnits.size() )
+			var column = [
+			{
+                text     : '$i18n.getString( "areas_of_work" )',
+    			width    : 280,			
+                locked   : true,            
+                sortable : true
+            },
+			#foreach($org in $orgUnits)
+			{
+                text     : '$org.code',
+    			width    : columnWidth,						
+                sortable : false
+            }#if( $velocityCount < ( $orgUnitSize )),#end
+			#end
+			]
+			Ext.QuickTips.init();
+			grid = Ext.create('Ext.ux.grid.TransformGrid', "the-table", {				
+			sortableColumns: true,
+            enableColumnHide: true,
+            enableColumnMove: true,
+            enableColumnResize: true,
+            sortOnLoad: true,
+			width: tableWidth,
+        	height: 360,
+        	renderTo: document.body,
+        	layout: {
+            	type: 'hbox',
+            	align: 'stretch'
+        	},
+            sorters: {direction: 'ASC'},
+			columns: column
+			});			
+			grid.render();			
+	}
+	function getKeyFlagName(dataSetName,indicatorName)
+	{
+		$( "#keyFlagName" ).find("#currentAreaOfWork").text(dataSetName);
+		$( "#keyFlagName" ).find("#currentKeyFlag").text(indicatorName);
+		$( "#keyFlagName" ).dialog( "open" );
+	}
+	</script>
+<style>
+.rotateText
+{
+  width:130px;
+  height:50px;
+  -ms-transform:rotate(270deg); /* IE 9 */
+  -moz-transform:rotate(270deg); /* Firefox */
+  -webkit-transform:rotate(270deg); /* Safari and Chrome */
+  -o-transform:rotate(270deg); /* Opera */
+}
+</style>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+	    $('#myjquerymenu').find('#dashboard').addClass("selected");	    
+	});
+	$(function() {
+        $( document ).tooltip();
+		$( "#keyFlagName" ).dialog({
+			autoOpen: false,
+			resizable: false,			
+			modal: true,
+			width: 400,
+			buttons: {
+				"OK": function() {
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+    });
+</script>
+<script>
+	$(document).ready(function()
+	 {
+		altRows('alternatecolor1');
+		altRows('alternatecolor2');
+	});
+	
+	$(function() {		
+		var countryTags = $countryList;	
+		var regionTags = $regionList;
+		var availableTags = regionTags.concat(countryTags);		
+		$( "#orgName" ).autocomplete({
+			source: availableTags,
+			select: function( event, ui ) {	
+			for(var i=0;i<=regionTags.length-1;i++)
+			{
+				if(regionTags[i] == ui.item.value)
+				{
+					var region = ui.item.value;
+					if(region.indexOf("'") != -1)
+					{
+						region = region.replace("'","\'")
+					}	
+					if(region.indexOf('&') != -1)
+					{
+						region = region.replace('&','%26')
+					}					
+					window.location.href="regionalDashboard.action?regionName="+region;
+				}
+			}		
+			for(var j=0;j<=countryTags.length-1;j++)
+			{
+				if(countryTags[j] == ui.item.value)
+				{
+					var country = ui.item.value;
+					if(country.indexOf("'") != -1)
+					{
+						country = country.replace("'","\'")
+					}
+					if(country.indexOf('&') != -1)
+					{
+						country = country.replace('&','%26')
+					}
+					window.location.href="dashboard.action?countryName="+country;
+				}
+			}			
+		}
+		});
+	});
+	
+	function sorting()
+	{				
+		if($('.asc').css('display') == "block")
+		{						
+			$('.asc').css('display', 'none');
+			$('.desc').css('display', 'block');	
+			altRows('alternatecolor');					
+		}
+		else
+		{
+			$('.asc').css('display', 'block');
+			$('.desc').css('display', 'none');
+			altRows('alternatecolor');							
+		}
+	}	
+	function getKeyFlagDetails(value,comment,source,orgName,area)
+	{
+		$('#detailSection').remove();
+		$('#areaAndCountry').find('#content').remove();
+		$('#areaAndCountry').append("<div id='content'><b style='float:left;'> Area: "+area+"</b><b style='float:right;'>Country: "+orgName+"&nbsp;</b> </div>");
+		$('#detailTable').append("<tr id='detailSection'><td>"+value+"</td><td>"+comment+"</td><td>"+source+"</td></tr>")
+		$( '.keyFlagDetail' ).css( 'display','block' );
+	}
+	function getDashboard()
+	{
+		var orgName = document.getElementById("orgName").value;
+		if(orgName.indexOf("'") != -1)
+		{
+			orgName = orgName.replace("'","\'")
+		}
+		var countryTags = $countryList;	
+		var regionTags = $regionList;
+		var availableTags = regionTags.concat(countryTags);
+			for(var i=0;i<=regionTags.length-1;i++)
+			{
+				if(regionTags[i].toLowerCase() == orgName.toLowerCase())
+				{
+					var region = orgName;
+					if(region.indexOf('&') != -1)
+					{
+						region = region.replace('&','%26')
+					}					
+					window.location.href="regionalDashboard.action?regionName="+region;
+				}
+			}		
+			for(var j=0;j<=countryTags.length-1;j++)
+			{
+				if(countryTags[j].toLowerCase() == orgName.toLowerCase())
+				{
+					var country = orgName;
+					if(country.indexOf('&') != -1)
+					{
+						country = country.replace('&','%26')
+					}					
+					window.location.href="dashboard.action?countryName="+country;
+				}
+			}
+		
+	}
+</script>
+
+ <form id="regionalDashboardPage" method="post">
+	<div >		
+		<div>
+			<table width="100%" cellspacing="0" cellpadding="0"  bgcolor="#FBEFEF">
+				<tr>
+					<td colspan="2">
+					<h2>&nbsp;&nbsp;$!organisationUnit.shortName</h2>
+					</td>
+				</tr>
+			</table>	
+		</div> 
+		<table width="100%">
+				<tr>
+					<td style="float:left;color:#25719C;">
+				    <input id="orgName" name="orgName" onkeyup="getDashboard()" size="50" placeholder="$i18n.getString( 'region_country_search' )" />
+                	</td>
+					#foreach($orgGrp in $orgUnitGrpList)
+						<td style="float:right;color:#25719C;">
+							<a #if($orgUnitGrpId == $orgGrp.id) href="#" style="color:black;" #else style="color:#0174DF;" href="regionalDashboard.action?orgUnitGrpId=$orgGrp.id" #end>$encoder.htmlEncode( $!orgGrp.displayName )</a> |
+						</td>
+					#end						
+				</tr>
+		</table> 		
+	</div>	
+	<div style="width:90%;margin:auto;">
+	<table id="the-table" cellspacing="0" style="width: 50%;">		
+		<thead>
+			<tr style="height:30px;width:100%;">
+				<th align="center" >$i18n.getString( "areas_of_work" )</th>
+				#foreach($org in $orgUnits)
+					<th align="center" title="$!org.name"><a href="javascript:getOrgUnitwithDataSet('$org.uid')">$!org.code</a></th>	
+				#end
+			</tr>
+			
+	 </thead>
+	 <tbody>
+			#set($actsize = $indicatorList.size())
+			#set($size = $actsize - 1)
+			#set($x = 0) 
+			#set($y = 0) 
+			#set($z = 0) 
+			#foreach($indicator in $indicatorList)					
+				#foreach($dataset in $datasetMap.get($indicator.getUid()))	
+					
+					#if($x lt $size)
+					#set($x = $x + 1)
+					#end
+					
+					
+					#if($z gt 0)
+					#set($y = $z - 1)
+					#end
+					
+					
+					
+					#set($nextDataset = $datasetMap.get($indicatorList[$x].getUid())[0])
+					#set($prevDataset = $datasetMap.get($indicatorList[$y].getUid())[0])
+					
+					#if ($z == 0 && $dataset.id == $nextDataset.id )
+						#set($print = $dataset.displayName+"</br>("+$indicator.shortName+")")
+					#elseif ($z == $size && $dataset.id == $prevDataset.id )
+						#set($print = $dataset.displayName+"</br>("+$indicator.shortName+")")
+					#elseif(($dataset.id == $prevDataset.id || $dataset.id == $nextDataset.id) && $z != 0 && $z != $size)
+						#set($print = $dataset.displayName+"</br>("+$indicator.shortName+")")
+					#else
+						#set($print = $dataset.displayName)
+					#end
+					
+					#set($z = $z + 1)	
+				
+					<tr style="width:100%;">							
+                        <td align="center" style="height:35px; min-width:320px" title="$indicator.name"><a href="javascript:getKeyFlagName('$dataset.displayName','$indicator.name')">$print</a></td>
+						#foreach($org in $orgUnits)
+							#if($org.shortName.contains("'"))
+								#set( $orgShortName = $org.shortName.replace("'","\'"))
+							#else
+								#set( $orgShortName = $org.shortName)
+							#end
+							<td align="center" style="height:35px;">
+								#set( $getter = "${indicator.uid}-${org.uid}")
+								#if( $colorMap.get( $getter ) == "RED" )
+									<a href="loadSingleCoutryEntryForm.action?dataSetUId=$dataset.uid&orgUnitUid=$org.uid" onmouseover="javascript:getKeyFlagDetails('$!encoder.jsEscape($!keyIndicatorValueMap.get(${getter}).trim(), "'")','$!encoder.jsEscape($!commentMap.get(${getter}).trim(), "'").replaceAll('"', "")','$!sourceMap.get(${getter})','$orgShortName','$dataset.displayName');">
+										<b style="display:none;">0</b><img src="images/bookmark-star2.png" width="20" height="20"/>	
+									</a>
+								#elseif( $colorMap.get( $getter ) == "GREEN" )
+									<a href="loadSingleCoutryEntryForm.action?dataSetUId=$dataset.uid&orgUnitUid=$org.uid" onmouseover="javascript:getKeyFlagDetails('$!encoder.jsEscape($!keyIndicatorValueMap.get(${getter}).trim(), "'")','$!encoder.jsEscape($!commentMap.get(${getter}).trim(), "'").replaceAll('"', "")','$!sourceMap.get(${getter})','$orgShortName','$dataset.displayName');">
+										<b style="display:none;">2</b><img src="images/bookmark-star_green.png" width="20" height="20"/>
+									</a>
+								#else									
+									<a href="loadSingleCoutryEntryForm.action?dataSetUId=$dataset.uid&orgUnitUid=$org.uid" onmouseover="javascript:getKeyFlagDetails('$!encoder.jsEscape($!keyIndicatorValueMap.get(${getter}).trim(), "'")','$!encoder.jsEscape($!commentMap.get(${getter}).trim(), "'").replaceAll('"', "")','$!sourceMap.get(${getter})','$orgShortName','$dataset.displayName');">
+										<b style="display:none;">1</b><img src="images/bookmark-star.png" width="20" height="20"/>
+									</a>
+								#end								
+							</td>	
+						#end		
+					</tr>	
+				#end
+			#end
+     </tbody>
+	</table>
+    </div>
+	</div>			
+ 	<br/>
+ </form>
+<div id="keyFlagName" title="Key Flag Name">
+	<b>Area of Work: </b><div id="currentAreaOfWork"></div>
+	<br/>
+	<b>Key Flag Name: </b><div id="currentKeyFlag"></div>
+</div>

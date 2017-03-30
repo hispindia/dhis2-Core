@@ -1,0 +1,122 @@
+<script type="text/javascript">
+
+$(function() {
+		$( document ).tooltip({
+		position: {
+			my: "center bottom-20",
+			at: "center top",
+			using: function( position, feedback ) {
+		$( this ).css( position );
+		$( "<div>" )
+			.addClass( "arrow1" )
+			.addClass( feedback.vertical )
+			.addClass( feedback.horizontal )
+			.appendTo( this );
+		}
+		}
+		});
+	});
+	var orgUnitId = null;
+	$(document).ready(function(){
+	    $('#myjquerymenu').find('#map_chart').addClass("selected");	 
+	    $("#submit").button(); 
+	    $("#cancel").button(); 
+	      
+	});
+	function getOrgUnitId( orgUnits )
+	{ 
+		$("#orgUnitId").val( orgUnits[0] );
+	}
+
+	function generateHTMLreport()
+	{		
+		$('#selectedListVaccine option').attr('selected', 'selected');
+		$('#selectedListDataset option').attr('selected', 'selected');
+		
+		var vaccineListBox = document.getElementById('availableListVaccine');
+		var orgListBox = document.getElementById('orgUnitTreeContainer');
+		
+		var showComment = document.getElementById('showComment');
+		
+		
+		if( vaccineListBox.options.length <= 0 )
+		{
+			alert("Please select vaccine");
+			return false;
+		}
+			
+		if( orgListBox.options.length <= 0 )
+		{
+			alert("Please select orgunit");
+			return false;
+		}
+		if(showComment.checked)
+		{
+			var form = document.forms["vacIntroReportForm"];
+			form.action = "generateVaccineIntroReportCommentWise.action";
+		}	
+					
+	}
+	
+    function getDataElementType()
+    {
+    	var showComment = document.getElementById("showComment");	
+		if(showComment.checked == true)
+		{
+			$("#dataElementType").prop("disabled",false);
+		}
+		else
+		{
+			$("#dataElementType").prop("disabled",true);	
+		}	
+    }
+   
+</script>
+
+<br/>
+
+<div style="font-size:16px; width:93%; margin:auto;" class="ui-widget-header ui-corner-all"><b>$i18n.getString( "vaccine_introduction_maps" )</b></div>
+<form id="vacIntroReportForm" method="get" action="generateMapsAndCharts.action" onsubmit="return generateHTMLreport()">
+ 	<input type="hidden" name="orgUnitId" id="orgUnitId"/>
+ 	<div id="reportFilterDiv" >
+ 		<table style="width:95%;margin:auto;table-layout:fixed;" cellpadding="4" cellspacing="2">
+ 				<tr style="margin-bottom: 15px;">
+ 					<td width="45%">
+ 						$i18n.getString( "DataElements" )<br/> 					
+			          	<select id="availableListVaccine" name="availableListVaccine" style="height: 22px; width: 100%;">
+						#foreach($vaccine in $allDataElementList)
+							<option value="$vaccine.uid">$vaccine.displayName</option>
+						#end
+			          </select>
+        			</td>
+			 
+			        <td style="text-align:center" width="10%">
+			           
+			        </td>
+			        <td width="45%">
+			          
+			        </td>	
+			        				 
+			 </tr>
+ 			<tr>
+ 				<td width="55%" colspan="2">
+					 <span style="font-size:16px; font-weight:bold;font-family:Times New Roman; color:black">Please note that for the maps,</span><span style="font-size:16px; font-weight:bold;font-family:Times New Roman; color:red"> you need to select the country grouping 'All_Countries_Maps'</span><span style="font-size:16px; font-weight:bold;font-family:Times New Roman; color:black"> to show Greenland (data from Denmark) and Svalbard/Jan Mayen Islands (data from Norway)</small></span>
+ 						<div id="orgUnitTreeContainer"  style="height: 250px; width: 100%;">
+ 						#organisationUnitSelectionTree1( false, true, true )
+ 					</div>
+				 </td>
+				 
+			 </tr>
+	
+			 	<td width="45%">
+			 		<input type="submit" value="$i18n.getString( 'get_map' )" id="submit" />		 		
+	 			</td>
+	 			<td width="10%">&nbsp;</td>
+	 			<td width="45%">&nbsp;</td>
+ 			</tr>
+		 </table>
+</div>
+<br/><br/>
+</form>
+
+

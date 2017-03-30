@@ -1,0 +1,1286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+"-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+"http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<include file="dhis-web-commons.xml" />
+
+	<package name="dhis-web-ivb" extends="dhis-web-commons"
+		namespace="/dhis-web-ivb">
+
+		<result-types>
+			<result-type name="imageResult"
+				class="org.hisp.dhis.ivb.util.CustomImageBytesResult" />
+		</result-types>
+
+		<action name="imageAction" class="org.hisp.dhis.ivb.action.ImageAction">
+			<result name="success" type="imageResult"></result>
+		</action>
+
+		<!-- Home page -->
+
+		<action name="index" class="org.hisp.dhis.ivb.action.GetCurrentUserAction">
+			<result name="success" type="velocity">/dhis-web-ivb/welcome.vm</result>
+			<!-- <param name="page">/dhis-web-ivb/welcome.vm</param> -->
+			<param name="javascripts">javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="home"
+			class="org.hisp.dhis.ivb.dataentry.action.GetOrgInfoAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/home.vm</param>
+			<param name="javascripts">
+				javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">
+				css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<!-- Dashboard Page -->
+
+		<action name="dashboard"
+			class="org.hisp.dhis.ivb.dashboard.action.GetKeyIndicatorsAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/dashboard.vm</param>
+			<param name="javascripts">
+				javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,javascript/jquery.tablesorter.js</param>
+			<param name="stylesheets">
+				css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+		<action name="regionalDashboard"
+			class="org.hisp.dhis.ivb.dashboard.action.GetRegionalDashboardAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/regionalDashboard.vm</param>
+			<param name="javascripts">
+				../dhis-web-commons/javascripts/ext/ext-all.js,javascript/tips/ToolTip.js,javascript/TransformGrid.js,javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">
+				../dhis-web-commons/javascripts/ext/resources/css/ext-plugin-gray.css,css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<!-- Single Country DataEntry -->
+
+		<action name="singleCountry"
+			class="org.hisp.dhis.ivb.dataentry.action.GetDataElementsAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<!-- <param name="menu">/dhis-web-ivb/menu.vm</param> -->
+			<param name="page">/dhis-web-ivb/singleCountryForm.vm</param>
+			<param name="javascripts">javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="loadSingleCoutryEntryForm"
+			class="org.hisp.dhis.ivb.dataentry.action.LoadDataEntryFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<!-- <param name="menu">/dhis-web-ivb/menu.vm</param> -->
+			<param name="page">/dhis-web-ivb/loadCountryForm.vm</param>
+			<param name="javascripts">../dhis-web-commons/javascripts/dhis2/dhis2.menu.js,javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">../dhis-web-commons/javascripts/ext/resources/css/ext-plugin-gray.css,css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="hideDataElementAction"
+			class="org.hisp.dhis.ivb.hiddendeorgunit.HideDataElementAction">
+			<result name="success" type="redirect">hideDataElementActionForm.action
+			</result>
+		</action>
+
+		<action name="filterOrganisationUnits"
+			class="org.hisp.dhis.ivb.hiddendeorgunit.FilterOrganisationUnitsAction">
+			<result type="velocity">/dhis-web-ivb/treeDivision.vm</result>
+		</action>
+
+		<action name="hideDataElementActionForm"
+			class="org.hisp.dhis.ivb.hiddendeorgunit.HideDataElementActionForm">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<!-- <param name="menu">/dhis-web-ivb/menu.vm</param> -->
+			<param name="page">/dhis-web-ivb/hideDataElementsOrgUnitForm.vm</param>
+			<param name="javascripts">../dhis-web-commons/javascripts/dhis2/dhis2.menu.js,javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">../dhis-web-commons/javascripts/ext/resources/css/ext-plugin-gray.css,css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="saveSingleCountryData"
+			class="org.hisp.dhis.ivb.dataentry.action.SaveSingleCountryDataAction">
+			<result name="success" type="redirect">loadSingleCoutryEntryForm.action
+			</result>
+		</action>
+
+		<action name="getReportsPage"
+			class="org.hisp.dhis.ivb.dataentry.action.GetDataElementsAction">
+			<result name="success" type="velocity">/content.vm</result>
+			<param name="page">/dhis-web-ivb/singleCountryForm.vm</param>
+		</action>
+
+		<!-- Source Wise DataEntry -->
+
+		<action name="sourceWiseEntry"
+			class="org.hisp.dhis.ivb.dataentry.action.GetDataElementsSourceWiseAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/sourceWiseEntryForm.vm</param>
+			<param name="javascripts">
+				javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">
+				css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+		<action name="regionWiseDataelement"
+			class="org.hisp.dhis.ivb.dataentry.action.GetDataElementsSourceWiseAction">
+			<result name="success" type="velocity">/content.vm</result>
+			<param name="page">/dhis-web-ivb/dataElements.vm</param>
+		</action>
+
+		<!-- Alert wise DataEntry -->
+
+		<action name="loadAlertDataEntryForm"
+			class="org.hisp.dhis.ivb.dataentry.alert.action.LoadAlertDataEntryFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/loadAlertDataEntryForm.vm</param>
+			<param name="javascripts">javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="loadAlertDataEntry"
+			class="org.hisp.dhis.ivb.dataentry.alert.action.LoadAlertDataEntryAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/alertDataEntry.vm</param>
+			<param name="javascripts">javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<!-- DataElementwise DataEntry -->
+
+		<action name="loadDataElementwiseDataEntryParams"
+			class="org.hisp.dhis.ivb.dataentry.dewise.action.GetDataElementWiseFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/dataElementwiseEntryParams.vm</param>
+			<param name="javascripts">javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="dataElementwiseDataEntry"
+			class="org.hisp.dhis.ivb.dataentry.dewise.action.LoadDataElementwiseEntryAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/dataElementwiseEntry.vm</param>
+			<param name="javascripts">
+				javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">
+				css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="downloadOffLineDataElementForm"
+			class="org.hisp.dhis.ivb.dataentry.dewise.action.DownloadOfflineDataElementWiseFormAction">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">filename="${fileName}"</param>
+				<param name="bufferSize">1024</param>
+			</result>
+		</action>
+
+		<action name="downloadOffLineXLSheet"
+			class="org.hisp.dhis.ivb.dataentry.dewise.action.DownloadOfflineXLSheetAction">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">filename="${fileName}"</param>
+				<param name="bufferSize">1024</param>
+			</result>
+		</action>
+
+		<action name="downloadOffLineCSVDataElementForm"
+			class="org.hisp.dhis.ivb.dataentry.dewise.action.DownloadOfflineCSVFormAction">
+			<result name="success" type="stream">
+				<param name="contentType">text/csv</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">filename="${fileName}"</param>
+				<param name="bufferSize">1024</param>
+			</result>
+		</action>
+
+		<!-- Offline DataEntry -->
+		<action name="offlineEntryForm"
+			class="org.hisp.dhis.ivb.dataentry.offline.action.OfflineEntryFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/offlineEntryForm.vm</param>
+			<param name="javascripts">../dhis-web-commons/oust/oust.js,javascript/ivb_report.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,../dhis-web-commons/lists/lists.js</param>
+			<param name="stylesheets">css/jquery.fancybox.css,css/jquerycssmenu.css</param>
+		</action>
+
+		<action name="downloadOffLineForm"
+			class="org.hisp.dhis.ivb.dataentry.offline.action.DownloadOfflineEntryFormAction">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">filename="${fileName}"</param>
+				<param name="bufferSize">1024</param>
+			</result>
+		</action>
+
+		<!-- Upload Offline Data -->
+		<action name="uploadOfflineDataForm"
+			class="org.hisp.dhis.ivb.dataentry.offline.upload.action.OfflineDataUploadFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/offlineDataUploadForm.vm</param>
+			<param name="javascripts">
+				javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,../dhis-web-commons/lists/lists.js</param>
+			<param name="stylesheets">
+				css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css</param>
+		</action>
+
+		<action name="uploadOfflineData"
+			class="org.hisp.dhis.ivb.dataentry.offline.upload.action.UploadOfflineDataAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/offlineDataUploadResult.vm</param>
+			<param name="javascripts">
+				javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,../dhis-web-commons/lists/lists.js</param>
+			<param name="stylesheets">
+				css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css</param>
+			<interceptor-ref name="fileUploadStack" />
+		</action>
+
+		<!-- Save Values and Comments -->
+
+		<action name="saveValue"
+			class="org.hisp.dhis.ivb.dataentry.action.SaveValueAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<action name="saveCommentValue"
+			class="org.hisp.dhis.ivb.dataentry.action.SaveValueAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<action name="saveComment"
+			class="org.hisp.dhis.ivb.dataentry.action.SaveCommentAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<!-- Close and Open Discussion -->
+
+		<action name="closeDiscussion"
+			class="org.hisp.dhis.ivb.dataentry.action.CloseDiscussionAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+
+		</action>
+
+		<action name="openDiscussion"
+			class="org.hisp.dhis.ivb.dataentry.action.ReOpenDiscussionAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<!-- Update and Unhide Discussion -->
+		<action name="unhideDiscussionAction"
+			class="org.hisp.dhis.ivb.dataentry.action.UnhideDiscussionAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+
+		</action>
+
+		<action name="updateDiscussionAction"
+			class="org.hisp.dhis.ivb.dataentry.action.UpdateDiscussionAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<!-- Get History -->
+		<action name="getHistoryAction"
+			class="org.hisp.dhis.ivb.dataentry.action.GetHistoriesAction">
+			<result name="success" type="velocity">/content.vm</result>
+			<param name="page">/dhis-web-ivb/getHistory.vm</param>
+			<param name="javascripts">
+				javascript/toolbox.js,javascript/discussion_pager.js,javascript/history_pager.js,javascript/technical_pager.js</param>
+			<param name="stylesheets">css/paging.css</param>
+		</action>
+
+		<!-- Technical Assistance -->
+		<action name="getTechnicalAction"
+			class="org.hisp.dhis.ivb.dataentry.action.GetTechnicalAssistanceAction">
+			<result name="success" type="velocity">/content.vm</result>
+			<param name="page">/dhis-web-ivb/getTechnicalA.vm</param>
+			<param name="stylesheets">css/ivb-dataentry.css</param>
+		</action>
+		<action name="saveTechnicalAssistance"
+			class="org.hisp.dhis.ivb.dataentry.action.SaveTechnicalAssistanceAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+		<action name="saveDiscussion"
+			class="org.hisp.dhis.ivb.dataentry.action.SaveDiscussionAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<!-- Change Locale -->
+
+		<action name="changeLocale" class="org.hisp.dhis.ivb.action.ChangeLocateAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<!-- Delete History -->
+
+		<action name="removeHistory"
+			class="org.hisp.dhis.ivb.dataentry.action.RemoveHistoryAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<!-- Copy DataValue -->
+
+		<action name="copyValueAndComment"
+			class="org.hisp.dhis.ivb.dataentry.action.CopyValueAndCommentAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<!-- Get Help -->
+
+		<action name="getHelpAction" class="org.hisp.dhis.ivb.dataentry.action.GetHelpAction">
+			<result name="success" type="velocity">/content.vm</result>
+			<param name="page">/dhis-web-ivb/getHelp.vm</param>
+			<param name="javascripts">javascript/ivb-dataentry.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css</param>
+		</action>
+
+		<!-- Get Indicator Help on Data Entry -->
+
+		<action name="getIndicatorHelpAction"
+			class="org.hisp.dhis.ivb.dataentry.action.GetIndicatorHelpAction">
+			<result name="success" type="velocity">/content.vm</result>
+			<param name="page">/dhis-web-ivb/getIndicatorHelp.vm</param>
+			<param name="javascripts">javascript/ivb-dataentry.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css</param>
+		</action>
+
+		<action name="saveKeyDataValue"
+			class="org.hisp.dhis.ivb.dataentry.action.SaveKeyDataValueAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<!-- Update DataValueAudit -->
+
+		<action name="editHistoryAction"
+			class="org.hisp.dhis.ivb.dataentry.action.SaveDataValueAuditAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<action name="unhideHistoryAction"
+			class="org.hisp.dhis.ivb.dataentry.action.UnhideDataValueAuditAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+
+		</action>
+
+		<!-- REPORTS -->
+		<!-- Country File Report -->
+		<action name="countryFile"
+			class="org.hisp.dhis.ivb.report.action.GetCountryFileReportFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/countryFileReportForm.vm</param>
+			<param name="javascripts">../dhis-web-commons/oust/oust.js,javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+		<action name="generateHTMLReport"
+			class="org.hisp.dhis.ivb.report.action.GenerateHTMLReportAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/reportFormatInHtml.vm</param>
+			<param name="javascripts">
+				javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">
+				css/ivb-dataentry.css,css/jquerycssmenu.css,css/jquery.treeview.css,css/ivb-dataentry.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<!-- Country Activiteis Report -->
+		<action name="countryActivitiesDashboardForm"
+			class="org.hisp.dhis.ivb.report.action.CountryActivitiesFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/countryActivitiesForm.vm</param>
+			<param name="javascripts">../dhis-web-commons/oust/oust.js,javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="countryActivitiesDashboardResult"
+			class="org.hisp.dhis.ivb.report.action.CountryActivitiesResultAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/countryActivitiesResult.vm</param>
+			<param name="javascripts">javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<!-- cMYP Development Tracking Report -->
+		<action name="cmypDevTrackingReportForm"
+			class="org.hisp.dhis.ivb.report.action.CMYPDevTrackingFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/cMYPDevTrackingForm.vm</param>
+			<param name="javascripts">../dhis-web-commons/oust/oust.js,javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="cmypDevTrackingReportResult"
+			class="org.hisp.dhis.ivb.report.action.CMYPDevTrackingResultAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/CMYPDevTrackResult.vm</param>
+			<param name="javascripts">javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<!-- Key Flag Report -->
+		<action name="keyFlagReport"
+			class="org.hisp.dhis.ivb.report.action.GetKeyFlagReportFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/keyFlagReportForm.vm</param>
+			<param name="javascripts">
+				javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">
+				css/ivb-dataentry.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+		<action name="generateKeyFlagReport"
+			class="org.hisp.dhis.ivb.report.action.GenerateKeyFlagReportAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/keyFlagReportResult.vm</param>
+			<param name="javascripts">
+				javascript/ivb-dataentry.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">
+				css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<!-- Vaccine Introduction Report -->
+		<action name="vaccineIntroReport"
+			class="org.hisp.dhis.ivb.report.action.GetVaccineIntroReportFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/vaccineIntroReportForm.vm</param>
+			<param name="javascripts">
+				javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">
+				css/ivb-dataentry.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+			<interceptor-ref name="organisationUnitTreeStack" />
+		</action>
+
+		<action name="generateVaccineIntroReport"
+			class="org.hisp.dhis.ivb.report.action.GenerateVaccineIntroReportAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/vaccineIntroReportOutput.vm</param>
+			<param name="javascripts">javascript/ivb-dataentry.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<action name="generateVaccineIntroReportCommentWise"
+			class="org.hisp.dhis.ivb.report.action.GenerateVaccineIntroReportCommentWiseAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/vaccineIntroWithCommentOutput.vm</param>
+			<param name="javascripts">javascript/ivb-dataentry.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<!-- GAVI Applications Report -->
+		<action name="gaviReportForm"
+			class="org.hisp.dhis.ivb.report.action.GaviReportFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/gaviReportForm.vm</param>
+			<param name="javascripts">javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+			<interceptor-ref name="organisationUnitTreeStack" />
+		</action>
+
+		<action name="gaviReportResult"
+			class="org.hisp.dhis.ivb.report.action.GaviReportResultAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/gaviReportResult.vm</param>
+			<param name="javascripts">javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<!-- PIE Report -->
+		<action name="pieReportForm"
+			class="org.hisp.dhis.ivb.report.action.GaviReportFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/pieReportForm.vm</param>
+			<param name="javascripts">javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+			<interceptor-ref name="organisationUnitTreeStack" />
+		</action>
+
+		<action name="pieReportResult"
+			class="org.hisp.dhis.ivb.report.action.PieReportResultAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/pieReportResult.vm</param>
+			<param name="javascripts">javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<!-- PIE PROG Review Technical Assistance Report -->
+		<action name="pieProgReviewTAReportForm"
+			class="org.hisp.dhis.ivb.report.action.GaviReportFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/pieProgReviewTAReportForm.vm</param>
+			<param name="javascripts">javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+			<interceptor-ref name="organisationUnitTreeStack" />
+		</action>
+
+		<action name="pieProgReviewTAReportResult"
+			class="org.hisp.dhis.ivb.report.action.PieProgReviewTAReportResultAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/pieProgReviewTAReportResult.vm</param>
+			<param name="javascripts">javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<!-- IPV Report -->
+		<action name="ipvImplementationReportForm"
+			class="org.hisp.dhis.ivb.report.action.IPVImplementationFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/ipvImplementationForm.vm</param>
+			<param name="javascripts">javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="ipvImplementationReportResult"
+			class="org.hisp.dhis.ivb.report.action.IPVImplementationResultAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/ipvImplementationResult.vm</param>
+			<param name="javascripts">javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<action name="ipvCountryReportForm"
+			class="org.hisp.dhis.ivb.report.action.CannedReportFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/ipvCountryReportForm.vm</param>
+			<param name="javascripts">../dhis-web-commons/oust/oust.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="imgCallDashboard"
+			class="org.hisp.dhis.ivb.report.action.IMGCallDashboardAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/imgCallDashboard.vm</param>
+			<param name="javascripts">javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<!-- Tool Box Report -->
+		<action name="toolBoxReportForm"
+			class="org.hisp.dhis.ivb.report.action.ToolBoxReportFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/toolBoxReportForm.vm</param>
+			<param name="javascripts">
+				javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">
+				css/ivb-dataentry.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+			<interceptor-ref name="organisationUnitTreeStack" />
+		</action>
+		<action name="generateToolsBoxReport"
+			class="org.hisp.dhis.ivb.report.action.GenerateToolBoxReportAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/toolBoxReportOutput.vm</param>
+			<param name="javascripts">
+				javascript/ivb-dataentry.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">
+				css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<action name="exportToWorkBook"
+			class="org.hisp.dhis.ivb.report.action.ExportToExcelAction">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel;charset=utf-8</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentCharSet">charset=utf-8</param>
+				
+			</result>
+		</action>
+
+		<!-- Regional Summary Report -->
+		<action name="regionalReportForm"
+			class="org.hisp.dhis.ivb.report.action.GetRegionalReportFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/reginalSummaryReportForm.vm</param>
+			<param name="javascripts">javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+			<interceptor-ref name="organisationUnitTreeStack" />
+		</action>
+
+		<action name="generateRegionalSummaryReport"
+			class="org.hisp.dhis.ivb.report.action.GenerateRegionalSummaryReportAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/regionalSummaryOutput.vm</param>
+			<param name="javascripts">javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<!-- BWA Activities Report -->
+		<action name="generateBWAActivitiesReport"
+			class="org.hisp.dhis.ivb.report.action.BWAActivitiesResultAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/BWAActivitiesResult.vm</param>
+			<param name="javascripts">javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<!-- HPV Demo Report -->
+		<action name="loadHPVDemoReportScreen"
+			class="org.hisp.dhis.ivb.report.action.LoadHPVDemoReportParamsAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/hpvdemoReportForm.vm</param>
+			<param name="javascripts">../dhis-web-commons/oust/oust.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="generateHPVDemoReport"
+			class="org.hisp.dhis.ivb.report.action.HPVDemoReportResultAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/hpvdemoReportResult.vm</param>
+			<param name="javascripts">javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<!-- Alerts -->
+
+		<action name="alertReportForm"
+			class="org.hisp.dhis.ivb.dataentry.alert.action.LoadAlertDataEntryFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/alertReportForm.vm</param>
+			<param name="javascripts">javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="generateAlerts"
+			class="org.hisp.dhis.ivb.report.action.GenerateAlertsAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/alertResult.vm</param>
+			<param name="javascripts">javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<!-- Contact Us -->
+		<action name="sendFeedback" class="org.hisp.dhis.ivb.action.SendFeedbackAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<!-- Reset Data Value -->
+		<action name="resetDataValue"
+			class="org.hisp.dhis.ivb.dataentry.action.ResetSingleCountryDataAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<!-- Remove Conflict -->
+		<action name="removeConflict"
+			class="org.hisp.dhis.ivb.dataentry.action.RemoveConflictAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<action name="getMessageRecipients"
+			class="org.hisp.dhis.ivb.report.action.GetMessageRecipientsAction">
+			<result name="success" type="velocity-json">
+				jsonMessageRecipients.vm
+			</result>
+			<result name="error" type="velocity-json">
+				/dhis-web-commons/ajax/jsonResponseError.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<!-- Main Menu Help -->
+		<action name="help" class="org.hisp.dhis.ivb.help.action.Help">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/help.vm</param>
+			<param name="javascripts">
+				javascript/help.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">
+				css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="getHelpContent"
+			class="org.hisp.dhis.ivb.help.action.GetHelpContentAction">
+			<result name="success" type="outputStreamResult"></result>
+		</action>
+
+		<action name="getHelpItems" class="org.hisp.dhis.ivb.help.action.GetHelpItemsAction">
+			<result name="success" type="outputStreamResult"></result>
+		</action>
+
+		<action name="repositoryKey" class="org.hisp.dhis.ivb.action.NoAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/repository_type.vm</param>
+			<param name="javascripts">javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<!-- User Profile -->
+		<action name="showUpdateUserAccountForm"
+			class="org.hisp.dhis.ivb.profile.action.GetCurrentUserAction">
+			<result name="success" type="velocity">/content.vm</result>
+			<param name="page">/dhis-web-ivb/userProfile.vm</param>
+
+		</action>
+
+		<action name="updateUserAccount"
+			class="org.hisp.dhis.ivb.profile.action.UpdateUserAccountAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<action name="moveHistoryDataToCurrentPeriod"
+			class="org.hisp.dhis.ivb.dataentry.action.CopyDataValueFromHistoryAction">
+			<result name="success" type="velocity-json">/dhis-web-ivb/status.vm</result>
+			<param name="onExceptionReturn">plainTextError</param>
+
+		</action>
+
+		<!-- Resolve Conflict -->
+
+		<action name="showCountryConflict"
+			class="org.hisp.dhis.ivb.dataentry.conflict.action.GetConflictFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/getConflictsForm.vm</param>
+			<param name="javascripts">javascript/ivb_report.js,javascript/document.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="loadConflicts"
+			class="org.hisp.dhis.ivb.dataentry.conflict.action.LoadDataValueConflictAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/loadConflicts.vm</param>
+			<param name="javascripts">
+				javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">
+				css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="resolveConflict"
+			class="org.hisp.dhis.ivb.dataentry.conflict.action.ResolveAllConflictAction">
+			<result name="success" type="redirect">/dhis-web-ivb/showCountryConflict.action
+			</result>
+		</action>
+
+		<action name="getAuthorities" class="org.hisp.dhis.ivb.action.GetUserAuthorityAction">
+			<result name="success" type="velocity-json">/dhis-web-ivb/authorityStatus.vm
+			</result>
+		</action>
+
+		<!-- Agenda Report -->
+
+		<action name="agendaReportForm" class="org.hisp.dhis.ivb.action.GetCurrentUserAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/agendaReportForm.vm</param>
+			<param name="javascripts">javascript/document.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="generateAgendaReport"
+			class="org.hisp.dhis.ivb.report.action.GenerateAgendaReportAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/agendaReportResult.vm</param>
+			<param name="javascripts">javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<!-- Area of work Report (Canned Report) -->
+
+		<action name="areaOfWorkReportForm"
+			class="org.hisp.dhis.ivb.report.action.CannedReportFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/areaOfWorkReportForm.vm</param>
+			<param name="javascripts">../dhis-web-commons/oust/oust.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+		<action name="generateAreaOfWorkReport"
+			class="org.hisp.dhis.ivb.report.action.GenerateAreaOfWorkReportAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/areaOfWorkReportResult.vm</param>
+			<param name="javascripts">javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<!-- Favorite -->
+		<action name="createFavorite"
+			class="org.hisp.dhis.ivb.favorite.action.CreateFavoriteAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<action name="deleteFavorite"
+			class="org.hisp.dhis.ivb.favorite.action.DeleteFavoriteAction">
+			<result name="success" type="velocity-json">
+				/dhis-web-ivb/status.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<action name="getFavoriteValue"
+			class="org.hisp.dhis.ivb.favorite.action.GetFavoriteAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/dataElementwiseEntryParams.vm</param>
+			<param name="javascripts">javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<!-- Tabular Report -->
+		<action name="tabularReportForm"
+			class="org.hisp.dhis.ivb.report.action.GetTabularReportFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/tabularReportForm.vm</param>
+			<param name="javascripts">javascript/tabularForm.js,javascript/document.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="generateTabularReport"
+			class="org.hisp.dhis.ivb.report.action.GenerateTabularReportAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/tabularReportResult.vm</param>
+			<param name="javascripts">../dhis-web-commons/javascripts/ext/ext-all.js,javascript/jquery.treeview.js,javascript/TransformGrid.js,javascript/jquerycssmenu.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">../dhis-web-commons/javascripts/ext/resources/css/ext-plugin-gray.css,css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<!-- Dataelement History Report -->
+		<action name="dataElementHistoryReportForm"
+			class="org.hisp.dhis.ivb.dataentry.dewise.action.GetDataElementWiseFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/deHisotryForm.vm</param>
+			<param name="javascripts">javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="dataElementHistoryReportResult"
+			class="org.hisp.dhis.ivb.report.action.DEHistoryReportResultAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/deHistoryResult.vm</param>
+			<param name="javascripts">../dhis-web-commons/javascripts/ext/ext-all.js,javascript/jquery.treeview.js,javascript/TransformGrid.js,javascript/jquerycssmenu.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">../dhis-web-commons/javascripts/ext/resources/css/ext-plugin-gray.css,css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+
+		<!-- PROWG Report -->
+		<action name="prowgReportForm"
+			class="org.hisp.dhis.ivb.report.action.CannedReportFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/prowgReportForm.vm</param>
+			<param name="javascripts">../dhis-web-commons/oust/oust.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="getProwgReport"
+			class="org.hisp.dhis.ivb.report.action.GetProwgReportAction">
+			<result name="success" type="velocity-json">/dhis-web-ivb/prowgStatus.vm
+			</result>
+		</action>
+
+		<action name="generatePROWGReport"
+			class="org.hisp.dhis.ivb.report.action.GeneratePROWGReportAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/PROWGReportResult.vm</param>
+			<param name="javascripts">javascript/jquery.freezeheader.js,javascript/ivb-dataentry.js,../dhis-web-commons/javascripts/ext/ext-all.js,javascript/jquery.treeview.js,javascript/TransformGrid.js,javascript/jquerycssmenu.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">../dhis-web-commons/javascripts/ext/resources/css/ext-plugin-gray.css,css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+
+		<!-- User Activity Report -->
+		<action name="userActivityReportForm"
+			class="org.hisp.dhis.ivb.report.action.GetUserActivityReportFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/userActivityReportForm.vm</param>
+			<param name="javascripts">javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+
+		</action>
+
+		<action name="generateUserActivityReport"
+			class="org.hisp.dhis.ivb.report.action.GenerateUserAcitivityReportAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/userActivityReportResult.vm</param>
+			<param name="javascripts">../dhis-web-commons/javascripts/ext/ext-all.js,javascript/jquery.treeview.js,javascript/TransformGrid.js,javascript/jquerycssmenu.js,../dhis-web-commons/select2/select2.min.js,javascript/exportExcel.js</param>
+			<param name="stylesheets">../dhis-web-commons/javascripts/ext/resources/css/ext-plugin-gray.css,css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+
+  
+		<!-- User Activity Login Report -->
+		<action name="userActivityLoginReport"
+			class="org.hisp.dhis.ivb.report.action.GenerateUserAcitivityLoginReportAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/userActivityLoginReportResult.vm</param>
+			<param name="javascripts">../dhis-web-commons/javascripts/ext/ext-all.js,javascript/jquery.treeview.js,javascript/TransformGrid.js,javascript/jquerycssmenu.js,../dhis-web-commons/select2/select2.min.js,javascript/exportExcel.js</param>
+			<param name="stylesheets">../dhis-web-commons/javascripts/ext/resources/css/ext-plugin-gray.css,css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+
+<!-- User Activity Login Report monitoring-->
+
+		<action name="getuserActivityLoginMonitoring"
+			class="org.hisp.dhis.ivb.report.action.GetUserActivityReportFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/getUserActivityLoginMonitoringForm.vm</param>
+			<param name="javascripts">javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+			<param name="requiredAuthorities">ACTIVITY_MONITORING</param>
+
+		</action>
+
+		<action name="userActivityLoginMonitoring"
+			class="org.hisp.dhis.ivb.report.action.GenerateUserAcitivityLoginMonitoringtAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/userActivityLoginReportMonitoring.vm</param>
+			<param name="javascripts">../dhis-web-commons/javascripts/ext/ext-all.js,javascript/jquery.treeview.js,javascript/TransformGrid.js,javascript/jquerycssmenu.js,../dhis-web-commons/select2/select2.min.js,javascript/exportExcel.js</param>
+			<param name="stylesheets">../dhis-web-commons/javascripts/ext/resources/css/ext-plugin-gray.css,css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+		
+		
+		
+		<!-- Aggregation Engine -->
+		<action name="aggregationQueryList"
+			class="org.hisp.dhis.ivb.aggregation.action.AggregationQueryListAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/aggregationQueryList.vm</param>
+			<param name="javascripts">../dhis-web-commons/oust/oust.js,javascript/aggregationEngine.js,javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="validateAddAggregation"
+			class="org.hisp.dhis.ivb.aggregation.action.ValidateAddAggregationAction">
+			<result name="success" type="velocity-json">/dhis-web-ivb/aggStatus.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<action name="addAggregationQueryForm"
+			class="org.hisp.dhis.ivb.aggregation.action.AddAggregationQueryFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/addAggregationQuery.vm</param>
+			<param name="javascripts">../dhis-web-commons/oust/oust.js,javascript/aggregationEngine.js,javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="loadAggregationParam"
+			class="org.hisp.dhis.ivb.aggregation.action.GetAggregationParameterAction">
+			<result name="success" type="velocity">/content.vm</result>
+			<param name="page">/dhis-web-ivb/addAggregationParam.vm</param>
+		</action>
+
+		<action name="addAggregationQuery"
+			class="org.hisp.dhis.ivb.aggregation.action.AddAggregationQueryAction">
+			<result name="success" type="redirect">aggregationQueryList.action
+			</result>
+		</action>
+
+		<action name="editAggregationQueryForm"
+			class="org.hisp.dhis.ivb.aggregation.action.EditAggregationQueryFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/editAggregationQuery.vm</param>
+			<param name="javascripts">../dhis-web-commons/oust/oust.js,javascript/aggregationEngine.js,javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="editAggregationQuery"
+			class="org.hisp.dhis.ivb.aggregation.action.UpdateAggregationQueryAction">
+			<result name="success" type="redirect">aggregationQueryList.action
+			</result>
+		</action>
+
+		<action name="deleteAggregationQuery"
+			class="org.hisp.dhis.ivb.aggregation.action.DeleteAggregationQueryAction">
+			<result name="success" type="redirect">aggregationQueryList.action
+			</result>
+		</action>
+
+		<action name="runAggregationQueryForm" class="org.hisp.dhis.ivb.action.GetCurrentUserAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/runAggregationQueryForm.vm</param>
+			<param name="javascripts">../dhis-web-commons/oust/oust.js,javascript/aggregationEngine.js,javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="runAggregationQuery"
+			class="org.hisp.dhis.ivb.aggregation.action.RunAggregationQueryAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/runAggregationQueryResult.vm</param>
+			<param name="javascripts">../dhis-web-commons/oust/oust.js,javascript/aggregationEngine.js,javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="getTabularFavoriteValue"
+			class="org.hisp.dhis.ivb.favorite.action.GetFavoriteAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/tabularReportForm.vm</param>
+			<param name="javascripts">javascript/tabularForm.js,javascript/document.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+
+		<!-- Document Management -->
+
+		<action name="displayViewDocumentForm"
+			class="org.hisp.dhis.ivb.help.action.GetAllDocumentsAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/viewDocumentForm.vm</param>
+			<param name="javascripts">javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="saveDocument" class="org.hisp.dhis.ivb.help.action.SaveDocumentAction">
+			<result name="success" type="redirect">displayViewDocumentForm.action
+			</result>
+			<result name="error" type="redirect">validateDocument.action</result>
+			<interceptor-ref name="fileUploadStack" />
+			<!-- <param name="anyAuthorities">F_DOCUMENT_PUBLIC_ADD,F_DOCUMENT_PRIVATE_ADD</param> -->
+		</action>
+
+		<action name="validateDocument" class="org.hisp.dhis.ivb.action.GetCurrentUserAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/validateDocument.vm</param>
+			<param name="javascripts">javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<action name="deleteDocument"
+			class="org.hisp.dhis.ivb.help.action.DeleteDocumentAction">
+			<result name="success" type="redirect">displayViewDocumentForm.action
+			</result>
+		</action>
+
+
+		<action name="editDocument"
+			class="org.hisp.dhis.ivb.help.action.UpdateDocumentAction">
+			<result name="success" type="redirect">displayViewDocumentForm.action
+			</result>
+			<interceptor-ref name="fileUploadStack" />
+			<!-- <param name="anyAuthorities">F_DOCUMENT_PUBLIC_ADD,F_DOCUMENT_PRIVATE_ADD</param> -->
+		</action>
+
+		<!-- Lookup -->
+
+		<!-- Get All Lookups -->
+		<action name="getAllLookups"
+			class="org.hisp.dhis.ivb.lookups.action.GetAllLookupsAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/getAllLookups.vm</param>
+			<param name="javascripts">javascript/ivb-dataentry.js,javascript/lookup.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<!-- Add Lookup -->
+		<action name="addLookupForm"
+			class="org.hisp.dhis.ivb.lookups.action.AddLookupFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/addLookupForm.vm</param>
+			<param name="javascripts">javascript/lookup.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<!-- Save Lookup -->
+		<action name="addLookup" class="org.hisp.dhis.ivb.lookups.action.AddLookupAction">
+			<result name="success" type="redirect">getAllLookups.action?currentPage=${keyCurrentPage}&amp;key=${keyCurrentKey}
+			</result>
+		</action>
+
+		<!-- Delete Lookup -->
+		<action name="delLookup" class="org.hisp.dhis.ivb.lookups.action.DelLookup">
+			<result name="success" type="redirect">getAllLookups.action</result>
+		</action>
+
+		<!-- Edit Lookup -->
+		<action name="editLookupForm"
+			class="org.hisp.dhis.ivb.lookups.action.EditLookupFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/editLookup.vm</param>
+			<param name="javascripts">javascript/editLookup.js,javascript/lookup.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<!-- Update Lookup -->
+		<action name="updateLookup"
+			class="org.hisp.dhis.ivb.lookups.action.UpdateLookupAction">
+			<result name="success" type="redirect">getAllLookups.action?currentPage=${keyCurrentPage}&amp;key=${keyCurrentKey}
+			</result>
+		</action>
+
+		<!-- Show Details -->
+		<action name="getLookup" class="org.hisp.dhis.ivb.lookups.action.GetLookupAction">
+			<result name="success" type="velocity-json">/dhis-web-ivb/jsonLookup.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+		<!-- Validate Lookup -->
+		<action name="validateLookup"
+			class="org.hisp.dhis.ivb.lookups.action.ValidateLookupAction">
+			<result name="success" type="velocity-json">/dhis-web-commons/ajax/jsonResponseSuccess.vm
+			</result>
+			<result name="input" type="velocity-json">/dhis-web-commons/ajax/jsonResponseInput.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+
+
+		<!-- Maps and Charts Introduction -->
+		<action name="MapsAndChartsIntro" class="org.hisp.dhis.ivb.maps.action.GetMapsAndCharts">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/MapsAndCharts.vm</param>
+			<param name="javascripts">javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+			<interceptor-ref name="organisationUnitTreeStack" />
+		</action>
+
+	<action name="DEmapping"
+			class="org.hisp.dhis.ivb.maps.action.DEMapping">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/DeMapping.vm</param>
+			<param name="javascripts">javascript/ivb-dataentry.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+			<param name="requiredAuthorities">F_DE_AGGREGATION_MAPPING</param>
+		</action>
+
+
+		<action name="generateMapsAndCharts"
+			class="org.hisp.dhis.ivb.maps.action.GenerateMapsAndCharts">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/MapsAndChartsOutput.vm</param>
+			<param name="javascripts">javascript/ivb-dataentry.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+
+		<!-- <action name="generateUserActivityReport" class="org.hisp.dhis.ivb.report.action.GenerateUserAcitivityReportAction"> 
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result> <param 
+			name="page">/dhis-web-ivb/userActivityReportResult.vm</param> <param name="javascripts">../dhis-web-commons/javascripts/ext/ext-all.js,javascript/jquery.treeview.js,javascript/TransformGrid.js,javascript/jquerycssmenu.js,../dhis-web-commons/select2/select2.min.js,javascript/exportExcel.js</param> 
+			<param name="stylesheets">../dhis-web-commons/javascripts/ext/resources/css/ext-plugin-gray.css,css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param> 
+			</action> -->
+
+
+		<action name="allAuthority" class="org.hisp.dhis.ivb.action.NoAction">
+			<param name="requiredAuthorities">
+				F_DATAVALUE_AUDIT_EDIT,F_DATAVALUE_AUDIT_HIDE,F_DATAVALUE_AUDIT_DELETE,
+				F_HIDE_UNHIDE_DATAVALUEAUDIT,F_DATAVALUE_CONFLICT,
+				F_USER_REPORT_VIEW,F_DATAVALUE_ADD,F_DATAVALUE_UPDATE,
+				F_AGG_ENGINE_VIEW,F_OPEN_CLOSE_DISCUSSION,F_DATAVALUE_DELETE,F_DATAVALUE_VIEW_COMMENT,F_LOOKUP_VIEW,F_PROG_REVIEW_TECH_ASSISTANCE_REPORT,F_CMYP_DEV_TRACKING_REPORT,F_ALERT_REPORT,F_USERACTIVITY_LOGIN_REPORT,ACTIVITY_MONITORING</param>
+		</action>
+
+
+		<!-- Manual Report Scheduling Form -->
+		<action name="manualReportSchedulingForm"
+			class="org.hisp.dhis.ivb.util.ManualReportSchedulingFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/manualReportSchedulingForm.vm</param>
+			<param name="javascripts">../dhis-web-commons/oust/oust.js,javascript/aggregationEngine.js,javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<!-- Run Manual Scheduling -->
+		<action name="runManualScheduling"
+			class="org.hisp.dhis.ivb.util.ManualReportSchedulingAction">
+			<result name="success" type="redirect">home.action</result>
+		</action>
+
+		<!-- add DeMapping -->
+		<action name="addDeMapping" class="org.hisp.dhis.ivb.demapping.action.AddDeMappingAction">
+			<result name="success" type="redirect">home.action</result>
+		</action>
+
+		<!-- get DeMapping -->
+		<action name="getDeMapping" class="org.hisp.dhis.ivb.demapping.action.GetDeMappingAction">
+			<!-- <result name="success" type="redirect">home.action</result> -->
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/home.vm</param>
+			<param name="javascripts">
+				javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">
+				css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+
+		<!-- get all DeMapping -->
+		<action name="getAllDeMappings" class="org.hisp.dhis.ivb.demapping.action.GetAllDeMappingsAction">
+			<!-- <result name="success" type="redirect">home.action</result> -->
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/home.vm</param>
+			<param name="javascripts">
+				javascript/jquery.treeview.js,javascript/ivb-dataentry.js,javascript/jquery.fancybox.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">
+				css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+		</action>
+		
+		<!-- validate DE Mapping for maps -->
+		<action name="ValidateDEMapping"
+			class="org.hisp.dhis.ivb.demapping.action.ValidateDEMappingAction">
+			<result name="success" type="velocity-json">/dhis-web-ivb/aggStatus.vm
+			</result>
+			<param name="onExceptionReturn">plainTextError</param>
+		</action>
+		
+		
+		<!-- Status of M/MR Report -->
+		<action name="GetMMRStatus"
+			class="org.hisp.dhis.ivb.report.action.GetMMRStatusReportFormAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/mmrStatusReportForm.vm</param>
+			<param name="javascripts">
+				javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js</param>
+			<param name="stylesheets">
+				css/ivb-dataentry.css,css/jquerycssmenu.css,css/jquery.treeview.css</param>
+			<interceptor-ref name="organisationUnitTreeStack" />
+		</action>
+
+	  	<action name="generateMMRStatus"
+			class="org.hisp.dhis.ivb.report.action.GenerateMMRStatusReportAction">
+			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
+			<param name="page">/dhis-web-ivb/MMRStatusReportOutput.vm</param>
+			<param name="javascripts">javascript/ivb-dataentry.js,javascript/jquerycssmenu.js,javascript/request.js,javascript/jquery.treeview.js,../dhis-web-commons/select2/select2.min.js</param>
+			<param name="stylesheets">css/ivb-dataentry.css,css/jquery.fancybox.css,css/jquerycssmenu.css,css/jquery.treeview.css,../dhis-web-commons/select2/select2.css</param>
+		</action>
+		
+		<!--  for download map to excel -->
+   <!--  <action name="exportToExcel" class="org.hisp.dhis.ivb.exp.excel.ExportToExcelAction">
+      <result name="success" type="stream">
+      	<param name="contentType">application/vnd.ms-excel</param>
+      	<param name="inputName">inputStream</param>
+      	<param name="contentDisposition">filename="${fileName}"</param>
+      	<param name="bufferSize">10240</param>
+      </result>
+    </action>--> 
+	</package>
+</struts>

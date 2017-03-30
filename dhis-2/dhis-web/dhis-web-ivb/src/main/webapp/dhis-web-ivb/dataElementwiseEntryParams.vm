@@ -1,0 +1,300 @@
+<style>
+    #filterDataElementsDiv{
+            padding: 15px;
+            background-color: white; 
+            width:75%;
+            margin:auto;
+            display:block;
+            
+            /* outer shadows  (note the rgba is red, green, blue, alpha) */
+            -webkit-box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.4); 
+            -moz-box-shadow: 0px 1px 6px rgba(23, 69, 88, .5);
+    
+            /* rounded corners */
+            -webkit-border-radius: 12px;
+            -moz-border-radius: 7px; 
+            border-radius: 7px;
+            
+            /* gradients */
+            background: -webkit-gradient(linear, left top, left bottom, 
+            color-stop(0%, white), color-stop(15%, white), color-stop(100%, #D7E9F5)); 
+            background: -moz-linear-gradient(top, white 0%, white 0%, #D5E4F3 60%); 
+            box-shadow: 8px 10px 10px rgba(0,0,0,0.5),
+               inset 8px 10px 10px rgba(255,255,255,0.75);
+               -o-box-shadow: 8px 10px 10px rgba(0,0,0,0.5),
+               inset 8px 10px 10px rgba(255,255,255,0.75);
+               -webkit-box-shadow: 8px 10px 10px rgba(0,0,0,0.5),
+               inset 8px 10px 10px rgba(255,255,255,0.75);
+               -moz-box-shadow: 8px 10px 10px rgba(0,0,0,0.5),
+               inset 8px 10px 10px rgba(255,255,255,0.75);
+        }
+</style>
+
+<script>
+    $(function() {
+        
+        $( "#create-bookmark" )
+                .button()
+                .click(function() {
+                	
+                	if( dataElementsSelectedList.length <= 0 )
+                	{
+                    	alert("Please select dataelement(s)");
+                    	return false;
+                	}
+                
+                    $( "#favorite" ).dialog( "open" );
+                });
+
+        $( "#favorite" ).dialog({
+            autoOpen: false,
+            width: 450,
+            modal: true,
+            buttons: {
+                "Save Bookmark": function() {
+                    var showAll;
+                    var bValue = false;
+                    if(document.getElementById("publicView").checked == true)
+                    {
+                        showAll = "true";
+                    }
+                    else
+                    {
+                        showAll = "false";
+                    }
+                    
+                    $('#dataElementsSelectedList option').attr('selected', 'selected');
+                    var selLen = dataElementsSelectedList.length;
+                    var del="";
+                    for (var i = 0; i < selLen; i++){ 	
+		            var de=dataElementsSelectedList[i].value;
+                    var d = de.toString(); 
+                    del += d;
+                    del += ",";
+                    }
+              
+                    if(('$favorite.name' != '' && '$favorite.showAll' == '2') || '$favorite.storedBy' == '$userName')
+                    {
+                        var dataValue = {
+                            'name' : $("#favoriteName").val(),
+                            'dataElements' : del,
+                             //'organisationUnits' : orgUnits,
+                            'favoriteId' : '$favorite.id',
+                            'showAll' : showAll,
+                            'favoriteType' : $("#favoriteType").val()
+                        };
+                    }
+                     else
+                    {
+                        var fList = $favoriteListt;
+                        for(var i=0; i<=fList.length-1; i++)
+                        {
+                            if(fList[i] == $("#favoriteName").val())
+                            {
+                                bValue = true;
+                            }
+                        }
+                        var dataValue = {
+                            'name' : $("#favoriteName").val(),
+                            'dataElements' : del,
+                            //'organisationUnits' : orgUnits,
+                            'showAll' : showAll,
+                            'favoriteType' : $("#favoriteType").val()
+                        };
+                    }
+                    if(bValue)
+                    {
+                        alert("Bookmark name already exists");
+                    }
+                    else
+                    {
+
+                        jQuery.ajax( {
+                            url: 'createFavorite.action',
+                            data: dataValue,
+                            dataType: 'json',
+                            success: handleSuccess,
+                            error: handleError
+                        } );
+                    }
+                },
+                Cancel: function() {
+                    $( this ).dialog( "close" );
+                }
+            },
+            close: function() {
+            }
+        });
+        function handleSuccess( json )
+        {
+            showSuccessMessage( "Bookmark saved" );
+            $( "#favorite" ).dialog( "close" );
+        }
+        function handleError( json )
+        {
+            showWarningMessage( "Bookmark not saved" );
+            $( "#favorite" ).dialog( "close" );
+        }
+    });
+   
+</script>
+
+<script type="text/javascript">
+    jQuery(function() {
+    
+        $("#submitButton").on( "click", function() {
+            $("#dataelementwiseDataentryForm").attr("action", "dataElementwiseDataEntry.action");               
+            $( "#dataelementwiseDataentryForm" ).submit();
+        });
+        
+        $("#offlineButton").on( "click", function() {
+            $("#dataelementwiseDataentryForm").attr("action", "downloadOffLineXLSheet.action");
+            $("#dataelementwiseDataentryForm").attr("target", "_blank");
+            $( "#dataelementwiseDataentryForm" ).submit();
+        });
+        
+        $("#offlineCSVButton").on( "click", function() {
+            $("#dataelementwiseDataentryForm").attr("action", "downloadOffLineCSVDataElementForm.action");
+            $("#dataelementwiseDataentryForm").attr("target", "_blank");
+            $("#dataelementwiseDataentryForm" ).submit();
+        });
+
+        jQuery("#availableDataElementsList").dhisAjaxSelect({
+            source: "../dhis-web-commons-ajax-json/getFilterDataElements.action",
+            iterator: "dataElements",
+            connectedTo: 'dataElementsSelectedList',
+            handler: function(item) {
+                var option = jQuery("<option data-id='" + item.groups + "' />");
+                option.text( item.name );
+                option.attr( "value", item.id );
+				option.attr( "title", item.name );
+                return option;
+            },
+            filter: {
+                source: "../dhis-web-commons-ajax-json/getDataElementGroups.action",
+                label: 'dataelement group',
+                iterator: "dataElementGroups",
+                handler: function(item) {
+                    return "<option data-key='id' data-value='" + item.id + "'>" + item.name + "</option>";
+                }
+            }
+        });
+         $("form").on("submit", function() {
+            $('#dataElementsSelectedList option').attr('selected', 'selected');
+            var dataElementListBox = document.getElementById('dataElementsSelectedList');
+                if( dataElementListBox.options.length <= 0 )
+                {
+                    alert("Please select dataelement");
+                    return false;
+                }   
+            
+         });
+        
+    });
+
+	function getFavoriteValues()
+	{
+		var favoriteId = $("#favoriteId").val();
+		var favoriteType = $("#favoriteType").val();
+		if(favoriteId == "-1")
+		{
+			alert("Please Select Favorite");
+		}
+		else
+		{
+			window.location.href = "getFavoriteValue.action?favoriteId="+favoriteId+"&favoriteType="+favoriteType;
+		}
+	}
+</script>
+
+<div style="width:90%;margin:auto;" id="filterDataElementsDiv">
+	<h3>$i18n.getString( "menu_dataelement_wise" )</h3>
+	<input type="hidden" name="favoriteType" id="favoriteType" value="$favoriteType"/>
+	<form id="dataelementwiseDataentryForm" name="dataelementwiseDataentryForm" action="dataElementwiseDataEntry.action" method="post" class="inputForm" >
+    	<table id="dataElementSelectionArea" style="width:100%;margin:auto;">
+            <tr>
+                <td colspan="2" width="55%">
+                	<div id="orgUnitTreeContainer" style="height: 250px; width: 500px;">
+                    	#organisationUnitSelectionTree1( false, true, false )
+                    </div>
+                </td>
+                <td width="45%" valign="center">
+					
+					#if($favoriteList.size() > 0)
+					Available Bookmarks: 
+                    <select id="favoriteId" name="favoriteId" style="width:90%" onchange="getFavoriteValues()">
+						<option value="-1">Please Select</option>
+						#foreach($favorite in $favoriteList)
+							#if($favoriteMap.get($favorite))
+							<option value="$favorite.id:$favoriteMap.get($favorite)" #if($favoriteId == $favorite.id) selected #end >$favorite.name</option>
+							#end
+						#end
+                    </select>
+					#end
+                </td>
+            </tr>
+            
+            <tr>
+                <th width="46%">$i18n.getString( "available_data_elements" )</th>
+                <th style="width:6%;margin:auto;">$i18n.getString( "filter" )</th>
+                <th width="44%">$i18n.getString( "selected_data_elements" )</th>
+		<th  width="4%"> </th>
+            </tr>
+        
+            <tr>
+                <td width="46%">
+                    <select id="availableDataElementsList" multiple="multiple" style="height: 200px; width: 100%;" ondblclick="moveSelectedById( 'availableDataElementsList', 'dataElementsSelectedList' )"></select>
+                </td>
+                <td style="width:6%;margin:auto;">
+                    <input type="button" value="&gt;" title="$i18n.getString( 'move_selected' )" style="width:50px" onclick="moveSelectedById( 'availableDataElementsList', 'dataElementsSelectedList' );" /><br/>
+                    <input type="button" value="&lt;" title="$i18n.getString( 'remove_selected' )" style="width:50px" onclick="moveSelectedById( 'dataElementsSelectedList', 'availableDataElementsList'  );" /><br/>
+                    <input type="button" value="&gt;&gt;" title="$i18n.getString('move_all')" style="width:50px" onclick="moveAllById( 'availableDataElementsList', 'dataElementsSelectedList' );" /><br/>
+                    <input type="button" value="&lt;&lt;" title="$i18n.getString('remove_all')" style="width:50px" onclick="moveAllById( 'dataElementsSelectedList', 'availableDataElementsList'  );" />
+                </td>           
+                <td style="width:44%;margin:auto;">
+                    <select id="dataElementsSelectedList" name="dataElementsSelectedList" multiple="multiple" style="height: 250px; width: 100%;" ondblclick="moveSelectedById( 'dataElementsSelectedList', 'availableDataElementsList' )" >
+					#if( $!favoriteId != -1 && "$!favoriteId" != "" && $!favoriteId != " " )
+						#foreach($dataElement in $dataElementsList)
+							<option value="$!dataElement.id">$!dataElement.name</option> 
+						#end
+					#end
+					</select>
+                </td>
+		<td width="4%"> 
+                     <a href="javascript:moveUpDataElement('dataElementsSelectedList');"><img src="../images/move_up.png"/></a><br/><br/>
+                     <a href="javascript:moveDownDataElement('dataElementsSelectedList');"><img src="../images/move_down.png"/></a><br/><br/>
+            	</td> 
+            </tr>
+            <tr>
+                <td><br/><br/>
+                    <input type="submit" id="submitButton" value="$i18n.getString( 'load_dataentry' )" style="width:23em" />  &nbsp;&nbsp;&nbsp;     
+                    <input type="button" id="create-bookmark" value="Create Bookmark" style="width:23em"/>       
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                	<input type="checkbox" id="includeTA" name="includeTA" /> $i18n.getString( "include_ta" ) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                	<input type="checkbox" id="includeData" name="includeData" /> $i18n.getString( "include_latest_data_in_offline_entry" ) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                	<input type="checkbox" id="countryAsRows" name="countryAsRows" /> $i18n.getString( "country_as_rows" )<br/><br/>
+                	<input type="submit" id="offlineButton" value="$i18n.getString( 'download' )" style="width:20em" /> &nbsp;&nbsp;&nbsp;
+                	<input type="submit" id="offlineCSVButton" value="$i18n.getString( 'download_csv' )" style="width:20em" />
+                </td>
+            </tr>
+    	</table>
+
+	<div id="favorite" #if(($favorite && $favorite.showAll == 2) || $favorite.storedBy == $userName) title="Edit Bookmark" #else title="Create Bookmark" #end>
+    	<table style="width:100%">
+        	<tr >
+            	<td>Bookmark Name:</td>
+            	<td colspan="2"><input type="text" #if(($favorite && $favorite.showAll == 2) || $favorite.storedBy == $userName) value="$!favorite.name" #else value="" #end name="favoriteName" id="favoriteName" class="text ui-widget-content ui-corner-all" style="width:100%;"/></td>
+        	</tr>
+        	<tr >
+            	<td>Public View:</td>
+            	<td colspan="2">
+                	<input type="checkbox" name="publicView" id="publicView" />
+            	</td>
+        	</tr>
+    	</table>
+	</div>    	
+    	
+	</form>
+</div>

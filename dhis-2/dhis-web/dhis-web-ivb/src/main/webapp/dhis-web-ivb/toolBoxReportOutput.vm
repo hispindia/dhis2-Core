@@ -1,0 +1,472 @@
+#set( $reportWarning = "Y" )
+
+<script type="text/javascript">
+jQuery(function() {
+    $('#toUser').show();
+    $('#recipients').select2({
+       minimumInputLength: 1,
+       multiple: true, 
+       width: "546px",      
+       ajax: {
+           url: 'getMessageRecipients.action',
+           dataType: 'json',
+           data: function(term, page) {
+                return {
+                    filter: term
+                }
+           },
+           results: function(data, page) {
+               return { results: data.matches }
+           }
+       }
+    });
+});
+</script>
+
+<script>
+    function getShareLink()
+    {
+        $('#shareSubject').val('Tool Box Report');
+        $('#orgUnitIds option').attr('selected', 'selected');
+		var orgUnitIds = document.getElementById('orgUnitIds').options;
+		var ids = '';
+		for(var i=0;i <= orgUnitIds.length-1 ; i++)
+		{	
+			ids = ids+'&orgUnitIds='+orgUnitIds[i].value;
+		}
+		url = document.location.href +ids;
+        $('#shareText').val('Link to view the report: \n \n' + url);
+        $( "#shareLinkToUser" ).dialog('open');     
+    }
+</script>
+ <style>
+        .ui-tooltip, .arrow1:after {
+            background: white;
+            border: 2px solid #086B96;
+        }
+        .ui-tooltip {
+            padding: 10px 20px;
+            color: black;
+            border-radius: 20px;
+            font: bold 12px "Helvetica Neue", Sans-Serif;           
+            box-shadow: 0 0 7px black;
+        }
+        .arrow1 {
+            width: 70px;
+            height: 16px;
+            overflow: hidden;
+            position: absolute;
+            left: 50%;
+            margin-left: -35px;
+            bottom: -16px;
+        }
+        .arrow1.top {
+            top: -16px;
+            bottom: auto;
+        }
+        .arrow1.left {
+            left: 20%;
+        }
+        .arrow1:after {
+            content: "";
+            position: absolute;
+            left: 20px;
+            top: -20px;
+            width: 25px;
+            height: 25px;
+            box-shadow: 6px 5px 9px -9px black;
+            -webkit-transform: rotate(45deg);
+            -moz-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            -o-transform: rotate(45deg);
+            tranform: rotate(45deg);
+        }
+        .arrow1.top:after {
+            bottom: -20px;
+            top: auto;
+        }
+    
+</style>
+<select id="orgUnitIds" multiple style="display:none;">
+    #foreach( $orgUnit in $orgUnitList )
+		<option value="$orgUnit.id"></option>
+    #end
+</select>
+<form id="form1" name="form1" action="exportToWorkBook.action" method="post" onsubmit="return exportToExcel()" target="_newtab">
+    <input type="hidden" name="htmlCode" id="htmlCode"/>
+    <div align="right" style="width:95%;margin:auto;padding-top:8px;padding-bottom:3px;">
+        <input type="button" onclick="location.href='toolBoxReportForm.action'" value="Change Selections"/>&nbsp;
+        <input type="submit" value="Download As Excel"/>&nbsp;
+        <input type="button" value="Print" onclick="javascript:printDiv('htmlContent')" />
+        <input type="button" value="Share" onclick="javascript: getShareLink()"/>
+    </div>
+
+    <br/><hr/>  
+    <div id="htmlContent" style="width:90%;margin:auto;" class="htmlContent">
+        <table>
+            <tr><td colspan="4"><h2>$headerText</h2></td></tr>
+        </table>
+        
+        #if( $!toolBoxOption != "ALL" )
+        #foreach( $orgUnit in $orgUnitList )        
+            #set( $dataElementAuditMap = $dataValueAuditMap.get( $orgUnit ) )
+            #if( $dataValueAuditMap.get( $orgUnit ) != 'null' && $dataValueAuditMap.get( $orgUnit ).size() > 0 )            
+            <table style="width:100%;margin:auto;background:#E0F8E0">
+                <tr><td><h3>$orgUnit.name</h3></td></tr>
+                <tr>
+                    <td>
+                        #foreach( $dataElement in $dataElementList )
+                            #set( $dataValueAuditList = '' )
+                            #set( $dataValueAuditList = $dataElementAuditMap.get( $dataElement ) )
+							
+                            #if( $dataValueAuditList != 'null' && $dataValueAuditList.size() > 0 ) 
+                            	#foreach($dataSet in $dataElement.getDataSets())
+              						 #set( $datasetUid = $dataSet.uid )
+           						 #end                             
+                                <table style="width:100%;margin:auto;background:#F7F2E0">
+									#set($headcount1 = 'no')
+										#foreach( $dataValueAudit in $dataValueAuditList)
+											#if($dataValueAudit.comment != '')
+											 #set($headcount1 = 'yes')														
+											#end
+										#end
+									#if($headcount1 == 'yes')
+                                    <tr><td>$dataElement.displayName #if( $!toolBoxOption == "D" ) - $!colsedDiscussionMap.get( "$orgUnit.id:$dataElement.id") #end</td></tr>
+                                    #end
+									<tr>
+                                        <td>
+                                            <table cellspacing="0" cellpadding="5" style="margin:auto;" width="100%">
+												
+												#if($headcount1 == 'yes')	
+												
+                                                <thead>
+                                                    <tr style="background:#A9D0F5;">
+                                                        <th width="10%" align="left">$i18n.getString( "last_updated" )</th>
+                                                        <th width="10%" align="left">$i18n.getString( "source" )</th>
+                                                        <th width="20%" align="left">$i18n.getString( "value" )</th>
+                                                        
+                                                        #if( $!toolBoxOption == "T" )
+                                                            <th width="60%" align="left">$i18n.getString( "technical_assistance" )</th>
+                                                        #elseif( $!toolBoxOption == "D" )
+                                                            <th width="60%" align="left">$i18n.getString( "discussion" )</th>
+                                                        #else
+                                                            <th width="60%" align="left">$i18n.getString( "comment" )</th>
+                                                        #end                                                    
+                                                    </tr>
+                                                </thead>
+												#end
+                                                <tbody id="list">
+                                                #foreach( $dataValueAudit in $dataValueAuditList)
+													#if($dataValueAudit.comment != '')
+                                                    <tr>
+                                                        <td align="left">$simpleDateFormat.format( $!dataValueAudit.timestamp )</td>
+                                                        <td align="left">$!dataValueAudit.storedBy</td>
+                                                        <td align="left">
+                                                        	<a href="loadSingleCoutryEntryForm.action?dataSetUId=$datasetUid&orgUnitUid=$orgUnit.uid">
+                                                        		$!dataValueAudit.value
+                                                        	</a>
+                                                        </td>
+                                                        <td align="left">$!dataValueAudit.comment</td>
+                                                    </tr>
+													#end
+                                                #end
+                                                </tbody>    
+                                            </table>                                            
+                                        </td>
+                                    </tr>    
+                                </table>
+                                <br/>
+                            #end    
+                        #end
+                    </td>
+                </tr>
+            </table>
+            <br/>
+            #end
+        #end
+        #else
+        #foreach( $orgUnit in $orgUnitList )        
+            #set( $ta_dataElementAuditMap = $!technicalAssistanceAuditMap.get( $orgUnit ) )
+            #set( $cd_dataElementAuditMap = $!closeDiscussionAuditMap.get( $orgUnit ) )
+            #set( $c_dataElementAuditMap = $!conflictAuditMap.get( $orgUnit ) )
+			#if($ta_dataElementAuditMap || $cd_dataElementAuditMap || $c_dataElementAuditMap)
+			
+            #if( ($technicalAssistanceAuditMap.get( $orgUnit ).size() > 0 )  || ($closeDiscussionAuditMap.get( $orgUnit ).size() > 0 ) || ($conflictAuditMap.get( $orgUnit ).size() > 0 ))
+            <table style="width:100%;margin:auto;background:#E0F8E0">
+                <tr><td><h3>$orgUnit.name</h3></td></tr>
+                <tr>
+                    <td>
+                        #foreach( $dataElement in $dataElementList )
+                            #set( $dataValueAuditList = '' )
+                            #set( $dataValueAuditList = $ta_dataElementAuditMap.get( $dataElement ) ) 
+							#foreach( $dataValueAudit in $dataValueAuditList)
+								#if($dataValueAudit.comment != '')									
+									##set( $dataValueAuditList = $dataValueAuditList.remove($dataValueAudit) ) 
+								#end
+							#end
+							#if($ta_dataElementAuditMap.get( $dataElement ))
+							
+                            #if( ($ta_dataElementAuditMap.get( $dataElement ) != 'null' && $ta_dataElementAuditMap.get( $dataElement ).size() > 0 && $ta_dataElementAuditMap.get( $dataElement ) != 'null') || ($cd_dataElementAuditMap.get( $dataElement ).size() > 0 && $cd_dataElementAuditMap.get( $dataElement ) != 'null') || ($c_dataElementAuditMap.get( $dataElement ).size() > 0  && $c_dataElementAuditMap.get( $dataElement ) != 'null') )
+                            #set($headcount2 = 'no')
+							 #foreach( $dataValueAudit in $dataValueAuditList)
+								#if($dataValueAudit.comment != '')
+									#set($headcount2 = 'yes')														
+								#end
+							#end
+								<table style="width:100%;margin:auto;background:#F7F2E0">
+									#if($headcount2 == 'yes')
+                                    <tr><td> $dataElement.displayName #if( $!toolBoxOption == "D" ) - $!colsedDiscussionMap.get( "$orgUnit.id:$dataElement.id") #end</td></tr>
+									#end
+                            #if( $dataValueAuditList.size() > 0 )                              
+                                <!--<table style="width:100%;margin:auto;background:#F7F2E0">
+                                    <tr><td>$dataElement.displayName #if( $!toolBoxOption == "D" ) - $!colsedDiscussionMap.get( "$orgUnit.id:$dataElement.id") #end</td></tr>-->
+                                    <tr>
+                                        <td>
+                                            <table cellspacing="0" cellpadding="5" style="margin:auto;" width="100%">
+                                                
+												#if($headcount2 == 'yes')
+												<thead>
+                                                    <tr style="background:#A9D0F5;">
+                                                        <th width="10%" align="left">$i18n.getString( "last_updated" )</th>
+                                                        <th width="10%" align="left">$i18n.getString( "source" )</th>
+                                                        <th width="20%" align="left">$i18n.getString( "value" )</th>
+                                                        <th width="60%" align="left">$i18n.getString( "technical_assistance" )</th>
+                                                    </tr>
+                                                </thead>
+												#end
+                                                <tbody id="list">
+                                                #foreach( $dataValueAudit in $dataValueAuditList)
+													#if($dataValueAudit.comment != '')
+                                                    <tr>
+                                                        <td align="left">$simpleDateFormat.format( $!dataValueAudit.timestamp )</td>
+                                                        <td align="left">$!dataValueAudit.storedBy</td>
+                                                        <td align="left">$!dataValueAudit.value</td>
+                                                        <td align="left">$!dataValueAudit.comment</td>
+                                                    </tr>
+													#end
+                                                #end
+                                                </tbody>    
+                                            </table>
+                                        </td>
+                                    </tr>    
+                                <!--</table>
+                                <br/>-->
+                            #end
+                            #end
+                            #set( $dataValueAuditList = '' )
+                            #set( $dataValueAuditList = $cd_dataElementAuditMap.get( $dataElement ) )
+							#if($cd_dataElementAuditMap.get( $dataElement ))
+							
+                            #if( $cd_dataElementAuditMap.get( $dataElement ).size() > 0  && $cd_dataElementAuditMap.get( $dataElement ) != 'null')                              
+                                <!--<table style="width:100%;margin:auto;background:#F7F2E0">
+                                    <tr><td>$dataElement.displayName #if( $!toolBoxOption == "D" ) - $!colsedDiscussionMap.get( "$orgUnit.id:$dataElement.id") #end</td></tr>-->
+                                    <tr>
+                                        <td>
+                                            <table cellspacing="0" cellpadding="5" style="margin:auto;" width="100%">
+												#set($headcount3 = 'no')
+												#foreach( $dataValueAudit in $dataValueAuditList)
+													#if($dataValueAudit.comment != '')
+														#set($headcount3 = 'yes')
+													#end
+												#end
+												#if($headcount3 == 'yes')												
+                                                <thead>
+                                                    <tr style="background:#A9D0F5;">
+                                                        <th width="10%" align="left">$i18n.getString( "last_updated" )</th>
+                                                        <th width="10%" align="left">$i18n.getString( "source" )</th>
+                                                        <th width="20%" align="left">$i18n.getString( "value" )</th>
+                                                        <th width="60%" align="left">$i18n.getString( "discussion" )</th>
+                                                    </tr>
+                                                </thead>
+												#end
+                                                <tbody id="list">
+                                                #foreach( $dataValueAudit in $dataValueAuditList)
+													#if($dataValueAudit.comment != '')
+                                                        <tr>
+                                                            <td align="left">$simpleDateFormat.format( $!dataValueAudit.timestamp )</td>
+                                                            <td align="left">$!dataValueAudit.storedBy</td>
+                                                            <td align="left">$!dataValueAudit.value</td>
+                                                            <td align="left">$!dataValueAudit.comment</td>
+                                                        </tr>  
+													#end
+                                                #end
+                                                </tbody>    
+                                            </table>                                            
+                                        </td>
+                                    </tr>    
+                                <!--</table>
+                                <br/>-->
+                            #end    
+                            #end
+                            #set( $dataValueAuditList = '' )
+                            #set( $dataValueAuditList = $c_dataElementAuditMap.get( $dataElement ) )  
+							#if($c_dataElementAuditMap.get( $dataElement ))
+							
+                            #if( $c_dataElementAuditMap.get( $dataElement ).size() > 0 ) 
+                            	#foreach($dataSet in $dataElement.getDataSets())
+                            		#set( $datasetUid = $dataSet.uid )
+                            	#end                             
+                                <!--<table style="width:100%;margin:auto;background:#F7F2E0">
+                                    <tr><td>$dataElement.displayName #if( $!toolBoxOption == "D" ) - $!colsedDiscussionMap.get( "$orgUnit.id:$dataElement.id") #end</td></tr>-->
+                                    <tr>
+                                        <td>
+                                            <table cellspacing="0" cellpadding="5" style="margin:auto;" width="100%">
+                                                <thead>
+                                                    <tr style="background:#A9D0F5;">
+                                                        <th width="10%" align="left">$i18n.getString( "last_updated" )</th>
+                                                        <th width="10%" align="left">$i18n.getString( "source" )</th>
+                                                        <th width="20%" align="left">$i18n.getString( "value" )</th>
+                                                        <th width="60%" align="left">$i18n.getString( "comment" )</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="list">
+                                                #foreach( $dataValueAudit in $dataValueAuditList)
+                                                    <tr>
+                                                        <td align="left">$simpleDateFormat.format( $!dataValueAudit.timestamp )</td>
+                                                        <td align="left">$!dataValueAudit.storedBy</td>
+                                                        <td align="left">
+                                                        	<a href="loadSingleCoutryEntryForm.action?dataSetUId=$datasetUid&orgUnitUid=$orgUnit.uid">
+                                                        		$!dataValueAudit.value
+                                                        	</a>
+                                                        </td>
+                                                        <td align="left">$!dataValueAudit.comment</td>
+                                                    </tr>   
+                                                #end
+                                                </tbody>    
+                                            </table>                                            
+                                        </td>
+                                    </tr>    
+                                <!--</table>
+                                <br/>-->
+                            #end
+                            </table>
+                            <br/>    
+                            #end
+                           #end     
+                        #end
+                    </td>
+                </tr>
+            </table>
+            <br/>
+			#end
+			#end
+        #end
+
+        
+        #end
+                        
+        <br/><br/><br/>
+      <table style="margin:auto;display:none;color: #9F6000;background-color: #FEEFB3;border: 1px solid;" width="100%">
+			<tr>
+				<td colspan="4">$i18n.getString( "report_inline_security_warning" )</td>
+			</tr>
+		</table>
+    </div>
+</form>
+<div id="shareLinkToUser" title="Share Link to User">
+        <fieldset>
+            <label for="toUser">$i18n.getString( "maintenance_users" )</label>
+            <input type="hidden" name="recipients" id="recipients" class="text ui-widget-content ui-corner-all" placeholder="Enter User Name"/>
+            <br/><br/>
+            <label for="shareSubject">$i18n.getString( "feedback_subject" )</label>
+            <input type="text" id="shareSubject" name="shareSubject" class="text ui-widget-content ui-corner-all" />
+            <label for="shareText">$i18n.getString( "feedback_text" )</label>
+            <textarea id="shareText" name="shareText" class="text ui-widget-content ui-corner-all" rows="6">                
+            </textarea>
+        </fieldset>
+    </div>
+<style>
+    label, #toUser ,#shareText ,#shareSubject{ 
+        display:block;
+    }
+        #recipients ,#shareText ,#shareSubject  { 
+        margin-bottom:12px;
+        width:95%; 
+        padding: .4em; 
+    }   
+    #shareLinkToUser fieldset   { 
+        padding:0;
+        border:0;
+        margin-top:25px;
+    }
+</style>
+<script>
+    jQuery(function() {
+        var emailIds = 'null';
+        $( "#shareLinkToUser" ).dialog({
+                autoOpen: false,
+                height: 420,
+                width: 595,
+                modal: true,
+                show: "blind",
+                hide: "explode",
+                buttons: {
+                "$i18n.getString( 'send' )":function() {                    
+                    location.href = 'mailto:' + $('#recipients').val().replace(/[,]/g,';') +
+                    '?subject=' + $('#shareSubject').val() +
+                    '&body=' + escape(document.getElementById('shareText').value) ;
+                    $( this ).dialog( "close" );
+                },
+                Cancel: function() {
+                    $( this ).dialog( "close" );
+                }
+            },
+            close: function() {             
+            }
+        });
+    });
+</script>
+<script>
+    $(document).ready(function()
+    {           
+        tableSorter( 'alternatecolor' );
+        altRows('alternatecolor');
+            
+    });
+    function sorting()
+    {
+        if($('.asc').css('display') == "block")
+        {
+            $('.asc').css('display', 'none');
+            $('.desc').css('display', 'block');
+            altRows('alternatecolor');          
+        }
+        else
+        {
+            $('.asc').css('display', 'block');
+            $('.desc').css('display', 'none');
+            altRows('alternatecolor');  
+        }
+    }
+    
+    function exportToExcel()
+    {
+        var oldHtml = document.getElementById('htmlContent').innerHTML;
+		$('.asc').remove();
+		$('.desc').remove();	
+		$('#htmlContent a').contents().unwrap();
+		document.getElementById('htmlCode').value = document.getElementById('htmlContent').innerHTML;				
+		document.getElementById('htmlContent').innerHTML = oldHtml;
+        return true;
+    }
+    
+    function printDiv( divID ) 
+    {
+        //Get the HTML of div
+        var divElements = document.getElementById(divID).innerHTML;
+        
+        //Get the HTML of whole page
+        var oldPage = document.body.innerHTML;
+
+        //Reset the page's HTML with div's HTML only
+        document.body.innerHTML = "<html><head><title></title></head><body>" + divElements + "</body>";
+
+        //Print Page
+        window.print();
+
+        //Restore orignal HTML
+        document.body.innerHTML = oldPage;   
+		
+		window.location.reload();
+    }
+</script>

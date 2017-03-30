@@ -1,0 +1,151 @@
+<style>
+    #filterDataElementsDiv{
+            padding: 15px;
+            background-color: white; 
+            width:75%;
+            margin:auto;
+            display:block;
+            
+            /* outer shadows  (note the rgba is red, green, blue, alpha) */
+            -webkit-box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.4); 
+            -moz-box-shadow: 0px 1px 6px rgba(23, 69, 88, .5);
+    
+            /* rounded corners */
+            -webkit-border-radius: 12px;
+            -moz-border-radius: 7px; 
+            border-radius: 7px;
+            
+            /* gradients */
+            background: -webkit-gradient(linear, left top, left bottom, 
+            color-stop(0%, white), color-stop(15%, white), color-stop(100%, #D7E9F5)); 
+            background: -moz-linear-gradient(top, white 0%, white 0%, #D5E4F3 60%); 
+            box-shadow: 8px 10px 10px rgba(0,0,0,0.5),
+               inset 8px 10px 10px rgba(255,255,255,0.75);
+               -o-box-shadow: 8px 10px 10px rgba(0,0,0,0.5),
+               inset 8px 10px 10px rgba(255,255,255,0.75);
+               -webkit-box-shadow: 8px 10px 10px rgba(0,0,0,0.5),
+               inset 8px 10px 10px rgba(255,255,255,0.75);
+               -moz-box-shadow: 8px 10px 10px rgba(0,0,0,0.5),
+               inset 8px 10px 10px rgba(255,255,255,0.75);
+        }
+</style>
+<script type="text/javascript">
+    jQuery(function() {
+    
+        $("#submitButton").on( "click", function() {
+            $("#dataelementwiseDataentryForm").attr("action", "dataElementwiseDataEntry.action");               
+            $( "#dataelementwiseDataentryForm" ).submit();
+        });
+        
+        $("#offlineButton").on( "click", function() {
+            $("#dataelementwiseDataentryForm").attr("action", "downloadOffLineXLSheet.action");
+            $("#dataelementwiseDataentryForm").attr("target", "_blank");
+            $( "#dataelementwiseDataentryForm" ).submit();
+        });
+        
+        $("#offlineCSVButton").on( "click", function() {
+            $("#dataelementwiseDataentryForm").attr("action", "downloadOffLineCSVDataElementForm.action");
+            $("#dataelementwiseDataentryForm").attr("target", "_blank");
+            $("#dataelementwiseDataentryForm" ).submit();
+        });
+
+        jQuery("#availableDataElementsList").dhisAjaxSelect({
+            source: "../dhis-web-commons-ajax-json/getFilterDataElements.action",
+            iterator: "dataElements",
+            connectedTo: 'dataElementsSelectedList',
+            handler: function(item) {
+                var option = jQuery("<option data-id='" + item.groups + "' />");
+                option.text( item.name );
+                option.attr( "value", item.id );
+				option.attr( "title", item.name );
+                return option;
+            },
+            filter: {
+                source: "../dhis-web-commons-ajax-json/getDataElementGroups.action",
+                label: 'dataelement group',
+                iterator: "dataElementGroups",
+                handler: function(item) {
+                    return "<option data-key='id' data-value='" + item.id + "'>" + item.name + "</option>";
+                }
+            }
+        });
+         $("form").on("submit", function() {
+            $('#dataElementsSelectedList option').attr('selected', 'selected');
+            var dataElementListBox = document.getElementById('dataElementsSelectedList');
+                if( dataElementListBox.options.length <= 0 )
+                {
+                    alert("Please select dataelement");
+                    return false;
+                }   
+            
+         });
+        
+    });
+
+	function getFavoriteValues()
+	{
+		var favoriteId = $("#favoriteId").val();
+		var favoriteType = $("#favoriteType").val();
+		if(favoriteId == "-1")
+		{
+			alert("Please Select Favorite");
+		}
+		else
+		{
+			window.location.href = "getFavoriteValue.action?favoriteId="+favoriteId+"&favoriteType="+favoriteType;
+		}
+	}
+</script>
+
+<div style="width:86%;margin:auto;" id="filterDataElementsDiv">
+	<h3>$i18n.getString( "menu_dataelement_hisotry_report" )</h3>	
+	<form id="deHistoryReportForm" name="deHistoryReportForm" action="dataElementHistoryReportResult.action" method="post" class="inputForm" >
+    	<table id="dataElementSelectionArea" style="width:100%;margin:auto;">
+            
+            <tr>
+                <td colspan="2" width="55%">
+                	<div id="orgUnitTreeContainer" style="height: 250px; width: 500px;">
+                    	#organisationUnitSelectionTree1( false, true, false )
+                    </div>
+                </td>
+                <td width="45%" valign="center">&nbsp;</td>
+            </tr>
+            
+            <tr>
+                <th width="47%">$i18n.getString( "available_data_elements" )</th>
+                <th style="width:6%;margin:auto;">$i18n.getString( "filter" )</th>
+                <th width="47%">$i18n.getString( "selected_data_elements" )</th>
+            </tr>
+        
+            <tr>
+                <td width="47%">
+                    <select id="availableDataElementsList" multiple="multiple" style="height: 200px; width: 500px;" ondblclick="moveSelectedById( 'availableDataElementsList', 'dataElementsSelectedList' )"></select>
+                </td>
+                <td style="width:6%;margin:auto;">
+                    <input type="button" value="&gt;" title="$i18n.getString( 'move_selected' )" style="width:50px" onclick="moveSelectedById( 'availableDataElementsList', 'dataElementsSelectedList' );" /><br/>
+                    <input type="button" value="&lt;" title="$i18n.getString( 'remove_selected' )" style="width:50px" onclick="moveSelectedById( 'dataElementsSelectedList', 'availableDataElementsList'  );" /><br/>
+                    <input type="button" value="&gt;&gt;" title="$i18n.getString('move_all')" style="width:50px" onclick="moveAllById( 'availableDataElementsList', 'dataElementsSelectedList' );" /><br/>
+                    <input type="button" value="&lt;&lt;" title="$i18n.getString('remove_all')" style="width:50px" onclick="moveAllById( 'dataElementsSelectedList', 'availableDataElementsList'  );" />
+                </td>           
+                <td width="47%">
+                    <select id="dataElementsSelectedList" name="dataElementsSelectedList" multiple="multiple" style="height: 200px; width: 500px;" ondblclick="moveSelectedById( 'dataElementsSelectedList', 'availableDataElementsList' )" >
+					##foreach($dataElement in $dataElementsList)
+						<!--<option value="$!dataElement.id">$!dataElement.name</option>-->
+					##end
+					</select>
+                </td>
+				<td>
+                     <a href="javascript:moveUpDataElement('dataElementsSelectedList');"><img src="../images/move_up.png"/></a><br/><br/>
+                     <a href="javascript:moveDownDataElement('dataElementsSelectedList');"><img src="../images/move_down.png"/></a><br/><br/>
+            	</td> 
+            </tr>
+            <tr>
+                <td>
+                    <input type="submit" id="submitButton" value="$i18n.getString( 'get_report' )" style="width:23em"/>              
+                </td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+    	</table>
+	</form>
+</div>

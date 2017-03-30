@@ -1,0 +1,246 @@
+<style>
+	
+</style>
+<script type="text/javascript">
+
+$(function() {
+		$( document ).tooltip({
+		position: {
+			my: "center bottom-20",
+			at: "center top",
+			using: function( position, feedback ) {
+		$( this ).css( position );
+		$( "<div>" )
+			.addClass( "arrow1" )
+			.addClass( feedback.vertical )
+			.addClass( feedback.horizontal )
+			.appendTo( this );
+		}
+		}
+		});
+	});
+	var orgUnitId = null;
+	$(document).ready(function(){
+	    $('#myjquerymenu').find('#report').addClass("selected");	 
+	    $("#submit").button(); 
+	    $("#cancel").button(); 
+	      
+	});
+	function getOrgUnitId( orgUnits )
+	{ 
+		$("#orgUnitId").val( orgUnits[0] );
+		
+	}
+
+	function generateHTMLreport()
+	{		
+		$('#selectedListVaccine option').attr('selected', 'selected');
+		$('#selectedListDataset option').attr('selected', 'selected');
+		console.log("hello"+$("#orgUnitId").val( orgUnits[0] ));
+		var vaccineListBox = document.getElementById('selectedListVaccine');
+		var dataSetListBox = document.getElementById('selectedListDataset');
+		
+		var showComment = document.getElementById('showComment');
+		
+		var dateFrom = $("#dateFrom").val();
+		var dateTo = $("#dateTo").val();
+		
+		var date1 = getDate( dateFrom );
+		var date2 = getDate( dateTo )
+		
+        if (date2.getTime() < date1.getTime())
+        {
+            alert("Please select correct date range");
+			return false;
+        }
+		
+		if( vaccineListBox.options.length <= 0 )
+		{
+			alert("Please select vaccine list");
+			return false;
+		}
+		/*
+		if(!$("#dateFrom").val())
+		{
+			alert('Please Enter \"From\" Date Range');
+			return false;
+		}
+		if(!$("#dateTo").val())
+		{
+			alert('Please Enter \"To\" Date Range');
+			return false;
+		}
+		*/			
+		if( dataSetListBox.options.length <= 0 )
+		{
+			alert("Please select other data");
+			return false;
+		}
+		if(showComment.checked)
+		{
+			var form = document.forms["vacIntroReportForm"];
+			form.action = "generateVaccineIntroReportCommentWise.action";
+		}	
+					
+	}
+	function getDate( date )
+	{
+		if(date.match("Q1"))
+		{
+			date = date.replace("Q1","01"); 
+		}
+		else if(date.match("Q2"))
+		{
+			date = date.replace("Q2","04"); 
+		}
+		else if(date.match("Q3"))
+		{
+			date = date.replace("Q3","07"); 
+		}
+		else if(date.match("Q4"))
+		{
+			date = date.replace("Q4","10"); 
+		}
+		date = date +"-01";
+		
+		var date1= new Date(date);
+		
+		return date1;
+		
+	}
+    function getDataElementType()
+    {
+    	var showComment = document.getElementById("showComment");	
+		if(showComment.checked == true)
+		{
+			$("#dataElementType").prop("disabled",false);
+		}
+		else
+		{
+			$("#dataElementType").prop("disabled",true);	
+		}	
+    }
+    function getDateFrom()
+    {
+		var dateVal = document.getElementById('dateFrom').value;
+		var dateReg1 = /^\d{4}-(0[1-9]|1[1-2]|10)$/; 
+		var dateReg2 = /^\d{4}$/; 
+		var dateReg3 = /^\d{4}-Q[1-4]$/; 
+		
+		if( dateVal == "" || dateVal.match(dateReg1) || dateVal.match(dateReg2) || dateVal.match(dateReg3))
+		{}
+		else
+		{
+			alert("Please Enter date in given format YYYY or YYYY-MM or YYYY-Qn e.g. 2012-Q1 or 2012 or 2012-01");
+			document.getElementById('dateFrom').value = "";
+			return true;
+		}
+    }
+    
+    function getDateTo()
+    {
+		var dateVal = document.getElementById('dateTo').value;	
+		var dateReg1 = /^\d{4}-(0[1-9]|1[1-2]|10)$/; 
+		var dateReg2 = /^\d{4}$/; 
+		var dateReg3 = /^\d{4}-Q[1-4]$/; 
+			
+		if( dateVal == "" || dateVal.match(dateReg1) || dateVal.match(dateReg2) || dateVal.match(dateReg3))
+		{}		
+		else
+		{
+			alert("Please Enter date in given format YYYY or YYYY-MM or YYYY-Qn e.g. 2012-Q1 or 2012 or 2012-01");
+			document.getElementById('dateFrom').value = "";
+			return true;
+		}
+    }
+</script>
+
+<br/>
+
+<div style="font-size:16px; width:93%; margin:auto;" class="ui-widget-header ui-corner-all"><b>$i18n.getString( "vaccine_introduction_report" )</b></div>
+<form id="vacIntroReportForm" method="get" action="generateVaccineIntroReport.action" onsubmit="return generateHTMLreport()">
+ 	<input type="hidden" name="orgUnitId" id="orgUnitId"/>
+ 	<div id="reportFilterDiv" >
+ 		<table style="width:95%;margin:auto;table-layout:fixed;" cellpadding="4" cellspacing="2">
+ 				<tr style="margin-bottom: 15px;">
+ 					<td width="45%">
+ 						$i18n.getString( "vaccines" )<br/> 					
+			          	<select id="availableListVaccine" name="availableListVaccine" ondblclick="moveSelectedById( 'availableListVaccine', 'selectedListVaccine' )" multiple="multiple" style="height: 165px; width: 100%;">
+						#foreach($vaccine in $vaccineList)
+							<option value="$vaccine.id">$vaccine.displayName</option>
+						#end
+			          </select>
+        			</td>
+			        <td style="text-align:center" width="10%">
+			            <input type="button" value="&gt;" title="$i18n.getString( 'move_selected' )" style="width:50px" onclick="moveSelectedById( 'availableListVaccine', 'selectedListVaccine' );"/><br/>
+			            <input type="button" value="&lt;" title="$i18n.getString( 'remove_selected' )" style="width:50px" onclick="moveSelectedById( 'selectedListVaccine', 'availableListVaccine' );"/><br/>
+			            <input type="button" value="&gt;&gt;" title="$i18n.getString('move_all')" style="width:50px" onclick="moveAllById( 'availableListVaccine', 'selectedListVaccine' );"/><br/>
+			            <input type="button" value="&lt;&lt;" title="$i18n.getString('remove_all')" style="width:50px" onclick="moveAllById( 'selectedListVaccine', 'availableListVaccine' );"/>
+			        </td>
+			        <td width="45%">
+			            <select id="selectedListVaccine" name="selectedListVaccine" ondblclick="moveSelectedById( 'selectedListVaccine', 'availableListVaccine' )" multiple="multiple" style="height: 165px; width: 100%; margin-top: 22px;"></select>
+			        </td>				 
+			 </tr>
+ 			<tr>
+ 				<td width="55%" colspan="2">
+ 					<!-- $i18n.getString( "select_country_or_region" )<br/>-->
+ 					<div id="orgUnitTreeContainer"  style="height: 250px; width: 100%;">
+ 						#organisationUnitSelectionTree1( false, true, true )
+ 					</div>
+				 </td>
+				 <td width="45%" valign="top">	
+					<br/><br/>
+				 	$i18n.getString( "introduction" )<br/>
+				 	$i18n.getString( "from" ): <input type="text" id="dateFrom" name="introStartDate" title="Date Format: YYYY / YYYY-Qn / YYYY-MM e.g. 2012 / 2012-Q1 / 2012-01" onblur="getDateFrom()"/> &nbsp; 
+					$i18n.getString( "to" ): <input type="text" id="dateTo" name="introEndDate" title="Date Format: YYYY / YYYY-Qn / YYYY-MM e.g. 2012 / 2012-Q1 / 2012-01" onblur="getDateTo()"/><br/><br/>
+				 	
+		 			$i18n.getString( "select_option" )<br/>
+			 		<select style="width:70%;" id="dataElementType" name="dataElementType"> 
+			 			<option value="SHOW_ALL_DES" selected>$i18n.getString( "show_all_data_element" )</option>
+			 			<option value="SHOW_DATA_DES">$i18n.getString( "show_only_data_element_with_values" )</option>
+			 			<option value="SHOW_BLANK_DES">$i18n.getString( "show_only_data_element_that_are_blank" )</option>			 			
+		 			</select>
+		 			&nbsp;&nbsp;
+		 			<input type="checkbox" name="showComment" id="showComment" onclick="getDataElementType()" style="display:none;" /> <!--$i18n.getString( "show_comment" )-->
+		 			<br/><br/>
+		 			<input type="checkbox" name="isoCode" checked /> $i18n.getString( "iso_code" )<br/>
+		 			<input type="checkbox" name="whoRegion" checked /> $i18n.getString( "who_region" )<br/>
+		 			<input type="checkbox" name="unicefRegion" checked /> $i18n.getString( "unicef_region" )<br/>
+		 			<input type="checkbox" name="incomeLevel" checked /> $i18n.getString( "income_level" )<br/>
+		 			<input type="checkbox" name="gaviEligibleStatus" checked /> $i18n.getString( "gavi_eligibility_status" )<br/>
+				 </td>				 
+			 </tr>
+			 <tr style="margin-bottom: 15px;">
+ 					<td width="45%">
+ 						Other Data<br/> 					
+			          	<select id="availableListDataset" name="availableListDataset" ondblclick="moveSelectedById( 'availableListDataset', 'selectedListDataset' )" multiple="multiple" style="height: 165px; width: 100%;">
+						#foreach( $deGroup in $deGroupList )
+							<option value="$deGroup.uid">$deGroup.displayName</option>
+						#end
+			          </select>
+        			</td>
+			        <td style="text-align:center" width="10%">
+			            <input type="button" value="&gt;" title="$i18n.getString( 'move_selected' )" style="width:50px" onclick="moveSelectedById( 'availableListDataset', 'selectedListDataset' );"/><br/>
+			            <input type="button" value="&lt;" title="$i18n.getString( 'remove_selected' )" style="width:50px" onclick="moveSelectedById( 'selectedListDataset', 'availableListDataset' );"/><br/>
+			            <input type="button" value="&gt;&gt;" title="$i18n.getString('move_all')" style="width:50px" onclick="moveAllById( 'availableListDataset', 'selectedListDataset' );"/><br/>
+			            <input type="button" value="&lt;&lt;" title="$i18n.getString('remove_all')" style="width:50px" onclick="moveAllById( 'selectedListDataset', 'availableListDataset' );"/>
+			        </td>
+			        <td width="45%">
+			            <select id="selectedListDataset" name="dataElementGroupUIDs" ondblclick="moveSelectedById( 'selectedListDataset', 'availableListDataset' )" multiple="multiple" style="height: 165px; width: 100%; margin-top: 22px;"></select>
+			        </td>
+					<td>
+                        <a href="javascript:moveUpDataElement('selectedListDataset');"><img src="../images/move_up.png"/></a><br/><br/>
+                        <a href="javascript:moveDownDataElement('selectedListDataset');"><img src="../images/move_down.png"/></a><br/><br/>
+            		</td> 
+			 </tr>
+ 			<tr>
+			 	<td width="45%">
+			 		<input type="submit" value="$i18n.getString( 'get_report' )" id="submit" />		 		
+	 			</td>
+	 			<td width="10%">&nbsp;</td>
+	 			<td width="45%">&nbsp;</td>
+ 			</tr>
+		 </table>
+</div>
+<br/><br/>
+</form>

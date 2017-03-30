@@ -1,0 +1,103 @@
+<script >
+
+function getParameters()
+{
+	if($("#aggType").val() != '-1')
+	{
+		$("#loadParameters").load("loadAggregationParam.action", 
+		{
+			aggTypeId : $('#aggType').val()
+		}
+		, function( ){            										
+	});
+	}
+}
+function validateAggDataElement()
+{
+	var bValue;
+	var dataValue = {
+        		        'dataElementId' : $("#dataElementId").val()
+        		    };
+                    	jQuery.ajax( {
+                        url: 'validateAddAggregation.action', 
+                    	data: dataValue,
+                        dataType: 'json',
+                        success: handleSuccess,
+                        error: handleError
+                    } );
+	
+    function handleSuccess( json )
+    {		
+       if(json.message == "true")	
+    	{
+    		alert("This Aggregated Data Element Already Exists");
+    		bValue = false;
+    	}
+    	else
+    	{		
+    		bValue = true;
+    	}
+    }
+    function handleError( json )
+    {	
+    	bValue = false;
+    }
+	
+	return bValue;
+}
+
+</script>
+<div id="reportFilterDiv">
+
+<form id="addAggregationForm" action="addAggregationQuery.action" method="post" onsubmit="return validateAggDataElement()">
+
+<table style="width:70%" cellpadding="5" cellspacing="5"> 
+	<thead>
+      <tr>
+        <th colspan="2">$i18n.getString( "aggregation_query_builder_detail" )</th>
+      </tr>
+    </thead>
+	
+    <tbody>
+    	<tr style="display:none">
+        	<td style="width:20%"><label>$i18n.getString( "name" ) <em title="$i18n.getString( 'required' )" class="required">*</em></label></td>
+        	<td style="width:80%"><input type="text" id="name" name="name" class="{validate:{required:true,minlength:2}}" style='width:100%; margin-bottom:-5px;'></td>
+    	</tr>    
+    	<tr>
+			<td style="width:20%"><label for="dataElement"> &nbsp;&nbsp;&nbsp;$i18n.getString( "dataelement" )<em title="$i18n.getString( 'required' )" class="required">*</em></label></td>
+			<td style="width:80%">			
+				<select style='width:500px; margin-bottom:-5px;' id="dataElementId" name="dataElementId" onchange="validateAggDataElement()">
+					<option value="-1" >Please Select</option>
+					#foreach( $dataElement in $dataElementList )
+						<option value="$dataElement.id">$dataElement.name</option>
+					#end
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:20%"><label for="operator"> &nbsp;&nbsp;&nbsp;$i18n.getString( "type" )</label></td>
+			<td style="width:80%">			
+				<select style='width:500px; margin-bottom:-5px;' id="aggType" name="aggType" onchange="getParameters()">
+                    <option value="-1" >Please Select</option>
+					#foreach( $lookup in $lookups )
+						<option value="$lookup.name">$lookup.value</option>
+					#end
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" style="width:100%">
+				<div id="loadParameters" style="width:100%"></div>
+            </td>
+		</tr>
+		
+    </tbody>
+</table>
+
+<p>	
+	<input type="submit" value="$i18n.getString( 'add' )" id="addAgg" name="addAgg"/>	
+	<input type="button" value="$i18n.getString( 'cancel' )" onclick="window.location.href='aggregationQueryList.action'" />
+</p>
+
+</form>
+</div><br/><br/>

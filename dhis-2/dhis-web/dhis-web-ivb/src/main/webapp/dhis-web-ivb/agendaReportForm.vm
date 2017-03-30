@@ -1,0 +1,74 @@
+<script >
+	jQuery(document).ready(function()
+	 {
+	 	var today = new Date();
+		var currentMonth = today.getMonth()+1;
+		var currentYear = today.getFullYear();
+		
+		var startMonth;
+		var startYear;
+		if( currentMonth == 1 )
+		{
+		  startMonth = "10";
+		  startYear = currentYear - 1;
+		}
+		else if( currentMonth == 2 )
+		{
+		  startMonth = "11";
+		  startYear = currentYear - 1;
+		}
+        else if( currentMonth == 3 )
+        {
+            startMonth = "12";
+            startYear = currentYear - 1;
+        }
+        else
+        {
+            startMonth = "0" + (currentMonth - 3 );
+            startYear = currentYear;
+        }
+        
+        var endMonth = currentMonth+"";
+        var endYear = currentYear + 1;
+        var reExp = /^[1-9]$/;
+		if(endMonth.match( reExp ))
+		{
+			endMonth = '0'+ endMonth;
+		}
+		
+		$("#dateFrom").val(startYear + '-' + startMonth);
+		$("#dateTo").val(endYear + '-' + endMonth);
+	 });
+
+</script>
+
+<div style="font-size:16px; width:93%; margin:auto;" class="ui-widget-header ui-corner-all"><b>$i18n.getString( "agenda_report" )</b></div>
+<form id="agendaReportForm" action="generateAgendaReport.action" method="get" >
+	
+	<div id="reportFilterDiv" >
+ 		<table style="width:62%;margin-left:5em;" cellpadding="4" cellspacing="2">
+			 <tr style="margin-bottom: 15px;">
+					<td colspan="2" width="60%">						
+						<div id="orgUnitTreeContainer" style="height: 250px; width: 100%;">
+							#organisationUnitSelectionTree1( false, true, true )
+						</div>
+					</td>
+			 </tr>
+			 <tr>
+				<td><br/><br/>
+					$i18n.getString( "from" ): <input type="text" id="dateFrom"  name="introStartDate" title="Date Format: YYYY-MM e.g. 2012-01" style="width:35%;"/> 
+					&nbsp;
+					$i18n.getString( "to" ): <input type="text" id="dateTo" name="introEndDate" title="Date Format: YYYY-MM e.g. 2012-01" style="width:35%;"/>
+				</td>
+				<td >&nbsp;</td>
+			 </tr>
+			 <tr>
+				<td><br/><br/>
+			 		<input type="submit" value="$i18n.getString( 'get_report' )" id="submit" />		 		
+	 			</td>
+	 			<td>&nbsp;</td>
+			 </tr>
+		</table>
+	</div>
+	<br/><br/>
+</form>

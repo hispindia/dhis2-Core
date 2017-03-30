@@ -1,0 +1,105 @@
+<script >
+
+function getParameters()
+{
+
+	var bValue;
+	var dataValue = {
+        		        'deid' : $("#deid").val()
+        		    };
+                    	jQuery.ajax( {
+                        url: 'ValidateDEMapping.action', 
+                    	data: dataValue,
+                        dataType: 'json',
+                        success: handleSuccess,
+                        error: handleError
+                    } );
+	
+    function handleSuccess( json )
+    {		
+       if(json.message == "true")	
+    	{
+    		alert("Data Element Already Exists");
+    		bValue = false;
+    	}
+    	else
+    	{		
+    		bValue = true;
+    	}
+    }
+	
+
+    function handleError( json )
+    {	
+    	bValue = false;
+    }
+	
+	return bValue;
+}
+function validateAggDataElement()
+{
+
+	console.log("alert");
+}
+
+</script>
+<div id="reportFilterDiv">
+
+<form id="addAggregationForm" action="addDeMapping.action" method="post" onsubmit="return validateAggDataElement()">
+	
+
+
+<table style="width:70%" cellpadding="5" cellspacing="5"> 
+	<thead>
+      <tr>
+        <th colspan="2">$i18n.getString( "dataelement_mapping" )</th>
+      </tr>
+    </thead>
+	
+    <tbody>
+    	<tr style="display:none">
+        	<td style="width:20%"><label>$i18n.getString( "name" ) <em title="$i18n.getString( 'required' )" class="required">*</em></label></td>
+        	<td style="width:80%"><input type="text" id="name" name="name" class="{validate:{required:true,minlength:2}}" style='width:100%; margin-bottom:-5px;'></td>
+    	</tr>    
+    	<tr>
+				<td style="width:20%"><label for="operator"> &nbsp;&nbsp;&nbsp;$i18n.getString( "data_element" )<em title="$i18n.getString( 'required' )" class="required">*</em></label></td>
+			<td style="width:80%">			
+				<select style='width:500px; margin-bottom:-5px;' id="deid" name="deid" onchange="getParameters()">
+                    <option value="-1" >Please Select</option>
+					#foreach( $deList in $allDataElementList)
+						<option value="$deList.uid">$deList.displayName</option>
+					#end
+				</select>
+			</td>
+		</tr>
+		<tr>
+		
+			<td style="width:20%"><label for="dataElement"> &nbsp;&nbsp;&nbsp;$i18n.getString( "agg_data_element" )<em title="$i18n.getString( 'required' )" class="required">*</em></label></td>
+			<td style="width:80%">			
+				<select style='width:500px; margin-bottom:-5px;' id="mappeddeid" name="mappeddeid" onchange="validateAggDataElement()">
+					<option value="-1" >Please Select</option>
+					#foreach( $dataElement in $dataElementList )
+						<option value="$dataElement.uid">$dataElement.displayName</option>
+					#end
+				</select>
+			</td>
+			
+			
+			
+		</tr>
+		<tr>
+			<td colspan="2" style="width:100%">
+			##	<div id="loadParameters" style="width:100%"></div>
+            </td>
+		</tr>
+		
+    </tbody>
+</table>
+
+<p>	
+	<input type="submit" value="$i18n.getString( 'add' )" id="addAgg" name="addAgg"/>	
+	<input type="button" value="$i18n.getString( 'cancel' )" onclick="window.location.href='home.action'" />
+</p>
+
+</form>
+</div><br/><br/>

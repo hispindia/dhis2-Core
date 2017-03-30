@@ -1,0 +1,525 @@
+<style>
+    #overlay {
+        z-index:9998;
+        position:absolute;
+        top:0;
+        bottom:0;
+        left:0;
+        width:100%;
+        background:#000;
+        opacity:0.45;
+        -moz-opacity:0.45;
+        filter:alpha(opacity=45);
+        visibility:hidden;
+    }
+    #overlayImg{ width: 50px; height: 50px; z-index: 9999; position: absolute; left:50%}
+    body{
+        min-height:600px;
+        height:auto;
+    }
+    /*
+     td.img img { height: 25px; width: 25px; }
+     td.img img:hover { height: 40px; width: 40px; }
+     */
+    input[type=checkbox].css-checkbox {
+        position: absolute;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        height:1px;
+        width:1px;
+        margin:-1px;
+        padding:0;
+        border:0;
+    }
+
+    input[type=checkbox].css-checkbox + label.css-label {
+        padding-left:20px;
+        height:15px;
+        display:inline-block;
+        line-height:15px;
+        background-repeat:no-repeat;
+        background-position: 0 0;
+        font-size:15px;
+        vertical-align:middle;
+        cursor:pointer;
+    }
+
+    input[type=checkbox].css-checkbox:checked + label.css-label {
+        background-position: 0 -15px;
+    }
+
+    .css-label{
+        /*background-image:url(images/dark-check-green.png);*/
+    }
+
+    /*specific classes related to Checkbox skins*/
+
+    .mac-style{background-image:url(images/mac-style.png);}
+
+
+    }
+</style>
+
+<div id="overlay">
+    <div id="overlayImg"><img  width="50" height="50" src="images/ajax-loader.gif" style="margin:auto;position:fixed;top: 50%;left: 50%;"/></div>
+</div>
+
+<script type="text/javascript">
+    var bValue = false;
+    var countryTags = "";
+    var de_commentMap = new Object();
+    var oldcomment = new Object();
+
+    // var commentRequiredDeList =[28,29,30];
+    var percentageRequiredList= $percentageRequiredDe;
+    var commentRequiredDeList = $commentRequiredDe;
+    var checkNumberType=false ;
+    $(function() {
+        var windowH = $(window).height();
+        var divHeight = (parseInt( windowH ) * 52) / 100 ;
+        $('#contentDiv').css({'height':(divHeight)+'px'});
+    });
+    $(document).ready(function(){
+        $('#myjquerymenu').find('#dataentry').addClass("selected");
+        $("#submit").button();
+        $("#cancel").button();
+        $("#reset").button();
+        pageName = 'countryDataEntry';
+        countryTags = $countryList;
+        $( '.dataEntryKeyFlagDetail' ).css( 'display','block' );
+    });
+
+    $(function() {
+        $( "#orgName" ).autocomplete({
+            source: countryTags,
+            select: function( event, ui ) {
+                for(var j=0;j<=countryTags.length-1;j++)
+                {
+                    if(countryTags[j] == ui.item.value)
+                    {
+                        var country = ui.item.value;
+                        if(country.indexOf("'") != -1)
+                        {
+                            country = country.replace("'","\'")
+                        }
+                        if(country.indexOf('&') != -1)
+                        {
+                            country = country.replace('&','%26')
+                        }
+                        window.location.href="loadSingleCoutryEntryForm.action?countryName="+country;
+                    }
+                }
+            }
+        });
+    });
+    function getDataEntry()
+    {
+        var orgName = document.getElementById("orgName").value;
+        if(orgName.indexOf("'") != -1)
+        {
+            orgName = orgName.replace("'","\'")
+        }
+        for(var j=0;j<=countryTags.length-1;j++)
+        {
+            if(countryTags[j].toLowerCase() == orgName.toLowerCase())
+            {
+                var country = orgName;
+                if(country.indexOf('&') != -1)
+                {
+                    country = country.replace('&','%26')
+                }
+                window.location.href="loadSingleCoutryEntryForm.action?countryName="+country;
+            }
+        }
+    }
+
+    function saveDataValue()
+    {
+        bValue = true;
+        $("textarea, input, select").removeAttr("disabled");
+        var hiddenData = document.getElementById('dataElements');
+        return true;
+    }
+
+    $(function () {
+        $("textarea, input, select").on("input change", function() {
+            var id = $( this ).attr( 'id' );
+            var hiddenData = document.getElementById('dataElements');
+            hiddenData.value = hiddenData.value+','+id;
+            window.onbeforeunload = window.onbeforeunload || function (e) {
+            return "You have unsaved changes.  Do you want to leave this page and lose your changes?";
+            };
+        });
+        $("form").on("submit", function() {
+            window.onbeforeunload = null;
+        });
+    });
+
+    var flag = true;
+    var oldpresentValue="";
+    function saveValue(existingValue, existingCommentValue, dataelement ,source , option ,count, value, type)
+    {
+        if(flag==true){
+            oldpresentValue=existingValue;
+            flag=false;
+        }
+        var presentValue = document.getElementById(value+'').value;
+        var commentAreaId = dataelement+"-"+source+"-"+option+"-comment";
+
+//        var oldComment = existingCommentValue;
+//        var presentComment = document.getElementById(commentAreaId).value;
+
+        for (var i = 0; i < commentRequiredDeList.length; i++)
+        {
+            if(dataelement == commentRequiredDeList[i])
+            {
+                if(oldpresentValue.toLowerCase() != presentValue.toLowerCase()){
+                        showWarningMessage( "Please enter some comment" );
+                        document.getElementById(commentAreaId).style.backgroundColor='#FFFF33';
+                    }
+            }
+       }
+
+        var period = document.getElementById("selectedPeriodId").value;
+        var fieldId = '#'+value;
+
+        if(type == 'date')
+        {
+            var value1 = document.getElementById(value+'').value;
+            var dateReg1 = /^\d{4}-(0[1-9]|1[1-2]|10)$/;
+            var dateReg2 = /^\d{4}$/;
+            var dateReg3 = /^\d{4}-Q[1-4]$/;
+            var dateReg4 = /^\d{4}-(0[1-9]|1[1-2]|10)-(0[1-9]|1[0-9]|2[0-9]|30|31)$/;
+
+            if( value1 == "na" || value1 == "NA" || value1 == "" || value1.match(dateReg1) || value1.match(dateReg2) || value1.match(dateReg3) || value1.match(dateReg4) )
+            { }
+            else
+            {
+                alert("Please Enter date in given format YYYY or YYYY-Qn or YYYY-MM or YYYY-MM-DD or na or NA e.g. 2012 or 2012-Q1 or 2012-01 or 2012-01-01");
+                document.getElementById(value+'').value = "";
+                return true;
+            }
+        }
+        else if(type.trim() == 'int')
+        {
+            var value1 = document.getElementById(value+'').value;
+
+            value1 = value1.replace(/\s*,\s*/g, "");  //RegExp to replace special character ,
+            value1 = value1.replace(/\s*%\s*/g, "");
+
+            if( isNaN(value1))
+            {
+                alert("Please Enter Numeric Value");
+                document.getElementById(value+'').value = "";
+                return true;
+            }
+            else{
+                for (var i = 0; i < percentageRequiredList.length; i++)
+                {
+                    if(dataelement == percentageRequiredList[i])
+                    {
+                        document.getElementById(value+'').value = value1+"%";
+                        return;
+                    }
+                }
+                    var comm_value =  value1.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); //RegExp to convert currency format
+                    document.getElementById(value+'').value = comm_value;
+            }
+        }
+        else
+        {
+            var value1 = document.getElementById(value+'').value;
+        }
+
+        oldpresentValue = document.getElementById(value+'').value;
+    }
+
+    function saveValueOption(commentValue, dataelement ,source ,  option ,count,value)
+    {
+        var oldComment = commentValue ;
+
+        var period = document.getElementById("selectedPeriodId").value;
+        var s = document.getElementById(value+'');
+        var value1 = s.options[s.selectedIndex].value;
+        var commentAreaId = dataelement+"-"+source+"-"+option+"-comment";
+
+        if(value1 == "-1")
+        {
+            alert("Please Selet at least one option");
+            s.options[0].selected = true;
+            return true;
+        }
+        else
+        {
+            for (var i = 0; i < commentRequiredDeList.length; i++)
+            {
+                if(dataelement == commentRequiredDeList[i])
+                {
+                        showWarningMessage( "Please enter some comment" );
+                        document.getElementById(commentAreaId).style.backgroundColor='#FFFF33';
+                }
+            }
+         }
+    }
+</script>
+
+<table width="100%">
+<tr>
+<td width="20%">#parse("/dhis-web-ivb/menu.vm")</td>
+
+<td width="80%" style="vertical-align: text-top;">
+
+    #if( $statusMessage == "NONE" )
+    <script type="text/javascript">
+        var i18n_select_period = '$encoder.jsEscape( $i18n.getString( "select_period" ) , "'")';
+        var i18n_no_periods_click_prev_year_button = '$encoder.jsEscape( $i18n.getString( "no_periods_click_prev_year_button" ) , "'")';
+        $(document).ready(function() {
+            $('.fancybox').fancybox();
+        });
+    </script>
+
+    <style type="text/css">
+        .fancybox-custom .fancybox-skin {
+            box-shadow: 0 0 50px #222;
+        }
+    </style>
+
+    <script>
+
+        $(function() {
+            $( document ).tooltip({
+                content:function(){
+                    return this.getAttribute("title");
+                }
+            });
+        });
+
+        function textAreaAdjust(o) {
+            o.style.height = "1px";
+            o.style.height = (25+o.scrollHeight)+"px";
+        }
+        function showContent(o) {
+            alert(o.value);
+        }
+    </script>
+    <style>
+        #ivbDataEntryForm{
+            height: auto;
+        }
+
+        input, textarea, select{
+            font-family: arial,verdana,sans-serif;
+            font-size:12px;
+            font-weight:normal;
+        }
+    </style>
+
+
+
+        #set( $count = 0 )
+
+    <form id="ivbDataEntryForm" name="ivbDataEntryForm" action="saveSingleCountryData.action" method="post" style="height:100%;" onsubmit="return saveDataValue()">
+
+        <input type="hidden" name="selectedPeriodId" id="selectedPeriodId" value="$!currentPeriod" />
+        <input type="hidden" name="orgUnitUid" id="orgUnitUid" value="$!orgUnitUid" />
+        <input type="hidden" name="dataSetSectionId" id="dataSetSectionId" value="$!dataSetSectionId" />
+        <input type="hidden" name="dataSetUId" id="dataSetUId" value="$!dataSetUId" />
+        <input type="hidden" name="selectedPeriod" id="selectedPeriod" value="$!selectedPeriod" />
+        <input type="hidden" name="dataElements" id="dataElements" value="" />
+        <table width="100%" style="font-size:14px;">
+            <tr>
+                #set( $displayMsg = 0 )
+                #foreach( $dataElement in $dataElementList )
+                    #if( $keyFlagDataElements.contains( $dataElement ) )
+                        #set( $displayMsg = $displayMsg + 1 )
+                        #set( $color = "$colorMap.get($dataElement.uid)")
+                    #end
+                #end
+                #if($displayMsg > 0)
+
+                    #if($color == "#FF6969")
+                        <td style="float:left;color:#FF6969;width:60%;">$i18n.getString( "red_dataentry_header_msg" )</td>
+                    #elseif($color == "#F3F781")
+                        <td style="float:left;color:#B18904;width:60%;">$i18n.getString( "yellow_dataentry_header_msg" )</td>
+                    #elseif($color == "#BCF5A9")
+                        <td style="float:left;color:#21610B;width:60%;">$i18n.getString( "green_dataentry_header_msg" )</td>
+                    #end
+                #else
+                    <td style="width:60%;">&nbsp;</td>
+                #end
+                <td >
+                    <input type="submit" value="$i18n.getString( 'save' )" style="height:30px;font:1em normal;"/>
+                    <input type="reset" value="$i18n.getString( 'cancel' )" id="reset" style="height:30px;font:1em normal;"/>
+                </td>
+                #if($conflictAuthority == "Yes")
+                    <td >
+                        <input id="conflict" name="conflict" type="checkbox" class="css-checkbox" />
+                        <label for="conflict" class="css-label mac-style">Skip Conflict</label>
+                    </td>
+                #end
+                <td style="float:right;color:black;">$i18n.getString( "period" ) : $selectedPeriod</td>
+            </tr>
+
+        </table>
+        <table style="width:99.8%;margin:auto;" class="altrowstable" cellspacing="0" cellpadding="0" >
+            <tr style="height:30px;">
+                <th style="width:7%;">$i18n.getString( "status" )</th>
+                <th style="width:5%;">$i18n.getString( "type" )</th>
+                <th style="width:28%;">$i18n.getString( "data_element" )</th>
+                <th style="width:18%;">$i18n.getString( "latest_value" )</th>
+                <th style="width:23%;">$i18n.getString( "latest_comment" )</th>
+                <th style="width:8%;">$i18n.getString( "last_update" )</th>
+                <th style="width:5%;" title="Resubmit current  value and comment">$i18n.getString( "copy" )</th>
+                <th style="width:5%;" title="View history ,discussion and TA">$i18n.getString( "more" )</th>
+            </tr>
+        </table>
+        <div id='contentDiv' width="100%" style="height:290px;overflow:auto;">
+            <table style="width:100%;" class="altrowstable" id="alternatecolor" cellspacing="0" cellpadding="0" >
+
+                #foreach( $dataElement in $dataElementList )
+					#set( $off_pri_val = "" )
+					#set( $deUpdateStatus = "" )
+
+					#set( $getter = "${orgUnitUid}-${dataElement.uid}")
+                    #set( $count = $count + 1 )
+                    #set( $dataEntryId = "${dataElement.id}-${organisationUnit.id}-${optionCombo.id}-val" )
+                    #set( $dataEntryComment = "${dataElement.id}-${organisationUnit.id}-${optionCombo.id}-comment" )
+                    #set( $off_pri_val = $off_pri_de_map.get( $dataElement ) )
+
+                    #if( $userDataElements.contains( $dataElement ) && $userOrgUnit.contains( $organisationUnit ) )
+                        #set( $deUpdateStatus = "yes" )
+                    #else
+                        #set( $deUpdateStatus = "no" )
+                    #end
+                    <tr style="height:20px;background-color:$colorMap.get($dataElement.uid);">
+                        <td style="width:7%" >
+                            #if($deUpdateStatus == "yes" && $conflictMap.get(${getter})=="Yes")
+                                <img src="images/notification_warning.png" width="16"/ >
+                            #end
+                            #if($technicalAMap.get(${getter}) == "Yes" && $discussionMap.get(${getter}) == "Yes")
+                                &nbsp;<img src="images/td-icon.png" width="26"/ >
+                            #elseif($technicalAMap.get(${getter}) == "Yes")
+                                &nbsp;<img src="images/ta.jpg" width="18"/ >
+                            #elseif($discussionMap.get(${getter}) == "Yes")
+                                &nbsp;<img src="images/discussion.png" width="17"/ >
+                            #else
+                                &nbsp;
+                            #end
+                        </td>
+                        <td style="width:5%" >
+                            #if( $!off_pri_val == "official" && $!deUpdateStatus == "no")
+                                <img src="images/official.ico" width="17" title="Official Data"/>
+                            #elseif( $!off_pri_val == "private" && $!deUpdateStatus == "no")
+                                <img src="images/private.ico" width="17"/>
+                            #elseif( $!off_pri_val == "other" && $!deUpdateStatus == "no" )
+                                &nbsp;
+                            #elseif($deUpdateStatus == "yes")
+                                <img src="images/pencil.png" width="16" title="Edit"/ >
+                            #end
+                        </td>
+                        <td style="width:28%">$dataElement.displayName</td>
+
+                        #if($dataElement.valueType == 'NUMBER')
+                       
+                            <td style="width:18%"  id="my" >
+                                <input type="text"  placeholder="Enter Number" style="width:130px;"   #if( $deUpdateStatus == "no" ) disabled #end name="${dataEntryId}" id="${dataEntryId}" value="$!dataValue.get(${getter})"  onblur="javascript:saveValue('$!dataValue.get(${getter})', '$!dataComments.get(${getter})', '$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataElement.valueType')" onchange="javascript:checkno(this)"  />
+                                <script> function checkno(field)
+								{
+								
+								
+								 if (isNaN(field.value)) 
+  {field.value='';
+    alert("Enter numbers only ");
+   
+  }
+									
+								}
+								
+                                    function formatNumber()
+                                    {
+                                        for (var i = 0; i < percentageRequiredList.length; i++)
+                                        {
+                                            if($dataElement.id == percentageRequiredList[i])
+                                            {
+                                                checkNumberType=true;
+                                                var value = document.getElementById('$dataEntryId').value;
+                                                document.getElementById('$dataEntryId').value = value+"%";
+                                                return;
+                                            }
+                                        }
+                                        checkNumberType=false;
+                                        var value = document.getElementById('$dataEntryId').value;
+                                        document.getElementById('$dataEntryId').value = numberToCurreny(value);
+                                    }
+                                    formatNumber();
+                                </script>
+                            </td>
+
+                        #elseif($dataElement.valueType == 'BOOLEAN')
+                            <td style="width:18%">
+                                <select style="width:134px;" #if( $deUpdateStatus == "no" ) disabled #end name="${dataEntryId}" id="${dataEntryId}"  onchange="javascript:saveValue('$!dataValue.get(${getter})', '$!dataComments.get(${getter})', '$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataElement.valueType')" />
+                                <option value="-1">$i18n.getString( "please_select" )</option>
+                                <option #if($!dataValue.get(${getter}).toLowerCase() == 'yes' ) selected #end>Yes</option>
+                                <option #if($!dataValue.get(${getter}).toLowerCase() == 'no' ) selected #end>No</option>
+                                </select>
+                            </td>
+                        #elseif($dataElement.valueType == 'DATE')
+                            <td style="width:18%"><input type="text" id="${dataEntryId}" name="${dataEntryId}" style="width:130px;" #if( $deUpdateStatus == "no" ) disabled #end  value="$!dataValue.get(${getter})"  onblur="javascript:saveValue('$!dataValue.get(${getter})','$!dataComments.get(${getter})', '$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataElement.valueType')" title="Date Format: YYYY / YYYY-Qn / YYYY-MM / YYYY-MM-DD e.g. 2012 / 2012-Q1 / 2012-01 / 2012-01-01 / NA" /></td>
+                        #elseif($dataElement.valueType == 'TEXT')
+                            #if( $dataElement.getOptionSet() )
+                                <td style="width:18%">
+                                    <select style="width:134px;" #if( $deUpdateStatus == "no" ) disabled #end name="${dataEntryId}" id="${dataEntryId}" onchange="javascript:saveValueOption('$!dataComments.get(${getter})','$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','${dataEntryId}')">
+                                        <option value="-1">$i18n.getString( "please_select" )</option>
+                                        #foreach( $option in $dataElement.getOptionSet().getOptions() )
+                                         <option #if($!dataValue.get(${getter}).toLowerCase() == $option.code.toLowerCase() ) selected #end>$option.name</option>
+                                          
+                                        #end
+                                    </select>
+                                </td>
+                            #elseif(!($dataElement.getOptionSet()))
+                                <td style="width:18%"><input type="text" style="width:130px;" #if( $deUpdateStatus == "no" ) disabled #end name="${dataEntryId}" id="${dataEntryId}" value="$!dataValue.get(${getter})"  onblur="javascript: saveValue('$!dataValue.get(${getter})','$!dataComments.get(${getter})', '$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataElement.valueType')" /></td>
+                            #end
+                        #else
+                            <td style="width:18%"><input type="text" style="width:130px;" #if( $deUpdateStatus == "no" ) disabled #end name="${dataEntryId}" id="${dataEntryId}" value="$!dataValue.get(${getter})"  onblur="javascript: saveValue('$!dataValue.get(${getter})','$!dataComments.get(${getter})', '$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataElement.valueType')"  /></td>
+                        #end
+
+                        <td style="width:23%">
+                            <textarea cols="32"  onclick="textAreaAdjust(this)" style="overflow:hidden;height:20px;width:100%;" #if( $deUpdateStatus == "no" && $viewCommentAuthority != "Yes") disabled #end name="${dataEntryComment}" id="${dataEntryComment}"   ondblclick="javascript:setCommentBoxSize('${dataEntryComment}')">$!dataComments.get(${getter})</textarea>
+                        </td>
+
+                        <td style="width:8%" align="center" title="$!userInfoMap.get(${getter})">$!dataStoredBy.get(${getter})</td>
+                        #if((!$dataValue.get(${getter}) && !$dataComments.get(${getter}) ) || $deUpdateStatus == "no" || $copyRightMap.get(${getter})=='No')
+                            <td align="center" style="width:5%"><img src="images/disable_copy.png" width="25" title="Resubmit current value and comment"/></td>
+                        #else
+                            #if($dataElement.valueType == 'string' && $dataElement.getOptionSet())
+                                <td align="center" style="width:5%"><a href="javascript:copyValueAndCommentOption('$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataEntryComment')"><img src="images/copy.png" width="25" title="Resubmit current value and comment"/></a></td>
+                            #else
+                                <td align="center" style="width:5%"><a href="javascript:copyValueAndComment('$dataElement.id','$organisationUnit.id','$optionCombo.id','$count','$dataEntryId','$dataEntryComment')"><img src="images/copy.png" width="25" /></a></td>
+                            #end
+                        #end
+                        <td style="width:5%" align="center" class="img"><a class="fancybox" href="javascript:getHistory('$selectedPeriod','$dataElement.id','$organisationUnit.id','$optionCombo.id','$dataElement.name','$deUpdateStatus',checkNumberType);"><img src="images/toolbox_info.png" width="25"/></a> </td>
+                    </tr>
+                #end
+                <!--
+			
+			<tr style="height:30px;">
+				<td colspan="9" align="center">
+					<input type="submit" value="$i18n.getString( 'save' )" id="submit"/> &nbsp; 
+					<input type="reset" value="$i18n.getString( 'cancel' )" id="cancel" />
+				</td>
+			</tr>
+			
+			-->
+            </table>
+        </div>
+
+        <div id="indicatorHelp" style="width:700px;"></div>
+        <div id="technical" style="width:700px;"></div>
+        <div id="history" style="width:800px;"></div>
+    </form>
+    #else
+    <h4>&nbsp;&nbsp;$statusMessage</h4>
+    #end
+</td>
+</tr>
+</table>

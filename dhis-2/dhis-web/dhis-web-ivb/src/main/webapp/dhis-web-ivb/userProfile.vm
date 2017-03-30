@@ -1,0 +1,121 @@
+
+<script >
+function updateUserAccount()
+{
+	
+	var dataValue = {
+        'id' : $('#id').val(),
+        'oldPassword' : $('#oldPassword').val(),
+        'rawPassword' : $('#rawPassword').val(),
+        'surname' : $('#surname').val(),
+        'firstName' : $('#firstName').val(),
+		'email': $('#email').val(),
+		'phoneNumber': $('#phoneNumber').val(),
+    };
+	var bValid = true;
+					bValid = bValid && checkLength( $("#surname"), "Last Name", 1, 50 );
+					bValid = bValid && checkLength( $("#email"), "email", 6, 80 );
+					bValid = bValid && checkLength( $("#oldPassword"), "Old Password", 5, 16 );
+					bValid = bValid && checkLength( $("#firstName"), "First Name", 1, 50 );
+					bValid = bValid && checkLength( $("#rawPassword"), "New Password", 5, 16 );
+					bValid = bValid && matchPassword();
+				if(bValid)
+				{
+                    	jQuery.ajax( {
+                            url: 'updateUserAccount.action',
+                            data: dataValue,
+                            dataType: 'json',
+                            success: handleSuccess,
+                            error: handleError
+                        } );
+				}
+
+    function handleSuccess( json )
+    {
+     	showSuccessMessage( "Profile Updated" ); 
+	    $( "#profileInfo" ).dialog('close');
+    }
+
+    function handleError( jqXHR, textStatus, errorThrown )
+    {       
+       showWarningMessage( "Profile Not Updated" );
+	   $( "#profileInfo" ).dialog('close');
+    }
+   
+}
+
+function checkLength( o, n, min, max ) {
+			if ( o.val().length > max || o.val().length < min ) {				
+				alert( "Length of " + n + " must be between " +
+					min + " and " + max + "." );
+				return false;
+			} else {
+				return true;
+			}
+		}
+function matchPassword()
+{
+	if($('#rawPassword').val() != $("#retypePassword").val())
+	{
+		alert("new password and retype new password must be same");
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+</script>
+
+<form id="updateUserinforForm" action="updateUserAccount.action" method="post" class="inputForm">
+<div>
+	<input type="hidden" id="id" name="id" value="$userCredentials.id"/>
+</div>
+
+<table style="width:100%" class="altrowstable">
+	<tr>
+		<th colspan="2">$i18n.getString( "details" )</th>
+	</tr>
+    <tr>
+        <td><label for="username">$i18n.getString( "user_name" )</label></td>
+        <td><input type="text" id="username" name="username" value="$!encoder.htmlEncode( $!userCredentials.username )" disabled="disabled"></td>
+    </tr>
+    <tr>
+        <td><label for="firstName">$i18n.getString( "first_name" ) <em title="$i18n.getString( 'required' )" class="required">*</em></label></td>
+        <td><input type="text" id="firstName" name="firstName" value="$!encoder.htmlEncode( $!userCredentials.userInfo.firstName )"></td>
+    </tr>
+    <tr>
+        <td><label for="surname">$i18n.getString( "last_name" ) <em title="$i18n.getString( 'required' )" class="required">*</em></label></td>
+        <td><input type="text" id="surname" name="surname" value="$!encoder.htmlEncode( $!userCredentials.userInfo.surname )"></td>
+    </tr>
+	<tr>
+		<td><label for="rawPassword">$i18n.getString( "old_password" ) <em title="$i18n.getString( 'required' )" class="required">*</em></label></td>
+		<td><input type="password" id="oldPassword" name="oldPassword" ></td>
+	</tr>
+	<tr>
+		<td><label for="rawPassword">$i18n.getString( "new_password" )</label></td>
+		<td><input type="password" id="rawPassword" name="rawPassword"></td>
+	</tr>
+	<tr>
+		<td><label for="retypePassword">$i18n.getString( "retype_new_password" )</label></td>
+		<td><input type="password" id="retypePassword" name="retypePassword"></td>
+	</tr>
+	<tr>
+		<td><label for="email">$i18n.getString( "email" )</label></td>
+		<td><input type="text" id="email" name="email" value="$!encoder.htmlEncode( $!userCredentials.userInfo.email )"></td>
+	</tr>
+    <tr>
+        <td><label for="phoneNumber">$i18n.getString( "phone_number" )</label></td>
+        <td><input type="text" id="phoneNumber" name="phoneNumber" value="$!encoder.htmlEncode( $!userCredentials.userInfo.phoneNumber )"></td>
+    </tr>	
+	<tr><td colspan="2">
+		<hr/>
+	</td></tr>
+	<tr>
+		<td></td>
+		
+		<td valign="top" style="float:right;"><input type="button" value="$i18n.getString( 'save' )" style="width:10em" onclick="updateUserAccount()"></td>
+		<td valign="top" style="float:right;"><input type="button" value="$i18n.getString( 'cancel' )" style="width:10em" onclick="window.location.href='home.action'" />
+	</tr>
+</table>
+</form>

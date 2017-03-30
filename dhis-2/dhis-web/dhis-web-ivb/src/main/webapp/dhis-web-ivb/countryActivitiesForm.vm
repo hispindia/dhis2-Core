@@ -1,0 +1,124 @@
+<script type="text/javascript">
+	
+	function getOrgUnitId(orgUnits)
+    { 
+    	$("#orgUnitId").val(orgUnits[0]);	
+    }
+
+    function generateHTMLreport()
+    {
+    	var countryTags = $countryList;
+    	$('#selectedListDe option').attr('selected', 'selected');
+    	var dataSetListBox = document.getElementById('selectedListDe');
+    	var bValue = false;
+    	
+		var countryId = $("#orgUnitId").val();
+    	for(var i=0;i<=countryTags.length-1;i++)
+		{
+			if(countryTags[i] == countryId )
+			{
+				bValue = true;
+			}
+		}
+		
+		if(bValue == false)
+		{
+			alert('Please Select Country');
+    		return false;
+		} 
+			
+    	if( dataSetListBox.options.length <= 0 )
+    	{
+    		alert("Please select areas of work");
+    		return false;
+    	}    		
+    }
+	
+	function treeSelected( unitIds )
+	{		
+		$("#orgUnitId").val(unitIds);
+	}
+	
+	jQuery(document).ready(function() {
+	
+		moveAllById( 'availableListDe', 'selectedListDe' );    
+	    
+	    selectionTreeSelection.setListenerFunction( treeSelected );	
+		selectionTreeSelection.setMultipleSelectionAllowed( false );
+		//selectionTree.clearSelectedOrganisationUnits();
+		selectionTree.buildSelectionTree();
+	});
+</script>
+
+
+<form id="countryFileForm" method="get" action="countryActivitiesDashboardResult.action" onsubmit="return generateHTMLreport()">
+
+ 	<input type="hidden" name="orgUnitId" id="orgUnitId"/>
+
+ 	<div id="reportFilterDiv" >
+
+ 		<table style="width:90%;margin:auto;" cellpadding="4" cellspacing="2">
+ 			<tr>
+ 				<td width="40%">
+ 					$i18n.getString( "select_country" )<br/>
+ 					<div id="selectionTree" class="ui-widget-content ui-corner-all" style="height: 166px; width: 375px; overflow:auto;"></div>
+ 					<!--
+ 					<div id="orgUnitTreeContainer" class="ui-widget-content ui-corner-all" style="height: 166px; width: 375px; overflow:auto;">
+ 						<div id="selectionTree" ></div>
+ 					</div>
+ 					-->
+				 </td>
+				 
+				 <td>&nbsp;</td>
+				 
+				 <td>
+				 	$i18n.getString( "period_range" )<br/> 					
+			        <select id="nextXmonths" name="nextXmonths" style="width: 100%;">
+			        	<option value="12">Next 12 Months</option>
+			        	<option value="18">Next 18 Months</option>
+			        	<option value="24">Next 24 Months</option>
+			        </select>
+			        <br/><br/>
+			        <input type="checkbox" id="includeTabularOutput" name="includeTabularOutput" />&nbsp; $i18n.getString( "include_tabular_output" )
+				 </td>
+				 
+				 <td>&nbsp;</td>
+ 				 
+			</tr> 			
+ 			<tr style="margin-bottom: 15px;">
+ 			
+ 			 		<td width="40%">
+ 						$i18n.getString( "available_data_elements" )<br/> 					
+			          	<select id="availableListDe" name="availableListDe" ondblclick="moveSelectedById( 'availableListDe', 'selectedListDe' )" multiple="multiple" style="height: 166px; width: 100%;">
+						#foreach( $dataElement in $dataElements )
+							<option value="$dataElement.id">$dataElement.displayName</option>							
+						#end
+			          </select>
+        			</td>
+        		        			
+			        <td style="text-align:center" width="10%">
+			            <input type="button" value="&gt;" title="$i18n.getString( 'move_selected' )" style="width:50px" onclick="moveSelectedById( 'availableListDe', 'selectedListDe' );"/><br/>
+			            <input type="button" value="&lt;" title="$i18n.getString( 'remove_selected' )" style="width:50px" onclick="moveSelectedById( 'selectedListDe', 'availableListDe' );"/><br/>
+			            <input type="button" value="&gt;&gt;" title="$i18n.getString('move_all')" style="width:50px" onclick="moveAllById( 'availableListDe', 'selectedListDe' );"/><br/>
+			            <input type="button" value="&lt;&lt;" title="$i18n.getString('remove_all')" style="width:50px" onclick="moveAllById( 'selectedListDe', 'availableListDe' );"/>
+			        </td>
+			        <td width="40%">
+			        	$i18n.getString( "selected_data_elements" )<br/>
+			            <select id="selectedListDe" name="selectedListDe" ondblclick="moveSelectedById( 'selectedListDe', 'availableListDe' )" multiple="multiple" style="height: 166px; width: 100%; margin-top: 22px;"></select>
+			        </td>
+					<td>
+                        <a href="javascript:moveUpDataElement('selectedListDe');"><img src="../images/move_up.png"/></a><br/><br/>
+                        <a href="javascript:moveDownDataElement('selectedListDe');"><img src="../images/move_down.png"/></a><br/><br/>
+            		</td> 
+			 </tr>			
+ 			<tr>
+			 	<td>
+			 		<input type="submit" value="$i18n.getString( 'get_report' )" id="submit" />		 		
+	 			</td>
+	 			<td>&nbsp;</td>
+	 			<td>&nbsp;</td>
+ 			</tr>
+		 </table>
+    </div>
+	<br/><br/>
+</form>

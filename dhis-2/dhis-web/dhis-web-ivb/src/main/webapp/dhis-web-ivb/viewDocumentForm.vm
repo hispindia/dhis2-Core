@@ -1,0 +1,199 @@
+<script >
+function altRows(id){
+	if(document.getElementsByTagName){  
+		if(document.getElementById(id) != null)
+		{
+		    var table = document.getElementById(id);  		
+			var rows = table.getElementsByTagName("tr"); 
+			 
+			for(i = 0; i < rows.length; i++){          
+				if(i % 2 == 0){
+					rows[i].className = "evenrowcolor";
+				}else{
+					rows[i].className = "oddrowcolor";
+				}      
+			}
+		}
+	}
+}
+
+$(document).ready(function(){
+	    $('#myjquerymenu').find('#menu_help').addClass("selected");	  
+	    pageName = 'Help';
+		$("#editDocument").dialog({
+			autoOpen: false,
+			resizable: false,			
+			modal: true,
+			width: 400
+		});
+	
+altRows('alternatecolor');
+	});
+	$(function() {		
+		var countryTags = $countryList;	
+		var regionTags = $regionList;
+							
+		var availableTags = regionTags.concat(countryTags);		
+		$( "#orgName" ).autocomplete({
+			source: availableTags,
+			select: function( event, ui ) {	
+			for(var i=0;i<=regionTags.length-1;i++)
+			{
+				if(regionTags[i] == ui.item.value)
+				{
+					var region = ui.item.value;
+					if(region.indexOf("'") != -1)
+					{
+						region = region.replace("'","\'")
+					}	
+					if(region.indexOf('&') != -1)
+					{
+						region = region.replace('&','%26')
+					}					
+					window.location.href="displayViewDocumentForm.action?orgUnitName="+region;
+				}
+			}		
+			for(var j=0;j<=countryTags.length-1;j++)
+			{
+				if(countryTags[j] == ui.item.value)
+				{
+					var country = ui.item.value;
+					if(country.indexOf("'") != -1)
+					{
+						country = country.replace("'","\'")
+					}					
+					if(country.indexOf('&') != -1)
+					{						
+						country = country.replace('&','%26')
+					}
+					window.location.href="displayViewDocumentForm.action?orgUnitName="+country;
+				}
+			}			
+		}
+		});
+		
+	});
+	
+	function uploadFile()
+	{
+		if($("#name").val() == '' && $("#upload").val() == '')
+		{
+			alert("Please enter name and browse file");
+			return false;
+		}		
+		if($("#orgName").val() == '')
+		{
+			alert("Uploaded file will be read as common file");
+			return true;
+		}
+		
+	}
+	function updateFile()
+	{
+		if($("#documentFileName").val() == '' && $("#fileupload").val() == '')
+		{
+			alert("Please enter name and browse file");
+			return false;
+		}
+	}
+	function deleteDocument( documentId )
+	{
+		window.location.href = 'deleteDocument.action?documentId='+documentId;
+	}
+	function editDocument(documentId , documentName )
+	{
+		$("#documentId").val( documentId );
+		$("#documentFileName").val( documentName );
+		//$("#fileupload").val( documentUrl );
+		
+		$("#editDocument").dialog('open');
+	}
+</script>
+<style>
+	body {    
+     	width:100%;
+		margin-left:auto;
+		margin-right:auto;		
+		height:auto;
+		min-height:600px; 
+}
+</style>
+<div style="min-height:600px;">
+<form id="documentForm" action="saveDocument.action" method="post" enctype="multipart/form-data" onsubmit="return uploadFile()">
+ 
+ <div id="uploadDocument" style="width:90%;margin:auto;">
+	<table width="100%" id="uploadTable" >
+		<tr >
+			<td >
+				<input type="text" id="orgName" name="orgName" size="52" placeholder="$i18n.getString( 'region_country_search' )" value="$!orgUnitName"/> &nbsp;
+				<input type="button" value="Clear" onclick="javascript: window.location.href = 'displayViewDocumentForm.action'"/>
+			</td>
+			<td ><label for="name">$i18n.getString( "name" )</label></td>
+			<td ><input type="text" placeholder="Please Enter File Name" id="name" name="name" value="$!document.name" class="{validate:{required:true,minlength:2,maxlength:160}}"/></td>
+			<td ><label for="upload">$i18n.getString( "file" )</label></td>
+			<td ><input type="file" id="upload" name="upload" size="30" ></td>
+			<td ><input type="submit" value="$i18n.getString( 'upload' )" style="width:10em" id="uploadBtn" /></td>
+        </tr>
+    </table>
+ </div>
+ </form>
+#if($documents.size() > 0)
+&nbsp; <h3 style="width:90%;margin:auto;">$i18n.getString( "resources" )</h3>
+<table style="width:90%;margin:auto;" id="alternatecolor" name="alternatecolor" class="altrowstable">
+	<thead >    
+	<tr >
+		<th style="width:90%" align="left">Name</th>
+		<th style="width:10%">&nbsp;</th>
+    </tr>
+	</thead>
+	<tbody >
+    
+	#foreach ( $document in $documents )
+	<tr >
+		<td >
+			#if ( $document.external )
+                <a href="${document.url}" title="$i18n.getString( 'view_resource' )" target="_blank" >$encoder.htmlEncode( $document.name )</a>
+            #else
+                <a href="../api/documents/${document.uid}/data" title="$i18n.getString( 'view_resource' )" target="_blank" > $encoder.htmlEncode( $document.name )</a>
+           #end
+		</td>
+		<td >
+			<a href="javascript:deleteDocument('$document.id')"><img src="images/delete.png" width="17px"/></a>
+			<a href="javascript:editDocument('$document.id','$document.name')" ><img src="../images/edit.png" width="17px"/></a>
+		</td>
+    </tr>
+	#end   
+	</tbody>
+</table>
+<div id="pagingControls" style="float:right;"></div>
+#else
+	<div style="background-color:#F7BE81;color:white;font:1.5em bold;height:30px;weight:80%;">
+		No Document Found
+	</div>
+#end
+<br/>
+</div>
+<div id="editDocument" title="Edit Document">
+	<form id="updateDocumentForm" action="editDocument.action" method="post" enctype="multipart/form-data" onsubmit="return updateFile()">
+		<input type="hidden" name="documentId" id="documentId"/>
+		<table >
+			<tr >
+				<td ><label for="documentFileName">$i18n.getString( "name" )</label></td>
+				<td ><input type="text" name="documentFileName" id="documentFileName"/></td>
+            </tr>
+			<tr >
+				<td ><label for="fileupload">$i18n.getString( "file" )</label></td>
+				<td >					
+					<input type="file" id="fileupload" name="fileupload" size="30" >
+				</td>
+            </tr>
+			<tr >
+				<td colspan="2"> <hr /></td>
+            </tr>
+			<tr >
+				<td >&nbsp;</td>
+				<td ><input type="submit" value="$i18n.getString( 'update' )" style="width:10em" id="updateBtn" onclick="updateFile()"/></td>
+            </tr>
+        </table>
+	</form>
+</div>

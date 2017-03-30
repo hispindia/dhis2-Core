@@ -1,0 +1,187 @@
+
+<style>
+
+.datasetclass
+{
+font-family:Arial;
+color:#000000;
+font-size:12px;
+text-decoration:none;
+text-align:left;
+}
+</style>
+
+<script>
+	function offlineEntryDatasets( dataSetUID, dataSetName )
+	{
+		var dataSetListBox = document.getElementById('selectedListDataset');
+		
+		for( i = 0; i < dataSetListBox.options.length; i++ )
+        {
+			if( dataSetUID == dataSetListBox.options[i].value ) return;
+        }
+        
+		dataSetListBox.options[dataSetListBox.options.length] = new Option( dataSetName, dataSetUID, false, false );
+	}
+</script>
+
+<table border="0" cellpaddin="0" cellspacing="0" style="font-family: arial;font-size:12px;">
+    <tr height="30">
+        <td width="18%"  style="font-family: arial;font-size:12px;background-color:#E0ECF8;"><strong>$i18n.getString( "ds_general" )</strong></td>
+    </tr>
+    <tr>
+        <td style="font-family: arial;font-size:12px;">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              
+            <a href="javascript:offlineEntryDatasets( 'HrCL2cRzGqv', '$encoder.jsEscape($i18n.getString( "ds_general" ), "'")' )">$i18n.getString( "ds_general" )</a><br/>
+        </td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+    </tr>
+
+    <tr height="30">
+        <td width="18%" style="font-family: arial;font-size:12px;background-color:#E0ECF8;"><strong>$i18n.getString( "ds_country_decision_making" )</strong></td>
+    </tr>
+    <tr>
+        <td style="font-family: arial;font-size:12px;">         
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              
+            <a href="javascript:offlineEntryDatasets( 'WY533S3tKek', '$encoder.jsEscape($i18n.getString( "ds_nras" ) , "'")' )" >$i18n.getString( "ds_nras" )</a>
+        </td>
+    </tr>
+    <tr>
+        <td style="font-family: arial;font-size:12px;">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              
+            <a href="javascript:offlineEntryDatasets('Rq0AbHEmpB0', '$encoder.jsEscape($i18n.getString( "ds_iccs" ) , "'")' )" >$i18n.getString( "ds_iccs" )</a>
+        </td>
+    </tr>
+    <tr>
+        <td style="font-family: arial;font-size:12px;">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              
+            <a href="javascript:offlineEntryDatasets('ZR3uWzO5e0e', '$encoder.jsEscape($i18n.getString( "ds_nitags" ) , "'")' )" >$i18n.getString( "ds_nitags" )</a><br/>
+        </td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+    </tr>
+
+    <tr height="30">
+        <td width="18%" style="font-family: arial;font-size:12px;background-color:#E0ECF8;"><strong>$i18n.getString( "ds_planning_financing_procurement" )</strong></td>
+    </tr>
+    <tr>
+        <td style="font-family: arial;font-size:12px;">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              
+            <a href="javascript:offlineEntryDatasets('UezSPDbJYdG', '$encoder.jsEscape($i18n.getString( "ds_vaccine_intro" ) , "'")' )" >$i18n.getString( "ds_vaccine_intro" )</a>
+        </td>
+    </tr>
+    <tr>
+        <td style="font-family: arial;font-size:12px;">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              
+            <a href="javascript:offlineEntryDatasets('NZkvBApNhQK', '$encoder.jsEscape($i18n.getString( "ds_planning" ) , "'")')" >$i18n.getString( "ds_planning" )</a>
+        </td>
+    </tr>
+    <tr>
+        <td style="font-family: arial;font-size:12px;">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              
+            <a href="javascript:offlineEntryDatasets('fohOxrGGcwR', '$encoder.jsEscape($i18n.getString( "ds_financial_sustainability" ), "'")' )" >$i18n.getString( "ds_financial_sustainability" )</a><br/>
+        </td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+    </tr>
+
+    <tr height="30">
+        <td width="18%" style="font-family: arial;font-size:12px;background-color:#E0ECF8;"><strong>$i18n.getString( "ds_vaccine_delivery" )</strong></td>
+    </tr>
+    <tr>
+        <td style="font-family: arial;font-size:12px;">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              
+            <a href="javascript:offlineEntryDatasets('ZUAyGxNzjaQ', '$encoder.jsEscape($i18n.getString( "ds_access_equity" ) , "'")')" >$i18n.getString( "ds_access_equity" )</a>
+        </td>
+    </tr>
+    <!--
+    
+    <tr>
+        <td style="font-family: arial;font-size:12px;">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              
+            <a href="javascript:offlineEntryDatasets('fohOxrGGcwR', '$encoder.jsEscape($i18n.getString( "ds_health_systems" ) , "'")')" >$i18n.getString( "ds_health_systems" )</a>
+        </td>
+    </tr>
+    -->
+    <tr>
+        <td style="font-family: arial;font-size:12px;">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              
+            <a href="javascript:offlineEntryDatasets('SaZgdK7ydFk', '$encoder.jsEscape($i18n.getString( "ds_accelerated_disease_control" ) , "'")')" >$i18n.getString( "ds_accelerated_disease_control" )</a>
+        </td>
+    </tr>
+    <tr>
+        <td style="font-family: arial;font-size:12px;">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              
+            <a href="javascript:offlineEntryDatasets('a4IZwGjIRad', '$encoder.jsEscape($i18n.getString( "ds_vaccine_management" ) , "'")')" >$i18n.getString( "ds_vaccine_management" )</a>
+        </td>
+    </tr>
+    <tr>
+        <td style="font-family: arial;font-size:12px;">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              
+            <a href="javascript:offlineEntryDatasets('JtMg8anfjH9', '$encoder.jsEscape($i18n.getString( "ds_cold_chain" ) , "'")')" >$i18n.getString( "ds_cold_chain" )</a>
+        </td>
+    </tr>
+    <tr>
+        <td style="font-family: arial;font-size:12px;">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              
+            <a href="javascript:offlineEntryDatasets('dnBlbP0aYMT', '$encoder.jsEscape($i18n.getString( "ds_human_resources" ) , "'")')" >$i18n.getString( "ds_human_resources" )</a>
+        </td>
+    </tr>
+
+
+    <tr>
+        <td style="font-family: arial;font-size:12px;">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              
+            <a href="javascript:offlineEntryDatasets('L1NDfeV5lq9', '$encoder.jsEscape($i18n.getString( "ds_social_mobilization" ) , "'")')" >$i18n.getString( "ds_social_mobilization" )</a>
+        </td>
+    </tr>
+    <tr>
+        <td style="font-family: arial;font-size:12px;">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              
+            <a href="javascript:offlineEntryDatasets('zv11w3mO0WV', '$encoder.jsEscape($i18n.getString( "ds_health_system_strengthening" ) , "'")')" >$i18n.getString( "ds_health_system_strengthening" )</a>
+        </td>
+    </tr>
+    <tr>
+        <td style="font-family: arial;font-size:12px;">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;              
+            <a href="javascript:offlineEntryDatasets('wjYrjAuN1J9', '$encoder.jsEscape($i18n.getString( "ds_integrated_approach" ) , "'")')" >$i18n.getString( "ds_integrated_approach" )</a><br/>
+        </td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+    </tr>
+
+    <tr height="30">
+        <td width="18%" style="font-family: arial;font-size:12px;background-color:#E0ECF8;"><strong>$i18n.getString( "ds_monitoring_surveillance" )</strong></td>
+    </tr>
+
+    <tr>
+        <td style="font-family: arial;font-size:12px;">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="javascript:offlineEntryDatasets('sNFPzgwRY3j', '$encoder.jsEscape($i18n.getString( "ds_immunization_data" ) , "'")')" >$i18n.getString( "ds_immunization_data" )</a>              
+        </td>
+    </tr>
+    <tr>
+        <td style="font-family: arial;font-size:12px;">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="javascript:offlineEntryDatasets('LjY1AOuPsig', '$encoder.jsEscape($i18n.getString( "ds_surveillance" ) , "'")')" >$i18n.getString( "ds_surveillance" )</a>                          
+        </td>
+    </tr>
+    <tr>
+        <td style="font-family: arial;font-size:12px;">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="javascript:offlineEntryDatasets('hoXvMVt58IW', '$encoder.jsEscape($i18n.getString( "ds_vaccine_safety" ) , "'")')" >$i18n.getString( "ds_vaccine_safety" )</a>              
+        </td>
+    </tr>
+    <tr>
+        <td style="font-family: arial;font-size:12px;">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="javascript:offlineEntryDatasets('HVMK8B5rWhT', '$encoder.jsEscape($i18n.getString( "ds_programmatic_monitoring" ) , "'")')" >$i18n.getString( "ds_programmatic_monitoring" )</a>              
+        </td>
+    </tr>
+
+</table>

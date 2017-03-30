@@ -403,4 +403,22 @@ public class DefaultDataValueService
         return dataValueStore.getDataValueMapByAttributeCombo( dataElements, date, source, periodTypes, attributeCombo,
             cogDimensionConstraints, coDimensionConstraints, lastUpdatedMap );
     }
+    
+    // add methods for IVB
+    @Override
+    public Collection<DeflatedDataValue> getDeflatedDataValues( int dataElementId, int periodId, Collection<Integer> sourceIds )
+    {
+        return dataValueStore.getDeflatedDataValues( dataElementId, periodId, sourceIds );
+    }
+        
+    public DataValue getLatestDataValue( DataElement dataElement, DataElementCategoryOptionCombo optionCombo, OrganisationUnit organisationUnit )
+    {
+        return dataValueStore.getLatestDataValue( dataElement, optionCombo, organisationUnit );
+    }
+        
+    public DataValue getLatestDataValue( Integer dataElementId, Integer categoryOptionComboId, Integer ouId )
+    {
+        return dataValueStore.getLatestDataValue( dataElementId, categoryOptionComboId, ouId );
+    }
+    
 }

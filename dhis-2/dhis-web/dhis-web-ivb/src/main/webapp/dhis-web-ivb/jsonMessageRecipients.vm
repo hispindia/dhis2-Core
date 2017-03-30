@@ -1,0 +1,12 @@
+#set( $userSize = $users.size() )
+{ "matches": [
+#foreach( $user in $users )
+  {
+  	#if(${user.email})
+    	"id": "${user.email}",
+    	"text": "$!encoder.jsonEncode( ${user.firstName} ) $!encoder.jsonEncode( ${user.surname} )"
+     #end	
+  }#if( $velocityCount < ( $userSize )),#end
+#end
+
+]}

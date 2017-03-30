@@ -1,0 +1,922 @@
+#set( $reportWarning = "Y" )
+
+<style >
+    th, td
+    {       
+        vertical-align: middle !important;
+    }
+
+
+/* tables */
+table.tablesorter {
+    font-family:arial;
+    background-color: #CDCDCD;
+    margin:10px 0pt 15px;
+    font-size: 7pt;
+    width: 100%;
+    text-align: left;   
+table-layout:fixed;	
+}
+table.tablesorter thead tr th, table.tablesorter tfoot tr th {
+    background-color: #e6EEEE;
+	table-layout: fixed
+    border: 1px solid #FFF;
+    font-size: 7.4pt;
+    padding: 1px;
+	font-family: Arial;
+}
+table.tablesorter thead tr .header {
+    background-image: url(bg.gif);
+	
+    background-repeat: no-repeat;
+    background-position: center right;
+    cursor: pointer;
+}
+table.tablesorter tbody td {
+    color: #3D3D3D;
+	table-layout: fixed
+    padding: 1px;
+    background-color: #FFF;
+    vertical-align: left;
+}
+table.tablesorter tbody tr.odd td {
+    background-color:#F0F0F6;
+	word-wrap:break-word;
+}
+table.tablesorter thead tr .headerSortUp {
+    background-image: url(asc.gif);
+	
+}
+table.tablesorter thead tr .headerSortDown {
+    background-image: url(desc.gif);
+	
+}
+table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
+background-color: #8dbdd8;
+}
+
+table.tablesorter td:hover {
+ background-color: #ffff99;
+}
+
+table.tablesorter tr.odd td:hover {
+ background-color: #ffff99;
+}
+
+</style>
+<script type="text/javascript">
+$.ig.loader({
+    scriptPath: "js/",
+    cssPath: "http://cdn-na.infragistics.com/igniteui/2016.1/latest/css/",
+    resources: "igGrid.Summaries"
+});
+jQuery(function() {
+    $('#toUser').show();
+    $('#recipients').select2({
+       minimumInputLength: 1,
+       multiple: true, 
+       width: "546px",      
+       ajax: {
+           url: 'getMessageRecipients.action',
+           dataType: 'json',
+           data: function(term, page) {
+                return {
+                    filter: term
+                }
+           },
+           results: function(data, page) {
+            return {               
+               results: data.matches }
+           }
+       }
+    });
+});
+
+</script>
+
+<script>
+    function getShareLink()
+    {       
+        $('#shareSubject').val('GAVI Applications Report');
+        $('#orgUnitIds option').attr('selected', 'selected');
+        var orgUnitIds = document.getElementById('orgUnitIds').options;
+        var ids = '';
+        for(var i=0;i <= orgUnitIds.length-1 ; i++)
+        {   
+            ids = ids+'&orgUnitIds='+orgUnitIds[i].value;
+        }
+        url = document.location.href +ids;
+        $('#shareText').val('Link to view the report: \n \n' + url);
+        $( "#shareLinkToUser" ).dialog('open');     
+    }
+    function getKeyFlagDetails(value,comment,source,orgName,area)
+    {
+        $('#detailSection').remove();
+        $('#areaAndCountry').find('#content').remove();
+        $('#areaAndCountry').append("<div id='content'><b style='float:left;'> Area: "+area+"</b><b style='float:right;'>Country: "+orgName+"&nbsp;</b> </div>");
+        $('#detailTable').append("<tr id='detailSection'><td>"+value+"</td><td>"+comment+"</td><td>"+source+"</td></tr>")
+        $( '.keyFlagDetail' ).css( 'display','block' );
+    }
+    $(function() {
+        $( document ).tooltip({
+            track: true
+        });
+    });
+    
+ 
+    
+</script>
+ <style>
+    @media print {
+    @page { margin: 0; }
+        body { margin: 1.6cm; }
+    }
+</style>
+<select id="orgUnitIds" multiple style="display:none;">
+    #foreach( $orgUnit in $orgUnitList )
+        <option value="$orgUnit.id"></option>
+    #end
+</select>
+<form id="form1" name="form1" action="exportToWorkBook.action" method="post" onsubmit="return exportToExcel()" target="_newtab">
+
+    <input type="hidden" name="htmlCode" id="htmlCode" />
+
+    <div align="right" style="width:100%;margin:auto;padding-top:8px;padding-bottom:3px;">
+        <input type="button" onclick="location.href='GetMMRStatus.action'" value="Change Selections"/>&nbsp;
+        
+		<input type="submit" value="Download As Excel"/>&nbsp;
+        <input type="button" value="Print" onclick="javascript:printDiv('htmlContent')" />
+        <input type="button" value="Share" onclick="javascript: getShareLink()"/>
+    </div>
+
+    <hr/>  
+    
+    <div id="htmlContent" style="width:100%;margin:auto; word-wrap: break-word;" >        
+        <table >
+            <tr>
+                <td colspan="3"><h2>$i18n.getString( "M/MR_Status_report" )</h2></td>
+             </tr>  
+        </table>
+		
+		<table style="float:right">
+			<tr>		
+				<td  style="width:20px; background-color:limegreen;border-color:#FFFFFF;margin-left:400px;white-space:nowrap" ></td>
+				<td  style="border-color:#FFFFFF; background-color:white;white-space:nowrap; font-size:14px"> On Track     </td>       
+          
+				<td  style="width:20px; background-color:red;border-color:#FFFFFF; margin-left:70px;white-space:nowrap"></td>
+				<td  style="border-color:#FFFFFF;background-color:white;white-space:nowrap; font-size:14px">Not on Track    </td>
+			
+				<td  style="width:20px; background-color:yellow;border-color:#FFFFFF; margin-left:70px;white-space:nowrap"></td>
+				<td  style="border-color:#FFFFFF;background-color:white;white-space:nowrap; font-size:14px">Ongoing     </td>
+		  
+				<td  style="width:20px; background-color:darkgray;border-color:#FFFFFF; margin-left:70px;white-space:nowrap"></td>
+				<td  style="border-color:#FFFFFF;background-color:white;white-space:nowrap; font-size:14px">Not available     </td>
+		  
+				<td  style="width:20px; background-color:lightgray ;border-color:#FFFFFF; margin-left:70px;white-space:nowrap"></td>
+				<td  style="border-color:#FFFFFF;background-color:white;white-space:nowrap; font-size:14px">Not applicable    </td>
+		  
+		  </tr>
+		</table>
+        <br/>
+               <table  id="table1" class="tablesorter" >
+       
+     
+            <thead>
+                <tr>
+                	<th align="left" style="vertical-align: middle;display:none;" word-wrap= "break-word" max-width= "20px;">$i18n.getString( "iso_code" )</th>
+                    <th align="left" style="vertical-align: middle;"  width="4%" word-wrap= "break-word">$i18n.getString( "country" )</th>
+                    <th align="left" style="vertical-align: middle;"  width="3%"  word-wrap= "break-word" >$i18n.getString( "who_region" )</th>
+                    <th align="left" style="vertical-align: middle;"  width="3.5%" >$i18n.getString( "unicef_region" )</th>
+                <!--    <th align="left" style="vertical-align: middle;"  width="4%"   word-wrap= "break-word">$i18n.getString( "MMRGroupSet" )</th>-->
+                    
+                    <th align="left" style="vertical-align: middle;" width="3%"  word-wrap= "break-word" >$i18n.getString( "gavi_eligibility" )</th>
+                                        
+                    <th align="left" style="vertical-align: middle;" width="3.4%"   word-wrap= "break-word"> $i18n.getString( "mmr_Campaign_start_date" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"    word-wrap= "break-word">Comment of $i18n.getString( "mmr_Campaign_start_date" )</th>
+                    #end
+
+                    <th align="left" style="vertical-align: middle;"  width="3.4%"  word-wrap= "break-word" >$i18n.getString( "mmr_Campaign_end_date" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"    word-wrap= "break-word">Comment of $i18n.getString( "mmr_Campaign_end_date" )</th>
+                    #end
+
+                    <th align="left" style="vertical-align: middle;"  width="3%"   word-wrap= "break-word">$i18n.getString( "Age_Group_Lower_Limit" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"  width="4%"  word-wrap= "break-word" >Comment of $i18n.getString( "Age_Group_Lower_Limit" )</th>
+                    #end
+
+                    <th align="left" style="vertical-align: middle;"  width="3%"   word-wrap= "break-word">$i18n.getString( "AgeGroup_Upper_Limit" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"  width="4%"   word-wrap= "break-word">Comment of $i18n.getString( "AgeGroup_Upper_Limit" )</th>
+                    #end
+
+                    <th align="left" style="vertical-align: middle;"  width="4%"  word-wrap= "break-word" >$i18n.getString( "Total_target_population" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"  width="3%"  word-wrap= "break-word" >Comment of $i18n.getString( "Total_target_population" )</th>
+                    #end
+                    
+                    <th align="left" style="vertical-align: middle;"  width="3%"  word-wrap= "break-word" >$i18n.getString( "Funding_Source" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"  width="4%"   word-wrap= "break-word">Comment of $i18n.getString( "Funding_Source" )</th>
+                    #end
+
+                    <th align="left" style="vertical-align: middle;"  width="2.8%"  >$i18n.getString( "Type_of_Vaccine" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"  width="4%"  word-wrap= "break-word" >Comment of $i18n.getString( "Type_of_Vaccine" )</th>
+                    #end
+
+                    <th align="left" style="vertical-align: middle;"  width="2.8%"  word-wrap= "break-word" >$i18n.getString( "Extent" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"  width="4%"   word-wrap= "break-word">Comment of $i18n.getString( "Extent" )</th>
+                    #end
+
+                    <th align="left" style="vertical-align: middle;"  width="4.5%"  word-wrap= "break-word" >$i18n.getString( "Other_interventions" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"   word-wrap= "break-word">Comment of $i18n.getString( "Other_interventions" )</th>
+                    #end   
+					
+					 <th align="left" style="vertical-align: middle;"  width="4%"  word-wrap= "break-word" >$i18n.getString( "Application_date" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"   word-wrap= "break-word">Comment of $i18n.getString( "Application_date" )</th>
+                    #end   
+					
+				
+					<th align="left" style="vertical-align: middle;"  width="3.5%"   word-wrap= "break-word">$i18n.getString( "Gavi_DL_MRI_letter_date" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"  word-wrap= "break-word" >Comment of $i18n.getString( "Gavi_DL_MRI_letter_date" )</th>
+                    #end 
+					
+					 <th align="left" style="vertical-align: middle;"  width="3.4%"  word-wrap= "break-word" >$i18n.getString( "PoA_Budget_Date" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"  word-wrap= "break-word" >Comment of $i18n.getString( "PoA_Budget_Date" )</th>
+                    #end   
+					
+					 <th align="left" style="vertical-align: middle;"  width="3.5%"   word-wrap= "break-word">$i18n.getString( "Partner_ops_funds_date_available" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"  >Comment of $i18n.getString( "Partner_ops_funds_date_available" )</th>
+                    #end   
+					
+					 <th align="left" style="vertical-align: middle;"  width="3%"  word-wrap= "break-word">$i18n.getString( "Ops_funds_date_available_at_local_level" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"  word-wrap= "break-word">Comment of $i18n.getString( "Ops_funds_date_available_at_local_level" )</th>
+                    #end   
+					
+					 <th align="left" style="vertical-align: middle;"  width="3%"  word-wrap= "break-word">$i18n.getString( "Vaccines_device_order_date" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"  word-wrap= "break-word">Comment of $i18n.getString( "Vaccines_device_order_date" )</th>
+                    #end   
+					
+						 <th align="left" style="vertical-align: middle;"  width="4%"  word-wrap= "break-word">$i18n.getString( "Micro-plan_date" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"  word-wrap= "break-word" >Comment of $i18n.getString( "Micro-plan_date" )</th>
+                    #end  
+					
+						 <th align="left" style="vertical-align: middle;"  width="4%"  word-wrap= "break-word">$i18n.getString( "Readiness_assessment_4m" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"  word-wrap= "break-word">Comment of $i18n.getString( "Readiness_assessment_4m" )</th>
+                    #end  
+					
+						 <th align="left" style="vertical-align: middle;"  width="4%"  word-wrap= "break-word">$i18n.getString( "Readiness_assessment_1m" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"  word-wrap= "break-word">Comment of $i18n.getString( "Readiness_assessment_1m" )</th>
+                    #end  
+					
+						 <th align="left" style="vertical-align: middle;"  width="3%"  word-wrap= "break-word">$i18n.getString( "Vaccine_delivery" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"  width="4%"  word-wrap= "break-word">Comment of $i18n.getString( "Vaccine_delivery" )</th>
+                    #end  
+					
+							 <th align="left" style="vertical-align: middle;"  width="3.5%"   word-wrap= "break-word" max-width= "10px;">$i18n.getString( "Post_SIA_survey_date_proposal_approved" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"   max-width= "10px;"  word-wrap= "break-word">Comment of $i18n.getString( "Post_SIA_survey_date_proposal_approved" )</th>
+                    #end  
+					
+					 <th align="left" style="vertical-align: middle;"  width="3.5%"   word-wrap= "break-word" max-width= "10px;">$i18n.getString( "SIA_data_completeness" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"   max-width= "10px;"  word-wrap= "break-word">Comment of $i18n.getString( "SIA_data_completeness" )</th>
+                    #end  
+					
+					 <th align="left" style="vertical-align: middle;"  width="3.5%"   word-wrap= "break-word" max-width= "10px;">$i18n.getString( "SIA_readiness_status" )</th>
+                    #if( $!includeComments == "YES" )
+                    <th align="left" style="vertical-align: middle;display:none;"   max-width= "10px;"  word-wrap= "break-word">Comment of $i18n.getString( "SIA_readiness_status" )</th>
+                    #end  
+                </tr>
+            </thead>
+            
+            <tbody >
+			
+				
+                #foreach( $orgUnit in $orgUnitList )   
+                         ##  #foreach( $org in $selectedOuParent )   
+							## #if( $org.contains($orgUnit.getParent()))
+					
+                                  #set( $mark1 = $orgUnit.getParent().shortName)
+								 
+								  ## #break; 
+								   ## #else
+                                  ## #set( $mark1 = "true" )
+                                   ## #end 
+                         ##  #end
+							
+							#*    #foreach( $org in $whoregions ) 
+                           #if( $org.getMembers().contains($orgUnit))
+								   #set( $mark1 = $org.name)
+								  #break;
+                                 #else
+                                  #set( $mark1 = "true" )
+                                   #end 
+                                    #end  *#
+						  
+								  #foreach( $org1 in $unicef ) 
+                           #if( $org1.getMembers().contains($orgUnit))
+								  #set( $mark2 = $org1.name)
+								  #break;
+                                 #else
+                                  #set( $mark2 = "true" )
+                                   #end 
+                                   
+                                   #end
+                                    
+                    #if( $mark )
+                        #set( $mark = false )
+                    #else
+                        #set( $mark = true )
+                    #end                        
+                    <tr #if( $mark ) bgcolor = "#F0F0F6" #else bgcolor="#FFFFFF"  #end>
+                        <td align="left" style="vertical-align: middle;display:none;">$!orgUnit.code</td>
+                        <td align="left" style="vertical-align: middle;"><a href="loadSingleCoutryEntryForm.action?dataSetUId=$dataSetUId&orgUnitUid=$orgUnit.uid">$!orgUnit.name</a></td>
+                        <td align="left" style="vertical-align: middle;">$mark1</td>
+                        <td align="left" style="vertical-align: middle;">$mark2.replace("UNICEF ","")</td>
+                     
+
+                        <!-- GAVI eligibility -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:4" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) )
+						
+                        #set( $tempVal = $!mapValue.value )
+						#set($comment=$!mapValue.comment)
+
+                        #set( $tempVal = $tempVal.replaceAll(" ","") )
+                        #set( $tempVal = $tempVal.toLowerCase() )
+                        #if( $tempVal == "eligible" || $tempVal == "graduate" )
+                            #set( $tempVal = "Yes" )
+                        #elseif( $tempVal == "noteligible" )
+                            #set( $tempVal = "No" )
+                        #else
+                            #set( $tempVal = "Not Applicable" )
+                        #end
+						
+                       #if($tempVal == "Yes")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$tempVal </font></td>
+						#else
+						
+						<td  align="left" style="vertical-align: middle;" title="$!mapValue.comment" >$tempVal</td>
+						#end
+                        <!-- Campaign start date -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:727" )
+                        #set( $mapValue = "" )
+						
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+						#set($Campaign=$!mapValue.comment)
+						#if($!mapValue.comment!="")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td  align="left" style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+						
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+                        #end
+
+                        <!-- Campaign end date -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:728" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+						#if($!mapValue.comment!="")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+                        #end
+
+                        <!-- Age Group - Lower Limit -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:729" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+						#if($!mapValue.comment!="")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+                        #end
+
+                        <!-- Age Group - Upper Limit -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:750" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+						
+                        #if($!mapValue.comment!="")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+                        #end
+
+                        <!-- Total target population -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:730" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+                        #if($!mapValue.comment!="")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+                        #end
+
+                        <!-- Funding Source -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:731" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+						#if($!mapValue.comment!="")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+                        #end
+
+                        <!-- Type of Vaccine -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:732" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+                        #if($!mapValue.comment!="")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+                        #end
+
+                        <!-- Extent -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:733" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+                        #if($!mapValue.comment!="")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+                        #end
+
+                        <!-- Other interventions -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:734" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+                        #if($!mapValue.comment!="")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+						#end
+						
+						 <!-- Application date -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:736" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+                        #if($!mapValue.comment!="")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+						#end
+						
+						 <!-- Gavi DL / MRI letter date -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:737" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+                        #if($!mapValue.comment!="")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        #if( $!includeComments == "YES" )
+                        <td align="left"  style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+						#end
+						
+						 <!-- Budget Date -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:735" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+                        #if($!mapValue.comment!="")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+						#end
+						
+						 <!-- Partner ops funds - date available -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:738" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+                        #if($!mapValue.comment!="")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+						#end
+						
+						 <!-- Ops funds date available at local level -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:739" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+                        #if($!mapValue.comment!="")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+                        #end
+                        
+						
+						 <!-- Vaccines + device order date -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:740" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+                       #if($!mapValue.comment!="")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+                        #end
+                        
+						
+						 <!-- Micro-plan date -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:741" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+                        #if($!mapValue.comment!="")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+                        #end
+                        
+						
+						 <!-- Readiness assessment - 4m -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:739" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+                        #if($!mapValue.comment!="")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        #if( $!includeComments == "YES" )
+                        <td style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+                        #end
+                        
+						
+						 <!-- Readiness assessment - 1 m -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:739" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+                        #if($!mapValue.comment!="")
+						
+						<td style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+                        #end
+                        
+						
+						 <!-- Vaccine delivery -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:748" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+                        #if($!mapValue.comment!="")
+						
+						<td   style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+                        #end
+                        
+						
+						 <!-- Post-SIA survey – date proposal approved -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:749" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+                        #if($!mapValue.comment!="")
+						
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>
+						#else
+						<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" >$!mapValue.value</td>
+						#end
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+						#end
+						
+							 <!-- SIA data completness -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:876" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+                  <!--    <td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>-->
+						
+				
+						#if($!mapValue.value == "On Track")
+							<td align="left" style="vertical-align: middle; background-color: limegreen;" title="$!mapValue.comment"><font color=black>$!mapValue.value</td>
+						
+						#elseif($!mapValue.value == "Not on Track")
+							<td align="left" style="vertical-align: middle; background-color: red;" title="$!mapValue.comment"><font color=black>$!mapValue.value</td>
+							
+						#elseif($!mapValue.value == "Ongoing")
+							<td align="left" style="vertical-align: middle; background-color:yellow;" title="$!mapValue.comment"><font color=black>$!mapValue.value</td>
+							
+						#elseif($!mapValue.value == "Not Available")
+							<td align="left" style="vertical-align: middle; background-color: darkgray ;" title="$!mapValue.comment"><font color=black>$!mapValue.value</td>
+							
+						#elseif($!mapValue.value == "Not Applicable")
+							<td align="left" style="vertical-align: middle; background-color: lightgray ;" title="$!mapValue.comment"><font color=black>$!mapValue.value</td>
+							
+						#else
+							<td align="left" style="vertical-align: middle; background-color: white;" title="$!mapValue.comment"><font color=black>$!mapValue.value</td>
+							
+						#end
+
+						#if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+						#end
+						
+							 <!-- SIA readiness status -->
+                        #set( $mapKey = "" )
+                        #set( $mapKey = "$orgUnit.id:877" )
+                        #set( $mapValue = "" )
+                        #set( $mapValue = $!dataValueMap.get( $mapKey ) ) 
+                       
+						<!--<td align="left" style="vertical-align: middle;" title="$!mapValue.comment" ><font color=blue>$!mapValue.value</font></td>-->
+						
+						#if($!mapValue.value == "On Track")
+							<td align="left" style="vertical-align: middle; background-color: limegreen;" title="$!mapValue.comment"><font color=black>$!mapValue.value</td>
+						
+						#elseif($!mapValue.value == "Not on Track")
+							<td align="left" style="vertical-align: middle; background-color: red;" title="$!mapValue.comment"><font color=black>$!mapValue.value</td>
+							
+						#elseif($!mapValue.value == "Ongoing")
+							<td align="left" style="vertical-align: middle; background-color:yellow;" title="$!mapValue.comment"><font color=black>$!mapValue.value</td>
+							
+						#elseif($!mapValue.value == "Not Available")
+							<td align="left" style="vertical-align: middle; background-color: darkgray ;" title="$!mapValue.comment"><font color=black>$!mapValue.value</td>
+							
+						#elseif($!mapValue.value == "Not Applicable")
+							<td align="left" style="vertical-align: middle; background-color: lightgray ;" title="$!mapValue.comment"><font color=black>$!mapValue.value</td>
+							
+						#else
+							<td align="left" style="vertical-align: middle; background-color: white;" title="$!mapValue.comment"><font color=black>$!mapValue.value</td>
+							
+						#end
+						
+                        #if( $!includeComments == "YES" )
+                        <td align="left" style="vertical-align: middle;display:none;">$!mapValue.comment</td>
+                        #end
+                        
+                    </tr>
+                #end
+            </tbody>
+        </table>
+        <br/><br/><br/>
+        <table style="margin:auto;display:none;color: #9F6000;background-color: #FEEFB3;border: 1px solid;" width="100%">
+            <tr>
+                <td colspan="5">$i18n.getString( "report_inline_security_warning" )</td>
+            </tr>
+        </table>
+    </div>
+</form>
+
+
+<div id="shareLinkToUser" title="Share Link to User">
+        <fieldset>
+            <label for="toUser">$i18n.getString( "maintenance_users" )</label>
+            <input type="hidden" name="recipients" id="recipients" class="text ui-widget-content ui-corner-all" placeholder="Enter User Name"/>
+            <br/><br/>
+            <label for="shareSubject">$i18n.getString( "feedback_subject" )</label>
+            <input type="text" id="shareSubject" name="shareSubject" class="text ui-widget-content ui-corner-all" />
+            <label for="shareText">$i18n.getString( "feedback_text" )</label>
+            <textarea id="shareText" name="shareText" class="text ui-widget-content ui-corner-all" rows="6">                
+            </textarea>
+        </fieldset>
+        <br/>
+        <hr/>
+        <span style="float:right;">
+        <a id="send" href="#">Send</a>
+        <a id="cancel" href="#">Cancel</a>
+        </span>
+   </div>
+    
+<style>
+    label, #toUser ,#shareText ,#shareSubject{ 
+        display:block;
+    }
+        #recipients ,#shareText ,#shareSubject  { 
+        margin-bottom:12px;
+        width:95%; 
+        padding: .4em; 
+    }   
+    #shareLinkToUser fieldset   { 
+        padding:0;
+        border:0;
+        margin-top:25px;
+    }
+</style>
+<script>
+    
+    jQuery(function() { 
+    
+    $("#send").button();
+    $("#send").click(function() {
+            
+            $("#send").attr("href","mailto:"+$('#recipients').val().replace(/[,]/g,';')+"?subject="+$('#shareSubject').val()+"&body="+escape(document.getElementById('shareText').value));
+            $("#shareLinkToUser").dialog('close');
+    });
+    $("#cancel").button();
+    $("#cancel").click(function() {
+        $("#shareLinkToUser").dialog('close');
+    });
+        var emailIds = 'null';
+        $( "#shareLinkToUser" ).dialog({
+                autoOpen: false,
+                height: 420,
+                width: 595,
+                modal: true,
+                show: "blind",
+                hide: "explode"               
+           
+        });
+    });
+    function sendMsg()
+    {
+            
+    
+    }
+</script>
+<script>
+    $(document).ready(function()
+    {
+        $("#table1").tablesorter( {widgets: ['zebra']} );
+    });
+        
+    function exportToExcel()
+    {
+        var currentFlaggedImgPath = $('.flagedImg').find('img').attr('src');
+        var currentUnFlaggedImgPath = $('.unFlagedImg').find('img').attr('src');
+        
+        var greenFlag = $('#greenFlag').val();
+        var greyFlag = $('#greyFlag').val();
+        
+        
+        $('.flagedImg').find('img').remove();
+        $('.unFlagedImg').find('img').remove();
+        
+        $('.flagedImg').append('<font size=\"20\" color=\"green\">*</font>')
+        $('.unFlagedImg').append('<font size=\"20\" color=\"#A4A4A4\">*</font>');
+       
+        var html=document.getElementById('htmlContent').innerHTML;
+		html = html.replace(/green/g, '');
+	
+
+   document.getElementById("htmlCode").value = html;
+        //  document.getElementById('htmlCode').value=(document.getElementById('htmlCode').value).replaceAll("green","black");
+        $('.flagedImg').text('');
+        $('.unFlagedImg').text(''); 
+        
+        $('.flagedImg').append('<img src=\"'+currentFlaggedImgPath+'\" width=\"10\" height=\"10\" style=\"float:left;\" \>');
+        $('.unFlagedImg').append('<img src=\"'+currentUnFlaggedImgPath+'\" width=\"10\" height=\"10\" style=\"float:left;\" \>');
+        return true;
+    }
+    
+	/*var tableToExcel = function() {
+
+
+   sa = true; 
+   var myBlob = new Blob( [document.getElementById('htmlContent').innerHTML] , {type: 'application/vnd.ms-excel'});
+   var url = window.URL.createObjectURL(myBlob);
+   var a = document.createElement("a");
+   document.body.appendChild(a);
+   a.href = url;
+   a.download = "newfile.xls"; a.click();
+     var workbook = new $.ig.excel.Workbook();
+   var worksheet = workbook.worksheets().add( "newfile" );
+ 
+   worksheet.rows(0).cells(0).value("Rotated Text");
+   //adding some delay in removing the dynamically created link solved the problem in FireFox 
+   setTimeout(function() {window.URL.revokeObjectURL(url);},0);
+
+ 
+};*/
+   
+   var tableToExcel = (function() {
+  var uri = 'data:application/vnd.ms-excel;base64,'
+    , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+    , base64 = function(s) { return window.btoa(unescape(encodeURIComponent(s))) }
+    , format = function(s, c) { return s.replace(/{(\w+)}/g, function(m, p) { return c[p]; }) }
+  return function(table, name) {
+    if (!table.nodeType) table = document.getElementById(table)
+    var ctx = {worksheet: name || 'Worksheet', table: table.innerHTML}
+    window.location.href = uri + base64(format(template, ctx))
+  }
+});
+   
+  
+    function printDiv( divID ) 
+    {
+        //Get the HTML of div
+        var divElements = document.getElementById(divID).innerHTML;
+        
+        //Get the HTML of whole page
+        var oldPage = document.body.innerHTML;
+
+        //Reset the page's HTML with div's HTML only
+        document.body.innerHTML = "<html><head><title></title></head><body>" + divElements + "</body>";
+
+        //Print Page
+        window.print();
+
+        //Restore orignal HTML
+        document.body.innerHTML = oldPage;  
+		
+		window.location.reload();
+    }
+</script>

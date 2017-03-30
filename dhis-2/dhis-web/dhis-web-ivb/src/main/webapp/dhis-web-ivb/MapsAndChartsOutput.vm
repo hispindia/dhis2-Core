@@ -1,0 +1,245 @@
+<!--<link rel="stylesheet" href="http://dhis2-cdn.org/v221/ext/resources/css/ext-plugin-gray.css" />
+<script src="http://dhis2-cdn.org/v221/ext/ext-all.js"></script>
+<script src="http://dhis2-cdn.org/v221/openlayers/OpenLayers.js"></script>
+<script src="http://dhis2-cdn.org/v221/plugin/map.js"></script>-->
+
+
+<!--<script type="text/javascript" src = "../dhis-web-ivb/javascript/ext-all.js"> </script>-->
+
+<script type="text/javascript" src = "../dhis-web-ivb/javascript/saveSvgAsPng.js"> </script>
+<script type="text/javascript" src = "../dhis-web-ivb/javascript/d3.v3.min.js"> </script>
+
+<script type="text/javascript" src = "../dhis-web-ivb/javascript/ext-all.js"> </script>
+
+<script type="text/javascript" src = "../dhis-web-ivb/javascript/OpenLayers.js"> </script>
+<script type="text/javascript" src = "../dhis-web-ivb/javascript/map.js"> </script>
+<script type="text/css" src = "../dhis-web-ivb/css/ext-plugin-gray.css"> </script>
+<script src="javascript/html2canvas.js"></script>
+<script>
+    function genScreenshot() {
+        html2canvas($('#area1'), {
+            onrendered: function (canvas) {
+                $('#box1').html("");
+
+
+                $('#test').attr('href', canvas.toDataURL("image/png"));
+                $('#test').attr('download', '"$deName"Map.png');
+                $('#test')[0].click();
+            }
+
+        });
+    }
+</script>
+
+
+<script>
+    //var base = ../;
+    var base = "../";
+    var orgId =[];
+
+    Ext.onReady( function() {
+        var index=  [12,25, 26, 27,28,29,30,36].indexOf($groupList);
+
+        console.log(index);
+        if(index>=0)
+        {setLinks();}
+        else{setLinks1();}
+
+    });
+
+    function setLinks1() {
+        DHIS.getMap({
+            url: base,
+            el: "map1",
+            mapViews: [{
+                columns: [{dimension: "dx", items: [${deelementId}]}], // de
+                rows: [{dimension: "ou", items: [${orgidlist}]}], // organisation units,
+
+                filters: [{dimension: "pe", items: [{id: "1950"}]}], // period
+                classes: 7,
+
+                width:200,
+                height:200,
+                legendSet: ${legendid},
+
+                layer: "thematic4",
+                opacity: 0.9
+
+            },
+                {  // de
+                    columns: [{dimension: "dx", items: [${deelementId}]}],
+                    rows: [{dimension: "ou", items: [${rmorgidlist}]}], // organisation units,
+                    filters: [{dimension: "pe", items: [{id: "1950"}]}], // period
+                    // period
+                    classes: 7,
+
+                    width:200,
+                    height:200,
+
+                    layer: "boundary"
+                }
+            ],
+            //layer: "boundary",
+            hideLegend: "true",
+            baseLayer : "none"
+
+        });
+    }
+
+
+    function setLinks() {
+        DHIS.getMap({
+            url: base,
+            el: "map1",
+            mapViews: [{
+                columns: [{dimension: "dx", items: [${deelementId}]}], // de
+                rows: [{dimension: "ou", items: [${orgidlist}]}], // organisation units,
+
+                filters: [{dimension: "pe", items: [{id: "1950"}]}], // period
+                classes: 7,
+
+                width:200,
+                height:200,
+                legendSet: ${legendid},
+
+                layer: "thematic4",
+                opacity: 0.9
+
+            }],
+
+            hideLegend: "true",
+            baseLayer : "none"
+
+        });
+    }
+</script>
+
+
+<style>
+    .map_wraper{
+        position:relative;
+        clear:both;
+        width: 1000px;
+        height: 1000px;
+    }
+    .map_wraper:after{
+        background: none;
+        content: " ";
+        display: inline-block;
+        font-size: 0;
+        height: 100%;
+        left: 0;
+        opacity: 0;
+        position: relative;
+        top: 0;
+        width: 100%;
+        z-index: 9;
+    }
+    .olControlPanel{
+        position: absolute;
+        z-index: 1007;
+        display:none;
+    }
+
+</style>
+<html>
+
+<head>
+
+
+<body>
+
+
+<select id="orgUnitIds" multiple style="display:none" >
+    #foreach( $orgUnit in $mapOrgUnitList )
+    <option value="$orgUnit.id">$orgUnit.uid</option>
+    #end
+</select>
+
+<button style="width:100px;float:right"><a href="javascript:genScreenshot()">Download</a></button>
+<button style="width:100px;float:right" onclick="location.href='MapsAndChartsIntro.action'"><a>Back</a></button>
+
+<a id="test"></a>
+
+    <!--<a id="test"></a>-->
+<!--<button id ="btnSave" onclick="downloadmap()" style="width:100px;float:right">Download</button>-->
+<!--<input type="button" onclick="location.href='MapsAndChartsIntro.action'" value="Back" style="width:100px;float:right"/>-->&nbsp;
+<div  id="area1" >
+<p style ="font-size:18px; font-weight:bold; margin-left:100px" >Vaccine Introduction Status for $deName $parentname - $today </p>
+<p style = "font-size:16px; font-weight:bold; margin-left:100px;color: red">These maps are available for viewing but not to be used for sharing externally just yet. </p>
+</p>
+
+
+<div id="map1" class="map_wraper" style="pointer-events:none
+">
+
+</div>
+
+
+<!--<div class="table-responsive"style="font-size: 9pt; float:left; margin-top:60px">-->
+    <!--<svg  xmlns="http://www.w3.org/2000/svg"-->
+          <!--xmlns:xlink="http://www.w3.org/1999/xlink"-->
+          <!--id="test1"-->
+          <!--height="0px"-->
+          <!--width="0px">-->
+        <!--<image-->
+                <!--id="testimg1"-->
+                <!--xlink:href="images/whologo.png"-->
+                <!--width="0"-->
+                <!--height="0"-->
+                <!--x="0"-->
+                <!--y="0"/>-->
+    <!--</svg>-->
+    <table class="table table-bordered">
+
+        <tr>
+            <td  style="width:50px; background-color:green;border-color:#FFFFFF;margin-left:100px;white-space:nowrap" ></td>
+            <td  style="border-color:#FFFFFF; background-color:white;white-space:nowrap; font-size:14px"> Introduced to Routine     </td>
+            <td  style="width:50px; background-color:#66CD00;border-color:#FFFFFF; margin-left:70px;white-space:nowrap"></td>
+            #if( $!deName == "IPV-Vaccine")
+            <td  style="border-color:#FFFFFF;background-color:white;white-space:nowrap; font-size:14px">Introduced Sequentially    </td>
+
+            #else
+            <td  style="border-color:#FFFFFF;background-color:white;white-space:nowrap; font-size:14px">Partially Introduced     </td>
+            #end
+            <td  id ="img" rowspan="2"><img src="images/whologo.png" alt="" border=3 height=60 width=250></td>
+        </tr>
+        <tr>
+
+
+            <td style="width:50px; background-color:#EE7600;border-color:#FFFFFF;white-space:nowrap"></td>
+            #if( $!deName == "IPV-Vaccine")
+            <td style="border-color:#FFFFFF;background-color:white;white-space:nowrap; font-size:14px"> Intent to introduce/Formal Commitment    </td>
+            #else
+            <td style="border-color:#FFFFFF;background-color:white;white-space:nowrap; font-size:14px"> Planned/Partial Introduction Planned     </td>
+            #end
+            <td style="width:50px; background-color:grey;border-color:#FFFFFF;white-space:nowrap"></td>
+            <td style="border-color:#FFFFFF;background-color:white;white-space:nowrap; font-size:14px"> Not available/Not introduced/Not applicable   </td>
+            <td></td>
+
+        </tr>
+        <tr>
+            <td  style="height:30px; background-color:lightgrey;border-color:#DCDCDC;margin-left:100px;white-space:nowrap " ></td>
+            <td  style="border-color:#FFFFFF; background-color:white;white-space:nowrap; font-size:14px;height:30px"> Not WHO Member State    </td>
+            <td  style="height:30px; background-color:#F5F5F5;border-color:#DCDCDC;margin-left:100px;white-space:nowrap " ></td>
+            <td  style="border-color:#FFFFFF; background-color:white;white-space:nowrap; font-size:14px;height :30px"> Not Applicable   </td>
+            <td></td>
+        </tr>
+
+
+    </table>
+    <p style="border-color:#FFFFFF;margin-top:14px;  font-size:14px"> Source: WHO & Partners Immunization Repository, data from WHO Member States only</span></p>
+    <p style="border-color:#FFFFFF;;margin-top:1px; margin-left:10px"> $i18n.getString( "disclaimer_part1" ) $curryear $i18n.getString( "disclaimer_part2" )</p>
+
+<p style = "font-size:16px; font-weight:bold; margin-left:10px;color: red">Please do not use these maps for publication purposes since they are not fully complying with the WHO legal rules for publication. </p>
+</p>
+
+</div>
+</body>
+
+</head>
+
+
+
+</html>
+

@@ -1,0 +1,73 @@
+<script >
+jQuery("#queryDeId").dhisAjaxSelect({
+			source: "../dhis-web-commons-ajax-json/getFilterDataElements.action",
+			iterator: "dataElements",			
+			handler: function(item) {
+				var option = jQuery("<option />");
+				option.text( item.name );
+				option.attr( "value", item.id );
+				option.attr( "title", item.name );
+				return option;
+			}
+});
+</script>
+
+<div style="width:100%;">
+#if( $aggTypeId == "BY OPTION" )
+
+    <table style="width:100%" cellpadding="5" cellspacing="5">
+        <tr>
+            <td style="width:20%" valign="top">$i18n.getString( "option" )</td>
+            <td style="width:80%">
+                <select id="optionSetOption" name="optionSetOption" style="width:500px;height:400px;" multiple >
+                #foreach( $optionSet in $optionSets )
+                    #foreach( $option in $optionSet.options )
+                        <option value="$optionSet.id#@#$option" title="$optionSet.name -- $option" >$optionSet.name -- $option</option>
+                    #end
+                #end
+                </select>
+            </td>
+        </tr>		
+        <tr>
+            <td style="width:20%" valign="top">$i18n.getString( "dataelement" )
+            <td style="width:80%" valign="top">		
+			 <select id="queryDeId" name="queryDeId" style="width:500px;height:400px" multiple >
+                #foreach( $dataElement in $dataElements )
+                    <option value="$dataElement.id" title="$dataElement.name">$dataElement.name</option>
+                #end
+                </select>
+            </td>
+        </tr>
+    </table>
+
+#elseif( $aggTypeId == "BY OPTION SCORE" )
+    <table style="width:100%" cellpadding="5" cellspacing="5">
+        <tr>
+            <td style="width:20%" valign="top">$i18n.getString( "dataelement" )			
+			</td>
+            <td style="width:80%" valign="top">
+                <select id="queryDeId" name="queryDeId" style="width:500px;height:400px" multiple >
+                #foreach( $dataElement in $dataElements )
+                    <option value="$dataElement.id" title="$dataElement.name">$dataElement.name</option>
+                #end
+                </select>
+            </td>
+        </tr>
+    </table>
+#elseif( $aggTypeId == "BY KEYFLAG" )
+    <table style="width:100%" cellpadding="5" cellspacing="5">
+        <tr>
+            <td style="width:20%" valign="top">$i18n.getString( "keyflag" )</td>
+            <td style="width:80%">
+                <select id="keyFlagIndicatorId" name="keyFlagIndicatorId" style="width:500px;height:400px" multiple >
+                #foreach( $indicator in $indicators )
+                    <option value="$indicator.id" title="$indicator.name">$indicator.name</option>
+                #end
+                </select>
+            </td>
+        </tr>
+    </table>
+#else
+    $aggTypeId
+#end
+</div>

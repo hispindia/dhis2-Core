@@ -1,0 +1,58 @@
+
+<script>
+function getDate()
+    {
+        var dateVal = document.getElementById('cMYPyear').value;
+        
+        var dateReg = /^\d{4}$/; 
+        
+        
+     
+        if( dateVal == "" || dateVal.match(dateReg))
+        {
+        
+        }
+        else
+        {
+            alert("Please Enter date in given format YYYY  e.g. 2012");
+            document.getElementById('cMYPyear').value = "";
+            return true;
+        }
+    }
+
+</script>
+<br/>
+
+<div style="font-size:16px; width:93%; margin:auto;" class="ui-widget-header ui-corner-all"><b>$i18n.getString( "cmyp_development_tracking" )</b></div>
+<form id="cmypdReportForm" method="get" action="cmypDevTrackingReportResult.action" onsubmit="return generateHTMLreport()">
+    <input type="hidden" name="orgUnitId" id="orgUnitId"/>
+    <div id="reportFilterDiv" >
+        <table style="width:65%;margin:auto;table-layout:fixed;" cellpadding="4" cellspacing="2">
+             <tr>
+                <td>                    
+                    <div id="orgUnitTreeContainer"  style="height: 250px; width: 100%;">
+                        #organisationUnitSelectionTree1( false, true, true )
+                    </div>
+                 </td>
+              </tr>
+              <tr>
+                 <td>                                         
+                    <br/>
+                    $i18n.getString( "cmyp_end_year" ): <input type="text" id="cMYPyear" name="cMYPyear" title="Date Format: YYYY  e.g. 2012 " onblur="getDate()" /> <br>
+                    <span>(If this field is left blank, the report will be generated for all countries; If a year is selected, the report will list all countries with a cMYP expiring in the year selected and the preceding years;)<span>
+                    <br/> 
+                    <br/>
+                </td>
+                               
+             </tr>
+             
+            <tr>
+                <td>
+                    <input type="submit" value="$i18n.getString( 'get_report' )" id="submit" />             
+                </td>                                
+            </tr>
+         </table>
+	</div>
+
+	<br/><br/>
+</form>

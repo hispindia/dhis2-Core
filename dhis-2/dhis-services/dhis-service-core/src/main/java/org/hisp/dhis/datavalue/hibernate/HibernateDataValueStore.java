@@ -27,10 +27,13 @@ package org.hisp.dhis.datavalue.hibernate;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+import static org.hisp.dhis.common.IdentifiableObjectUtils.getIdentifiers;
+import static org.hisp.dhis.commons.util.TextUtils.getCommaDelimitedString;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Projections;
@@ -51,6 +54,8 @@ import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodStore;
 import org.hisp.dhis.period.PeriodType;
+import org.hisp.dhis.system.objectmapper.DataValueRowMapper;
+import org.hisp.dhis.system.objectmapper.DeflatedDataValueRowMapper;
 import org.hisp.dhis.system.util.DateUtils;
 import org.hisp.dhis.system.util.MathUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -470,4 +475,57 @@ public class HibernateDataValueStore
         
         return ids;
     }
+    
+    // add methods for IVB
+    @Override
+    public Collection<DeflatedDataValue> getDeflatedDataValues( int dataElementId, int periodId, Collection<Integer> sourceIds )
+    {
+        final String sql =
+            "SELECT * FROM datavalue " +
+            "WHERE dataelementid = " + dataElementId + " " +
+            "AND periodid = " + periodId + " " +
+            "AND sourceid IN ( " + getCommaDelimitedString( sourceIds ) + " )";
+        
+        return jdbcTemplate.query( sql, new DeflatedDataValueRowMapper() );
+    }
+    
+    public DataValue getLatestDataValue( DataElement dataElement, DataElementCategoryOptionCombo categoryOptionCombo, OrganisationUnit organisationUnit )
+    {
+        final String hsql = "SELECT v FROM DataValue v, Period p WHERE  v.dataElement =:dataElement "
+            + " AND v.period=p AND v.categoryOptionCombo=:categoryOptionCombo AND v.source=:source ORDER BY p.endDate DESC";
+
+        Session session = sessionFactory.getCurrentSession();
+
+        Query query = session.createQuery( hsql );
+
+        query.setParameter( "dataElement", dataElement );
+        query.setParameter( "categoryOptionCombo", categoryOptionCombo );
+        query.setParameter( "source", organisationUnit );
+        
+        query.setFirstResult( 0 );
+        query.setMaxResults( 1 );
+        
+        return (DataValue) query.uniqueResult();
+    }   
+
+    public DataValue getLatestDataValue( Integer dataElementId, Integer categoryOptionComboId, Integer ouId )
+    {
+        final String hsql = "SELECT v FROM DataValue v, Period p WHERE  v.dataElement.id =:dataElementId "
+            + " AND v.period=p AND v.categoryOptionCombo.id=:categoryOptionComboId AND v.source.id=:ouId ORDER BY p.endDate DESC";
+
+        Session session = sessionFactory.getCurrentSession();
+
+        Query query = session.createQuery( hsql );
+
+        query.setParameter( "dataElementId", dataElementId );
+        query.setParameter( "categoryOptionComboId", categoryOptionComboId );
+        query.setParameter( "ouId", ouId );
+        
+        query.setFirstResult( 0 );
+        query.setMaxResults( 1 );
+
+        return (DataValue) query.uniqueResult();
+    } 
+    
+    
 }

@@ -1,0 +1,3 @@
+	<div id="orgUnitTreeContainer" style="height: 250px;">
+        #organisationUnitSelectionTree1( false, true, false )
+    </div>

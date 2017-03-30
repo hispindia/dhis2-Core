@@ -1,0 +1,126 @@
+<script type="text/javascript">
+
+    var orgUnitId = null;
+	
+	$(document).ready(function(){
+	    $('#myjquerymenu').find('#dataentry').addClass("selected");
+	     $("#submit").button(); 
+	    
+		selectionTreeSelection.setListenerFunction( getOrgUnitId );	
+		selectionTreeSelection.setMultipleSelectionAllowed( false );
+		selectionTree.clearSelectedOrganisationUnits();
+		selectionTree.buildSelectionTree();
+	});
+		    
+    function getOrgUnitId(orgUnits)
+    { 
+        $("#orgUnitId").val( orgUnits[0] );
+    }
+
+	function offlineFormValidation()
+	{
+		var dataSetListBox = document.getElementById('selectedListDataset');
+		
+		if( !$("#orgUnitId").val() )
+        {
+            alert('Please Select Organisation Unit');
+            return false;
+        }	
+		 if( dataSetListBox.options.length <= 0 )
+		{
+			alert("Please select key indicator(s)");
+			return false;
+		}
+		
+        for( i=0; i < dataSetListBox.options.length; i++)
+        {
+            dataSetListBox.options[i].selected = true;
+        }
+		
+		return true;
+	}
+
+	function remSelDataSetFunction()
+	{
+		var dataSetListBox = document.getElementById('selectedListDataset');
+		var dsLBlength = dataSetListBox.options.length;
+		var i = 0;
+		for (i = dsLBlength - 1; i >= 0; i--)
+		{
+			if ( dataSetListBox[i].selected )
+			{
+				dataSetListBox.options[i] = null;
+			}
+		}
+    }
+</script>
+
+<br/>
+<div style="font-size:16px; width:80%; margin:auto;" class="ui-widget-header ui-corner-all"><b>$i18n.getString( "offline_entry_selection" )</b></div>
+
+<form id="offlineForm" name="offlineForm" action="downloadOffLineForm.action" method="post" class="inputForm" onsubmit="return offlineFormValidation()" target="_blank">
+	
+	<input type="hidden" name="orgUnitId" id="orgUnitId" />
+	
+	<div id="reportFilterDiv" style="width:80%; margin:auto; border-width: 1px;background-color:#E0ECF8;border-color: #A9D0F5; display:block;">
+		<table style="width:85%;margin:auto;" cellpadding="4" cellspacing="2">
+    		
+    		<tr>
+                <td>
+                    $i18n.getString( "select_country_or_region" )<br/>
+                    <div id="orgUnitTreeContainer" class="ui-widget-content ui-corner-all" style="height: 166px; width: 330px; overflow:auto;">
+                        <div id="selectionTree" ></div>
+                    </div>
+                </td>                
+		        <td style="text-align:center">&nbsp;</td>
+		        <td>
+                    <input type="checkbox" id="includeData" name="includeData" /> $i18n.getString( "include_latest_data" ) <br/><br/><br/>
+                    
+                    <input type="checkbox" id="includeTA" name="includeTA" /> $i18n.getString( "include_ta" ) <br/><br/><br/>
+                    
+                    $i18n.getString( "use_data_for_selected_organisational_group_only" ) <br/>              
+                    <select style="width:330px;" name="orgUnitGroupId">                     
+                        #foreach($orgGrp in $orgUnitGrpList)
+                            <option value="$orgGrp.id" #if($orgUnitGrpId == $orgGrp.id) selected #end>$orgGrp.name</option>
+                        #end
+                    </select>
+		        </td>
+    		</tr>
+
+    		<tr>
+		        <td>&nbsp;</td>
+		        <td>&nbsp;</td>
+		        <td>&nbsp;</td>    
+    		</tr>
+
+    		<tr>
+        		<td>
+        			$i18n.getString( "select_area_of_work" )<br/>
+          			<select id="availableListDataset" name="availableListDataset" ondblclick="moveSelectedById( 'availableListDataset', 'selectedListDataset' )" multiple="multiple" style="height: 200px; width: 350px;">
+						#foreach( $dataSet in $availableDataSets )
+							<option value="$dataSet.id">$dataSet.displayName</option>
+						#end
+          			</select>
+        		</td>
+		        <td style="text-align:center">
+		            <input type="button" value="&gt;" title="$i18n.getString( 'move_selected' )" style="width:50px" onclick="moveSelectedById( 'availableListDataset', 'selectedListDataset' );"/><br/>
+		            <input type="button" value="&lt;" title="$i18n.getString( 'remove_selected' )" style="width:50px" onclick="moveSelectedById( 'selectedListDataset', 'availableListDataset' );"/><br/>
+		            <input type="button" value="&gt;&gt;" title="$i18n.getString('move_all')" style="width:50px" onclick="moveAllById( 'availableListDataset', 'selectedListDataset' );"/><br/>
+		            <input type="button" value="&lt;&lt;" title="$i18n.getString('remove_all')" style="width:50px" onclick="moveAllById( 'selectedListDataset', 'availableListDataset' );"/>
+		        </td>
+		        <td>
+		            <select id="selectedListDataset" name="selectedListDataset" ondblclick="moveSelectedById( 'selectedListDataset', 'availableListDataset' )" multiple="multiple" style="height: 200px; width: 350px;"></select>
+		        </td>
+				<td>
+                    <a href="javascript:moveUpDataElement('selectedListDataset');"><img src="../images/move_up.png"/></a><br/><br/>
+                    <a href="javascript:moveDownDataElement('selectedListDataset');"><img src="../images/move_down.png"/></a><br/><br/>
+            	</td>
+    		</tr>
+    		<tr>
+		        <td><input type="submit" value="$i18n.getString( 'download' )" style="width:23em" id="submit" /></td>
+		        <td>&nbsp;</td>
+		        <td>&nbsp;</td>    
+    		</tr>
+  		</table>
+  	</div>	
+</form>

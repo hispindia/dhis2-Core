@@ -1,0 +1,43 @@
+<div style="color:#333333;">
+	<b>Technical Assistance for the Indicator: </b> $dataElementName
+</div>
+
+<input type="hidden" name="dataElementId" id="dataElementId"/>
+	<input type="hidden" name="organisationUnitId" id="organisationUnitId"/>
+	<input type="hidden" name="dataElementCategoryOptionComboId" id="dataElementCategoryOptionComboId"/>
+	<input type="hidden" name="dataValue" id="dataValue"/>
+	
+	<table cellspacing="0" cellpadding="0" style="margin:0cm 0cm 0cm 0cm;" width="100%">	
+	<tr >
+		<th><input type="text" size="50" name="techAssisId" id="techAssisId"/></th>
+		<th><input type="button" value="Add Comment" size="20" onclick="saveTechnical()"/></th>		
+	</tr>
+	</table>
+<table align="center" class="altrowstable" id="alternatecolor3" cellspacing="0" cellpadding="0" style="margin:0cm 0cm 0cm 0cm;" width="100%">
+	
+	<tr>		
+		<th width="80">$i18n.getString( "last_updated" )</th>
+		<th width="80">$i18n.getString( "source" )</th>
+		<th width="80">$i18n.getString( "period" )</th>		
+		<th width="150">$i18n.getString( "value" )</th>
+		<th width="180">$i18n.getString( "comment" )</th>			
+	</tr>
+	#foreach( $history in $historyList )
+		#if( "$!history.helpComment" == "" )
+		#else
+		<tr >
+			<td >$!history.timeStamp</td>
+			<td >$!history.storedBy</td>
+			<td >
+                #if( $periodTypeName == "Quarterly" )
+                    $simpleDateFormat1.format( $!history.dataValue.period.startDate ) - $simpleDateFormat2.format( $!history.dataValue.period.endDate )
+                #else
+                    $simpleDateFormat1.format( $!history.dataValue.period.startDate )
+                #end                
+            </td>	
+			<td >$!history.value</td>
+			<td >$!history.helpComment</td>
+		</tr>
+		#end
+	#end	
+</table> 
