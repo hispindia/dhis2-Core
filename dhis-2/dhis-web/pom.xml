@@ -29,6 +29,11 @@
     <module>dhis-web-mobile</module>
     <module>dhis-web-sms</module>
     <module>dhis-web-apps</module>
+	
+	<!-- India Module -->
+	<module>dhis-web-maintenance-in</module>
+	<!-- end -->
+	
     <module>dhis-web-portal</module>
   </modules>
 
