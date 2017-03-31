@@ -1,4 +1,4 @@
-<div id="leftBar">   
+<div id="leftBar">
     <div class="left-bar-menu" ng-controller="LeftBarMenuController">
         <!--
         <ul class="nav nav-pills nav-stacked">
@@ -6,49 +6,70 @@
             <li><a href ng-click="showReportTypes()">{{'reports'| translate}}</a></li>
         </ul>
         -->
-    </div>    
+    </div>
 </div>
 <div id="mainPage">
     <h1>{{'ehs'| translate}}</h1>
     <div style="width: 90%;" class="row col-sm-12">
-        <div class="col-sm-4 ehs-home-container" ng-click="foodSafetyProgram()" style="cursor: pointer">
-            <h2>
-                <img src="../dhis-web-ehs/images/Capture.PNG"  style="height:120px; width:120px;" />
-               <!-- <span class="horizontal-spacing">{{'food_safety'| translate}}</span>--></h2>
+        <div class="col-sm-4 ehs-home-container">
+
+                <img src="../dhis-web-ehs/images/Capture.PNG"  style="height:130px; "/>
+        <table> <tr></tr> <td ng-click="foodSafetyProgram()"> <h2>Food Safety Program </h2></td></tr></table>
+            <!-- <span class="horizontal-spacing">{{'food_safety'| translate}}</span>-->
         </div>
-        <div class="col-sm-4 ehs-home-container" ng-click="waterSafetyProgram()" style="cursor: pointer">
-            <h2>
-                <img src="../dhis-web-ehs/images/watersafety.png"  style="height:120px; width:120px;"/>
-               <!-- <span class="horizontal-spacing">{{'water_safety'| translate}}</span>--></h2>
+        <div class="col-sm-4 ehs-home-container">
+
+                <img src="../dhis-web-ehs/images/watersafety.png" style="height:130px" />
+                <table> <tr></tr> <td ng-click="waterSafetyProgram()"> <h2>Water Quality Program </h2></td></tr></table>
+                <!-- <span class="horizontal-spacing">{{'water_safety'| translate}}</span>-->
         </div>
         <div class="col-sm-4 ehs-home-container" >
-            <h2><a href="../dhis-web-ehs/index.html#/operators-registration?tITlMGNJTbJ"><img src="../dhis-web-ehs/images/registryofbusinessowner.png" style="height:120px; width:120px;" /></a>
+           <img src="../dhis-web-ehs/images/registryofbusinessowner.png"style="height:130px"/>
+
+         <table>  <tr><td><a ng-href="../dhis-web-ehs/index.html#/operators-registration?program=ieLe1vT4Vad"><h2>Registry of Business Owners</h2></a></td></tr></table>
+
+
                 <!--
-                <span class="horizontal-spacing">{{'food_safety'| translate}}</span>--></h2>
+                <span class="horizontal-spacing">{{'food_safety'| translate}}</span>-->
         </div>
         <div class="col-sm-4 ehs-home-container">
-            <img src="../dhis-web-ehs/images/vectorcontrolprogram.png"  style="height:120px; width:120px;"/>
+            <img src="../dhis-web-ehs/images/vectorcontrolprogram.png" style="height:130px"/>
+            <table> <tr></tr> <td> <h2>Vector Control Program </h2></td></tr></table>
             <!--<h2><span class="horizontal-spacing">{{'food_safety'| translate}}</span></h2>-->
         </div>
         <div class="col-sm-4 ehs-home-container">
-            <img src="../dhis-web-ehs/images/Institutionalhygiene.png" style="height:120px; width:120px;" />
+            <img src="../dhis-web-ehs/images/Institutionalhygiene.png" style="height:130px"/>
+            <table> <tr></tr> <td> <h2>Institutional Hygiene</h2></td></tr></table>
             <!--<h2><span class="horizontal-spacing">{{'food_safety'| translate}}</span></h2>-->
         </div>
         <div class="col-sm-4 ehs-home-container">
-            <img src="../dhis-web-ehs/images/porthealth.png"  style="height:120px; width:120px;"/>
+            <img src="../dhis-web-ehs/images/porthealth.png" style="height:130px"/>
+
+            <table> <tr></tr> <td> <h2>Port Health</h2></td></tr></table>
             <!--<h2><span class="horizontal-spacing">{{'food_safety'| translate}}</span></h2>-->
         </div>
         <div class="col-sm-4 ehs-home-container">
-             <a href="../dhis-web-ehs/schedulingInspectionsList.action?listAll=true"><img src="../dhis-web-ehs/images/scheduling.png"  style="height:120px; width:120px;"/></a>
+         <img src="../dhis-web-ehs/images/scheduling.png" style="height:130px"/>
+
+
+            <table>  <tr><td><a ng-href="../dhis-web-ehs/schedulingInspectionsList.action?listAll=true"><h2>Scheduling</h2></a></td></tr></table>
+
+
             <!--<h2><span class="horizontal-spacing">{{'food_safety'| translate}}</span></h2>-->
         </div>
         <div class="col-sm-4 ehs-home-container">
-            <a href="../dhis-web-reporting/displayViewReportForm.action"><img src="../dhis-web-ehs/images/reports.png" style="height:120px; width:120px;" /></a>
+            <img src="../dhis-web-ehs/images/reports.png" style="height:130px" />
+
+            <table>  <tr><td><a ng-href="../dhis-web-ehs/schedulingInspectionsList.action?listAll=true"><h2>Reports</h2></a></td></tr></table>
+
+
             <!--<h2><span class="horizontal-spacing">{{'food_safety'| translate}}</span></h2>-->
         </div>
         <div class="col-sm-4 ehs-home-container">
-            <a href="../dhis-web-ehs/escalationsList.action?listAll=true"> <img src="../dhis-web-ehs/images/Executiveboard.png" style="height:120px; width:120px;" /></a>
+           <img src="../dhis-web-ehs/images/Executiveboard.png" style="height:130px" />
             <!--<h2><span class="horizontal-spacing">{{'food_safety'| translate}}</span></h2>-->
+            <table>  <tr><td><a ng-href="../dhis-web-ehs/escalationsList.action?listAll=true"><h2>Executive board</h2></a></td></tr></table>
+
 
 
         </div>

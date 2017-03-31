@@ -23,7 +23,12 @@
     <table width="70%">
         <tr >
 
-            <td  ng-repeat="item in foodsafetyprograms"   ng-model="example" ng-click=waterSafety(item.id) style="cursor: pointer"><img src="../dhis-web-ehs/images/{{item.id}}.png"  style="height:120px; width:120px;"/> </td>
+
+
+
+            <td ng-repeat="item in foodsafetyprograms"  ng-model="example" ng-click=waterSafety(item.id) > <img src="../dhis-web-ehs/images/{{item.id}}.png"    style="height:120px; width:120px;cursor: pointer"/> <span style="cursor: pointer" ng-click=waterSafety(item.id) ><h1>{{item.name}}</h1></span></td>
+
+
             <!-- <div class="col-sm-6 ehs-home-container" ng-click="foodSafety()" style="cursor: pointer">-->
         <tr>
     </table>
