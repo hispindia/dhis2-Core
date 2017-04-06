@@ -156,6 +156,7 @@ $(function() {
                             <option value="PCV PIE:597:74:-1">PCV PIE</option>
                             <option value="Rota PIE:598:80:-1">Rota PIE</option>
                             <option value="HPV PIE:595:44:-1">HPV PIE</option>
+							<option value="IPV PIE:645:359:-1">IPV PIE</option>
                             <option value="PIE:420:-1:682">PIE</option>
                             <option value="EPI:419:299:681">EPI Review</option>
                             <option value="Surveillance:522:520:-1">Surveillance Review PIE</option>

@@ -2843,7 +2843,7 @@ public class IVBUtil
                             " FROM " +
                                 "( " +
                                     " SELECT periodid,dataelementid,sourceid FROM " + 
-                                        "(SELECT MAX(p.startdate) AS 'startdate',dv.dataelementid,dv.sourceid FROM datavalue dv " +
+                                        "(SELECT MAX(p.startdate) AS startdate,dv.dataelementid,dv.sourceid FROM datavalue dv " +
                                             " INNER JOIN period p ON p.periodid=dv.periodid " +
                                                 " WHERE dv.dataelementid IN ( "+ dataElementIdsByComma +") AND dv.sourceid IN ( " + orgUnitIdsByComma + " ) " + 
                                                 " GROUP BY dv.dataelementid,dv.sourceid " +
@@ -2991,7 +2991,8 @@ public class IVBUtil
                                 " WHERE " +                                
                                     " dataelementid IN ("+ dataElementIdsByComma +") AND " +
                                     " organisationunitid IN ("+ orgUnitIdsByComma +") AND " +
-                                    " commenttype = '"+ commentType +"' ORDER BY p.startdate";
+                                    " commenttype = '"+ commentType;
+                                 //   " commenttype = '"+ commentType +"' ORDER BY p.startdate";
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
             //System.out.println( query );
