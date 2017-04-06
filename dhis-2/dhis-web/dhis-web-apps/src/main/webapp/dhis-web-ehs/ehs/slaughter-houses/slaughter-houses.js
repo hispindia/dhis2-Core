@@ -1,16 +1,16 @@
 //Controller for EHS Home
 var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('WaterSafetyProgramController',
+trackerCapture.controller('FoodSafetySlaughterHouses',
         function($scope,
                 $location) {
 
 
-    $scope.showWaterEstablishmentsRegistration = function(){
+    $scope.showEstablishmentsRegistration = function(){
         selection.load();
-        $location.path('/water-establishments-registration').search();
+        $location.path('/establishments-registration').search();
     };
     $scope.showOperatorsRegistration = function(){
-        var key="lI7ERF9ikB7"
+        var key="v33qL1Mzre5";
         selection.load();
         $location.path('/operators-registration').search(key);
     };

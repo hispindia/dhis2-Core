@@ -46,12 +46,12 @@
 				
             </tr>
             <tr>
-                <td><label for="establishmentType">$i18n.getString( "Establishment Type" )</label></td>
+                <td><label for="establishmentTypeLevel">$i18n.getString( "Establishment Type" )</label></td>
                 <td>
                     <select id="establishmentType" name="establishmentType" style="width:160px;height:30px;">
                         <option value="">[$i18n.getString('please_select')]</option>
-    					#foreach($establishmentType in $establishmentTypes)
-                            <option value="$establishmentType.name" #if($!establishmentType == $establishmentType.name ) selected="selected" #end>$encoder.htmlEncode($establishmentType.name)</option>
+    					#foreach($estType in $establishmentTypes)
+                            <option value="$estType.code" #if($!establishmentType == $estType.code ) selected="selected" #end>$encoder.htmlEncode($estType.name)</option>
     					#end
                     </select>
                 </td>
@@ -77,14 +77,14 @@
 			</tr>
 			<tr>
 				<td><label for="escalationStatus">$i18n.getString( "Escalation Status" )</label></td>
-                <td>
-					<select id="escalationStatus" name="escalationStatus" style="width:160px;height:30px;">
-                        <option value="">[$i18n.getString('please_select')]</option>
-        				#foreach($option in $options)
-                            <option value="$option.code" #if($!escalationStatus == $option.name ) selected="selected" #end >$encoder.htmlEncode($option.name)</option>
-        				#end
-					</select>
-                </td>
+					<td>
+						<select id="escalationStatus" name="escalationStatus" style="width:160px;height:30px;">
+							<option value="">[$i18n.getString('please_select')]</option>
+							#foreach($option in $options)
+							<option value="$option.code" #if($!escalationStatus == $option.code ) selected="selected" #end >$encoder.htmlEncode($option.name)</option>
+							#end
+						</select>
+					</td>
 			</tr>
 			<tr>
     			<td colspan="10" style="padding-top:15px">

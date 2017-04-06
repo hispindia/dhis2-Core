@@ -1009,16 +1009,16 @@ trackerCapture.controller('DataEntryController',
 
 
                 //  var printContents = document.getElementById(divName).innerHTML;
-                var heading = "<h1 align=" + "'center'" + ">SAINT LUCIA PUBLIC HEALTH BOARD</h1>" + "<h2 align=" + "'center'" + ">(Ministry Of Health)</h2>" + "<h1 align=" + "'center'" + ">LICENCE TO OPERATE</h1><br><br><br>";
+                var heading = "<h1 style='font-family: 'Times New Roman', Times, serif' align=" + "'center'" + ">SAINT LUCIA PUBLIC HEALTH BOARD</h1>" + "<h2 style='font-family: 'Times New Roman', Times, serif' align=" + "'center'" + ">(Ministry Of Health)</h2>" + "<h1 style='font-family: 'Times New Roman', Times, serif' align=" + "'center'" + ">LICENCE &nbspTO &nbspOPERATE</h1><br><br><br>";
 
-                var content = "<p1 >THIS IS TO CERTIFY THAT  " + $scope.operatorname + "   of  " + address + "   is duly registred in accordance with Public Health Regulations No:   " + $scope.regulationnumber + "  and is hereby given permission to operate a   " + $scope.entitytype + " valid till  " + date + " </p1 > <br> <br><p1>This Licennse is issued with the understanding that the operators will adhere to the rules and Regulations No:    " + $scope.regulationnumber + "  of the Public Health Regulations Of Saint Lucia 1978 failing which such licence may be revoked by any authorised officer</p1><br><br><br>";
+                var content = "<p1 style='font-family: 'Times New Roman', Times, serif'>THIS IS TO CERTIFY THAT  " + $scope.operatorname + "   of  " + address + "   is duly registred in accordance with Public Health Regulations No:   " + $scope.regulationnumber + "  and is hereby given permission to operate a   " + $scope.entitytype + " valid till  " + date + " </p1 > <br> <br><p1 style='font-family: 'Times New Roman', Times, serif'>This Licennse is issued with the understanding that the operators will adhere to the rules and Regulations No:    " + $scope.regulationnumber + "  of the Public Health Regulations Of Saint Lucia 1978 failing which such licence may be revoked by any authorised officer</p1><br><br><br>";
                 //  var  content2="<p1>This Licennse is issued with the understanding that the operators will adhere to the rules and Regulations No."+NAME+" of the Public Health Regulatiobs Of Saint Lucia 1978 failing which such licence may be revoked by any authoried oficer</p1>";
-                var footer = "<h1 style=" + "'margin:20'" + " align=" + "'right'" + ">SAINT LUCIA PUBLIC HEALTH BOARD</h1>" + "<h1 style=" + "'margin:20'" + "  align=" + "'right'" + ">...............................................................</h1>";
+                var footer = "<h1 style='font-family: 'Times New Roman', Times, serif';" + "'margin:20'" + " align=" + "'right'" + ">SAINT LUCIA PUBLIC HEALTH BOARD</h1><br>" + "<h1 style=" + "'margin:20'" + "  align=" + "'right'" + ">...............................................................</h1>";
 
-                var footer1 = "<h1 align=" + "'center'" + "> N.B Licence must be conspicuously displayed  on the premises</h1><br><br>";
+                var footer1 = "<h1 style='font-size: 25px';'font-family: 'Times New Roman', Times, serif' align=" + "'center'" + "> N.B Licence must be conspicuously displayed  on the premises</h1><br><br>";
 
-                var footer2 = "<h1 align=" + "'left'" + "> Receipt No. " + $scope.receiptNo + " </h1><br>";
-                var footer3 = "<h1 align=" + "'left'" + "> Date of payment. " + $scope.paymentDate + "</h1><br><br>";
+                var footer2 = "<h1 style='font-size: 25px';'font-family: 'Times New Roman', Times, serif' align=" + "'left'" + "> Receipt No. " + $scope.receiptNo + " </h1><br>";
+                var footer3 = "<h1 style='font-size: 25px';'font-family: 'Times New Roman', Times, serif' align=" + "'left'" + "> Date of payment. " + $scope.paymentDate + "</h1><br><br>";
                 printContents = heading + content + footer + footer1 + footer2 + footer3;
 
 

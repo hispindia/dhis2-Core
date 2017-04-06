@@ -42,8 +42,21 @@ var trackerCapture = angular.module('trackerCapture',
     }).when('/food-safety-program', {
       templateUrl: 'ehs/food-safety-program/food-safety-program.html',
       controller: 'FoodSafetyProgramController'
+	  
+	  }).when('/food-handlers', {
+      templateUrl: 'ehs/food-handlers/food-handlers.html',
+      controller: 'FoodSafetyProgramHandlers'
+
+	  }).when('/mass-events', {
+		templateUrl: 'ehs/mass-events/mass-events.html',
+		controller: 'FoodSafetyMassEvents'
+
+		 }).when('/slaughter-houses', {
+			  templateUrl: 'ehs/slaughter-houses/slaughter-houses.html',
+			  controller: 'FoodSafetySlaughterHouses'
 
 
+		
     }).when('/establishments-registration', {
       templateUrl: 'ehs/food-safety-program/establishments/establishments-home.html',
       controller: 'EstablishmentsSelectionController'
@@ -59,6 +72,18 @@ var trackerCapture = angular.module('trackerCapture',
     }).when('/water-safety-program', {
         templateUrl: 'ehs/water-safety-program/water-safety-program.html',
         controller: 'WaterSafetyProgramController'
+		
+	}).when('/water-bottling-plants', {
+				templateUrl: 'ehs/water-bottling-plants/water-bottling-plants.html',
+				controller: 'WaterSafetyWaterBottlingPlants'
+				
+	}).when('/water-truck-receptacles', {
+				templateUrl: 'ehs/water-truck-receptacles/water-truck-receptacles.html',
+				controller: 'WaterSafetyWaterTruckReceptacles'
+				
+	}).when('/water-treatment-plants', {
+				templateUrl: 'ehs/water-treatment-plants/water-treatment-plants.html',
+				controller: 'WaterSafetyWaterTreatmentPlants'
 
     }).when('/water-establishments-registration', {
         templateUrl: 'ehs/water-safety-program/water-establishments/water-establishments-home.html',

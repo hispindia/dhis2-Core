@@ -17,9 +17,38 @@ trackerCapture.controller('FoodSafetyProgramlistController',
         //$scope.names = ["Emil", "Tobias", "Linus"];
         $scope.foodSafety = function(value){
             $scope.value=value;
-            AjaxCalls.setfoodsafetyid($scope.value);
+            if($scope.value =="tITlMGNJTbJ")
+			{
+				AjaxCalls.setfoodsafetyid($scope.value);
             selection.load();
-            $location.path('/food-safety-program').search();
+			
+				$location.path('/food-safety-program').search();
+			}
+			else if($scope.value == "XmLabeuEeEB")
+			{
+				AjaxCalls.setfoodsafetyid($scope.value);
+            selection.load();
+			
+				$location.path('/food-handlers').search();
+			}
+			
+			else if($scope.value == "TeBSCKYRo3q")
+			{
+				AjaxCalls.setfoodsafetyid($scope.value);
+            selection.load();
+			
+				$location.path('/mass-events').search();
+			}
+			else if($scope.value == "v33qL1Mzre5")
+			{
+				AjaxCalls.setfoodsafetyid($scope.value);
+            selection.load();
+			
+				$location.path('/slaughter-houses').search();
+			}
+			
+			
+			
            // $location.path('/establishments-registration').search();
 
            // selection.load();

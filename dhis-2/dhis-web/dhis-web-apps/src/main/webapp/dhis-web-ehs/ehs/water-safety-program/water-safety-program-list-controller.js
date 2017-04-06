@@ -14,9 +14,31 @@ trackerCapture.controller('WaterSafetyProgramlistController',
         });
         $scope.waterSafety = function(value){
             $scope.value=value;
+			
+			if($scope.value=="lI7ERF9ikB7")
+			{
             AjaxCalls.setfoodsafetyid($scope.value);
             selection.load();
             $location.path('/water-safety-program').search();
+			}
+			else if($scope.value=="qhdFZgTdRbo")
+			{
+            AjaxCalls.setfoodsafetyid($scope.value);
+            selection.load();
+            $location.path('/water-bottling-plants').search();
+			}
+			else if($scope.value=="q7iA10pQZEL")
+			{
+            AjaxCalls.setfoodsafetyid($scope.value);
+            selection.load();
+            $location.path('/water-truck-receptacles').search();
+			}
+			else if($scope.value=="JlYxDLMZJhK")
+			{
+            AjaxCalls.setfoodsafetyid($scope.value);
+            selection.load();
+            $location.path('/water-treatment-plants').search();
+			}
             // $location.path('/establishments-registration').search();
 
             // selection.load();

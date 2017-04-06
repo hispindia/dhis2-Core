@@ -13,20 +13,35 @@
         </ul>
     </div>
 </div>
-
+<style>
+	.quality_program
+	{
+		color:#3162C5;
+		cursor: pointer;
+	}
+	.quality_program:hover
+	{
+		color: black;
+		text-decoration:underline;
+	}
+		.quality_program:active
+	{
+		color:red;
+	}
+</style>
 <div id="mainPage">
    <h1>{{'water_safety_program_list'| translate}}</h1>
 
     <!--  <select size="6" name="ngvalueselect" ng-model="data.model" multiple>
           <option ng-repeat="item in foodsafetyprograms" ng-value="item.id">{{item.name}}</option>
       </select>-->
-    <table width="70%">
+    <table width="80%">
         <tr >
 
 
 
 
-            <td ng-repeat="item in foodsafetyprograms"  ng-model="example" ng-click=waterSafety(item.id) > <img src="../dhis-web-ehs/images/{{item.id}}.png"    style="height:120px; width:120px;cursor: pointer"/> <span style="cursor: pointer" ng-click=waterSafety(item.id) ><h1>{{item.name}}</h1></span></td>
+            <td width="25%" height="100" style="text-align:center" ng-repeat="item in foodsafetyprograms"  ng-model="example" ng-click=waterSafety(item.id) > <img src="../dhis-web-ehs/images/{{item.id}}.png"    style="height:120px; width:120px;cursor: pointer"/> <span style="cursor: pointer" ng-click=waterSafety(item.id) ><h1 class="quality_program">{{item.name}}</h1></span></td>
 
 
             <!-- <div class="col-sm-6 ehs-home-container" ng-click="foodSafety()" style="cursor: pointer">-->
