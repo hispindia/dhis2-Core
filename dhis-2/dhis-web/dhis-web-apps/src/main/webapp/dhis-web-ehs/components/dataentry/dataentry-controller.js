@@ -2489,7 +2489,7 @@ trackerCapture.controller('DataEntryController',
 					 var dataelement2="obqAPIKe6hs";
 					var issue2="";
 					  $scope.saveDataValueForEvent1(dataelement2, issue2, null, $scope.currentEvent, false)
-
+                location.reload(true);
 
                     //$scope.completeIncompleteEvent1(inTableView, outerDataEntryForm, $scope.escalate1, $scope.currentEvent1);
 
