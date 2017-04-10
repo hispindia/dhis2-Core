@@ -63,6 +63,7 @@ jQuery( document ).ready( function() {
 
 <div id="cogButton"><a class="greyButtonLink" href="javascript:dhis2.db.viewOrgUnitSelector()"><i class="fa fa-cog"></i></a>
 	<a class="blueButtonLink" href="../dhis-web-reporting/displayViewReportForm.action">$i18n.getString( "HTML Report" )</a>
+	<a class="blueButtonLink" href="../dhis-web-event-reports/index.html">$i18n.getString( "Event Report" )</a>
 </div>
 
 <div id="dashboardControl" class="horizontalMenu dashboardList">
