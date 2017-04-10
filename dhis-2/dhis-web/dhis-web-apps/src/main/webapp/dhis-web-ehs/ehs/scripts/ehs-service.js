@@ -213,7 +213,9 @@ trackerCapture
                     {
                         try
                         {
-                            if( parseInt ( response.data.dataValues[j].value ) >= 1 && response.data.dataValues[j].dataElement != dataElementUid)
+                            if( (parseInt ( response.data.dataValues[j].value ) >= 1) && ( response.data.dataValues[j].dataElement != dataElementUid ) &&
+							( response.data.dataValues[j].dataElement != 'jworMMD0EoF') && ( response.data.dataValues[j].dataElement != 'Ml9lful0F5B')
+							  && (response.data.dataValues[j].dataElement != 'zFY0EG1nmfm' ) && (response.data.dataValues[j].dataElement != 'ecqqbUDLw7m' ) )
                             {
                                 //inspectionScoreValue = parseInt ( inspectionScoreValue ) + parseInt ( inspectionScoreValueMap[response.data.dataValues[j].dataElement] );
                                 inspectionScoreValue = parseInt ( inspectionScoreValue ) + parseInt ( response.data.dataValues[j].value );
