@@ -725,14 +725,14 @@ trackerCapture.controller('DataEntryController',
                 updateResponseStatus.then(function(response) {
                     if (response.status == 'OK') {
 
-                        var updateResponseValidity1 = EHSUpdateAttributeService.updateAttributeValue(  $scope.currentEvent.trackedEntityInstance, $scope.licenValidUpToAttributeUid, value, $scope.optionSets, $scope.attributesById);
+                     /*   var updateResponseValidity1 = EHSUpdateAttributeService.updateAttributeValue(  $scope.currentEvent.trackedEntityInstance, $scope.licenValidUpToAttributeUid, value, $scope.optionSets, $scope.attributesById);
                         updateResponseValidity1.then(function(response) {
                             if (response.status == 'OK') {
 								
 								
 								
                             }
-                        });
+                        });*/
                     }
                 });
                 $scope.completeIncompleteEvent1(inTableView, outerDataEntryForm, $scope.issuelicensecall, $scope.currentEvent1);
@@ -744,10 +744,11 @@ trackerCapture.controller('DataEntryController',
                 var issue = 1;
                 var currentTime = new Date();
                 var year = currentTime.getFullYear();
-                var month = "12";
+                /*var month = "12";
                 var date1 = "31";
                 var date = year + "-" + month + "-" + date1;
-                value = date;
+                value = date;*/
+				value=currentEvent1.nPcT1HabdNa;
                 var dataelement1 = $scope.licenStatusDeUid;
                 $scope.saveDataValueForEvent1(dataelement, value, null, currentEvent1, false);
                 $scope.saveDataValueForEvent1(dataelement1, issue, null, currentEvent1, false);
@@ -2483,7 +2484,7 @@ trackerCapture.controller('DataEntryController',
 					 var dataelement2="obqAPIKe6hs";
 					var issue2="";
 					  $scope.saveDataValueForEvent1(dataelement2, issue2, null, $scope.currentEvent, false)
-                location.reload(true);
+                     location.reload(true);
 
                     //$scope.completeIncompleteEvent1(inTableView, outerDataEntryForm, $scope.escalate1, $scope.currentEvent1);
 
