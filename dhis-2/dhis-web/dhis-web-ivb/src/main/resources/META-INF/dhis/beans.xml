@@ -323,6 +323,10 @@
 			ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
 		<property name="dataValueAuditService"
 			ref="org.hisp.dhis.datavalue.DataValueAuditService" />
+			<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+	
+		<property name="reportScheduler" ref="org.hisp.dhis.ivb.util.ReportScheduler" />
+		<property name="lookupService" ref="org.hisp.dhis.lookup.LookupService" />
 		<property name="periodService" ref="org.hisp.dhis.period.PeriodService" />
 	</bean>
 

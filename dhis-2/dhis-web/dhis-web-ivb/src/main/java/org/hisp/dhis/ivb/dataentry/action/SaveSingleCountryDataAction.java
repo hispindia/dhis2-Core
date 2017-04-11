@@ -260,6 +260,31 @@ public class SaveSingleCountryDataAction
         this.conflict = conflict;
     }
 
+	
+	public static String  orgid;
+    // -------------------------------------------------------------------------
+    // Action implementation
+    // -------------------------------------------------------------------------
+
+    public static String getOrgid() {
+	return orgid;
+}
+
+public static void setOrgid(String orgid) {
+	SaveSingleCountryDataAction.orgid = orgid;
+}
+
+
+
+public static String  datasetid;
+
+	public static String getDatasetid() {
+	return datasetid;
+}
+
+public static void setDatasetid(String datasetid) {
+	SaveSingleCountryDataAction.datasetid = datasetid;
+}
     // -------------------------------------------------------------------------
     // Action implementation
     // -------------------------------------------------------------------------
@@ -272,7 +297,8 @@ public class SaveSingleCountryDataAction
     public String execute()
     {
         // System.out.println( " Inside Save Single CountryData Action" ) ;
-
+	    orgid=orgUnitUid;
+    	datasetid=dataSetUId;
         Period period = PeriodType.getPeriodFromIsoString( selectedPeriodId );
         if ( period == null )
         {

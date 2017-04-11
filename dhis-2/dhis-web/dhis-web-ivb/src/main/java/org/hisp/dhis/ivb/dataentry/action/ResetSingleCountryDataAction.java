@@ -32,16 +32,19 @@ import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserAuthorityGroup;
-
+import org.hisp.dhis.indicator.Indicator;
+import org.hisp.dhis.ivb.util.ReportScheduler;
+import org.hisp.dhis.lookup.Lookup;
+import org.hisp.dhis.lookup.LookupService;
 import com.opensymphony.xwork2.Action;
-
-
 /**
  * @author BHARATH
  */
 public class ResetSingleCountryDataAction implements Action
 {
-
+	
+	
+	
     private static final Log log = LogFactory.getLog( ResetSingleCountryDataAction.class );
 
     // -------------------------------------------------------------------------
@@ -54,7 +57,56 @@ public class ResetSingleCountryDataAction implements Action
     {
         this.currentUserService = currentUserService;
     }
+    
+    private ReportScheduler reportScheduler;
 
+   
+
+    public ReportScheduler getReportScheduler() {
+		return reportScheduler;
+	}
+
+	public void setReportScheduler(ReportScheduler reportScheduler) {
+		this.reportScheduler = reportScheduler;
+	}
+
+	private LookupService lookupService;
+
+    public void setLookupService( LookupService lookupService )
+    {
+        this.lookupService = lookupService;
+    }
+   
+
+    private String dataSetUId;
+
+    public void setDataSetUId( String dataSetUId )
+    {
+        this.dataSetUId = dataSetUId;
+    }
+
+    public String getDataSetUId()
+    {
+        return dataSetUId;
+    }
+ 
+    private String orgUnitUid;
+
+    public void setOrgUnitUid( String orgUnitUid )
+    {
+        this.orgUnitUid = orgUnitUid;
+    }
+
+    public String getOrgUnitUid()
+    {
+        return orgUnitUid;
+    }
+    private DataSetService dataSetService;
+
+    public void setDataSetService( DataSetService dataSetService )
+    {
+        this.dataSetService = dataSetService;
+    }
     private DataValueStore dataValueStore;
 
     public void setDataValueStore( DataValueStore dataValueStore )
@@ -76,7 +128,7 @@ public class ResetSingleCountryDataAction implements Action
     }
     
     
-
+ 
 
 	private DataValueAuditService dataValueAuditService;
     
@@ -204,7 +256,7 @@ public class ResetSingleCountryDataAction implements Action
 
     public String execute()
     {
-
+    
         Period period = PeriodType.getPeriodFromIsoString( periodId );
         
         if ( period == null )
@@ -264,15 +316,14 @@ public class ResetSingleCountryDataAction implements Action
         
         //dataValueService.deleteDataValue(dataValue);
        
-        if ( dataValue == null && value != null)
-        {    List<DataValue> allDatavalues1=dataValueService.getDataValues( organisationUnit, dataElement );
-        for(DataValue DataValue:allDatavalues1)
-        {
-    	   DataElementCategoryOptionCombo optionCombo1=DataValue.getOptionCombo();
-    
-    	   if(optionCombo1==optionCombo)
-        	dataValueService.deleteDataValue(DataValue);
-        }
+		if (dataValue == null && value != null) {
+			List<DataValue> allDatavalues1 = dataValueService.getDataValues(organisationUnit, dataElement);
+			for (DataValue DataValue : allDatavalues1) {
+				DataElementCategoryOptionCombo optionCombo1 = DataValue.getOptionCombo();
+
+				if (optionCombo1 == optionCombo)
+					dataValueService.deleteDataValue(DataValue);
+			}
 
 
       
@@ -329,7 +380,59 @@ public class ResetSingleCountryDataAction implements Action
                     dataValueAudit.setTimestamp( now );
                     dataValueAuditService.updateDataValueAudit( dataValueAudit );
                     
-                }//dataValueService.updateDataValue( dataValue );
+                }
+                //Saving in Key Flag Analytic
+                
+                
+               // Lookup keyFlagIndicatorAttributeLookup = lookupService.getLookupByName( Lookup.KEYFLAG_INDICATOR_ATTRIBUTE_ID );
+
+                List<Indicator> indicators = new ArrayList<Indicator>();
+                System.out.println("reportScheduler"+ reportScheduler);
+                indicators = new ArrayList<Indicator>(reportScheduler.getKeyFlagIndicatorList( 4 ) );
+                DataSet selDataSet = null;
+                
+                String str1= SaveSingleCountryDataAction.getOrgid();
+                String str=SaveSingleCountryDataAction.getDatasetid();
+                
+               // String str="HVMK8B5rWhT";
+                
+             
+                List<String> datasetList = new ArrayList<String>();
+                datasetList.add( str);
+
+               selDataSet = dataSetService.getDataSetsByUid( datasetList ).get( 0 );
+               
+              // String str1="wK3lbIxQ476";
+               List<String> orgUnitUids = new ArrayList<String>();
+               orgUnitUids.add( str1 );
+
+               List<OrganisationUnit> organisationUnits = organisationUnitService.getOrganisationUnitsByUid( orgUnitUids );
+               OrganisationUnit selOrgUnit = organisationUnits.get( 0 );
+                //selDataSet = dataSetService.getDataSetsByUid( str ).get( 0 );
+                if ( selDataSet != null )
+                {
+                	
+                	
+                    Set<Indicator> indicatorList = new HashSet<Indicator>();
+                    indicatorList = new HashSet<Indicator>( selDataSet.getIndicators() );
+
+                    if ( indicatorList != null && indicatorList.size() > 0 )
+                    { 
+                        for ( Indicator indicator : indicatorList )
+                        { 
+                            if ( indicators.contains( indicator ) )
+                            {
+                                
+                                // selOrgUnit.getId() + "-- Indicator Id : " +
+                                // indicator.getId() );
+                                reportScheduler.updateSingleKeyFlagAnalytic( selOrgUnit, indicator );
+                               
+                            }
+                        }
+                    }
+               }
+                
+                //dataValueService.updateDataValue( dataValue );
 			               for(DataValue DataValue:allDatavalues)
 			                {
 			            	   DataElementCategoryOptionCombo optionCombo1=DataValue.getOptionCombo();
