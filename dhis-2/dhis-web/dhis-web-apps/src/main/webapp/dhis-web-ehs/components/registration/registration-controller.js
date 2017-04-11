@@ -480,12 +480,13 @@ trackerCapture.controller('RegistrationController',
                     if( args.enrollment.program === 'zuVSFlvcchx')
                     {
                         $scope.ownerName = $scope.trackerAssociateInstancesMap[args.selectedTei.MGyIMsppZp3];
+						
                     }
                     else if( args.enrollment.program === 'tITlMGNJTbJ' )
                     {
                         $scope.ownerName = $scope.trackerAssociateInstancesMap[args.selectedTei.THGyyoT23tr];
                     }
-
+					
                 }
 
                 $scope.getAttributes($scope.registrationMode);

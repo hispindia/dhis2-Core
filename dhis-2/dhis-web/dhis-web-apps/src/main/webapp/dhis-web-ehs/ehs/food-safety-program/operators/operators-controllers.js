@@ -441,16 +441,20 @@ trackerCapture.controller('OperatorsSelectionController',
                     if($scope.enrollmentStatus === 'TODAY') {
                         $scope.enrollmentStatus = 'ALL';
                     }
-                    if($scope.model.searchText){
+                    if($scope.model.searchText != ""){
                         $scope.queryUrl = 'query=LIKE:' + $scope.model.searchText;
                     }
-                    else{
-                        if(!$scope.selectedProgram || !$scope.selectedProgram.displayFrontPageList){
-                            $scope.emptySearchText = true;
-                            $scope.teiFetched = false;
-                            return;
-                        }
-                    }
+                    else
+					{
+						$scope.selectedSearchMode = $scope.searchMode.listAll;
+					}
+					//{
+                     //   if(!$scope.selectedProgram || !$scope.selectedProgram.displayFrontPageList){
+                     //       $scope.emptySearchText = true;
+                      //      $scope.teiFetched = false;
+                     //       return;
+                     //   }
+                    //}
 
                     $scope.attributes = EntityQueryFactory.resetAttributesQuery($scope.attributes, $scope.enrollment);
                     $scope.searchingOrgUnit = $scope.selectedSearchingOrgUnit && $scope.selectedSearchingOrgUnit.id ? $scope.selectedSearchingOrgUnit : $scope.selectedOrgUnit;

@@ -19,10 +19,10 @@
 <script>
   function goBack()
   {
-    //window.history.back();
+    window.history.back();
 	
-	var url = "../dhis-web-ehs/index.html#/food-safety-program";
+	//var url = "../dhis-web-ehs/index.html#/food-safety-program";
 	  
-	window.location.href = url;
+	//window.location.href = url;
   }
 </script>

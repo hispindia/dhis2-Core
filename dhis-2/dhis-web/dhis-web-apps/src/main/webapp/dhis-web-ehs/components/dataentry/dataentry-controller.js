@@ -674,27 +674,21 @@ trackerCapture.controller('DataEntryController',
                     $scope.currentEvent = null;
                 }
             });
-            $scope.print = function(divName) {
-                $scope.printForm = true;
+			
+			$scope.print = function(divName) {
+				$scope.printForm = true;
                 $scope.printEmptyForm = true;
-                var printContents = document.getElementById(divName).innerHTML;
-                var popupWin = window.open('', '_blank', 'fullscreen=1');
-                popupWin.document.open();
-                popupWin.document.write('<html>\n\
-                        <head>\n\
-                        <link rel="stylesheet" type="text/css" href="../dhis-web-commons/bootstrap/css/bootstrap.min.css" />\n\
-                        <link type="text/css" rel="stylesheet" href="../dhis-web-commons/javascripts/angular/plugins/select.css">\n\
+			  var printContents = document.getElementById(divName).innerHTML;
+			  var popupWin = window.open('', '_blank', 'fullscreen=1');
+			  popupWin.document.open();
+			  popupWin.document.write('<html><head><link rel="stylesheet" type="text/css" href="styles/style.css" />\n\
+			  <link type="text/css" rel="stylesheet" href="../dhis-web-commons/javascripts/angular/plugins/select.css">\n\
                         <link type="text/css" rel="stylesheet" href="../dhis-web-commons/javascripts/angular/plugins/select2.css">\n\
-                        <link rel="stylesheet" type="text/css" href="styles/style.css" />\n\
-                        <link rel="stylesheet" type="text/css" href="styles/print.css" />\n\
-                        </head>\n\
-                        <body onload="window.print()">' + printContents +
-                    '</html>');
-                popupWin.document.close();
-                $scope.printForm = false;
+                        <link rel="stylesheet" type="text/css" href="styles/print.css" />\n\</head>\n\<body onload="window.print()">' + printContents + '</body></html>');
+			  popupWin.document.close();
+			  $scope.printForm = false;
                 $scope.printEmptyForm = false;
-            };
-
+			};
 
             $scope.Reopen = function(inTableView, outerDataEntryForm) {
                 $scope.currentEvent1 = $scope.currentEvent;
