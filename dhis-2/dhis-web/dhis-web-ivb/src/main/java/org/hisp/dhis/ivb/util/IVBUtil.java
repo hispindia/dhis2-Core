@@ -36,9 +36,12 @@ import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodService;
 import org.hisp.dhis.period.PeriodType;
+import org.hisp.dhis.system.database.DatabaseInfo;
+import org.hisp.dhis.system.database.DatabaseInfoProvider;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserAuthorityGroup;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.transaction.annotation.Transactional;
@@ -190,7 +193,15 @@ public class IVBUtil
     {
         return valueMap;
     }
+    @Autowired
+    private DatabaseInfoProvider databaseInfoProvider;   
 
+    public void setDatabaseInfoProvider( DatabaseInfoProvider databaseInfoProvider )
+    {
+        this.databaseInfoProvider = databaseInfoProvider;
+    }
+
+    
     //----------------------------------------------------------------
     // Methods
     //-----------------------------------------------------------------
@@ -2292,16 +2303,33 @@ public class IVBUtil
     public Map<String, String> getClosedDiscussions( String dataElementIdsByComma, String orgUnitIdsByComma, Integer periodId )
     {
         Map<String, String> colsedDiscussionMap = new HashMap<String, String>();
-        
+        DatabaseInfo dataBaseInfo = databaseInfoProvider.getDatabaseInfo();
+
         try
         {
-            String query = "SELECT dv.dataelementid, dv.sourceid FROM datavalue AS dv " +  
+            String query = "";
+            if ( dataBaseInfo.getType().equalsIgnoreCase( "mysql" ) )
+           
+            {
+            query = "SELECT dv.dataelementid, dv.sourceid FROM datavalue AS dv " +  
                                " WHERE " + 
                                    " dv.status = FALSE AND " + 
                                    " dv.dataelementid IN ("+ dataElementIdsByComma +") AND " +
                                    " dv.sourceid IN ("+ orgUnitIdsByComma +") AND " +
                                    " dv.periodid = "+ periodId;
                                    		
+            }
+            else if ( dataBaseInfo.getType().equalsIgnoreCase( "postgresql" ) )
+            {
+                query = "SELECT dv.dataelementid, dv.sourceid FROM datavalue AS dv " +  
+                    " WHERE " + 
+                        " dv.status = 0 AND " + 
+                        " dv.dataelementid IN ("+ dataElementIdsByComma +") AND " +
+                        " dv.sourceid IN ("+ orgUnitIdsByComma +") AND " +
+                        " dv.periodid = "+ periodId;
+                
+            }
+
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
             
             while ( rs.next() )
@@ -2984,15 +3012,31 @@ public class IVBUtil
     public List<Period> getDistinctPeriodsFromHisotry( String dataElementIdsByComma, String orgUnitIdsByComma, String commentType )
     {
         List<Period> periods = new ArrayList<Period>();
+        DatabaseInfo dataBaseInfo = databaseInfoProvider.getDatabaseInfo();
+        System.out.println("dataBaseInfo--"+dataBaseInfo);
+
         try
         {
-            String query = "SELECT distinct(dva.periodid) FROM datavalueaudit dva INNER JOIN period p " +
+            String query = "";
+            if ( dataBaseInfo.getType().equalsIgnoreCase( "mysql" ) )
+            {
+             query = "SELECT distinct(dva.periodid) FROM datavalueaudit dva INNER JOIN period p " +
                                 " ON dva.periodid = p.periodid " +
                                 " WHERE " +                                
                                     " dataelementid IN ("+ dataElementIdsByComma +") AND " +
                                     " organisationunitid IN ("+ orgUnitIdsByComma +") AND " +
-                                    " commenttype = '"+ commentType;
-                                 //   " commenttype = '"+ commentType +"' ORDER BY p.startdate";
+                                    " commenttype = '"+ commentType +"' ORDER BY p.startdate";
+            }
+            
+            else if ( dataBaseInfo.getType().equalsIgnoreCase( "postgresql" ) )
+            {
+                 query = "SELECT distinct(dva.periodid) , p.startdate FROM datavalueaudit dva INNER JOIN period p " +
+                    " ON dva.periodid = p.periodid " +
+                    " WHERE " +                                
+                        " dataelementid IN ("+ dataElementIdsByComma +") AND " +
+                        " organisationunitid IN ("+ orgUnitIdsByComma +") AND " +
+                        " commenttype = '"+ commentType +"' ORDER BY p.startdate";
+            }
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
             //System.out.println( query );
@@ -3017,30 +3061,32 @@ public class IVBUtil
     {
         Map<String, List<DataValueAudit>> dataValueAuditMap = new HashMap<String, List<DataValueAudit>>();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
+
         
         try
         {
-            String query = "SELECT dataelementid, periodid, organisationunitid, VALUE, modifiedby, dva.timestamp, COMMENT, STATUS FROM datavalueaudit dva " +
-                            " WHERE " +                                
-                                " dataelementid IN ("+ dataElementIdsByComma +") AND " +
-                                " organisationunitid IN ("+ orgUnitIdsByComma +") AND ";
-                                
-                                if( user != null )
-                                {
-                                    query += " modifiedby = '"+ user.getUsername() +"' AND ";
-                                }
-                                
-                                if( startDate != null && endDate != null )
-                                {
-                                    query += " DATE(dva.timestamp) BETWEEN '"+ startDate +"' AND '"+ endDate +"' AND ";
-                                }
-                                //query += " dva.timestamp >= '" + startDate + "' AND " +
-                                //" dva.timestamp <= '" + endDate + "' AND " +
-                                query += " commenttype = '"+ commentType +"' ORDER BY periodid, dva.timestamp DESC";
+           
+              String  query = "SELECT dataelementid, periodid, organisationunitid, VALUE, modifiedby, dva.timestamp, COMMENT, STATUS FROM datavalueaudit dva " +
+                    " WHERE " +                                
+                        " dataelementid IN ("+ dataElementIdsByComma +") AND " +
+                        " organisationunitid IN ("+ orgUnitIdsByComma +") AND ";
+                        
+                        if( user != null )
+                        {
+                            query += " modifiedby = '"+ user.getUsername() +"' AND ";
+                        }
+                        
+                        if( startDate != null && endDate != null )
+                        {
+                            query += " DATE(dva.timestamp) BETWEEN '"+ startDate +"' AND '"+ endDate +"' AND ";
+                        }
+                        //query += " dva.timestamp >= '" + startDate + "' AND " +
+                        //" dva.timestamp <= '" + endDate + "' AND " +
+                        query += " commenttype = '"+ commentType +"' ORDER BY periodid, dva.timestamp DESC";
             
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
-            //System.out.println( query );
+            System.out.println( "query----"+query );
             
             while ( rs.next() )
             {
@@ -3055,6 +3101,8 @@ public class IVBUtil
                 String value = rs.getString( 4 );
                 String storedBy = rs.getString( 5 );
                 String lastUpdated = rs.getString( 6 );
+                System.out.println("lastUpdated---"+lastUpdated);
+                
                 String comment = rs.getString( 7 );
                 Integer status = rs.getInt( 8 );
                 
