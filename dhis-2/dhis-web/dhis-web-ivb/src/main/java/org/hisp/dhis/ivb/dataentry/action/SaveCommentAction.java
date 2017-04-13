@@ -292,7 +292,9 @@ public class SaveCommentAction
                     dataValue.setFollowup( false );
                 }
                 dataValue.setComment( comment.trim() );
-                dataValue.setValue( value.trim() );
+                //dataValue.setValue( value.trim() );
+                dataValue.setValue( value );
+
                 dataValue.setLastUpdated( now );
                 dataValue.setStoredBy( storedBy );
                 dataValue.setStatus( 1 );

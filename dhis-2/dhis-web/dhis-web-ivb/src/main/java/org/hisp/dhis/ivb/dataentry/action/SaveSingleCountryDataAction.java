@@ -5,13 +5,16 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.hisp.dhis.ivb.demapping.DeMapping;
 import org.hisp.dhis.ivb.demapping.DeMappingService;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts2.ServletActionContext;
+import org.hisp.dhis.common.AuditType;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
 import org.hisp.dhis.dataelement.DataElementCategoryService;
@@ -173,7 +176,7 @@ public class SaveSingleCountryDataAction
     {
         this.demappingService = demappingService;
     }
-
+    
     private LookupService lookupService;
 
     public void setLookupService( LookupService lookupService )
@@ -389,6 +392,7 @@ public static void setDatasetid(String datasetid) {
         }
         dataElementList.retainAll( changeddataElementList );
         DataElementCategoryOptionCombo optionCombo = categoryService.getDefaultDataElementCategoryOptionCombo();
+        System.out.println( "option combo -- " +optionCombo.getId() );
 
         String storedBy = currentUserService.getCurrentUsername();
 
@@ -400,6 +404,8 @@ public static void setDatasetid(String datasetid) {
         }
 
         HttpServletRequest request = ServletActionContext.getRequest();
+        
+        //AuditType auditType = new AuditType();
 
         for ( DataElement dataElement : dataElementList )
         {
@@ -434,7 +440,7 @@ public static void setDatasetid(String datasetid) {
                     value = null;
                 }
             }
-            DataValue dataValue = dataValueService.getDataValue( dataElement, period, selOrgUnit, optionCombo );
+            DataValue dataValue = dataValueService.getDataValue( dataElement, period, selOrgUnit, optionCombo, optionCombo);
 
           /*  demapping = demappingService.getDeMapping( dataElement.getUid() );
             Period period1=  periodService.getPeriod( 1008 );
@@ -467,6 +473,8 @@ public static void setDatasetid(String datasetid) {
 */
             if ( dataValue == null )
             {
+            	System.out.println( " inside datavalue  null"  );
+
                 if ( (value != null && !value.trim().equals( "" ))
                     || (comment != null && !comment.trim().equals( "" )) )
                 {
@@ -476,20 +484,43 @@ public static void setDatasetid(String datasetid) {
                     dataValueService.addDataValue( dataValue );
 
                     DataValue dataValue1 = dataValueService.getDataValue( dataElement, period, selOrgUnit,
-                        optionCombo );
-                    DataValueAudit dataValueAudit = new DataValueAudit( dataValue1, dataValue1.getValue(),
+                        optionCombo, optionCombo );
+               /*     DataValueAudit dataValueAudit = new DataValueAudit( dataValue1, dataValue1.getValue(),
                         dataValue1.getStoredBy(), dataValue1.getLastUpdated(), dataValue1.getComment(),
-                        DataValueAudit.DVA_CT_HISOTRY, DataValueAudit.DVA_STATUS_ACTIVE );
+                        DataValueAudit.DVA_CT_HISOTRY, DataValueAudit.DVA_STATUS_ACTIVE );*/
+                    
+                    DataValueAudit dataValueAudit = new DataValueAudit();
+                    dataValueAudit.setOrganisationUnit( dataValue1.getSource() );
+                    dataValueAudit.setCategoryOptionCombo( dataValue1.getCategoryOptionCombo() );
+                    dataValueAudit.setPeriod( dataValue1.getPeriod() );
+                    dataValueAudit.setDataElement( dataValue1.getDataElement() );
+                    dataValueAudit.setAttributeOptionCombo(dataValue1.getCategoryOptionCombo());
+                    
+                    // dataValueAudit.setDataValue( dataValue );
+                    dataValueAudit.setValue( value );
+                    dataValueAudit.setComment( comment );
+                    dataValueAudit.setCommentType( DataValueAudit.DVA_CT_HISOTRY );
+                    dataValueAudit.setModifiedBy( storedBy );
+                    dataValueAudit.setStatus(1);
+                    dataValueAudit.setTimestamp( now );
+                    dataValueAudit.setAuditType(AuditType.UPDATE);
+                    
+                    
                     dataValueAuditService.addDataValueAudit( dataValueAudit );
                 }
             }
             else
             {
+            	System.out.println( " inside datavalue not null 1"  );
+
                 if ( conflict == null && (dataValue.getComment() != null && dataValue.getValue() != null)
                     && !(dataValue.getStoredBy().equalsIgnoreCase( storedBy ))
                     && (!(dataValue.getValue().trim().equalsIgnoreCase( value.trim() ))
                         || !(dataValue.getComment().equalsIgnoreCase( comment.trim() ))) )
+                	
                 {
+                	System.out.println( " inside datavalue not null 2"  );
+
                     dataValue.setFollowup( true );
                 }
                 else
@@ -509,18 +540,42 @@ public static void setDatasetid(String datasetid) {
 
                 if ( dataValueAudit == null )
                 {
+                	System.out.println( " inside datavalue audit null"  );
+                	
+                	/*
                     dataValueAudit = new DataValueAudit( dataValue, dataValue.getValue(), dataValue.getStoredBy(),
                         dataValue.getLastUpdated(), dataValue.getComment(), DataValueAudit.DVA_CT_HISOTRY,
                         DataValueAudit.DVA_STATUS_ACTIVE );
-                    dataValueAuditService.addDataValueAudit( dataValueAudit );
-                }
-                else
-                {
+                    */
+                    
+                	dataValueAudit = new DataValueAudit();
                     dataValueAudit.setOrganisationUnit( dataValue.getSource() );
                     dataValueAudit.setCategoryOptionCombo( dataValue.getCategoryOptionCombo() );
                     dataValueAudit.setPeriod( dataValue.getPeriod() );
                     dataValueAudit.setDataElement( dataValue.getDataElement() );
-
+                    dataValueAudit.setAttributeOptionCombo(dataValue.getCategoryOptionCombo());
+                    
+                    // dataValueAudit.setDataValue( dataValue );
+                    dataValueAudit.setValue( value );
+                    dataValueAudit.setComment( comment );
+                    dataValueAudit.setCommentType( DataValueAudit.DVA_CT_HISOTRY );
+                    dataValueAudit.setModifiedBy( storedBy );
+                    dataValueAudit.setStatus(1);
+                    dataValueAudit.setTimestamp( now );
+                    dataValueAudit.setAuditType(AuditType.UPDATE);
+                    
+                    System.out.println("dataValueAudit-----------"+dataValueAudit);
+                    dataValueAuditService.addDataValueAudit( dataValueAudit );
+                }
+                else
+                {
+                	System.out.println( " inside datavalue audit not null"  );
+                    dataValueAudit.setOrganisationUnit( dataValue.getSource() );
+                    dataValueAudit.setCategoryOptionCombo( dataValue.getCategoryOptionCombo() );
+                    dataValueAudit.setPeriod( dataValue.getPeriod() );
+                    dataValueAudit.setDataElement( dataValue.getDataElement() );
+                    dataValueAudit.setAttributeOptionCombo(dataValue.getCategoryOptionCombo());
+                    
                     // dataValueAudit.setDataValue( dataValue );
                     dataValueAudit.setValue( value );
                     dataValueAudit.setComment( comment );
@@ -534,9 +589,13 @@ public static void setDatasetid(String datasetid) {
 
         // System.out.println( " Data Set Id " + selDataSet.getId() + "--
         // OrgUnit : " + selOrgUnit.getId() );
-
+System.out.println("lookup-----"+Lookup.KEYFLAG_INDICATOR_ATTRIBUTE_ID);
+        
         Lookup keyFlagIndicatorAttributeLookup = lookupService.getLookupByName( Lookup.KEYFLAG_INDICATOR_ATTRIBUTE_ID );
 
+        System.out.println( " lookup value " + keyFlagIndicatorAttributeLookup.getValue() );
+        
+        
         List<Indicator> indicators = new ArrayList<Indicator>();
         indicators = new ArrayList<Indicator>(
             reportScheduler.getKeyFlagIndicatorList( Integer.parseInt( keyFlagIndicatorAttributeLookup.getValue() ) ) );
@@ -553,15 +612,13 @@ public static void setDatasetid(String datasetid) {
                 {
                     if ( indicators.contains( indicator ) )
                     {
-                        // System.out.println( " OrgUnit Id " +
-                        // selOrgUnit.getId() + "-- Indicator Id : " +
-                        // indicator.getId() );
+                       
                         reportScheduler.updateSingleKeyFlagAnalytic( selOrgUnit, indicator );
                     }
                 }
             }
         }
-
+		
         return SUCCESS;
     }
 

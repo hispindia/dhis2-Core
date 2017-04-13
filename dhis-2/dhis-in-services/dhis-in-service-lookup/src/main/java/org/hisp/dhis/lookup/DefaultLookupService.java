@@ -1,5 +1,6 @@
 package org.hisp.dhis.lookup;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -70,7 +71,7 @@ public Collection<Lookup> getAllLookups()
 
 // Search lookup by name
 public void searchLookupByName( List<Lookup> lookups, String key )
-{
+{    
     Iterator<Lookup> iterator = lookups.iterator();
 
     while ( iterator.hasNext() )
