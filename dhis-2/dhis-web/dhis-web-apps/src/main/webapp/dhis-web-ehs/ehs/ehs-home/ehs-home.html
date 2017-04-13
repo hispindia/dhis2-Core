@@ -1,18 +1,18 @@
 <style>
-	.quality_program
-	{
-		color:#3162C5;
-		cursor: pointer;
-	}
-	.quality_program:hover
-	{
-		color: black;
-		text-decoration:underline;
-	}
-		.quality_program:active
-	{
-		color:red;
-	}
+    .quality_program
+    {
+        color:#3162C5;
+        cursor: pointer;
+    }
+    .quality_program:hover
+    {
+        color: black;
+        text-decoration:underline;
+    }
+    .quality_program:active
+    {
+        color:red;
+    }
 </style>
 <div id="leftBar">
     <div class="left-bar-menu" ng-controller="LeftBarMenuController">
@@ -24,77 +24,137 @@
         -->
     </div>
 </div>
-<div id="mainPage">
+<fieldset id="mainPage">
     <h1>{{'ehs'| translate}}</h1>
-    <div style="width: 90%;" class="row col-sm-12">
-        <div class="col-sm-4 ehs-home-container"  style="text-align:center;" ng-click="foodSafetyProgram()">
 
-                <img src="../dhis-web-ehs/images/Capture.PNG"  style="height:130px; cursor: pointer;"/>
-        <table> <tr></tr> <td> <h2 class="quality_program" style="margin-left:37px;">Food Safety Program </h2></td></tr></table>
+
+    <fieldset  style="width: 90%;" class="row col-sm-12">
+
+        <fieldset class="col-sm-4 ehs-home-container"   ng-if=userfoodsafetyprogram  style="text-align:center;" ng-click="foodSafetyProgram()">
+
+            <img src="../dhis-web-ehs/images/Capture.PNG"  style="height:130px; cursor: pointer;"/>
+            <table> <tr></tr> <td> <h2 class="quality_program" style="margin-left:37px;">Food Safety Program </h2></td></tr></table>
             <!-- <span class="horizontal-spacing">{{'food_safety'| translate}}</span>-->
-        </div>
-        <div class="col-sm-4 ehs-home-container" style="text-align:center;" ng-click="waterSafetyProgram()">
+        </fieldset>
 
-                <img src="../dhis-web-ehs/images/watersafety.png" style="height:130px; cursor: pointer;" />
-                <table> <tr></tr> <td> <h2 class="quality_program" style="margin-left:40px;">Water Quality Program </h2></td></tr></table>
-                <!-- <span class="horizontal-spacing">{{'water_safety'| translate}}</span>-->
-        </div>
-        <div class="col-sm-4 ehs-home-container" style="text-align:center;">
-		<a ng-href="../dhis-web-ehs/index.html#/operators-registration?program=ieLe1vT4Vad">
-           <img src="../dhis-web-ehs/images/registryofbusinessowner.png"style="height:130px"/>
-		</a>
+        <fieldset class="col-sm-4 ehs-home-container"   ng-if=!userfoodsafetyprogram  style="text-align:center;" >
 
-         <table>  <tr><td><a ng-href="../dhis-web-ehs/index.html#/operators-registration?program=ieLe1vT4Vad"><h2>Registry of Business Owners</h2></a></td></tr></table>
+            <img src="../dhis-web-ehs/images/Capture.PNG"  style="height:130px; cursor: pointer;"/>
+            <table> <tr></tr> <td> <h2 class="quality_program" style="margin-left:37px;">Food Safety Program </h2></td></tr></table>
+            <!-- <span class="horizontal-spacing">{{'food_safety'| translate}}</span>-->
+        </fieldset>
+
+        <fieldset class="col-sm-4 ehs-home-container"   ng-if=userwatersafetyprogram style="text-align:center;" ng-click="waterSafetyProgram()">
+
+            <img src="../dhis-web-ehs/images/watersafety.png" style="height:130px; cursor: pointer;" />
+            <table> <tr></tr> <td> <h2 class="quality_program" style="margin-left:40px;">Water Quality Program </h2></td></tr></table>
+            <!-- <span class="horizontal-spacing">{{'water_safety'| translate}}</span>-->
+        </fieldset>
+        <fieldset class="col-sm-4 ehs-home-container"  ng-if=!userwatersafetyprogram style="text-align:center;" >
+
+            <img src="../dhis-web-ehs/images/watersafety.png" style="height:130px; cursor: pointer;" />
+            <table> <tr></tr> <td> <h2 class="quality_program" style="margin-left:40px;">Water Quality Program </h2></td></tr></table>
+            <!-- <span class="horizontal-spacing">{{'water_safety'| translate}}</span>-->
+        </fieldset>
 
 
-                <!--
-                <span class="horizontal-spacing">{{'food_safety'| translate}}</span>-->
-        </div>
-        <div class="col-sm-4 ehs-home-container" style="text-align:center;">
+        <fieldset class="col-sm-4 ehs-home-container"   ng-if=useroperatorregistry style="text-align:center;">
+            <a ng-href="../dhis-web-ehs/index.html#/operators-registration?program=ieLe1vT4Vad">
+
+                <img src="../dhis-web-ehs/images/registryofbusinessowner.png"style="height:130px"/>
+            </a>
+
+            <table>  <tr><td><a ng-href="../dhis-web-ehs/index.html#/operators-registration?program=ieLe1vT4Vad"><h2>Registry of Business Owners</h2></a></td></tr></table>
+
+
+            <!--
+            <span class="horizontal-spacing">{{'food_safety'| translate}}</span>-->
+        </fieldset>
+
+        <fieldset class="col-sm-4 ehs-home-container"   ng-if=!useroperatorregistry style="text-align:center;">
+
+
+                <img src="../dhis-web-ehs/images/registryofbusinessowner.png"style="height:130px"/>
+
+
+            <table>  <tr><td><a><h2>Registry of Business Owners</h2></a></td></tr></table>
+
+
+            <!--
+            <span class="horizontal-spacing">{{'food_safety'| translate}}</span>-->
+        </fieldset>
+
+
+
+        <fieldset class="col-sm-4 ehs-home-container" style="text-align:center;">
             <img src="../dhis-web-ehs/images/vectorcontrolprogram.png" style="height:130px"/>
             <table> <tr></tr> <td> <h2 style="margin-left:30px;">Vector Control Program </h2></td></tr></table>
             <!--<h2><span class="horizontal-spacing">{{'food_safety'| translate}}</span></h2>-->
-        </div>
-        <div class="col-sm-4 ehs-home-container" style="text-align:center;">
+        </fieldset>
+        <fieldset class="col-sm-4 ehs-home-container" style="text-align:center;">
             <img src="../dhis-web-ehs/images/Institutionalhygiene.png" style="height:130px"/>
             <table> <tr></tr> <td> <h2 style="margin-left:38px;">Institutional Hygiene</h2></td></tr></table>
             <!--<h2><span class="horizontal-spacing">{{'food_safety'| translate}}</span></h2>-->
-        </div>
-        <div class="col-sm-4 ehs-home-container" style="text-align:center;">
+        </fieldset>
+        <fieldset class="col-sm-4 ehs-home-container" style="text-align:center;">
             <img src="../dhis-web-ehs/images/porthealth.png" style="height:130px"/>
 
             <table> <tr></tr> <td> <h2 style="margin-left:82px;">Port Health</h2></td></tr></table>
             <!--<h2><span class="horizontal-spacing">{{'food_safety'| translate}}</span></h2>-->
-        </div>
-        <div class="col-sm-4 ehs-home-container" style="text-align:center;">
-		<a ng-href="../dhis-web-ehs/schedulingInspectionsList.action?listAll=true">
-         <img src="../dhis-web-ehs/images/scheduling.png" style="height:130px"/>
-		</a>
+        </fieldset>
+
+        <fieldset class="col-sm-4 ehs-home-container" ng-if=userfoodsafetyprogram  style="text-align:center;">
+            <a ng-href="../dhis-web-ehs/schedulingInspectionsList.action?listAll=true">
+                <img src="../dhis-web-ehs/images/scheduling.png" style="height:130px"/>
+            </a>
 
             <table>  <tr><td><a ng-href="../dhis-web-ehs/schedulingInspectionsList.action?listAll=true"><h2 style="margin-left:80px;">Scheduling</h2></a></td></tr></table>
 
 
             <!--<h2><span class="horizontal-spacing">{{'food_safety'| translate}}</span></h2>-->
-        </div>
-        <div class="col-sm-4 ehs-home-container" style="text-align:center;">
-		<a ng-href="../dhis-web-dashboard-integration/index.action">
-            <img src="../dhis-web-ehs/images/reports.png" style="height:130px" />
-		</a>
+        </fieldset>
+
+        <fieldset class="col-sm-4 ehs-home-container" ng-if=!userfoodsafetyprogram  style="text-align:center;">
+
+                <img src="../dhis-web-ehs/images/scheduling.png" style="height:130px"/>
+
+
+            <table>  <tr><td><h2 style="margin-left:80px;">Scheduling</h2></a></td></tr></table>
+
+
+            <!--<h2><span class="horizontal-spacing">{{'food_safety'| translate}}</span></h2>-->
+        </fieldset>
+        <fieldset class="col-sm-4 ehs-home-container" style="text-align:center;">
+            <a ng-href="../dhis-web-dashboard-integration/index.action">
+                <img src="../dhis-web-ehs/images/reports.png" style="height:130px" />
+            </a>
             <table>  <tr><td><a ng-href="../dhis-web-dashboard-integration/index.action"><h2 style="margin-left:90px;">Reports</h2></a></td></tr></table>
 
 
             <!--<h2><span class="horizontal-spacing">{{'food_safety'| translate}}</span></h2>-->
-        </div>
-        <div class="col-sm-4 ehs-home-container" style="text-align:center;">
-		<a ng-href="../dhis-web-ehs/escalationsList.action?listAll=true">
-           <img src="../dhis-web-ehs/images/Executiveboard.png" style="height:130px" />
-		</a>
+        </fieldset>
+
+
+        <fieldset class="col-sm-4 ehs-home-container"  ng-if=userfoodsafetyprogram  style="text-align:center;">
+            <a ng-href="../dhis-web-ehs/escalationsList.action?listAll=true">
+                <img src="../dhis-web-ehs/images/Executiveboard.png" style="height:130px" />
+            </a>
             <!--<h2><span class="horizontal-spacing">{{'food_safety'| translate}}</span></h2>-->
             <table>  <tr><td><a ng-href="../dhis-web-ehs/escalationsList.action?listAll=true"><h2  style="margin-left:60px;">Executive board</h2></a></td></tr></table>
 
 
 
-        </div>
+        </fieldset>
 
-    </div>
-</div>
+        <fieldset class="col-sm-4 ehs-home-container"  ng-if=!userfoodsafetyprogram  style="text-align:center;">
+
+                <img src="../dhis-web-ehs/images/Executiveboard.png" style="height:130px" />
+
+            <!--<h2><span class="horizontal-spacing">{{'food_safety'| translate}}</span></h2>-->
+            <table>  <tr><td><a><h2  style="margin-left:60px;">Executive board</h2></a></td></tr></table>
+
+
+
+        </fieldset>
+    </fieldset>
+</fieldset>

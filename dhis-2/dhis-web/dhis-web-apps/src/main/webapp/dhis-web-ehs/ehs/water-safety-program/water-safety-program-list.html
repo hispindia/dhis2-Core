@@ -41,8 +41,10 @@
 
 
 
-            <td width="25%" height="100" style="text-align:center" ng-repeat="item in foodsafetyprograms"  ng-model="example" ng-click=waterSafety(item.id) > <img src="../dhis-web-ehs/images/{{item.id}}.png"    style="height:120px; width:120px;cursor: pointer"/> <span style="cursor: pointer" ng-click=waterSafety(item.id) ><h1 class="quality_program">{{item.name}}</h1></span></td>
+            <td width="25%" height="100" style="text-align:center" ng-repeat="item in foodsafetyprograms" ng-if="userprogram.includes(item.id)"  ng-model="example" ng-click=waterSafety(item.id) > <img src="../dhis-web-ehs/images/{{item.id}}.png"    style="height:120px; width:120px;cursor: pointer"/> <span style="cursor: pointer" ng-click=waterSafety(item.id) ><h1 class="quality_program">{{item.name}}{{userprogram.includes(item.id)}}</h1></span></td>
 
+
+            <td width="25%" height="100" style="text-align:center" ng-repeat="item in foodsafetyprograms" ng-if="!userprogram.includes(item.id)"  ng-model="example"  > <img src="../dhis-web-ehs/images/{{item.id}}.png"    style="height:120px; width:120px;cursor: pointer"/> <span style="cursor: pointer" ng-click=waterSafety(item.id) ><h1 class="quality_program">{{item.name}}{{userprogram.includes(item.id)}}</h1></span></td>
 
             <!-- <div class="col-sm-6 ehs-home-container" ng-click="foodSafety()" style="cursor: pointer">-->
         <tr>

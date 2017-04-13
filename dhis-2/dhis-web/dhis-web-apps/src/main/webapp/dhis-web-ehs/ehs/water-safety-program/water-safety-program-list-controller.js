@@ -11,6 +11,31 @@ trackerCapture.controller('WaterSafetyProgramlistController',
         AjaxCalls.getWaterSafetyProgram().then(function(data){
             $scope.foodsafetyprograms = data;
 
+
+
+
+            AjaxCalls.getuserrole().then(function(data1) {
+
+
+                $scope.userrole=data1.data.userCredentials.userRoles[0].id;
+                $scope.userprogram="";
+                AjaxCalls.getuserroleprogram($scope.userrole).then(function(data2)
+                {
+                    for(i=0;i<data2.data.programs.length;i++)
+                    { $scope.userprogram+=" " +data2.data.programs[i].id ;}
+
+
+
+                });
+            });
+
+
+
+
+
+
+
+
         });
         $scope.waterSafety = function(value){
             $scope.value=value;

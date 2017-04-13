@@ -32,13 +32,15 @@
 <div id="mainPage">
     <h1>{{'food_safety_program_list'| translate}}</h1>
 
+
   <!--  <select size="6" name="ngvalueselect" ng-model="data.model" multiple>
         <option ng-repeat="item in foodsafetyprograms" ng-value="item.id">{{item.name}}</option>
     </select>-->
     <table width="80%">
     <tr >
 
-        <td width="25%" height="100" style="text-align:center" ng-repeat="item in foodsafetyprograms"   ng-model="example" ng-click=foodSafety(item.id) > <img src="../dhis-web-ehs/images/{{item.id}}.png" style="height:120px; width:120px; cursor:pointer;"/> <span style="cursor: pointer" ng-click=foodSafety(item.id) ><h1 class="quality_program">{{item.name}}</h1></span> </td>
+        <td width="25%" height="100" style="text-align:center"   ng-if="userprogram.includes(item.id)"  ng-repeat="item in foodsafetyprograms"   ng-click=foodSafety(item.id) ng-model="example"  > <img src="../dhis-web-ehs/images/{{item.id}}.png"    style="height:120px; width:120px; cursor:pointer;"/> <span style="cursor: pointer"  ><h1 class="quality_program">{{item.name}}</h1></span> </td>
+		<td width="25%" height="100" style="text-align:center"   ng-if="!userprogram.includes(item.id)"  ng-repeat="item in foodsafetyprograms"  ng-model="example"  > <img src="../dhis-web-ehs/images/{{item.id}}.png"    style="height:120px; width:120px; cursor:pointer;"/> <span style="cursor: pointer"  ><h1 class="quality_program">{{item.name}}</h1></span> </td>
 
 
 

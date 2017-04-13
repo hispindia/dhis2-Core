@@ -288,6 +288,19 @@ trackerCapture
                 return promise;
             },
 
+			 getuserrole : function(){
+                var promise = $http.get(  '../api/me.json').then(function(response){
+                    return response;
+                });
+                return promise;
+            },
+            getuserroleprogram : function(userrole){
+                var promise = $http.get(  "../api/userRoles/"+userrole+".json").then(function(response){
+                    return response;
+                });
+                return promise;
+            },
+			
             setwatersafetyid :function(value)
             {
                 foodsafetyid=value;
@@ -320,6 +333,20 @@ trackerCapture
 
 
 
+                 getoperatorregistry : function(){
+            var promise = $http.get(  '../api/programs.json?fields=id,name,code,attributeValues[attribute[id,name,code],value]&paging=false').then(function(response){
+                var associationWidgets = [];
+                if (!response.data.programs)
+                    return associationWidgets;
+                for (var i=0;i<response.data.programs.length;i++){
+                 if(response.data.programs[i].name=="Operators Registry"){
+                     associationWidgets.push(response.data.programs[i]);
+                 }
+                }
+                return associationWidgets;
+            });
+            return promise;
+        },
 
 
 

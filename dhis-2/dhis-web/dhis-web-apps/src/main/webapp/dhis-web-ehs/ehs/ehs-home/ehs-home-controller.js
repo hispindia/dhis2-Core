@@ -2,12 +2,82 @@
 var trackerCapture = angular.module('trackerCapture');
 trackerCapture.controller('EHSHomeTypesController',
         function($scope,
-                $location) {
+                $location,
+                 AjaxCalls,
+                 $rootScope) {
+            $scope.userrole = [];
 
-    // food-safety-program
+
+            $scope.useroperatorregistry=false;
+            $scope.userfoodsafetyprogram=false;
+            $scope.userwatersafetyprogram=false;
+                AjaxCalls.getuserrole().then(function (data1) {
+
+
+                    $scope.userrole = data1.data.userCredentials.userRoles[0].id;
+                    $scope.userprogram = "";
+                    AjaxCalls.getuserroleprogram($scope.userrole).then(function (data2) {
+
+                        AjaxCalls.getFoodSafetyProgram().then(function(data) {
+                            $scope.foodsafetyprograms = data;
+                        for (i = 0; i < data2.data.programs.length; i++) {
+                            $scope.userprogram += " " + data2.data.programs[i].id;
+                        }
+
+                        for(j=0;j< $scope.foodsafetyprograms.length;j++){
+                           if($scope.userprogram.includes($scope.foodsafetyprograms[j].id))
+                            { $scope.userfoodsafetyprogram=true;}
+                        }
+
+
+                    });
+
+                        AjaxCalls.getWaterSafetyProgram().then(function(data1){
+                            $scope.watersafetyprograms = data1;
+
+                            for (i = 0; i < data2.data.programs.length; i++) {
+                                $scope.userprogram += " " + data2.data.programs[i].id;
+                            }
+
+                            for(j=0;j< $scope.watersafetyprograms.length;j++){
+                                if($scope.userprogram.includes($scope.watersafetyprograms[j].id))
+                                { $scope.userwatersafetyprogram=true;}
+                            }
+
+                        });
+
+
+                        // operator registry//
+
+
+                        AjaxCalls.getoperatorregistry().then(function(data4){
+
+                            for(j=0;j< data4.length;j++){
+                                if($scope.userprogram.includes(data4[j].id))
+                                { $scope.useroperatorregistry=true;}
+                            }
+
+                        });
+
+
+                        //end//
+
+
+
+
+                    });
+
+            });
+        
+
+            // food-safety-program
     $scope.foodSafetyProgram = function(){
         //selection.load();
+
+
         $location.path('/food-safety-program-list').search();
+
+
         //$location.path('/food-safety-program').search();
     };
     // water-safety-program
