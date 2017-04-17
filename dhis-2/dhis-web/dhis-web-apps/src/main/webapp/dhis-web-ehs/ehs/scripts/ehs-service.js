@@ -339,7 +339,7 @@ trackerCapture
                 if (!response.data.programs)
                     return associationWidgets;
                 for (var i=0;i<response.data.programs.length;i++){
-                 if(response.data.programs[i].name=="Operators Registry"){
+                 if(response.data.programs[i].name=="Business Operators Registry"){
                      associationWidgets.push(response.data.programs[i]);
                  }
                 }
