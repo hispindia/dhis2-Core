@@ -325,15 +325,15 @@ public class GetSchedulingInspectionsListAction extends ActionPagingSupport<Prog
             }
             
             System.out.println( " inside list All " + listAll +" programUid  "+ programUid );
-            System.out.println( " Query  " + query  );
+            //System.out.println( " Query  " + query  );
             
             programStageInstances = new ArrayList<ProgramStageInstance>( getProgramStageInstanceList( query ) );
-            System.out.println( " Size of programStageInstances -- 1 " + programStageInstances.size()  );
+            //System.out.println( " Size of programStageInstances -- 1 " + programStageInstances.size()  );
             this.paging = createPaging( programStageInstances.size() );
             
             //programStageInstances = getProgramStageInstancesBetween( paging.getStartPos(), paging.getPageSize() );
             programStageInstances = getFilterProgramStageInstancesBetween( programStageInstances, paging.getStartPos(), paging.getPageSize() );
-            System.out.println( " Size of programStageInstances -- 2  " + programStageInstances.size()  );
+            //System.out.println( " Size of programStageInstances -- 2  " + programStageInstances.size()  );
         }
         
         else
@@ -426,7 +426,7 @@ public class GetSchedulingInspectionsListAction extends ActionPagingSupport<Prog
             {
                 distCommunityCheck = 3;
             }
-            
+            /*
             System.out.println( " Start Date " + scheduleStartDate  );
             System.out.println( " End Date " + scheduleEndDate  );
             System.out.println( " inspectionCheck " + inspectionCheck  );
@@ -434,8 +434,7 @@ public class GetSchedulingInspectionsListAction extends ActionPagingSupport<Prog
             System.out.println( " programCheck " + programCheck  );
             System.out.println( " dateCheck " + dateCheck  );
             System.out.println( " distCommunityCheck " + distCommunityCheck  );
-            
-            
+            */
             
             // let's try this
              
@@ -852,7 +851,7 @@ public class GetSchedulingInspectionsListAction extends ActionPagingSupport<Prog
                 }
             }
             
-            System.out.println(  " -- PSI List Size" + psiList.size() );
+            //System.out.println(  " -- PSI List Size" + psiList.size() );
             return psiList;
         }
         catch ( Exception e )
