@@ -481,7 +481,9 @@ trackerCapture.controller('DashboardController',
     };
 
     $scope.back = function () {
-        for (var i=0;i<$scope.foodsafetyprograms.length;i++)
+		 window.history.back();
+		
+       /* for (var i=0;i<$scope.foodsafetyprograms.length;i++)
         {
             foodlist.push($scope.foodsafetyprograms[i].id);
 
@@ -492,7 +494,7 @@ trackerCapture.controller('DashboardController',
             selection.load();
             if(foodlist.includes($scope.selectedProgramId))
             {
-                window.history.back();
+               
 
                 //$location.path('/establishments-registration').search({program: $scope.selectedProgramId});
 
@@ -508,7 +510,7 @@ trackerCapture.controller('DashboardController',
 
             }*/
 
-        else if ($scope.selectedProgramId === 'ieLe1vT4Vad') {
+        /*else if ($scope.selectedProgramId === 'ieLe1vT4Vad') {
             $location.path('/operators-registration').search({program: $scope.selectedProgramId});
 
         }
@@ -526,7 +528,7 @@ trackerCapture.controller('DashboardController',
 
             $rootScope.$broadcast('DashboardBackClicked');
             $scope.dataEntryMainMenuItemSelected = false;
-        }
+        }*/
 
     };
             
