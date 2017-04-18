@@ -2505,7 +2505,8 @@ public class IVBUtil
     public Map<String, DataValue> getLatestDataValuesForHPVDemoReport( String hpvDemoYearDes, String orgUnitIdsByComma, String hpvDemoYear )
     {
         Map<String, DataValue> latestDataValues = new HashMap<String, DataValue>();
-        
+        DatabaseInfo dataBaseInfo = databaseInfoProvider.getDatabaseInfo();
+
         try
         {
             /*
@@ -2699,7 +2700,8 @@ public class IVBUtil
             
             
             String query = "SELECT ou, yr";
-            
+            if ( dataBaseInfo.getType().equalsIgnoreCase( "mysql" ) )
+            {
             for( String hpvDemoYearDe : hpvDemoYearDes.split( "," ) )
             {
                 query += ",  GROUP_CONCAT("+hpvDemoYearDe + "d)";
@@ -2801,7 +2803,108 @@ public class IVBUtil
             " group by ou,yr "+
             " order by ou,yr ";
             
+            }
             
+            else if ( dataBaseInfo.getType().equalsIgnoreCase( "postgresql" ) )
+            {
+                for( String hpvDemoYearDe : hpvDemoYearDes.split( "," ) )
+                {
+                    query += ",  array_to_string(array_agg(d"+hpvDemoYearDe + "d),' ')";
+                }
+                
+                query += " from ( select ou, yr";
+
+                for( String hpvDemoYearDe : hpvDemoYearDes.split( "," ) )
+                {
+                    query += ", case when dataelementid = "+ hpvDemoYearDe + " then val end as d"+hpvDemoYearDe+"d";
+                }
+                
+                query += " from "+
+                    " ( " +
+                   
+" select C1.dataelementid,C1.ou,C2.val,C1.yr "+ 
+"from ( "+
+        " select dataelementid,ou,max(ts) ts ,yr "+
+        " from ( "+
+                " select dataelementid,ou,val,ts,yr1,yr2, "+
+                " CASE WHEN yr2 IS NULL THEN 'Year 1' WHEN yr2 IS NOT NULL AND   ts < yr2 THEN 'Year 1' WHEN yr3 IS NULL THEN 'Year 2' "+
+               " WHEN yr3 IS NOT NULL AND ts BETWEEN yr2 AND yr3 THEN 'Year 2' ELSE 'Year 3' END yr from ( "+
+                       " select A1.*,case when yr1 not like '' then to_date(A2.yr1,'yyyy-mm-dd') else null end yr1, "+
+                        " case when yr2 not like '' then to_date(A2.yr2,'yyyy-mm-dd') else null end yr2, "+
+                       " case when yr3 not like '' then to_date(A2.yr3,'yyyy-mm-dd') else null end yr3 "+
+                       " from ( " +
+                               " select dva.dataelementid,dva.organisationunitid ou, "+
+                                        " concat(dva.value,'#@#',case when dva.comment is null then '' else dva.comment end) val,dva.timestamp ts "+ 
+                               " from datavalueaudit dva " +
+                               " where dva.dataelementid in ("+hpvDemoYearDes+")"+ 
+                               " and dva.organisationunitid in ("+orgUnitIdsByComma+")"+ 
+                               " and dva.commenttype like 'H' "+
+                                " )A1 " +
+                        " inner join ( select ou, array_to_string(array_agg(yr1),'') yr1, array_to_string(array_agg(yr2),'') yr2, array_to_string(array_agg(yr3),'') yr3 "+
+                                     "   from ( "+
+                                       " select ou,case when val like 'Year 1' then ts end as yr1 , case when val like 'Year 2' then ts end as yr2 , "+
+                                       " case when val like 'Year 3' then ts end as yr3 " +
+                                      "  from ( "+
+                                               " select dva.dataelementid,dva.organisationunitid ou,max(dva.timestamp) ts,dva.value val "+
+                                               " from datavalueaudit dva "+
+                                               " where dva.dataelementid= "+hpvDemoYear + 
+                                               " and dva.organisationunitid in ("+ orgUnitIdsByComma +")" +
+                                               " and dva.commenttype like 'H' "+    
+                                              "  group by dva.organisationunitid,dva.value ,dataelementid "+
+                                               "  )asd  " +
+                                       "  )sag  " +
+                                        " GROUP BY ou  "+
+                               "  )A2 "+ 
+                                " on A1.ou=A2.ou " +
+                       "  )B  "+
+               "  )fin  "+
+                " group by dataelementid,ou,yr "+  
+       "  )C1  " +
+        " inner join ( "+
+       
+        " select dataelementid,ou,val,ts,yr1,yr2, "+
+       " CASE WHEN yr2 IS NULL THEN 'Year 1' WHEN yr2 IS NOT NULL AND ts < yr2 THEN 'Year 1' WHEN yr3 IS NULL THEN 'Year 2' "+
+              "  WHEN yr3 IS NOT NULL AND ts BETWEEN yr2 AND yr3 THEN 'Year 2' ELSE 'Year 3' END yr "+
+       " from ( " +
+       " select A1.*,case when yr1 not like '' then to_date(A2.yr1,'yyyy-mm-dd') else null end yr1,"+
+                        " case when yr2 not like '' then to_date(A2.yr2,'yyyy-mm-dd') else null end yr2, "+
+                        " case when yr3 not like '' then to_date(A2.yr3,'yyyy-mm-dd') else null end yr3 " +
+       " from ( " +
+                " select dva.dataelementid,dva.organisationunitid ou,concat(dva.value,'#@#',case when dva.comment is null then '' else dva.comment end) val,dva.timestamp ts "+ 
+                " from datavalueaudit dva "+
+                " where dva.dataelementid in ("+hpvDemoYearDes+")"+
+                " and dva.organisationunitid in ("+orgUnitIdsByComma+")"+ 
+                " and dva.commenttype like 'H' "+
+        " )A1 " +
+        " inner join ( "+ 
+         
+        " select ou, array_to_string(array_agg(yr1),'') yr1, array_to_string(array_agg(yr2),'') yr2, array_to_string(array_agg(yr3),'') yr3  "+
+        " from ( "+
+                " select ou, case when val like 'Year 1' then ts end as yr1 , case when val like 'Year 2' then ts end as yr2 , "+ 
+                " case when val like 'Year 3' then ts end as yr3 " +
+                " from ( "+
+                       " select dva.dataelementid,dva.organisationunitid ou,max(dva.timestamp) ts,dva.value val "+
+                       " from datavalueaudit dva "+ 
+                       " where dva.dataelementid="+hpvDemoYear+ 
+                       " and dva.organisationunitid in ("+orgUnitIdsByComma+")"+ 
+                       " and dva.commenttype like 'H' "+
+                       " group by dva.organisationunitid,dva.value,dataelementid "+
+                       " )asd " +
+                " )sag " +
+                " GROUP BY ou " +
+        " )A2 " +
+       " on A2.ou=A1.ou " +
+" )B "+ 
+" )C2 " +
+" on C1.ts=C2.ts and C1.dataelementid=C2.dataelementid and C1.ou=C2.ou and C1.yr=C2.yr "+ 
+" group by C1.yr,C1.ou,C1.dataelementid ,C2.val "+
+" )sag "+ 
+" )sag1 " + 
+" group by ou,yr "+
+" order by ou,yr " 
+; 
+                       
+            }
             //System.out.println( query );
             
             
