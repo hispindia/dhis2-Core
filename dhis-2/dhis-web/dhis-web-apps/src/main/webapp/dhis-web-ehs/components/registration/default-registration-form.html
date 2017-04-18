@@ -37,7 +37,7 @@
                 </span>
 
                 <span ng-if="!attribute.optionSetValue" ng-switch="attribute.valueType">
-                    <span ng-switch-when="DATE" && ng-if="attribute.id != 'edTbYj3fk12'">
+                    <span ng-switch-when="DATE" && ng-if="attribute.id != 'edTbYj3fk12' && attribute.id != 'qKe133sJNgr' && attribute.id != 'AoDnDQALqPc'">
                         <input type="text"
                                placeholder="{{dhis2CalendarFormat.keyDateFormat}}" 
                                name="foo" 
@@ -55,7 +55,7 @@
                                blur-or-change="teiValueUpdated(selectedTei, attribute.id)"
                                ng-required="attribute.mandatory"/>
                     </span>
-					<span ng-switch-when="DATE" && ng-if="attribute.id =='edTbYj3fk12'">
+					<span ng-switch-when="DATE" && ng-if="attribute.id =='edTbYj3fk12' || attribute.id == 'qKe133sJNgr' || attribute.id =='AoDnDQALqPc'">
                         <input type="text"
                                placeholder="{{dhis2CalendarFormat.keyDateFormat}}" 
                                name="foo" 

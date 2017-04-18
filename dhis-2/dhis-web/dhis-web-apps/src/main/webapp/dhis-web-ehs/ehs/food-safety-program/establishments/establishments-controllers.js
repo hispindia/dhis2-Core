@@ -62,7 +62,7 @@ trackerCapture.controller('EstablishmentsSelectionController',
             //$scope.displayAttribute = 'v9dlF13XghP';
             //$scope.displayAttribute = 'THGyyoT23tr';
             $scope.displayAttribute = 'tyXd890iVJG';
-
+			$scope.selectedTEname = "";
 
             var savedAdvancedSeachOptions = null;
             var defaultColumn = {
@@ -285,6 +285,8 @@ trackerCapture.controller('EstablishmentsSelectionController',
                                 $scope.selectedProgram = response.programs[i];
                                 $scope.model.selectedProgram = response.programs[i];
                                 $scope.getProgramAttributes( $scope.model.selectedProgram);
+								$scope.selectedTEname = response.programs[i].trackedEntity.displayName;
+								//$scope.selectedTEname = response.programs[i].displayName;
                             }
                         }
                         //$scope.programs = response.programs;

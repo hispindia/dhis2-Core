@@ -38,7 +38,7 @@
                         </span>
                         <!-- sort icon ends -->                            
                     </th>
-                    <th ng-if="selectedProgram.id === 'TeBSCKYRo3q'" ><span>{{'update'| translate}}</span></th>
+                   <!-- <th ng-if="selectedProgram.id === 'TeBSCKYRo3q'" ><span>{{'update'| translate}}</span></th>-->
                 </tr>
             </thead>
 
@@ -65,7 +65,7 @@
                         </span>
                     </td>
 
-                    <td ng-if="selectedProgram.id === 'TeBSCKYRo3q'" title="{{'update'| translate}}" ng-click="showUpdateForm(trackedEntity,selectedProgram.id)">{{"update"| translate}}</td>
+                   <!-- <td ng-if="selectedProgram.id === 'TeBSCKYRo3q'" title="{{'update'| translate}}" ng-click="showUpdateForm(trackedEntity,selectedProgram.id)">{{"update"| translate}}</td>-->
                 </tr>
                 <tr ng-if="!addingTeiAssociate"
                     ng-repeat="trackedEntity in trackedEntityList.rows.other| orderBy:d2Sort:reverse"
@@ -88,7 +88,7 @@
                             <span ng-switch-default>{{trackedEntity[gridColumn.id]}}</span>
                         </span>
                     </td>
-                    <td ng-if="selectedProgram.id === 'TeBSCKYRo3q'" title="{{'update'| translate}}" ng-click="showUpdateForm(trackedEntity,selectedProgram.id)">{{"update"| translate}}</td>
+                    <!--<td ng-if="selectedProgram.id === 'TeBSCKYRo3q'" title="{{'update'| translate}}" ng-click="showUpdateForm(trackedEntity,selectedProgram.id)">{{"update"| translate}}</td>-->
                 </tr>
                 <tr ng-if="addingTeiAssociate"
                     ng-repeat="trackedEntity in trackedEntityList.rows.own| orderBy:d2Sort:reverse"
@@ -111,7 +111,7 @@
                             <span ng-switch-default>{{trackedEntity[gridColumn.id]}}</span>
                         </span>
                     </td>
-                    <td ng-if="selectedProgram.id === 'TeBSCKYRo3q'" title="{{'update'| translate}}" ng-click="showUpdateForm(trackedEntity,selectedProgram.id)">{{"update"| translate}}</td>
+                   <!-- <td ng-if="selectedProgram.id === 'TeBSCKYRo3q'" title="{{'update'| translate}}" ng-click="showUpdateForm(trackedEntity,selectedProgram.id)">{{"update"| translate}}</td>-->
                 </tr>
                 <tr ng-if="addingTeiAssociate"
                     ng-repeat="trackedEntity in trackedEntityList.rows.other| orderBy:d2Sort:reverse"
@@ -134,7 +134,7 @@
                             <span ng-switch-default>{{trackedEntity[gridColumn.id]}}</span>
                         </span>
                     </td>
-                    <td ng-if="selectedProgram.id === 'TeBSCKYRo3q'" title="{{'update'| translate}}" ng-click="showUpdateForm(trackedEntity,selectedProgram.id)">{{"update"| translate}}</td>
+                    <!--<td ng-if="selectedProgram.id === 'TeBSCKYRo3q'" title="{{'update'| translate}}" ng-click="showUpdateForm(trackedEntity,selectedProgram.id)">{{"update"| translate}}</td>-->
                 </tr>
             </tbody>
         </table>

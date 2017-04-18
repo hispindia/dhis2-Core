@@ -65,6 +65,7 @@ trackerCapture.controller('OperatorsSelectionController',
             $scope.establishmentsProgran = 'tITlMGNJTbJ';
             $scope.operatorsProgram = 'ieLe1vT4Vad';
             $scope.displayAttribute = 'MaCVsKG7pjb';
+			$scope.selectedTEname = "";
 
             var savedAdvancedSeachOptions = null;
             var defaultColumn = {
@@ -303,6 +304,8 @@ trackerCapture.controller('OperatorsSelectionController',
                                 $scope.selectedProgram = response.programs[i];
                                 $scope.model.selectedProgram = response.programs[i];
                                 $scope.getProgramAttributes( $scope.model.selectedProgram);
+								$scope.selectedTEname = response.programs[i].trackedEntity.displayName;
+								//$scope.selectedTEname = response.programs[i].displayName;
                             }
                         }
 

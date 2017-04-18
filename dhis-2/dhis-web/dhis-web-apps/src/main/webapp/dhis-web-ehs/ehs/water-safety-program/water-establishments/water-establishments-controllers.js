@@ -26,9 +26,11 @@ trackerCapture.controller('WaterEstablishmentsSelectionController',
                  $q,
                  ProgramAndTEIService,
                  $window,
+				  AjaxCalls,
                  OrganisationUnitService) {
 
-
+				 var watersafetyid=AjaxCalls.getwatersafetyid();
+				
             // for saint lucia
             $scope.showWaterEstablishmentsRegistration = function(){
                 selection.load();
@@ -39,8 +41,8 @@ trackerCapture.controller('WaterEstablishmentsSelectionController',
                 $location.path('/operators-registration').search();
             };
 
-            $scope.showUpdateForm = function( selectedTEI ){
-                alert(selectedTEI.id);
+            $scope.showUpdateForm = function( selectedTEI, selectedProgramId ){
+                alert(selectedTEI.id + "--" + selectedProgramId);
             };
 
             OrganisationUnitService.getRootOrganisationUnit().then(function(rootOrganisationUnit){
@@ -50,12 +52,12 @@ trackerCapture.controller('WaterEstablishmentsSelectionController',
 
 
             $scope.trackerAssociateInstancesMap = [];
-            $scope.waterEstablishmentsProgran = 'JlYxDLMZJhK';
+            $scope.waterEstablishmentsProgran = watersafetyid;
             $scope.operatorsProgram = 'ieLe1vT4Vad';
             //$scope.displayAttribute = 'v9dlF13XghP';
             //$scope.displayAttribute = 'THGyyoT23tr';
             $scope.displayAttribute = 'tyXd890iVJG';
-
+			$scope.selectedTEname = "";
 
             var savedAdvancedSeachOptions = null;
             var defaultColumn = {
@@ -278,6 +280,8 @@ trackerCapture.controller('WaterEstablishmentsSelectionController',
                                 $scope.selectedProgram = response.programs[i];
                                 $scope.model.selectedProgram = response.programs[i];
                                 $scope.getProgramAttributes( $scope.model.selectedProgram);
+								$scope.selectedTEname = response.programs[i].trackedEntity.displayName;
+								//$scope.selectedTEname = response.programs[i].displayName;
                             }
                         }
                         //$scope.programs = response.programs;
@@ -416,7 +420,14 @@ trackerCapture.controller('WaterEstablishmentsSelectionController',
                     if($scope.enrollmentStatus === 'TODAY') {
                         $scope.enrollmentStatus = 'ALL';
                     }
-                    if($scope.model.searchText){
+					if($scope.model.searchText != ""){
+                        $scope.queryUrl = 'query=LIKE:' + $scope.model.searchText;
+                    }
+                    else
+					{
+						$scope.selectedSearchMode = $scope.searchMode.listAll;
+					}
+                    /*if($scope.model.searchText){
                         $scope.queryUrl = 'query=LIKE:' + $scope.model.searchText;
                     }
                     else{
@@ -425,7 +436,7 @@ trackerCapture.controller('WaterEstablishmentsSelectionController',
                             $scope.teiFetched = false;
                             return;
                         }
-                    }
+                    }*/
 
                     $scope.attributes = EntityQueryFactory.resetAttributesQuery($scope.attributes, $scope.enrollment);
                     $scope.searchingOrgUnit = $scope.selectedSearchingOrgUnit && $scope.selectedSearchingOrgUnit.id ? $scope.selectedSearchingOrgUnit : $scope.selectedOrgUnit;
