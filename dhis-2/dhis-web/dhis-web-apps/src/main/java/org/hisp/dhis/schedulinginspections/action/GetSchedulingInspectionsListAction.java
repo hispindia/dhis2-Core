@@ -277,11 +277,17 @@ public class GetSchedulingInspectionsListAction extends ActionPagingSupport<Prog
         return districtList;
     }
     
+    public String programUid;
+    
+    public void setProgramUid( String programUid )
+    {
+        this.programUid = programUid;
+    }
+    
     //private String listAllCondition;
     // -------------------------------------------------------------------------
     // Action Implementation
     // -------------------------------------------------------------------------
-
     @Override
     public String execute() throws Exception
     {
@@ -298,12 +304,36 @@ public class GetSchedulingInspectionsListAction extends ActionPagingSupport<Prog
 //        
         if( listAll )
         { 
-            System.out.println( " inside list All " + listAll  );
-            programStageInstances = new ArrayList<ProgramStageInstance>( programStageInstanceStore.getAll() );
+            //System.out.println( " inside list All " + listAll  );
             
+            //programStageInstances = new ArrayList<ProgramStageInstance>( programStageInstanceStore.getAll() );
+            String query = "";
+            
+            if( programUid != null && programUid.length() > 0 )
+            {
+                query =  " SELECT programstageinstanceid FROM programstageinstance psi " +
+                        " INNER JOIN programstage ps ON ps.programstageid = psi.programstageid " +
+                        " INNER JOIN program p ON p.programid = ps.programid " +
+                        " WHERE p.uid = '" + programUid + "' AND ps.name ILIKE 'Inspection' order by psi.executiondate;";
+            }
+            else
+            {
+                query =  " SELECT programstageinstanceid FROM programstageinstance psi " +
+                        " INNER JOIN programstage ps ON ps.programstageid = psi.programstageid " +
+                        " INNER JOIN program p ON p.programid = ps.programid " +
+                        " WHERE  ps.name ILIKE 'Inspection' order by psi.executiondate;";
+            }
+            
+            System.out.println( " inside list All " + listAll +" programUid  "+ programUid );
+            System.out.println( " Query  " + query  );
+            
+            programStageInstances = new ArrayList<ProgramStageInstance>( getProgramStageInstanceList( query ) );
+            System.out.println( " Size of programStageInstances -- 1 " + programStageInstances.size()  );
             this.paging = createPaging( programStageInstances.size() );
             
-            programStageInstances = getProgramStageInstancesBetween( paging.getStartPos(), paging.getPageSize() );
+            //programStageInstances = getProgramStageInstancesBetween( paging.getStartPos(), paging.getPageSize() );
+            programStageInstances = getFilterProgramStageInstancesBetween( programStageInstances, paging.getStartPos(), paging.getPageSize() );
+            System.out.println( " Size of programStageInstances -- 2  " + programStageInstances.size()  );
         }
         
         else
@@ -411,7 +441,8 @@ public class GetSchedulingInspectionsListAction extends ActionPagingSupport<Prog
              
              query = "SELECT psi.programstageinstanceid " +
                     "FROM programstageinstance psi " +
-                    "INNER JOIN programinstance pi ON pi.programinstanceid = psi.programinstanceid ";
+                    "INNER JOIN programinstance pi ON pi.programinstanceid = psi.programinstanceid " +
+                    "INNER JOIN programstage ps ON ps.programstageid = psi.programstageid ";
             
             if( !inspectionType.equalsIgnoreCase( "" ) )    // inspection filter
                 query += "INNER JOIN (" +
@@ -445,7 +476,8 @@ public class GetSchedulingInspectionsListAction extends ActionPagingSupport<Prog
                          "AND value ILIKE '" +communityName + "' " +
                          ") tav2 on tav2.trackedentityinstanceid = pi.trackedentityinstanceid ";
             
-            String q_where = " WHERE psi.programstageid = 130 ";    // inspection program stage id
+            //String q_where = " WHERE psi.programstageid = 130 ";    // inspection program stage id
+            String q_where = " WHERE ps.name ILIKE 'Inspection' " ;
             
             if( !status.equalsIgnoreCase( "" ) )
                 q_where += "AND psi.status = '" + status + "' ";  // status filter
@@ -803,7 +835,7 @@ public class GetSchedulingInspectionsListAction extends ActionPagingSupport<Prog
     //--------------------------------------------------------------------------------
     public List<ProgramStageInstance> getProgramStageInstanceList( String query )
     {
-        List<ProgramStageInstance> peiList = new ArrayList<ProgramStageInstance>();
+        List<ProgramStageInstance> psiList = new ArrayList<ProgramStageInstance>();
 
         try
         {
@@ -816,11 +848,12 @@ public class GetSchedulingInspectionsListAction extends ActionPagingSupport<Prog
                 if ( psiId != null )
                 {
                     ProgramStageInstance psi = programStageInstanceService.getProgramStageInstance( psiId );
-                    peiList.add( psi );
+                    psiList.add( psi );
                 }
             }
-
-            return peiList;
+            
+            System.out.println(  " -- PSI List Size" + psiList.size() );
+            return psiList;
         }
         catch ( Exception e )
         {

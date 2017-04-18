@@ -313,6 +313,12 @@ public class GetEscalationsListAction extends ActionPagingSupport<ProgramStageIn
         this.escalationStatusMap = escalationStatusMap;
     }
     
+    public String programUid;
+    
+    public void setProgramUid( String programUid )
+    {
+        this.programUid = programUid;
+    }
     //private String listAllCondition;
     // -------------------------------------------------------------------------
     // Action Implementation
@@ -334,12 +340,31 @@ public class GetEscalationsListAction extends ActionPagingSupport<ProgramStageIn
 //        
         if( listAll )
         { 
-            String query = "SELECT programstageinstanceid FROM programstageinstance where programstageid in ( 3461 ) order by executiondate;";
-            System.out.println( " inside list All " + listAll  );
+            //String query = "SELECT programstageinstanceid FROM programstageinstance where programstageid in ( 3461 ) order by executiondate;";
+            //System.out.println( " inside list All " + listAll  );
             //programStageInstances = new ArrayList<ProgramStageInstance>( programStageInstanceStore.getAll() );
             
-            programStageInstances = new ArrayList<ProgramStageInstance>( getProgramStageInstanceList( query ) );
+            String query = "";
             
+            if( programUid != null && programUid.length() > 0 )
+            {
+                query =  " SELECT programstageinstanceid FROM programstageinstance psi " +
+                        " INNER JOIN programstage ps ON ps.programstageid = psi.programstageid " +
+                        " INNER JOIN program p ON p.programid = ps.programid " +
+                        " WHERE p.uid = '" + programUid + "' AND ps.name ILIKE 'Escalation' order by psi.executiondate ";
+            }
+            
+            else
+            {
+                query =  " SELECT programstageinstanceid FROM programstageinstance psi " +
+                        " INNER JOIN programstage ps ON ps.programstageid = psi.programstageid " +
+                        " INNER JOIN program p ON p.programid = ps.programid " +
+                        " WHERE  ps.name ILIKE 'Escalation' order by psi.executiondate ";
+            }
+            
+            System.out.println( " inside list All " + listAll +" programUid  "+ programUid );
+            
+            programStageInstances = new ArrayList<ProgramStageInstance>( getProgramStageInstanceList( query ) );
             
             this.paging = createPaging( programStageInstances.size() );
             
@@ -506,7 +531,8 @@ public class GetEscalationsListAction extends ActionPagingSupport<ProgramStageIn
             
             query = "SELECT psi.programstageinstanceid " +
                     "FROM programstageinstance psi " +
-                    "INNER JOIN programinstance pi ON pi.programinstanceid = psi.programinstanceid ";
+                    "INNER JOIN programinstance pi ON pi.programinstanceid = psi.programinstanceid " +
+                    "INNER JOIN programstage ps ON ps.programstageid = psi.programstageid ";
             
             if( !escalationStatus.equalsIgnoreCase( "" ) )    // escalation Status filter
                 query += "INNER JOIN (" +
@@ -559,7 +585,8 @@ public class GetEscalationsListAction extends ActionPagingSupport<ProgramStageIn
             
             */
             
-            String q_where = "WHERE psi.programstageid in ( 3461 ) ";    // Escalation program stage ids
+            //String q_where = "WHERE psi.programstageid in ( 3461 ) ";    // Escalation program stage ids
+            String q_where = " WHERE ps.name ILIKE 'Escalation' " ;
             
             if( programId != null )
                 q_where += "AND pi.programid = " + programId + " "; // program filter
