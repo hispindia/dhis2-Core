@@ -713,7 +713,7 @@ jQuery(function() {
 							<td align="left" style="vertical-align: middle; background-color: lightgray ;" title="$!mapValue.comment"><font color=black>$!mapValue.value</td>
 							
 						#else
-							<td align="left" style="vertical-align: middle; background-color: white;" title="$!mapValue.comment"><font color=black>$!mapValue.value</td>
+							<td align="left" style="vertical-align: middle; nthbackground-color(odd): #F0F0F6;" title="$!mapValue.comment"><font color=black>$!mapValue.value</td>
 							
 						#end
 
@@ -745,7 +745,7 @@ jQuery(function() {
 							<td align="left" style="vertical-align: middle; background-color: lightgray ;" title="$!mapValue.comment"><font color=black>$!mapValue.value</td>
 							
 						#else
-							<td align="left" style="vertical-align: middle; background-color: white;" title="$!mapValue.comment"><font color=black>$!mapValue.value</td>
+							<td align="left" style="vertical-align: middle; nthbackground-color(odd): #F0F0F6;" title="$!mapValue.comment"><font color=black>$!mapValue.value</td>
 							
 						#end
 						

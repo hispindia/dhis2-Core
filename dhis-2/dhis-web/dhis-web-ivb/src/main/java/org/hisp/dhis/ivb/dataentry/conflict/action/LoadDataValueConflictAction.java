@@ -462,7 +462,7 @@ public class LoadDataValueConflictAction implements Action
         List<OrganisationUnit> ouList = new ArrayList<OrganisationUnit>();
         for(  DataValue dv : conflictDataValueList )
         {
-            
+        	
             //DataValueAudit currentHistoryDVA = dataValueAuditService.getLatestDataValueAudit( dv.getDataElement(), dv.getSource(), DataValueAudit.DVA_CT_HISOTRY, dv.getValue(), dv.getComment() );
 
             List<DataValueAudit> historyList = new ArrayList<DataValueAudit>(ivbUtil.getActiveDataValueAuditByOrgUnit_DataElement_Period_type( dv.getDataElement(), dv.getSource(), period, DataValueAudit.DVA_CT_HISOTRY ) );
@@ -483,10 +483,12 @@ public class LoadDataValueConflictAction implements Action
                 if( dvaTimeStamp == null )  dvaTimeStamp = "";
                 if( dvTimeStamp == null ) dvTimeStamp = "";
                 
-                //System.out.print( historyList.size() + " - " + dva.getValue() + "  " + dv.getValue() + "  " + dva.getComment() + "  " + dv.getComment() + "  " + dva.getModifiedBy() + "  " + dv.getStoredBy() + "  " + dvaTimeStamp + "  " + dvTimeStamp );
-                if( dva.getValue().trim().equals( dv.getValue().trim() ) && dva.getComment().trim().equals( dv.getComment().trim() ) && dva.getModifiedBy().trim().equals( dv.getStoredBy().trim() ) && dvaTimeStamp.trim().equals( dvTimeStamp.trim() ) )
+                System.out.print( historyList.size() + " *** " + dva.getValue() + "  ***" + dv.getValue() + " *** " + dva.getComment() + " **** " + dv.getComment() + "****  " + dva.getModifiedBy() + " **** " + dv.getStoredBy() + " *** " + dvaTimeStamp + "***  " + dvTimeStamp );
+               // if( dva.getValue().trim().equals( dv.getValue().trim() ) && dva.getComment().trim().equals( dv.getComment().trim() ) && dva.getModifiedBy().trim().equals( dv.getStoredBy().trim() ) && dvaTimeStamp.trim().equals( dvTimeStamp.trim() ) )
+                if( dva.getValue().equals( dv.getValue() ) && dva.getComment().equals( dv.getComment() ) && dva.getModifiedBy().equals( dv.getStoredBy() ) && dvaTimeStamp.equals( dvTimeStamp ) )
+
                 {
-                	//System.out.println( " DV and DVA are same, removing duplicate one" );
+                	System.out.println( " DV and DVA are same, removing duplicate one" );
                     iterator.remove();
                     //break;
                 }
