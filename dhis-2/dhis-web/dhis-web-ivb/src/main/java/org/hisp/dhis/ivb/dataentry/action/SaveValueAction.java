@@ -35,6 +35,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hisp.dhis.common.AuditType;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
 import org.hisp.dhis.dataelement.DataElementCategoryService;
@@ -287,10 +288,29 @@ public class SaveValueAction
 
                 DataValue dataValue1 = dataValueService.getDataValue( dataElement, period, organisationUnit,
                     optionCombo );
+                /*
                 DataValueAudit dataValueAudit = new DataValueAudit( dataValue1, dataValue1.getValue(),
                     dataValue1.getStoredBy(), dataValue1.getLastUpdated(), dataValue1.getComment(),
                     DataValueAudit.DVA_CT_HISOTRY, DataValueAudit.DVA_STATUS_ACTIVE );
+                */
+                DataValueAudit dataValueAudit = new DataValueAudit();
+                dataValueAudit.setOrganisationUnit( dataValue1.getSource() );
+                dataValueAudit.setCategoryOptionCombo( dataValue1.getCategoryOptionCombo() );
+                dataValueAudit.setPeriod( dataValue1.getPeriod() );
+                dataValueAudit.setDataElement( dataValue1.getDataElement() );
+                dataValueAudit.setAttributeOptionCombo(dataValue1.getCategoryOptionCombo());
+                
+                // dataValueAudit.setDataValue( dataValue );
+                dataValueAudit.setValue( dataValue1.getValue() );
+                dataValueAudit.setComment( dataValue1.getComment() );
+                dataValueAudit.setCommentType( DataValueAudit.DVA_CT_HISOTRY );
+                dataValueAudit.setModifiedBy( storedBy );
+                dataValueAudit.setStatus(1);
+                dataValueAudit.setTimestamp( now );
+                dataValueAudit.setAuditType(AuditType.UPDATE);
+             
                 dataValueAuditService.addDataValueAudit( dataValueAudit );
+            
             }
         }
         else
@@ -317,9 +337,32 @@ public class SaveValueAction
 
                 if ( dataValueAudit == null )
                 {
-                    dataValueAudit = new DataValueAudit( dataValue, dataValue.getValue(), dataValue.getStoredBy(),
+                    /*
+                	dataValueAudit = new DataValueAudit( dataValue, dataValue.getValue(), dataValue.getStoredBy(),
                         dataValue.getLastUpdated(), dataValue.getComment(), DataValueAudit.DVA_CT_HISOTRY,
                         DataValueAudit.DVA_STATUS_ACTIVE );
+                    */
+                    
+                    dataValueAudit = new DataValueAudit();
+                    dataValueAudit.setOrganisationUnit( dataValue.getSource() );
+                    dataValueAudit.setCategoryOptionCombo( dataValue.getCategoryOptionCombo() );
+                    dataValueAudit.setPeriod( dataValue.getPeriod() );
+                    dataValueAudit.setDataElement( dataValue.getDataElement() );
+                    dataValueAudit.setAttributeOptionCombo(dataValue.getCategoryOptionCombo());
+                    
+                    // dataValueAudit.setDataValue( dataValue );
+                    dataValueAudit.setValue( dataValue.getValue() );
+                    dataValueAudit.setComment( dataValue.getComment() );
+                    dataValueAudit.setCommentType( DataValueAudit.DVA_CT_HISOTRY );
+                    dataValueAudit.setModifiedBy( storedBy );
+                    dataValueAudit.setStatus(1);
+                    dataValueAudit.setTimestamp( now );
+                    dataValueAudit.setAuditType(AuditType.UPDATE);
+                    
+                    
+                    
+                    
+                    
                     dataValueAuditService.addDataValueAudit( dataValueAudit );
                 }
                 else
