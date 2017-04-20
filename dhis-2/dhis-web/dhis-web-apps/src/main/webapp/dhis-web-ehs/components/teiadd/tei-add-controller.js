@@ -201,7 +201,7 @@ trackerCapture.controller('TEIAddController',
             });
 
 
-            $scope.getTrackerAssociate2 = function (selectedAttribute, existingAssociateUid) {
+            /*$scope.getTrackerAssociate = function (selectedAttribute, existingAssociateUid) {
                 var modalInstance = $modal.open({
                     templateUrl: 'components/addestablishment/addAssociation1.html',
                     controller: 'AddAssociationController1',
@@ -232,9 +232,9 @@ trackerCapture.controller('TEIAddController',
                          else {
                          $scope.ownerName =" ";
                          }*/
-                    }
+                    /*}
                 });
-            };
+            };*/
             function resetFields() {
 
                 $scope.teiForRelationship = null;
@@ -263,6 +263,7 @@ trackerCapture.controller('TEIAddController',
 
                 if (args.result === 'CANCEL') {
                     $scope.showRegistration();
+				   
                 }
             });
 
@@ -612,6 +613,8 @@ trackerCapture.controller('TEIAddController',
              $translate,
              OrganisationUnitService,
              EHSService ) {
+				 
+		 
 
         $scope.selectedOrgUnit = SessionStorageService.get('SELECTED_OU');
         $scope.enrollment = {enrollmentDate: '', incidentDate: ''};
@@ -628,6 +631,10 @@ trackerCapture.controller('TEIAddController',
 
         var selections = CurrentSelection.get();
         $scope.programs = selections.prs;
+		
+		var selectedatributeid=AjaxCalls.getselectedattributeid();
+
+        $scope.selectedTei[selectedatributeid] = AjaxCalls.getselectedtei();
 
 
         // add for saint Lucia
@@ -644,6 +651,14 @@ trackerCapture.controller('TEIAddController',
         $scope.tempCountryList = [];
         $scope.tempOrgUnit=[];
         $scope.optionSetUid = 'RyHTAVjHjGt';
+		
+		$scope.selectedCountry = "SAINT LUCIA";
+
+        //$scope.getDistrict( $scope.selectedCountry );
+
+        $scope.init = function () {
+            $scope.getDistrict( $scope.selectedCountry );
+        };
 
         OrganisationUnitService.getRootOrganisationUnit().then(function(rootOrganisationUnit){
             $scope.rootOrgUnit = rootOrganisationUnit.organisationUnits[0];
@@ -669,11 +684,8 @@ trackerCapture.controller('TEIAddController',
 
         });
 
-        $scope.getDistrict = function( selectedCountry ) {
-
-            var selectedatributeid=AjaxCalls.getselectedattributeid();
-
-            $scope.selectedTei[selectedatributeid] = AjaxCalls.getselectedtei();
+        $scope.getDistrict = function( selectedCountry ) { 
+           
             //alert( selectedCountry );
             $scope.selectedCountry1=selectedCountry;
             $scope.selectedCountryName = selectedCountry;
@@ -683,7 +695,8 @@ trackerCapture.controller('TEIAddController',
             //$scope.selectedCountry1=selectedcountry;
             $scope.tempSelectedCountry = selectedCountry;
             $scope.tempSelectedCountry1 = selectedCountry;
-            if( selectedCountry == $scope.rootOrgUnit.name ){
+			
+            /*if( selectedCountry == $scope.rootOrgUnit.name ){
                 //  $scope.selectedCountry1=selectedcountry.displayName;
                 OrganisationUnitService.getLevel2OrganisationUnit().then(function(level2OrgUnit){
                     $scope.districtOrgUnits = level2OrgUnit.organisationUnits;
@@ -694,6 +707,36 @@ trackerCapture.controller('TEIAddController',
                 $scope.selectedDistrict1="";
                 $scope.selectedCommunity1="";
                 $scope.selectedCommunityUid = $scope.rootOrgUnit.id;
+            }*/
+			
+			if( $scope.rootOrgUnit != null )
+            {
+                if( selectedCountry == $scope.rootOrgUnit.name ){
+                    //  $scope.selectedCountry1=selectedcountry.displayName;
+                    OrganisationUnitService.getLevel2OrganisationUnit().then(function(level2OrgUnit){
+                        $scope.districtOrgUnits = level2OrgUnit.organisationUnits;
+
+                    });
+                }
+                else{
+                    $scope.selectedDistrict1="";
+                    $scope.selectedCommunity1="";
+                    $scope.selectedCommunityUid = 'Jgc02tIKupW';
+                }
+            }
+            else
+            {
+                if( selectedCountry === 'SAINT LUCIA' ){
+                    OrganisationUnitService.getLevel2OrganisationUnit().then(function(level2OrgUnit){
+                        $scope.districtOrgUnits = level2OrgUnit.organisationUnits;
+
+                    });
+                }
+                else{
+                    $scope.selectedDistrict1="";
+                    $scope.selectedCommunity1="";
+                    $scope.selectedCommunityUid = $scope.rootOrgUnit.id;
+                }
             }
         };
 
@@ -773,7 +816,7 @@ trackerCapture.controller('TEIAddController',
                 CurrentSelection.setOptionSets($scope.optionSets);
             });
         }
-
+		
         var assignInheritance = function(){
             $scope.selectedTei = {};
             if($scope.addingRelationship){
@@ -831,11 +874,12 @@ trackerCapture.controller('TEIAddController',
             });
 
         });
+		
 
-        $scope.getTrackerAssociate = function (selectedAttribute, existingAssociateUid) {
+        $scope.getTrackerAssociate2 = function (selectedAttribute, existingAssociateUid) {
             var modalInstance = $modal.open({
-                templateUrl: 'components/teiadd/tei-add.html',
-                controller: 'TEIAddController',
+                templateUrl: 'components/addestablishment/addAssociation1.html',
+                controller: 'AddAssociationController1',
                 windowClass: 'modal-full-window',
                 resolve: {
                     relationshipTypes: function () {
@@ -868,7 +912,7 @@ trackerCapture.controller('TEIAddController',
                 if (res && res.id) {
                     $scope.selectedTei[selectedAttribute.id] = res.id;
 
-                    $scope.ownerName = res.tyXd890iVJG;
+                    $scope.ownerName = res.MaCVsKG7pjb;
                     /* if(res && res.tyXd890iVJG) {
                      $scope.ownerName = res.tyXd890iVJG;
                      }
@@ -877,6 +921,7 @@ trackerCapture.controller('TEIAddController',
                      }*/
                 }
             });
+			
         };
 
 
@@ -932,6 +977,7 @@ trackerCapture.controller('TEIAddController',
             //$scope.selectedCommunityName;
             //var result = RegistrationService.processForm($scope.tei, $scope.selectedTei, $scope.teiOriginal, $scope.attributesById);
             //add for saint lucia
+			
 
             if( $scope.selectedCountryName == null )
             {

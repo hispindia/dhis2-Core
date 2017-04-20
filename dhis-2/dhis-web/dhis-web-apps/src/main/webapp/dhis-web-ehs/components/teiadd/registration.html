@@ -1,4 +1,4 @@
-<div ng-controller="TEIRegistrationController">
+<div ng-controller="TEIRegistrationController" data-ng-init="init()">
     <!--registration form starts -->
     <form name="outerForm" novalidate>
 
@@ -52,7 +52,7 @@
         </div>
 
         <button type="button" class="btn btn-primary" ng-click="registerEntity()">{{'save'| translate}}</button>        
-        <button type="button" class="btn btn-default small-horizontal-spacing" ng-click="showRegistration()">{{'cancel'| translate}}</button>
+        <!--<button type="button" class="btn btn-default small-horizontal-spacing" ng-click="showRegistration()">{{'cancel'| translate}}</button>-->
 
     </form>
     <!--registration form ends -->
