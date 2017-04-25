@@ -60,6 +60,13 @@
       	unique="true" foreign-key="fk_programstageinstancecomments_trackedentitycommentid"/>
     </list>
 
+    <!-- association between event and list of tracked entity instances -->
+    <set name="programStageInstanceMembers" table="programstageinstancemembers">      
+      <key column="programstageinstanceid" foreign-key="fk_programstageinstancemembers_programstageinstanceid" />
+      <many-to-many class="org.hisp.dhis.trackedentity.TrackedEntityInstance" column="trackedentityinstanceid"
+        foreign-key="fk_programstageinstance_trackedentityinstanceid" />
+    </set>
+
   </class>
 
 </hibernate-mapping>
