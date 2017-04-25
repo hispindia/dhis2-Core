@@ -110,6 +110,14 @@ public abstract class AbstractTrackedEntityInstanceService
     // READ
     // -------------------------------------------------------------------------
 
+    // add for association between event and list of tracked entity instances for save events members
+    // for getting eventMember inside Events
+    @Override
+    public TrackedEntityInstance getTrackedEntityInstance( int id )
+    {
+        return getTrackedEntityInstance( teiService.getTrackedEntityInstance( id ) );
+    }
+    
     @Override
     public List<TrackedEntityInstance> getTrackedEntityInstances( TrackedEntityInstanceQueryParams params )
     {

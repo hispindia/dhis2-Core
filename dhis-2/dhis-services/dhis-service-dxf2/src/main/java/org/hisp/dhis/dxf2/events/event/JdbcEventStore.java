@@ -27,9 +27,42 @@ package org.hisp.dhis.dxf2.events.event;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
+import static org.hisp.dhis.common.IdentifiableObjectUtils.getIdentifiers;
+import static org.hisp.dhis.commons.util.TextUtils.getCommaDelimitedString;
+import static org.hisp.dhis.commons.util.TextUtils.getQuotedCommaDelimitedString;
+import static org.hisp.dhis.commons.util.TextUtils.removeLastComma;
+import static org.hisp.dhis.dxf2.events.event.AbstractEventService.STATIC_EVENT_COLUMNS;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_ATTRIBUTE_OPTION_COMBO_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_COMPLETED_BY_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_COMPLETED_DATE_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_CREATED_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_DUE_DATE_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_EXECUTION_DATE_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_LAST_UPDATED_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_LATITUDE_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_LONGITUDE_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_ORG_UNIT_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_ORG_UNIT_NAME;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_PROGRAM_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_PROGRAM_STAGE_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_STATUS_ID;
+import static org.hisp.dhis.dxf2.events.event.EventSearchParams.EVENT_STORED_BY_ID;
+import static org.hisp.dhis.system.util.DateUtils.getDateAfterAddition;
+import static org.hisp.dhis.system.util.DateUtils.getMediumDateString;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,6 +74,8 @@ import org.hisp.dhis.commons.util.SqlHelper;
 import org.hisp.dhis.dxf2.events.enrollment.EnrollmentStatus;
 import org.hisp.dhis.dxf2.events.report.EventRow;
 import org.hisp.dhis.dxf2.events.trackedentity.Attribute;
+import org.hisp.dhis.dxf2.events.trackedentity.TrackedEntityInstance;
+import org.hisp.dhis.dxf2.events.trackedentity.TrackedEntityInstanceService;
 import org.hisp.dhis.event.EventStatus;
 import org.hisp.dhis.jdbc.StatementBuilder;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
@@ -53,16 +88,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
-import javax.annotation.Resource;
-import java.io.IOException;
-import java.util.*;
-
-import static org.hisp.dhis.common.IdentifiableObjectUtils.getIdentifiers;
-import static org.hisp.dhis.commons.util.TextUtils.*;
-import static org.hisp.dhis.dxf2.events.event.AbstractEventService.STATIC_EVENT_COLUMNS;
-import static org.hisp.dhis.dxf2.events.event.EventSearchParams.*;
-import static org.hisp.dhis.system.util.DateUtils.getDateAfterAddition;
-import static org.hisp.dhis.system.util.DateUtils.getMediumDateString;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * @author Morten Olav Hansen <mortenoh@gmail.com>
@@ -72,6 +100,10 @@ public class JdbcEventStore
 {
     private static final Log log = LogFactory.getLog( JdbcEventStore.class );
 
+    // add for association between event and list of tracked entity instances for save events members
+    @Autowired
+    private TrackedEntityInstanceService trackedEntityInstanceService;
+    
     private static final Map<String, String> QUERY_PARAM_COL_MAP = ImmutableMap.<String, String> builder()
         .put( "event", "psi_uid" ).put( "program", "p_uid" ).put( "programStage", "ps_uid" )
         .put( "enrollment", "pi_uid" ).put( "enrollmentStatus", "pi_status" ).put( "orgUnit", "ou_uid" )
@@ -79,8 +111,9 @@ public class JdbcEventStore
         .put( "eventDate", "psi_executiondate" ).put( "followup", "pi_followup" ).put( "status", "psi_status" )
         .put( "dueDate", "psi_duedate" ).put( "storedBy", "psi_storedby" ).put( "created", "psi_created" )
         .put( "lastUpdated", "psi_lastupdated" ).put( "completedBy", "psi_completedby" )
-        .put( "attributeOptionCombo", "psi_aoc" ).put( "completedDate", "psi_completeddate" ).build();
-
+        .put( "attributeOptionCombo", "psi_aoc" ).put( "completedDate", "psi_completeddate" )
+        .put( "programStageInstanceMembers", "psim_tei" ).build();// add for association between event and list of tracked entity instances for save events members
+    
     // -------------------------------------------------------------------------
     // Dependencies
     // -------------------------------------------------------------------------
@@ -235,6 +268,16 @@ public class JdbcEventStore
 
                 event.getNotes().add( note );
                 notes.add( rowSet.getString( "psinote_id" ) );
+            }
+            
+            // add for association between event and list of tracked entity instances for save events members
+            if ( rowSet.getString( "psim_tei" ) != null )
+            {
+                TrackedEntityInstance trackedEntityInstance = trackedEntityInstanceService.getTrackedEntityInstance(Integer.parseInt(rowSet.getString( "psim_tei" )));
+                if (!event.getEventMembers().contains(trackedEntityInstance))
+                {
+                    event.getEventMembers().add(trackedEntityInstance);
+                }
             }
         }
 
@@ -494,8 +537,9 @@ public class JdbcEventStore
             + "psi.latitude as psi_latitude, psi.created as psi_created, psi.lastupdated as psi_lastupdated, psi.completeddate as psi_completeddate, psi.deleted as psi_deleted, "
             + "coc.code AS coc_categoryoptioncombocode, coc.uid AS coc_categoryoptioncombouid, cocco.categoryoptionid AS cocco_categoryoptionid, "
             + "deco.uid AS deco_uid, pi.uid as pi_uid, pi.status as pi_status, pi.followup as pi_followup, p.uid as p_uid, p.code as p_code, "
-            + "p.type as p_type, ps.uid as ps_uid, ps.code as ps_code, ps.capturecoordinates as ps_capturecoordinates, "
-            + "ou.uid as ou_uid, ou.code as ou_code, ou.name as ou_name, "
+            + "p.type as p_type, ps.uid as ps_uid, ps.code as ps_code, ps.capturecoordinates as ps_capturecoordinates, " 
+            + "ou.uid as ou_uid, ou.code as ou_code, ou.name as ou_name, " 
+            + "psim.trackedentityinstanceid as psim_tei, " // add for association between event and list of tracked entity instances for save events members
             + "tei.trackedentityinstanceid as tei_id, tei.uid as tei_uid, teiou.uid as tei_ou, teiou.name as tei_ou_name, tei.created as tei_created, tei.inactive as tei_inactive "
             + "from programstageinstance psi "
             + "inner join programinstance pi on pi.programinstanceid=psi.programinstanceid "
@@ -506,7 +550,8 @@ public class JdbcEventStore
             + "INNER JOIN dataelementcategoryoption deco ON cocco.categoryoptionid=deco.categoryoptionid "
             + "left join trackedentityinstance tei on tei.trackedentityinstanceid=pi.trackedentityinstanceid "
             + "left join organisationunit ou on (psi.organisationunitid=ou.organisationunitid) "
-            + "left join organisationunit teiou on (tei.organisationunitid=teiou.organisationunitid) ";
+            + "left join organisationunit teiou on (tei.organisationunitid=teiou.organisationunitid) "
+            + "left join programstageinstancemembers psim on (psim.programstageinstanceid=psi.programstageinstanceid) "; // add for association between event and list of tracked entity instances for save events members;;
 
         if ( params.getTrackedEntityInstance() != null )
         {
