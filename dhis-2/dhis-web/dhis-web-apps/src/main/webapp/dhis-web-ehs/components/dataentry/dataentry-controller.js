@@ -52,6 +52,8 @@ trackerCapture.controller('DataEntryController',
             $scope.inspectionResultStatusDataElement = 'ecqqbUDLw7m';
             //$scope.inspectionProgramStage = 'zECUNUHCGeZ';
             $scope.inspectionProgramStage = 'Inspection';
+            $scope.licenseProgramStage = 'License';
+            $scope.escalationProgramStage = 'Escalation';
 
             $scope.referenceScoreValueMap = [];
             $scope.thresholdCodeForFS = 'FS_FE_TRHRESHOLD';
@@ -1334,7 +1336,7 @@ trackerCapture.controller('DataEntryController',
 
             function getTopLineEvents(allEvents) {
                 if($scope.currentEvent) {
-                    if ($scope.currentEvent.programStage == "e3FhRD3D1Nf") {
+                    if ($scope.currentEvent.programStage.name === $scope.licenseProgramStage) {
                         if ($scope.currentEvent.status == "COMPLETED") {
 
                             if (($scope.currentEvent.AWprRTJ8phx == "Valid") ||($scope.currentEvent.AWprRTJ8phx == "Canceled")|| ($scope.currentEvent.AWprRTJ8phx == undefined)) {
@@ -1655,7 +1657,7 @@ trackerCapture.controller('DataEntryController',
                                 dhis2Event = EventUtils.processEvent(dhis2Event, eventStage, $scope.optionSets, $scope.prStDes);
                                 $scope.eventsByStage[dhis2Event.programStage].push(dhis2Event);
 
-                                if (dhis2Event.programStage == "e3FhRD3D1Nf") {
+                                if (dhis2Event.programStage.name === $scope.licenseProgramStage) {
                                     $scope.licensestage.push(dhis2Event);
                                 }
                                 if ($scope.currentStage && $scope.currentStage.id === dhis2Event.programStage) {
@@ -1663,7 +1665,7 @@ trackerCapture.controller('DataEntryController',
                                 }
 
                                 // for license Score Calculation
-                                if (dhis2Event.programStage === "e3FhRD3D1Nf") {
+                                if (dhis2Event.programStage.name === $scope.licenseProgramStage) {
                                     if (dhis2Event.dataValues.length > 0) {
                                         for (var j = 0; j < dhis2Event.dataValues.length; j++) {
                                             if (dhis2Event.dataValues[j].dataElement === "AWprRTJ8phx") {
@@ -1680,7 +1682,7 @@ trackerCapture.controller('DataEntryController',
                                 }
 
                                 // for escalation status Calculation
-                                if (dhis2Event.programStage === "pPC6amo408x") {
+                                if (dhis2Event.programStage.name === $scope.escalationProgramStage) {
                                     if (dhis2Event.dataValues.length > 0) {
                                         for (var j = 0; j < dhis2Event.dataValues.length; j++) {
                                             if (dhis2Event.dataValues[j].dataElement === "oYNscX4WRDk") {
@@ -1735,7 +1737,7 @@ trackerCapture.controller('DataEntryController',
                 //   return dhis2Event.editingNotAllowed = dhis2Event.orgUnit !== $scope.selectedOrgUnit.id && dhis2Event.eventDate || (stage.blockEntryForm && dhis2Event.status === 'COMPLETED') || $scope.selectedEntity.inactive;
                 var status1;
 
-                if (dhis2Event.programStage == "pPC6amo408x") {
+                if (dhis2Event.programStage.name === $scope.escalationProgramStage) {
                     if (dhis2Event.dataValues.length != 0) {
                         for (var i = 0; i < dhis2Event.dataValues.length; i++) {
 
@@ -2103,13 +2105,13 @@ trackerCapture.controller('DataEntryController',
                                     }, 0);
                                 }
                                 // for license Score Calculation
-                                if (ev.programStage === "e3FhRD3D1Nf") {
+                                if (ev.programStage.name === $scope.licenseProgramStage) {
                                     $timeout(function() {
 
                                         $scope.eventWiseLicenseScoreStatusMap[ev.event] = ' ';
                                     }, 0);
                                 }
-                                if (ev.programStage === "pPC6amo408x") {
+                                if (ev.programStage.name === $scope.escalationProgramStage) {
                                     $timeout(function() {
 
                                         $scope.eventWiseEscalationStatusMap[ev.event] = 'null';
@@ -2404,7 +2406,7 @@ trackerCapture.controller('DataEntryController',
 
 
 
-                if ($scope.currentEvent.programStage === "e3FhRD3D1Nf") {
+                if ($scope.currentEvent.programStage.name === $scope.licenseProgramStage) {
                     $timeout(function() {
                         AjaxCalls.getEventDataValue($scope.currentEvent.event, 'AWprRTJ8phx').then(function(responseScore) {
 
@@ -2423,7 +2425,7 @@ trackerCapture.controller('DataEntryController',
                 }
 
                 //for saint lucia esclation //
-                if ($scope.currentEvent.programStage == "pPC6amo408x") {
+                if ($scope.currentEvent.programStage.name === $scope.escalationProgramStage) {
                     if (($scope.currentEvent.WggL0QDVcRG) && ($scope.currentEvent.obqAPIKe6hs)) {
                         $scope.escalatebutton = true;
                     } else {
@@ -2608,7 +2610,7 @@ trackerCapture.controller('DataEntryController',
                     }
                 }
 
-                if ($scope.currentEvent.programStage == "pPC6amo408x") {
+                if ($scope.currentEvent.programStage.name === $scope.escalationProgramStage) {
                     if ($scope.currentEvent.dataValues.length != 0) {
                         if ($scope.currentEvent.oYNscX4WRDk == "undefined") {
 
@@ -2708,7 +2710,7 @@ trackerCapture.controller('DataEntryController',
                 //    $scope.recieptnumber=value;
                 //}
 
-                if (eventToSave.programStage === "e3FhRD3D1Nf") {
+                if (eventToSave.programStage.name === $scope.licenseProgramStage) {
 
                     if ((value == "Compliance with the regulation") || (value == "Board Decision")) {
                         if ($scope.currentEvent.AWprRTJ8phx) {
@@ -2755,7 +2757,7 @@ trackerCapture.controller('DataEntryController',
 
 
 
-                if (eventToSave.programStage === "pPC6amo408x") {
+                if (eventToSave.programStage.name === $scope.escalationProgramStage) {
 
                     if ($scope.currentEvent.oYNscX4WRDk == "undefined") {
 
@@ -2779,7 +2781,7 @@ trackerCapture.controller('DataEntryController',
                     }
 
                 }
-                if (eventToSave.programStage === "pPC6amo408x") {
+                if (eventToSave.programStage.name === $scope.escalationProgramStage) {
                     {
                         if (($scope.currentEvent.WggL0QDVcRG) && ($scope.currentEvent.obqAPIKe6hs)) {
                             $scope.escalatebutton = true;
@@ -2897,7 +2899,7 @@ trackerCapture.controller('DataEntryController',
                                 }, 0);
                             }
 
-                            if ($scope.currentStage.id === "e3FhRD3D1Nf") {
+                            if ($scope.currentStage.name === $scope.licenseProgramStage) {
                                 $timeout(function() {
 
 
@@ -3500,7 +3502,7 @@ trackerCapture.controller('DataEntryController',
                         modalDefaults.templateUrl = 'components/dataentry/modal-complete-event.html';
                         dhis2Event.status = 'COMPLETED';
 
-                        if (currentEvent1.programStage == "pPC6amo408x") {
+                        if (currentEvent1.programStage.name == $scope.escalationProgramStage) {
                             var today = new Date();
                             var dd = today.getDate();
                             var mm = today.getMonth() + 1; //January is 0!
@@ -3618,7 +3620,7 @@ trackerCapture.controller('DataEntryController',
                                 $scope.showDataEntry($scope.currentEvent, false, true);
                             }
                         }
-                        if (dhis2Event.programStage == "e3FhRD3D1Nf") {
+                        if (dhis2Event.programStage.name === $scope.licenseProgramStage) {
                             if ($scope.issuelicensecall=="issue") {
                                 $scope.issuelicensebutton1(currentEvent1);
                             } else if ($scope.issuelicensecall=="cancel"){
@@ -3635,7 +3637,7 @@ trackerCapture.controller('DataEntryController',
                             //     var issue=1;
                             //   $scope.saveDataValueForEvent1(dataelement,outerDataEntryForm,issue, null, $scope.currentEvent, false);
                         }
-                        if (dhis2Event.programStage == "pPC6amo408x") {
+                        if (dhis2Event.programStage.name === $scope.escalationProgramStage) {
                             if (issuelicensecall == "complete") {
                                 $scope.completebutton(currentEvent1);
                             } 

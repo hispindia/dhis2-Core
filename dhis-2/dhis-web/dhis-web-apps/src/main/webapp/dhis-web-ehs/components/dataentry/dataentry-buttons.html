@@ -4,30 +4,30 @@
         <a href ng-click="completeIncompleteEvent(null, outerDataEntryForm)"
             class="btn btn-warning" 
             ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || currentEvent.orgUnit !== selectedOrgUnit.id"
-            ng-if="currentStage.id !== 'e3FhRD3D1Nf' && currentStage.id !== 'pPC6amo408x' && currentEvent.eventDate && (currentEvent.status === 'SCHEDULE' || currentEvent.status === 'ACTIVE' || currentEvent.status === 'VISITED')">{{'complete'| translate}}</a>
+            ng-if="currentStage.name != 'License' && currentStage.name != 'Escalation' && currentEvent.eventDate && (currentEvent.status === 'SCHEDULE' || currentEvent.status === 'ACTIVE' || currentEvent.status === 'VISITED')">{{'complete'| translate}}</a>
         <a href ng-click="completeIncompleteEvent(null, outerDataEntryForm)"
             class="btn btn-warning"
             ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed && currentEvent.status !== 'COMPLETED' || currentEvent.orgUnit !== selectedOrgUnit.id"
-            ng-if="currentStage.id != 'e3FhRD3D1Nf'  && currentStage.id !== 'pPC6amo408x' && currentEvent.eventDate && currentEvent.status === 'COMPLETED'">{{'incomplete'| translate}}</a>
+            ng-if="currentStage.name != 'License'  && currentStage.name != 'Escalation' && currentEvent.eventDate && currentEvent.status === 'COMPLETED'">{{'incomplete'| translate}}</a>
         <a href ng-click="skipUnskipEvent()" 
             class="btn btn-warning" 
             ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || currentEvent.orgUnit !== selectedOrgUnit.id"
             ng-if="!currentEvent.eventDate">{{currentEvent.status === 'SKIPPED' ? 'unskip' : 'skip'| translate}}</a>
-        <a href class="btn btn-warning"   ng-if="currentStage.id === 'e3FhRD3D1Nf' && reopen" ng-disabled="true"  ng-click="Reopen(null, outerDataEntryForm);">{{'Reopen_License'| translate}}</a>
+        <a href class="btn btn-warning"   ng-if="currentStage.name === 'License' && reopen" ng-disabled="true"  ng-click="Reopen(null, outerDataEntryForm);">{{'Reopen_License'| translate}}</a>
 
-        <a href class="btn btn-success"  ng-if="currentStage.id === 'e3FhRD3D1Nf' && !reopen" ng-disabled="!enableissuebutton" ng-click="issuelicense(null, outerDataEntryForm);">{{'Issue_License'| translate}}</a>
-        <a href class="btn btn-warning"   ng-if="currentStage.id === 'e3FhRD3D1Nf' && !reopen" ng-disabled="!enablecancelbutton"  ng-click="cancellicense(null, outerDataEntryForm);">{{'Cancel_License'| translate}}</a>
-        <a href class="btn btn-warning"   ng-if="currentStage.id === 'pPC6amo408x' && !Openbutton" ng-disabled="!escalatebutton"  ng-click="Escalate(null, outerDataEntryForm);">{{'Escalate'| translate}}</a>
-        <a href class="btn btn-warning"   ng-if="currentStage.id === 'pPC6amo408x' && Openbutton " ng-disabled="!escalatebutton"  ng-click="Complete1(null, outerDataEntryForm);">{{'Complete'| translate}}</a>
-        <a href class="btn btn-warning"   ng-if="currentStage.id === 'pPC6amo408x' && Openbutton  " ng-disabled="!escalatebutton"  ng-click="SendBack(null, outerDataEntryForm);">{{'SendBack'| translate}}</a>
+        <a href class="btn btn-success"  ng-if="currentStage.name === 'License' && !reopen" ng-disabled="!enableissuebutton" ng-click="issuelicense(null, outerDataEntryForm);">{{'Issue_License'| translate}}</a>
+        <a href class="btn btn-warning"   ng-if="currentStage.name === 'License' && !reopen" ng-disabled="!enablecancelbutton"  ng-click="cancellicense(null, outerDataEntryForm);">{{'Cancel_License'| translate}}</a>
+        <a href class="btn btn-warning"   ng-if="currentStage.name === 'Escalation' && !Openbutton" ng-disabled="!escalatebutton"  ng-click="Escalate(null, outerDataEntryForm);">{{'Escalate'| translate}}</a>
+        <a href class="btn btn-warning"   ng-if="currentStage.name === 'Escalation' && Openbutton " ng-disabled="!escalatebutton"  ng-click="Complete1(null, outerDataEntryForm);">{{'Complete'| translate}}</a>
+        <a href class="btn btn-warning"   ng-if="currentStage.name === 'Escalation' && Openbutton  " ng-disabled="!escalatebutton"  ng-click="SendBack(null, outerDataEntryForm);">{{'SendBack'| translate}}</a>
 
         <a href ng-click="deleteEvent()"
-           ng-if="currentStage.id === 'e3FhRD3D1Nf' && !reopen"
+           ng-if="currentStage.name === 'License' && !reopen"
            ng-disabled="!deletelicense"
            class="btn btn-danger horizontal-spacing">{{'delete'| translate}}</a>
 
         <a href ng-click="deleteEvent()"
-           ng-if="currentStage.id !== 'e3FhRD3D1Nf'"
+           ng-if="currentStage.name != 'License'"
            ng-disabled=" selectedEnrollment.status === 'COMPLETED' || selectedEnrollment.status === 'CANCELLED' || currentEvent.editingNotAllowed || currentEvent.orgUnit !== selectedOrgUnit.id"
            class="btn btn-danger horizontal-spacing">{{'delete'| translate}}</a>
     
@@ -37,7 +37,7 @@
             <a href class="btn btn-info" ng-click="print('print-div');">{{'print_form'| translate}}</a>
 
             <!--<div class="row hideInPrint" id="printLicense" ng-if="currentStage.id === 'e3FhRD3D1Nf'" >-->
-                <a href class="btn btn-info"  ng-if="currentStage.id === 'e3FhRD3D1Nf'" ng-disabled="!licensestatus2" ng-click="printLicense();">{{'print_license'| translate}}</a>
+                <a href class="btn btn-info"  ng-if="currentStage.name === 'License'" ng-disabled="!licensestatus2" ng-click="printLicense();">{{'print_license'| translate}}</a>
             <!--</div>-->
         </div>
 

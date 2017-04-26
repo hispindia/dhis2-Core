@@ -1,6 +1,6 @@
 
 'use strict';
-
+var trackerCapture = angular.module('trackerCapture');
 /* Controllers */
 trackerCapture.controller('AddAssociationController1',
     function($rootScope,
@@ -28,7 +28,31 @@ trackerCapture.controller('AddAssociationController1',
              $q,
              $modalInstance,
              AjaxCalls,
+             OrganisationUnitService,
              DHIS2EventFactory) {
+
+
+        var foodsafetyid=AjaxCalls.getfoodsafetyid();
+
+
+        // for saint lucia
+        $scope.showEstablishmentsRegistration = function(){
+            selection.load();
+            $location.path('/establishments-registration').search();
+        };
+        $scope.showOperatorsRegistration = function(){
+            selection.load();
+            $location.path('/operators-registration').search();
+        };
+
+        $scope.showUpdateForm = function( selectedTEI, selectedProgramId ){
+            alert(selectedTEI.id + "--" + selectedProgramId);
+        };
+
+        OrganisationUnitService.getRootOrganisationUnit().then(function(rootOrganisationUnit){
+            $scope.rootOrgUnit = rootOrganisationUnit.organisationUnits[0];
+            $scope.selectedCountryName = rootOrganisationUnit.organisationUnits[0].name;
+        });
 
         //$scope.eventMemberMap = [];
         $scope.trackedEntityInstance1;
@@ -411,6 +435,12 @@ trackerCapture.controller('AddAssociationController1',
         };
 
         //$scope.searchParam = {bools: []};
+        $scope.search_list_all = function() {
+
+            $window.location.reload();
+        };
+
+
         $scope.search = function(mode,goToPage){
             //resetParams(goToPage);
             var grid;
@@ -429,15 +459,18 @@ trackerCapture.controller('AddAssociationController1',
                 if($scope.enrollmentStatus === 'TODAY') {
                     $scope.enrollmentStatus = 'ALL';
                 }
-                if($scope.model.searchText){
+                if($scope.model.searchText != ""){
                     $scope.queryUrl = 'query=LIKE:' + $scope.model.searchText;
                 }
                 else{
+
+                    $scope.selectedSearchMode = $scope.searchMode.listAll;
+                    /*
                     if(!$scope.selectedProgram || !$scope.selectedProgram.displayFrontPageList){
                         $scope.emptySearchText = true;
                         $scope.teiFetched = false;
                         return;
-                    }
+                    }*/
                 }
 
                 $scope.attributes = EntityQueryFactory.resetAttributesQuery($scope.attributes, $scope.enrollment);
@@ -467,9 +500,11 @@ trackerCapture.controller('AddAssociationController1',
             }
 
             if( $scope.selectedSearchMode === $scope.searchMode.listAll ){
+                $scope.queryUrl=null;
                 $scope.model.searchText = null;
                 $scope.attributes = EntityQueryFactory.resetAttributesQuery($scope.attributes, $scope.enrollment);
-                $scope.searchingOrgUnit = $scope.selectedSearchingOrgUnit && $scope.selectedSearchingOrgUnit.id ? $scope.selectedSearchingOrgUnit : $scope.selectedOrgUnit;
+                $scope.searchingOrgUnit =  $scope.rootOrgUnit;
+               // $scope.searchingOrgUnit = $scope.selectedSearchingOrgUnit && $scope.selectedSearchingOrgUnit.id ? $scope.selectedSearchingOrgUnit : $scope.selectedOrgUnit;
             }
 
             $scope.doSearch = false;

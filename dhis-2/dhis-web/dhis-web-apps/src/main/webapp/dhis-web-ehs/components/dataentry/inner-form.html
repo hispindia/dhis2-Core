@@ -17,7 +17,7 @@
             </div>
             <div ng-if="selectedProgram.dataEntryMethod && optionSets[prStDe.dataElement.optionSet.id].options.length < 7">
                 <label ng-show="false">
-				 <span style="float:left; display:inline; layout:row;" class="newStyle">
+				 <span style="float:right; display:inline; layout:row; padding-right:50px" class="newStyle">
                     <input type="radio" 
                            class="form-control"
                            ng-class="getInputNotifcationClass(prStDe.dataElement.id,false, currentEvent)"
@@ -30,8 +30,10 @@
                     <br>
 				</span>	
                 </label>
+                <br>
+                <br>
                 <span ng-repeat="option in optionSets[prStDe.dataElement.optionSet.id].options">
-				<span style="float:left; display:inline; layout:row;" class="newStyle">
+				<span style="float:right; display:inline; layout:row; padding-right:50px" class="newStyle">
                     <label>
                         <input type="radio"
                                class="form-control"
@@ -42,7 +44,7 @@
                                ng-model="currentEvent[prStDe.dataElement.id]"
                                ng-change="saveDatavalue(prStDe, innerForm.foo)"
                                value={{option.displayName}}> {{option.displayName}}
-                    </label><br>
+                    </label><br><br>
                 </span>
 				</span>
             </div>

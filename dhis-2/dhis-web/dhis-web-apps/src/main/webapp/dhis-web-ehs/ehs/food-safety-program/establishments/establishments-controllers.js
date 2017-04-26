@@ -430,6 +430,11 @@ trackerCapture.controller('EstablishmentsSelectionController',
                     }
                     else
 					{
+                       /* if(!$scope.selectedProgram || !$scope.selectedProgram.displayFrontPageList) {
+                            $scope.emptySearchText = true;
+                            $scope.teiFetched = false;
+                            return;
+                        }*/
 						$scope.selectedSearchMode = $scope.searchMode.listAll;
 					}
 					//{
