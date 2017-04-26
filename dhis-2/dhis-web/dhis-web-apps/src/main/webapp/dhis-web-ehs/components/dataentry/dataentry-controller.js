@@ -50,7 +50,9 @@ trackerCapture.controller('DataEntryController',
             //  $scope.licensestatus="NULL";
             $scope.inspectionScoreDataElement = 'RDsazMWEEnM';
             $scope.inspectionResultStatusDataElement = 'ecqqbUDLw7m';
-            $scope.inspectionProgramStage = 'zECUNUHCGeZ';
+            //$scope.inspectionProgramStage = 'zECUNUHCGeZ';
+            $scope.inspectionProgramStage = 'Inspection';
+
             $scope.referenceScoreValueMap = [];
             $scope.thresholdCodeForFS = 'FS_FE_TRHRESHOLD';
             $scope.thresholdValueForFS = 0;
@@ -2094,7 +2096,7 @@ trackerCapture.controller('DataEntryController',
                                 }
 
                                 // for inspection Score Calculation
-                                if (ev.programStage === $scope.inspectionProgramStage) {
+                                if (ev.programStage.name === $scope.inspectionProgramStage) {
                                     $timeout(function() {
                                         $scope.eventWiseInspectionScoreValueMap[ev.event] = '0';
                                         $scope.eventWiseInspectionScoreStatusMap[ev.event] = '(Not Passed)';
@@ -2382,7 +2384,7 @@ trackerCapture.controller('DataEntryController',
                 $scope.tempFinalScore = 0;
                 $scope.referenceScoreValue = 0;
 
-                if ($scope.currentEvent.programStage === $scope.inspectionProgramStage) {
+                if ($scope.currentEvent.programStage.name === $scope.inspectionProgramStage) {
                     $timeout(function() {
                         AjaxCalls.getEventDataValue($scope.currentEvent.event, $scope.inspectionScoreDataElement).then(function(responseScore) {
 
@@ -2849,7 +2851,7 @@ trackerCapture.controller('DataEntryController',
                     return DHIS2EventFactory.updateForSingleValue(ev).then(function(response) {
 
                         if (response.httpStatus === "OK") {
-                            if ($scope.currentStage.id === $scope.inspectionProgramStage) {
+                            if ($scope.currentStage.name === $scope.inspectionProgramStage) {
                                 $timeout(function() {
                                     EventDataValueService.updateInspectionScore($scope.inspectionScoreValueMap, $scope.currentEvent, $scope.inspectionScoreDataElement, $scope.inspectionResultStatusDataElement, $scope.thresholdValueForFS).then(function(responseInspectionScore) {
 

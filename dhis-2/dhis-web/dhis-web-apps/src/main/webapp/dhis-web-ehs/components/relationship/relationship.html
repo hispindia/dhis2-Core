@@ -5,10 +5,11 @@
             | <a href ng-click="showAddRelationship(true)" title="{{'add_relationship'| translate}}"><span ng-class="{true: 'widget-link-active', false: 'widget-link'} [showAddRelationshipDiv]">{{selectedProgram.relationshipText}}</span></a>
         </span>
 
+        <!--
         <span class="nav-pills" ng-if="selectedTei  && !selectedTei.inactive && selectedProgram.name != 'Mass Events'">
             | <a href ng-click="showAddRelationship(false)" title="{{'add_relationship'| translate}}"><span ng-class="{true: 'widget-link-active', false: 'widget-link'} [showAddRelationshipDiv]">{{'add' | translate}}</span></a>
         </span>
-
+        -->
         <span class="nav-pills" ng-if="selectedTei && !selectedTei.inactive && selectedProgram.name === 'Mass Events'">
             | <a href ng-click="showEventDetails()" title="{{'Concessionaires Details'| translate}}"><span>{{'Details' | translate}}</span></a>
         </span>
