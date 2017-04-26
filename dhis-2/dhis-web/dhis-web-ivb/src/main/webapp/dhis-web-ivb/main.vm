@@ -544,9 +544,13 @@
                     <li id="userActivity" style="display:none;"><a href="userActivityReportForm.action"><b>$i18n.getString( "user_activity_report" )</b></a></li>
                     <li id="userActivityLogin" style="display:none;"><a href="userActivityLoginReport.action"><b>$i18n.getString( "user_activity_login_report" )</b></a></li>
                    
-				
-					<li id="userActivityLoginMonitoring" style="display:none;"><a href="getuserActivityLoginMonitoring.action"><b>$i18n.getString( "user_activity_login_monitoring" )</b></a></li>
-				   
+					<!--<li id="userActivityLoginMonitoring" style="display:none;"><a href="getuserActivityLoginMonitoring.action"><b>$i18n.getString( "user_activity_login_monitoring" )</b></a></li>-->
+				   	<!--<li><a href="getuserActivityLoginMonitoring.action"><b>$i18n.getString( "user_activity_login_monitoring" )</b></a></li>-->
+
+					 #if( $auth.hasAccess( "dhis-web-ivb", "getuserActivityLoginMonitoring") )
+						<li><a href="getuserActivityLoginMonitoring.action"><b>$i18n.getString( "user_activity_login_monitoring" )</b></a>
+					 #end
+					
 				   <li><a href="GetMMRStatus.action"><b>$i18n.getString( "Status_of_M/MR_SIA_Readiness")</b></a></li>
 					<li><a href="vaccineIntroReport.action"><b>$i18n.getString( "vaccine_introduction_report" )</b></a></li>
 				</ul>

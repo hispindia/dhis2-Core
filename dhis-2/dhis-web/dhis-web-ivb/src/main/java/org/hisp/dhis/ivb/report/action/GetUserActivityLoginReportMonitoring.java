@@ -62,39 +62,42 @@ public class GetUserActivityLoginReportMonitoring
     // -------------------------------------------------------------------------
     // Dependencies
     // -------------------------------------------------------------------------
-
+    @Autowired
     private CurrentUserService currentUserService;
 
     public void setCurrentUserService( CurrentUserService currentUserService )
     {
         this.currentUserService = currentUserService;
     }
+    @Autowired
     private I18nService i18nService;
 
     public void setI18nService( I18nService service )
     {
         i18nService = service;
     }
+    @Autowired
     private DataSetService dataSetService;
     
     public void setDataSetService( DataSetService dataSetService )
     {
         this.dataSetService = dataSetService;
     }
+    @Autowired
     private MessageService messageService;
 
     public void setMessageService( MessageService messageService )
     {
         this.messageService = messageService;
     }
-    
+    @Autowired
     private ConfigurationService configurationService;
 
     public void setConfigurationService( ConfigurationService configurationService )
     {
         this.configurationService = configurationService;
     }
-    
+    @Autowired
     private UserService userService;
     
     public void setUserService( UserService userService )

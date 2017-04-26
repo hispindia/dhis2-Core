@@ -955,7 +955,7 @@
 <!-- User Activity Login Report monitoring-->
 
 		<action name="getuserActivityLoginMonitoring"
-			class="org.hisp.dhis.ivb.report.action.GetUserActivityReportFormAction">
+			class="org.hisp.dhis.ivb.report.action.GetUserActivityLoginReportMonitoring">
 			<result name="success" type="velocity">/dhis-web-ivb/main.vm</result>
 			<param name="page">/dhis-web-ivb/getUserActivityLoginMonitoringForm.vm</param>
 			<param name="javascripts">javascript/ivb_report.js,javascript/jquerycssmenu.js,javascript/request.js</param>
