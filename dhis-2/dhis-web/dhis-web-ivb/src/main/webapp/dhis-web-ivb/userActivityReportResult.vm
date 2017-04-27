@@ -129,23 +129,23 @@ jQuery(function() {
 				Report By User : $!displayUser		 
 			#end
 		</h3>
-        <table id="table1" class="tablesorter" cellspacing="0" cellpadding="3" style="margin:auto;table-layout:fixed;width:100%;" >        
+        <table id="table1" class="tablesorter" cellspacing="0" cellpadding="3" style="margin:auto;table-layout:fixed;width:100%; border-collapse: collapse !important; border-style: solid; border-width: 1px 1px 1px 1px;">        
             <thead>
-                <tr width="100%" bgcolor="#A9D0F5">
-						<th align="left" width="12%">$i18n.getString( "country" )</th>
-                        <th align="left" width="20%">$i18n.getString( "dataelement" )</th>
-                        <th align="left" width="8%">$i18n.getString( "period" )</th>
-                        <th align="left" width="15%">$i18n.getString( "value" )</th>
-                        <th align="left" width="25%">$i18n.getString( "comment" )</th>
+                <tr style="background:A9D0F5;">
+						<th style="border-collapse: collapse !important; border-style: solid; border-width: 1px 0px 0px 1px;" align="left" width="12%">$i18n.getString( "country" )</th>
+                        <th style="border-collapse: collapse !important; border-style: solid; border-width: 1px 0px 0px 1px;" align="left" width="20%">$i18n.getString( "dataelement" )</th>
+                        <th style="border-collapse: collapse !important; border-style: solid; border-width: 1px 0px 0px 1px;"align="left" width="8%">$i18n.getString( "period" )</th>
+                        <th style="border-collapse: collapse !important; border-style: solid; border-width: 1px 0px 0px 1px;"align="left" width="15%">$i18n.getString( "value" )</th>
+                        <th style="border-collapse: collapse !important; border-style: solid; border-width: 1px 0px 0px 1px;"align="left" width="25%">$i18n.getString( "comment" )</th>
 						#if( $reportType == 'BY_AREA_OF_WORK' )
-						  <th align="left" width="5%">Source</th>
-						  <th align="left" width="5%">Date</th>
+						  <th style="border-collapse: collapse !important; border-style: solid; border-width: 1px 0px 0px 1px;"align="left" width="5%">Source</th>
+						  <th style="border-collapse: collapse !important; border-style: solid; border-width: 1px 0px 0px 1px;"align="left" width="5%">Date</th>
 						#elseif( $reportType == 'BY_USER' )
-						  <th align="left" width="5%">Date</th>
+						  <th style="border-collapse: collapse !important; border-style: solid; border-width: 1px 0px 0px 1px;"align="left" width="5%">Date</th>
 						#end
                 </tr>
 			</thead>
-			<tbody >
+			<tbody  style="border-collapse: collapse !important; border-style: solid; border-width: 1px 1px 1px 1px;" >
 				#set( $mark1 = false )
 				#foreach($orgUnit in $orgUnitList)
                     #foreach( $dataElement in $dataElements )
@@ -158,25 +158,26 @@ jQuery(function() {
                                 #else
                                     #set( $mark1 = true )
                                 #end
-								<tr #if( $mark1 ) bgcolor="#E0ECF8" #else bgcolor = "#FFFFFF" #end>
-									<td style="border:1px solid black">$!orgUnit.name</td>
-									<td style="border:1px solid black">$!dataElement.name</td>
-									<td style="border:1px solid black">
+								<tr #if( $mark1) bgcolor="#E0ECF8" border="1px solid black" #else bgcolor = "#FFFFFF" border="1px solid black" #end >
+									<td style="border-collapse: collapse !important; border-style: solid; border-width: 1px 0px 0px 1px;">$!orgUnit.name</td>
+									<td style="border-collapse: collapse !important; border-style: solid; border-width: 1px 0px 0px 1px;">$!dataElement.name</td>
+									<td  style="border-collapse: collapse !important; border-style: solid; border-width: 1px 0px 0px 1px;">
 										#if( $period.periodType.name == "Quarterly")
                                             $simpleDateFormat1.format( $period.startDate ) - $simpleDateFormat2.format( $period.endDate )
                                         #else
                                             $simpleDateFormat.format( $period.startDate )                                                    
                                         #end 
 									</td>
-									<td style="border:1px solid black">$!dataValueAudit.value</td>
-									<td style="border:1px solid black">$!dataValueAudit.comment</td>
+									<td  style="border-collapse: collapse !important; border-style: solid; border-width: 1px 0px 0px 1px;" >$!dataValueAudit.value</td>
+									<td  style="border-collapse: collapse !important; border-style: solid; border-width: 1px 0px 0px 1px;">$!dataValueAudit.comment</td>
 									#if( $reportType == 'BY_AREA_OF_WORK' )
-            						  <td style="border:1px solid black" >$!dataValueAudit.modifiedBy</td>
-            						  <td style="border:1px solid black" >$simpleDateFormat.format( $!dataValueAudit.timestamp )</td>
+            						  <td  style="border-collapse: collapse !important; border-style: solid; border-width: 1px 1px 0px 1px;">$!dataValueAudit.modifiedBy</td>
+            						  <td   style="border-collapse: collapse !important; border-style: solid; border-width: 1px 1px 0px 0px;">$simpleDateFormat.format( $!dataValueAudit.timestamp )</td>
             						#elseif( $reportType == 'BY_USER' )
-            						  <td style="border:1px solid black">$simpleDateFormat.format( $!dataValueAudit.timestamp )</td>
+            						  <td  style="border-collapse: collapse !important; border-style: solid; border-width: 1px 1px 0px 1px;">$simpleDateFormat.format( $!dataValueAudit.timestamp )</td>
             						#end
 								</tr>
+								
 							#end
 						#end
 					#end							
