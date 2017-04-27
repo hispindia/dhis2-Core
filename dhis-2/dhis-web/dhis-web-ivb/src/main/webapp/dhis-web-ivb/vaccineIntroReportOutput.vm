@@ -234,7 +234,8 @@ $(function() {
                         #set( $valueResultMap = $sectionResultMap.get( $dataSetSection.name ) )
                         #set( $valueCommentMap = $sectionCommentMap.get( $dataSetSection.name ) )
                         #if($valueResultMap.get( $introYearDEGroup.id ) && $valueResultMap.get( $introYearDEGroup.id ) != " ")
-                        <tr width="100%" #if( $mark ) bgcolor="#E0ECF8" #else bgcolor = "#FFFFFF" #end>
+                      <!--  <tr width="100%" #if( $mark ) bgcolor="#E0ECF8" #else bgcolor = "#FFFFFF" #end>-->
+					   <tr width="100%" #if( $mark ) bgcolor="white" #else bgcolor = "white" #end>
                             <td align="left">$!orgUnit.getParent().shortName</td>
                             <td align="left">$!orgUnit.name</td>
                             <td align="left">

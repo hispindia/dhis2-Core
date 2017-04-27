@@ -159,22 +159,22 @@ jQuery(function() {
                                     #set( $mark1 = true )
                                 #end
 								<tr #if( $mark1 ) bgcolor="#E0ECF8" #else bgcolor = "#FFFFFF" #end>
-									<td >$!orgUnit.name</td>
-									<td >$!dataElement.name</td>
-									<td >
+									<td style="border:1px solid black">$!orgUnit.name</td>
+									<td style="border:1px solid black">$!dataElement.name</td>
+									<td style="border:1px solid black">
 										#if( $period.periodType.name == "Quarterly")
                                             $simpleDateFormat1.format( $period.startDate ) - $simpleDateFormat2.format( $period.endDate )
                                         #else
                                             $simpleDateFormat.format( $period.startDate )                                                    
                                         #end 
 									</td>
-									<td >$!dataValueAudit.value</td>
-									<td >$!dataValueAudit.comment</td>
+									<td style="border:1px solid black">$!dataValueAudit.value</td>
+									<td style="border:1px solid black">$!dataValueAudit.comment</td>
 									#if( $reportType == 'BY_AREA_OF_WORK' )
-            						  <td >$!dataValueAudit.modifiedBy</td>
-            						  <td >$simpleDateFormat.format( $!dataValueAudit.timestamp )</td>
+            						  <td style="border:1px solid black" >$!dataValueAudit.modifiedBy</td>
+            						  <td style="border:1px solid black" >$simpleDateFormat.format( $!dataValueAudit.timestamp )</td>
             						#elseif( $reportType == 'BY_USER' )
-            						  <td >$simpleDateFormat.format( $!dataValueAudit.timestamp )</td>
+            						  <td style="border:1px solid black">$simpleDateFormat.format( $!dataValueAudit.timestamp )</td>
             						#end
 								</tr>
 							#end
