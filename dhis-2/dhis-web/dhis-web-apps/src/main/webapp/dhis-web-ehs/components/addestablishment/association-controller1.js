@@ -89,7 +89,8 @@ trackerCapture.controller('AddAssociationController1',
 		$scope.close();
 		}else{
 		}  
-            // Add event to TEI associations
+            /* Add event to TEI associations
+			*/
         /*    AjaxCalls.getTEIbyId(trackedEntityInstance.id).then(function(tei){
                 AjaxCalls.getEventbyId($modalInstance.selectedEvent.event).then(function(event){
                     if ($modalInstance.areMultipleAssociationAllowed &&
