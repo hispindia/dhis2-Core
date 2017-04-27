@@ -82,6 +82,13 @@ trackerCapture.controller('AddAssociationController1',
         $scope.makeAssociation = function(trackedEntityInstance){
             var flag = false;
             $scope.trackedEntityInstance1=trackedEntityInstance;
+			
+			
+		if(confirm("You selected :" + trackedEntityInstance.MaCVsKG7pjb)== true)
+		{
+		$scope.close();
+		}else{
+		}  
             // Add event to TEI associations
         /*    AjaxCalls.getTEIbyId(trackedEntityInstance.id).then(function(tei){
                 AjaxCalls.getEventbyId($modalInstance.selectedEvent.event).then(function(event){
