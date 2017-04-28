@@ -341,7 +341,7 @@ public class GetSchedulingInspectionsListAction extends ActionPagingSupport<Prog
             
            
             System.out.println( " inside list All " + listAll +" programUid  "+ programUid );
-            System.out.println( " programIdsByComma  "+ programIdsByComma );
+            //System.out.println( " programIdsByComma  "+ programIdsByComma );
             //System.out.println( " Query  " + query  );
             
             programStageInstances = new ArrayList<ProgramStageInstance>( getProgramStageInstanceList( query ) );

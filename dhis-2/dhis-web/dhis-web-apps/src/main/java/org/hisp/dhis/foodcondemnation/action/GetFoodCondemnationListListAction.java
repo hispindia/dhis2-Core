@@ -1,4 +1,4 @@
-package org.hisp.dhis.escalations.action;
+package org.hisp.dhis.foodcondemnation.action;
 
 import static org.hisp.dhis.i18n.I18nUtils.i18n;
 
@@ -35,8 +35,8 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 /**
  * @author Mithilesh Kumar Thakur
  */
-public class GetEscalationsListAction
-    extends ActionPagingSupport<ProgramStageInstance>
+
+public class GetFoodCondemnationListListAction extends ActionPagingSupport<ProgramStageInstance>
 {
     private final String INSPECTOR_USER_GROUP = "Inspector";
 
@@ -334,7 +334,7 @@ public class GetEscalationsListAction
     public String execute()
         throws Exception
     {
-        list = "List of Escalations";
+        list = "List of Product Condemnation";
 
         System.out.println( "listAll -- " + listAll );
         String programIdsByComma = "-1";
@@ -368,7 +368,7 @@ public class GetEscalationsListAction
                 query = " SELECT programstageinstanceid FROM programstageinstance psi "
                     + " INNER JOIN programstage ps ON ps.programstageid = psi.programstageid "
                     + " INNER JOIN program p ON p.programid = ps.programid " + " WHERE p.uid = '" + programUid
-                    + "' AND ps.name ILIKE 'Escalation' order by psi.executiondate ";
+                    + "' AND ps.name ILIKE 'Food Condemnation' order by psi.executiondate ";
             }
 
             else
@@ -376,7 +376,7 @@ public class GetEscalationsListAction
                 query = "SELECT programstageinstanceid FROM programstageinstance psi "
                     + " INNER JOIN programstage ps ON ps.programstageid = psi.programstageid "
                     + " INNER JOIN program p ON p.programid = ps.programid "
-                    + " WHERE  ps.name ILIKE 'Escalation' AND ps.programid IN ( " + programIdsByComma + " ) order by psi.executiondate;";
+                    + " WHERE  ps.name ILIKE 'Food Condemnation' AND ps.programid IN ( " + programIdsByComma + " ) order by psi.executiondate;";
             }
 
             System.out.println( " inside list All " + listAll + " programUid  " + programUid );
@@ -586,7 +586,7 @@ public class GetEscalationsListAction
 
             // String q_where = "WHERE psi.programstageid in ( 3461 ) "; //
             // Escalation program stage ids
-            String q_where = " WHERE ps.name ILIKE 'Escalation' ";
+            String q_where = " WHERE ps.name ILIKE 'Food Condemnation' ";
 
             if ( programId != null )
                 q_where += "AND pi.programid = " + programId + " "; // program
@@ -660,7 +660,7 @@ public class GetEscalationsListAction
 
         // programs = programService.getAllPrograms();
 
-        String programStageName = "Escalation";
+        String programStageName = "Food Condemnation";
         programs = new ArrayList<Program>( getProgramsByProgramStageName( programStageName ) );
 
         // filter program user Role Wise

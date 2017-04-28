@@ -42,7 +42,7 @@
         <td width="25%" height="100" style="text-align:center"   ng-if="userprogram.includes(item.id)"  ng-repeat="item in foodsafetyprograms"   ng-click=foodSafety(item.id) ng-model="example"  > <img src="../dhis-web-ehs/images/{{item.id}}.png"    style="height:120px; width:120px; cursor:pointer;"/> <span style="cursor: pointer"  ><h1 class="quality_program">{{item.name}}</h1></span> </td>
 		<td width="25%" height="100" style="text-align:center"   ng-if="!userprogram.includes(item.id)"  ng-repeat="item in foodsafetyprograms"  ng-model="example"  > <img src="../dhis-web-ehs/images/{{item.id}}.png"    style="height:120px; width:120px; cursor:pointer;"/> <span style="cursor: pointer"  ><h1 class="quality_program">{{item.name}}</h1></span> </td>
 
-
+		<td><a href="foodCondemnationList.action?listAll=true&programUid=tITlMGNJTbJ">Product Condemnation&nbsp;</a></td>
 
    <!-- <div class="col-sm-6 ehs-home-container" ng-click="foodSafety()" style="cursor: pointer">-->
 <tr>
