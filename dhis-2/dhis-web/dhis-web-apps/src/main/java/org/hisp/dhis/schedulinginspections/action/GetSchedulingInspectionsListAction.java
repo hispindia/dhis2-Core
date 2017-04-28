@@ -4,7 +4,9 @@ import static org.hisp.dhis.i18n.I18nUtils.i18n;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +25,7 @@ import org.hisp.dhis.program.ProgramStageInstance;
 import org.hisp.dhis.program.ProgramStageInstanceService;
 import org.hisp.dhis.program.ProgramStageInstanceStore;
 import org.hisp.dhis.trackedentitydatavalue.TrackedEntityDataValueService;
+import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserGroup;
 import org.hisp.dhis.user.UserGroupService;
@@ -61,6 +64,9 @@ public class GetSchedulingInspectionsListAction extends ActionPagingSupport<Prog
     
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private CurrentUserService currentUserService;
     
     @Autowired
     private UserGroupService userGroupService;
@@ -294,6 +300,15 @@ public class GetSchedulingInspectionsListAction extends ActionPagingSupport<Prog
         list = "Scheduling Inspections List";
         
         System.out.println( "listAll -- " + listAll);
+        
+        String programIdsByComma = "-1";
+        List<Program> userPrograms = new ArrayList<Program>( currentUserService.getCurrentUser().getUserCredentials().getAllPrograms() );
+        for( Program userProgram : userPrograms )
+        {
+            int programId = userProgram.getId();
+            programIdsByComma += "," + programId;
+        }
+        
         simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         
 //        System.out.println( "scheduleStartDate -- " + scheduleStartDate);
@@ -321,10 +336,12 @@ public class GetSchedulingInspectionsListAction extends ActionPagingSupport<Prog
                 query =  " SELECT programstageinstanceid FROM programstageinstance psi " +
                         " INNER JOIN programstage ps ON ps.programstageid = psi.programstageid " +
                         " INNER JOIN program p ON p.programid = ps.programid " +
-                        " WHERE  ps.name ILIKE 'Inspection' order by psi.executiondate;";
+                        " WHERE  ps.name ILIKE 'Inspection' AND ps.programid IN ( " + programIdsByComma + " ) order by psi.executiondate;";
             }
             
+           
             System.out.println( " inside list All " + listAll +" programUid  "+ programUid );
+            System.out.println( " programIdsByComma  "+ programIdsByComma );
             //System.out.println( " Query  " + query  );
             
             programStageInstances = new ArrayList<ProgramStageInstance>( getProgramStageInstanceList( query ) );
@@ -617,6 +634,21 @@ public class GetSchedulingInspectionsListAction extends ActionPagingSupport<Prog
         programs = programService.getAllPrograms();
         OptionSet optionSet = optionService.getOptionSetByCode( INSPECTION_TYPE );
         
+        String programStageName = "Inspection";
+        programs = new ArrayList<Program>( getProgramsByProgramStageName( programStageName ) );
+        
+        // filter program user Role Wise
+        
+        Iterator<Program> programIterator = programs.iterator();
+        while ( programIterator.hasNext() )
+        {
+            Program prg = programIterator.next();
+
+            if ( !userPrograms.contains( prg ) )
+            {
+                programIterator.remove();
+            }
+        }
         //programStageService
         
         options = new ArrayList<Option>( optionSet.getOptions());
@@ -859,7 +891,41 @@ public class GetSchedulingInspectionsListAction extends ActionPagingSupport<Prog
             throw new RuntimeException( "Illegal Program id", e );
         }
     }
-    
+    //--------------------------------------------------------------------------------
+    // Get Program List By Program ProgramStage Name
+    //--------------------------------------------------------------------------------
+    public List<Program> getProgramsByProgramStageName( String programStageName )
+    {
+        List<Program> programiList = new ArrayList<Program>();
+        
+        try
+        {
+            String query = "SELECT programid from programstage  " +
+                           " WHERE name ILIKE '%" + programStageName + "%' ";
+
+            
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+            while ( rs.next() )
+            {
+                Integer pId = rs.getInt( 1 );
+                
+                if ( pId != null )
+                {
+                    //System.out.println( " psiId -- " + psiId  );
+                    Program program= programService.getProgram( pId );
+                    programiList.add( program );
+                }
+            }
+
+            return programiList;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal Program id", e );
+        }
+    }    
+        
     
     
     

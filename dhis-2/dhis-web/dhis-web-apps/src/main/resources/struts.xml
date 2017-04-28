@@ -221,7 +221,14 @@
         </action>		
 		
 		
-		
+		<!-- Food Condemnation List -->
+		<action name="foodCondemnationList" class="org.hisp.dhis.foodcondemnation.action.GetFoodCondemnationListListAction">
+       		<result name="success" type="velocity">/main.vm</result>
+      		<param name="page">/dhis-web-ehs/ehs/foodCondemnation/foodCondemnationList.vm</param>
+      		<param name="menu">/dhis-web-ehs/ehs/foodCondemnation/menu.vm</param>
+      		<param name="javascripts">../dhis-web-ehs/ehs/foodCondemnation/javascript/foodCondemnation.js</param>
+      		<param name="stylesheets">../dhis-web-ehs/ehs/foodCondemnation/css/style.css</param>
+ 		</action>		
 		
 		
 	</package>
