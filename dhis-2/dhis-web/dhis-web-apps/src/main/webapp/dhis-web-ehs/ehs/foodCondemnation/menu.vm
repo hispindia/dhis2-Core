@@ -1,5 +1,6 @@
 <button onclick="goBack()">Back</button>
-<h2>$i18n.getString( "Product Condemnation" )&nbsp;</h2>
+<h2><a href="foodCondemnationList.action?listAll=true&programUid=tITlMGNJTbJ">$i18n.getString( "Product Condemnation" )&nbsp;</a></h2>
+<h2><a href="../dhis-web-dashboard-integration/index.action">Reports</a></h2>
 
 <!--
 <ul>
