@@ -21,7 +21,7 @@ function filterScheduleInspection()
 	  
 	  
 	  var url = 'schedulingInspectionsList.action?scheduleStartDate=' + scheduleStartDate + "&scheduleEndDate=" + scheduleEndDate + 
-	  			"&programId=" + programId + "&inspectionType=" + inspectionType + "&assignedInspector=" + assignedInspector + "&districtName=" + districtName  + "&communityName=" + communityName + "&status=" + status + "&listAll = " + listAll + "&program=" + programUid;
+	  			"&programId=" + programId + "&inspectionType=" + inspectionType + "&assignedInspector=" + assignedInspector + "&districtName=" + districtName  + "&communityName=" + communityName + "&status=" + status + "&listAll = " + listAll + "&program1=" + id;
 	  
 	  
 	  

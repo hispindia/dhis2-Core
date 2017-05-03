@@ -10,8 +10,8 @@
 
 <script>
     var cururl = document.URL;
-    programUid = cururl.substring(cururl.lastIndexOf('=') + 1);
-    //alert(programUid);
+    id = cururl.substring(cururl.lastIndexOf('=') + 1);
+    //alert(id);
 </script>
 
 <h3>$list</h3>
