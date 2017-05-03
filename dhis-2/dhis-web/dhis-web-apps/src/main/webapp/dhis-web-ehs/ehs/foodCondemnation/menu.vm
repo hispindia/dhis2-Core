@@ -1,3 +1,9 @@
+<script>
+    var cururl = document.URL;
+    id = cururl.substring(cururl.lastIndexOf('=') + 1);
+   // alert(id);
+</script>
+
 <button onclick="goBack()">Back</button>
 <h2><a href="foodCondemnationList.action?listAll=true&programUid=tITlMGNJTbJ">$i18n.getString( "Product Condemnation" )&nbsp;</a></h2>
 <h2><a href="../dhis-web-dashboard-integration/index.action">Reports</a></h2>
@@ -20,7 +26,17 @@
 <script>
   function goBack()
   {
-    window.history.back();
+  //  window.history.back();
+
+    var supurl;
+     if(id=='tITlMGNJTbJ')
+    {
+      supurl = "../dhis-web-ehs/index.html#/food-safety-program-list";
+      window.location.href = supurl;
+    }
+    else{
+      window.history.back();
+    }
 	
 //	var url = "../dhis-web-ehs/index.html#/food-safety-program";
 	  

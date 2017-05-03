@@ -70,7 +70,7 @@ function filterEscalation()
 	//alert( escalationStartDate +" -- "+ escalationEndDate +" -- "+ decisionStartDate + " -- " + decisionEndDate);  
 	
 	var url = 'foodCondemnationList.action?escalationStartDate=' + escalationStartDate + "&escalationEndDate=" + escalationEndDate +  "&decisionStartDate=" + decisionStartDate + "&decisionEndDate=" + decisionEndDate +
-	  			"&programId=" + programId + "&establishmentType=" + establishmentType + "&establishmentName=" + establishmentName  + "&ownerName=" + ownerName + "&escalationStatus=" + escalationStatus + "&listAll = " + listAll;
+	  			"&programId=" + programId + "&establishmentType=" + establishmentType + "&establishmentName=" + establishmentName  + "&ownerName=" + ownerName + "&escalationStatus=" + escalationStatus + "&listAll = " + listAll + "&program=" + programUid;
 	  
 	  //url += months ? 'months=' + months + '&' : '';
 	  //url += selfRegistered ? 'selfRegistered=' + selfRegistered + '&' : '';

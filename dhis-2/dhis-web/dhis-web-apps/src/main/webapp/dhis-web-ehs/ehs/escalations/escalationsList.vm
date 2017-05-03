@@ -7,6 +7,13 @@
   }
 
 </script>
+
+<script>
+    var cururl = document.URL;
+    programUid = cururl.substring(cururl.lastIndexOf('=') + 1);
+    //alert(programUid);
+</script>
+
 <h3>$list</h3>
 <div id="search_details" style="width:100px;height:30px;" align="left"><a href="javascript:showSearchCriteria()">$i18n.getString( "Search Criteria" )</a></div>
 <hr />

@@ -1,3 +1,9 @@
+<script>
+    var cururl = document.URL;
+    id = cururl.substring(cururl.lastIndexOf('=') + 1);
+   // alert(id);
+</script>
+
 <button onclick="goBack()">Back</button>
 <h2>$i18n.getString( "Scheduling Inspections" )&nbsp;</h2>
 
@@ -17,12 +23,52 @@
 </ul>
 -->
 <script>
-  function goBack()
+ function goBack()
   {
-    window.history.back();
-	
-	//var url = "../dhis-web-ehs/index.html#/food-safety-program";
-	  
-	//window.location.href = url;
+    //window.history.back();
+    
+    var supurl;
+    if(id=='v33qL1Mzre5')
+    {
+      supurl = "../dhis-web-ehs/index.html#/slaughter-houses";
+      window.location.href = supurl;
+    }
+     else if(id=='tITlMGNJTbJ')
+    {
+      supurl = "../dhis-web-ehs/index.html#/food-safety-program";
+      window.location.href = supurl;
+    }
+    else if(id=='TeBSCKYRo3q')
+    {
+      supurl = "../dhis-web-ehs/index.html#/mass-events";
+      window.location.href = supurl;
+    }
+    else if(id=='lI7ERF9ikB7')
+    {
+      supurl = "../dhis-web-ehs/index.html#/water-safety-program";
+      window.location.href = supurl;
+    }
+     else if(id=='JlYxDLMZJhK')
+    {
+      supurl = "../dhis-web-ehs/index.html#/water-treatment-plants";
+      window.location.href = supurl;
+    }
+    else if(id=='qhdFZgTdRbo')
+    {
+      supurl = "../dhis-web-ehs/index.html#/water-bottling-plants";
+      window.location.href = supurl;
+    }
+    else if(id=='q7iA10pQZEL')
+    {
+      supurl = "../dhis-web-ehs/index.html#/water-truck-receptacles";
+      window.location.href = supurl;
+    }
+    else{
+      window.history.back();
+    }
+    
+
+//	var url = "../dhis-web-ehs/index.html#/food-safety-program";  
+//	window.location.href = url;
   }
 </script>
