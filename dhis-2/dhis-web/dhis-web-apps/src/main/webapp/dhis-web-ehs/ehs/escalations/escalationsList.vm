@@ -97,7 +97,7 @@
     			<td colspan="10" style="padding-top:15px">
 					<input type="button" value="$i18n.getString( "Search" )" onclick="filterEscalation();" style="width:70px;height:30px;">
     				<input type="button" id="clearButton" name="clearButton" value="$i18n.getString( "clear" )" onclick="reSetSearch();" style="width:70px;height:30px;">
-    				<input type="button" value="$i18n.getString( "List All" )" onclick="window.location.href='escalationsList.action?listAll=true'" style="width:70px;height:30px;">
+    				<input type="button" value="$i18n.getString( "List All" )" onclick="allScheduleInspection()" style="width:70px;height:30px;">
 					
 				</td>
             </tr>

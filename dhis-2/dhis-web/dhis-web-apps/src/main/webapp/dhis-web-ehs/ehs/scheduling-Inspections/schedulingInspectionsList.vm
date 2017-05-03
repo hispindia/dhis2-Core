@@ -87,7 +87,7 @@
     			<td colspan="10" style="padding-top:15px">
 					<input type="button" value="$i18n.getString( "search" )" onclick="filterScheduleInspection();" style="width:70px;height:30px;">
     				<input type="button" id="clearButton" name="clearButton" value="$i18n.getString( "clear" )" onclick="reSetSearch();" style="width:70px;height:30px;">
-    				<input type="button" value="$i18n.getString( "list_all" )" onclick="window.location.href='schedulingInspectionsList.action?listAll=true'" style="width:70px;height:30px;">
+    				<input type="button" value="$i18n.getString( "list_all" )" onclick="allScheduleInspection();" style="width:70px;height:30px;">
 					
 				</td>
             </tr>

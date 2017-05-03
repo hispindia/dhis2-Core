@@ -123,7 +123,7 @@ function reSetSearch()
 function allScheduleInspection() 
 {
 	var listAll = true;  
-	var url = 'schedulingInspectionsList.action?listAll=' + listAll;
+	var url = 'escalationsList.action?listAll=' + listAll + "&program1=" + id;
 	
 	  
 	  //url += months ? 'months=' + months + '&' : '';
