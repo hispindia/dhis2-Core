@@ -63,6 +63,11 @@
       supurl = "../dhis-web-ehs/index.html#/water-truck-receptacles";
       window.location.href = supurl;
     }
+    else if(id=='dashboard')
+    {
+      supurl = "../dhis-web-ehs/index.html#/";
+      window.location.href = supurl;
+    }
     else{
       window.history.back();
     }
