@@ -76,6 +76,7 @@ trackerCapture.controller('DataEntryController',
             $scope.dataElementMetaAttrSeniorInspMap = [];
             $scope.operatorMemberList = [];
             $scope.dataElementMetaAttrfoodDistributorMap = [];
+            $scope.regulationnumber = '';
 
             //for license status and valid up to
             $scope.licenStatusDeUid = 'AWprRTJ8phx';
@@ -196,6 +197,9 @@ trackerCapture.controller('DataEntryController',
                 if ($scope.selectedEntityinstance.attributes[i].displayName === "Establishment Type - Food service") {
                     $scope.selectedEntytyType = $scope.selectedEntityinstance.attributes[i].value;
                 }
+                if ($scope.selectedEntityinstance.attributes[i].displayName == "Establishment type - Slaughter House") {
+                            $scope.selectedEntytyTypeSlaughter = $scope.selectedEntityinstance.attributes[i].value;
+                        }
                 /*  if ($scope.selectedEntityinstance.attributes[i].displayName === "Current license status") {
                  $scope.licensestatus = $scope.selectedEntityinstance.attributes[i].value;
                  if( $scope.licensestatus =="Valid"|| $scope.licensestatus =="Canceled"){
@@ -208,6 +212,13 @@ trackerCapture.controller('DataEntryController',
                 // console.log(organisationUnit);
                 for (var i = 0; i < optionsetmember.options.length; i++) {
                     if ($scope.selectedEntytyType === optionsetmember.options[i].name)
+                        $scope.regulationnumber = optionsetmember.options[i].code;
+                }
+            });
+            EHSService.getOptionsByOptionSet("M2hjIZjxIaq").then(function(optionsetmember) {
+                // console.log(organisationUnit);
+                for (var i = 0; i < optionsetmember.options.length; i++) {
+                    if ($scope.selectedEntytyTypeSlaughter === optionsetmember.options[i].name)
                         $scope.regulationnumber = optionsetmember.options[i].code;
                 }
             });
@@ -961,6 +972,9 @@ trackerCapture.controller('DataEntryController',
                     if ($scope.foodsafetyprograms.attributes[i].displayName == "Operator/Owner Name") {
                         $scope.operatorname = $scope.foodsafetyprograms.attributes[i].value;
                     }
+                    if ($scope.foodsafetyprograms.attributes[i].displayName == "Contact Person Name") {
+                        $scope.personname = $scope.foodsafetyprograms.attributes[i].value;
+                    }
                     if ($scope.foodsafetyprograms.attributes[i].displayName == "Entity type") {
                         $scope.entitytype = $scope.foodsafetyprograms.attributes[i].value;
                     }
@@ -972,6 +986,9 @@ trackerCapture.controller('DataEntryController',
                         }
                         if ($scope.selectedEntityinstance.attributes[i].displayName == "Establishment Type-Food service") {
                             $scope.selectedEntytyType = $scope.selectedEntityinstance.attributes[i].value;
+                        }
+                        if ($scope.selectedEntityinstance.attributes[i].displayName == "Establishment type - Slaughter House") {
+                            $scope.selectedEntytyTypeSlaughter = $scope.selectedEntityinstance.attributes[i].value;
                         }
                         if ($scope.selectedEntityinstance.attributes[i].displayName == "Address Line 1") {
                             $scope.selectedAddress1 = $scope.selectedEntityinstance.attributes[i].value;
@@ -1008,17 +1025,17 @@ trackerCapture.controller('DataEntryController',
 
 
                 //  var printContents = document.getElementById(divName).innerHTML;
-                var heading = "<h1 style='font-family: 'Times New Roman', Times, serif' align=" + "'center'" + ">SAINT LUCIA PUBLIC HEALTH BOARD</h1>" + "<h2 style='font-family: 'Times New Roman', Times, serif' align=" + "'center'" + ">(Ministry Of Health)</h2>" + "<h1 style='font-family: 'Times New Roman', Times, serif' align=" + "'center'" + ">LICENCE &nbspTO &nbspOPERATE</h1><br><br><br>";
+                var heading = "<p style='font-family: 'Times New Roman', Times' align=" + "'center'" + ">SAINT LUCIA PUBLIC HEALTH BOARD</p>" + "<p style='font-family: 'Times New Roman', Times, serif' align=" + "'center'" + ">(Ministry Of Health)</p><br>" + "<h5 style='font-family: 'Times New Roman', Times, serif' align=" + "'center'" + "><strong>LICENCE &nbspTO &nbspOPERATE</strong></h5><br><br><br>";
 
-                var content = "<p1 style='font-family: 'Times New Roman', Times, serif'>THIS IS TO CERTIFY THAT  " + $scope.operatorname + "   of  " + address + "   is duly registred in accordance with Public Health Regulations No:   " + $scope.regulationnumber + "  and is hereby given permission to operate a   " + $scope.entitytype + " valid till  " + date + " </p1 > <br> <br><p1 style='font-family: 'Times New Roman', Times, serif'>This Licennse is issued with the understanding that the operators will adhere to the rules and Regulations No:    " + $scope.regulationnumber + "  of the Public Health Regulations Of Saint Lucia 1978 failing which such licence may be revoked by any authorised officer</p1><br><br><br>";
+                var content = "<p style='font-family: 'Times New Roman', Times, serif'>This is to certify that <strong><i>"+ " " + $scope.personname + "</i></strong> is dully registered in accordance with the Public Health Regulations No. " + $scope.regulationnumber + "  and hereby given the permission to operate <strong><i>" + $scope.operatorname + " </i></strong>at<strong><i>" + " " + address +""+"</i></strong> . This permission is valid till <strong><i>" + date + "</i></strong>. </p ><br><p style='font-family: 'Times New Roman', Times, serif'>This Licence is issued with the understanding that the operators will adhere to the rules and Regulations No: " + $scope.regulationnumber + " of the Public Health Regulations Of Saint Lucia 1978 failing which such licence may be revoked by any authorised officer.</p><br><br><br><br>";
                 //  var  content2="<p1>This Licennse is issued with the understanding that the operators will adhere to the rules and Regulations No."+NAME+" of the Public Health Regulatiobs Of Saint Lucia 1978 failing which such licence may be revoked by any authoried oficer</p1>";
-                var footer = "<h1 style='font-family: 'Times New Roman', Times, serif';" + "'margin:20'" + " align=" + "'right'" + ">SAINT LUCIA PUBLIC HEALTH BOARD</h1><br>" + "<h1 style=" + "'margin:20'" + "  align=" + "'right'" + ">...............................................................</h1>";
+                var footer = "<p style='font-family: 'Times New Roman', Times, serif'  align=" + "'right'" + ">SAINT LUCIA PUBLIC HEALTH BOARD</p><br>" + "<p style=" + "'margin:10'" + "  align=" + "'right'" + ">...............................................................</p>" + "<p style=" + "'margin-right:90'" + "  align=" + "'right'" + ">Board Chair</p><br><br><br>";
+                
+                var footer1 = "<p style='font-family: 'Times New Roman', Times' align=" + "'center'" + "> N.B Licence must be conspicuously displayed  on the premises</p>";
 
-                var footer1 = "<h1 style='font-size: 25px';'font-family: 'Times New Roman', Times, serif' align=" + "'center'" + "> N.B Licence must be conspicuously displayed  on the premises</h1><br><br>";
-
-                var footer2 = "<h1 style='font-size: 25px';'font-family: 'Times New Roman', Times, serif' align=" + "'left'" + "> Receipt No. " + $scope.receiptNo + " </h1><br>";
-                var footer3 = "<h1 style='font-size: 25px';'font-family: 'Times New Roman', Times, serif' align=" + "'left'" + "> Date of payment. " + $scope.paymentDate + "</h1><br><br>";
-                printContents = heading + content + footer + footer1 + footer2 + footer3;
+                //var footer2 = "<h1 style='font-size: 25px';'font-family: 'Times New Roman', Times, serif' align=" + "'left'" + "> Receipt No. " + $scope.receiptNo + " </h1><br>";
+                //var footer3 = "<h1 style='font-size: 25px';'font-family: 'Times New Roman', Times, serif' align=" + "'left'" + "> Date of payment. " + $scope.paymentDate + "</h1><br><br>";
+                printContents = heading + content + footer + footer1 /*+ footer2 + footer3*/;
 
 
                 var popupWin = window.open('', '_blank', 'fullscreen=1');
@@ -2710,7 +2727,7 @@ trackerCapture.controller('DataEntryController',
                 //    $scope.recieptnumber=value;
                 //}
 
-                if (eventToSave.programStage.name === $scope.licenseProgramStage) {
+                if (eventToSave.name === $scope.licenseProgramStage) {
 
                     if ((value == "Compliance with the regulation") || (value == "Board Decision")) {
                         if ($scope.currentEvent.AWprRTJ8phx) {
@@ -2757,7 +2774,7 @@ trackerCapture.controller('DataEntryController',
 
 
 
-                if (eventToSave.programStage.name === $scope.escalationProgramStage) {
+                if (eventToSave.name === $scope.escalationProgramStage) {
 
                     if ($scope.currentEvent.oYNscX4WRDk == "undefined") {
 
@@ -2781,7 +2798,7 @@ trackerCapture.controller('DataEntryController',
                     }
 
                 }
-                if (eventToSave.programStage.name === $scope.escalationProgramStage) {
+                if (eventToSave.name === $scope.escalationProgramStage) {
                     {
                         if (($scope.currentEvent.WggL0QDVcRG) && ($scope.currentEvent.obqAPIKe6hs)) {
                             $scope.escalatebutton = true;
