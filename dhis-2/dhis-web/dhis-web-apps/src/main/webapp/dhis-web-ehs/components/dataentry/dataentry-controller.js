@@ -77,6 +77,8 @@ trackerCapture.controller('DataEntryController',
             $scope.operatorMemberList = [];
             $scope.dataElementMetaAttrfoodDistributorMap = [];
             $scope.regulationnumber = '';
+            $scope.selectedName = '';
+            $scope.selectedcontactperson = '';
 
             //for license status and valid up to
             $scope.licenStatusDeUid = 'AWprRTJ8phx';
@@ -961,6 +963,7 @@ trackerCapture.controller('DataEntryController',
 
             };
 
+
             $scope.printLicense = function() {
                 $scope.printForm = true;
                 $scope.printEmptyForm = true;
@@ -972,19 +975,59 @@ trackerCapture.controller('DataEntryController',
                     if ($scope.foodsafetyprograms.attributes[i].displayName == "Operator/Owner Name") {
                         $scope.operatorname = $scope.foodsafetyprograms.attributes[i].value;
                     }
-                    if ($scope.foodsafetyprograms.attributes[i].displayName == "Contact Person Name") {
-                        $scope.personname = $scope.foodsafetyprograms.attributes[i].value;
-                    }
                     if ($scope.foodsafetyprograms.attributes[i].displayName == "Entity type") {
                         $scope.entitytype = $scope.foodsafetyprograms.attributes[i].value;
                     }
                 }
                 if ($scope.selectedEntityinstance) {
                     for (var i = 0; i < $scope.selectedEntityinstance.attributes.length; i++) {
-                        if ($scope.selectedEntityinstance.attributes[i].displayName == "Operator/Owner Name") {
+                       /* if ($scope.selectedEntityinstance.attributes[i].displayName == "Operator/Owner Name") {
                             $scope.selectedOperator = $scope.selectedEntityinstance.attributes[i].value;
+                        }*/
+                           if ($scope.selectedEntityinstance.attributes[i].displayName == "Operator/Owner") {
+                              $scope.selectedOperator = $scope.selectedEntityinstance.attributes[i].value;
+
+                              /*AjaxCalls.getALLTEIBYOperate1($scope.selectedOperator).then(function(data) {
+                                $scope.asstrackedEntityInstances = data;   
+
+                                for (var i = 0; i < $scope.asstrackedEntityInstances.attributes.length; i++) {
+                         if ($scope.asstrackedEntityInstances.attributes[i].displayName == "Contact Person Name") {
+                              $scope.selectedcontactperson = $scope.asstrackedEntityInstances.attributes[i].value;
                         }
-                        if ($scope.selectedEntityinstance.attributes[i].displayName == "Establishment Type-Food service") {
+
+                     }
+
+                      });*/
+
+                      var idforNameofoperatoe = $scope.selectedOperator;
+
+                     $.ajax({
+                    async:false,
+                    type: "GET",
+                    url: '../api/trackedEntityInstances/'+ idforNameofoperatoe + '.json?program=ieLe1vT4Vad&ouMode=ALL&skipPaging=true',
+                    success: function(response){
+
+                        $scope.asstrackedEntityInstances = response;
+
+                        for (var i = 0; i < $scope.asstrackedEntityInstances.attributes.length; i++) {
+                         if ($scope.asstrackedEntityInstances.attributes[i].displayName == "Contact Person Name") {
+                              $scope.selectedcontactperson = $scope.asstrackedEntityInstances.attributes[i].value;
+                        }
+
+                     }
+
+                    },
+                    error: function(response){
+                    }
+
+                });
+                           
+                           
+                        }
+                        if ($scope.selectedEntityinstance.attributes[i].displayName == "Name") {
+                            $scope.selectedName = $scope.selectedEntityinstance.attributes[i].value;
+                        }
+                        if ($scope.selectedEntityinstance.attributes[i].displayName == "Establishment Type - Food service") {
                             $scope.selectedEntytyType = $scope.selectedEntityinstance.attributes[i].value;
                         }
                         if ($scope.selectedEntityinstance.attributes[i].displayName == "Establishment type - Slaughter House") {
@@ -1005,7 +1048,9 @@ trackerCapture.controller('DataEntryController',
                         }
 
                     }
+
                 }
+
 
 
                 //$scope.foodsafetyprograms=[];
@@ -1027,7 +1072,7 @@ trackerCapture.controller('DataEntryController',
                 //  var printContents = document.getElementById(divName).innerHTML;
                 var heading = "<p style='font-family: 'Times New Roman', Times' align=" + "'center'" + ">SAINT LUCIA PUBLIC HEALTH BOARD</p>" + "<p style='font-family: 'Times New Roman', Times, serif' align=" + "'center'" + ">(Ministry Of Health)</p><br>" + "<h5 style='font-family: 'Times New Roman', Times, serif' align=" + "'center'" + "><strong>LICENCE &nbspTO &nbspOPERATE</strong></h5><br><br><br>";
 
-                var content = "<p style='font-family: 'Times New Roman', Times, serif'>This is to certify that <strong><i>"+ " " + $scope.personname + "</i></strong> is dully registered in accordance with the Public Health Regulations No. " + $scope.regulationnumber + "  and hereby given the permission to operate <strong><i>" + $scope.operatorname + " </i></strong>at<strong><i>" + " " + address +""+"</i></strong> . This permission is valid till <strong><i>" + date + "</i></strong>. </p ><br><p style='font-family: 'Times New Roman', Times, serif'>This Licence is issued with the understanding that the operators will adhere to the rules and Regulations No: " + $scope.regulationnumber + " of the Public Health Regulations Of Saint Lucia 1978 failing which such licence may be revoked by any authorised officer.</p><br><br><br><br>";
+                var content = "<p style='font-family: 'Times New Roman', Times, serif'>This is to certify that <strong><i>"+ " " + $scope.selectedcontactperson + "</i></strong> is dully registered in accordance with the Public Health Regulations No. " + $scope.regulationnumber + "  and hereby given the permission to operate <strong><i>" + $scope.selectedName + " </i></strong>at<strong><i>" + " " + address +""+"</i></strong> . This permission is valid till <strong><i>" + date + "</i></strong>. </p ><br><p style='font-family: 'Times New Roman', Times, serif'>This Licence is issued with the understanding that the operators will adhere to the rules and Regulations No: " + $scope.regulationnumber + " of the Public Health Regulations Of Saint Lucia 1978 failing which such licence may be revoked by any authorised officer.</p><br><br><br><br>";
                 //  var  content2="<p1>This Licennse is issued with the understanding that the operators will adhere to the rules and Regulations No."+NAME+" of the Public Health Regulatiobs Of Saint Lucia 1978 failing which such licence may be revoked by any authoried oficer</p1>";
                 var footer = "<p style='font-family: 'Times New Roman', Times, serif'  align=" + "'right'" + ">SAINT LUCIA PUBLIC HEALTH BOARD</p><br>" + "<p style=" + "'margin:10'" + "  align=" + "'right'" + ">...............................................................</p>" + "<p style=" + "'margin-right:90'" + "  align=" + "'right'" + ">Board Chair</p><br><br><br>";
                 
@@ -1353,7 +1398,7 @@ trackerCapture.controller('DataEntryController',
 
             function getTopLineEvents(allEvents) {
                 if($scope.currentEvent) {
-                    if ($scope.currentEvent.programStage.name === $scope.licenseProgramStage) {
+                    if ($scope.currentEvent.name === $scope.licenseProgramStage) {
                         if ($scope.currentEvent.status == "COMPLETED") {
 
                             if (($scope.currentEvent.AWprRTJ8phx == "Valid") ||($scope.currentEvent.AWprRTJ8phx == "Canceled")|| ($scope.currentEvent.AWprRTJ8phx == undefined)) {
@@ -1674,7 +1719,7 @@ trackerCapture.controller('DataEntryController',
                                 dhis2Event = EventUtils.processEvent(dhis2Event, eventStage, $scope.optionSets, $scope.prStDes);
                                 $scope.eventsByStage[dhis2Event.programStage].push(dhis2Event);
 
-                                if (dhis2Event.programStage.name === $scope.licenseProgramStage) {
+                                if (dhis2Event.name === $scope.licenseProgramStage) {
                                     $scope.licensestage.push(dhis2Event);
                                 }
                                 if ($scope.currentStage && $scope.currentStage.id === dhis2Event.programStage) {
@@ -1682,7 +1727,7 @@ trackerCapture.controller('DataEntryController',
                                 }
 
                                 // for license Score Calculation
-                                if (dhis2Event.programStage.name === $scope.licenseProgramStage) {
+                                if (dhis2Event.name === $scope.licenseProgramStage) {
                                     if (dhis2Event.dataValues.length > 0) {
                                         for (var j = 0; j < dhis2Event.dataValues.length; j++) {
                                             if (dhis2Event.dataValues[j].dataElement === "AWprRTJ8phx") {
@@ -1699,7 +1744,7 @@ trackerCapture.controller('DataEntryController',
                                 }
 
                                 // for escalation status Calculation
-                                if (dhis2Event.programStage.name === $scope.escalationProgramStage) {
+                                if (dhis2Event.name === $scope.escalationProgramStage) {
                                     if (dhis2Event.dataValues.length > 0) {
                                         for (var j = 0; j < dhis2Event.dataValues.length; j++) {
                                             if (dhis2Event.dataValues[j].dataElement === "oYNscX4WRDk") {
@@ -1716,7 +1761,7 @@ trackerCapture.controller('DataEntryController',
                                 }
 
                                 // for inspection Score Calculation
-                                if (dhis2Event.programStage === $scope.inspectionProgramStage) {
+                                if (dhis2Event.name === $scope.inspectionProgramStage) {
                                     if (dhis2Event.dataValues.length > 0) {
                                         for (var j = 0; j < dhis2Event.dataValues.length; j++) {
                                             if (dhis2Event.dataValues[j].dataElement === $scope.inspectionScoreDataElement) {
@@ -1754,7 +1799,7 @@ trackerCapture.controller('DataEntryController',
                 //   return dhis2Event.editingNotAllowed = dhis2Event.orgUnit !== $scope.selectedOrgUnit.id && dhis2Event.eventDate || (stage.blockEntryForm && dhis2Event.status === 'COMPLETED') || $scope.selectedEntity.inactive;
                 var status1;
 
-                if (dhis2Event.programStage.name === $scope.escalationProgramStage) {
+                if (dhis2Event.name === $scope.escalationProgramStage) {
                     if (dhis2Event.dataValues.length != 0) {
                         for (var i = 0; i < dhis2Event.dataValues.length; i++) {
 
@@ -2115,20 +2160,20 @@ trackerCapture.controller('DataEntryController',
                                 }
 
                                 // for inspection Score Calculation
-                                if (ev.programStage.name === $scope.inspectionProgramStage) {
+                                if (ev.name === $scope.inspectionProgramStage) {
                                     $timeout(function() {
                                         $scope.eventWiseInspectionScoreValueMap[ev.event] = '0';
                                         $scope.eventWiseInspectionScoreStatusMap[ev.event] = '(Not Passed)';
                                     }, 0);
                                 }
                                 // for license Score Calculation
-                                if (ev.programStage.name === $scope.licenseProgramStage) {
+                                if (ev.name === $scope.licenseProgramStage) {
                                     $timeout(function() {
 
                                         $scope.eventWiseLicenseScoreStatusMap[ev.event] = ' ';
                                     }, 0);
                                 }
-                                if (ev.programStage.name === $scope.escalationProgramStage) {
+                                if (ev.name === $scope.escalationProgramStage) {
                                     $timeout(function() {
 
                                         $scope.eventWiseEscalationStatusMap[ev.event] = 'null';
@@ -2403,7 +2448,7 @@ trackerCapture.controller('DataEntryController',
                 $scope.tempFinalScore = 0;
                 $scope.referenceScoreValue = 0;
 
-                if ($scope.currentEvent.programStage.name === $scope.inspectionProgramStage) {
+                if ($scope.currentEvent.name === $scope.inspectionProgramStage) {
                     $timeout(function() {
                         AjaxCalls.getEventDataValue($scope.currentEvent.event, $scope.inspectionScoreDataElement).then(function(responseScore) {
 
@@ -2423,7 +2468,7 @@ trackerCapture.controller('DataEntryController',
 
 
 
-                if ($scope.currentEvent.programStage.name === $scope.licenseProgramStage) {
+                if ($scope.currentEvent.name === $scope.licenseProgramStage) {
                     $timeout(function() {
                         AjaxCalls.getEventDataValue($scope.currentEvent.event, 'AWprRTJ8phx').then(function(responseScore) {
 
@@ -2442,7 +2487,7 @@ trackerCapture.controller('DataEntryController',
                 }
 
                 //for saint lucia esclation //
-                if ($scope.currentEvent.programStage.name === $scope.escalationProgramStage) {
+                if ($scope.currentEvent.name === $scope.escalationProgramStage) {
                     if (($scope.currentEvent.WggL0QDVcRG) && ($scope.currentEvent.obqAPIKe6hs)) {
                         $scope.escalatebutton = true;
                     } else {
@@ -2627,7 +2672,7 @@ trackerCapture.controller('DataEntryController',
                     }
                 }
 
-                if ($scope.currentEvent.programStage.name === $scope.escalationProgramStage) {
+                if ($scope.currentEvent.name === $scope.escalationProgramStage) {
                     if ($scope.currentEvent.dataValues.length != 0) {
                         if ($scope.currentEvent.oYNscX4WRDk == "undefined") {
 
@@ -3519,7 +3564,7 @@ trackerCapture.controller('DataEntryController',
                         modalDefaults.templateUrl = 'components/dataentry/modal-complete-event.html';
                         dhis2Event.status = 'COMPLETED';
 
-                        if (currentEvent1.programStage.name == $scope.escalationProgramStage) {
+                        if (currentEvent1.name === $scope.escalationProgramStage) {
                             var today = new Date();
                             var dd = today.getDate();
                             var mm = today.getMonth() + 1; //January is 0!
@@ -3637,7 +3682,7 @@ trackerCapture.controller('DataEntryController',
                                 $scope.showDataEntry($scope.currentEvent, false, true);
                             }
                         }
-                        if (dhis2Event.programStage.name === $scope.licenseProgramStage) {
+                        if (dhis2Event.name === $scope.licenseProgramStage) {
                             if ($scope.issuelicensecall=="issue") {
                                 $scope.issuelicensebutton1(currentEvent1);
                             } else if ($scope.issuelicensecall=="cancel"){
@@ -3654,7 +3699,7 @@ trackerCapture.controller('DataEntryController',
                             //     var issue=1;
                             //   $scope.saveDataValueForEvent1(dataelement,outerDataEntryForm,issue, null, $scope.currentEvent, false);
                         }
-                        if (dhis2Event.programStage.name === $scope.escalationProgramStage) {
+                        if (dhis2Event.name === $scope.escalationProgramStage) {
                             if (issuelicensecall == "complete") {
                                 $scope.completebutton(currentEvent1);
                             } 

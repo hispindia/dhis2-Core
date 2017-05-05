@@ -40,6 +40,15 @@ trackerCapture
                 });
                 return promise;
             },
+             getALLTEIBYOperate1 : function(idforNameofoperatoe) {
+
+
+               var promise= $http.get('../api/trackedEntityInstances/'+ idforNameofoperatoe + '.json?program=ieLe1vT4Vad&ouMode=ALL&skipPaging=true').then(function (response) {
+                   return response.data;
+
+                });
+                return promise;
+            },
             getTrackedEntities : function(){
                 var promise = $http.get(  '../api/trackedEntities.json?paging=false').then(function(response){
                     return response.data;
