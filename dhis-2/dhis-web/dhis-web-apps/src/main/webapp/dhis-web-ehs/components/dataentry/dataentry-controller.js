@@ -2515,7 +2515,7 @@ trackerCapture.controller('DataEntryController',
 
                     //   $scope.completeIncompleteEvent1(inTableView, outerDataEntryForm, $scope.escalate1,$scope.currentEvent1);
                     //   $scope.completeIncompleteEvent(msg, outerDataEntryForm);
-
+                    location.reload(true);
                 }
 
                 $scope.Complete1 = function(inTableView, outerDataEntryForm) {
@@ -3682,7 +3682,7 @@ trackerCapture.controller('DataEntryController',
                                 $scope.showDataEntry($scope.currentEvent, false, true);
                             }
                         }
-                        if (dhis2Event.name === $scope.licenseProgramStage) {
+                       if (currentEvent1.name === $scope.licenseProgramStage) {
                             if ($scope.issuelicensecall=="issue") {
                                 $scope.issuelicensebutton1(currentEvent1);
                             } else if ($scope.issuelicensecall=="cancel"){
