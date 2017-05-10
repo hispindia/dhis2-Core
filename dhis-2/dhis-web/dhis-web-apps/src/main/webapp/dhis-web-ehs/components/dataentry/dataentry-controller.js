@@ -1758,7 +1758,7 @@ trackerCapture.controller('DataEntryController',
                                         }
                                     } else {
 
-                                        $scope.eventWiseEscalationStatusMap[dhis2Event.event] = 'null';
+                                        $scope.eventWiseEscalationStatusMap[dhis2Event.event] = '';
                                     }
                                 }
 
@@ -2178,7 +2178,7 @@ trackerCapture.controller('DataEntryController',
                                 if (ev.name === $scope.escalationProgramStage) {
                                     $timeout(function() {
 
-                                        $scope.eventWiseEscalationStatusMap[ev.event] = 'null';
+                                        $scope.eventWiseEscalationStatusMap[ev.event] = '';
                                     }, 0);
                                 }
 
@@ -2773,6 +2773,24 @@ trackerCapture.controller('DataEntryController',
                 //{
                 //    $scope.recieptnumber=value;
                 //}
+				
+				         if(eventToSave.program=="XmLabeuEeEB") {
+                if (eventToSave.name === $scope.licenseProgramStage) {
+
+                    if(value=="Valid"){
+                        $scope.enableissuebutton = true;
+                        $scope.enablecancelbutton = false;
+                    } if(value=="Canceled"){
+                        $scope.enableissuebutton = false;
+                        $scope.enablecancelbutton = true;
+                    }if(value=="Expired"){
+                        $scope.enableissuebutton = false;
+                        $scope.enablecancelbutton = false;
+                    }
+
+
+                }
+            }
 
                 if (eventToSave.name === $scope.licenseProgramStage) {
 
