@@ -479,7 +479,8 @@ trackerCapture.controller('OperatorsSelectionController',
                     if(!$scope.attributeUrl.hasValue){
                         $scope.emptySearchAttribute = true;
                         $scope.teiFetched = false;
-                        return;
+                         $scope.selectedSearchMode = $scope.searchMode.listAll;
+                        //return;
                     }
 
                     $scope.searchingOrgUnit = $scope.selectedSearchingOrgUnit && $scope.selectedSearchingOrgUnit.id ? $scope.selectedSearchingOrgUnit : $scope.selectedOrgUnit;
