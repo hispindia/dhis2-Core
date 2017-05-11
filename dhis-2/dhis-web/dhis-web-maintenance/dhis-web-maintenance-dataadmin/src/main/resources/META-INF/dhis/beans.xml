@@ -21,7 +21,8 @@
    	
    	
    	<task:scheduled-tasks scheduler="scheduleUpdateLicenseStatus">
-        <task:scheduled ref="org.hisp.dhis.dataadmin.action.schedulingupdatelicensestatus.ScheduleUpdateLicenseStatus" method="execute" cron="0 0 0/1 1/1 * ?"/>
+        <!--<task:scheduled ref="org.hisp.dhis.dataadmin.action.schedulingupdatelicensestatus.ScheduleUpdateLicenseStatus" method="execute" cron="0 0 0/1 1/1 * ?"/>-->
+        <task:scheduled ref="org.hisp.dhis.dataadmin.action.schedulingupdatelicensestatus.ScheduleUpdateLicenseStatus" method="execute" cron="0 0/3 * * * ?"/>
    	</task:scheduled-tasks>
 	
 	<!-- 0 0 0/1 1/1 * ? schedule  every day every hour -->

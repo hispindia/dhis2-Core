@@ -8,6 +8,8 @@ import org.apache.commons.jexl2.UnifiedJEXL.Exception;
 import org.hisp.dhis.dataelement.DataElementService;
 import org.hisp.dhis.program.ProgramStageInstance;
 import org.hisp.dhis.program.ProgramStageInstanceService;
+import org.hisp.dhis.trackedentity.TrackedEntityInstance;
+import org.hisp.dhis.trackedentity.TrackedEntityInstanceService;
 import org.hisp.dhis.trackedentitydatavalue.TrackedEntityDataValueService;
 import org.hisp.dhis.user.CurrentUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,8 @@ public class ScheduleUpdateLicenseStatus implements Action
     private final static int  LICENSE_STATUS_DATAELEMENT_ID = 3430;
     private final static int  LICENSE_VALIDITY_DATE_DATAELEMENT_ID = 2609;
     
+    private final static int  LICENSE_STATUS_ATTRIBUTE_ID = 2736;
+    private final static int  LICENSE_VALIDITY_DATE_ATTRIBUTE_ID = 1085;
     // -------------------------------------------------------------------------
     // Dependencies
     // -------------------------------------------------------------------------
@@ -36,6 +40,9 @@ public class ScheduleUpdateLicenseStatus implements Action
     
     @Autowired
     private TrackedEntityDataValueService trackedEntityDataValueService;
+    
+    @Autowired
+    private TrackedEntityInstanceService trackedEntityInstanceService;
     
     @Autowired
     private DataElementService dataElementService;
@@ -107,6 +114,46 @@ public class ScheduleUpdateLicenseStatus implements Action
             }
         }
         
+        // update tracked entity attribute value data 
+        
+        List<TrackedEntityInstance> trackedEntityInstances = new ArrayList<TrackedEntityInstance>( getTrackedEntityInstanceFromTeAValue( LICENSE_VALIDITY_DATE_ATTRIBUTE_ID ) );
+        System.out.println("trackedEntityInstances list Size = " + trackedEntityInstances.size() );
+        if( trackedEntityInstances != null && trackedEntityInstances.size() > 0 )
+        {
+            for( TrackedEntityInstance trackedEntityInstance : trackedEntityInstances )
+            {
+                try
+                {
+                    query = " SELECT trackedentityinstanceid, trackedentityattributeid, VALUE FROM trackedentityattributevalue WHERE trackedentityinstanceid = " + trackedEntityInstance.getId() + 
+                            " AND trackedentityattributeid = " + LICENSE_STATUS_ATTRIBUTE_ID;
+                    
+                    SqlRowSet sqlResultSet = jdbcTemplate.queryForRowSet( query );
+                    
+                    if ( sqlResultSet != null && sqlResultSet.next() )
+                    {
+                        //System.out.println( " Indide Update " );
+                        
+                        String updateQuery = " UPDATE trackedentityattributevalue SET VALUE = " + licenseExpireStatusCode + ", lastupdated = '" + lastUpdatedDate  
+                                               + "' WHERE trackedentityinstanceid = " + trackedEntityInstance.getId() + " AND trackedentityattributeid = " + LICENSE_STATUS_ATTRIBUTE_ID + " AND value = '1' ";
+
+                        jdbcTemplate.update( updateQuery );
+                        //System.out.println( " updateQuery -- " + updateQuery );
+                        
+                        updateCount++;
+                    }
+                    else
+                    {
+                        insertCount++;
+                    }
+                    
+                }
+                catch ( Exception e )
+                {
+                    System.out.println( "Exception occured while inserting/updating, please check log for more details" + e.getMessage() ) ;
+                }
+            }
+        }
+        
         System.out.println( "License Update Count = " + updateCount );
         
         System.out.println("INFO: Scheduler job has ended at : " + new Date() );
@@ -149,4 +196,48 @@ public class ScheduleUpdateLicenseStatus implements Action
             throw new RuntimeException( "Illegal DataElement id", e );
         }
     }
+    
+    //--------------------------------------------------------------------------------
+    // Get TrackedEntityInstance List from tracked entity attribute value
+    //--------------------------------------------------------------------------------
+    public List<TrackedEntityInstance> getTrackedEntityInstanceFromTeAValue( Integer attributeId )
+    {
+        List<TrackedEntityInstance> trackedEntityInstances = new ArrayList<TrackedEntityInstance>();
+
+
+        //SELECT trackedentityinstanceid, value FROM trackedentityattributevalue WHERE CURRENT_DATE > value::date and trackedentityattributeid = 1085;
+        try
+        {
+            String query = "SELECT trackedentityinstanceid FROM trackedentityattributevalue  " +
+                            "WHERE CURRENT_DATE > value::date and trackedentityattributeid = "+ attributeId +" ";
+          
+            //System.out.println( "query = " + query );
+            
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+            while ( rs.next() )
+            {
+                Integer teiId = rs.getInt( 1 );
+                
+                if ( teiId != null )
+                {
+                    TrackedEntityInstance tei = trackedEntityInstanceService.getTrackedEntityInstance( teiId );
+                    trackedEntityInstances.add( tei );
+                }
+            }
+
+            return trackedEntityInstances;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal Attribute id", e );
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
 }
