@@ -6,8 +6,9 @@ trackerCapture.controller('FoodSafetyProgramController',
 
 
     $scope.showEstablishmentsRegistration = function(){
+        var key="tITlMGNJTbJ";
         selection.load();
-        $location.path('/establishments-registration').search();
+        $location.path('/establishments-registration').search(key);
     };
     $scope.showOperatorsRegistration = function(){
         var key="tITlMGNJTbJ";
