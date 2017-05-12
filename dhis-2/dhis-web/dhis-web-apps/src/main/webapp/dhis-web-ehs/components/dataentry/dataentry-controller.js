@@ -86,6 +86,8 @@ trackerCapture.controller('DataEntryController',
             $scope.licenValidUpToDeUid = 'nPcT1HabdNa';
             $scope.licenValidUpToAttributeUid = 'edTbYj3fk12';
             $scope.licenInitialDateAttributeUid = 'hUiUjo4LBcF';
+            $scope.massstatusAttributeUid = 'AORKYxNmldn';
+
 
 
             $scope.operatorProgramUid = 'ieLe1vT4Vad';
@@ -2898,6 +2900,17 @@ trackerCapture.controller('DataEntryController',
                     if( prStDe.dataElement.id == $scope.licenValidUpToDeUid )
                     {
                         var attributeUid = $scope.licenValidUpToAttributeUid;
+                        var updateResponse = EHSUpdateAttributeService.updateAttributeValue( $scope.currentEvent.trackedEntityInstance, attributeUid, value, $scope.optionSets, $scope.attributesById);
+                        updateResponse.then(function(response) {
+                            if (response.status == 'OK') {
+                            }
+                        });
+                    }
+
+                // for  save dataElement value to Attribute
+                    if( prStDe.dataElement.id == 'th0VltOBHqa' )
+                    {
+                        var attributeUid = $scope.massstatusAttributeUid;
                         var updateResponse = EHSUpdateAttributeService.updateAttributeValue( $scope.currentEvent.trackedEntityInstance, attributeUid, value, $scope.optionSets, $scope.attributesById);
                         updateResponse.then(function(response) {
                             if (response.status == 'OK') {
