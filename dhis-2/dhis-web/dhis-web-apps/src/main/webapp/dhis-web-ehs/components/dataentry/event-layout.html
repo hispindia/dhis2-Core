@@ -57,6 +57,11 @@
 					
                     </span>
                 </div>
+                <div class="event-container-item" ng-if="dhis2Event.name === 'Temporary license'">
+                    <span>{{eventWisetempLicenseScoreStatusMap[dhis2Event.event]}}		
+                    </span>
+                </div>
+              
                 <div class="event-container-footer">{{getEventStyleLabel(dhis2Event)}}</div>
             </div>
             <div class="arrow-container" ng-if="$index + 1 < filteredEvents.length">

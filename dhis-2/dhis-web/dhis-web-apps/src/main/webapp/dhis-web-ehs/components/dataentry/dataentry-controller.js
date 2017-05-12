@@ -54,6 +54,8 @@ trackerCapture.controller('DataEntryController',
             $scope.inspectionProgramStage = 'Inspection';
             $scope.licenseProgramStage = 'License';
             $scope.escalationProgramStage = 'Escalation';
+            $scope.templicenseProgramStage = 'Temporary license';
+
 
             $scope.referenceScoreValueMap = [];
             $scope.thresholdCodeForFS = 'FS_FE_TRHRESHOLD';
@@ -262,6 +264,9 @@ trackerCapture.controller('DataEntryController',
 
             // for License and its Score
             $scope.eventWiseLicenseScoreStatusMap = [];
+
+            // for temporaray License and its Score
+            $scope.eventWisetempLicenseScoreStatusMap = [];
 
             // for Inspection and its Score
             $scope.eventWiseInspectionScoreValueMap = [];
@@ -1747,6 +1752,23 @@ trackerCapture.controller('DataEntryController',
                                     }
                                 }
 
+                                // for temporaray license Score Calculation
+                                if (dhis2Event.name === $scope.templicenseProgramStage) {
+                                    if (dhis2Event.dataValues.length > 0) {
+                                        for (var j = 0; j < dhis2Event.dataValues.length; j++) {
+                                            if (dhis2Event.dataValues[j].dataElement === "AWprRTJ8phx") {
+                                                $scope.eventWisetempLicenseScoreStatusMap[dhis2Event.event] = dhis2Event.AWprRTJ8phx;
+
+
+                                                //dhis2Event.inspectionScore = dhis2Event.dataValues[j].value;
+                                            }
+                                        }
+                                    } else {
+
+                                        $scope.eventWisetempLicenseScoreStatusMap[dhis2Event.event] = ' ';
+                                    }
+                                }
+
                                 // for escalation status Calculation
                                 if (dhis2Event.name === $scope.escalationProgramStage) {
                                     if (dhis2Event.dataValues.length > 0) {
@@ -2175,6 +2197,13 @@ trackerCapture.controller('DataEntryController',
                                     $timeout(function() {
 
                                         $scope.eventWiseLicenseScoreStatusMap[ev.event] = ' ';
+                                    }, 0);
+                                }
+                                 // for temporary license Score Calculation
+                                 if (ev.name === $scope.templicenseProgramStage) {
+                                    $timeout(function() {
+
+                                        $scope.eventWisetempLicenseScoreStatusMap[ev.event] = ' ';
                                     }, 0);
                                 }
                                 if (ev.name === $scope.escalationProgramStage) {
