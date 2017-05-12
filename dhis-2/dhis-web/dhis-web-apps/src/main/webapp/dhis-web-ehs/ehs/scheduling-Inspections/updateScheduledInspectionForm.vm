@@ -68,8 +68,15 @@
     <tbody>
 
     <tr>
+		#set( $scheduleInspectionDate =  "" )
+		#if(( "$!teInstanceDataValueMap.get( 1951 )" == "" ) && (! $teInstanceDataValueMap.get( 1951 )) )
+			#set( $scheduleInspectionDate = $!format.formatDate( $programStageInstance.getDueDate() ) )
+		#else 
+			#set( $scheduleInspectionDate = $!teInstanceDataValueMap.get( 1951 ) )
+		#end
+		
         <td><label for="scheduleDate">$i18n.getString( "schedule_date" )</label><em title="$i18n.getString( 'required' )" class="required">*</em></td>
-        <td><input type="text" id="deps1951" name="deps1951" value ="$!teInstanceDataValueMap.get( 1951 )" class="{validate:{required:true}}"/></td>
+        <td><input type="text" id="deps1951" name="deps1951" value ="$scheduleInspectionDate" class="{validate:{required:true}}"/></td>
 		<script type="text/javascript">
         	datePicker( 'deps1951' );
         </script>    

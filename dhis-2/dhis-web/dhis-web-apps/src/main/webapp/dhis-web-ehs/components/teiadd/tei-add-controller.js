@@ -627,7 +627,7 @@ trackerCapture.controller('TEIAddController',
         $scope.teiOriginal = {};
         $scope.tei = {};
         $scope.hiddenFields = {};
-        $scope.editingDisabled = false;
+        //$scope.editingDisabled = false;
 
         var selections = CurrentSelection.get();
         $scope.programs = selections.prs;
@@ -843,6 +843,14 @@ trackerCapture.controller('TEIAddController',
             }
         };
 
+
+        $scope.isDisabled = function(attribute) {
+
+            if( attribute.code === 'current_license_status' || attribute.code === 'current_license_expiry_date' )
+            {
+                return true;
+            }
+        };
 
         if(angular.isObject($scope.programs) && $scope.programs.length === 1){
             $scope.selectedProgramForRelative = $scope.programs[0];
