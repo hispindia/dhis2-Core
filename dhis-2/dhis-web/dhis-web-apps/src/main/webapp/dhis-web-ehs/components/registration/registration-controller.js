@@ -95,10 +95,10 @@ trackerCapture.controller('RegistrationController',
 
         //$scope.getDistrict( $scope.selectedCountry );
 
-        $scope.init = function () {
+      /*  $scope.init = function () {
             $scope.getDistrict( $scope.selectedCountry );
         };
-
+*/
         if ($scope.selectedEntityinstance) {
 
             for (var i = 0; i < $scope.selectedEntityinstance.attributes.length; i++) {
