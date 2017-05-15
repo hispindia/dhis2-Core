@@ -3729,9 +3729,7 @@ trackerCapture.controller('DataEntryController',
 
                     if (modalResult === modalCompleteIncompleteActions.completeAndExit) {
                         selection.load();
-                        $location.path('/').search({
-                            program: $scope.selectedProgramId
-                        });
+                        history.back();
                     } else {
                         if ($scope.currentEvent.status === 'COMPLETED') { //activiate event
                             $scope.currentEvent.status = 'ACTIVE';
@@ -3968,9 +3966,7 @@ trackerCapture.controller('DataEntryController',
 
                     if (modalResult === modalCompleteIncompleteActions.completeAndExit) {
                         selection.load();
-                        $location.path('/').search({
-                            program: $scope.selectedProgramId
-                        });
+                        history.back();
                     } else {
                         if ($scope.currentEvent.status === 'COMPLETED') { //activiate event
                             $scope.currentEvent.status = 'ACTIVE';
