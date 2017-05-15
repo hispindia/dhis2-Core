@@ -25,9 +25,12 @@
            ng-if="currentStage.name === 'License' && !reopen"
            ng-disabled="!deletelicense"
            class="btn btn-danger horizontal-spacing">{{'delete'| translate}}</a>
-
         <a href ng-click="deleteEvent()"
-           ng-if="currentStage.name != 'License'"
+           ng-if="currentStage.name === 'Escalation' && !Openbutton"
+           ng-disabled="!deletelicense"
+           class="btn btn-danger horizontal-spacing">{{'delete'| translate}}</a>
+        <a href ng-click="deleteEvent()"
+           ng-if="currentStage.name != 'License' && currentStage.name != 'Escalation'"
            ng-disabled=" selectedEnrollment.status === 'COMPLETED' || selectedEnrollment.status === 'CANCELLED' || currentEvent.editingNotAllowed || currentEvent.orgUnit !== selectedOrgUnit.id"
            class="btn btn-danger horizontal-spacing">{{'delete'| translate}}</a>
     

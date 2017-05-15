@@ -2714,6 +2714,7 @@ trackerCapture.controller('DataEntryController',
                         if ($scope.currentEvent.oYNscX4WRDk == "New") {
 
                             $scope.escalatebuttonclicked = true;
+							 $scope.escalatebutton=false;
                         }
                         if ($scope.currentEvent.oYNscX4WRDk == "Open") {
 
