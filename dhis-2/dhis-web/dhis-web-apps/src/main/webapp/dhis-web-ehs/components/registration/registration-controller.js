@@ -908,6 +908,7 @@ trackerCapture.controller('RegistrationController',
                     }
                 }
                 performRegistration(destination);
+				location.reload(true);
             };
 			
 			
