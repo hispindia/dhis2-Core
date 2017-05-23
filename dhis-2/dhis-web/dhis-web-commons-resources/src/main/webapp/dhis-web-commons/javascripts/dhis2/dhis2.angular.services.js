@@ -1330,18 +1330,16 @@ var d2Services = angular.module('d2Services', ['ngResource'])
                     });
 
                     var programIndicators = {rules:programRules, variables:variables};
-
-                    MetaDataFactory.getByProgram('programValidations',programUid).then(function(programValidations){                    
-                        MetaDataFactory.getByProgram('programRuleVariables',programUid).then(function(programVariables){                    
-                            MetaDataFactory.getByProgram('programRules',programUid).then(function(prs){
-                                var programRules = [];
-                                angular.forEach(prs, function(rule){
-                                    rule.actions = [];
-                                    rule.programStageId = rule.programStage && rule.programStage.id ? rule.programStage.id : null;
-                                    programRules.push(rule);
-                                });                                
-                                def.resolve({constants: constants, programIndicators: programIndicators, programValidations: programValidations, programVariables: programVariables, programRules: programRules});
-                            });
+             
+                    MetaDataFactory.getByProgram('programRuleVariables',programUid).then(function(programVariables){                    
+                        MetaDataFactory.getByProgram('programRules',programUid).then(function(prs){
+                            var programRules = [];
+                            angular.forEach(prs, function(rule){
+                                rule.actions = [];
+                                rule.programStageId = rule.programStage && rule.programStage.id ? rule.programStage.id : null;
+                                programRules.push(rule);
+                            });                                
+                            def.resolve({constants: constants, programIndicators: programIndicators, programVariables: programVariables, programRules: programRules});
                         });
                     });
                 }); 
@@ -1607,7 +1605,7 @@ var d2Services = angular.module('d2Services', ['ngResource'])
 })
 
 /* service for executing tracker rules and broadcasting results */
-.service('TrackerRulesExecutionService', function($translate, VariableService, DateUtils, NotificationService, DHIS2EventFactory, RulesFactory, CalendarService, OptionSetService, $rootScope, $q, $log, $filter, orderByFilter){
+.service('TrackerRulesExecutionService', function($translate, VariableService, DateUtils, NotificationService, DialogService, DHIS2EventFactory, RulesFactory, CalendarService, OptionSetService, $rootScope, $q, $log, $filter, orderByFilter){
     var NUMBER_OF_EVENTS_IN_SCOPE = 10;
 
     //Variables for storing scope and rules in memory from rules execution to rules execution:
@@ -1624,7 +1622,7 @@ var d2Services = angular.module('d2Services', ['ngResource'])
         //Check if the expression contains program rule variables at all(any curly braces):
         if(expression.indexOf('{') !== -1) {
             //Find every variable name in the expression;
-            var variablespresent = expression.match(/[A#CV]{\w+.?\w*}/g);
+            var variablespresent = expression.match(/[A#CV]{\w -_.}/g);
             //Replace each matched variable:
             angular.forEach(variablespresent, function(variablepresent) {
                 //First strip away any prefix and postfix signs from the variable name:
@@ -2482,7 +2480,7 @@ var d2Services = angular.module('d2Services', ['ngResource'])
 
                 //Broadcast rules finished if there was any actual changes to the event.
                 if(updatedEffectsExits){
-                    $rootScope.$broadcast("ruleeffectsupdated", { event: ruleEffectKey, eventsCreated:eventsCreated });
+                    $rootScope.$broadcast("ruleeffectsupdated", { event: ruleEffectKey, callerId:flag.callerId, eventsCreated:eventsCreated });
                 }
             }
 

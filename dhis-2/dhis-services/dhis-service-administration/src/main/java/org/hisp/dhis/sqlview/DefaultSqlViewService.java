@@ -165,12 +165,16 @@ public class DefaultSqlViewService
     @Override
     public String createViewTable( SqlView sqlView )
     {
+        validateSqlView( sqlView, null, null );
+        
         return sqlViewStore.createViewTable( sqlView );
     }
     
     @Override
     public Grid getSqlViewGrid( SqlView sqlView, Map<String, String> criteria, Map<String, String> variables )
     {
+        validateSqlView( sqlView, criteria, variables );
+        
         Grid grid = new ListGrid();
         grid.setTitle( sqlView.getName() );
         grid.setSubtitle( sqlView.getDescription() );
@@ -232,7 +236,7 @@ public class DefaultSqlViewService
 
         return sql;
     }
-
+    
     @Override
     public void validateSqlView( SqlView sqlView, Map<String, String> criteria, Map<String, String> variables )
         throws IllegalQueryException
@@ -245,7 +249,7 @@ public class DefaultSqlViewService
         }
         
         final Set<String> sqlVars = SqlViewUtils.getVariables( sqlView.getSqlQuery() );
-        final String sql = sqlView.getSqlQuery().toLowerCase();
+        final String sql = sqlView.getSqlQuery().replaceAll("\\r|\\n"," ").toLowerCase();
         
         if ( !SELECT_PATTERN.matcher( sql ).matches() )
         {
