@@ -95,10 +95,17 @@ trackerCapture.controller('RegistrationController',
 
         //$scope.getDistrict( $scope.selectedCountry );
 
-      /*  $scope.init = function () {
+        $scope.init = function () {
+        if(window.location.href.indexOf("establishments-registration") > -1) {
+
             $scope.getDistrict( $scope.selectedCountry );
+        }
+        else if(window.location.href.indexOf("operators-registration") > -1) {
+
+            $scope.getDistrict( $scope.selectedCountry );
+        }   
         };
-*/
+
         if ($scope.selectedEntityinstance) {
 
             for (var i = 0; i < $scope.selectedEntityinstance.attributes.length; i++) {
@@ -239,7 +246,7 @@ trackerCapture.controller('RegistrationController',
 
         $scope.getDistrict = function( selectedCountry ) {
             //alert( selectedCountry );
-            $scope.selectedCountry1=selectedCountry;
+           // $scope.selectedCountry1=selectedCountry;
             $scope.selectedCountryName = selectedCountry;
 
             $scope.districtOrgUnits = {};
@@ -693,7 +700,6 @@ trackerCapture.controller('RegistrationController',
                         return;
                     }
                 });
-
             };
 
             function broadcastTeiEnrolled() {
@@ -908,7 +914,7 @@ trackerCapture.controller('RegistrationController',
                     }
                 }
                 performRegistration(destination);
-				location.reload(true);
+				
             };
 			
 			
