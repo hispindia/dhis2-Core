@@ -2567,6 +2567,7 @@ trackerCapture.controller('DataEntryController',
 
 
                     $scope.saveDataValueForEvent1(dataelement, issue, null, $scope.currentEvent, false);
+					 location.reload(true);
                 }
 
 
@@ -2577,12 +2578,12 @@ trackerCapture.controller('DataEntryController',
 
 
                     $scope.saveDataValueForEvent1(dataelement, issue, null, $scope.currentEvent, false);
-					var dataelement1="WggL0QDVcRG";
+					/* var dataelement1="WggL0QDVcRG";
 					var issue1="";
 					 $scope.saveDataValueForEvent1(dataelement1, issue1, null, $scope.currentEvent, false);
 					 var dataelement2="obqAPIKe6hs";
 					var issue2="";
-					  $scope.saveDataValueForEvent1(dataelement2, issue2, null, $scope.currentEvent, false)
+					  $scope.saveDataValueForEvent1(dataelement2, issue2, null, $scope.currentEvent, false) */
                      location.reload(true);
 
                     //$scope.completeIncompleteEvent1(inTableView, outerDataEntryForm, $scope.escalate1, $scope.currentEvent1);
@@ -2595,12 +2596,12 @@ trackerCapture.controller('DataEntryController',
 
 
                     $scope.saveDataValueForEvent1(dataelement, issue, null, $scope.currentEvent, false);
-					var dataelement1="WggL0QDVcRG";
-					var issue1="";
-					 $scope.saveDataValueForEvent1(dataelement1, issue1, null, $scope.currentEvent, false);
-					 var dataelement2="obqAPIKe6hs";
-					var issue2="";
-					  $scope.saveDataValueForEvent1(dataelement2, issue2, null, $scope.currentEvent, false)
+					//var dataelement1="WggL0QDVcRG";
+				//	var issue1="";
+					// $scope.saveDataValueForEvent1(dataelement1, issue1, null, $scope.currentEvent, false);
+					// var dataelement2="obqAPIKe6hs";
+					//var issue2="";
+					// $scope.saveDataValueForEvent1(dataelement2, issue2, null, $scope.currentEvent, false)
 
 
 
@@ -3798,7 +3799,7 @@ trackerCapture.controller('DataEntryController',
                             //     var issue=1;
                             //   $scope.saveDataValueForEvent1(dataelement,outerDataEntryForm,issue, null, $scope.currentEvent, false);
                         }
-                        if (dhis2Event.name === $scope.escalationProgramStage) {
+                        if (currentEvent1.name === $scope.escalationProgramStage) {
                             if (issuelicensecall == "complete") {
                                 $scope.completebutton(currentEvent1);
                             } 

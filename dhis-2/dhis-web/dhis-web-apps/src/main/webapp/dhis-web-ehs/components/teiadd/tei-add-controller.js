@@ -630,8 +630,8 @@ trackerCapture.controller('TEIAddController',
         //$scope.editingDisabled = false;
 
         var selections = CurrentSelection.get();
-        $scope.programs = selections.prs;
-		
+       // $scope.programs = selections.prs;
+		$scope.programs = undefined;
 		var selectedatributeid=AjaxCalls.getselectedattributeid();
 
         $scope.selectedTei[selectedatributeid] = AjaxCalls.getselectedtei();
