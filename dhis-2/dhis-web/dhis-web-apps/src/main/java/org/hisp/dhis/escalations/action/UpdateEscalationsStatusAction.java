@@ -103,6 +103,16 @@ public class UpdateEscalationsStatusAction implements Action
                 {
                     TrackedEntityDataValue trackedEntityDataValue = trackedEntityDataValueService.getTrackedEntityDataValue( programStageInstance, psDataElement );
                 
+                    if( trackedEntityDataValue != null && trackedEntityDataValue.getValue().equalsIgnoreCase("1")  )
+                    {
+                     trackedEntityDataValue.setValue( "2" );
+                        trackedEntityDataValue.setStoredBy( storedBy );
+                        trackedEntityDataValue.setLastUpdated( now );
+
+                        trackedEntityDataValueService.updateTrackedEntityDataValue( trackedEntityDataValue );
+                    }
+                    
+                    /*
                     if ( trackedEntityDataValue == null )
                     {
                         boolean providedElsewhere = false;
@@ -125,6 +135,8 @@ public class UpdateEscalationsStatusAction implements Action
 
                         trackedEntityDataValueService.updateTrackedEntityDataValue( trackedEntityDataValue );
                     }
+                    */
+                    
                 }
                             
             }
