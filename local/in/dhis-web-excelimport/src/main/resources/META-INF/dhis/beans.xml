@@ -174,4 +174,20 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     </bean>	
 	
 	
+	
+	
+   <!-- ExcelImportService Service -->
+    <bean id="org.hisp.dhis.excelimport.util.ExcelImportService"
+        class="org.hisp.dhis.excelimport.util.ExcelImportService" scope="prototype">     
+        <property name="configurationService">
+            <ref bean="org.hisp.dhis.config.ConfigurationService"/>
+        </property>
+    </bean>	
+	
+    <bean id="org.hisp.dhis.export.action.ExportDataResultAction"
+        class="org.hisp.dhis.export.action.ExportDataResultAction"
+        scope="prototype">
+        <property name="excelImportService" ref="org.hisp.dhis.excelimport.util.ExcelImportService" />
+    </bean>	
+	
 </beans>
