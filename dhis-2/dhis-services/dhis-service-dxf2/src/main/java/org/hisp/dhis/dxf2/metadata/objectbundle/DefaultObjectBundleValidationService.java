@@ -318,9 +318,11 @@ public class DefaultObjectBundleValidationService implements ObjectBundleValidat
             }
             else
             {
+                IdentifiableObject persistedObject = bundle.getPreheat().get( bundle.getPreheatIdentifier(), object );
+
                 if ( importMode.isUpdate() )
                 {
-                    if ( !aclService.canUpdate( bundle.getUser(), object ) )
+                    if ( !aclService.canUpdate( bundle.getUser(), persistedObject ) )
                     {
                         ObjectReport objectReport = new ObjectReport( klass, idx, object.getUid() );
                         objectReport.setDisplayName( IdentifiableObjectUtils.getDisplayName( object ) );
@@ -336,7 +338,7 @@ public class DefaultObjectBundleValidationService implements ObjectBundleValidat
                 }
                 else if ( importMode.isDelete() )
                 {
-                    if ( !aclService.canDelete( bundle.getUser(), object ) )
+                    if ( !aclService.canDelete( bundle.getUser(), persistedObject ) )
                     {
                         ObjectReport objectReport = new ObjectReport( klass, idx, object.getUid() );
                         objectReport.setDisplayName( IdentifiableObjectUtils.getDisplayName( object ) );

@@ -131,7 +131,7 @@ public abstract class AbstractEventService
         EVENT_LAST_UPDATED_ID, EVENT_STORED_BY_ID, EVENT_COMPLETED_BY_ID, EVENT_COMPLETED_DATE_ID,
         EVENT_EXECUTION_DATE_ID, EVENT_DUE_DATE_ID, EVENT_ORG_UNIT_ID, EVENT_ORG_UNIT_NAME, EVENT_STATUS_ID,
         EVENT_LONGITUDE_ID, EVENT_LATITUDE_ID, EVENT_PROGRAM_STAGE_ID, EVENT_PROGRAM_ID,
-        EVENT_ATTRIBUTE_OPTION_COMBO_ID );
+        EVENT_ATTRIBUTE_OPTION_COMBO_ID, EVENT_DELETED );
 
     // -------------------------------------------------------------------------
     // Dependencies
@@ -349,7 +349,7 @@ public abstract class AbstractEventService
                 programStageInstance = programStageInstanceService.getProgramStageInstance( programInstance,
                     programStage );
 
-                if ( programStageInstance != null )
+                if ( programStageInstance != null && !programStageInstance.getUid().equals( event.getEvent() ) )
                 {
                     return new ImportSummary( ImportStatus.ERROR,
                         "Program stage is not repeatable and an event already exists" ).incrementIgnored();
@@ -893,6 +893,8 @@ public abstract class AbstractEventService
             programStageInstance.setAttributeOptionCombo( attributeOptionCombo );
         }
 
+        programStageInstance.setDeleted( event.isDeleted() );
+
         programStageInstanceService.updateProgramStageInstance( programStageInstance );
 
         saveTrackedEntityComment( programStageInstance, event, storedBy );
@@ -940,7 +942,9 @@ public abstract class AbstractEventService
         {
             dataValues.forEach( dataValueService::deleteTrackedEntityDataValue );
         }
-
+        
+        importSummary.setStatus( importSummary.getConflicts().isEmpty() ? ImportStatus.SUCCESS : ImportStatus.WARNING );
+        
         return importSummary;
     }
 
@@ -1232,9 +1236,9 @@ public abstract class AbstractEventService
         ProgramStageInstance programStageInstance, OrganisationUnit organisationUnit, Event event, User user,
         ImportOptions importOptions )
     {
-        Assert.notNull( program );
-        Assert.notNull( programInstance );
-        Assert.notNull( programStage );
+        Assert.notNull( program, "Program cannot be null" );
+        Assert.notNull( programInstance, "Program instance cannot be null" );
+        Assert.notNull( programStage, "Program stage cannot be null" );
 
         ImportSummary importSummary = new ImportSummary();
         importSummary.setStatus( ImportStatus.SUCCESS );
@@ -1290,13 +1294,13 @@ public abstract class AbstractEventService
         {
             if ( programStageInstance == null )
             {
-                programStageInstance = createProgramStageInstance( programStage, programInstance, organisationUnit,
+                programStageInstance = createProgramStageInstance( event, programStage, programInstance, organisationUnit,
                     dueDate, executionDate, event.getStatus().getValue(), event.getCoordinate(), completedBy,
                     event.getEvent(), coc, importOptions );
             }
             else
             {
-                updateProgramStageInstance( programStage, programInstance, organisationUnit, dueDate, executionDate,
+                updateProgramStageInstance( event, programStage, programInstance, organisationUnit, dueDate, executionDate,
                     event.getStatus().getValue(), event.getCoordinate(), completedBy, programStageInstance, coc,
                     importOptions );
             }
@@ -1352,6 +1356,8 @@ public abstract class AbstractEventService
             }
         }
 
+        importSummary.setStatus( importSummary.getConflicts().isEmpty() ? ImportStatus.SUCCESS : ImportStatus.WARNING );
+        
         return importSummary;
     }
 
@@ -1403,7 +1409,7 @@ public abstract class AbstractEventService
         }
     }
 
-    private ProgramStageInstance createProgramStageInstance( ProgramStage programStage, ProgramInstance programInstance,
+    private ProgramStageInstance createProgramStageInstance( Event event, ProgramStage programStage, ProgramInstance programInstance,
         OrganisationUnit organisationUnit, Date dueDate, Date executionDate, int status, Coordinate coordinate,
         String completedBy, String programStageInstanceUid, DataElementCategoryOptionCombo coc,
         ImportOptions importOptions )
@@ -1412,13 +1418,13 @@ public abstract class AbstractEventService
         programStageInstance.setUid( CodeGenerator.isValidCode( programStageInstanceUid ) ? programStageInstanceUid
             : CodeGenerator.generateCode() );
 
-        updateProgramStageInstance( programStage, programInstance, organisationUnit, dueDate, executionDate, status,
+        updateProgramStageInstance( event, programStage, programInstance, organisationUnit, dueDate, executionDate, status,
             coordinate, completedBy, programStageInstance, coc, importOptions );
 
         return programStageInstance;
     }
 
-    private void updateProgramStageInstance( ProgramStage programStage, ProgramInstance programInstance,
+    private void updateProgramStageInstance( Event event, ProgramStage programStage, ProgramInstance programInstance,
         OrganisationUnit organisationUnit, Date dueDate, Date executionDate, int status, Coordinate coordinate,
         String completedBy, ProgramStageInstance programStageInstance, DataElementCategoryOptionCombo coc,
         ImportOptions importOptions )
@@ -1429,6 +1435,7 @@ public abstract class AbstractEventService
         programStageInstance.setExecutionDate( executionDate );
         programStageInstance.setOrganisationUnit( organisationUnit );
         programStageInstance.setAttributeOptionCombo( coc );
+        programStageInstance.setDeleted( event.isDeleted() );
 
         if ( programStage.getCaptureCoordinates() )
         {
