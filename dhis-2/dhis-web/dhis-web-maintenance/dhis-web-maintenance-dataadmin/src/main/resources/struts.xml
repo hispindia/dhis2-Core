@@ -395,6 +395,11 @@
       <param name="executeNow">true</param>
       <param name="requiredAuthorities">F_SCHEDULING_ADMIN</param>
     </action>
-    
+ 
+	<!-- for sending e-mail when hit the URL -->
+    <action name="sendEmail" class="org.hisp.dhis.dataadmin.action.sendemail.SendEmail">
+      <result name="success" type="velocity">/main.vm</result>
+    </action>      
+       
   </package>
 </struts>
