@@ -904,17 +904,24 @@ public class LoadDataEntryFormAction
                     ivbUtil.getDataValueAuditMap( de.getId() + "", orgUnit.get( 0 ).getId() + "", period.getId(),
                         DataValueAudit.DVA_CT_DISCUSSION ) );
 
-                // System.out.println(technicalAssistanceAuditMap.size()+"");
+                //System.out.println(technicalAssistanceAuditMap.size()+"");
 
                 if ( technicalAssistanceAuditMap.size() > 0 )
                 {
                     String techComment = "No";
                     for ( DataValueAudit dva : technicalAssistanceAuditMap.get( orgUnit.get( 0 ) ).get( de ) )
                     {
-                        if ( !dva.getComment().isEmpty() && dva.getComment() != "" )
-                        {
-                            techComment = "Yes";
-                        }
+                    	//System.out.println( " D dva -- 1 " + dva);
+                    	
+                    	if( dva.getComment() != null )
+                    	{
+                    		//System.out.println( " D dva -- 2 " + dva);
+                    		if ( !dva.getComment().isEmpty() && dva.getComment() != "" )
+                            {
+                                techComment = "Yes";
+                            }
+                    	}
+                    	
                     }
                     technicalAMap.put( orgUnit.get( 0 ).getUid() + "-" + de.getUid(), techComment );
                 }
