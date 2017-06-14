@@ -43,8 +43,6 @@ import com.opensymphony.xwork2.Action;
 public class ResetSingleCountryDataAction implements Action
 {
 	
-	
-	
     private static final Log log = LogFactory.getLog( ResetSingleCountryDataAction.class );
 
     // -------------------------------------------------------------------------
@@ -58,15 +56,57 @@ public class ResetSingleCountryDataAction implements Action
         this.currentUserService = currentUserService;
     }
     
+    private DataElementService dataElementService;
+
+    public void setDataElementService( DataElementService dataElementService )
+    {
+        this.dataElementService = dataElementService;
+    }
+	
+    private DataValueService dataValueService;
+
+    public void setDataValueService( DataValueService dataValueService )
+    {
+        this.dataValueService = dataValueService;
+    }
+	
+    private DataElementCategoryService categoryService;
+
+    public void setCategoryService( DataElementCategoryService categoryService )
+    {
+        this.categoryService = categoryService;
+    }	
+	
+    private OrganisationUnitService organisationUnitService;
+
+    public void setOrganisationUnitService( OrganisationUnitService organisationUnitService )
+    {
+        this.organisationUnitService = organisationUnitService;
+    }	
+	
+	private DataValueAuditService dataValueAuditService;
+    
+    public void setDataValueAuditService( DataValueAuditService dataValueAuditService )
+    {
+        this.dataValueAuditService = dataValueAuditService;
+    }
+
+    private DataSetService dataSetService;
+
+    public void setDataSetService( DataSetService dataSetService )
+    {
+        this.dataSetService = dataSetService;
+    }	
+	
     private ReportScheduler reportScheduler;
 
-   
-
-    public ReportScheduler getReportScheduler() {
+    public ReportScheduler getReportScheduler() 
+	{
 		return reportScheduler;
 	}
 
-	public void setReportScheduler(ReportScheduler reportScheduler) {
+	public void setReportScheduler(ReportScheduler reportScheduler) 
+	{
 		this.reportScheduler = reportScheduler;
 	}
 
@@ -76,9 +116,36 @@ public class ResetSingleCountryDataAction implements Action
     {
         this.lookupService = lookupService;
     }
+	
+    private PeriodService periodService;
+    
+    public void setPeriodService( PeriodService periodService )
+    {
+        this.periodService = periodService;
+    }
    
+   /*
+    private DataValueStore dataValueStore;
 
-    private String dataSetUId;
+    public void setDataValueStore( DataValueStore dataValueStore )
+    {
+        this.dataValueStore = dataValueStore;
+    }
+	*/	
+	
+	
+    // -------------------------------------------------------------------------
+    // Input & Output
+    // -------------------------------------------------------------------------
+	
+    private int statusCode = 0;
+
+    public int getStatusCode()
+    {
+        return statusCode;
+    }
+    
+	private String dataSetUId;
 
     public void setDataSetUId( String dataSetUId )
     {
@@ -101,73 +168,7 @@ public class ResetSingleCountryDataAction implements Action
     {
         return orgUnitUid;
     }
-    private DataSetService dataSetService;
-
-    public void setDataSetService( DataSetService dataSetService )
-    {
-        this.dataSetService = dataSetService;
-    }
-    private DataValueStore dataValueStore;
-
-    public void setDataValueStore( DataValueStore dataValueStore )
-    {
-        this.dataValueStore = dataValueStore;
-    }
-    private DataElementService dataElementService;
-
-    public void setDataElementService( DataElementService dataElementService )
-    {
-        this.dataElementService = dataElementService;
-    }
-
-    private DataValueService dataValueService;
-
-    public void setDataValueService( DataValueService dataValueService )
-    {
-        this.dataValueService = dataValueService;
-    }
-    
-    
- 
-
-	private DataValueAuditService dataValueAuditService;
-    
-    public void setDataValueAuditService( DataValueAuditService dataValueAuditService )
-    {
-        this.dataValueAuditService = dataValueAuditService;
-    }
-    
-    private DataElementCategoryService categoryService;
-
-    public void setCategoryService( DataElementCategoryService categoryService )
-    {
-        this.categoryService = categoryService;
-    }
-
-    private OrganisationUnitService organisationUnitService;
-
-    public void setOrganisationUnitService( OrganisationUnitService organisationUnitService )
-    {
-        this.organisationUnitService = organisationUnitService;
-    }
-    
-    private PeriodService periodService;
-    
-    public void setPeriodService( PeriodService periodService )
-    {
-        this.periodService = periodService;
-    }
-
-    // -------------------------------------------------------------------------
-    // Input & Output
-    // -------------------------------------------------------------------------
-    private int statusCode = 0;
-
-    public int getStatusCode()
-    {
-        return statusCode;
-    }
-    
+	
     // -------------------------------------------------------------------------
     // Input
     // -------------------------------------------------------------------------
