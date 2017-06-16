@@ -264,9 +264,9 @@ public class IVBUtil
 
         String query = "";
         int insertFlag = 1;       
-        String insertQuery = "INSERT IGNORE INTO datavalue ( datavalueaudit,dataelementid, periodid, sourceid, categoryoptioncomboid, attributeoptioncomboid, value, storedby, lastupdated, comment, status ) VALUES ";
+        String insertQuery = "INSERT IGNORE INTO datavalue ( dataelementid, periodid, sourceid, categoryoptioncomboid, attributeoptioncomboid, value, storedby, lastupdated, comment, status ) VALUES ";
         //String insertQueryDVA = "INSERT INTO datavalue_audit ( dataelementid, periodid, sourceid, categoryoptioncomboid, attributeoptioncomboid, value, storedby, lastupdated, comment, commenttype, status ) VALUES ";
-        String insertQueryDVA = "INSERT INTO datavalueaudit ( datavalueaudit,dataelementid, periodid, organisationunitid, categoryoptioncomboid, attributeoptioncomboid, value, timestamp, modifiedby, audittype, comment, commenttype, status ) VALUES ";
+        String insertQueryDVA = "INSERT INTO datavalueaudit ( dataelementid, periodid, organisationunitid, categoryoptioncomboid, attributeoptioncomboid, value, timestamp, modifiedby, audittype, comment, commenttype, status ) VALUES ";
 
        // System.out.println("query---------------"+insertQuery);
        // System.out.println("query---------------"+insertQueryDVA);
@@ -579,12 +579,12 @@ public class IVBUtil
                 
                 if( ( csvMode == csvModes.VCT ) )
                 {
-                	String insertHistoryQuery = "INSERT INTO datavalueaudit ( datavalueauditid, dataelementid, periodid, organisationunitid, categoryoptioncomboid,attributeoptioncomboid, value, timestamp, modifiedby, audittype, comment, commenttype, status ) VALUES " + 
-                			"(nextval('hibernate_sequence')" +", " + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId +", "+ deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + comment + "', 'H', 1 )";
+                	String insertHistoryQuery = "INSERT INTO datavalueaudit (dataelementid, periodid, organisationunitid, categoryoptioncomboid,attributeoptioncomboid, value, timestamp, modifiedby, audittype, comment, commenttype, status ) VALUES " + 
+                			"(" + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId +", "+ deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + comment + "', 'H', 1 )";
                     jdbcTemplate.update( insertHistoryQuery );
                     
-                    String insertTAQuery = "INSERT INTO datavalueaudit ( datavalueauditid, dataelementid, periodid, organisationunitid, categoryoptioncomboid, attributeoptioncomboid, value, timestamp, modifiedby, audittype, comment, commenttype, status ) VALUES " +
-                        "(nextval('hibernate_sequence')" +",  " + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId + ", "+ deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + techAssistance + "', 'T', 1 )";
+                    String insertTAQuery = "INSERT INTO datavalueaudit (dataelementid, periodid, organisationunitid, categoryoptioncomboid, attributeoptioncomboid, value, timestamp, modifiedby, audittype, comment, commenttype, status ) VALUES " +
+                        "(" + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId + ", "+ deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + techAssistance + "', 'T', 1 )";
                     jdbcTemplate.update( insertTAQuery );
                 }
                 else if( csvMode == csvModes.V || csvMode == csvModes.VC || csvMode == csvModes.C )
@@ -595,8 +595,8 @@ public class IVBUtil
                 }
                 else if( csvMode == csvModes.T )
                 {
-                    String insertTAQuery = "INSERT INTO datavalueaudit (datavalueauditid, dataelementid, periodid, organisationunitid, categoryoptioncomboid,attributeoptioncomboid, value, timestamp, modifiedby, audittype, comment, commenttype, status ) VALUES " +
-                            "(nextval('hibernate_sequence')" +", " + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId + ", "+deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + techAssistance + "', 'T', 1 )";
+                    String insertTAQuery = "INSERT INTO datavalueaudit (dataelementid, periodid, organisationunitid, categoryoptioncomboid,attributeoptioncomboid, value, timestamp, modifiedby, audittype, comment, commenttype, status ) VALUES " +
+                            "(" + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId + ", "+deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + techAssistance + "', 'T', 1 )";
                     jdbcTemplate.update( insertTAQuery );
                 }
             }
@@ -615,25 +615,25 @@ public class IVBUtil
                     }
                 }
                 
-                insertQuery += "(nextval('hibernate_sequence')" + ", "+ deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId + ", "+ deCOCId + ", '" + value + "', '" + storedBy + "', '" + lastUpdatedDate + "', '" + comment + "', 1 ), ";
+                insertQuery += "("+ deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId + ", "+ deCOCId + ", '" + value + "', '" + storedBy + "', '" + lastUpdatedDate + "', '" + comment + "', 1 ), ";
                 
                 if( csvMode == csvModes.V || csvMode == csvModes.VC )
                 {
                 					  
-                	insertQueryDVA += "(nextval('hibernate_sequence') " + ", "  + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " +  deCOCId + ", "+ deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + comment + "', 'H', 1 ), ";                    
+                	insertQueryDVA += "( "  + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " +  deCOCId + ", "+ deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + comment + "', 'H', 1 ), ";                    
                 }
                 else if( csvMode == csvModes.VCT )
                 {
-                    insertQueryDVA += "(nextval('hibernate_sequence') " + ", " + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId + ", "+  deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + comment + "', 'H', 1 ), ";
-                    insertQueryDVA += "(nextval('hibernate_sequence') " +  ", " + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId + ", "+  deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + techAssistance + "', 'T', 1 ), ";
+                    insertQueryDVA += "(" + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId + ", "+  deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + comment + "', 'H', 1 ), ";
+                    insertQueryDVA += "(" + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId + ", "+  deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + techAssistance + "', 'T', 1 ), ";
                 }
                 else if( csvMode == csvModes.C && comment != null && !comment.trim().equals( "" ) )
                 {
-                	insertQueryDVA += "(nextval('hibernate_sequence') " + "," + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " +  deCOCId + ", "+ deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + comment + "', 'H', 1 ), ";
+                	insertQueryDVA += "(" + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " +  deCOCId + ", "+ deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + comment + "', 'H', 1 ), ";
                 }                
                 else if( csvMode == csvModes.T && techAssistance != null && !techAssistance.trim().equals( "" ) )
                 {
-                	insertQueryDVA += "(nextval('hibernate_sequence') " + "," + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " +  deCOCId + ", "+ deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + techAssistance + "', 'T', 1 ), ";                    
+                	insertQueryDVA += "(" + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " +  deCOCId + ", "+ deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + techAssistance + "', 'T', 1 ), ";                    
                 }
 
                 insertFlag = 2;
@@ -653,8 +653,8 @@ public class IVBUtil
                 }
 
                 insertFlag = 1;
-                insertQuery = "INSERT IGNORE INTO datavalue ( datavalueaudit,dataelementid, periodid, sourceid, categoryoptioncomboid, attributeoptioncomboid, value, storedby, lastupdated, comment, status ) VALUES ";
-                insertQueryDVA = "INSERT INTO datavalueaudit ( datavalueaudit,dataelementid, periodid, organisationunitid, categoryoptioncomboid, attributeoptioncomboid, value, timestamp, modifiedby, audittype, comment, commenttype, status ) VALUES ";
+                insertQuery = "INSERT IGNORE INTO datavalue (dataelementid, periodid, sourceid, categoryoptioncomboid, attributeoptioncomboid, value, storedby, lastupdated, comment, status ) VALUES ";
+                insertQueryDVA = "INSERT INTO datavalueaudit (dataelementid, periodid, organisationunitid, categoryoptioncomboid, attributeoptioncomboid, value, timestamp, modifiedby, audittype, comment, commenttype, status ) VALUES ";
             }
 
           //  System.out.println("query---------------"+insertQuery);
@@ -735,9 +735,9 @@ public class IVBUtil
 
         String query = "";
         int insertFlag = 1;
-        String insertQuery = "INSERT IGNORE INTO datavalue ( datavalueaudit,dataelementid, periodid, sourceid, categoryoptioncomboid, attributeoptioncomboid, value, storedby, lastupdated, comment, status ) VALUES ";
+        String insertQuery = "INSERT IGNORE INTO datavalue ( dataelementid, periodid, sourceid, categoryoptioncomboid, attributeoptioncomboid, value, storedby, lastupdated, comment, status ) VALUES ";
         //String insertQueryDVA = "INSERT INTO datavalue_audit ( dataelementid, periodid, sourceid, categoryoptioncomboid, attributeoptioncomboid, value, storedby, lastupdated, comment, commenttype, status ) VALUES ";
-        String insertQueryDVA = "INSERT INTO datavalueaudit (datavalueaudit, dataelementid, periodid, organisationunitid, categoryoptioncomboid, attributeoptioncomboid, value, timestamp, modifiedby, audittype, comment, commenttype, status ) VALUES ";
+        String insertQueryDVA = "INSERT INTO datavalueaudit (dataelementid, periodid, organisationunitid, categoryoptioncomboid, attributeoptioncomboid, value, timestamp, modifiedby, audittype, comment, commenttype, status ) VALUES ";
         
         int count = 1;
         Integer rowCount = 0;
@@ -900,7 +900,7 @@ public class IVBUtil
                 	updateCount++;
                 	
                 	//System.out.println("InsideUpdate:" + updateQuery );
-                	String insertHistoryQuery = "INSERT INTO datavalueaudit (datavalueaudit, dataelementid, periodid, organisationunitid, categoryoptioncomboid,attributeoptioncomboid, value, timestamp, modifiedby, audittype, comment, commenttype, status ) VALUES " + 
+                	String insertHistoryQuery = "INSERT INTO datavalueaudit (dataelementid, periodid, organisationunitid, categoryoptioncomboid,attributeoptioncomboid, value, timestamp, modifiedby, audittype, comment, commenttype, status ) VALUES " + 
                 			"( " + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId + ", " + deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + comment + "', 'H', 1 )";
 
                 	//String insertHistoryQuery = "INSERT INTO datavalue_audit ( dataelementid, periodid, sourceid, categoryoptioncomboid, attributeoptioncomboid, value, storedby, lastupdated, comment, commenttype, status ) VALUES " +
@@ -911,15 +911,15 @@ public class IVBUtil
                 {
                 	//comment = comment.replaceAll( "'", " " );
                 	//comment = new String(comment.getBytes("UTF-8"), "UTF-8");
-                	insertQuery += "(nextval('hibernate_sequence') " + ", "+deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId + ", " + deCOCId + ", '" + value + "', '" + storedBy + "', '" + lastUpdatedDate + "', '" + comment + "', 1 ), ";
+                	insertQuery += "("+deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId + ", " + deCOCId + ", '" + value + "', '" + storedBy + "', '" + lastUpdatedDate + "', '" + comment + "', 1 ), ";
                 	//insertQueryDVA += "( " + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId + ", " + deCOCId + ", '" + value + "', '" + storedBy + "', '" + lastUpdatedDate + "', '" + comment + "', 'H', 1 ), ";
 
-                    insertQueryDVA += "(nextval('hibernate_sequence')" +", "+ deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId + ", " + deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + comment + "', 'H', 1 ), ";
+                    insertQueryDVA += "("+ deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId + ", " + deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + comment + "', 'H', 1 ), ";
 
                 	if( techAssistance != null && !techAssistance.trim().equals("") )
                 	{
                 		//insertQueryDVA += "( " + deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " + deCOCId + ", " + deCOCId + ", '" + value + "', '" + storedBy + "', '" + lastUpdatedDate + "', '" + techAssistance + "', 'T', 1 ), ";
-                        insertQueryDVA += "(nextval('hibernate_sequence')" +" ,"+ deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " +  deCOCId + ", " +deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + techAssistance + "', 'T', 1 ), ";
+                        insertQueryDVA += "("+ deId + ", " + selectedPeriod.getId() + ", " + orgUnitId + ", " +  deCOCId + ", " +deCOCId + ", '" + value + "', '" + lastUpdatedDate + "', '" + storedBy + "', 'UPDATE', '" + techAssistance + "', 'T', 1 ), ";
 
                 	}
                 	insertFlag = 2;
@@ -943,9 +943,9 @@ public class IVBUtil
 
                 insertFlag = 1;
 
-                insertQuery = "INSERT IGNORE INTO datavalue (datavalueaudit, dataelementid, periodid, sourceid, categoryoptioncomboid, attributeoptioncomboid, value, storedby, lastupdated, comment, status ) VALUES ";
+                insertQuery = "INSERT IGNORE INTO datavalue (dataelementid, periodid, sourceid, categoryoptioncomboid, attributeoptioncomboid, value, storedby, lastupdated, comment, status ) VALUES ";
                 //insertQueryDVA = "INSERT INTO datavalue_audit ( dataelementid, periodid, sourceid, categoryoptioncomboid, attributeoptioncomboid, value, storedby, lastupdated, comment, commenttype, status ) VALUES ";
-                insertQueryDVA = "INSERT INTO datavalueaudit ( datavalueaudit,dataelementid, periodid, organisationunitid, categoryoptioncomboid, attributeoptioncomboid, value, timestamp, modifiedby, audittype, comment, commenttype, status ) VALUES ";
+                insertQueryDVA = "INSERT INTO datavalueaudit ( dataelementid, periodid, organisationunitid, categoryoptioncomboid, attributeoptioncomboid, value, timestamp, modifiedby, audittype, comment, commenttype, status ) VALUES ";
             }
 
             count++;
