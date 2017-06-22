@@ -1064,20 +1064,34 @@ public class ReportScheduler implements Action
             
             query = " SELECT orgunitid, indicatorid FROM keyflag_analytics WHERE orgunitid = " + organisationUnit.getId() + " AND indicatorid = " + indicator.getId();
             
+           // System.out.println("query 1 ----"+query);
+            
+            
             SqlRowSet sqlResultSet = jdbcTemplate.queryForRowSet( query );
+            
+           // System.out.println("query 2 ----"+query);
             
             if ( sqlResultSet != null && sqlResultSet.next() )
             {
                 //System.out.println( " Indide Update "   );
                 
-                String updateQuery = " UPDATE keyflag_analytics SET keyflagvalue = '" + keyFlagValue + "', comment = '" + comment 
+              /*  String updateQuery = " UPDATE keyflag_analytics SET keyflagvalue = '" + keyFlagValue + "', comment = '" + comment 
                                        + "', source = '" + source + "', user = '" + user + "', period = '" + period + "', color = '" + color
                                        + "', devalue = '" + deValue + "', lastupdated = '" + lastUpdated + "', lastscheduled = '" + lastUpdatedDate 
-                                       + "' WHERE orgunitid = " + organisationUnit.getId() + " AND indicatorid = "  + indicator.getId();
+                                       + "' WHERE orgunitid = " + organisationUnit.getId() + " AND indicatorid = "  + indicator.getId();*/
 
-                jdbcTemplate.update( updateQuery );
+            	String updateQuery = " UPDATE keyflag_analytics SET keyflagvalue = '" + keyFlagValue + "', comment = '" + comment 
+                        + "', source = '" + source + "', \"user\" = '" + user + "', period = '" + period + "', color = '" + color
+                        + "', devalue = '" + deValue + "', lastupdated = '" + lastUpdated + "', lastscheduled = '" + lastUpdatedDate 
+                        + "' WHERE orgunitid = " + organisationUnit.getId() + " AND indicatorid = "  + indicator.getId();
+            	
+                
+            	//System.out.println("updatequery 1 ----"+updateQuery);
+            	jdbcTemplate.update( updateQuery );
                 
                 updateCount++;
+                
+               // System.out.println("updatequery 1 ----"+updateQuery);
             }
             else
             {
