@@ -643,7 +643,7 @@ public class ReportScheduler implements Action
                             //System.out.println( " Indide Update "   );
                             
                             String updateQuery = " UPDATE keyflag_analytics SET keyflagvalue = '" + keyFlagValue + "', comment = '" + comment 
-                                                   + "', source = '" + source + "', user = '" + user + "', period = '" + period + "', color = '" + color
+                                                   + "', source = '" + source + "', \"user\" = '" + user + "', period = '" + period + "', color = '" + color
                                                    + "', devalue = '" + deValue + "', lastupdated = '" + lastUpdated + "', lastscheduled = '" + lastUpdatedDate 
                                                    + "' WHERE orgunitid = " + organisationUnit.getId() + " AND indicatorid = "  + indicator.getId();
 
@@ -887,7 +887,7 @@ public class ReportScheduler implements Action
                         if ( sqlResultSet != null && sqlResultSet.next() )
                         {
                             String updateQuery = " UPDATE keyflag_analytics SET keyflagvalue = '" + keyFlagValue + "', comment = '" + comment 
-                                                   + "', source = '" + source + "', user = '" + user + "', period = '" + period + "', color = '" + color
+                                                   + "', source = '" + source + "', \"user\" = '" + user + "', period = '" + period + "', color = '" + color
                                                    + "', devalue = '" + deValue + "', lastupdated = '" + lastUpdated + "', lastscheduled = '" + lastUpdatedDate 
                                                    + "' WHERE orgunitid = " + organisationUnit.getId() + " AND indicatorid = "  + indicator.getId();
 
