@@ -82,16 +82,16 @@ public class DefaultAuthenticationSuccessHandler
     {
         HttpSession session = request.getSession();
 
-        UserActivity useractivity = new UserActivity();
-
         String username = ((User) authentication.getPrincipal()).getUsername();
-
+        
+        /*
+        UserActivity useractivity = new UserActivity();
         useractivity.setUser( currentuserservice.getCurrentUser() );
 
         useractivity.setLoginTime( new Date() );
-
         useractivityservices.addUserActivity( useractivity );
-
+        */
+       
         session.setAttribute( LoginInterceptor.JLI_SESSION_VARIABLE, Boolean.TRUE );
         session.setMaxInactiveInterval( DefaultAuthenticationSuccessHandler.DEFAULT_SESSION_TIMEOUT );
 
@@ -101,6 +101,15 @@ public class DefaultAuthenticationSuccessHandler
         {
             credentials.updateLastLogin();
             userService.updateUserCredentials( credentials );
+            
+            // for add in userActivity table
+            UserActivity useractivity = new UserActivity();
+        	org.hisp.dhis.user.User loginActivityUser = userService.getUser( credentials.getUser().getUid() );
+            useractivity.setUser( loginActivityUser );
+            useractivity.setLoginTime( new Date() );
+            useractivityservices.addUserActivity( useractivity );
+            //System.out.println(" user - " + loginActivityUser.getUsername() );
+            //System.out.println("Curren user - " + currentuserservice.getCurrentUser() );
         }
 
         super.onAuthenticationSuccess( request, response, authentication );

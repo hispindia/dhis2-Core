@@ -12,12 +12,15 @@
 	  
 	    <!--<property name="userid" column="userid" not-null="true" length="15" />-->
 	   
-	   <many-to-one name="user" class="org.hisp.dhis.user.User" lazy="false"
+	   <many-to-one name="user" class="org.hisp.dhis.user.User"
         column="userid" not-null="true" foreign-key="fk_useractivity_userid"/>
+       <!-- 
+	   <many-to-one name="user" class="org.hisp.dhis.user.User" lazy="false"
+        column="userid" not-null="true" foreign-key="fk_useractivity_userid"/>        
+       --> 
 	   
 	   <property name="loginTime" column="logintime" type="timestamp" /> 
 	
-	   
     </class>
     
 </hibernate-mapping>
