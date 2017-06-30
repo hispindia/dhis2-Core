@@ -163,4 +163,9 @@
 	<property name="analyticsTableTask" ref="analyticsAllTask" />
   </bean>
 
+   <!--  for download dataSet Report as dataEntry Screen to excel -->
+  <bean id="org.hisp.dhis.reporting.excel.ExportToExcelAction"
+	class="org.hisp.dhis.reporting.excel.ExportToExcelAction" scope="prototype">
+  </bean> 
+  
 </beans>
