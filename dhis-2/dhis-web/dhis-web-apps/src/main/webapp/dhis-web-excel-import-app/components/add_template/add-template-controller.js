@@ -230,8 +230,8 @@ excelUpload.controller('AddTemplateController',
 				htmlString += "<td style='padding:2px 5px'>" + lbl + "</td>";
 				htmlString += "<td><select class='form-control' id='row_"+ x + "_" + $scope.newTemplate.rowStart.cn +"'><option value='-1'>--Select--</option>";
 			
-				$scope.selectedDataSetInfo.dataElements.forEach(function(de){
-					de.categoryCombo.categoryOptionCombos.forEach(function(coc){
+				$scope.selectedDataSetInfo.dataSetElements.forEach(function(de){
+					de.dataElement.categoryCombo.categoryOptionCombos.forEach(function(coc){
 						var sel = $scope.isSelected( lbl, de.dataElement.id + "-" + coc.id ) ? "selected" : "";
 						htmlString += "<option value='" + de.dataElement.id + "-" + coc.id + "' "+ sel +">" + de.dataElement.name + " - " + coc.name + " </option>";
 					});
@@ -253,8 +253,8 @@ excelUpload.controller('AddTemplateController',
 				htmlString += "<td style='padding:2px 5px'>" + lbl + "</td>";
 				htmlString += "<td><select class='form-control' id='row_"+ $scope.newTemplate.columnStart.rn + "_" + x +"'><option value='-1'>--Select--</option>";
 			
-				$scope.selectedDataSetInfo.dataElements.forEach(function(de){
-					de.categoryCombo.categoryOptionCombos.forEach(function(coc){
+				$scope.selectedDataSetInfo.dataSetElements.forEach(function(de){
+					de.dataElement.categoryCombo.categoryOptionCombos.forEach(function(coc){
 						var sel = $scope.isSelected( lbl, de.dataElement.id + "-" + coc.id ) ? "selected" : "";
 						htmlString += "<option value='" + de.dataElement.id + "-" + coc.id + "' "+ sel +">" + de.dataElement.name + " - " + coc.name + " </option>";
 					});
