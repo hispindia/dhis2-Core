@@ -3534,19 +3534,27 @@ public class IVBUtil
     {
     	Set<DataElement> restrictedDes = new HashSet<DataElement>();
 
+    	 System.out.println("restricted attribute--- "+restrictedDeAttributeId);
+    	 
         try
         {
             String query = "SELECT dataelementid FROM dataelementattributevalues deav " + 
             					" INNER JOIN attributevalue av ON deav.attributevalueid = av.attributevalueid " + 
             					" WHERE av.attributeid = "+ restrictedDeAttributeId + " AND " +
             					" value = 'true'";
+            
 
+            System.out.println("query--- "+query);
+            
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
             while ( rs.next() )
             {
                 Integer deId = rs.getInt( 1 );
+                System.out.println("de id 1 --- "+deId);
                 DataElement de = dataElementService.getDataElement( deId );
+                System.out.println("de id 2 --- "+de.getId());
+                
                 restrictedDes.add( de );
             }
         }

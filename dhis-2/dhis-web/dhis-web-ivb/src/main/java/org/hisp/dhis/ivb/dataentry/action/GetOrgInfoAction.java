@@ -66,11 +66,13 @@ import com.opensymphony.xwork2.ActionContext;
 public class GetOrgInfoAction
     implements Action
 {
-    private final static int ORGUNIT_GROUP_SET = 3;
+    private static final String ORGUNIT_GROUP_SET = "tWUrSY3jGRh";
 
-    private final static int REGION_LEVEL = 2;
+    private  static final int REGION_LEVEL = 2;
     
-    private static final String SHOW_ALL_COUNTRIES_ORGUNIT_GROUP = "SHOW_ALL_COUNTRIES_ORGUNIT_GROUP";
+    //private final static int CONSTANT_ID = 7;
+    
+    private static final String SHOW_ALL_COUNTRIES_ORGUNIT_GROUP = "P2EW5Afg4ay";
 
     // -------------------------------------------------------------------------
     // Dependencies
@@ -254,15 +256,37 @@ public class GetOrgInfoAction
     public String execute()
         throws Exception
     {
-        Constant show_all = constantService.getConstantByName( SHOW_ALL_COUNTRIES_ORGUNIT_GROUP );
+
+    	Constant show_all = constantService.getConstant( SHOW_ALL_COUNTRIES_ORGUNIT_GROUP);
+    	
+    	//System.out.println( "show all----"+SHOW_ALL_COUNTRIES_ORGUNIT_GROUP );
+    	
+    	
+        //Constant show_all = constantService.getConstantByName( SHOW_ALL_COUNTRIES_ORGUNIT_GROUP.trim() );
+        
+        //System.out.println("show_all------"+constantService.getConstantByName( SHOW_ALL_COUNTRIES_ORGUNIT_GROUP ));
+        
+        //System.out.println("show----"+show_all);
         
         flagFolderPath = System.getenv( "DHIS2_HOME" ) + File.separator + "flags" + File.separator;
         
-        OrganisationUnitGroupSet organisationUnitGroupSet = organisationUnitGroupService.getOrganisationUnitGroupSet( ORGUNIT_GROUP_SET );
-
-        orgUnitGrpList.addAll( organisationUnitGroupService.getAllOrganisationUnitGroups() );        
+        //System.out.println( "org group----"+ORGUNIT_GROUP_SET );
         
-        orgUnitGrpList.retainAll( organisationUnitGroupSet.getOrganisationUnitGroups() );
+        OrganisationUnitGroupSet organisationUnitGroupSet = organisationUnitGroupService.getOrganisationUnitGroupSet( ORGUNIT_GROUP_SET );
+        
+    	//System.out.println( "org group----"+ORGUNIT_GROUP_SET );
+    	
+    	orgUnitGrpList = new ArrayList<OrganisationUnitGroup>( organisationUnitGroupService.getAllOrganisationUnitGroups() );
+    	if( organisationUnitGroupSet != null )
+    	{
+    		//orgUnitGrpList.addAll( organisationUnitGroupService.getAllOrganisationUnitGroups() );
+    		orgUnitGrpList.retainAll( organisationUnitGroupSet.getOrganisationUnitGroups() );
+    	}
+    	
+
+        //orgUnitGrpList.addAll( organisationUnitGroupService.getAllOrganisationUnitGroups() );        
+        
+        //orgUnitGrpList.retainAll( organisationUnitGroupSet.getOrganisationUnitGroups() );
         
         organisationUnit = currentUserService.getCurrentUser().getOrganisationUnit();
         
@@ -271,11 +295,23 @@ public class GetOrgInfoAction
         }
         else if( ActionContext.getContext().getSession().get( "orgUnitGrpId") != null )
         {
+        	
+        	//System.out.println("orgunit----"+orgUnitGrpId);
             orgUnitGrpId = (String)ActionContext.getContext().getSession().get( "orgUnitGrpId");
+        	//System.out.println("orgunit----"+orgUnitGrpId);
+
         }
         else 
         {
-            orgUnitGrpId = (int)show_all.getValue()+"";
+        	//System.out.println("orgunit----"+orgUnitGrpId);
+        	
+        	if( show_all != null )
+        	{
+        		orgUnitGrpId = ""+(int)show_all.getValue();
+            	//System.out.println("orgunit----"+orgUnitGrpId);
+        	}
+            
+        	
         }
         
         if ( orgUnitGrpId != "")

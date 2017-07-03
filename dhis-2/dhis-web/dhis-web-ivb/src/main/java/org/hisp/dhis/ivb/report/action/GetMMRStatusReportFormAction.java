@@ -67,9 +67,12 @@ public class GetMMRStatusReportFormAction
     /**
      * TODO - should use constant and further to have paramter module..
      */
-    private final static int ORGUNIT_GROUP_SET = 3;
+    //private final static int ORGUNIT_GROUP_SET = 3;
 
-    private static final String SHOW_ALL_COUNTRIES_ORGUNIT_GROUP = "SHOW_ALL_COUNTRIES_ORGUNIT_GROUP";
+    //private static final String SHOW_ALL_COUNTRIES_ORGUNIT_GROUP = "SHOW_ALL_COUNTRIES_ORGUNIT_GROUP";
+    private static final String ORGUNIT_GROUP_SET = "tWUrSY3jGRh";
+
+    //private static final String SHOW_ALL_COUNTRIES_ORGUNIT_GROUP = "P2EW5Afg4ay";
 
     // -------------------------------------------------------------------------
     // Dependencies
@@ -159,12 +162,12 @@ public class GetMMRStatusReportFormAction
         return adminStatus;
     }
 
-    private String orgUnitGrpId = "";
-
-    public String getOrgUnitGrpId()
-    {
-        return orgUnitGrpId;
-    }
+//    private String orgUnitGrpId = "";
+//
+//    public String getOrgUnitGrpId()
+//    {
+//        return orgUnitGrpId;
+//    }
 
     private OrganisationUnitGroupSet MMRGroupSet;
 
@@ -180,10 +183,13 @@ public class GetMMRStatusReportFormAction
         return orgUnitGroups;
     }
 
+    // -------------------------------------------------------------------------
+    // Action Implementation
+    // -------------------------------------------------------------------------
     public String execute()
     {
-        Constant show_all = constantService.getConstantByName( SHOW_ALL_COUNTRIES_ORGUNIT_GROUP );
-        orgUnitGrpId = (int) show_all.getValue() + "";
+        //Constant show_all = constantService.getConstantByName( SHOW_ALL_COUNTRIES_ORGUNIT_GROUP );
+        //orgUnitGrpId = (int) show_all.getValue() + "";
         userName = currentUserService.getCurrentUser().getUsername();
 
         Lookup lookup = lookupService.getLookupByName( "MMR_GROUPSET" );
@@ -217,11 +223,19 @@ public class GetMMRStatusReportFormAction
         datasetList.retainAll( datasets );
 
         Collections.sort( datasetList, new IdentifiableObjectNameComparator() );
+//
+//        OrganisationUnitGroupSet organisationUnitGroupSet = organisationUnitGroupService
+//            .getOrganisationUnitGroupSet( ORGUNIT_GROUP_SET );
+//
+//        orgUnitGrpList = new ArrayList<OrganisationUnitGroup>( organisationUnitGroupSet.getOrganisationUnitGroups() );
+        
+        
+        OrganisationUnitGroupSet organisationUnitGroupSet = organisationUnitGroupService.getOrganisationUnitGroupSet( ORGUNIT_GROUP_SET );
 
-        OrganisationUnitGroupSet organisationUnitGroupSet = organisationUnitGroupService
-            .getOrganisationUnitGroupSet( ORGUNIT_GROUP_SET );
-
-        orgUnitGrpList = new ArrayList<OrganisationUnitGroup>( organisationUnitGroupSet.getOrganisationUnitGroups() );
+        if( organisationUnitGroupSet != null )
+        {
+        	 orgUnitGrpList = new ArrayList<OrganisationUnitGroup>( organisationUnitGroupSet.getOrganisationUnitGroups() );
+        }
         // orgUnitGrpListName = new ArrayList<OrganisationUnitGroup>(
         // organisationUnitGroupSet.getOrganisationUnitGroups(). );
 

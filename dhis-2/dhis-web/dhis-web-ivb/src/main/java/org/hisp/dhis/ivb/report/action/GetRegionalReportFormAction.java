@@ -59,9 +59,12 @@ import com.opensymphony.xwork2.Action;
 public class GetRegionalReportFormAction
     implements Action
 {
-    private final static int ORGUNIT_GROUP_SET = 3;
+   
     private final static int REGION_LEVEL = 2;
-    private static final String SHOW_ALL_COUNTRIES_ORGUNIT_GROUP = "SHOW_ALL_COUNTRIES_ORGUNIT_GROUP";
+
+    private static final String ORGUNIT_GROUP_SET = "tWUrSY3jGRh";
+
+    //private static final String SHOW_ALL_COUNTRIES_ORGUNIT_GROUP = "P2EW5Afg4ay";
     // -------------------------------------------------------------------------
     // Dependencies
     // -------------------------------------------------------------------------
@@ -117,6 +120,7 @@ public class GetRegionalReportFormAction
     {
         this.configurationService = configurationService;
     }
+    
     private ConstantService constantService;
 
     public void setConstantService( ConstantService constantService )
@@ -174,17 +178,22 @@ public class GetRegionalReportFormAction
     {
         return regionList;
     }
+    /*
     private String orgUnitGrpId = "";
 
     public String getOrgUnitGrpId()
     {
         return orgUnitGrpId;
     }
-
+	*/
+    
+    // -------------------------------------------------------------------------
+    // Action Implementation
+    // -------------------------------------------------------------------------
     public String execute()
     {
-        Constant show_all = constantService.getConstantByName( SHOW_ALL_COUNTRIES_ORGUNIT_GROUP );
-        orgUnitGrpId = (int)show_all.getValue()+"";
+        //Constant show_all = constantService.getConstantByName( SHOW_ALL_COUNTRIES_ORGUNIT_GROUP );
+        //orgUnitGrpId = (int)show_all.getValue()+"";
         userName = currentUserService.getCurrentUser().getUsername();
 
         if ( i18nService.getCurrentLocale() == null )
@@ -224,9 +233,7 @@ public class GetRegionalReportFormAction
         	
         }*/
      
-        Iterator<DataSet> iterator = datasetList.iterator();
-        
-        
+        //Iterator<DataSet> iterator = datasetList.iterator();
         
         Iterator<DataSet> dataSetIterator = datasetList.iterator();
         List<DataSet> datasets = new ArrayList<DataSet>();
@@ -256,9 +263,16 @@ public class GetRegionalReportFormAction
             */
         Collections.sort( datasetList, new IdentifiableObjectNameComparator() );
         
+//        OrganisationUnitGroupSet organisationUnitGroupSet = organisationUnitGroupService.getOrganisationUnitGroupSet( ORGUNIT_GROUP_SET );
+//
+//        orgUnitGrpList = new ArrayList<OrganisationUnitGroup>( organisationUnitGroupSet.getOrganisationUnitGroups() );
+        
         OrganisationUnitGroupSet organisationUnitGroupSet = organisationUnitGroupService.getOrganisationUnitGroupSet( ORGUNIT_GROUP_SET );
 
-        orgUnitGrpList = new ArrayList<OrganisationUnitGroup>( organisationUnitGroupSet.getOrganisationUnitGroups() );
+        if( organisationUnitGroupSet != null )
+        {
+        	 orgUnitGrpList = new ArrayList<OrganisationUnitGroup>( organisationUnitGroupSet.getOrganisationUnitGroups() );
+        }
         
         Set<OrganisationUnit> currentUserOrgUnits = new HashSet<OrganisationUnit>( currentUserService.getCurrentUser().getDataViewOrganisationUnits() );
         selectionTreeManager.setRootOrganisationUnits( currentUserOrgUnits );
