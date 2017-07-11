@@ -11,4 +11,6 @@
     <li><a href="lockException.action">$i18n.getString( "lock_exception" )&nbsp;</a></li>
     <li><a href="getMinMaxValidationParams.action">$i18n.getString( "min_max_value_generation")&nbsp;</a></li>
     <li><a href="viewScheduledTasks.action">$i18n.getString( "scheduling" )</a></li>
+    <li><a href="dataEntryFormStatus.action">$i18n.getString( "data_entry_form_status" )&nbsp;</a></li>
+    
 </ul>
