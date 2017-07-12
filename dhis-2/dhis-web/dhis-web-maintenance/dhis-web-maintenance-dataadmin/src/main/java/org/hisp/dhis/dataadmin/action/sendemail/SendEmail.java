@@ -1,5 +1,6 @@
 package org.hisp.dhis.dataadmin.action.sendemail;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.struts2.ServletActionContext;
-import org.apache.tools.ant.taskdefs.Java;
 
 import com.opensymphony.xwork2.Action;
 
@@ -198,28 +198,43 @@ public class SendEmail
         
         // creates a new e-mail message
         Message msg = new MimeMessage( session );
-
+        msg.setFrom( new InternetAddress( mailFrom ) );
         
         // can put multiple receivers in the array
-       
-        String[] mailAddressTo = toAddress.split( ";" );
-        InternetAddress[] mailAddress_TO = new InternetAddress[mailAddressTo.length];
-        for ( int i = 0; i < mailAddressTo.length; i++ )
+        // for set multiple TO address seperated by semi-colon
+        if( toAddress != null && toAddress.length() > 0)
         {
-            mailAddress_TO[i] = new InternetAddress( mailAddressTo[i] );
-            System.out.println( mailAddress_TO[i] );
+            String[] mailAddressTo = toAddress.split( ";" );
+            InternetAddress[] mailAddress_TO = new InternetAddress[mailAddressTo.length];
+            for ( int i = 0; i < mailAddressTo.length; i++ )
+            {
+                mailAddress_TO[i] = new InternetAddress( mailAddressTo[i] );
+                System.out.println( mailAddress_TO[i] );
+            }
+            System.out.println( mailAddress_TO );
+            
+            msg.addRecipients( Message.RecipientType.TO, mailAddress_TO );
         }
-        System.out.println( mailAddress_TO );
         
-        
-        msg.setFrom( new InternetAddress( mailFrom ) );
         //InternetAddress[] toAddresses = { new InternetAddress( toAddress ) };
         //msg.setRecipients( Message.RecipientType.TO, toAddresses );
+        // for set multiple CC address seperated by semi-colon
+        if( toAddressCC != null && toAddressCC.length() > 0)
+        {
+            String[] mailAddressCC = toAddressCC.split( ";" );
+            InternetAddress[] mailAddress_CC = new InternetAddress[mailAddressCC.length];
+            for ( int i = 0; i < mailAddressCC.length; i++ )
+            {
+                mailAddress_CC[i] = new InternetAddress( mailAddressCC[i] );
+                System.out.println( mailAddress_CC[i] );
+            }
+            System.out.println( mailAddress_CC );
+            
+            msg.addRecipients( Message.RecipientType.CC, mailAddress_CC );
+        }
 
-        msg.addRecipients( Message.RecipientType.TO, mailAddress_TO );
-
-        InternetAddress[] toAddressesCC = { new InternetAddress( toAddressCC ) };
-        msg.setRecipients( Message.RecipientType.CC, toAddressesCC );
+        //InternetAddress[] toAddressesCC = { new InternetAddress( toAddressCC ) };
+        //msg.setRecipients( Message.RecipientType.CC, toAddressesCC );
 
         msg.setSubject( subject );
         msg.setSentDate( new Date() );
@@ -228,18 +243,18 @@ public class SendEmail
         MimeBodyPart messageBodyPart = new MimeBodyPart();
         messageBodyPart.setContent( message, "text/html" );
 
+        // location - C:\DHIS2_HOME\dhis2_developer_manual.pdf
         // creates multi-part
         Multipart multipart = new MimeMultipart();
         multipart.addBodyPart( messageBodyPart );
 
         // Part two is attachment
-        
-        // location - C:\DHIS2_HOME\dhis2_developer_manual.pdf
         messageBodyPart = new MimeBodyPart();
         String filename = attachedFile;
         DataSource source = new FileDataSource( filename );
         messageBodyPart.setDataHandler( new DataHandler( source ) );
-        messageBodyPart.setFileName( filename );
+        //messageBodyPart.setFileName( filename );
+        messageBodyPart.setFileName(new File(filename).getName());
         multipart.addBodyPart( messageBodyPart );
        
         // sets the multi-part as e-mail's content
@@ -247,7 +262,6 @@ public class SendEmail
 
         // sends the e-mail
         Transport.send( msg );
-
     }
 
     // for multiple attachments
