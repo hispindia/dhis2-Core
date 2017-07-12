@@ -246,11 +246,14 @@ public class DefaultTrackedEntityAttributeService
 
         String errorValue = StringUtils.substring( value, 0, 30 );
 
-        if ( value.length() > 255 )
+        if ( ValueType.TEXT == valueType && value.length() > 255 )
         {
             return "Value length is greater than 255 chars for attribute " + trackedEntityAttribute.getUid();
         }
-
+        if ( ValueType.LONG_TEXT == valueType && value.length() > 50000 )
+        {
+                return "Value length is greater than 50000 chars for attribute " + trackedEntityAttribute.getUid();
+        }
         if ( ValueType.NUMBER == valueType && !MathUtils.isNumeric( value ) )
         {
             return "Value '" + errorValue + "' is not a valid numeric type for attribute " + trackedEntityAttribute.getUid();
