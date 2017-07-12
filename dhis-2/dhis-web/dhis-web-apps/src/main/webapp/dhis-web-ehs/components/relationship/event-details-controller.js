@@ -58,11 +58,6 @@ trackerCapture.controller('EventDetailsController',
                             }
 
 
-
-
-
-
-
                             $scope.lastUpdatedEventDataValue[tempTEI][$scope.tempLastUpdatedEventDataValues[j].dataElement] = $scope.tempLastUpdatedEventDataValues[j].value;
 
                             if($scope.tempLastUpdatedEventDataValues[j].dataElement=="T4TmH5fWQC2"||$scope.tempLastUpdatedEventDataValues[j].dataElement=="rGLpAb4TRfJ"||$scope.tempLastUpdatedEventDataValues[j].dataElement=="IsvmnDHIvV1")
