@@ -65,6 +65,8 @@ import org.hisp.dhis.dxf2.importsummary.ImportStatus;
 import org.hisp.dhis.dxf2.importsummary.ImportSummary;
 import org.hisp.dhis.dxf2.pdfform.PdfDataEntryFormUtil;
 import org.hisp.dhis.dxf2.utils.InputUtils;
+import org.hisp.dhis.fileresource.FileResource;
+import org.hisp.dhis.fileresource.FileResourceService;
 import org.hisp.dhis.i18n.I18n;
 import org.hisp.dhis.i18n.I18nManager;
 import org.hisp.dhis.importexport.ImportStrategy;
@@ -172,6 +174,9 @@ public class DefaultDataValueSetService
 
     @Autowired
     private CalendarService calendarService;
+
+    @Autowired
+    private FileResourceService fileResourceService;
 
     // Set methods for test purposes
 
@@ -737,13 +742,13 @@ public class DefaultDataValueSetService
 
         if ( outerOrgUnit == null && trimToNull( dataValueSet.getOrgUnit() ) != null )
         {
-            summary.getConflicts().add( new ImportConflict( dataValueSet.getDataSet(), "Org unit not found or not accessible" ) );
+            summary.getConflicts().add( new ImportConflict( dataValueSet.getOrgUnit(), "Org unit not found or not accessible" ) );
             summary.setStatus( ImportStatus.ERROR );
         }
 
         if ( outerAttrOptionCombo == null && trimToNull( dataValueSet.getAttributeOptionCombo() ) != null )
         {
-            summary.getConflicts().add( new ImportConflict( dataValueSet.getDataSet(), "Attribute option combo not found or not accessible" ) );
+            summary.getConflicts().add( new ImportConflict( dataValueSet.getAttributeOptionCombo(), "Attribute option combo not found or not accessible" ) );
             summary.setStatus( ImportStatus.ERROR );
         }
 
@@ -1106,6 +1111,16 @@ public class DefaultDataValueSetService
                         dataValueBatchHandler.updateObject( internalValue );
 
                         auditBatchHandler.addObject( auditValue );
+
+                        if ( dataElement.isFileType() )
+                        {
+                            FileResource fr = fileResourceService.getFileResource( internalValue.getValue() );
+
+                            fr.setAssigned( true );
+
+                            fileResourceService.updateFileResource( fr );
+                        }
+
                     }
                 }
                 else if ( strategy.isDelete() )
@@ -1121,6 +1136,15 @@ public class DefaultDataValueSetService
                         dataValueBatchHandler.updateObject( internalValue );
 
                         auditBatchHandler.addObject( auditValue );
+
+                        if ( dataElement.isFileType() )
+                        {
+                            FileResource fr = fileResourceService.getFileResource( internalValue.getValue() );
+
+                            fr.setAssigned( false );
+
+                            fileResourceService.updateFileResource( fr );
+                        }
                     }
                 }
             }
@@ -1137,6 +1161,15 @@ public class DefaultDataValueSetService
                             if ( !dryRun )
                             {
                                 dataValueBatchHandler.updateObject( internalValue );
+
+                                if ( dataElement.isFileType() )
+                                {
+                                    FileResource fr = fileResourceService.getFileResource( internalValue.getValue() );
+
+                                    fr.setAssigned( true );
+
+                                    fileResourceService.updateFileResource( fr );
+                                }
                             }
                         }
                         else

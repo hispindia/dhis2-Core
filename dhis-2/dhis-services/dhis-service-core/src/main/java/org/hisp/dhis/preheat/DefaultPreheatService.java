@@ -121,7 +121,6 @@ public class DefaultPreheatService implements PreheatService
         Preheat preheat = new Preheat();
         preheat.setUser( params.getUser() );
         preheat.setDefaults( manager.getDefaults() );
-        preheat.setUsernames( getUsernames() );
 
         if ( preheat.getUser() == null )
         {
@@ -816,7 +815,7 @@ public class DefaultPreheatService implements PreheatService
                 IdentifiableObject refObject = ReflectionUtils.invokeMethod( object, property.getGetterMethod() );
                 IdentifiableObject ref = getPersistedObject( preheat, identifier, refObject );
 
-                if ( !DataSetElement.class.isInstance( property.getKlass() )
+                if ( !DataSetElement.class.isInstance( object )
                     && (Preheat.isDefaultClass( property.getKlass() ) && (ref == null || refObject == null || "default".equals( refObject.getName() ))) )
                 {
                     ref = defaults.get( property.getKlass() );
@@ -839,12 +838,6 @@ public class DefaultPreheatService implements PreheatService
                 for ( IdentifiableObject refObject : refObjects )
                 {
                     IdentifiableObject ref = getPersistedObject( preheat, identifier, refObject );
-
-                    if ( Preheat.isDefaultClass( refObject ) && (ref == null || "default".equals( refObject.getName() )) )
-                    {
-                        ref = defaults.get( refObject.getClass() );
-                    }
-
                     if ( ref != null && ref.getId() != 0 ) objects.add( ref );
                 }
 
@@ -932,21 +925,6 @@ public class DefaultPreheatService implements PreheatService
         }
 
         return preheat.get( identifier, ref );
-    }
-
-    @SuppressWarnings( "unchecked" )
-    private Map<String, UserCredentials> getUsernames()
-    {
-        Map<String, UserCredentials> userCredentialsMap = new HashMap<>();
-        Query query = Query.from( schemaService.getDynamicSchema( UserCredentials.class ) );
-        List<UserCredentials> userCredentials = (List<UserCredentials>) queryService.query( query );
-
-        for ( UserCredentials uc : userCredentials )
-        {
-            userCredentialsMap.put( uc.getUsername(), uc );
-        }
-
-        return userCredentialsMap;
     }
 
     private boolean skipConnect( Class<?> klass )

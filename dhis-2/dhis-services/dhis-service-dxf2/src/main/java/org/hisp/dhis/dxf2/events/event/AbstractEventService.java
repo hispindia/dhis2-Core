@@ -593,6 +593,7 @@ public abstract class AbstractEventService
         EventSearchParams params = new EventSearchParams();
         params.setProgramType( ProgramType.WITHOUT_REGISTRATION );
         params.setLastUpdatedStartDate( lastSuccessTime );
+        params.setIncludeDeleted( true );
         return params;
     }
 
@@ -1451,12 +1452,12 @@ public abstract class AbstractEventService
         if ( programStageInstance.getId() == 0 )
         {
             programStageInstance.setAutoFields();
-            sessionFactory.getCurrentSession().save( programStageInstance );
+           programStageInstanceService.addProgramStageInstance( programStageInstance );
         }
         else
         {
-            sessionFactory.getCurrentSession().update( programStageInstance );
-            sessionFactory.getCurrentSession().refresh( programStageInstance );
+            programStageInstance.setLastUpdated( new Date() );
+            programStageInstanceService.updateProgramStageInstance( programStageInstance );
         }
 
         if ( programStageInstance.isCompleted() )

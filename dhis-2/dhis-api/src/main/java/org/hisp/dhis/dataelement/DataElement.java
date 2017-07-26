@@ -86,7 +86,8 @@ import static org.hisp.dhis.dataset.DataSet.NO_EXPIRY;
 public class DataElement
     extends BaseDimensionalItemObject
 {
-    public static final String[] I18N_PROPERTIES = { "name", "shortName", "description", "formName" };
+    public static final String[] I18N_PROPERTIES = { TranslationProperty.NAME.getName(), TranslationProperty.SHORT_NAME.getName(),
+        TranslationProperty.DESCRIPTION.getName(), TranslationProperty.FORM_NAME.getName() };
 
     /**
      * Data element value type (int, boolean, etc)
@@ -304,7 +305,8 @@ public class DataElement
      */
     public Set<DataSet> getDataSets()
     {
-        return ImmutableSet.copyOf( dataSetElements.stream().map( e -> e.getDataSet() ).collect( Collectors.toSet() ) );
+        return ImmutableSet.copyOf( dataSetElements.stream().map( DataSetElement::getDataSet ).filter(
+            dataSet -> dataSet != null ).collect( Collectors.toSet() ) );
     }
 
     /**
