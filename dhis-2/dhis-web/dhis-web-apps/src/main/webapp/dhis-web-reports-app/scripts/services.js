@@ -66,7 +66,7 @@ var reportsAppServices = angular.module('reportsAppServices',[])
 
         saveReportConfiguration: function (configuration) {
             var reportConfigurationJson = JSON.stringify(configuration);
-            var promise = $http.post('../api/systemSettings/reportApp-configuration-json?value=' + reportConfigurationJson, '', {headers: {'Content-Type': 'text/plain;charset=utf-8'}}).then(function (response) {
+            var promise = $http.post('../api/systemSettings/reportApp-configuration-json' + reportConfiguration, {headers: {'Content-Type': 'text/plain;charset=utf-8'}}).then(function (response) {
                 return response.data;
             });
             return promise;
@@ -86,7 +86,7 @@ var reportsAppServices = angular.module('reportsAppServices',[])
     return {
         saveSection: function (sectionData) {
             var sectionDataJson = JSON.stringify(sectionData);
-            var promise = $http.post('../api/systemSettings/reportApp-section-json?value=' + sectionDataJson, '', {headers: {'Content-Type': 'text/plain;charset=utf-8'}}).then(function (response) {
+            var promise = $http.post('../api/systemSettings/reportApp-section-json' , sectionData, {headers: {'Content-Type': 'text/plain;charset=utf-8'}}).then(function (response) {
                 return response.data ;
             });
             return promise;
@@ -105,7 +105,8 @@ var reportsAppServices = angular.module('reportsAppServices',[])
     return {
         save: function (reportData) {
             var reportDataJson = JSON.stringify(reportData);
-            var promise = $http.post('../api/systemSettings/reportApp-reports-json?value=' + reportDataJson, '', {headers: {'Content-Type': 'text/plain;charset=utf-8'}}).then(function (response) {
+            console.log(reportData);
+            var promise = $http.post('../api/25/systemSettings/reportApp-reports-json' , reportData, {headers: {'Content-Type': 'text/plain;charset=utf-8'}}).then(function (response) {
                 return response.data ;
             });
             return promise;
@@ -242,7 +243,7 @@ var reportsAppServices = angular.module('reportsAppServices',[])
     .service('userService',  function ($http){
         return {
             getCurrentUser: function () {
-                var promise = $http.get('../api/currentUser.json?fields=id,name,userCredentials,userGroups[id,name]&paging=false').then(function (response) {
+                var promise = $http.get('../api/me.json?fields=id,name,userCredentials,userGroups[id,name]&paging=false').then(function (response) {
                     return response.data ;
                 });
                 return promise;

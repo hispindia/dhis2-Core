@@ -149,7 +149,7 @@ reportsApp.controller('ReportGenerationController',
           var returnVariable = false;
           angular.forEach(userGroupAccesses,function(userGroupAccess){
               //console.log( " 3 userGroupAccess Name-- " + userGroupAccess + " -- " + $scope.userGroupMap[userGroupAccess.userGroup.id] );
-                if ($scope.userGroupMap[userGroupAccess.userGroup.id] != undefined)
+                if ($scope.userGroupMap[userGroupAccess.userGroupUid] != undefined)
                     returnVariable = true;
           });
             return returnVariable;

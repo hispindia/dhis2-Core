@@ -39,7 +39,7 @@ reportsApp.controller('LeftBarMenuController',
                     userService.getCurrentUser().then(function (responseUser){
                         $scope.currentUser = responseUser;
                         //$scope.currentUserName = responseUser.userCredentials.username;
-                        $scope.currentUserName = responseUser.userCredentials.code;// for 2.20
+                        $scope.currentUserName = responseUser.userCredentials.username;// for 2.20
                         console.log("Current User Uid  --" + $scope.currentUser.id + "  Current User Name  --" + $scope.currentUserName);
 
                         $scope.tempAccessAuthority = userService.isUserInUserGroup($scope.currentUser.id,$scope.users);
@@ -60,7 +60,7 @@ reportsApp.controller('LeftBarMenuController',
                 userService.getCurrentUser().then(function (responseUser){
                     $scope.currentUser = responseUser;
                     //$scope.currentUserName = responseUser.userCredentials.username;
-                    $scope.currentUserName = responseUser.userCredentials.code;// for 2.20
+                    $scope.currentUserName = responseUser.userCredentials.username;// for 2.20
                     console.log("Current User Uid  --" + $scope.currentUser.id + "  Current User Name  --" + $scope.currentUserName);
 
                     if(  $scope.currentUserName === 'admin')

@@ -150,7 +150,8 @@ excelUpload.controller('AddTemplateController',
 				$scope.newTemplate.columnEnd = {};
 				$scope.newTemplate.columnEnd.rn = parseInt($("#columnEndRNum").val());
 				$scope.newTemplate.columnEnd.cn = parseInt($("#columnEndCNum").val());
-				$scope.showMappingFormFor_MOU_MDE(); //Multiple De Multiple OU
+				$scope.showMappingFormFor_MOU_MDE();
+$scope.callSorting();				//Multiple De Multiple OU
 			}
 			else
 			{
@@ -165,11 +166,31 @@ excelUpload.controller('AddTemplateController',
 				$scope.newTemplate.orgUnitCell = {};
 				$scope.newTemplate.orgUnitCell.rn = parseInt($("#orgCellRow").val());
 				$scope.newTemplate.orgUnitCell.cn = parseInt($("#orgCellCol").val());
-				$scope.showMappingFormFor_SOU_MDE(); // special
+				$scope.showMappingFormFor_SOU_MDE(); 
+				$scope.callSorting();// special
 			}
 		}
 	};
+$scope.callSorting = function(){
+	var my_Select = document.getElementsByTagName('select');
+	//console.log(my_Select);
+	for(var k=0;k<my_Select.length;k++){
+		
+		var my_options = $("#"+my_Select[k].id+" option");
+		var selected = $("#"+my_Select[k].id).val();
 
+my_options.sort(function(a,b) {
+    if (a.text > b.text) return 1;
+    if (a.text < b.text) return -1;
+    return 0
+})
+
+$("#"+my_Select[k].id).empty().append( my_options );
+$("#"+my_Select[k].id).val(selected);
+	}
+	
+	
+};
 	$scope.showMappingFormFor_SOU_MDE = function(){		
 		$("#loader").fadeIn();
 		$("#templateProgress").html("");
@@ -191,7 +212,7 @@ excelUpload.controller('AddTemplateController',
 				//var lbl = $scope.getData(x, y);
 				var lbl = $scope.engAddress[y] + "" + x;
 				htmlString += "<td style='padding:2px 5px'>" + lbl + "</td>";
-				htmlString += "<td><select class='form-control' id='row_"+ x + "_" + y +"'><option value='-1'>--Select--</option>";
+				htmlString += "<td><select class='form-control sortNeed' id='row_"+ x + "_" + y +"'><option value='-1'>--Select--</option>";
 				
 				$scope.selectedDataSetInfo.dataSetElements.forEach(function(de){
 					de.dataElement.categoryCombo.categoryOptionCombos.forEach(function(coc){
@@ -207,6 +228,7 @@ excelUpload.controller('AddTemplateController',
 		
 		$("#tableContent").html(htmlString);
 		$("#coverLoad").fadeOut();
+		//$scope.callSorting();
 	};
 	
 	//multiple OU DE
@@ -222,16 +244,18 @@ excelUpload.controller('AddTemplateController',
 		{
 			var s = parseInt($scope.newTemplate.rowStart.rn);
 			var f = parseInt($scope.newTemplate.rowEnd.rn);
-		
+		//	var arrayDe;
 			for( var x = s ; x <= f ; x++ )
 			{
 				htmlString += "<tr>";
 				var lbl = $scope.getData(x, $scope.newTemplate.rowStart.cn);
 				htmlString += "<td style='padding:2px 5px'>" + lbl + "</td>";
-				htmlString += "<td><select class='form-control' id='row_"+ x + "_" + $scope.newTemplate.rowStart.cn +"'><option value='-1'>--Select--</option>";
+				htmlString += "<td><select class='form-control sortNeed' id='row_"+ x + "_" + $scope.newTemplate.rowStart.cn +"'><option value='-1'>--Select--</option>";
 			
-				$scope.selectedDataSetInfo.dataSetElements.forEach(function(de){
-					de.dataElement.categoryCombo.categoryOptionCombos.forEach(function(coc){
+				$scope.selectedDataSetInfo.dataElements.forEach(function(de){
+					
+					de.categoryCombo.categoryOptionCombos.forEach(function(coc){
+						
 						var sel = $scope.isSelected( lbl, de.dataElement.id + "-" + coc.id ) ? "selected" : "";
 						htmlString += "<option value='" + de.dataElement.id + "-" + coc.id + "' "+ sel +">" + de.dataElement.name + " - " + coc.name + " </option>";
 					});
@@ -251,10 +275,10 @@ excelUpload.controller('AddTemplateController',
 				htmlString += "<tr>";
 				var lbl = $scope.getData( $scope.newTemplate.columnStart.rn , x );
 				htmlString += "<td style='padding:2px 5px'>" + lbl + "</td>";
-				htmlString += "<td><select class='form-control' id='row_"+ $scope.newTemplate.columnStart.rn + "_" + x +"'><option value='-1'>--Select--</option>";
+				htmlString += "<td><select class='form-control sortNeed' id='row_"+ $scope.newTemplate.columnStart.rn + "_" + x +"'><option value='-1'>--Select--</option>";
 			
-				$scope.selectedDataSetInfo.dataSetElements.forEach(function(de){
-					de.dataElement.categoryCombo.categoryOptionCombos.forEach(function(coc){
+				$scope.selectedDataSetInfo.dataElements.forEach(function(de){
+					de.categoryCombo.categoryOptionCombos.forEach(function(coc){
 						var sel = $scope.isSelected( lbl, de.dataElement.id + "-" + coc.id ) ? "selected" : "";
 						htmlString += "<option value='" + de.dataElement.id + "-" + coc.id + "' "+ sel +">" + de.dataElement.name + " - " + coc.name + " </option>";
 					});
@@ -263,9 +287,11 @@ excelUpload.controller('AddTemplateController',
 				htmlString +="</select></td>";
 				htmlString += "</tr>";
 			}
+
 		}
 		
 		$("#tableContent").html(htmlString);
+			//	$scope.callSorting();
 		$("#coverLoad").fadeOut();
 	};
 	
