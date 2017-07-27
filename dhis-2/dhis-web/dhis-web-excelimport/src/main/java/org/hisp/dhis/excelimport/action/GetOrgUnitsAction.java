@@ -78,10 +78,10 @@ public class GetOrgUnitsAction
             System.out.println( orgUnit.getId() + " ---- " + orgUnit.getShortName() );
             
 //
-            String query_val ="select organisationunitid from organisationunit where uid="+orgUnit.getId();
-            System.out.println("query is :" +query_val);
+           // String query_val ="select organisationunitid from organisationunit where uid="+orgUnit.getId();
+           // System.out.println("query is :" +query_val);
             
-            String query2=" select * from organisationunit where parentid="+query_val;
+           // String query2=" select * from organisationunit where parentid="+query_val;
 
 
 

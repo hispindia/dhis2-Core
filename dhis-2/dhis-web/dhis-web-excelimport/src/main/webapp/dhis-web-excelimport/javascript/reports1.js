@@ -2,6 +2,7 @@
 
 function getOUDetails(orgUnitIds)
 {
+	makeOuTable(orgUnitIds);
 	$.post("getOrgUnitDetails.action",
 		{
 			orgUnitId : orgUnitIds[0]
@@ -80,73 +81,6 @@ function getDataElementsReceived( xmlObject )
 // Get Periods 
 //---------------------------------------------------------------
 
-
-
-
-function getPeriodsMultiOu()
-{
-  var periodTypeList = document.getElementById( "dataSetId" );
-  var periodTypeId = periodTypeList.options[ periodTypeList.selectedIndex ].value;
-  var reportList = document.getElementById( "reportList" );
-  
-  if ( periodTypeId != "NA" )
-  { 
-	  $.post("getPeriods.action",
-		{
-			id : periodTypeId.split(":")[1]
-		},
-		function (data)
-		{
-			getPeriodsReceived(data);
-		},'xml');
-  }
-  else
-  {
-      clearList( availablePeriods );
-      clearList( reportList );
-  }
-  var ouId = document.reportForm.ouIDTB.value;
-  var reportListFileName = document.reportForm.reportListFileNameTB.value;
-  
-  
-  getReports(ouId, reportListFileName);
-}
-
-
-
-/*function getPeriodsAndOrganisationUnits()
-{
-  var periodTypeList = document.getElementById( "periodTypeId" );
-  var periodTypeId = periodTypeList.options[ periodTypeList.selectedIndex ].value;
- // alert( periodTypeId );
-  var availablePeriods = document.getElementById( "availablePeriods" );
-  //alert(availablePeriods);
-  var reportList = document.getElementById( "reportList" );
-  
-  if ( periodTypeId != "NA" )
-  { 
-	  $.post("getPeriods.action",
-		{
-			id : periodTypeId
-		},
-		function (data)
-		{
-			getPeriodsReceived(data);
-		},'xml');
-  }
-  else
-  {
-      clearList( availablePeriods );
-      clearList( reportList );
-  }
-  var ouId = document.reportForm.ouIDTB.value;
-  var reportListFileName = document.reportForm.reportListFileNameTB.value;
-  
-  
-  getReports(ouId, reportListFileName);
-}
-*/
-
 function getPeriods()
 {
   var periodTypeList = document.getElementById( "periodTypeId" );
@@ -179,7 +113,10 @@ function getPeriods()
 
 function getReports( ouId, reportListFileName )
 { 
-  var periodTypeList = document.getElementById( "availablePeriods" );
+	
+	makeOuTable(ouId);
+	
+  var periodTypeList = document.getElementById( "periodTypeId" );
   var periodType = periodTypeList.options[ periodTypeList.selectedIndex ].value;
   //var reportListFileName = document.reportForm.reportListFileNameTB.value;
   var autogenvalue = document.getElementById( "autogen" ).value;
@@ -202,8 +139,6 @@ function getReports( ouId, reportListFileName )
 
 }
 
-
-
 function getReportsReceived( xmlObject )
 {	
     var reportsList = byId( "reportList" );
@@ -225,7 +160,9 @@ function getReportsReceived( xmlObject )
 		var datasetId = reports[ i ].getElementsByTagName( "datasetid" )[0].firstChild.nodeValue;
 		var ouName = reports[ i ].getElementsByTagName( "ouName" )[0].firstChild.nodeValue;
 	
-		orgUnitName.value = ouName;			
+		orgUnitName.value = ouName;		
+		
+		alert("ou--"+ouName);
 	
 		var option = document.createElement( "option" );
 		option.value = id;
@@ -238,8 +175,6 @@ function getReportsReceived( xmlObject )
 		checkerFileNames.put( id, checkerFileName );
 		reportDatasets.put( id, datasetId );
 	}
-    
-    
 }
 
 function getPeriodsReceived( xmlObject )
@@ -254,7 +189,6 @@ function getPeriodsReceived( xmlObject )
 	{
 		var id = periods[ i ].getElementsByTagName( "id" )[0].firstChild.nodeValue;
 		var periodName = periods[ i ].getElementsByTagName( "periodname" )[0].firstChild.nodeValue;
-		
 		
 		var option = document.createElement( "option" );
 		option.value = id;
@@ -332,3 +266,56 @@ function getLineListingImportSheetsReceived( xmlObject )
 		reportDatasets.put( id, datasetId );
 	}
 }
+
+//---------------------------------------------------------------
+//Multipe Facilities
+//---------------------------------------------------------------
+
+
+function getPeriodsMultiOu()
+{
+  var periodTypeList = document.getElementById( "dataSetId" );
+  var periodTypeId = periodTypeList.options[ periodTypeList.selectedIndex ].value;
+  var availablePeriods = document.getElementById( "availablePeriods" );
+  var reportList = document.getElementById( "reportList" );
+  
+  if ( periodTypeId != "NA" )
+  { 
+	  $.post("getPeriods.action",
+		{
+			id : periodTypeId.split(":")[1]
+		},
+		function (data)
+		{
+			getPeriodsReceived(data);
+		},'xml');
+  }
+  else
+  {
+      clearList( availablePeriods );
+      clearList( reportList );
+  }
+  var ouId = document.reportForm.ouIDTB.value;
+  var reportListFileName = document.reportForm.reportListFileNameTB.value;
+  
+  
+  getReports(ouId, reportListFileName);
+}
+
+function makeOuTable(ouId,ouName){
+	
+	//alert("ouId-- "+ouId);
+	var orgUnit = document.getElementById("orgUnitId");
+	
+	var ouName = reports[ i ].getElementsByTagName( "ouName" )[0].firstChild.nodeValue;
+	
+	orgUnitName.value = ouName;		
+	alert("ouName-- "+ouName);
+
+	
+}
+
+
+
+
+
