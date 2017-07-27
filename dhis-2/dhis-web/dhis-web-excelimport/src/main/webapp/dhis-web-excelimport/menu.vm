@@ -6,8 +6,8 @@
         <li>
             <a href = "excelImportForm.action">Data Import From Excel</a>
         </li>
-        <li>
+        <!--<li>
        	    <a href = "excelImportMultipleFacilitiesForm.action">Multiple Facilities</a>
-        </li>
+        </li>-->
     </ul>        
  </ul>       

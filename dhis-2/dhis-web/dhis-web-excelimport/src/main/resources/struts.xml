@@ -14,7 +14,7 @@
             <param name="page">/dhis-web-excelimport/welcome.vm</param>
             <param name="menu">/dhis-web-excelimport/menu.vm</param>
         </action>
-        
+        <!--   excelImportFormAcion   -->
         <action name="excelImportForm"
             class="org.hisp.dhis.excelimport.action.ExcelImportFormAction">
             <result name="success" type="velocity">/main.vm</result>
@@ -176,9 +176,9 @@
                 <param name="bufferSize">1024</param>
             </result>
         </action>	
-        
-        <!-- Export Multiple facilities -->
-        <action name="excelImportMultipleFacilitiesForm"
+      
+       <!-- Export Multiple facilities -->
+       <!--  <action name="excelImportMultipleFacilitiesForm"
             class="org.hisp.dhis.excelimportmultiplefacilities.action.ExcelImportMultipleFacilitiesFormAction">
             <result name="success" type="velocity">/main.vm</result>
             <param name="page">/dhis-web-excelimport/multipleFacilitiesForm.vm</param>
@@ -188,7 +188,9 @@
             <param name="requiredAuthorities">F_EXPORT_DATA</param>
             <interceptor-ref name="organisationUnitTreeStack"/>
             
-        </action>		
+        </action>	
+        --> 
+        	
 		
 		
         	
