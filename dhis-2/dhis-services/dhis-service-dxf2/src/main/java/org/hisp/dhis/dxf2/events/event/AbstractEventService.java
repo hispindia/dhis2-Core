@@ -103,6 +103,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValue;
+
+import org.hisp.dhis.constant.Constant;
+import org.hisp.dhis.constant.ConstantService;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -115,6 +120,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+
 import static org.hisp.dhis.dxf2.events.event.EventSearchParams.*;
 import static org.hisp.dhis.system.notification.NotificationLevel.ERROR;
 
@@ -126,7 +134,8 @@ public abstract class AbstractEventService
     implements EventService
 {
     private static final Log log = LogFactory.getLog( AbstractEventService.class );
-
+    private final String  TE_ATTRIBUTE_ID = "TE_ATTRIBUTE_ID";
+    
     public static final List<String> STATIC_EVENT_COLUMNS = Arrays.asList( EVENT_ID, EVENT_CREATED_ID,
         EVENT_LAST_UPDATED_ID, EVENT_STORED_BY_ID, EVENT_COMPLETED_BY_ID, EVENT_COMPLETED_DATE_ID,
         EVENT_EXECUTION_DATE_ID, EVENT_DUE_DATE_ID, EVENT_ORG_UNIT_ID, EVENT_ORG_UNIT_NAME, EVENT_STATUS_ID,
@@ -197,6 +206,13 @@ public abstract class AbstractEventService
     protected static final int FLUSH_FREQUENCY = 50;
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    
+    @Autowired
+    protected ConstantService constantService;
+    
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    
 
     // -------------------------------------------------------------------------
     // Caches
@@ -873,6 +889,14 @@ public abstract class AbstractEventService
                     programStageInstance.setLongitude( null );
                 }
             }
+            
+            // for update Longitude and Latitude for AES
+            String longitudeLatitude = getLongitudeAndLatitude( programStageInstance );
+            if( longitudeLatitude != null )
+            {
+                programStageInstance.setLongitude( Double.parseDouble( longitudeLatitude.split( "," )[0]) );
+                programStageInstance.setLatitude( Double.parseDouble( longitudeLatitude.split( "," )[1]) );
+            }
         }
 
         Program program = getProgram( importOptions.getIdSchemes().getProgramIdScheme(), event.getProgram() );
@@ -1438,6 +1462,14 @@ public abstract class AbstractEventService
         programStageInstance.setAttributeOptionCombo( coc );
         programStageInstance.setDeleted( event.isDeleted() );
 
+        // for update Longitude and Latitude for AES
+        String longitudeLatitude = getLongitudeAndLatitude( programStageInstance );
+        if( longitudeLatitude != null )
+        {
+            programStageInstance.setLongitude( Double.parseDouble( longitudeLatitude.split( "," )[0]) );
+            programStageInstance.setLatitude( Double.parseDouble( longitudeLatitude.split( "," )[1]) );
+        }
+        
         if ( programStage.getCaptureCoordinates() )
         {
             if ( coordinate != null && coordinate.isValid() )
@@ -1711,5 +1743,55 @@ public abstract class AbstractEventService
         accessibleProgramsCache.clear();
 
         dbmsManager.clearSession();
+    }
+    
+    // get OrganisationUnit Coordinates by name and hierarchy level
+    public String getLongitudeAndLatitude( ProgramStageInstance programStageInstance )
+    {
+    	String longitudeLatitude = null;
+    	
+        Constant teaId = constantService.getConstantByName( TE_ATTRIBUTE_ID );
+        
+        String orgUnitName = null;
+        for( TrackedEntityAttributeValue trackedEntityAttributeValue : programStageInstance.getProgramInstance().getEntityInstance().getTrackedEntityAttributeValues() )
+        {
+            if ( trackedEntityAttributeValue.getAttribute().getId() == (int)teaId.getValue() )
+            {
+            	orgUnitName = trackedEntityAttributeValue.getValue();
+            }
+        }
+        
+        if( orgUnitName != null && !orgUnitName.equals( "" ))
+        {
+            try
+            {
+                String query = " SELECT organisationunitid, uid, hierarchylevel, featuretype, coordinates FROM organisationunit"
+                		       + " WHERE hierarchylevel = 7 AND name = '" + orgUnitName +"'";
+                    
+                
+                //SELECT organisationunitid, uid,hierarchylevel,featuretype,coordinates FROM organisationunit WHERE name = 'Barbhui' and hierarchylevel = 7;
+                
+                SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+                if ( rs.next() )
+                {
+                	String coordinates = rs.getString(5);
+                	//System.out.println( orgUnitName + " -- orgUnitCoordinate -- " + coordinates );
+                	if( coordinates != null && !coordinates.equals(""))
+                	{
+                		longitudeLatitude = coordinates.substring( 1, coordinates.length()-1);
+                		//System.out.println( orgUnitName + " -- orgUnit Longitude -- " + longitudeLatitude.split( "," )[0] );
+                		//System.out.println( orgUnitName + " -- orgUnit Latitude -- " + longitudeLatitude.split( "," )[1] );
+                	}
+                }
+            }
+            catch ( Exception e )
+            {
+                e.printStackTrace();
+            }
+ 
+        }
+    	      
+        return longitudeLatitude;
     }
 }
