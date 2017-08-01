@@ -255,6 +255,8 @@ function refreshPage(){
 
 	}
 */
+//debugger;
+
 	function handleInputFile(e, ou){
 
 
@@ -265,8 +267,17 @@ function refreshPage(){
 			$('#confirmedUploadsContent').scope().confirmedUploads.orgUnits.forEach(function(orgUnitDetails){
 
 				if(ou.id == orgUnitDetails.id){
-					orgUnitDetails.result = resultArray[2];
-					exist = true;
+				    if(t == 3)
+					{
+                        orgUnitDetails.result = resultArray[5];
+                        exist = true;
+					}
+					else
+					{
+                        orgUnitDetails.result = resultArray[2];
+                        exist = true;
+					}
+
 				}
 
 			});
@@ -275,9 +286,16 @@ function refreshPage(){
 
 				orgUnit.id = ou.id;
 				orgUnit.name = ou.name;
-				orgUnit.result = resultArray[2];
 
-				$('#confirmedUploadsContent').scope().confirmedUploads.orgUnits.push(orgUnit);
+				if(t == 3)
+					orgUnit.result = resultArray[5];
+
+				else
+                    orgUnit.result = resultArray[2];
+
+
+
+                $('#confirmedUploadsContent').scope().confirmedUploads.orgUnits.push(orgUnit);
 				//			console.log("result result : " + orgUnit.result);
 			}
 

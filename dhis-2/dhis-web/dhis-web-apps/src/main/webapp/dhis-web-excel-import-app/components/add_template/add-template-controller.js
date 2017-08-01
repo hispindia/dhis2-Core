@@ -123,6 +123,7 @@ excelUpload.controller('AddTemplateController',
 			
 			$scope.newTemplate.id = maxid + 1;
 			$scope.newTemplate.name = $("#tempName").val();
+			//$scope.newTemplate.sheet_number = $("#sheetNumber").val();
 			$scope.newTemplate.typeId = $rootScope.selectedTemplateType;
 			$scope.newTemplate.type = $rootScope.selectedTemplateType == "1" ? "Multiple OU - Multiple DE" : "Single OU - Multiple DE";
 			$scope.newTemplate.orgUnitGroup = $rootScope.selectedOrgGroup;
@@ -138,6 +139,9 @@ excelUpload.controller('AddTemplateController',
 				$scope.newTemplate.rowStart = {};
 				$scope.newTemplate.rowStart.rn = parseInt($("#rowStartRNum").val());
 				$scope.newTemplate.rowStart.cn = parseInt($("#rowStartCNum").val());
+
+				//$scope.newTemplate.sheet_number = {};
+				//$scope.newTemplate.sheet_number.sn = parseInt($("#sheetNumber").val());
 				
 				$scope.newTemplate.rowEnd = {};
 				$scope.newTemplate.rowEnd.rn = parseInt($("#rowEndRNum").val());
@@ -155,6 +159,9 @@ $scope.callSorting();				//Multiple De Multiple OU
 			}
 			else
 			{
+                //$scope.newTemplate.sheet_number = {};
+               // $scope.newTemplate.sheet_number.sn = parseInt($("#sheetNumber").val());
+
 				$scope.newTemplate.dataStart = {};
 				$scope.newTemplate.dataStart.rn = parseInt($("#dStartCellRow").val());
 				$scope.newTemplate.dataStart.cn = parseInt($("#dStartCellCol").val());
@@ -198,23 +205,32 @@ $("#"+my_Select[k].id).val(selected);
 		$("#tableContent").html("");
 		
 		var htmlString = "<tr><th>Cell Address </th><th> Respective Data Element - COC combination</th></tr>";
+
+		//console.log("htmlString1-----  "+htmlString);
 		
 		var s = parseInt($scope.newTemplate.dataStart.rn);
 		var f = parseInt($scope.newTemplate.dataEnd.rn);
 		var cs = parseInt($scope.newTemplate.dataStart.cn);
 		var cf = parseInt($scope.newTemplate.dataEnd.cn);
+		//var sn = parseInt($scope.newTemplate.sheet_number.sn);
 		
 		for( var x = s ; x <= f ; x++ )
 		{
 			for( var y = cs ; y <= cf ; y++ )
 			{
 				htmlString += "<tr>";
-				//var lbl = $scope.getData(x, y);
+                //console.log("htmlString2-----  "+htmlString);
+
+                //var lbl = $scope.getData(x, y);
 				var lbl = $scope.engAddress[y] + "" + x;
 				htmlString += "<td style='padding:2px 5px'>" + lbl + "</td>";
-				htmlString += "<td><select class='form-control sortNeed' id='row_"+ x + "_" + y +"'><option value='-1'>--Select--</option>";
-				
-				$scope.selectedDataSetInfo.dataSetElements.forEach(function(de){
+                //console.log("htmlString3-----  "+htmlString);
+
+                htmlString += "<td><select class='form-control sortNeed' id='row_"+ x + "_" + y +"'><option value='-1'>--Select--</option>";
+                //console.log("htmlString4-----  "+htmlString);
+
+
+                $scope.selectedDataSetInfo.dataSetElements.forEach(function(de){
 					de.dataElement.categoryCombo.categoryOptionCombos.forEach(function(coc){
 						var sel = $scope.isSelected( lbl, de.dataElement.id + "-" + coc.id ) ? "selected" : "";
 						htmlString += "<option value='" + de.dataElement.id + "-" + coc.id + "' "+ sel +">" + de.dataElement.name + " - " + coc.name + " </option>";
@@ -223,7 +239,9 @@ $("#"+my_Select[k].id).val(selected);
 				
 				htmlString +="</select></td>";
 				htmlString += "</tr>";
-			}
+                //console.log("htmlString5-----  "+htmlString);
+
+            }
 		}
 		
 		$("#tableContent").html(htmlString);
@@ -303,6 +321,7 @@ $("#"+my_Select[k].id).val(selected);
 			var f = parseInt($scope.newTemplate.rowEnd.rn);
 			var cs = parseInt($scope.newTemplate.columnStart.cn);
 			var cf = parseInt($scope.newTemplate.columnEnd.cn);
+           // var sn = parseInt($scope.newTemplate.sheet_number.sn);
 		
 			if( $scope.newTemplate.rowMetaData == "d" )
 			{
@@ -347,6 +366,7 @@ $("#"+my_Select[k].id).val(selected);
 			var f = parseInt($scope.newTemplate.dataEnd.rn);
 			var cs = parseInt($scope.newTemplate.dataStart.cn);
 			var cf = parseInt($scope.newTemplate.dataEnd.cn);
+            //var sn = parseInt($scope.newTemplate.sheet_number.sn);
 		
 			for( var x = s ; x <= f ; x++ )
 			{
@@ -445,6 +465,12 @@ $("#"+my_Select[k].id).val(selected);
 			$("#tempName").css("background","#FF9999");	
 			isValidated = false;
 		}
+
+        if($("#sheetNumber").val() == "")
+        {
+            $("#sheetNumber").css("background","#FF9999");
+            isValidated = false;
+        }
 		
 		if($("#rowStartRNum").val() == "")
 		{
