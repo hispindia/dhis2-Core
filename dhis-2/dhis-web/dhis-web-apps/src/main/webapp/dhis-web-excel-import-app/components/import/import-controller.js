@@ -440,10 +440,10 @@ console.log("r is : " + r);
 							dataValue.orgUnit = $scope.getOrgUnitByLabel( ouLabel );
 							dataValue.value = $scope.getImportData( rowNum, y );
 							
-							if( $("#importEmpty").val() == 2 )
+							//if( $("#importEmpty").val() == 2 )
 								dataValue.value = dataValue.value == "" ? "omit" : dataValue.value;
-							else
-								dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
+							//else
+								//dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
 							
 							
 							if( dataValue.orgUnit != "" && dataValue.value != "omit" )
@@ -470,10 +470,10 @@ console.log("r is : " + r);
 							dataValue.orgUnit = $scope.getOrgUnitByLabel( ouLabel );
 							dataValue.value = $scope.getImportData( y, colNum );
 					
-							if( $("#importEmpty").val() == 1 )
+							//if( $("#importEmpty").val() == 1 )
 								dataValue.value = dataValue.value == "" ? "omit" : dataValue.value;
-							else
-								dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
+							//else
+								//dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
 							
 							
 							if( dataValue.orgUnit != "" && dataValue.value != "omit" )
@@ -499,10 +499,10 @@ console.log("r is : " + r);
 console.log("orgUnit : " + dataValue.orgUnit);
 						dataValue.value = $scope.getImportDataByAddress( cellAddress );
 						
-						if( $("#importEmpty").val() == 2 )
+						//if( $("#importEmpty").val() == 2 )
 							dataValue.value = dataValue.value == "" ? "omit" : dataValue.value;
-						else
-							dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
+						//else
+							//dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
 						
 						
 						if( dataValue.orgUnit != "" && dataValue.value != "omit" )

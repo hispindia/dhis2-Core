@@ -666,10 +666,10 @@ dataValue.orgUnit = $scope.getOrgUnitByLabel( ouLabel );
 
 							dataValue.value = $scope.getImportDataByAddress( cellAddress, orgUnit );
 
-/* *** */							if( $scope.confirmedUploads.importEmptyVal == 2 )
+/* *** */							//if( $scope.confirmedUploads.importEmptyVal == 2 )
 								dataValue.value = dataValue.value == "" ? "omit" : dataValue.value;
-							else
-								dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
+							//else
+								//dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
 
 
 							if( dataValue.orgUnit != "" && dataValue.value != "omit" )
@@ -867,7 +867,7 @@ dataValue.orgUnit = $scope.getOrgUnitByLabel( ouLabel );
 					if( c.address == address )
 						val = c.value;
 				});
-console.log("value : " + val);
+				console.log("value : " + val);
 				return(val);
 			};
 
