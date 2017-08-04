@@ -95,7 +95,7 @@ function get_radio_value( radioName ) {
 }
 
 
-var resultArray;
+/*var resultArray;
 //var resultArray1;
 var temp = [];
 var tempArray;
@@ -135,7 +135,60 @@ function to_formulae(workbook) {
    // return resultArray1;
     return temp;
     return t;
+}*/
+
+var resultArray;
+
+//var temp = [];
+//var tempArray;
+var t;
+
+
+function to_formulae(workbook) {
+    var result = [];
+    var temp = [];
+    workbook.SheetNames.forEach(function(sheetName) {
+
+        temp.push(sheetName);
+
+        var formulae = X.utils.get_formulae(workbook.Sheets[sheetName]);
+
+       // console.log("formulae is -- "+formulae);
+        if(temp.length==3) {
+            if (formulae.length > 0) {
+                result.push("SHEET: " + sheetName);
+                result.push("");
+                result.push(formulae);
+                result.shift();
+                result.shift();
+                result.shift();
+                 //console.log( result.shift() );
+            }
+
+        }
+        else
+        {
+            if (formulae.length > 0) {
+                result.push("SHEET: " + sheetName);
+                result.push("");
+                result.push(formulae);
+               // result.shift();
+                //console.log( result.shift() );
+            }
+
+        }
+
+    });
+
+    resultArray = result;
+
+    console.log("result array is -- "+resultArray);
+
+
+    //return result.join("\n");
+    return resultArray;
 }
+
 
 function process_wb(wb) {
     var output = "";

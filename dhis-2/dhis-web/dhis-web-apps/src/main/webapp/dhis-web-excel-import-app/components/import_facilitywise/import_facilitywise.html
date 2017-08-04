@@ -75,8 +75,7 @@
 							<option value="2">Omit</option>
 							<option value="1">Take as zero</option>
 						</select>
-					</div>
-					-->
+					</div>-->
 			</div>
 
 			<input type="button" class="btn btn-danger disabled" onclick="window.location.assign('#home')" value="Cancel" id="ima" style="float:right;width:100px; margin-left:5px" />
@@ -258,7 +257,7 @@ function refreshPage(){
 */
 //debugger;
 
-	function handleInputFile(e, ou){
+	/*function handleInputFile(e, ou){
 
 
 		var orgUnit = {};
@@ -310,9 +309,49 @@ function refreshPage(){
 
 		//handleFile(e);
 
-	}
+	}*/
+debugger;
 
-	function generateOrgUnits(){
+function handleInputFile(e, ou){
+
+
+    var orgUnit = {};
+
+    var callback = function(){
+        var exist = false;
+        $('#confirmedUploadsContent').scope().confirmedUploads.orgUnits.forEach(function(orgUnitDetails){
+
+            if(ou.id == orgUnitDetails.id){
+                orgUnitDetails.result = resultArray[2];
+                exist = true;
+            }
+
+        });
+
+        if(!exist){
+
+            orgUnit.id = ou.id;
+            orgUnit.name = ou.name;
+            orgUnit.result = resultArray[2];
+
+            $('#confirmedUploadsContent').scope().confirmedUploads.orgUnits.push(orgUnit);
+            			//console.log("result result : " + orgUnit.result);
+        }
+
+        $('#'+ou.id+'').css('border','1px solid #5EB85E');
+        $("#imb").removeClass("disabled");
+
+    };
+
+
+    handleFile(e, callback);
+
+    //handleFile(e);
+
+}
+
+
+function generateOrgUnits(){
 
 		$("#loader").fadeIn();
 		$("#templateProgress").html("loading organisation units");

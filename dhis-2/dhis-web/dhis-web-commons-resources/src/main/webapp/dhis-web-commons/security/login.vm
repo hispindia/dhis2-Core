@@ -47,11 +47,14 @@
                         <a href='./Documents/SC.pdf' target='_blank' style="color:#1D5288;display:block;margin:5px; padding-left:15px;"><b>3. SC Formats</b></a>
                         <a href='./Documents/CMO.pdf' target='_blank' style="color:#1D5288;display:block;margin:5px; padding-left:15px;"><b>4. CMO Formats</b></a>
                         <a href='./Documents/DH.pdf' target='_blank' style="color:#1D5288;display:block;margin:5px; padding-left:15px;"><b>5. DH Formats</b></a>
+						 <a href='./Documents/DHQ.zip' target='_blank' style="color:#1D5288;display:block;margin:5px; padding-left:15px;"><b>6. DHQ Formats</b></a>
 
                     </td>
                 </tr>
                 <tr>
-                    <td><a href="./Documents/uphmis_support_.pdf"><span style="color:#1D5288;"><strong>- Contact Support</strong></span></td><td>&nbsp;</td></tr>
+				<td><a href="./Documents/Data_defination_SOP_English.pdf"><span style="color:#1D5288;"><strong>- Data defination/SOP(English)</strong></span></td><td>&nbsp;</td></tr>
+				<tr><td><a href="./Documents/Data_defination_SOP_Hindi.pdf"><span style="color:#1D5288;"><strong>- Data defination/SOP(Hindi)</strong></span></td><td>&nbsp;</td></tr>
+                    <tr><td><a href="./Documents/uphmis_support_.pdf"><span style="color:#1D5288;"><strong>- Contact Support</strong></span></td><td>&nbsp;</td></tr>
 		</table>
 		
 		</div>

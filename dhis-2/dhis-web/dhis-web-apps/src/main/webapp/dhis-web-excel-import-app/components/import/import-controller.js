@@ -443,7 +443,7 @@ console.log("r is : " + r);
 							//if( $("#importEmpty").val() == 2 )
 								dataValue.value = dataValue.value == "" ? "omit" : dataValue.value;
 							//else
-								//dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
+							//	dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
 							
 							
 							if( dataValue.orgUnit != "" && dataValue.value != "omit" )
@@ -472,8 +472,8 @@ console.log("r is : " + r);
 					
 							//if( $("#importEmpty").val() == 1 )
 								dataValue.value = dataValue.value == "" ? "omit" : dataValue.value;
-							//else
-								//dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
+						//	else
+							//	dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
 							
 							
 							if( dataValue.orgUnit != "" && dataValue.value != "omit" )
