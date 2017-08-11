@@ -220,6 +220,9 @@ excelUpload.controller('ImportFacilitywiseController',
             var url = "../api/organisationUnits.json?paging=false&fields=id,name&filter=parent.id:eq:"+parentUnitID;
             $.get(url, function(ous){
                 length1 = ous.organisationUnits.length;
+				if(length1 === 0){alert("Please select block!");
+                $('#loader').hide();
+                return;}
                 for(var i = 0 ;i<length1; i++)
                 {
                     parentvalues[i] = ous.organisationUnits[i].id;
