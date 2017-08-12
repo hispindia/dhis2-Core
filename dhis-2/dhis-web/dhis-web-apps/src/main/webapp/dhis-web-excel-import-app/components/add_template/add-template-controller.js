@@ -155,7 +155,7 @@ excelUpload.controller('AddTemplateController',
 				$scope.newTemplate.columnEnd.rn = parseInt($("#columnEndRNum").val());
 				$scope.newTemplate.columnEnd.cn = parseInt($("#columnEndCNum").val());
 				$scope.showMappingFormFor_MOU_MDE();
-$scope.callSorting();				//Multiple De Multiple OU
+//$scope.callSorting();				//Multiple De Multiple OU
 			}
 			else
 			{
@@ -174,7 +174,7 @@ $scope.callSorting();				//Multiple De Multiple OU
 				$scope.newTemplate.orgUnitCell.rn = parseInt($("#orgCellRow").val());
 				$scope.newTemplate.orgUnitCell.cn = parseInt($("#orgCellCol").val());
 				$scope.showMappingFormFor_SOU_MDE(); 
-				$scope.callSorting();// special
+			//	$scope.callSorting();// special
 			}
 		}
 	};
