@@ -76,6 +76,19 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
+
+  <repository>
+      <id>shimla-nexus</id>
+      <name>Shimla nexus repo</name>
+      <url>http://hospdev.hispindia.org/nexus/content/repositories/org.hispindia.dhis2/</url>
+ <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+
   </repositories>
 
   <issueManagement>
