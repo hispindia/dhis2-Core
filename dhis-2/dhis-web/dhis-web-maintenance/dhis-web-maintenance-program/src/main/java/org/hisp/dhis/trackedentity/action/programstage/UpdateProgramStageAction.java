@@ -366,6 +366,10 @@ public class UpdateProgramStageAction
         Set<ProgramStageDataElement> programStageDataElements = new HashSet<>(
             programStage.getProgramStageDataElements() );
         
+        System.out.println( " 1 -- " + programStageDataElements.size() );
+        
+        System.out.println( " 1 -- " + this.selectedDataElementsValidator.size() );
+        
         for ( int i = 0; i < this.selectedDataElementsValidator.size(); i++ )
         {            
             DataElement dataElement = dataElementService.getDataElement( selectedDataElementsValidator.get( i ) );
@@ -384,6 +388,7 @@ public class UpdateProgramStageAction
                 programStageDataElement.setDisplayInReports( displayInReport );
                 programStageDataElement.setAllowFutureDate( allowDate );
                 programStageDataElementService.addProgramStageDataElement( programStageDataElement );
+                System.out.println( " add -- " + programStageDataElement.getDataElement().getName() );
             }
             else
             {
@@ -394,20 +399,27 @@ public class UpdateProgramStageAction
                 programStageDataElement.setAllowFutureDate( allowDate );
                 programStageDataElementService.updateProgramStageDataElement( programStageDataElement );
                 programStageDataElements.remove( programStageDataElement );
+                System.out.println( " update -- " + programStageDataElement.getDataElement().getName() );
             }            
         }
         
         for ( ProgramStageSection section : programStage.getProgramStageSections() )
         {
-            section.getProgramStageDataElements().removeAll( programStageDataElements );            
+        	System.out.println( " 2 -- " + programStageDataElements.size() );
+        	section.getProgramStageDataElements().removeAll( programStageDataElements );            
             programStageSectionService.updateProgramStageSection( section );
         }        
         
+        System.out.println( " 3 -- " + programStageDataElements.size() );
         for ( ProgramStageDataElement psdeDelete : programStageDataElements )
         {   
-            programStage.getProgramStageDataElements().remove( psdeDelete );
+            System.out.println( " Name -- " + psdeDelete.getDataElement().getName() );
+        	
+        	programStage.getProgramStageDataElements().remove( psdeDelete );
             programStageDataElementService.deleteProgramStageDataElement( psdeDelete );
         }
+        
+        System.out.println( " 4 -- " + programStageDataElements.size() );
         
         programStageService.updateProgramStage( programStage );
         programId = programStage.getProgram().getId();

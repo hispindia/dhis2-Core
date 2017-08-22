@@ -6,9 +6,11 @@
   >
 
 <hibernate-mapping>
-  <class name="org.hisp.dhis.rbf.api.CaseAggregationCondition" table="caseaggregationcondition">
+  <class name="org.hisp.dhis.rbf.api.CaseAggregationCondition" table="aggregationcondition">
 
-    <id name="id" column="caseaggregationconditionid">
+	<cache usage="read-write" />
+	
+    <id name="id" column="aggregationconditionid">
       <generator class="native" />
     </id>
     &identifiableProperties;

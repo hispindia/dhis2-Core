@@ -150,6 +150,7 @@ public class DefaultPBFAggregationService
             for( OrganisationUnit orgUnit : orgUnits )
             {
                 //OrganisationUnitGroup orgUnitGroup = findPBFOrgUnitGroupforTariff( orgUnit );
+            	System.out.println(" organisationUnit Id -- " + orgUnit.getId() );
                 
                 Integer orgUnitGroupId = getOrgUnitGroupIdforTariff( orgUnit );
                 
@@ -183,7 +184,7 @@ public class DefaultPBFAggregationService
                                             " where td.orgunitgroupid=sag1.orgunitgroupid " + 
                                             " and td.datasetid=sag1.datasetid " +
                                             " and td.organisationunitid in ("+ orgUnitBranchIds +") ";
-                    //System.out.println( "Query is --- " + query );
+                    System.out.println( "Query is --- " + query );
                     
                     SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
                     while ( rs.next() )
@@ -642,7 +643,9 @@ public class DefaultPBFAggregationService
     
     public Integer getOrgUnitGroupIdforTariff( OrganisationUnit organisationUnit )
     {
-        //System.out.println(" In side findPBFOrgUnitGroupforTariff method " );
+    	System.out.println(" organisationUnit Id -- " + organisationUnit.getId() );
+    	
+    	//System.out.println(" In side findPBFOrgUnitGroupforTariff method " );
         
         Constant tariff_authority = constantService.getConstantByName( TARIFF_SETTING_AUTHORITY );
         
@@ -658,7 +661,7 @@ public class DefaultPBFAggregationService
             String query = "SELECT orgunitgroupid from orgunitgroupsetmembers where orgunitgroupsetid = " + orgUnitGroupSet.getId() + " AND "
                 + " orgunitgroupid in ( select orgunitgroupid from orgunitgroupmembers where organisationunitid = " + organisationUnit.getId() + ")";
 
-            //System.out.println(" query -- " + query );
+            System.out.println(" query -- " + query );
             
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
