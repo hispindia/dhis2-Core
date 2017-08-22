@@ -76,8 +76,31 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
+	
+	<!-- add for get tracker capture app from HISP-INDIA Repo -->
+	<repository>
+      <id>shimla-nexus</id>
+      <name>Shimla nexus repo</name>
+      <url>http://hospdev.hispindia.org/nexus/content/repositories/org.hispindia.dhis2/</url>
+	  <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+
+  </repositories>	
+	
+	
+	
+	
   </repositories>
 
+  
+  
+  
+  
   <issueManagement>
     <system>Launchpad</system>
     <url>https://launchpad.net/dhis2</url>

@@ -4,7 +4,7 @@
 
 <script>
   jQuery(document).ready(function() {
-      hideDueDateOnChange();
+      //hideDueDateOnChange();
       
     validation2( 'updateProgramStageForm', function( form )
    	{

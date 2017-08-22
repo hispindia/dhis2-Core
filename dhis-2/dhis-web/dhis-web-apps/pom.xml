@@ -116,7 +116,8 @@
                   <outputDirectory>${project.build.directory}/${project.artifactId}/dhis-web-event-capture</outputDirectory>
                   <includes>**/*.*</includes>
                 </artifactItem>
-                <!-- Tracker capture -->
+                <!-- Tracker capture for Global -->
+				<!--
                 <artifactItem>
                   <groupId>org.hisp.dhis</groupId>
                   <artifactId>dhis-app-tracker-capture</artifactId>
@@ -125,6 +126,17 @@
                   <outputDirectory>${project.build.directory}/${project.artifactId}/dhis-web-tracker-capture</outputDirectory>
                   <includes>**/*.*</includes>
                 </artifactItem>
+				-->
+                <!-- Tracker capture For Tibet-->
+                <artifactItem>
+                  <groupId>org.hisp.dhis</groupId>
+                  <artifactId>dhis-app-tracker-capture-tibet</artifactId>
+                  <version>2.26-SNAPSHOT</version>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.directory}/${project.artifactId}/dhis-web-tracker-capture</outputDirectory>
+                  <includes>**/*.*</includes>
+                </artifactItem>				
+				
                 <!-- Visualizer -->
                 <artifactItem>
                   <groupId>org.hisp.dhis</groupId>
