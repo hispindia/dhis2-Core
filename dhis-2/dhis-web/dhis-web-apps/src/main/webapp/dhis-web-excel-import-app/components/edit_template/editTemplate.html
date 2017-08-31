@@ -4,7 +4,7 @@
 </div>
 -->
 
-<div class="modal-body">
+<div class="modal-body" >
     <!-- meta data of the template is displayed -->
     <div id="tempMetaDataPage" ng-if="tempMetaDataPage">
         <div class="contentPart" style="height:100%">
@@ -15,12 +15,6 @@
             </div>
 
             <!-- need to be tested -->
-           <!-- <div class="form-group input-group ">
-                <span class="input-group-addon" style='font-size:12px'>Sheet Number</span>
-                <input class="form-control am" id="sheetNumber" ng-model="selectedTemp.sheet_number"/>
-
-            </div>-->
-
             <div class="form-group input-group forMouMde" ng-if="selectedTemp.typeId==1">
                 <span class="input-group-addon" style='font-size:12px'>Rows</span>
                 <select class="form-control am" id="rowData" ng-model="selectedTemp.rowMetaData">
@@ -85,56 +79,56 @@
     <div id="tempDEMappingPage" style="overflow-y: auto" ng-if="tempDEMappingPage">
         <table class='table table-bordered table-hover' id="tableContent" style="width:95%; margin: 0 auto;margin-top:10px">
             <thead ng-if="selectedTemp.typeId==1">
-                <tr>
-                    <th>{{'Row No.'| translate}}</th>
-                    <th>{{'Respective Data Element - COC combination'| translate}}</th>
-                    <th>action</th>
-                </tr>
+            <tr>
+                <th>{{'Row No.'| translate}}</th>
+                <th>{{'Respective Data Element - COC combination'| translate}}</th>
+                <th>action</th>
+            </tr>
             </thead>
             <thead ng-if="selectedTemp.typeId==2">
-                <tr>
-                    <th>{{'Cell Address'| translate}}</th>
-                    <th>{{'Respective Data Element - COC combination'| translate}}</th>
-                    <th>action</th>
-                </tr>
+            <tr>
+                <th>{{'Cell Address'| translate}}</th>
+                <th>{{'Respective Data Element - COC combination'| translate}}</th>
+                <th>action</th>
+            </tr>
             </thead>
 
             <tbody ng-if="availableOptions.length>1">
-                <tr ng-repeat="item in selectedTemp.DEMappings">
-                    <td>
-                        <input ng-if="selectedTemp.typeId==1" class="form-control am" type="text" placeholder="Row Number" style="border-radius:0 5px 5px 0;margin-bottom:5px" ng-model="item.rowNumber "/>
-                        <input ng-if="selectedTemp.typeId==2" class="form-control am" type="text" placeholder="Cell Address" style="border-radius:0 5px 5px 0;margin-bottom:5px" ng-model="item.cellAddress "/>
-                    </td>
-                    <td>
-                        <select class='form-control' ng-model="item.metadata">
-                            <option ng-repeat="option in availableOptions | orderBy:'name'"
-                                    value="{{option.id}}"
-                                    ng-selected="{{option.id == item.metadata}}">{{option.name}}
-                            </option>
-                        </select>
-                    </td>
-                    <td>
-                        <button class="btn btn-danger" ng-click="selectedTemp.DEMappings.splice($index, 1)">-</button>
-                    </td>
-                </tr>
+            <tr ng-repeat="item in selectedTemp.DEMappings">
+                <td>
+                    <input ng-if="selectedTemp.typeId==1" class="form-control am" type="text" placeholder="Row Number" style="border-radius:0 5px 5px 0;margin-bottom:5px" ng-model="item.rowNumber "/>
+                    <input ng-if="selectedTemp.typeId==2" class="form-control am" type="text" placeholder="Cell Address" style="border-radius:0 5px 5px 0;margin-bottom:5px" ng-model="item.cellAddress "/>
+                </td>
+                <td>
+                    <select class='form-control' ng-model="item.metadata">
+                        <option ng-repeat="option in availableOptions"
+                                value="{{option.id}}"
+                                ng-selected="{{option.id == item.metadata}}">{{option.name}}
+                        </option>
+                    </select>
+                </td>
+                <td>
+                    <button class="btn btn-danger" ng-click="selectedTemp.DEMappings.splice($index, 1)">-</button>
+                </td>
+            </tr>
 
-                <!-- add new cell -->
-                <tr>
-                    <td>
-                        <input ng-if="selectedTemp.typeId==1" class="form-control am" type="number" placeholder="Row Number" style="border-radius:0 5px 5px 0;margin-bottom:5px" ng-model="model.mappingID"/>
-                        <input ng-if="selectedTemp.typeId==2" class="form-control am" type="text" placeholder="Cell Address" style="border-radius:0 5px 5px 0;margin-bottom:5px" ng-model="model.mappingID"/>
-                    </td>
-                    <td>
-                        <select class='form-control' ng-model="model.newDEwithCOC">
-                            <option ng-repeat="option in availableOptions | orderBy:'name'"
-                                    value="{{option.id}}">{{option.name}}
-                            </option>
-                        </select>
-                    </td>
-                    <td>
-                        <button class="btn btn-success" ng-click="addNewMapping()" ng-disabled="model.mappingID.length<1||model.newDEwithCOC==-1">+</button>
-                    </td>
-                </tr>
+            <!-- add new cell -->
+            <tr>
+                <td>
+                    <input ng-if="selectedTemp.typeId==1" class="form-control am" type="number" placeholder="Row Number" style="border-radius:0 5px 5px 0;margin-bottom:5px" ng-model="model.mappingID"/>
+                    <input ng-if="selectedTemp.typeId==2" class="form-control am" type="text" placeholder="Cell Address" style="border-radius:0 5px 5px 0;margin-bottom:5px" ng-model="model.mappingID"/>
+                </td>
+                <td>
+                    <select class='form-control' ng-model="model.newDEwithCOC">
+                        <option ng-repeat="option in availableOptions"
+                                value="{{option.id}}">{{option.name}}
+                        </option>
+                    </select>
+                </td>
+                <td>
+                    <button class="btn btn-success" ng-click="addNewMapping()" ng-disabled="model.mappingID.length<1||model.newDEwithCOC==-1">+</button>
+                </td>
+            </tr>
             </tbody>
         </table>
     </div>

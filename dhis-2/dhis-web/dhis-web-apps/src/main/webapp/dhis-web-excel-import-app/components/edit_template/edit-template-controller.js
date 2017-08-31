@@ -49,9 +49,9 @@ excelUpload.controller('EditTemplateController',
                     //$scope.getDataSetInfo();
                     //$scope.generateEnglishAddresses();
                 })
-                .fail(function(jqXHR, textStatus, errorThrown){
-                    alert("Failed to fetch data sets ( " + errorThrown + " )");
-                });
+                    .fail(function(jqXHR, textStatus, errorThrown){
+                        alert("Failed to fetch data sets ( " + errorThrown + " )");
+                    });
             });
         });
 
@@ -92,6 +92,7 @@ excelUpload.controller('EditTemplateController',
                 });
         };
 
+
         $scope.getSelectedDSWithCOC();
 
         $scope.showTempMetaDataPage = function () {
@@ -121,26 +122,26 @@ excelUpload.controller('EditTemplateController',
             $scope.selectedTemp.DEMappings = $filter('orderBy')($scope.selectedTemp.DEMappings, "rowNumber || cellAddress");
             console.log("$$$$");
             console.log($scope.selectedTemp);
-/*
-            // find the index of the selected Template in Templates and replace
-            $scope.templates.templates.forEach(function(temp,index){
-                if(temp.id ==  $scope.selectedTemp.id)
-                {
-                    $scope.templates.templates[index] = $scope.selectedTemp;
-                }
-            });
+            /*
+                        // find the index of the selected Template in Templates and replace
+                        $scope.templates.templates.forEach(function(temp,index){
+                            if(temp.id ==  $scope.selectedTemp.id)
+                            {
+                                $scope.templates.templates[index] = $scope.selectedTemp;
+                            }
+                        });
 
-            ExcelMappingService.save('Excel-import-app-templates',$scope.templates ).then(function(response){
-                console.log(response);
-                if(response.status!="OK"){
-                    alert(response.message+ " -- please see console for more info.")
-                    console.log(response);
-                    return;
-                }
-                //$modalInstance.close();
-                location.reload();
-            });
-*/
+                        ExcelMappingService.save('Excel-import-app-templates',$scope.templates ).then(function(response){
+                            console.log(response);
+                            if(response.status!="OK"){
+                                alert(response.message+ " -- please see console for more info.")
+                                console.log(response);
+                                return;
+                            }
+                            //$modalInstance.close();
+                            location.reload();
+                        });
+            */
             $modalInstance.close();
         };
 
