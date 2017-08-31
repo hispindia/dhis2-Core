@@ -8,6 +8,7 @@
 
 td {
   vertical-align: middle;
+  color:black;
 }
 
 </style>
@@ -56,7 +57,7 @@ td {
                          <input class="form-control" type="hidden" ng-model="currentSelection.dataStatusReport"/>
                     </div>
                     <div class="col-md-3">
-                        <input id="includeZero" type="checkbox" ng-model="currentSelection.includeZero" ng-checked="true">Include Zero
+                        <input id="includeZero" type="checkbox" ng-model="currentSelection.includeZero" ng-checked="true" disabled="true" >Include Zero
                     </div>
                 </td>
             </tr>
@@ -115,17 +116,17 @@ td {
 		<button type="button" id="btn2" class="btn btn-primary btn-md margin-base-vertical"  style="width:30%; margin:5px;display:none"
 		ng-click="showDataStatus()">{{'btn_data_status'| translate}}</button>
 		
-		<button type="button" id="btn3" class="btn btn-primary btn-md margin-base-vertical"  style="width:30%; margin:5px;display:none"
-		ng-click = "showDataStatusDEG()">{{'btn_data_status_DEG'| translate}}</button>
+		<!--<button type="button" id="btn3" class="btn btn-primary btn-md margin-base-vertical"  style="width:30%; margin:5px;display:none"
+		ng-click = "showDataStatusDEG()">{{'btn_data_status_DEG'| translate}}</button>-->
 		
 		<button type="button" id="btn4" class="btn btn-primary btn-md margin-base-vertical"  style="width:30%; margin:5px;display:none"
 		ng-click="showUserDetails()">{{'btn_user_details'| translate}}</button>
 		
-		<button type="button" id="btn5" class="btn btn-primary btn-md margin-base-vertical"  style="width:30%; margin:5px;display:none"
-		>{{'btn_validation_status'| translate}}</button>
+		<!--<button type="button" id="btn5" class="btn btn-primary btn-md margin-base-vertical"  style="width:30%; margin:5px;display:none"
+		>{{'btn_validation_status'| translate}}</button>-->
 		
-		<button type="button" id="btn6" class="btn btn-primary btn-md margin-base-vertical"  style="width:30%; margin:5px;display:none"
-		ng-click="showComments()">{{'btn_comments'| translate}}</button>
+		<!--<button type="button" id="btn6" class="btn btn-primary btn-md margin-base-vertical"  style="width:30%; margin:5px;display:none"
+		ng-click="showComments()">{{'btn_comments'| translate}}</button>-->
 	</div>
 
 </div>
@@ -196,7 +197,7 @@ td {
 </style>
 
 	<div id="loading" style="display:none">
-		<image class="loadImage" src="images/loader.gif"/>
+		<image class="loadImage" id="gif" src="images/loader.gif"/>
 	</div>
 			
 <!--- Models -- -->
@@ -209,7 +210,7 @@ td {
 		
 		<div id="modal-body" class="col-md-10 col-md-offset-1">
 			<div id="coverLoad">
-				<image class="loadImage" src="images/loader.gif"/>
+				<image class="loadImage"  src="images/loader.gif"/>
 			</div>
 			<div id="printContent">
 				<table class='table table-bordered table-hover' id="tableContent" style="width:95%; margin: 0 auto;margin-top:10px">
@@ -220,11 +221,13 @@ td {
 		
 		<div id="modal-footer"  class="col-md-10 col-md-offset-1">
 		  <button type="button" class="btn btn-success" id="dwnLoad" style="display:none">Download</button>
-		  <button type="button" class="btn btn-default" onclick="hideModel()">Close</button>
+		  <button type="button" class="btn btn-default"  onclick="hideModel()">Close</button>
 		</div>
 	</div>
   
   <script>
+  
+  //debugger;
 	$(document).ready(function(){
 		$("#dwnLoad").click(function(e) {
 			window.open('data:application/vnd.ms-excel,'+ encodeURIComponent($('#printContent').html()));
@@ -232,11 +235,19 @@ td {
 		});
 	});
 	
+	
+	
 	function hideModel()
 	{	
 		$("#modal-header").fadeOut();
 		$("#modal-body").delay(300).fadeOut();
 		$("#modal-footer").delay(600).fadeOut();
 		$("#resultModal").delay(900).fadeOut();
+		
+		 //window.location.reload(true);
+		//$('#login_form').submit(function() {
+		//$('#loading').css('visibility', 'visible');
+		 //});
+			 
 	}
   </script>
