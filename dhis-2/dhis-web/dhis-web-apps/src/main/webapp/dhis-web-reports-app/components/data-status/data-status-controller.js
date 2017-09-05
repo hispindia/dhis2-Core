@@ -87,10 +87,16 @@ reportsApp.controller('DataStatusController',
 		
 		
 			if($scope.sqlViews[i].name=="DS App Periods")
-		{$scope.periodsSV=$scope.sqlViews[i].id;
+		{
+			$scope.periodsSV=$scope.sqlViews[i].id;
 		
 		}
-		
+
+
+		if($scope.sqlViews[i].name=="GetOrgUnitId")
+		{
+            $scope.orgUnitSV=$scope.sqlViews[i].id;
+		}
 		}
 			
 			
@@ -192,7 +198,7 @@ reportsApp.controller('DataStatusController',
                         });
                     }
                 );
-				url=  $scope.basicUrl + "JvwPNHuErjQ/data.json?var=orgUnitId:"+$scope.selectedOrgUnit +"";
+				url=  $scope.basicUrl + $scope.orgUnitSV + "/data.json?var=orgUnitId:"+$scope.selectedOrgUnit +"";
 				console.log(url);
 			
 				$.get(url, function(data){
