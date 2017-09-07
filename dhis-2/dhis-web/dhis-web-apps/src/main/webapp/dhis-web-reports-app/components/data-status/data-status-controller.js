@@ -483,7 +483,39 @@ reportsApp.controller('DataStatusController',
 		$scope.totalOrgLevels = 1;
 		$scope.grandParentLevel = 1;
 		$scope.grandParentName="";
-		
+        //*****************************************************************************
+        //GET END PERIOD
+        //*****************************************************************************
+		function getEndPeriod(startPeriodYear,startPeriodMonth)
+		{
+			var date="",EndDate;
+			if(startPeriodMonth=="01" || startPeriodMonth=="03" || startPeriodMonth=="05" || startPeriodMonth=="07" || startPeriodMonth=="08" || startPeriodMonth=="10" || startPeriodMonth=="12")
+			{
+                date=31;
+			}
+			else if(startPeriodMonth=="02")
+			{
+				if(startPeriodYear/4==0)
+				{
+					date=29;
+				}
+				else
+				{
+					date=28;
+				}
+
+			}
+            else if(startPeriodMonth=="04" || startPeriodMonth=="06" || startPeriodMonth=="09" || startPeriodMonth=="11")
+            {
+                date=30;
+            }
+
+            EndDate=startPeriodYear+startPeriodMonth+date;
+
+			return EndDate;
+		}
+
+
 		//*****************************************************************************
 		//Data Summary Result
 		//*****************************************************************************
@@ -503,7 +535,9 @@ reportsApp.controller('DataStatusController',
 			var selOrgUnit = selection.getSelected();
 			var selDataSetUid = $scope.currentSelection.dataSet;
 			var selStartPeriod = $scope.currentSelection.startPeriodYear + "" + $scope.currentSelection.startPeriodMonth + "01";
-			var selEndPeriod = $scope.currentSelection.endPeriodYear + "" + $scope.currentSelection.endPeriodMonth + "01";	
+
+			var selEndPeriod = getEndPeriod($scope.currentSelection.endPeriodYear, $scope.currentSelection.endPeriodMonth);
+
 			var includeZero = $scope.currentSelection.includeZero;
 			$scope.organisationUnits_id=[];
 			
@@ -716,8 +750,8 @@ reportsApp.controller('DataStatusController',
 			var selOrgUnit = selection.getSelected();
 			var selDataSetUid = $scope.currentSelection.dataSet;
 			var selStartPeriod = $scope.currentSelection.startPeriodYear + "" + $scope.currentSelection.startPeriodMonth + "01";
-			var selEndPeriod = $scope.currentSelection.endPeriodYear + "" + $scope.currentSelection.endPeriodMonth + "01";	
-			var includeZero = $scope.currentSelection.includeZero;
+            var selEndPeriod = getEndPeriod($scope.currentSelection.endPeriodYear, $scope.currentSelection.endPeriodMonth);
+            var includeZero = $scope.currentSelection.includeZero;
 			$scope.organisationUnits_id=[];
 			
 			$.get("../api/dataSets/"+ selDataSetUid +".json" ,function(json){
@@ -869,7 +903,7 @@ reportsApp.controller('DataStatusController',
 									currentColor = "#eeeeee";//grey
 								}
 								
-						htmlString += "<td style='background:"+ currentColor +";padding:0 15px'>"+statusText +"</td>";								
+						htmlString += "<td style='background:"+ currentColor +";padding:0 15px'>"+statusText +"</td>";
 					});
 										
 					htmlString += "</tr>";
