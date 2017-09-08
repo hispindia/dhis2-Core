@@ -97,6 +97,16 @@ reportsApp.controller('DataStatusController',
 		{
             $scope.orgUnitSV=$scope.sqlViews[i].id;
 		}
+
+            if($scope.sqlViews[i].name=="CategoryComboId")
+            {
+                $scope.CategoryComboId=$scope.sqlViews[i].id;
+            }
+            if($scope.sqlViews[i].name=="getdataElementid")
+            {
+                $scope.getdataElementid=$scope.sqlViews[i].id;
+            }
+
 		}
 			
 			
@@ -207,8 +217,9 @@ reportsApp.controller('DataStatusController',
 				
 				
 				});
-			
-				
+
+
+
             }, 10);
 			
 			$scope.showHideButtons();
@@ -753,14 +764,25 @@ reportsApp.controller('DataStatusController',
             var includeZero = $scope.currentSelection.includeZero;
 			$scope.organisationUnits_id=[];
 			$scope.catcombo=[];$scope.dataSetElement_len="";
-			
-			$.get("../api/dataSets/"+ selDataSetUid +".json?fields=*,dataSetElements[id,categoryCombo]&skipPaging=true" ,function(json){
-                $scope.dataSetElement_len= json.dataSetElements.length;
 
-						for(var x=0;x<json.dataSetElements.length;x++)
-						{
-                            $scope.catcombo.push(json.dataSetElements[x].id);
-						}
+            newurl1=$scope.basicUrl + $scope.getdataElementid + "/data.json?var=dataSetID:"+selDataSetUid+"";
+
+            $.get(newurl1, function(data){
+
+                $scope.dataSetID=data.rows[0];
+
+
+            });
+			var newurl=$scope.basicUrl+$scope.CategoryComboId+"/data.json?var=datasetelementid:"+$scope.dataSetID[0]+"";
+            $.get(newurl ,function(json) {
+
+                $scope.compulsoryDECount=json.height;
+
+
+            });
+
+
+                $.get("../api/dataSets/"+ selDataSetUid +".json?fields=*,dataSetElements[id,categoryCombo]&skipPaging=true" ,function(json){
 
 
 						for(var i=0;i<json.organisationUnits.length;i++)
@@ -772,7 +794,7 @@ reportsApp.controller('DataStatusController',
 							}
 						}
 					});
-            $scope.compulsoryDECount=$scope.catcombo.length+$scope.dataSetElement_len;
+
 				$scope.OrgUnit_uid	=$scope.filteredOrgUnitList.toString();
 			if( includeZero )
 				var url = $scope.basicUrl + $scope.dataStatusSV + "/data.json?";
