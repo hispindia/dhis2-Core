@@ -521,8 +521,8 @@ reportsApp.controller('DataStatusController',
 		//*****************************************************************************
 					
 		$scope.showDataSummary = function(){
-			
-			$("#coverLoad").show();
+
+            $("#coverLoad").show();
 			$("#headTitle").html("Data Summary - Data Sets");
 			$("#tableContent").html("");
 			$("#modal-header").fadeIn();
@@ -723,8 +723,7 @@ reportsApp.controller('DataStatusController',
 							})
 						htmlString += "</tr>";					
 				});
-				
-				$("#tableContent").html(htmlString);
+               $("#tableContent").html(htmlString);
 				$("#dwnLoad").fadeIn();
 				$("#coverLoad").hide();
 			});
@@ -753,10 +752,17 @@ reportsApp.controller('DataStatusController',
             var selEndPeriod = getEndPeriod($scope.currentSelection.endPeriodYear, $scope.currentSelection.endPeriodMonth);
             var includeZero = $scope.currentSelection.includeZero;
 			$scope.organisationUnits_id=[];
+			$scope.catcombo=[];$scope.dataSetElement_len="";
 			
-			$.get("../api/dataSets/"+ selDataSetUid +".json" ,function(json){
-						$scope.compulsoryDECount = json.dataSetElements.length;
-						
+			$.get("../api/dataSets/"+ selDataSetUid +".json?fields=*,dataSetElements[id,categoryCombo]&skipPaging=true" ,function(json){
+                $scope.dataSetElement_len= json.dataSetElements.length;
+
+						for(var x=0;x<json.dataSetElements.length;x++)
+						{
+                            $scope.catcombo.push(json.dataSetElements[x].id);
+						}
+
+
 						for(var i=0;i<json.organisationUnits.length;i++)
 						{
 							for(var j=0;j<$scope.allOrgUnitChildren.length;j++)
@@ -766,7 +772,7 @@ reportsApp.controller('DataStatusController',
 							}
 						}
 					});
-					
+            $scope.compulsoryDECount=$scope.catcombo.length+$scope.dataSetElement_len;
 				$scope.OrgUnit_uid	=$scope.filteredOrgUnitList.toString();
 			if( includeZero )
 				var url = $scope.basicUrl + $scope.dataStatusSV + "/data.json?";
