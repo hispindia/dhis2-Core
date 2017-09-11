@@ -62,24 +62,35 @@ reportsApp.controller('AddReportController',
                     "periodType":$scope.currentReport.periodType
                 }]
                 }
-            }else{
+            }
+			else{
                 //push to existing json
                 $scope.reportSettings.reports.push($scope.currentReport);
             }
 
-            //save
-            reportSettingService.save($scope.reportSettings).then(function(reponse){
-                if ($scope.currentReport.id == "" || $scope.currentReport.orgUnitGroup == "" || $scope.currentReport.section == "")
-                return;
+        
+              //save 
+            if ($scope.currentReport.id == "" && $scope.currentReport.orgUnitGroup == "" && $scope.currentReport.section == "" || $scope.currentReport.id == undefined || $scope.currentReport.orgUnitGroup == undefined || $scope.currentReport.section == undefined ) {
 
-                $scope.showSuccess = true;
-                $timeout(function () {
-                    $window.location.reload();
-                }, 300);
-            })
+                alert("Please fill the required fields");
+                
+                }
+                else {
+                    reportSettingService.save($scope.reportSettings).then(function (reponse) {
+                        $scope.showSuccess = true;
+                        $window.location.reload();
+                     })
+                  
+                    // $timeout(function () {
+                    //     $window.location.reload();
+                    // }, );
+    
+                   // return;   
+                }
+           
         }
 
-        $scope.cancel = function(){
+        $scope.cancel = function () {
             $location.path('/reports');
 
         }
