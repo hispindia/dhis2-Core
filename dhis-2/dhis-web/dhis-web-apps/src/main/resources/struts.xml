@@ -118,5 +118,10 @@
             <result name="success" type="redirect">index.html</result>
         </action>
     </package>
+	  <package name="dhis-dashboard1" extends="dhis-web-commons" namespace="/dhis-suaahara2-dashboard">
+        <action name="index" class="org.hisp.dhis.commons.action.NoAction">
+            <result name="success" type="redirect">index.html</result>
+        </action>
+    </package>
 
 </struts>
