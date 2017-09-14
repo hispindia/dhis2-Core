@@ -64,6 +64,17 @@ public class ExcelImport implements Serializable
         this.expression = expression;        
     }
 
+    public ExcelImport( String dataelement, String orgunit,String categoryoptioncombo, String attributeoptioncombo, int sheetno, int rowno, int colno, String expression )
+    {
+        this.dataelement = dataelement;
+        this.orgunit = orgunit;
+        this.categoryoptioncombo = categoryoptioncombo;
+        this.attributeoptioncombo = attributeoptioncombo;
+        this.sheetno = sheetno;
+        this.rowno = rowno;
+        this.colno = colno;
+        this.expression = expression;        
+    }
     
     // -------------------------------------------------------------------------
     // Getters and setters

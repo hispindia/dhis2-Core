@@ -37,6 +37,7 @@ public class ExcelImportService
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    
     // -------------------------------------------------------------------------
     // Support Methods Defination
     // -------------------------------------------------------------------------
@@ -182,7 +183,72 @@ public class ExcelImportService
         }
     }
     
-    
+    public List<ExcelImport> getExcelImportDesign( String xmlFileName )
+    {
+        List<ExcelImport> deCodes = new ArrayList<ExcelImport>();
+
+        String raFolderName = configurationService.getConfigurationByKey( Configuration_IN.KEY_REPORTFOLDER )
+            .getValue();
+
+        String path = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator
+            + xmlFileName;
+
+        try
+        {
+            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+            Document doc = docBuilder.parse( new File( path ) );
+            if ( doc == null )
+            {
+                System.out.println( "DECodes related XML file not found" );
+                return null;
+            }
+
+            NodeList listOfDECodes = doc.getElementsByTagName( "de-code" );
+            int totalDEcodes = listOfDECodes.getLength();
+
+            //System.out.print( "totalDEcodes -- "+ totalDEcodes );
+            
+            for ( int s = 0; s < totalDEcodes; s++ )
+            {
+                Element deCodeElement = (Element) listOfDECodes.item( s );
+                NodeList textDECodeList = deCodeElement.getChildNodes();
+
+                String expression = ((Node) textDECodeList.item( 0 )).getNodeValue().trim();
+                //System.out.println("expression"+expression);
+                if( expression != null && !expression.equalsIgnoreCase( "0" ))
+                {
+                    String dataelement = deCodeElement.getAttribute( "dataelement" );
+                    String categoryoptioncombo = deCodeElement.getAttribute( "categoryoptioncombo" );
+                    String attributeoptioncombo = deCodeElement.getAttribute( "attributeoptioncombo" );
+                    String orgunit = deCodeElement.getAttribute( "orgunit" );
+                    int sheetno = new Integer( deCodeElement.getAttribute( "sheetno" ) );
+                    int rowno = new Integer( deCodeElement.getAttribute( "rowno" ) );
+                    int colno = new Integer( deCodeElement.getAttribute( "colno" ) );
+
+                    ExcelImport exportDataDesign = new ExcelImport( dataelement, orgunit, categoryoptioncombo, attributeoptioncombo,sheetno, rowno, colno, expression );
+
+                    deCodes.add( exportDataDesign );
+                }
+                
+            }// end of for loop with s var
+        }// try block end
+        catch ( SAXParseException err )
+        {
+            System.out.println( "** Parsing error" + ", line " + err.getLineNumber() + ", uri " + err.getSystemId() );
+            System.out.println( " " + err.getMessage() );
+        }
+        catch ( SAXException e )
+        {
+            Exception x = e.getException();
+            ((x == null) ? e : x).printStackTrace();
+        }
+        catch ( Throwable t )
+        {
+            t.printStackTrace();
+        }
+        return deCodes;
+    }// getDECodes end    
     
     
     

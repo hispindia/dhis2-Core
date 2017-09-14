@@ -81,7 +81,7 @@ public class GetWeeklyPeriodsAction implements Action
         {
             String isoPeriodString = year + month;
             
-            //System.out.println("\n\n Iso Period : " + isoPeriodString );
+            System.out.println("\n\n Iso Period : " + isoPeriodString );
             
             //Period period = periodService.getPeriod( isoPeriodString );
             Period period = periodService.reloadIsoPeriod( isoPeriodString );
@@ -95,6 +95,10 @@ public class GetWeeklyPeriodsAction implements Action
         {
             periods = new ArrayList<Period>( periodService.getPeriodsByPeriodType( periodType ) );
         }
+        
+       Period pp = periods.get(1);
+       //System.out.println("period pp is ------"+pp);
+        
         
         // remove future period
         Iterator<Period> periodIterator = periods.iterator();

@@ -175,6 +175,44 @@
                 <param name="contentDisposition">filename="${fileName}"</param>
                 <param name="bufferSize">1024</param>
             </result>
+        </action>	
+        
+        <!-- importForm   -->
+        <action name="importForm"
+            class="org.hisp.dhis.importexcel.action.ImportFormAction">
+            <result name="success" type="velocity">/main.vm</result>
+            <param name="page">/dhis-web-excelimport/importForm.vm</param>
+            <param name="menu">/dhis-web-excelimport/menu.vm</param>
+            <param name="javascripts">../dhis-web-commons/ouwt/ouwt.js,javascript/reports.js,javascript/hashtable.js</param>
+            <param name="stylesheets">css/StylesForTags.css</param>
+            <param name="requiredAuthorities">F_EXPORT_DATA</param>
+            <param name="javascripts">../dhis-web-commons/ouwt/ouwt.js,javascript/reports.js,javascript/hashtable.js</param>
+            
         </action>		
+		
+        <!-- <action name="importDataResult"
+            class="org.hisp.dhis.importexcel.action.ImportDataResultAction">
+            <result name="success" type="stream">
+                <param name="contentType">application/vnd.ms-excel</param>
+                <param name="inputName">inputStream</param>
+                <param name="contentDisposition">filename="${fileName}"</param>
+                <param name="bufferSize">1024</param>
+            </result>
+        </action>	-->	
+      <!-- Multiple User Population Result-->
+      <action name="importDataResult"
+          class="org.hisp.dhis.importexcel.action.ImportDataResultAction">
+          <result name="success" type="velocity">/main.vm</result>
+         <param name="page">/dhis-web-excelimport/importDataResult.vm</param>
+         <param name="javascripts">../dhis-web-commons/ouwt/ouwt.js,javascript/reports.js,javascript/hashtable.js</param>
+         
+          <!--
+          <param name="page">/dhis-web-maintenance-dataadmin/responseUserImport.vm</param>
+          <param name="menu">/dhis-web-maintenance-dataadmin/menu.vm</param>
+          -->
+          <interceptor-ref name="fileUploadStack"/>
+          <param name="requiredAuthorities">F_IMPORT_DATA</param>
+      </action>        
+    	
     </package>
 </struts>

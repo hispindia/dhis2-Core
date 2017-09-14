@@ -289,6 +289,10 @@ function getWeeklyPeriodsReceived( xmlObject )
 		var isoPeriod = periods[ i ].getElementsByTagName( "isoDate" )[0].firstChild.nodeValue;
 		var periodName = isoPeriod + " - "  +periods[ i ].getElementsByTagName( "periodname" )[0].firstChild.nodeValue;
 		
+		/*var monthLists = document.getElementById( "month" );
+		var months = monthLists.options[ monthLists.selectedIndex ].value;
+		console.log("months is ------"+month);*/
+		
 		var option = document.createElement( "option" );
 		option.value = id;
 		option.text = periodName;
