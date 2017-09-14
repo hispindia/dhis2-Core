@@ -28,122 +28,7 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M"
     crossorigin="anonymous">
 
-  <style>
-    .header {
-      height: 50px;
-      background: #0D7CC1;
-      margin: 1%;
-      text-align: center;
-      color: white;
-      padding: 1%;
-      font-size: 20px;
-    }
-
-    html {
-      font-size: 14px;
-    }
-
-    #header * {
-      font-family: 'Roboto';
-    }
-
-    #contentDiv {
-      display: none;
-    }
-
-    #back_button {
-      display: none;
-    }
-
-    #d1 {
-      display: none;
-    }
-
-    #h1 {
-      display: none;
-    }
-
-    #a1 {
-      display: none;
-    }
-
-    .card-deck {
-      margin: 0;
-    }
-
-    .card {
-      border-radius: 250px 250px;
-      box-shadow: 0px 1px 11px 2px rgba(0, 0, 0, 0.4);
-    }
-
-    .card:hover {
-      border-color: #0D7CC1;
-    }
-
-    .card-img-top {
-      max-width: 100% 100%;
-      height: 50px;
-    }
-
-    .card-title {
-      text-align: center;
-      height: 50px;
-      font-weight: 400;
-    }
-
-    .card-img-top {
-      height: 150px;
-      width: 150px;
-    }
-
-    .img1 {
-      margin: auto;
-    }
-
-    .houseHold1 {
-      margin: auto;
-      display: none;
-      padding: 2%;
-    }
-
-    .houseHold1 div {
-      margin: 0.5%;
-      text-align: left;
-    }
-
-    .media {
-      border: 1px solid #e2e2e2;
-      border-radius: 5px;
-      box-shadow: 0px 1px 11px 2px rgba(0, 0, 0, 0.4);
-    }
-
-    .media:hover {
-      border-color: #0D7CC1;
-    }
-
-    .Demographic {
-      margin: auto;
-      display: none;
-      padding: 2%;
-    }
-
-    .Demographic div {
-      margin: 0.5%;
-      text-align: left;
-    }
-
-    .Activity {
-      margin: auto;
-      display: none;
-      padding: 2%;
-    }
-
-    .Activity div {
-      margin: 0.5%;
-      text-align: left;
-    }
-  </style>
-
+  <link rel="stylesheet" href="./Css/Customcss.css" />
 
   <!-- DHIS2 Settings initialization for a baseUrl that is used for the menu -->
   <script>
@@ -308,116 +193,146 @@
 
     <div class="container">
 
-      <div class="header text-center">Dashboard</div>
+      <!-- <div class="header text-center">Dashboard</div> -->
 
       <!-- First Card Block -->
       <div class="card-deck d-flex justify-content-center">
         <div class="row text-center">
 
-          <div class="col-md-4">
-            <!-- <div class="card demoGraphic"> -->
+          <div class="col-md-auto">
             <div class="card link1" onclick="javascript:dhis2.db.renderDashboardWithEvent( 'Q6xNRSwuN6Z' )">
-              <div class="img1"> <img class="card-img-top" src="./icons/Demographics-Icons-Demographic.png" alt="Card image cap"></div>
+              <div class="img1"> <img class="card-img-top" src="./icons/Demographic.png" alt="Card image cap"></div>
               <div class="card-body">
-                <h4 class="card-title">Demographics Dashboard</h4>
+                <h4 class="card-title">&nbsp; Demographics &nbsp;</h4>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="col-md-auto">
+            <div class="card link1" onclick="javascript:dhis2.db.renderDashboardWithEvent( 'x2HKWGcjgx9' )">
+              <div class="img1"> <img class="card-img-top" src="./icons/contactpoint.png" alt="Card image cap"></div>
+              <div class="card-body">
+                <h4 class="card-title">60 Contact Point </h4>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="col-md-auto" onclick="javascript:dhis2.db.renderDashboardWithEvent( 'c1ybmBfokMK' )">
+            <div class="card link1">
+              <div class="img1"> <img class="card-img-top" src="./icons/behaviour2.png" alt="Card image cap"></div>
+              <div class="card-body">
+                <h4 class="card-title">10 Key Behaviour</h4>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="col-md-auto">
+            <div class="card link1" onclick="javascript:dhis2.db.renderDashboardWithEvent( 'UcZgZX5oSeZ' )">
+              <div class="img1"> <img class="card-img-top" src="./icons/Demographics1.png" alt="Card image cap"></div>
+              <div class="card-body">
+                <h4 class="card-title"> &nbsp; SBCC &nbsp;</h4>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="col-md-auto">
+            <div class="card link1" onclick="javascript:dhis2.db.renderDashboardWithEvent( 'B8bMEW6RErB' )">
+              <div class="img1"> <img class="card-img-top" src="./icons/gesi.png" alt="Card image cap"></div>
+              <div class="card-body">
+                <h4 class="card-title">&nbsp; GESI &nbsp;</h4>
+              </div>
+            </div>
+          </div>
+
+
+
+        </div>
+      </div>
+      <!-- First Card Deck end -->
+
+
+
+      </br>
+
+      </br>
+
+      <!-- Second Card Deck Start -->
+      <div class="card-deck d-flex justify-content-center">
+        <div class="row text-center">
+          <div class="col-md-3">
+            <!-- <div class="card activity"> -->
+            <div class="card IR_1">
+              <div class="img1"> <img class="card-img-top" src="./icons/nutrition.png" alt="Card image cap"></div>
+              <div class="card-body">
+                <h4 class="card-title">IR1-Nutrition and WASH</h4>
+              </div>
+            </div>
+            <div id="a1"><img src="./icons/down.png" alt="Card image cap" style="height:20px"></div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="card IR_2">
+              <div class="img1"> <img class="card-img-top" src="./icons/health.png" alt="Card image cap"></div>
+              <div class="card-body">
+                <h4 class="card-title">IR2-Health</h4>
               </div>
             </div>
             <div id="d1"><img src="./icons/down.png" alt="Card image cap" style="height:20px"></div>
           </div>
 
 
-          <div class="col-md-4">
-            <div class="card houseHold">
-              <div class="img1"> <img class="card-img-top" src="./icons/household.png" alt="Card image cap"></div>
+          <div class="col-md-3">
+            <div class="card IR_3">
+              <div class="img1"> <img class="card-img-top" src="./icons/HFP.png" alt="Card image cap"></div>
               <div class="card-body">
-                <h4 class="card-title">Household Checklist Dashboard</h4>
+                <h4 class="card-title">IR3-HFP</h4>
               </div>
             </div>
             <div id="h1"><img src="./icons/down.png" alt="Card image cap" style="height:20px"></div>
           </div>
 
 
-          <div class="col-md-4">
-            <!-- <div class="card activity"> -->
-            <div class="card ">
-              <div class="img1"> <img class="card-img-top" src="./icons/Checklist.png" alt="Card image cap"></div>
+          <div class="col-md-3">
+            <div class="card IR_4">
+              <div class="img1"> <img class="card-img-top" src="./icons/governance.png" alt="Card image cap"></div>
               <div class="card-body">
-                <h4 class="card-title">Activity Logging Dashboard</h4>
+                <h4 class="card-title">IR4-Governance</h4>
               </div>
             </div>
-            <div id="a1"><img src="./icons/down.png" alt="Card image cap" style="height:20px"></div>
+            <div id="c1"><img src="./icons/down.png" alt="Card image cap" style="height:20px"></div>
           </div>
         </div>
       </div>
+
+      <!-- Second card Deck End -->
 
       </br>
 
 
-      <!-- Demographic dashboard -->
-
-      <div class="row Demographic animated fadeInDown justify-content-center">
-        <div class="col-md-3">
-
-          <!-- Left-aligned -->
-          <div class="media link1" onclick="javascript:dhis2.db.renderDashboardWithEvent( 'fkyY6Iz8uX6' )">
-            <div class="media-left">
-              <img src="./icons/img_avatar1.png" class="media-object" style="width:80px">
-            </div>
-            <div class="media-body">
-              <h4 class="media-heading">Demographic 1</h4>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="col-md-3">
-
-          <!-- Left-aligned -->
-          <div class="media link1" onclick="javascript:dhis2.db.renderDashboardWithEvent( 'fkyY6Iz8uX6' )">
-            <div class="media-left">
-              <img src="./icons/img_avatar1.png" class="media-object" style="width:80px">
-            </div>
-            <div class="media-body">
-              <h4 class="media-heading">Demographic 2</h4>
-            </div>
-          </div>
-
-        </div>
-        <div class="col-md-3">
-
-          <!-- Left-aligned -->
-          <div class="media link1" onclick="javascript:dhis2.db.renderDashboardWithEvent( 'fkyY6Iz8uX6' )">
-            <div class="media-left">
-              <img src="./icons/img_avatar1.png" class="media-object" style="width:80px">
-            </div>
-            <div class="media-body">
-              <h4 class="media-heading">Demographic 3</h4>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- Demographic part Ends Here -->
 
 
-
-
-
-
+      <!-- *************************************************************************************************************************************** -->
       <!-- Household dashboard -->
 
-      <div class="row houseHold1 animated fadeInDown  justify-content-center">
+      <div class="row IR1 animated fadeInDown  justify-content-center">
+
+
         <div class="col-md-3">
 
           <!-- Left-aligned -->
-          <div class="media link1" onclick="javascript:dhis2.db.renderDashboardWithEvent( 'ZpOzh2lKRqb' )">
+          <div class="media ">
             <div class="media-left">
-              <img src="./icons/home.png" class="media-object" style="width:80px">
+              <img src="./icons/nutrition1.png" class="media-object" style="width:80px;">
             </div>
             <div class="media-body">
-              <h4 class="media-heading">Household Checklist Coverage</h4>
+              <p style="text-align:center; font-size:20px; margin:0;">1.1 Nutrition</p>
+              <a class="link1" href="javascript:dhis2.db.renderDashboardWithEvent( 'C3awjB1buff' )">1.1 Nutrition Indicator</a>
+              </br>
+              <a class="link1" href="javascript:dhis2.db.renderDashboardWithEvent( 'CgDBpTUYmCh' )">1.1 Activity Reporting</a>
             </div>
           </div>
 
@@ -426,193 +341,210 @@
         <div class="col-md-3">
 
           <!-- Left-aligned -->
-          <div class="media link1" onclick="javascript:dhis2.db.renderDashboardWithEvent( 'x2HKWGcjgx9' )">
+          <div class="media">
             <div class="media-left">
-              <img src="./icons/behaviour.png" class="media-object" style="width:80px">
+              <img src="./icons/WASH.png" class="media-object" style="width:80px">
             </div>
             <div class="media-body">
-              <h4 class="media-heading">60 Contact Points 10 key Behavior</h4>
+              <p style="text-align:center; font-size:20px; margin:0;">1.2 WASH</p>
+              <a class="link1" href="javascript:dhis2.db.renderDashboardWithEvent( 'lB8XqdINgrI' )">1.2 WASH Indicator</a></br>
+              <a class="link1" href="javascript:dhis2.db.renderDashboardWithEvent( 'fkyY6Iz8uX6' )">1.2 Activity Reporting</a>
             </div>
           </div>
 
         </div>
-        <div class="col-md-3">
 
-          <!-- Left-aligned -->
-          <div class="media link1" onclick="javascript:dhis2.db.renderDashboardWithEvent( 'evCSn5Zhct0' )">
-            <div class="media-left">
-              <img src="./icons/delivery.png" class="media-object" style="width:80px">
-            </div>
-            <div class="media-body">
-              <h4 class="media-heading">Suaahara Delivery Platforms</h4>
-            </div>
-          </div>
 
-        </div>
-        <div class="col-md-3">
-
-          <!-- Left-aligned -->
-          <div class="media link1" onclick="javascript:dhis2.db.renderDashboardWithEvent( 'loUyjGKtjpU' )">
-            <div class="media-left">
-              <img src="./icons/family.png" class="media-object" style="width:80px">
-            </div>
-            <div class="media-body">
-              <h4 class="media-heading">Demographics, Family planning and maternal health and nutrition</h4>
-              <!-- <p>Lorem ipsum...</p> -->
-            </div>
-          </div>
-
-        </div>
-        <div class="col-md-3">
-
-          <!-- Left-aligned -->
-          <div class="media link1" onclick="javascript:dhis2.db.renderDashboardWithEvent( 'HqlAMpjqUiZ' )">
-            <div class="media-left">
-              <img src="./icons/maternal.png" class="media-object" style="width:80px">
-            </div>
-            <div class="media-body">
-              <h4 class="media-heading">Child feeding Health and are seeking</h4>
-            </div>
-          </div>
-
-        </div>
-        <div class="col-md-3">
-
-          <!-- Left-aligned -->
-          <div class="media link1" onclick="javascript:dhis2.db.renderDashboardWithEvent( "WN1ewkxqICD' )">
-            <div class="media-left">
-              <img src="./icons/food.png" class="media-object" style="width:80px">
-            </div>
-            <div class="media-body">
-              <h4 class="media-heading">Homestead food production</h4>
-            </div>
-          </div>
-
-        </div>
       </div>
+    </div>
 
-      <!-- houseHold part Ends Here -->
+    <!-- IR1 ends Here -->
 
-
-
-
-
+    <!-- ****************************************************************************************************************************************** -->
 
 
-      <!-- Activity dashboard -->
+    <!-- *************************************************************************************************************************************** -->
+    <!-- IR2 dashboard -->
 
-      <div class="row Activity animated fadeInDown justify-content-center">
-        <div class="col-md-3">
+    <div class="row IR2 animated fadeInDown  justify-content-center">
+      <div class="col-md-3">
 
-          <!-- Left-aligned -->
-          <div class="media link1" onclick="javascript:dhis2.db.renderDashboardWithEvent( 'fkyY6Iz8uX6' )">
-            <div class="media-left">
-              <img src="./icons/img_avatar1.png" class="media-object" style="width:80px">
-            </div>
-            <div class="media-body">
-              <h4 class="media-heading">Activity 1</h4>
-            </div>
+        <!-- Left-aligned -->
+        <div class="media ">
+          <div class="media-left">
+            <img src="./icons/NACS.png" class="media-object" style="width:80px">
           </div>
-
-        </div>
-
-        <div class="col-md-3">
-
-          <!-- Left-aligned -->
-          <div class="media link1" onclick="javascript:dhis2.db.renderDashboardWithEvent( 'fkyY6Iz8uX6' )">
-            <div class="media-left">
-              <img src="./icons/img_avatar1.png" class="media-object" style="width:80px">
-            </div>
-            <div class="media-body">
-              <h4 class="media-heading">Activity 2</h4>
-            </div>
+          <div class="media-body">
+            <p style="text-align:center; font-size:20px; margin:0;">2.1 NACS</p>
+            <a class="link1" href="javascript:dhis2.db.renderDashboardWithEvent( 'EvPGDWL5cDE' )">2.1 NACS Indicator</a></br>
+            <a class="link1" href="javascript:dhis2.db.renderDashboardWithEvent( 'bB2coeR7pvT' )">2.1 Activity Reporting</a>
           </div>
-
-        </div>
-        <div class="col-md-3">
-
-          <!-- Left-aligned -->
-          <div class="media link1" onclick="javascript:dhis2.db.renderDashboardWithEvent( 'fkyY6Iz8uX6' )">
-            <div class="media-left">
-              <img src="./icons/img_avatar1.png" class="media-object" style="width:80px">
-            </div>
-            <div class="media-body">
-              <h4 class="media-heading">Activity 3</h4>
-            </div>
-          </div>
-
         </div>
 
       </div>
 
-      <!-- Activity part Ends Here -->
+      <div class="col-md-3">
 
+        <!-- Left-aligned -->
+        <div class="media">
+          <div class="media-left">
+            <img src="./icons/outreach.png" class="media-object" style="width:80px">
+          </div>
+          <div class="media-body">
+            <p style="text-align:center; font-size:20px; margin:0;">2.2 Outreach Services</p>
+            <a class="link1" href="javascript:dhis2.db.renderDashboardWithEvent( 'q1BppKyT5g4' )">2.2 Services Indicator</a></br>
+            <a class="link1" href="javascript:dhis2.db.renderDashboardWithEvent( 'gculmZFxmKO' )">2.2 Activity Reporting</a>
+          </div>
+        </div>
 
-    </div>
-
-    <!-- End of Desgin Part -->
-
-
-    <div id="contentDiv">
-      <ul id="contentList" class="horizontalMenu"></ul>
-    </div>
-
-
-    <div id="chartView" class="page">
-      <div id="chartViewHeader">
-        <span><a id="chartImageDownload" href="javascript:dhis2.db.downloadImage()">$i18n.getString( "download" )</a></span>
-        <span>$i18n.getString( "api_link" ): <a id="chartImageUrl" target="_blank"></a></span>
       </div>
-      <div><img id="chartImage" src="" style="padding: 10px;"></div>
-    </div>
 
-    <div id="reportDialogView" class="page"></div>
+      <div class="col-md-3">
 
-    <div id="shareForm">
-      <textarea id="interpretationArea" class="interpretationArea"></textarea>
-      <input type="button" class="interpretationButton" value="" onclick="dhis2.db.shareInterpretation()">
-    </div>
+        <!-- Left-aligned -->
+        <div class="media">
+          <div class="media-left">
+            <img src="./icons/htsp.png" class="media-object" style="width:80px">
+          </div>
+          <div class="media-body">
+            <p style="text-align:center; font-size:20px; margin:0;">2.3 HTSP</p>
+            <a class="link1" href="javascript:dhis2.db.renderDashboardWithEvent( 'GeMwExaqnvt' )">2.3 HTSP Indicator</a></br>
+            <a class="link1" href="javascript:dhis2.db.renderDashboardWithEvent( 'KmPoNBuNO47' )">2.3 Activity Reporting</a>
+          </div>
+        </div>
 
-    <div id="shareHelpForm">
-      <ul>
-        <li><label name="i18n_from"></label> <a href="../dhis-web-pivot/index.html" id="i18n_pivot_table"></a>,
-          <label id="i18n_generate_pivot_table_click_share"></label>
-        </li>
-        <li><label name="i18n_from"></label> </label> <a href="../dhis-web-visualizer/index.html" id="i18n_data_visualizer"></a>,
-          <label id="i18n_load_favorite_click_share"></label></li>
-        <li><label name="i18n_from"></label> </label> <a href="../dhis-web-mapping/index.html" id="i18n_gis"></a>,
-          <label name="i18n_load_favorite_click_share"></label>
-        </li>
-        <li><label name="i18n_from"></label> </label> <a href="../dhis-web-reporting/showDataSetReportForm.action" id="i18n_data_set_report"></a>,
-          <label id="i18n_generate_data_set_report_click_share"></label></li>
-      </ul>
-    </div>
-
-    <div id="addDashboardForm">
-      <label style="margin-right: 10px" name="i18n_name"></label><input type="text" id="dashboardName" style="width: 240px; padding: 5px; margin-right: 10px;">
-      <a class="greyButtonLink" href="javascript:dhis2.db.addDashboard()" style="margin-top: 1px" name="i18n_create"></a>
-    </div>
-
-    <div id="manageDashboardForm" class="page">
-      <h4 id="i18n_rename_current_dashboard"></h4>
-      <div><label style="margin-right: 10px" name="i18n_name"></label><input type="text" id="dashboardRename" style="width: 230px; padding: 5px; margin-right: 10px;">
-        <a class="greyButtonLink" href="javascript:dhis2.db.renameDashboard()" style="margin-top: 1px" name="i18n_rename"></a></div>
-      <h4 id="i18n_add_items_to_current_dashboard"></h4>
-      <div><a class="greyButtonLink" href="javascript:dhis2.db.addMessagesContent()" name="i18n_messages"></a></div>
-      <h4 id="i18n_delete_current_dashboard"></h4>
-      <div><a class="greyButtonLink" href="javascript:dhis2.db.removeDashboard()" name="i18n_delete"></a></div>
-      <h4 id="i18n_translate_current_dashboard"></h4>
-      <div><a class="greyButtonLink" href="javascript:dhis2.db.translateDashboard()" name="i18n_translate"></a></div>
-    </div>
-
-    <div id="orgUnitSelectorForm" class="page">
-      <div class="tipText" style="padding: 2px 0 4px 0" id="i18n_applies_to_favorites_with_user_org_units_only"></div>
-      <div id="selectionTree" style="width:339px; height:376px"></div>
-      <div style="padding-top:15px; float:right;">
-        <a class="greyButtonLink" href="javascript:dhis2.db.clearSelectedOrgUnits()" name="i18n_clear"></a>
-        <a class="greyButtonLink" href="javascript:dhis2.db.updateSelectedOrgUnits()" name="i18n_update"></a>
       </div>
+
+
     </div>
+  </div>
+
+  <!-- IR2 part Ends Here -->
+
+  <!-- ****************************************************************************************************************************************** -->
+
+
+  <!-- *************************************************************************************************************************************** -->
+  <!-- IR3 dashboard -->
+
+  <div class="row IR3 animated fadeInDown  justify-content-center">
+
+    <div class="col-md-3">
+
+      <!-- Left-aligned -->
+      <div class="media">
+        <div class="media-left">
+          <img src="./icons/HFP.png" class="media-object" style="width:80px">
+        </div>
+        <div class="media-body" style="text-align:center">
+          <a class="link1"  href="javascript:dhis2.db.renderDashboardWithEvent( 'WW8X5hKTaZf' )">HFP Indicator</a>
+        </div>
+      </div>
+
+    </div>
+
+
+
+  </div>
+
+  <!-- IR3 part Ends Here -->
+
+  <!-- ****************************************************************************************************************************************** -->
+
+
+  <!-- *************************************************************************************************************************************** -->
+  <!-- IR4 dashboard -->
+
+  <div class="row IR4 animated fadeInDown  justify-content-center">
+    <div class="col-md-3">
+
+      <!-- Left-aligned -->
+      <div class="media">
+        <div class="media-left">
+          <img src="./icons/governance.png" class="media-object" style="width:80px">
+        </div>
+        <div class="media-body"  style="text-align:center">
+          <a class="link1" href="javascript:dhis2.db.renderDashboardWithEvent( 'mMBMf8qKBNZ' )">Governance Indicator</a>
+        </div>
+      </div>
+
+    </div>
+
+
+  </div>
+  </div>
+
+  <!-- IR4 part Ends Here -->
+
+  <!-- ****************************************************************************************************************************************** -->
+
+
+
+  </div>
+
+  <!-- End of Desgin Part -->
+
+
+  <div id="contentDiv">
+    <ul id="contentList" class="horizontalMenu"></ul>
+  </div>
+
+
+  <div id="chartView" class="page">
+    <div id="chartViewHeader">
+      <span><a id="chartImageDownload" href="javascript:dhis2.db.downloadImage()">$i18n.getString( "download" )</a></span>
+      <span>$i18n.getString( "api_link" ): <a id="chartImageUrl" target="_blank"></a></span>
+    </div>
+    <div><img id="chartImage" src="" style="padding: 10px;"></div>
+  </div>
+
+  <div id="reportDialogView" class="page"></div>
+
+  <div id="shareForm">
+    <textarea id="interpretationArea" class="interpretationArea"></textarea>
+    <input type="button" class="interpretationButton" value="" onclick="dhis2.db.shareInterpretation()">
+  </div>
+
+  <div id="shareHelpForm">
+    <ul>
+      <li><label name="i18n_from"></label> <a href="../dhis-web-pivot/index.html" id="i18n_pivot_table"></a>,
+        <label id="i18n_generate_pivot_table_click_share"></label>
+      </li>
+      <li><label name="i18n_from"></label> </label> <a href="../dhis-web-visualizer/index.html" id="i18n_data_visualizer"></a>,
+        <label id="i18n_load_favorite_click_share"></label></li>
+      <li><label name="i18n_from"></label> </label> <a href="../dhis-web-mapping/index.html" id="i18n_gis"></a>,
+        <label name="i18n_load_favorite_click_share"></label>
+      </li>
+      <li><label name="i18n_from"></label> </label> <a href="../dhis-web-reporting/showDataSetReportForm.action" id="i18n_data_set_report"></a>,
+        <label id="i18n_generate_data_set_report_click_share"></label></li>
+    </ul>
+  </div>
+
+  <div id="addDashboardForm">
+    <label style="margin-right: 10px" name="i18n_name"></label><input type="text" id="dashboardName" style="width: 240px; padding: 5px; margin-right: 10px;">
+    <a class="greyButtonLink" href="javascript:dhis2.db.addDashboard()" style="margin-top: 1px" name="i18n_create"></a>
+  </div>
+
+  <div id="manageDashboardForm" class="page">
+    <h4 id="i18n_rename_current_dashboard"></h4>
+    <div><label style="margin-right: 10px" name="i18n_name"></label><input type="text" id="dashboardRename" style="width: 230px; padding: 5px; margin-right: 10px;">
+      <a class="greyButtonLink" href="javascript:dhis2.db.renameDashboard()" style="margin-top: 1px" name="i18n_rename"></a></div>
+    <h4 id="i18n_add_items_to_current_dashboard"></h4>
+    <div><a class="greyButtonLink" href="javascript:dhis2.db.addMessagesContent()" name="i18n_messages"></a></div>
+    <h4 id="i18n_delete_current_dashboard"></h4>
+    <div><a class="greyButtonLink" href="javascript:dhis2.db.removeDashboard()" name="i18n_delete"></a></div>
+    <h4 id="i18n_translate_current_dashboard"></h4>
+    <div><a class="greyButtonLink" href="javascript:dhis2.db.translateDashboard()" name="i18n_translate"></a></div>
+  </div>
+
+  <div id="orgUnitSelectorForm" class="page">
+    <div class="tipText" style="padding: 2px 0 4px 0" id="i18n_applies_to_favorites_with_user_org_units_only"></div>
+    <div id="selectionTree" style="width:339px; height:376px"></div>
+    <div style="padding-top:15px; float:right;">
+      <a class="greyButtonLink" href="javascript:dhis2.db.clearSelectedOrgUnits()" name="i18n_clear"></a>
+      <a class="greyButtonLink" href="javascript:dhis2.db.updateSelectedOrgUnits()" name="i18n_update"></a>
+    </div>
+  </div>
 
   </div>
   <div id="rightBar">
@@ -692,62 +624,31 @@
       $('#back_button').css({
         'display': 'block'
       });
+      $('.IR1').css({
+        'display': 'none'
+      });
+      $('.IR2').css({
+        'display': 'none'
+      });
+      $('.IR3').css({
+        'display': 'none'
+      });
+      $('.IR4').css({
+        'display': 'none'
+      });
+
     });
 
 
 
-    $('.houseHold').click(function () {
-      $('.houseHold1').css({
+    $('.IR_1').click(function () {
+      $('.IR1').css({
         'display': 'flex'
       });
       $('.Demographic').css({
         'display': 'none'
       });
       $('.Activity').css({
-        'display': 'none'
-      });
-      $('#h1').css({
-        'display': 'block'
-      });
-      $('#a1').css({
-        'display': 'none'
-      });
-      $('#d1').css({
-        'display': 'none'
-      });
-    });
-
-
-    $('.demoGraphic').click(function () {
-      $('.Demographic').css({
-        'display': 'flex'
-      });
-      $('.houseHold1').css({
-        'display': 'none'
-      });
-      $('.Activity').css({
-        'display': 'none'
-      });
-      $('#d1').css({
-        'display': 'block'
-      });
-      $('#h1').css({
-        'display': 'none'
-      });
-      $('#a1').css({
-        'display': 'none'
-      });
-    });
-
-
-    $('.activity').click(function () {
-      $('.Activity').css({
-        'display': 'flex'
-      });
-      $('.Demographic').css({
-        'display': 'none'
-      });
-      $('.houseHold1').css({
         'display': 'none'
       });
       $('#a1').css({
@@ -759,8 +660,122 @@
       $('#d1').css({
         'display': 'none'
       });
+      $('#c1').css({
+        'display': 'none'
+      });
+      $('.IR2').css({
+        'display': 'none'
+      });
+      $('.IR3').css({
+        'display': 'none'
+      });
+      $('.IR4').css({
+        'display': 'none'
+      });
     });
 
+
+    $('.IR_2').click(function () {
+      $('.IR2').css({
+        'display': 'flex'
+      });
+      $('.Demographic').css({
+        'display': 'none'
+      });
+      $('.Activity').css({
+        'display': 'none'
+      });
+      $('#a1').css({
+        'display': 'none'
+      });
+      $('#d1').css({
+        'display': 'block'
+      });
+      $('#h1').css({
+        'display': 'none'
+      });
+      $('#c1').css({
+        'display': 'none'
+      });
+      $('.IR1').css({
+        'display': 'none'
+      });
+      $('.IR3').css({
+        'display': 'none'
+      });
+      $('.IR4').css({
+        'display': 'none'
+      });
+    });
+
+
+    $('.IR_3').click(function () {
+      $('.IR3').css({
+        'display': 'flex'
+      });
+      $('.Demographic').css({
+        'display': 'none'
+      });
+      $('.Activity').css({
+        'display': 'none'
+      });
+      $('#a1').css({
+        'display': 'none'
+      });
+      $('#d1').css({
+        'display': 'none'
+      });
+      $('#h1').css({
+        'display': 'block'
+      });
+      $('#c1').css({
+        'display': 'none'
+      });
+      $('.IR2').css({
+        'display': 'none'
+      });
+      $('.IR1').css({
+        'display': 'none'
+      });
+      $('.IR4').css({
+        'display': 'none'
+      });
+    });
+
+
+    $('.IR_4').click(function () {
+      $('.IR4').css({
+        'display': 'flex'
+      });
+      $('.Demographic').css({
+        'display': 'none'
+      });
+      $('.Activity').css({
+        'display': 'none'
+      });
+      $('#a1').css({
+        'display': 'none'
+      });
+      $('#d1').css({
+        'display': 'none'
+      });
+      $('#h1').css({
+        'display': 'none'
+      });
+
+      $('#c1').css({
+        'display': 'block'
+      });
+      $('.IR2').css({
+        'display': 'none'
+      });
+      $('.IR3').css({
+        'display': 'none'
+      });
+      $('.IR1').css({
+        'display': 'none'
+      });
+    });
 
 
 
@@ -790,6 +805,21 @@
         'display': 'none'
       });
       $('#h1').css({
+        'display': 'none'
+      });
+      $('#c1').css({
+        'display': 'none'
+      });
+      $('.IR1').css({
+        'display': 'none'
+      });
+      $('.IR2').css({
+        'display': 'none'
+      });
+      $('.IR3').css({
+        'display': 'none'
+      });
+      $('.IR4').css({
         'display': 'none'
       });
     });
