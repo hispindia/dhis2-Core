@@ -58,6 +58,72 @@
 </head>
 <script>
 
+	// username check function
+function usercheck(inputtxt)   
+{   
+var use=  /^[a-zA-Z]*$/;
+if(inputtxt.match(use))   
+{   
+	$('#usid').css({
+  'display': 'none'
+   });
+
+return true;  
+}  
+else  
+{   
+    document.getElementById("usid").style.display="block"; 
+//alert('Wrong user name...! enter only alphabets')  
+return false;  
+}  
+}
+
+// email check function
+function emailcheck(inputtxt)   
+{   
+var emai=  /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+if(inputtxt.match(emai))   
+{ 
+	$('#emid').css({
+  'display': 'none'
+   });  
+
+return true;  
+}  
+else  
+{   
+    document.getElementById("emid").style.display="block"; 
+//alert('Wrong hospital name...! enter only alphabets')  
+return false;  
+}  
+}  
+
+//phone check function
+
+ function phonecheck(inputtxt)  
+{  
+  var phoneno = /^\d{10}$/;  
+  if(inputtxt.match(phoneno))  
+  {  
+	$('#phid').css({
+  'display': 'none'
+   });
+  
+      return true;  
+	  
+
+}  
+   
+  else  
+  {  
+    document.getElementById("phid").style.display="block"; 
+    
+     return false;  
+  }  
+  }  
+
+
+
 	var query = decodeURIComponent(window.location.search);
 	var ouid;
 	var title;
@@ -85,6 +151,11 @@
 		var rating =document.getElementById("rating").value;
 		var comments =document.getElementById("comments").value;
 
+		if(name == "" || email == "" || phone == "" || services == "" || rating =="" || person ==""){
+			alert("Please Fill all fields");
+			return;
+		}
+
 		var ou=ouid;
 		var dataValues = [];
 		dataValues.push({dataElement : Name , value : name});
@@ -99,7 +170,7 @@
 
 		var event = {
 			program : program,
-			programStage : programStage,
+            programStage : programStage,
 			eventDate:eventDate,
 			dataValues : dataValues,
 			orgUnit : ou
@@ -116,9 +187,6 @@
 			success: function(response){
 				alert("Thank you for Your Valuable Feedback!");
 				window.close();
-			},
-			error: function(response){
-				alert("Ohh....please fill out all details!");
 			}
 		});
 
@@ -141,21 +209,21 @@
 		<div class="w3-row w3-section">
 			<div class="w3-col" style="width:50px"><i class="w3-xxlarge fa fa-user"></i></div>
 			<div class="w3-rest">
-				<input class="w3-input w3-border" name="first" id="name" type="text" placeholder="First Name">
+				<input class="w3-input w3-border" name="first" id="name" type="text" placeholder="First Name"onchange="usercheck(this.value)"><span id="usid" style="color:red; display:none;">Wrong user name...! enter only alphabets</span>
 			</div>
 		</div>
 
 		<div class="w3-row w3-section">
 			<div class="w3-col" style="width:50px"><i class="w3-xxlarge fa fa-envelope-o"></i></div>
 			<div class="w3-rest">
-				<input class="w3-input w3-border" name="email" id="email" type="text" placeholder="Email">
+				<input class="w3-input w3-border" name="email" id="email" type="text" placeholder="Email" onchange="emailcheck(this.value)" ><span id="emid" style="color:red; display:none;">email not valid</span>
 			</div>
 		</div>
 
 		<div class="w3-row w3-section">
 			<div class="w3-col" style="width:50px"><i class="w3-xxlarge fa fa-phone"></i></div>
 			<div class="w3-rest">
-				<input class="w3-input w3-border" name="phone" id="phone" type="text" placeholder="Phone">
+				<input class="w3-input w3-border" name="phone" id="phone" type="text" placeholder="Phone" onchange="phonecheck(this.value)" > <span id="phid" style="color:red; display:none;">Not a valid Phone Number please enter 10 digit phone no</span>
 			</div>
 		</div>
 

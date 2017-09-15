@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <!-- jQuery -->
     <script src="../js/jquery-2.1.3.js"></script>
@@ -11,23 +12,26 @@
     <title>User Registration</title>
 
     <style>
-        #footer{
+        #footer {
             position: absolute;
             right: 0;
             bottom: 0;
             left: 0;
             padding: 1rem;
-            background-color:#2978B3;
-            text-align: center;}
-        header{
-            background-color:#2978B3;
-        }
-        #formHeader{
-            background-color:#2978B3;
+            background-color: #2978B3;
+            text-align: center;
         }
 
-        body{
-            background-color:#E5E3E3;
+        header {
+            background-color: #2978B3;
+        }
+
+        #formHeader {
+            background-color: #2978B3;
+        }
+
+        body {
+            background-color: #E5E3E3;
         }
     </style>
 
@@ -37,27 +41,106 @@
 <body>
 </body>
 <script type="text/javascript">
+    function phonecheck(inputtxt) {
+        var phoneno = /^\d{10}$/;
+        if (inputtxt.match(phoneno)) {
+            $('#phid').css({
+                'display': 'none'
+            });
+            return true;
+        }
+        else {
+            document.getElementById("phid").style.display = "block";
+            // alert("Not a valid Phone Number please enter 10 digit phone no");  
+            return false;
+        }
+    }
+
+    function pwdcheck(inputtxt) {
+        var passw = /^[A-Za-z]\w{6,10}$/;
+        if (inputtxt.match(passw)) {
+            $('#pwid').css({
+                'display': 'none'
+            });
+            return true;
+        }
+        else {
+            document.getElementById("pwid").style.display = "block";
+            //alert('Wrong password..!! please enter 6 to 10 charcter which contain alphabetonly characters, numeric digits, underscore and first character must be a letter...!')  
+            return false;
+        }
+    }
+
+    function hospcheck(inputtxt) {
+        var hos = /^[a-zA-Z ]*$/;
+        if (inputtxt.match(hos)) {
+
+            $('#hoid').css({
+                'display': 'none'
+            });
+            return true;
+        }
+        else {
+            document.getElementById("hoid").style.display = "block";
+            //alert('Wrong hospital name...! enter only alphabets')  
+            return false;
+        }
+    }
+
+    function emailcheck(inputtxt) {
+        var emai = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+        if (inputtxt.match(emai)) {
+            $('#emid').css({
+                'display': 'none'
+            });
+            return true;
+        }
+        else {
+            document.getElementById("emid").style.display = "block";
+            //alert('Wrong hospital name...! enter only alphabets')  
+            return false;
+        }
+    }
+
+    function usercheck(inputtxt) {
+        var use = /^[a-zA-Z]*$/;
+        if (inputtxt.match(use)) {
+            $('#usid').css({
+                'display': 'none'
+            });
+
+            return true;
+        }
+        else {
+            document.getElementById("usid").style.display = "block";
+            //alert('Wrong user name...! enter only alphabets')  
+            return false;
+        }
+    }
+
+
+
     var orgid;
     $(document)
-        .ready(function() {
+        .ready(function () {
             var header = {
 
-                "Authorization": "Basic " + btoa( "homepage" + ':' + "Homepage123" )
+                "Authorization": "Basic " + btoa("homepage" + ':' + "Homepage123")
 
             };
 
             $.ajax({
-                async : false,
+                async: false,
                 type: "GET",
                 dataType: "json",
                 contentType: "application/json",
-                header : header,
+                header: header,
                 url: '../../../../api/organisationUnitGroups/mH15ENlpG4v.json?fields=organisationUnits[id,name,code]',
-                success: function(response){
+                success: function (response) {
                     var organisationUnits = response.organisationUnits;
 
-                    organisationUnits.sort(function(a, b) {
-                        var nameA=a.name.toLowerCase(), nameB=b.name.toLowerCase()
+                    organisationUnits.sort(function (a, b) {
+                        var nameA = a.name.toLowerCase(), nameB = b.name.toLowerCase()
                         if (nameA < nameB) //sort string ascending
                             return -1
                         if (nameA > nameB)
@@ -68,11 +151,11 @@
                         $('#drop1').append(
                             $('<option></option>').val(item.id).html(item.name).text(item.name)
                         );
-//
+
                     });
 
                 },
-                error: function(response){
+                error: function (response) {
 
                 }
             });
@@ -88,40 +171,51 @@
         });
 
 
-    function submitdata(){
+    function submitdata() {
+
 
         var userinfoid;
-        var orgname=document.getElementById("hospital").value;
-        var shortname=orgname.substring(0,10);
-        var password=document.getElementById("password").value;
-        var username=document.getElementById("username").value;
-        var email=document.getElementById("email").value;
+        var orgname = document.getElementById("hospital").value;
+        var shortname = orgname.substring(0, 10);
+
+
+
+        var password = document.getElementById("password").value;
+
+        var username = document.getElementById("username").value;
+
         var phone=document.getElementById("phoneno").value;
 
-        var phonecheck="",emailcheck="",usernamecheck="",validationcheck=true;
 
-        var header = {
-
-            "Authorization": "Basic " + btoa( "homepage" + ':' + "Homepage123" )
-
-        };
-        $.ajax({
-            async : false,
-            type: "GET",
-            dataType: "json",
-            contentType: "application/json",
-            header : header,
-            url: '../../../../api/users.json?fields=name,firstName,email,phoneNumber,userCredentials[username]&paging=false',
-            success: function(response){
-
-                $.each(response.users, function (index, item) {
-                    if(email==""||username==""||password==""||phone==""||orgname=="")
-                    {
-                        alert("Please enter all fields first");
-                    }
-                    else {
+        var email = document.getElementById("email").value;
 
 
+
+        var phonecheck = "", emailcheck = "", usernamecheck = "", passcheck = "", validationcheck = true;
+
+        if (email == "" || username == "" || password == "" || orgname == "") {
+            document.getElementById("suid").style.display = "block";
+            return;
+        }
+        else{   
+           
+            var header = {
+
+                "Authorization": "Basic " + btoa("homepage" + ':' + "Homepage123")
+
+            };
+            $.ajax({
+                async: false,
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json",
+                header: header,
+                url: '../../../../api/users.json?fields=name,firstName,email,phoneNumber,userCredentials[username]&paging=false',
+                success: function (response) {
+                    var data1 = response.users;
+                   // console.log(data1);
+                    $.each(data1, function (index, item) {
+                        //console.log(data1);
                         if (item.email == email) {
                             emailcheck = "true";
                             alert("Email already registered, Please try again with different Email");
@@ -138,181 +232,173 @@
                             validationcheck = false;
                         }
 
-                    }
-
                 });
+        },
+        error: function(response) {
+            //alert("not defined");
+        }
+    });
+        }
+    if (validationcheck == true) {
+        var orgunit = {
+
+            name: orgname,
+            code: shortname,
+            parent: {
+                id: orgid
+            },
+            openingDate: "2016-01-01",
+            shortName: shortname,
+            phoneNumber: "98566"
+        }
+
+        $.ajax({
+            async: false,
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json",
+            header: header,
+            url: '../../../../api/organisationUnits/',
+            data: JSON.stringify(orgunit),
+            success: function (response) {
+                var orgid = response.response.uid;
+                assignprogram(orgid);
+                createUser(orgid);
 
             },
-            error: function(response){
+            error: function (response) {
 
             }
         });
-        if(validationcheck==true) {
-            var orgunit = {
 
-                name:orgname,
-                code : shortname,
-                parent:{
-                    id : orgid
-                },
-                openingDate:"2016-01-01",
-                shortName: shortname,
-                phoneNumber : "98566"
-            }
-
+        function assignprogram(orgid) {
             $.ajax({
-                async : false,
+                async: false,
                 type: "POST",
                 dataType: "json",
                 contentType: "application/json",
-                header : header,
-                url: '../../../../api/organisationUnits/',
-                data: JSON.stringify(orgunit),
-                success: function(response){
-                    var orgid=response.response.uid;
-                    assignprogram(orgid);
-                    createUser(orgid);
+                header: header,
+                url: '../../../../api/programs/tzR46QRZ6FJ/organisationUnits/' + orgid,
+                success: function (response) {
 
                 },
-                error: function(response){
+                error: function (response) {
 
                 }
             });
 
-            function  assignprogram(orgid)
-            {
-                $.ajax({
-                    async : false,
-                    type: "POST",
-                    dataType: "json",
-                    contentType: "application/json",
-                    header : header,
-                    url: '../../../../api/programs/tzR46QRZ6FJ/organisationUnits/'+orgid,
-                    success: function(response){
+            $.ajax({
+                async: false,
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                header: header,
+                url: '../../../../api/programs/oKibT84LSdV/organisationUnits/' + orgid,
+                success: function (response) {
 
-                    },
-                    error: function(response){
+                },
+                error: function (response) {
 
-                    }
-                });
-
-                $.ajax({
-                    async : false,
-                    type: "POST",
-                    dataType: "json",
-                    contentType: "application/json",
-                    header : header,
-                    url: '../../../../api/programs/oKibT84LSdV/organisationUnits/'+orgid,
-                    success: function(response){
-
-                    },
-                    error: function(response){
-
-                    }
-                });
-                $.ajax({
-                    async : false,
-                    type: "POST",
-                    dataType: "json",
-                    contentType: "application/json",
-                    header : header,
-                    url: '../../../../api/programs/PIhrNhsvPEr/organisationUnits/'+orgid,
-                    success: function(response){
-
-                    },
-                    error: function(response){
-
-                    }
-                });
-
-            }
-
-
-            function  createUser(orgid)
-            {
-
-                $.ajax({
-                    async : false,
-                    type: "GET",
-                    dataType: "json",
-                    contentType: "application/json",
-                    header : header,
-                    url: '../../../../api/system/id',
-                    success: function(response){
-                        userinfoid = response.codes;
-
-                    },
-                    error: function(response){
-
-                    }
-                });
-                var user = {
-
-                    firstName:username,
-                    surname : username,
-                    id:userinfoid[0],
-                    email:email,
-                    phoneNumber:phone,
-
-                    userCredentials: {
-                        "username": username,
-                        "password": password,
-                        "userInfo": {"id": userinfoid[0] },
-                        "userRoles": [ {
-                            "id": "ccSI4dsXeFI"
-                        } ]
-                    },
-
-                    organisationUnits:[{
-
-                        id:orgid
-                    }]
                 }
+            });
+            $.ajax({
+                async: false,
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                header: header,
+                url: '../../../../api/programs/PIhrNhsvPEr/organisationUnits/' + orgid,
+                success: function (response) {
+
+                },
+                error: function (response) {
+
+                }
+            });
+
+        }
 
 
-                $.ajax({
-                    async : false,
-                    type: "POST",
-                    dataType: "json",
-                    contentType: "application/json",
-                    header : header,
-                    url: '../../../../api/users/',
-                    data: JSON.stringify(user),
-                    success: function(response){
+        function createUser(orgid) {
 
-                        alert("User successfully registered please login to continue!")
-                        window.close();
-                    },
-                    error: function(response){
+            $.ajax({
+                async: false,
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json",
+                header: header,
+                url: '../../../../api/system/id',
+                success: function (response) {
+                    userinfoid = response.codes;
 
-                        alert("Error successfully registered please login to continue!")
-                    }
-                });
+                },
+                error: function (response) {
 
+                }
+            });
+            var user = {
+
+                firstName: username,
+                surname: username,
+                id: userinfoid[0],
+                email: email,
+                phoneNumber: phone,
+
+                userCredentials: {
+                    "username": username,
+                    "password": password,
+                    "userInfo": { "id": userinfoid[0] },
+                    "userRoles": [{
+                        "id": "ccSI4dsXeFI"
+                    }]
+                },
+
+                organisationUnits: [{
+
+                    id: orgid
+                }]
             }
 
 
+            $.ajax({
+                async: false,
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                header: header,
+                url: '../../../../api/users/',
+                data: JSON.stringify(user),
+                success: function (response) {
+
+                    alert("User successfully registered please login to continue!")
+                    window.close();
+                },
+                error: function (response) {
+
+                    alert("Error successfully registered please login to continue!")
+                }
+            });
 
         }
-        else if(validationcheck==false)
-        {
-            document.getElementById("phoneno").value="";
-            document.getElementById("username").value="";
-            document.getElementById("email").value="";
-            document.getElementById("password").value="";
 
-        }
-        validationcheck="";
+
 
     }
+    else if (validationcheck == false) {
+        document.getElementById("phoneno").value = "";
+        document.getElementById("username").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("password").value = "";
 
+    }
+    validationcheck = "";
 
-
+    }
 
 </script>
 
 
-<header class="w3-card" >
+<header class="w3-card">
     <h1 style="color:#fff; text-align:center;  font-weight: bold;">Punjab Health Facility Portal</h1>
 </header>
 
@@ -328,23 +414,37 @@
             <select class="w3-select w3-border" name="option" id="drop1">
                 <option value="" disabled selected>Please Select Your District</option>
             </select>
-        <p>
-            <label>User Name</label>
-            <input class="w3-input" type="text" id="username"></p>
-        <p>
-            <label>Email: </label>
-            <input class="w3-input" type="email" id="email"></p>
-        <p>
-        <p>
-            <label>Phone No: </label>
-            <input class="w3-input" type="phone" id="phoneno"></p>
-        <p>
-            <label>Password</label>
-            <input class="w3-input" type="password" id="password"></p>
-        <p>
-            <label>Hospital Name</label>
-            <input class="w3-input" type="text" id="hospital"></p>
-        <p style="padding:20px; text-align:center"><button class="w3-btn" id="submit" onclick="submitdata()" style="background-color:#2978B3">Register</button></p>
+            <p>
+                <label>User Name</label>
+                <input class="w3-input" type="text" id="username" onblur="usercheck(this.value)" onchange="usercheck(this.value)">
+                <span
+                    id="usid" style="color:red; display:none;">Wrong user name...! enter only alphabets</span>
+            </p>
+            <p>
+                <label>Email: </label>
+                <input class="w3-input" type="text" id="email" onblur="emailcheck(this.value)" onchange="emailcheck(this.value)">
+                <span
+                    id="emid" style="color:red; display:none;">email not valid</span>
+            </p>
+            <p>
+                <p>
+                    <label>Phone No: </label>
+                    <input class="w3-input" type="phone" id="phoneno" onblur="phonecheck(this.value)" onchange="phonecheck(this.value)"> <span id="phid" style="color:red; display:none;">Not a valid Phone Number please enter 10 digit phone no</span></p>
+                <p>
+                    <label>Password</label>
+                    <input class="w3-input" type="password" id="password" onblur="pwdcheck(this.value)" onchange="pwdcheck(this.value)">
+                    <span
+                        id="pwid" style="color:red; display:none;"> Wrong password..!! please enter 6 to 10 charcter which contain alphabetonly characters, numeric digits,
+                        underscore and first character must be a letter...! </span>
+                </p>
+                <p>
+                    <label>Hospital Name</label>
+                    <input class="w3-input" type="text" id="hospital" onblur="hospcheck(this.value)" onchange="hospcheck(this.value)">
+                    <span
+                        id="hoid" style="color:red; display:none;"> Wrong hospital name...! enter only alphabets </span>
+                </p>
+                <p style="padding:20px; text-align:center"><button class="w3-btn" id="submit" onclick="submitdata()" style="background-color:#2978B3">Register<span id="suid" style="color:red; display:none;">please enter all the fields</span></button></p>
     </form>
 </div>
+
 </html>
