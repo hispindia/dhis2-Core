@@ -71,7 +71,7 @@ public class ScheduleCountTEI implements Action
         
         //PeriodType periodType = periodService.getPeriodTypeByName( dailyPeriodTypeName );
         
-        List<String> trackedEntityInstances = new ArrayList<String>( getTrackedEntityInstanceCountByAttributeId( BLOCK_TALUK_ATTRIBUTE_ID,startDateOfCurrentMonth,endDateOfCurrentMonth ) );
+        List<String> trackedEntityInstances = new ArrayList<String>( getTrackedEntityInstanceCountByAttributeId( BLOCK_TALUK_ATTRIBUTE_ID, startDateOfCurrentMonth, endDateOfCurrentMonth ) );
         
         if( trackedEntityInstances != null && trackedEntityInstances.size() > 0 )
         {
@@ -212,12 +212,22 @@ public class ScheduleCountTEI implements Action
         String endDateOfCurrentMonth1 = "2017-12-31";
         try
         {
+            /* on the basis of TEI Creation
             String query = "SELECT teiav.value,pi.programid,tei.created::date,count(teiav.value) As TOTAL from trackedentityinstance tei " +
                             "INNER JOIN trackedentityattributevalue teiav on tei.trackedentityinstanceid=teiav.trackedentityinstanceid " +
                             "INNER JOIN programinstance pi on pi.trackedentityinstanceid = tei.trackedentityinstanceid " +
                             "WHERE teiav.trackedentityattributeid =  "+ attributeId +" and tei.created::date between '" + startDateOfCurrentMonth1 + "' AND '" +  endDateOfCurrentMonth1 + "' " +
                             " group by teiav.value, pi.programid,tei.created::date order by tei.created::date DESC ";
           
+            
+            */
+            // on the basis of enrollment
+            String query = "SELECT teiav.value,pi.programid,pi.enrollmentdate::date,count(teiav.value) As TOTAL from trackedentityinstance tei " +
+                "INNER JOIN trackedentityattributevalue teiav on tei.trackedentityinstanceid=teiav.trackedentityinstanceid " +
+                "INNER JOIN programinstance pi on pi.trackedentityinstanceid = tei.trackedentityinstanceid " +
+                "WHERE teiav.trackedentityattributeid =  "+ attributeId +" and pi.enrollmentdate::date <= '" +  endDateOfCurrentMonth + "' " +
+                " group by teiav.value, pi.programid,pi.enrollmentdate::date order by pi.enrollmentdate::date ASC ";            
+            
             /*
             SELECT teiav.value,pi.programid,tei.created::date,count(teiav.value) As TOTAL
             from trackedentityinstance tei
@@ -226,8 +236,20 @@ public class ScheduleCountTEI implements Action
             where teiav.trackedentityattributeid = 35830 and tei.created::date between '2017-01-01' AND '2017-12-31'
             group by teiav.value, pi.programid,tei.created::date order by tei.created::date DESC;
             */
+            /*
+            SELECT teiav.value,pi.programid,pi.enrollmentdate::date,count(teiav.value) As TOTAL
+            from trackedentityinstance tei
+            inner join trackedentityattributevalue teiav on tei.trackedentityinstanceid=teiav.trackedentityinstanceid
+            inner join programinstance pi on pi.trackedentityinstanceid = tei.trackedentityinstanceid
+            where teiav.trackedentityattributeid = 35830 and pi.enrollmentdate::date <= '2017-12-31'
+            group by teiav.value, pi.programid,pi.enrollmentdate::date order by pi.enrollmentdate::date ASC;
+            */
             
-            //System.out.println( "query = " + query );
+            System.out.println( "query = " + query );
+            
+            
+            
+            
             
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 

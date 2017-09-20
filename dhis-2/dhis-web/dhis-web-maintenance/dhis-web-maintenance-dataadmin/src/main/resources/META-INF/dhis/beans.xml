@@ -22,7 +22,7 @@
    	
    	
    	<task:scheduled-tasks scheduler="scheduleCountTEI">
-        <task:scheduled ref="org.hisp.dhis.dataadmin.action.scheduecalculatetei.ScheduleCountTEI" method="execute" cron="0 0/10 * * * ?"/>
+        <task:scheduled ref="org.hisp.dhis.dataadmin.action.scheduecalculatetei.ScheduleCountTEI" method="execute" cron="0 0 0/1 1/1 * ?"/>
         <!--<task:scheduled ref="org.hisp.dhis.dataadmin.action.schedulingupdatelicensestatus.ScheduleUpdateLicenseStatus" method="execute" cron="0 0/3 * * * ?"/>-->
    	</task:scheduled-tasks>
 	
