@@ -29,6 +29,7 @@ package org.hisp.dhis.trackedentity.action.programstage;
  */
 
 import com.opensymphony.xwork2.Action;
+
 import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.attribute.AttributeService;
 import org.hisp.dhis.dataelement.DataElement;
@@ -39,6 +40,7 @@ import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramService;
 import org.hisp.dhis.program.ProgramStage;
 import org.hisp.dhis.program.ProgramStageDataElement;
+import org.hisp.dhis.program.ProgramStageDataElementService;
 import org.hisp.dhis.program.ProgramStageService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -70,6 +72,14 @@ public class AddProgramStageAction
         this.programService = programService;
     }
 
+    private ProgramStageDataElementService programStageDataElementService;
+
+    public void setProgramStageDataElementService( ProgramStageDataElementService programStageDataElementService )
+    {
+        this.programStageDataElementService = programStageDataElementService;
+    }
+
+    
     private DataElementService dataElementService;
 
     public void setDataElementService( DataElementService dataElementService )
@@ -364,7 +374,8 @@ public class AddProgramStageAction
         programStage.setPreGenerateUID( preGenerateUID );
         programStage.setSortOrder( program.getProgramStages().size() + 1 );
         programStage.setHideDueDate( hideDueDate );
-                
+       
+        programStageService.saveProgramStage( programStage );
 
         // Data elements
 
@@ -380,21 +391,20 @@ public class AddProgramStageAction
             programStageDataElement.setAllowProvidedElsewhere( allowed );
             programStageDataElement.setDisplayInReports( displayInReport );
             programStageDataElement.setAllowFutureDate( allowDate );
-            programStage.getProgramStageDataElements().add( programStageDataElement );
+            programStageDataElementService.addProgramStageDataElement( programStageDataElement );
+            //programStage.getProgramStageDataElements().add( programStageDataElement );
         }
-        
-        programStageService.saveProgramStage( programStage );
-        
         
         // Custom attributes
         
-        programStageService.saveProgramStage( programStage );
+        //programStageService.saveProgramStage( programStage );
 
         if ( jsonAttributeValues != null )
         {
             attributeService.updateAttributeValues( programStage, jsonAttributeValues );
         }
         
+        programStageService.updateProgramStage( programStage );
         return SUCCESS;
     }
 }
