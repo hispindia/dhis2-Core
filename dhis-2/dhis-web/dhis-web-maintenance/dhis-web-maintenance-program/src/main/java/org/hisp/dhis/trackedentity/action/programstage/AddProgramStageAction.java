@@ -64,6 +64,13 @@ public class AddProgramStageAction
     {
         this.programStageService = programStageService;
     }
+    
+    private ProgramStageDataElementService programStageDataElementService;
+
+    public void setProgramStageDataElementService( ProgramStageDataElementService programStageDataElementService )
+    {
+        this.programStageDataElementService = programStageDataElementService;
+    }
 
     private ProgramService programService;
 
@@ -374,8 +381,10 @@ public class AddProgramStageAction
         programStage.setPreGenerateUID( preGenerateUID );
         programStage.setSortOrder( program.getProgramStages().size() + 1 );
         programStage.setHideDueDate( hideDueDate );
+
        
         programStageService.saveProgramStage( programStage );
+
 
         // Data elements
 
@@ -392,6 +401,7 @@ public class AddProgramStageAction
             programStageDataElement.setDisplayInReports( displayInReport );
             programStageDataElement.setAllowFutureDate( allowDate );
             programStageDataElementService.addProgramStageDataElement( programStageDataElement );
+
             //programStage.getProgramStageDataElements().add( programStageDataElement );
         }
         
@@ -399,6 +409,13 @@ public class AddProgramStageAction
         
         //programStageService.saveProgramStage( programStage );
 
+
+        }
+        
+        programStageService.updateProgramStage( programStage );
+        
+        // Custom attributes
+        
         if ( jsonAttributeValues != null )
         {
             attributeService.updateAttributeValues( programStage, jsonAttributeValues );
