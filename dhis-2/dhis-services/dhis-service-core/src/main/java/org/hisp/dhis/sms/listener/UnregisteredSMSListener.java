@@ -28,10 +28,12 @@ package org.hisp.dhis.sms.listener;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.message.MessageSender;
 import org.hisp.dhis.message.MessageService;
 import org.hisp.dhis.message.MessageType;
+import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.sms.command.SMSCommand;
 import org.hisp.dhis.sms.command.SMSCommandService;
 import org.hisp.dhis.sms.incoming.IncomingSms;
@@ -49,10 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 public class UnregisteredSMSListener
     implements IncomingSmsListener
@@ -103,27 +102,28 @@ public class UnregisteredSMSListener
         UserGroup userGroup = smsCommand.getUserGroup();
 
         String senderPhoneNumber = StringUtils.replace( sms.getOriginator(), "+", "" );
+        String userName = sms.getOriginator();
 
         if ( userGroup != null )
         {
             Set<User> receivers = new HashSet<>( userGroup.getMembers() );
 
-            UserCredentials anonymousUser = userService.getUserCredentialsByUsername( "anonymous" );
+            UserCredentials anonymousUser = userService.getUserCredentialsByUsername( userName );
 
             if ( anonymousUser == null )
             {
                 User user = new User();
                 UserCredentials usercredential = new UserCredentials();
-                usercredential.setUsername( USER_NAME );
+                usercredential.setUsername( userName );
                 usercredential.setPassword( USER_NAME );
                 usercredential.setUserInfo( user );
-                user.setSurname( USER_NAME );
-                user.setFirstName( USER_NAME );
+                user.setSurname( userName );
+                user.setFirstName( "" );
                 user.setUserCredentials( usercredential );
 
                 userService.addUserCredentials( usercredential );
                 userService.addUser( user );
-                anonymousUser = userService.getUserCredentialsByUsername( "anonymous" );
+                anonymousUser = userService.getUserCredentialsByUsername( userName );
             }
 
             // forward to user group by SMS, E-mail, DHIS conversation
@@ -136,11 +136,24 @@ public class UnregisteredSMSListener
             sender.setPhoneNumber( senderPhoneNumber );
             feedbackList.add( sender );
 
-            smsSender.sendMessage( smsCommand.getName(), smsCommand.getReceivedMessage(), null, null, feedbackList, true );
+            smsSender.sendMessage( smsCommand.getName(), smsCommand.getReceivedMessage() != null ? smsCommand.getReceivedMessage() : SMSCommand.RECEIVED_MESSAGE, null, null, feedbackList, true );
 
             sms.setStatus( SmsMessageStatus.PROCESSED );
             sms.setParsed( true );
             incomingSmsService.update( sms );
         }
+    }
+
+    private User getUser( IncomingSms sms )
+    {
+        return userService.getUser( sms.getUser().getUid() );
+    }
+
+    private Set<OrganisationUnit> getOrganisationUnits(IncomingSms sms )
+    {
+        Collection<OrganisationUnit> orgUnits = SmsUtils.getOrganisationUnitsByPhoneNumber( sms.getOriginator(),
+            Collections.singleton( getUser( sms ) ) );
+
+        return  Sets.newHashSet( orgUnits );
     }
 }
