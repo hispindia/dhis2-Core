@@ -660,25 +660,83 @@ excelUpload.controller('ImportFacilitywiseController',
                     var dataValue = {};
 					/* *** */			dataValue.period = $scope.confirmedUploads.periodVal;
                     dataValue.dataElement = selectedTemp.DEMappings[x].metadata.split("-")[0];
-                    dataValue.categoryOptionCombo = selectedTemp.DEMappings[x].metadata.split("-")[1];
-					/* org unit will be taken from input box
-					 var ouLabel = $scope.getImportData( selectedTemp.orgUnitCell.rn , selectedTemp.orgUnitCell.cn );
-					 dataValue.orgUnit = $scope.getOrgUnitByLabel( ouLabel );
-					 */
-					/* *** */			dataValue.orgUnit = orgUnit.id;
 
-                    dataValue.value = $scope.getImportDataByAddress( cellAddress, orgUnit );
+                    /*Delivery Point - FIaGENXR3c5
+                    Level of delivery point - fqM6fGLUqVD
+                    FRU - GpEwBknDwF9*/
 
-					/* *** */							//if( $scope.confirmedUploads.importEmptyVal == 2 )
-                    dataValue.value = dataValue.value == "" ? "omit" : dataValue.value;
-               // else
-                 //   dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
-
-
-                    if( dataValue.orgUnit != "" && dataValue.value != "omit" )
+                    if(dataValue.dataElement == "FIaGENXR3c5" || dataValue.dataElement == "GpEwBknDwF9" || dataValue.dataElement == "fqM6fGLUqVD")
                     {
-                        dataValues.push(dataValue);
+
+
+                        dataValue.categoryOptionCombo = selectedTemp.DEMappings[x].metadata.split("-")[1];
+                        dataValue.orgUnit = orgUnit.id;
+
+                        dataValue.value = $scope.getImportDataByAddress( cellAddress, orgUnit );
+
+                       if(dataValue.value == ""){
+                          // window.history.go(-2);
+                           if(dataValue.dataElement == "FIaGENXR3c5" ){
+                               alert("Delivery Point value is empty");
+                           }
+
+                            if(dataValue.dataElement == "fqM6fGLUqVD" ){
+                               alert("Level of delivery point value is empty");
+                           }
+
+                            if(dataValue.dataElement == "GpEwBknDwF9" ) {
+                               alert("FRU value is empty");
+                           }
+
+                           window.location.reload();
+                       }
+                       else{
+
+                           dataValue.categoryOptionCombo = selectedTemp.DEMappings[x].metadata.split("-")[1];
+                           /* org unit will be taken from input box
+                            var ouLabel = $scope.getImportData( selectedTemp.orgUnitCell.rn , selectedTemp.orgUnitCell.cn );
+                            dataValue.orgUnit = $scope.getOrgUnitByLabel( ouLabel );
+                            */
+                           /* *** */			dataValue.orgUnit = orgUnit.id;
+
+                           dataValue.value = $scope.getImportDataByAddress( cellAddress, orgUnit );
+
+                           /* *** */							//if( $scope.confirmedUploads.importEmptyVal == 2 )
+                           dataValue.value = dataValue.value == "" ? "omit" : dataValue.value;
+                           // else
+                           //   dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
+
+
+                           if( dataValue.orgUnit != "" && dataValue.value != "omit" )
+                           {
+                               dataValues.push(dataValue);
+                           }
+
+                       }
                     }
+
+                    else{
+                        dataValue.categoryOptionCombo = selectedTemp.DEMappings[x].metadata.split("-")[1];
+                        /* org unit will be taken from input box
+                         var ouLabel = $scope.getImportData( selectedTemp.orgUnitCell.rn , selectedTemp.orgUnitCell.cn );
+                         dataValue.orgUnit = $scope.getOrgUnitByLabel( ouLabel );
+                         */
+                        /* *** */			dataValue.orgUnit = orgUnit.id;
+
+                        dataValue.value = $scope.getImportDataByAddress( cellAddress, orgUnit );
+
+                        /* *** */							//if( $scope.confirmedUploads.importEmptyVal == 2 )
+                        dataValue.value = dataValue.value == "" ? "omit" : dataValue.value;
+                        // else
+                        //   dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
+
+
+                        if( dataValue.orgUnit != "" && dataValue.value != "omit" )
+                        {
+                            dataValues.push(dataValue);
+                        }
+                    }
+
                 }
                 //}
 				/*else
