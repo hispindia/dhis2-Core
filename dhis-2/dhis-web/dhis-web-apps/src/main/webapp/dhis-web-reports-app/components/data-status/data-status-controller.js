@@ -569,7 +569,7 @@ reportsApp.controller('DataStatusController',
 			else
 				var url = $scope.basicUrl + $scope.dataSummaryExZeroSV + "/data.json?";
 			
-			url+= "var=compulsoryDECount:" + $scope.compulsoryDECount + ",dataSetUid:" + selDataSetUid + ",orgUnitUid:" + selOrgUnit + ",startDate:" + selStartPeriod + ",endDate:" + selEndPeriod;	
+			url+= "var=compulsoryDECount:" + $scope.compulsoryDECount + ",dataSetUid:" + selDataSetUid + ",orgUnitUid:" + selOrgUnit + ",startDate:" + selStartPeriod + ",endDate:" + selEndPeriod + ",orgUnitUids:" +$scope.organisationunitid_1[0] ;	
 			
 			console.log(url);
 			
