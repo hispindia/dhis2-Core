@@ -1979,6 +1979,90 @@ function registerCompleteDataSet()
 		return false;
     }
 	
+	var testdataSetId = $( '#selectedDataSetId' ).val();
+	
+	if( testdataSetId == 'ZNYncCooihT' )
+	{
+		var value = $("[name=GpEwBknDwF9-Ti9FJqkSK6J-val]:checked").val();
+		var	value1 = $("[name=FIaGENXR3c5-Ti9FJqkSK6J-val]:checked").val();
+	
+		var value2 = $("#fqM6fGLUqVD-Ti9FJqkSK6J-val").val();
+
+		if (value != "true" && value != "false")
+		{
+			alert("please select FRU fields " );
+			return false;
+		}
+       else if(value1 != "true" && value1 != "false")
+		{
+			alert("please select Delivery  fields " );
+			return false;
+		}
+		else if (value1 != "false" &&  value2 == ""  )
+		{
+			alert("please select delivery point fields " );
+			return false;
+		}
+		
+	}
+	else if(testdataSetId == 'XFrfQUbREUm' )
+	{
+			var value3 = $("[name=FIaGENXR3c5-Ti9FJqkSK6J-val]:checked").val();
+			var value4 = $("#fqM6fGLUqVD-Ti9FJqkSK6J-val").val();
+		
+	if (value3 != "true" && value3 != "false")
+		{
+			alert("please select Delivery point fields " );
+			return false;
+		}
+		else if (value3 != "false" &&  value4 == ""  )
+		{
+			alert("please select level of delivery point  fields " );
+			return false;
+		}
+		
+	}
+	
+	else if (testdataSetId == 'oAfUIGM6uJI')
+	{
+		var value5 = $("#dH57At01u6e-Ti9FJqkSK6J-val").val();
+		var value6 = $("[name=FIaGENXR3c5-Ti9FJqkSK6J-val]:checked").val();
+		var value7 = $("#fqM6fGLUqVD-Ti9FJqkSK6J-val").val();
+		
+		
+			 if (value6 != "true" && value6 != "false")
+			{
+			alert("please select Delivery point fields " );
+			return false;
+			}
+			else if (value6 != "false" &&  value7 == ""  )
+			{
+			alert("please select level of delivery point  fields " );
+			return false;
+			}
+	}
+	else if (testdataSetId == 'WjvnPtSMCCR')
+	{
+		var value8 = $("[name=FIaGENXR3c5-Ti9FJqkSK6J-val]:checked").val();
+		var value9 = $("#fqM6fGLUqVD-Ti9FJqkSK6J-val").val();
+			 if (value8 != "true" && value8 != "false")
+			{
+			alert("please select Delivery point fields " );
+			return false;
+			}
+			else if (value8 != "false" &&  value9 == ""  )
+			{
+			alert("please select delivery point  fields " );
+			return false;
+			}
+	}
+		
+		
+		else{	
+		return true;
+			}
+	
+	
 	dhis2.de.validate( true, function() 
     {
         var params = dhis2.de.storageManager.getCurrentCompleteDataSetParams();
@@ -2020,6 +2104,9 @@ function registerCompleteDataSet()
 		    }
 	    } );
 	} );
+		
+	
+		
 }
 
 function undoCompleteDataSet()
@@ -3238,3 +3325,7 @@ function printBlankForm()
 	window.print();
 	$( '#contentDiv input, select' ).css( 'display', '' );	
 }
+
+
+
+
