@@ -9,6 +9,12 @@ var length2;
 var length3;
 
 var count=0;
+var temp;
+var dp = [];
+var value1;
+var value2;
+var value3;
+var value4;
 //Controller for excel importing
 excelUpload.controller('ImportFacilitywiseController',
     function($rootScope,
@@ -30,6 +36,7 @@ excelUpload.controller('ImportFacilitywiseController',
         $scope.templates = {};
 // orgUnitMapping is not used for new requirement			$scope.orgUnitMapping = {};
         $scope.history = {};
+	
 
         //data cells - this was put inside validateAll()
 // $scope.dataCells = [];
@@ -665,72 +672,112 @@ excelUpload.controller('ImportFacilitywiseController',
                     Level of delivery point - fqM6fGLUqVD
                     FRU - GpEwBknDwF9*/
 
-                    if(dataValue.dataElement == "FIaGENXR3c5" || dataValue.dataElement == "GpEwBknDwF9" || dataValue.dataElement == "fqM6fGLUqVD")
+					
+			// for fru 
+                    if(dataValue.dataElement == "GpEwBknDwF9")
                     {
 
 
                         dataValue.categoryOptionCombo = selectedTemp.DEMappings[x].metadata.split("-")[1];
                         dataValue.orgUnit = orgUnit.id;
-
+						temp = orgUnit.name;
                         dataValue.value = $scope.getImportDataByAddress( cellAddress, orgUnit );
 
                        if(dataValue.value == ""){
-                          // window.history.go(-2);
-                           if(dataValue.dataElement == "FIaGENXR3c5" ){
-                               alert("Delivery Point value is empty");
-                           }
-
-                            if(dataValue.dataElement == "fqM6fGLUqVD" ){
-                               alert("Level of delivery point value is empty");
-                           }
-
                             if(dataValue.dataElement == "GpEwBknDwF9" ) {
-                               alert("FRU value is empty");
+                               alert("For "+temp+" organisation FRU value is empty");
                            }
 
                            window.location.reload();
                        }
-                       else{
+					   
+					   
+					   
+					
+					else{
 
                            dataValue.categoryOptionCombo = selectedTemp.DEMappings[x].metadata.split("-")[1];
-                           /* org unit will be taken from input box
-                            var ouLabel = $scope.getImportData( selectedTemp.orgUnitCell.rn , selectedTemp.orgUnitCell.cn );
-                            dataValue.orgUnit = $scope.getOrgUnitByLabel( ouLabel );
-                            */
-                           /* *** */			dataValue.orgUnit = orgUnit.id;
+                           dataValue.orgUnit = orgUnit.id;
 
                            dataValue.value = $scope.getImportDataByAddress( cellAddress, orgUnit );
 
-                           /* *** */							//if( $scope.confirmedUploads.importEmptyVal == 2 )
                            dataValue.value = dataValue.value == "" ? "omit" : dataValue.value;
-                           // else
-                           //   dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
-
-
+                           
                            if( dataValue.orgUnit != "" && dataValue.value != "omit" )
                            {
                                dataValues.push(dataValue);
                            }
 
                        }
+                       
                     }
-
-                    else{
-                        dataValue.categoryOptionCombo = selectedTemp.DEMappings[x].metadata.split("-")[1];
-                        /* org unit will be taken from input box
-                         var ouLabel = $scope.getImportData( selectedTemp.orgUnitCell.rn , selectedTemp.orgUnitCell.cn );
-                         dataValue.orgUnit = $scope.getOrgUnitByLabel( ouLabel );
-                         */
-                        /* *** */			dataValue.orgUnit = orgUnit.id;
+					
+					// for delivery point and level of delievery point
+					
+					if(dataValue.dataElement == "FIaGENXR3c5" || dataValue.dataElement == "fqM6fGLUqVD"){					
+						dataValue.categoryOptionCombo = selectedTemp.DEMappings[x].metadata.split("-")[1];
+                        dataValue.orgUnit = orgUnit.id;						
+						temp = orgUnit.name;
+                        dataValue.value = $scope.getImportDataByAddress( cellAddress, orgUnit );
+						
+						dp.push(dataValue.value);
+						
+						for(var i =0 ; i<dp.length; i++){
+							
+							value1 = dp[0];
+							value2 = dp[1];
+							value3 = dp[1];
+							value4 = dp[0];
+							
+						}
+						if(value1 == "" && value2 == ""){
+								alert("For "+temp+" organisation Delivery Point value is empty");
+								alert("For "+temp+" organisation Level of delivery point value is empty");
+								window.location.reload();
+								break;
+						}
+						if(value1 == "false" || value3 == "false"){
+							if(value2 == undefined || value2 == "" || value4 == undefined || value4 == ""){
+								
+						}
+						else{
+							alert("For "+temp+" If Delivery point value is false then Level of Delivery point should not be selected");
+								window.location.reload();
+								break;
+						}
+						
+						}
+						
+						if((value1 == "true" && value2 == "") || (value3 == "true" && value4 == "")){
+								alert("For "+temp+" If Delivery point value is true then please select Level of Delivery point");
+								window.location.reload();
+								break;
+						}
+						else{
+							dataValue.categoryOptionCombo = selectedTemp.DEMappings[x].metadata.split("-")[1];
+                       dataValue.orgUnit = orgUnit.id;
 
                         dataValue.value = $scope.getImportDataByAddress( cellAddress, orgUnit );
 
-                        /* *** */							//if( $scope.confirmedUploads.importEmptyVal == 2 )
                         dataValue.value = dataValue.value == "" ? "omit" : dataValue.value;
-                        // else
-                        //   dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
+                       
+                        if( dataValue.orgUnit != "" && dataValue.value != "omit" )
+                        {
+                            dataValues.push(dataValue);
+                        }
+						}
+						
+						
+					}
 
+                    else{
+                        dataValue.categoryOptionCombo = selectedTemp.DEMappings[x].metadata.split("-")[1];
+                       dataValue.orgUnit = orgUnit.id;
 
+                        dataValue.value = $scope.getImportDataByAddress( cellAddress, orgUnit );
+
+                        dataValue.value = dataValue.value == "" ? "omit" : dataValue.value;
+                       
                         if( dataValue.orgUnit != "" && dataValue.value != "omit" )
                         {
                             dataValues.push(dataValue);
@@ -738,34 +785,7 @@ excelUpload.controller('ImportFacilitywiseController',
                     }
 
                 }
-                //}
-				/*else
-				 {
-				 for( var x = 0 ; x < selectedTemp.DEMappings.length ; x++ )
-				 {
-				 var colNum = selectedTemp.DEMappings[x].colNumber;
-
-				 for( var y = selectedTemp.rowStart.rn ; y <= selectedTemp.rowEnd.rn ; y++ )
-				 {
-				 var dataValue = {};
-				 dataValue.period = $("#importPeriod").val();
-				 dataValue.dataElement = selectedTemp.DEMappings[x].metadata.split("-")[0];
-				 dataValue.categoryOptionCombo = selectedTemp.DEMappings[x].metadata.split("-")[1];
-				 var ouLabel = $scope.getImportData( selectedTemp.rowStart.rn, selectedTemp.rowStart.cn );
-				 dataValue.orgUnit = $scope.getOrgUnitByLabel( ouLabel );
-				 dataValue.value = $scope.getImportData( y, colNum );
-
-				 if( $("#importEmpty").val() == 1 )
-				 dataValue.value = dataValue.value == "" ? "omit" : dataValue.value;
-				 else
-				 dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
-
-
-				 if( dataValue.orgUnit != "" && dataValue.value != "omit" )
-				 dataValues.push(dataValue);
-				 }
-				 }
-				 }*/
+               
             }
 
             console.log( "dataValues : " + JSON.stringify(dataValues) );
