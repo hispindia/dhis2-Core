@@ -243,7 +243,8 @@ td {
 
 	
 	function hideModel()
-	{	
+	{
+		Loader.hideLoader();
 		$("#modal-header").fadeOut();
 		$("#modal-body").delay(300).fadeOut();
 		$("#modal-footer").delay(600).fadeOut();

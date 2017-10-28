@@ -533,6 +533,8 @@ reportsApp.controller('DataStatusController',
 					
 		$scope.showDataSummary = function(){
 
+
+            Loader.showLoader();
             $("#coverLoad").show();
 			$("#headTitle").html("Data Summary - Data Sets");
 			$("#tableContent").html("");
@@ -568,9 +570,8 @@ reportsApp.controller('DataStatusController',
 				var url = $scope.basicUrl + $scope.dataSummarySV + "/data.json?";
 			else
 				var url = $scope.basicUrl + $scope.dataSummaryExZeroSV + "/data.json?";
-			
-			url+= "var=compulsoryDECount:" + $scope.compulsoryDECount + ",dataSetUid:" + selDataSetUid + ",orgUnitUid:" + selOrgUnit + ",startDate:" + selStartPeriod + ",endDate:" + selEndPeriod;	
-			
+
+            url+= "var=compulsoryDECount:" + $scope.compulsoryDECount + ",dataSetUid:" + selDataSetUid + ",orgUnitUid:" + selOrgUnit + ",startDate:" + selStartPeriod + ",endDate:" + selEndPeriod + ",orgUnitUids:" +$scope.organisationunitid_1[0] ;
 			console.log(url);
 			
 			$.get(url, function(data){
@@ -746,6 +747,7 @@ reportsApp.controller('DataStatusController',
 		
 		
 		$scope.showDataStatus = function(){
+            Loader.showLoader();
 			$("#tableContent").html("");
 			$("#coverLoad").show();
 			$("#headTitle").html("Data Status -  Data Sets");
@@ -957,6 +959,7 @@ reportsApp.controller('DataStatusController',
 		//User Details Result
 		//*****************************************************************************
 		$scope.showUserDetails = function(){
+            Loader.showLoader();
 			$("#tableContent").html("");
 			$("#coverLoad").show();
 			$("#headTitle").html("User Details - Latest");
@@ -1116,6 +1119,7 @@ reportsApp.controller('DataStatusController',
 		//Comments Result
 		//*****************************************************************************
 		$scope.showComments = function(){
+            Loader.showLoader();
 			$("#tableContent").html("");
 			$("#coverLoad").show();
 			$("#headTitle").html("Comments");
