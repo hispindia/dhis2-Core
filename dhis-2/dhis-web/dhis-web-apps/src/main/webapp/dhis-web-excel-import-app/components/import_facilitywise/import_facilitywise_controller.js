@@ -740,7 +740,8 @@ excelUpload.controller('ImportFacilitywiseController',
 							if(value2 == undefined || value2 == "" || value4 == undefined || value4 == ""){
 								
 						}
-						else{
+						else
+						{
 							alert("For "+temp+" If Delivery point value is false then Level of Delivery point should not be selected");
 								window.location.reload();
 								break;
@@ -753,6 +754,13 @@ excelUpload.controller('ImportFacilitywiseController',
 								window.location.reload();
 								break;
 						}
+						if((value1 == "" && value2 != "") || (value3 == "" && value4 != ""))
+						{
+							alert("For "+temp+" organisation Delivery Point value is empty");
+							window.location.reload();
+							break;
+						}
+						
 						else{
 							dataValue.categoryOptionCombo = selectedTemp.DEMappings[x].metadata.split("-")[1];
                        dataValue.orgUnit = orgUnit.id;
