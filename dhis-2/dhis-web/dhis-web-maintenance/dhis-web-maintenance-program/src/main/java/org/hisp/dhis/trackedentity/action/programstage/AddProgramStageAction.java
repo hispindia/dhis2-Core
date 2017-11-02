@@ -79,14 +79,6 @@ public class AddProgramStageAction
         this.programService = programService;
     }
 
-    private ProgramStageDataElementService programStageDataElementService;
-
-    public void setProgramStageDataElementService( ProgramStageDataElementService programStageDataElementService )
-    {
-        this.programStageDataElementService = programStageDataElementService;
-    }
-
-    
     private DataElementService dataElementService;
 
     public void setDataElementService( DataElementService dataElementService )
@@ -403,13 +395,6 @@ public class AddProgramStageAction
             programStageDataElementService.addProgramStageDataElement( programStageDataElement );
 
             //programStage.getProgramStageDataElements().add( programStageDataElement );
-        }
-        
-        // Custom attributes
-        
-        //programStageService.saveProgramStage( programStage );
-
-
         }
         
         programStageService.updateProgramStage( programStage );
