@@ -13,6 +13,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.hisp.dhis.config.ConfigurationService;
 import org.hisp.dhis.config.Configuration_IN;
+import org.hisp.dhis.dataelement.DataElement;
+import org.hisp.dhis.dataelement.DataElementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -35,6 +37,9 @@ public class ExcelImportService
         this.configurationService = configurationService;
     }
 
+    @Autowired
+    private DataElementService dataElementService;
+    
     @Autowired
     private JdbcTemplate jdbcTemplate;
     
@@ -72,7 +77,7 @@ public class ExcelImportService
                 NodeList textDECodeList = deCodeElement.getChildNodes();
 
                 String expression = ((Node) textDECodeList.item( 0 )).getNodeValue().trim();
-                //System.out.println("expression"+expression);
+                System.out.println("expression -- "  +expression);
                 if( expression != null && !expression.equalsIgnoreCase( "0" ))
                 {
                     String dataelement = deCodeElement.getAttribute( "dataelement" );
@@ -119,24 +124,49 @@ public class ExcelImportService
         for ( ExcelImport excelImportDesign : reportDesignList )
         {
             String formula = excelImportDesign.getExpression();
+            
+            //System.out.println( "** formula -- " + formula );
             try
             {
-                Pattern pattern = Pattern.compile( "(\\[\\d+\\.\\d+\\])" );
+               // Pattern pattern = Pattern.compile( "(\\[\\d+\\.\\d+\\])" );
+                Pattern pattern = Pattern.compile( "(\\[\\w+\\.\\w+\\])" );
 
                 Matcher matcher = pattern.matcher( formula );
+                
+                //System.out.println( "** matcher -- " + matcher );
+               /* System.out.println( "** matcher group -- " + matcher.group() );
+                System.out.println( "** matcher find -- " + matcher.find() );
+                System.out.println( "** matcher to string-- " + matcher.toString() );*/
+                
                 StringBuffer buffer = new StringBuffer();
 
                 while ( matcher.find() )
                 {
+                	//System.out.println( "** matcher find -- " + matcher.find() );
+                	
                     String replaceString = matcher.group();
-
+                    
                     replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
                     replaceString = replaceString.substring( 0, replaceString.indexOf( '.' ) );
-
-                    int dataElementId = Integer.parseInt( replaceString );
-                    dataElmentIdsByComma += "," + dataElementId;
-                    replaceString = "";
-                    matcher.appendReplacement( buffer, replaceString );
+                    
+                    dataElementService.getDataElement(replaceString);
+                    
+                    //int dataElementId = Integer.parseInt( replaceString );
+                    //System.out.println( "** replaceString -- " + replaceString );
+                    
+                    String dataElementUid = replaceString;
+                    
+                    DataElement de = dataElementService.getDataElement(dataElementUid);
+                    if( de != null )
+                    {
+                    	int dataElementId = de.getId();
+                        
+                        dataElmentIdsByComma += "," + dataElementId;
+                        replaceString = "";
+                        matcher.appendReplacement( buffer, replaceString );
+                    }
+                    
+                    //System.out.println( "** replaceString -- " + replaceString );
                 }
             }
             catch ( Exception e )
@@ -162,6 +192,7 @@ public class ExcelImportService
                 + orgUnitIdsByComma + " ) AND " + " periodid IN (" + periodIdsByComma
                 + ") GROUP BY dataelementid,categoryoptioncomboid";
             
+            //System.out.println( " SQL Query --" + query );
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
             while ( rs.next() )

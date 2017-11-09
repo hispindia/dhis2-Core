@@ -22,6 +22,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.hisp.dhis.config.Configuration_IN;
+import org.hisp.dhis.dataelement.DataElement;
+import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
+import org.hisp.dhis.dataelement.DataElementCategoryService;
+import org.hisp.dhis.dataelement.DataElementService;
 import org.hisp.dhis.excelimport.util.ExcelImport;
 import org.hisp.dhis.excelimport.util.ExcelImportService;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
@@ -74,6 +78,12 @@ public class ExportDataResultAction
 
     @Autowired
     private OrganisationUnitGroupService organisationUnitGroupService;
+    
+    @Autowired
+    private DataElementService dataElementService;
+    
+    @Autowired
+    private DataElementCategoryService dataElementCategoryService;
 
     // private DatabaseInfoProvider databaseInfoProvider;
     //
@@ -205,7 +215,8 @@ public class ExportDataResultAction
             excelExportDesignList = new ArrayList<ExcelImport>(
             excelImportService.getExcelImportDesignDesign( deCodesXMLFileName ) );
             String dataElmentIdsByComma = excelImportService.getDataelementIds( excelExportDesignList );
-          
+            System.out.println( " ALL dataElmentIdsByComma  --  " + dataElmentIdsByComma );
+            
             orgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( orgUnitGroupId );
             
             
@@ -225,9 +236,11 @@ public class ExportDataResultAction
         else
         {
             deCodesXMLFileName = "exportData.xml";
-            excelExportDesignList = new ArrayList<ExcelImport>(
-            excelImportService.getExcelImportDesignDesign( deCodesXMLFileName ) );
+            excelExportDesignList = new ArrayList<ExcelImport>( excelImportService.getExcelImportDesignDesign( deCodesXMLFileName ) );
             String dataElmentIdsByComma = excelImportService.getDataelementIds( excelExportDesignList );
+            System.out.println( " Selected dataElmentIdsByComma  --  " + dataElmentIdsByComma );
+            
+            
             // orgUnit Details
 
             
@@ -493,8 +506,8 @@ public class ExportDataResultAction
     {
         try
         {
-            Pattern pattern = Pattern.compile( "(\\[\\d+\\.\\d+\\])" );
-
+            //Pattern pattern = Pattern.compile( "(\\[\\d+\\.\\d+\\])" );
+            Pattern pattern = Pattern.compile( "(\\[\\w+\\.\\w+\\])" );	
             Matcher matcher = pattern.matcher( expression );
             StringBuffer buffer = new StringBuffer();
 
@@ -505,7 +518,39 @@ public class ExportDataResultAction
                 String replaceString = matcher.group();
 
                 replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
+                
+                //System.out.println( " replaceString in side fetch value --" + replaceString );
+                //String deUID = replaceString.split(".")[0];
+                //String categoryComboUID = replaceString.split(".")[1];
+                
+                String categoryComboUID = replaceString.substring( replaceString.indexOf( '.' ) + 1, replaceString
+                        .length() );
 
+                    //System.out.println( "** In side DeAndCombo 1 Replacing String" + replaceString  );
+                    
+                    replaceString = replaceString.substring( 0, replaceString.indexOf( '.' ) );
+                    
+                    //System.out.println( "** In side DeAndCombo 2 Replacing String" + replaceString  );
+                    
+                    //int dataElementId = Integer.parseInt( replaceString );
+                    //int optionComboId = Integer.parseInt( optionComboIdStr );
+                
+                
+                
+                
+                
+                //int dataElementId = Integer.parseInt( deUID );
+                //int categoryOptionComboId = Integer.parseInt( categoryComboUID );
+                
+                //System.out.println( "** In side DeAndCombo 1 " + dataElementId + ":" + optionComboId );
+                
+                DataElement dataElement = dataElementService.getDataElement( replaceString );
+                DataElementCategoryOptionCombo categoryOptionCombo = dataElementCategoryService.getDataElementCategoryOptionCombo(categoryComboUID);
+                
+                replaceString = dataElement.getId() + "." + categoryOptionCombo.getId();
+                
+                //System.out.println( " replaceString in side fetch value --" + replaceString );
+                
                 replaceString = aggDeMap.get( replaceString );
 
                 if ( replaceString == null )
