@@ -57,10 +57,13 @@ public class SqlView
     implements Cacheable
 {
     public static final String PREFIX_VIEWNAME = "_view";
-
+	
     public static final Set<String> PROTECTED_TABLES = ImmutableSet.<String>builder().add(
-        "users", "userinfo", "trackedentityattribute", "trackedentityattributevalue", "oauth_access_token", "oauth2client" ).build();
-
+        "users", "userinfo", "oauth_access_token", "oauth2client" ).build();
+	/*
+    public static final Set<String> PROTECTED_TABLES = ImmutableSet.<String>builder().add(
+        "users", "userinfo", "trackedentityattribute", "trackedentityattributevalue", "oauth_access_token", "oauth2client" ).build();		
+	*/	
     public static final Set<String> ILLEGAL_KEYWORDS = ImmutableSet.<String>builder().add(
         "delete", "alter", "update", "create", "drop", "commit", "createdb",
         "createuser", "insert", "rename", "restore", "write" ).build();
