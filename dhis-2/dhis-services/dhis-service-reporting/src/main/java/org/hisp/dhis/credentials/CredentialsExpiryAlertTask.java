@@ -40,6 +40,8 @@ import org.hisp.dhis.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
+
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -77,7 +79,7 @@ public class CredentialsExpiryAlertTask implements Runnable
     public void run()
     {
         boolean isExpiryAlertEnabled = (Boolean) systemSettingManager.getSystemSetting( SettingKey.CREDENTIALS_EXPIRY_ALERT );
-
+        
         if ( !isExpiryAlertEnabled )
         {
             log.info( String.format( "%s aborted. Expiry alerts are disabled", KEY_TASK ) );
