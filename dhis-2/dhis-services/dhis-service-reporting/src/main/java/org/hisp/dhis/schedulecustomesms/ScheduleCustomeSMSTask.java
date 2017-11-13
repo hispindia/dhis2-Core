@@ -152,7 +152,8 @@ public class ScheduleCustomeSMSTask
         currentYear = simpleDateFormat.format( date ).split( "-" )[0];
         String currentHour = timeFormat.format( date ).split( ":" )[0];
 
-        //System.out.println( todayDate + " -- " + currentDate + " --- " + currentMonth + " --- " + currentYear + " --- "+ currentHour );
+        // System.out.println( todayDate + " -- " + currentDate + " --- " +
+        // currentMonth + " --- " + currentYear + " --- "+ currentHour );
 
         List<TrackedEntityInstance> teiList = new ArrayList<TrackedEntityInstance>(
             getTrackedEntityInstancesByAttributeId( SMS_CONSENT_ATTRIBUTE_ID ) );
@@ -167,14 +168,17 @@ public class ScheduleCustomeSMSTask
 
         try
         {
-            scheduledCustomePillPickUPANDTbScreeingSMS( ART_FOLLOW_UP_PROGRAM_STAGE_ID, SMS_CONSENT_ATTRIBUTE_ID,
-                MOBILE_NUMBER_ATTRIBUTE_ID );
-            scheduledCustomeCD4CountSMS( MEDICAL_HISTORY_PROGRAM_STAGE_ID, SMS_CONSENT_ATTRIBUTE_ID,
-                MOBILE_NUMBER_ATTRIBUTE_ID, CD4_TEST_DATAELEMENT_ID );
-            scheduledCustomeCD4CountAndViralLoadARTSMS( teiList );
-            scheduledPMTCTAndCervicalCancerSMS( teiList );
-            scheduledAwarenessForEIDSMS( teiList );
-            scheduledAwarenessChildComplete18MonthSMS( teiList );
+            // scheduledCustomePillPickUPANDTbScreeingSMS(
+            // ART_FOLLOW_UP_PROGRAM_STAGE_ID, SMS_CONSENT_ATTRIBUTE_ID,
+            // MOBILE_NUMBER_ATTRIBUTE_ID );
+            // scheduledCustomeCD4CountSMS( MEDICAL_HISTORY_PROGRAM_STAGE_ID,
+            // SMS_CONSENT_ATTRIBUTE_ID, MOBILE_NUMBER_ATTRIBUTE_ID,
+            // CD4_TEST_DATAELEMENT_ID );
+            // scheduledCustomeCD4CountAndViralLoadARTSMS( teiList );
+            // scheduledPMTCTAndCervicalCancerSMS( teiList );
+            // scheduledAwarenessForEIDSMS( teiList );
+            // scheduledAwarenessChildComplete18MonthSMS( teiList );
+            scheduledEIDAfter4WeekOfDevliverySMS( teiList );
         }
         catch ( IOException e1 )
         {
@@ -184,6 +188,7 @@ public class ScheduleCustomeSMSTask
         }
 
         // daily Message
+
         try
         {
             scheduledCustomeSMS( mobileNumbers, dailyMessages );
@@ -207,7 +212,7 @@ public class ScheduleCustomeSMSTask
                 System.out.println( "Error SMS " + e.getMessage() );
             }
         }
-        
+
         // Bi Monthly Messages
         if ( currentDate.equalsIgnoreCase( "01" ) || currentDate.equalsIgnoreCase( "15" ) )
         {
@@ -221,7 +226,7 @@ public class ScheduleCustomeSMSTask
                 System.out.println( "Error SMS " + e.getMessage() );
             }
         }
-        
+
         // Weekly Messages
         if ( currentDate.equalsIgnoreCase( "01" ) || currentDate.equalsIgnoreCase( "08" )
             || currentDate.equalsIgnoreCase( "15" ) || currentDate.equalsIgnoreCase( "22" )
@@ -675,7 +680,8 @@ public class ScheduleCustomeSMSTask
         throws IOException
     {
         System.out.println( " Awareness For EID SMS Scheduler Started at : " + new Date() );
-        TrackedEntityAttribute teMobileNoAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( MOBILE_NUMBER_ATTRIBUTE_ID );
+        TrackedEntityAttribute teMobileNoAttribute = trackedEntityAttributeService
+            .getTrackedEntityAttribute( MOBILE_NUMBER_ATTRIBUTE_ID );
         BulkSMSHttpInterface bulkSMSHTTPInterface = new BulkSMSHttpInterface();
 
         try
@@ -765,7 +771,8 @@ public class ScheduleCustomeSMSTask
         throws IOException
     {
         System.out.println( " Awareness For Child Complete 18 Month SMS Scheduler Started at : " + new Date() );
-        TrackedEntityAttribute teMobileNoAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( MOBILE_NUMBER_ATTRIBUTE_ID );
+        TrackedEntityAttribute teMobileNoAttribute = trackedEntityAttributeService
+            .getTrackedEntityAttribute( MOBILE_NUMBER_ATTRIBUTE_ID );
         BulkSMSHttpInterface bulkSMSHTTPInterface = new BulkSMSHttpInterface();
 
         try
@@ -793,17 +800,17 @@ public class ScheduleCustomeSMSTask
                             Calendar calendar = Calendar.getInstance();
                             calendar.setTime( infantDateOfBirthObject );
                             calendar.set( Calendar.MONTH, (calendar.get( Calendar.MONTH ) + 18) );
-                            Date eighteenMonthBeforeDate = calendar.getTime();
+                            Date eighteenMonthAfterDate = calendar.getTime();
 
                             // one day before eighteenMonthBeforeDate
                             Calendar oneDayBefore = Calendar.getInstance();
-                            oneDayBefore.setTime( eighteenMonthBeforeDate );
+                            oneDayBefore.setTime( eighteenMonthAfterDate );
                             oneDayBefore.add( Calendar.DATE, -1 );
                             Date oneDayBeforeDate = oneDayBefore.getTime();
 
                             // 2 day before eighteenMonthBeforeDate
                             Calendar twoDayBefore = Calendar.getInstance();
-                            twoDayBefore.setTime( eighteenMonthBeforeDate );
+                            twoDayBefore.setTime( eighteenMonthAfterDate );
                             twoDayBefore.add( Calendar.DATE, -2 );
                             Date twoDayBeforeDate = twoDayBefore.getTime();
 
@@ -832,6 +839,88 @@ public class ScheduleCustomeSMSTask
         }
 
         System.out.println( " Awareness For Child Complete 18 Month SMS Scheduler End at : " + new Date() );
+    }
+
+    // EID appointment reminders after 4week of delivery/dob of child
+    public void scheduledEIDAfter4WeekOfDevliverySMS( List<TrackedEntityInstance> teiList )
+        throws IOException
+    {
+        System.out.println( " EID After 4Week Of Devlivery SMS Scheduler Started at : " + new Date() );
+        TrackedEntityAttribute teMobileNoAttribute = trackedEntityAttributeService
+            .getTrackedEntityAttribute( MOBILE_NUMBER_ATTRIBUTE_ID );
+        BulkSMSHttpInterface bulkSMSHTTPInterface = new BulkSMSHttpInterface();
+
+        try
+        {
+            if ( teiList != null && teiList.size() > 0 )
+            {
+                for ( TrackedEntityInstance tei : teiList )
+                {
+                    TrackedEntityAttributeValue teaValue = trackedEntityAttributeValueService
+                        .getTrackedEntityAttributeValue( tei, teMobileNoAttribute );
+                    if ( teaValue != null && teaValue.getValue() != null && teaValue.getValue().length() == 10 )
+                    {
+                        String orgUnitAndEdDateValue = getLatestEventOrgAndDataValue(
+                            EID_AND_TREATMENT_PROGRAM_STAGE_ID, DATE_OF_BIRTH_INFANT_DATAELEMENT_ID, tei.getId() );
+
+                        if ( orgUnitAndEdDateValue != null && !orgUnitAndEdDateValue.equalsIgnoreCase( "" ) )
+                        {
+                            OrganisationUnit orgUnit = organisationUnitService.getOrganisationUnit( Integer
+                                .parseInt( orgUnitAndEdDateValue.split( ":" )[0] ) );
+
+                            String infantDateOfBirth = orgUnitAndEdDateValue.split( ":" )[1];
+                            Date infantDateOfBirthObject = simpleDateFormat.parse( infantDateOfBirth );
+
+                            // 4week after from infant Date Of Birth
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTime( infantDateOfBirthObject );
+                            calendar.add( Calendar.WEEK_OF_YEAR, 4 );
+                            Date fourWeekAfterDate = calendar.getTime();
+
+                            // one day before fourWeekAfterDate
+                            Calendar oneDayBefore = Calendar.getInstance();
+                            oneDayBefore.setTime( fourWeekAfterDate );
+                            oneDayBefore.add( Calendar.DATE, -1 );
+                            Date oneDayBeforeDate = oneDayBefore.getTime();
+
+                            // 2 day before fourWeekAfterDate
+                            Calendar twoDayBefore = Calendar.getInstance();
+                            twoDayBefore.setTime( fourWeekAfterDate );
+                            twoDayBefore.add( Calendar.DATE, -2 );
+                            Date twoDayBeforeDate = twoDayBefore.getTime();
+
+                            String oneDayBeforeDateString = simpleDateFormat.format( oneDayBeforeDate );
+                            String twoDayBeforeDateString = simpleDateFormat.format( twoDayBeforeDate );
+                            // System.out.println( " Date of delivery -- " +
+                            // infantDateOfBirth + " 4 week After Date : " +
+                            // simpleDateFormat.format( fourWeekAfterDate ) +
+                            // " one day before : " + oneDayBeforeDateString +
+                            // " two day before : " + twoDayBeforeDateString );
+
+                            // one day before
+                            if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString )
+                                || todayDate.equalsIgnoreCase( twoDayBeforeDateString ) )
+                            {
+                                String customMessage = "तपाईको बच्चा जन्मेको ६ हप्ता भित्रमा जांच गराउन  "
+                                    + orgUnit.getName() + " मा " + simpleDateFormat.format( fourWeekAfterDate )
+                                    + " गते ल्याउनु होला |";
+                                bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
+                                System.out.println( " inside schedule SMS " + teaValue.getValue() + " -------- > "
+                                    + customMessage );
+                            }
+                        }
+
+                    }
+                }
+            }
+
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( " EID After 4Week Of Devlivery SMS Exception -- ", e );
+        }
+
+        System.out.println( " EID After 4Week Of Devlivery SMS Scheduler End at : " + new Date() );
     }
 
     // --------------------------------------------------------------------------------
