@@ -228,9 +228,13 @@ function savePBFDataValue( dataElementId, valueType )
 	
 	var qtyValidatedFieldId = "pbfdv_qty_validated_"+dataElementId;
 	
+	var totalFieldId = "total_"+dataElementId;
+	
 	var qtyRreported = document.getElementById( qtyReportedFieldId ).value;
 	
 	var qtyValidated = document.getElementById( qtyValidatedFieldId ).value;
+	
+	var totalValue = document.getElementById( totalFieldId ).value;
 	
 	if( valueType == 1 )
 	{
@@ -282,7 +286,8 @@ function savePBFDataValue( dataElementId, valueType )
 				'organisationUnitId' : $("#selectedOrgunitID").val(),
 				'periodIso' : period,
 				'tariffAmt' : tariffAmt,
-				'value' : value
+				'value' : value,
+				'totalValue' : totalValue
     };
     jQuery.ajax( {
             url: 'saveValue.action',

@@ -54,7 +54,7 @@ public class HibernatePBFDataValueStore implements PBFDataValueStore
     @Override
     public void addPBFDataValue( PBFDataValue pbfDataValue ) 
     {
-	pbfDataValue.setPeriod( periodStore.reloadForceAddPeriod( pbfDataValue.getPeriod() ) );
+    	pbfDataValue.setPeriod( periodStore.reloadForceAddPeriod( pbfDataValue.getPeriod() ) );
 
         Session session = sessionFactory.getCurrentSession();
 
