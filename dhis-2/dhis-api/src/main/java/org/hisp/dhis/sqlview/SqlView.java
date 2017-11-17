@@ -60,16 +60,11 @@ public class SqlView
     
     /*
     public static final Set<String> PROTECTED_TABLES = ImmutableSet.<String>builder().add(
-<<<<<<< HEAD
         "users", "userinfo", "trackedentityattribute", "trackedentityattributevalue", "oauth_access_token", "oauth2client" ).build();
     */
     public static final Set<String> PROTECTED_TABLES = ImmutableSet.<String>builder().add(
         "users", "userinfo", "oauth_access_token", "oauth2client" ).build();
-
-=======
-        "users", "userinfo", "oauth_access_token", "oauth2client" ).build();
->>>>>>> 523f71712aa21371ba28d26e4a2ab9632ad11ed8
-
+    
     public static final Set<String> ILLEGAL_KEYWORDS = ImmutableSet.<String>builder().add(
         "delete", "alter", "update", "create", "drop", "commit", "createdb",
         "createuser", "insert", "rename", "restore", "write" ).build();
