@@ -36,7 +36,12 @@ html {
 #a1 {
   display: none;
 }
-
+#a11 {
+  display: none;
+}
+#a22 {
+  display: none;
+}
 #c1 {
     display: none;
 }
@@ -108,6 +113,20 @@ width: 138px;
   }
   
 
+  /* IR11 */
+
+.IR11 {
+  margin: auto;
+  display: none;
+  padding: 2%;
+}
+
+.IR11 div {
+  margin: 0.5%;
+  /* text-align: left; */
+}
+
+
 /* IR2 */
 .IR2{
     margin: auto;
@@ -119,6 +138,19 @@ width: 138px;
     margin: 0.5%;
     /* text-align: left; */
   }
+
+  /* IR22 */
+.IR22{
+  margin: auto;
+  display: none;
+  padding: 2%;
+}
+
+.IR22 div {
+  margin: 0.5%;
+  /* text-align: left; */
+}
+
 
 /* IR3 */
 .IR3{
