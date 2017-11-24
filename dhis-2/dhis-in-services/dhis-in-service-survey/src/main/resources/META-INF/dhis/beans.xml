@@ -18,10 +18,10 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
       <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 	
-  <bean id="org.hisp.dhis.target.DeTargetMappingStore"
+  <!--  <bean id="org.hisp.dhis.target.DeTargetMappingStore"
     class="org.hisp.dhis.target.HibernateDeTargetMappingStore">
     <property name="sessionFactory" ref="sessionFactory"/>    
-  </bean>
+  </bean>-->
 	
 	  
 <!-- Survey Service definitions -->
@@ -38,11 +38,11 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
       ref="org.hisp.dhis.surveydatavalue.SurveyDataValueStore"/>
   </bean>	
   
-  <bean id="org.hisp.dhis.target.DeTargetMappingService"
+  <!--  <bean id="org.hisp.dhis.target.DeTargetMappingService"
     class="org.hisp.dhis.target.DefaultDeTargetMappingService">
     <property name="deTargetMappingStore"
       ref="org.hisp.dhis.target.DeTargetMappingStore"/>
-  </bean>
+  </bean>-->
 	
 	
 <!-- DeTarget Service definitions -->
