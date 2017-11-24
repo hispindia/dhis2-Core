@@ -1,0 +1,210 @@
+
+.header {
+  height: 50px;
+  background: #0D7CC1;
+  margin: 1%;
+  text-align: center;
+  color: white;
+  padding: 1%;
+  font-size: 20px;
+}
+
+html {
+  font-size: 14px;
+}
+
+#header * {
+  font-family: 'Roboto';
+}
+
+#contentDiv {
+  display: none;
+}
+
+#back_button {
+  display: none;
+}
+
+#d1 {
+  display: none;
+}
+
+#h1 {
+  display: none;
+}
+
+#a1 {
+  display: none;
+}
+#a11 {
+  display: none;
+}
+#a22 {
+  display: none;
+}
+#c1 {
+    display: none;
+}
+
+.card-deck {
+  margin: 0;
+}
+
+.card {
+  border-radius: 250px 250px;
+  box-shadow: 0px 1px 11px 2px rgba(0, 0, 0, 0.4);
+}
+
+.card-body{
+    padding: 1rem;
+}
+
+
+.card:hover {
+  border-color: #0D7CC1;
+}
+
+.card-img-top {
+  max-width: 100% 100%;
+  height: 30px;
+}
+
+.card-title {
+  text-align: center;
+  height: 50px;
+width: 138px;
+  font-weight: 400;
+}
+
+.card-img-top {
+  height: 75px;
+  width: 75px;
+}
+
+.img1 {
+  margin: auto;
+}
+
+
+/* Household Drop Down */
+
+.houseHold1 {
+  margin: auto;
+  display: none;
+  padding: 2%;
+}
+
+.houseHold1 div {
+  margin: 0.5%;
+  text-align: left;
+}
+
+/* IR1 */
+
+.IR1 {
+    margin: auto;
+    display: none;
+    padding: 2%;
+  }
+  
+  .IR1 div {
+    margin: 0.5%;
+    /* text-align: left; */
+  }
+  
+
+  /* IR11 */
+
+.IR11 {
+  margin: auto;
+  display: none;
+  padding: 2%;
+}
+
+.IR11 div {
+  margin: 0.5%;
+  /* text-align: left; */
+}
+
+
+/* IR2 */
+.IR2{
+    margin: auto;
+    display: none;
+    padding: 2%;
+}
+
+.IR2 div {
+    margin: 0.5%;
+    /* text-align: left; */
+  }
+
+  /* IR22 */
+.IR22{
+  margin: auto;
+  display: none;
+  padding: 2%;
+}
+
+.IR22 div {
+  margin: 0.5%;
+  /* text-align: left; */
+}
+
+
+/* IR3 */
+.IR3{
+    margin: auto;
+    display: none;
+    padding: 2%;
+}
+
+
+.IR3 div {
+    margin: 0.5%;
+    /* text-align: left; */
+  }
+
+
+/* IR4 */
+.IR4{
+    margin: auto;
+    display: none;
+    padding: 2%;
+}
+
+
+.IR4 div {
+    margin: 0.5%;
+    /* text-align: center; */
+  }
+
+.media {
+  border: 1px solid #e2e2e2;
+  border-radius: 5px;
+  box-shadow: 0px 1px 11px 2px rgba(0, 0, 0, 0.4);
+}
+
+.media:hover {
+  border-color: #0D7CC1;
+}
+
+
+.Activity {
+  margin: auto;
+  display: none;
+  padding: 2%;
+}
+
+.Activity div {
+  margin: 0.5%;
+  text-align: left;
+}
+
+.link1{
+    font-size:15px;
+    text-align: center;
+}
+.media-body{
+  text-align:center;
+}
