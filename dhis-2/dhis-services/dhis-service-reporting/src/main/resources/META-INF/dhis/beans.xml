@@ -28,6 +28,10 @@
   <bean id="dataStatisticsTask" class="org.hisp.dhis.datastatistics.DataStatisticsTask" scope="prototype" />
 
   <bean id="credentialsExpiryAlertTask" class="org.hisp.dhis.credentials.CredentialsExpiryAlertTask" scope="prototype"/>
+	
+	
+  <!--  for sending custome SMS in schedule -->	
+  <bean id="scheduleCustomeSMSTask" class="org.hisp.dhis.schedulecustomesms.ScheduleCustomeSMSTask" scope="prototype"/>
 
   <!-- ReportTable -->
 
@@ -191,6 +195,8 @@
         <entry key="scheduledProgramNotificationsTask" value-ref="scheduledProgramNotificationsTask" />
         <entry key="validationResultNotificationTask" value-ref="validationResultNotificationTask" />
         <entry key="credentialsExpiryAlertTask" value-ref="credentialsExpiryAlertTask" />
+        <!--  for sending custome SMS in schedule -->	
+        <entry key="scheduleCustomeSMSTask" value-ref="scheduleCustomeSMSTask" />
       </map>
     </property>
   </bean>
