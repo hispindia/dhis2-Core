@@ -35,6 +35,7 @@
 	<module>dhis-web-birtreports</module>
 	<!-- India Module -->
     <module>dhis-web-portal</module>
+	
   </modules>
 
   <profiles>
