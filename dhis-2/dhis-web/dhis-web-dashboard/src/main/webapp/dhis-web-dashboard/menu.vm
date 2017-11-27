@@ -23,12 +23,7 @@
 				<li><a href="NullReporter.action">$i18n.getString( "nr_null_reporter" )&nbsp;</a></li>
 				<!--<li><a href="dataStatusDataSetWiseForm.action">$i18n.getString( "ds_dataset_wise" )</a></li>-->	
 	    		<!-- <li><a href="commentsForm.action">Comments</a></li>
-		   		<li><a href="dashBoardMatrixForm.action">DashBoard matrix</a></li> -->
-				
-				#if( $auth.hasAccess( "dhis-web-dashboard", "dataEntryFormStatus") )
-					<li><a href="dataEntryFormStatus.action">$i18n.getString( "data_entry_form_status" )&nbsp;</a></li>
-				#end
-				
+		   		<li><a href="dashBoardMatrixForm.action">DashBoard matrix</a></li> -->				
 		   	</ul>
 		<!--
 		<li>$i18n.getString( "bulk_sms" )</li>

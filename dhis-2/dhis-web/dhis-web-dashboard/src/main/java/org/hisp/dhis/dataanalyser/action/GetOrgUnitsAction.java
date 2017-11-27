@@ -95,10 +95,10 @@ public class GetOrgUnitsAction implements Action
         }
         
         System.out.println(" orgUnit Id is : " + orgUnit.getId() + " , orgUnit Name is : " + orgUnit.getName() );
-        //orgUnitLevel = organisationUnitService.getLevelOfOrganisationUnit( orgUnit );
-        orgUnitLevel = organisationUnitService.getOrganisationUnitLevel( orgUnit.getId() ).getLevel();
+        //orgUnitLevel = organisationUnitService.getOrganisationUnitLevel( orgUnit.getLevel() ).getLevel();
+        orgUnitLevel = orgUnit.getLevel();
         maxOrgUnitLevel = organisationUnitService.getNumberOfOrganisationalLevels();
-        
+        System.out.println(" orgUnit Id is : " + orgUnit.getId() + " , orgUnit Name is : " + orgUnit.getName() + " -- " + orgUnitLevel );
         // Hardcoded : if it is Tabular Analysis, Null Reporter
         if( type != null && type.equalsIgnoreCase( "ta" ) )
         {
@@ -114,7 +114,8 @@ public class GetOrgUnitsAction implements Action
                 
                 Integer level = orgunitLevelMap.get( orgU.getId() );
                 if( level == null )
-                    level = organisationUnitService.getOrganisationUnitLevel( orgU.getId() ).getLevel();
+                    //level = organisationUnitService.getOrganisationUnitLevel( orgU.getId() ).getLevel();
+                	level = orgU.getLevel();
                 if ( level > maxOrgUnitLevel )
                 {
                     maxOrgUnitLevel = level;
