@@ -2,6 +2,7 @@
 package org.hisp.dhis.reports.ouwiseprogress.action;
 
 import static org.hisp.dhis.util.ConversionUtils.getIdentifiers;
+
 import static org.hisp.dhis.util.TextUtils.getCommaDelimitedString;
 
 import java.io.BufferedInputStream;
@@ -216,6 +217,8 @@ public class GenerateOuWiseProgressReportResultAction
 
     private String raFolderName;
     
+    
+    
     private SimpleDateFormat dateTimeFormat;
     
     private PeriodType selPeriodType;
@@ -230,6 +233,7 @@ public class GenerateOuWiseProgressReportResultAction
 
         // Initialization
         raFolderName = reportService.getRAFolderName();
+        //System.out.println("raFolderName -- "+raFolderName);
         simpleDateFormat = new SimpleDateFormat( "MMM-yy" );
         SimpleDateFormat dayFormat = new SimpleDateFormat( "yyyy-MM-dd" );
         dateTimeFormat = new SimpleDateFormat( "EEEE, dd MMMM yyyy HH:mm:ss zzzz" );
@@ -251,7 +255,8 @@ public class GenerateOuWiseProgressReportResultAction
         // OrgUnit Related Info
         selectedOrgUnit = new OrganisationUnit();
         selectedOrgUnit = organisationUnitService.getOrganisationUnit( ouIDTB );
-        int selectedOrgUnitLevel = organisationUnitService.getOrganisationUnitLevel( selectedOrgUnit.getUid() ).getLevel();
+       int selectedOrgUnitLevel = organisationUnitService.getOrganisationUnitLevel( selectedOrgUnit.getUid() ).getLevel();
+        //int selectedOrgUnitLevel = selectedOrgUnit.getLevel();
 
 	System.out.println( selectedOrgUnit.getName()+ " : " + selReportObj.getName()+" : Report Generation Start Time is : " + new Date() );
 		
@@ -289,8 +294,10 @@ public class GenerateOuWiseProgressReportResultAction
         
         String inputTemplatePath = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + "template" + File.separator + reportFileNameTB;
         //String outputReportPath = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + "output" + File.separator + UUID.randomUUID().toString() + ".xls";
-        
+       // System.out.println("inputTemplatePath -- "+inputTemplatePath);
         String outputReportPath = System.getenv( "DHIS2_HOME" ) + File.separator +  Configuration_IN.DEFAULT_TEMPFOLDER;
+       // System.out.println("outputReportPath -- "+outputReportPath);
+
         File newdir = new File( outputReportPath );
         if( !newdir.exists() )
         {

@@ -185,6 +185,7 @@ public class GenerateUpwardReportAnalyserResultAction
 
         // Initialization
         raFolderName = reportService.getRAFolderName();
+        //System.out.println("raFolderName -- "+raFolderName);
         String deCodesXMLFileName = "";
         simpleDateFormat = new SimpleDateFormat( "MMM-yyyy" );
         monthFormat = new SimpleDateFormat( "MMMM" );
@@ -201,14 +202,19 @@ public class GenerateUpwardReportAnalyserResultAction
 
         String inputTemplatePath = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + "template" + File.separator + reportFileNameTB;
         //String outputReportPath = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + "output" + File.separator + UUID.randomUUID().toString() + ".xls";
+       // System.out.println("inputTemplatePath -- " + inputTemplatePath);
         
         String outputReportPath = System.getenv( "DHIS2_HOME" ) + File.separator +  Configuration_IN.DEFAULT_TEMPFOLDER;
+        
+        //System.out.println("outputReportPath -- " + outputReportPath);
+     
         File newdir = new File( outputReportPath );
         if( !newdir.exists() )
         {
             newdir.mkdirs();
         }
         outputReportPath += File.separator + UUID.randomUUID().toString() + ".xls";
+        //System.out.println("outputReportPath -- " + outputReportPath);       
         
         if ( reportModelTB.equalsIgnoreCase( "DYNAMIC-ORGUNIT" ) )
         {
