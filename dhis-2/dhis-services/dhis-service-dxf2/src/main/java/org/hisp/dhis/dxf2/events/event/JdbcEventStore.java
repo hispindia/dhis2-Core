@@ -52,6 +52,8 @@ import org.hisp.dhis.util.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.hisp.dhis.dxf2.events.trackedentity.TrackedEntityInstance;
+import org.hisp.dhis.dxf2.events.trackedentity.TrackedEntityInstanceService;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -78,7 +80,11 @@ public class JdbcEventStore
     implements EventStore
 {
     private static final Log log = LogFactory.getLog( JdbcEventStore.class );
-
+    
+    // add for association between event and list of tracked entity instances for save events members
+    @Autowired
+    private TrackedEntityInstanceService trackedEntityInstanceService;
+    
     private static final Map<String, String> QUERY_PARAM_COL_MAP = ImmutableMap.<String, String> builder()
         .put( "event", "psi_uid" ).put( "program", "p_uid" ).put( "programStage", "ps_uid" )
         .put( "enrollment", "pi_uid" ).put( "enrollmentStatus", "pi_status" ).put( "orgUnit", "ou_uid" )
@@ -87,7 +93,8 @@ public class JdbcEventStore
         .put( "dueDate", "psi_duedate" ).put( "storedBy", "psi_storedby" ).put( "created", "psi_created" )
         .put( "lastUpdated", "psi_lastupdated" ).put( "completedBy", "psi_completedby" )
         .put( "attributeOptionCombo", "psi_aoc" ).put( "completedDate", "psi_completeddate" )
-        .put( "deleted", "psi_deleted" ).build();
+        .put( "deleted", "psi_deleted" )
+        .put( "programStageInstanceMembers", "psim_tei" ).build();// add for association between event and list of tracked entity instances for save events members
 
     // -------------------------------------------------------------------------
     // Dependencies
@@ -242,6 +249,18 @@ public class JdbcEventStore
                 event.getNotes().add( note );
                 notes.add( rowSet.getString( "psinote_id" ) );
             }
+            
+            // add for association between event and list of tracked entity instances for save events members
+            if ( rowSet.getString( "psim_tei" ) != null )
+            {
+                TrackedEntityInstance trackedEntityInstance = trackedEntityInstanceService.getTrackedEntityInstance(Integer.parseInt(rowSet.getString( "psim_tei" )));
+                if (!event.getEventMembers().contains(trackedEntityInstance))
+                {
+                    event.getEventMembers().add(trackedEntityInstance);
+                }
+            }
+            
+            
         }
 
         return events;
@@ -570,6 +589,7 @@ public class JdbcEventStore
             + "deco.uid AS deco_uid, pi.uid as pi_uid, pi.status as pi_status, pi.followup as pi_followup, p.uid as p_uid, p.code as p_code, "
             + "p.type as p_type, ps.uid as ps_uid, ps.code as ps_code, ps.capturecoordinates as ps_capturecoordinates, "
             + "ou.uid as ou_uid, ou.code as ou_code, ou.name as ou_name, "
+            + "psim.trackedentityinstanceid as psim_tei, " // add for association between event and list of tracked entity instances for save events members
             + "tei.trackedentityinstanceid as tei_id, tei.uid as tei_uid, teiou.uid as tei_ou, teiou.name as tei_ou_name, tei.created as tei_created, tei.inactive as tei_inactive "
             + "from programstageinstance psi "
             + "inner join programinstance pi on pi.programinstanceid=psi.programinstanceid "
@@ -580,7 +600,8 @@ public class JdbcEventStore
             + "INNER JOIN dataelementcategoryoption deco ON cocco.categoryoptionid=deco.categoryoptionid "
             + "left join trackedentityinstance tei on tei.trackedentityinstanceid=pi.trackedentityinstanceid "
             + "left join organisationunit ou on (psi.organisationunitid=ou.organisationunitid) "
-            + "left join organisationunit teiou on (tei.organisationunitid=teiou.organisationunitid) ";
+            + "left join organisationunit teiou on (tei.organisationunitid=teiou.organisationunitid) "
+            + "left join programstageinstancemembers psim on (psim.programstageinstanceid=psi.programstageinstanceid) "; // add for association between event and list of tracked entity instances for save events members;
 
         if ( params.getTrackedEntityInstance() != null )
         {
