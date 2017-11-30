@@ -255,10 +255,10 @@ public class GenerateOuWiseProgressReportResultAction
         // OrgUnit Related Info
         selectedOrgUnit = new OrganisationUnit();
         selectedOrgUnit = organisationUnitService.getOrganisationUnit( ouIDTB );
-       int selectedOrgUnitLevel = organisationUnitService.getOrganisationUnitLevel( selectedOrgUnit.getUid() ).getLevel();
-        //int selectedOrgUnitLevel = selectedOrgUnit.getLevel();
+        //int selectedOrgUnitLevel = organisationUnitService.getOrganisationUnitLevel( selectedOrgUnit.getUid() ).getLevel();
+        int selectedOrgUnitLevel = selectedOrgUnit.getLevel();
 
-	System.out.println( selectedOrgUnit.getName()+ " : " + selReportObj.getName()+" : Report Generation Start Time is : " + new Date() );
+       System.out.println( selectedOrgUnit.getName()+ " : " + selReportObj.getName()+" : Report Generation Start Time is : " + new Date() );
 		
         if ( reportModelTB.equalsIgnoreCase( "PROGRESSIVE-ORGUNIT" ) )
         {            
