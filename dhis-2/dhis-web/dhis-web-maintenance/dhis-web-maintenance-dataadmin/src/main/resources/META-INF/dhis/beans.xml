@@ -182,4 +182,74 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     class="org.hisp.dhis.dataadmin.action.scheduling.ScheduleTasksAction"
     scope="prototype" />
 
+	<!-- Advance Lock Exception Management  -->
+	
+	<bean id="org.hisp.dhis.dataadmin.action.advancelockexception.LockExceptionManagementFormAction"
+		class="org.hisp.dhis.dataadmin.action.advancelockexception.LockExceptionManagementFormAction"
+		scope="prototype">
+		<property name="periodService">
+			<ref bean="org.hisp.dhis.period.PeriodService"/>
+		</property>
+	</bean>		
+
+	<!-- Get Periods and DataSet List-->
+	<bean id="org.hisp.dhis.dataadmin.action.advancelockexception.GetPeriodsAndDataSetListAction"
+		class="org.hisp.dhis.dataadmin.action.advancelockexception.GetPeriodsAndDataSetListAction"
+		scope="prototype">
+		<property name="periodService">
+			<ref bean="org.hisp.dhis.period.PeriodService"/>
+		</property>
+		<property name="dataSetService" ref="org.hisp.dhis.dataset.DataSetService" />
+	</bean>	
+
+	<!-- Get Periods for selected Period type -->
+    <bean id="org.hisp.dhis.dataadmin.action.advancelockexception.GetPeriodsForLockExceptionAction"
+		class="org.hisp.dhis.dataadmin.action.advancelockexception.GetPeriodsForLockExceptionAction"
+		scope="prototype">
+        <property name="periodService">
+            <ref bean="org.hisp.dhis.period.PeriodService"/>
+        </property>
+	</bean>		
+
+	<!-- Get Data Sets for selected Period type -->
+    <bean id="org.hisp.dhis.dataadmin.action.advancelockexception.GetDataSetsForPeriodTypeAction"
+		class="org.hisp.dhis.dataadmin.action.advancelockexception.GetDataSetsForPeriodTypeAction"
+		scope="prototype">
+        <property name="periodService">
+            <ref bean="org.hisp.dhis.period.PeriodService"/>
+        </property>
+		<property name="dataSetService">
+            <ref bean="org.hisp.dhis.dataset.DataSetService"/>
+        </property>		
+	</bean>		
+		
+	<!-- Validate Lock Exception -->
+    <bean id="org.hisp.dhis.dataadmin.action.advancelockexception.ValidateLockExceptionAction"
+		class="org.hisp.dhis.dataadmin.action.advancelockexception.ValidateLockExceptionAction"
+		scope="prototype">
+        <property name="selectionTreeManager">
+            <ref bean="org.hisp.dhis.oust.manager.SelectionTreeManager"/>
+        </property>
+	</bean>
+			
+	<!-- Save/Delete Lock Exception -->
+    <bean id="org.hisp.dhis.dataadmin.action.advancelockexception.SaveDeleteLockExceptionAction"
+		class="org.hisp.dhis.dataadmin.action.advancelockexception.SaveDeleteLockExceptionAction"
+		scope="prototype">
+        <property name="selectionTreeManager">
+            <ref bean="org.hisp.dhis.oust.manager.SelectionTreeManager"/>
+        </property>
+		<property name="periodService">
+            <ref bean="org.hisp.dhis.period.PeriodService"/>
+        </property>
+		<property name="dataSetService">
+            <ref bean="org.hisp.dhis.dataset.DataSetService"/>
+        </property>
+		<property name="organisationUnitService">
+            <ref bean="org.hisp.dhis.organisationunit.OrganisationUnitService"/>
+        </property>
+		<property name="cacheManager" ref="cacheManager" />
+		<property name="jdbcTemplate" ref="jdbcTemplate" />
+	</bean>	
+
 </beans>

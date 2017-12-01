@@ -336,5 +336,53 @@
       <param name="requiredAuthorities">F_SCHEDULING_ADMIN</param>
     </action>
 
+
+	<!-- Advance Lock Exception Management  -->
+	
+	<action name="advanceLockException" class="org.hisp.dhis.dataadmin.action.advancelockexception.LockExceptionManagementFormAction">
+	  <interceptor-ref name="organisationUnitTreeStack" />
+	  <result name="success" type="velocity">/main.vm</result>
+	  <param name="page">/dhis-web-maintenance-dataadmin/advanceLockExceptionForm.vm</param>
+	  <param name="menu">/dhis-web-maintenance-dataadmin/menu.vm</param>
+	  <param name="javascripts">../dhis-web-commons/oust/oust.js,javascript/advanceLockException.js</param>
+	  <param name="requiredAuthorities">F_ADVANCE_LOCK_EXCEPTION</param>
+	</action>			  
+
+	<!-- Get Periods and DataSet List-->
+	<action name="getPeriodsAndDataSetList" class="org.hisp.dhis.dataadmin.action.advancelockexception.GetPeriodsAndDataSetListAction">
+		<result name="success" type="velocity-xml">/dhis-web-maintenance-dataadmin/responsePeriodsAndDataSetList.vm</result>
+		<param name="onExceptionReturn">plainTextError</param>
+		<param name="requiredAuthorities">F_ADVANCE_LOCK_EXCEPTION</param>
+	</action>
+
+	<!-- Get Periods for selected Period type -->
+	<action name="getPeriodsForLockException" class="org.hisp.dhis.dataadmin.action.advancelockexception.GetPeriodsForLockExceptionAction">
+	  <result name="success" type="velocity">/dhis-web-commons/ajax/xmlPeriods.vm</result>
+	  <param name="onExceptionReturn">plainTextError</param>
+	</action>	  
+
+	<!-- Get Data Sets for selected Period type -->
+	<action name="getDataSetsForPeriodType" class="org.hisp.dhis.dataadmin.action.advancelockexception.GetDataSetsForPeriodTypeAction">
+	  <result name="success" type="velocity">/dhis-web-maintenance-dataadmin/responseDataSets.vm</result>
+	  <param name="onExceptionReturn">plainTextError</param>
+	</action>	
+
+	<!-- Validate Lock Exception -->
+	<action name="validateLockException" class="org.hisp.dhis.dataadmin.action.advancelockexception.ValidateLockExceptionAction">
+	  <result name="success" type="velocity-json">/dhis-web-commons/ajax/jsonResponseSuccess.vm</result>
+	  <result name="input" type="velocity-json">/dhis-web-commons/ajax/jsonResponseInput.vm</result>
+	  <param name="onExceptionReturn">plainTextError</param>
+	</action>			  
+  
+	<!-- Save/Delete Lock Exception -->
+	<action name="saveDeleteLockException" class="org.hisp.dhis.dataadmin.action.advancelockexception.SaveDeleteLockExceptionAction">
+	  <result name="success" type="velocity">/main.vm </result>
+	  <result name="error" type="redirect">advanceLockException.action</result>
+	  <param name="page">/dhis-web-maintenance-dataadmin/advanceLockExceptionStatus.vm</param>
+	  <param name="menu">/dhis-web-maintenance-dataadmin/menu.vm</param>
+	  <param name="requiredAuthorities">F_LOCK_EXCEPTION</param>
+	</action>    
+    
+
   </package>
 </struts>
