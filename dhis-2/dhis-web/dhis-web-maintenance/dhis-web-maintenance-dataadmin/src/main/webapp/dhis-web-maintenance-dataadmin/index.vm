@@ -7,7 +7,12 @@
     #introListImgItem( "locale.action" "locale" "datadictionary" )
     #introListImgItem( "sqlView.action" "sql_view" "sqlview" )
     #introListImgItem( "viewStatistics.action" "data_statistics" "datastatistics" )
-    #introListImgItem( "lockException.action" "lock_exception" "datalocking" )
+    <!--
+	#introListImgItem( "lockException.action" "lock_exception" "datalocking" )
+	-->
+	#if( $auth.hasAccess( "dhis-web-maintenance-dataadmin", "advanceLockException") )
+		#introListImgItem( "advanceLockException.action" "advance_lock_exception" "datalocking" )
+	#end
     #introListImgItem( "getMinMaxValidationParams.action" "min_max_value_generation" "minmaxvaluegeneration" )
     #introListImgItem( "viewScheduledTasks.action" "scheduling" "scheduling" )
 </ul>
