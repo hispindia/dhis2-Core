@@ -199,9 +199,9 @@ implements Action
       storedBy = currentUserService.getCurrentUsername();
       List<ExcelImport> excelExportDesignList = new ArrayList<ExcelImport>();
       
-      deCodesXMLFileName = "importData.xml";
+     // deCodesXMLFileName = "importData.xml";
       
-      excelExportDesignList = new ArrayList<ExcelImport>( excelImportService.getExcelImportDesign( deCodesXMLFileName ) );
+     // excelExportDesignList = new ArrayList<ExcelImport>( excelImportService.getExcelImportDesign( deCodesXMLFileName ) );
       
       
       String fileType = fileName.substring( fileName.indexOf( '.' ) + 1, fileName.length() );
