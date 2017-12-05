@@ -669,6 +669,20 @@ public abstract class AbstractEventService
             organisationUnit = programStageInstance.getOrganisationUnit();
         }
 
+        if( programStageInstance.getProgramInstance().getProgram().getName().equalsIgnoreCase("Facility assessment program"))
+        {
+        	System.out.println( " 2 orgUnit Co-ordinate -- "  + organisationUnit.getCoordinates());
+    		if( organisationUnit.getCoordinates() != null )
+    		{
+    			String longitudeLatitude = organisationUnit.getCoordinates().substring( 1, organisationUnit.getCoordinates().length()-1);
+                if( longitudeLatitude != null )
+                {
+                    programStageInstance.setLongitude( Double.parseDouble( longitudeLatitude.split( "," )[0]) );
+                    programStageInstance.setLatitude( Double.parseDouble( longitudeLatitude.split( "," )[1]) );
+                }
+    		}
+        }
+        
         Date executionDate = new Date();
 
         if ( event.getEventDate() != null )
@@ -1219,6 +1233,22 @@ public abstract class AbstractEventService
         programStageInstance.setOrganisationUnit( organisationUnit );
         programStageInstance.setAttributeOptionCombo( coc );
 
+        if( programInstance.getProgram().getName().equalsIgnoreCase("Facility assessment program"))
+        {
+        	System.out.println( " 1 orgUnit Co-ordinate -- "  + organisationUnit.getCoordinates());
+    		if( organisationUnit.getCoordinates() != null )
+    		{
+    			String longitudeLatitude = organisationUnit.getCoordinates().substring( 1, organisationUnit.getCoordinates().length()-1);
+                if( longitudeLatitude != null )
+                {
+                    programStageInstance.setLongitude( Double.parseDouble( longitudeLatitude.split( "," )[0]) );
+                    programStageInstance.setLatitude( Double.parseDouble( longitudeLatitude.split( "," )[1]) );
+                }
+    		}
+        }
+        
+        organisationUnit.getCoordinates();
+        
         if ( programStage.getCaptureCoordinates() )
         {
             if ( coordinate != null && coordinate.isValid() )
