@@ -534,11 +534,7 @@ public class ExportDataResultAction
                     
                     //int dataElementId = Integer.parseInt( replaceString );
                     //int optionComboId = Integer.parseInt( optionComboIdStr );
-                
-                
-                
-                
-                
+     
                 //int dataElementId = Integer.parseInt( deUID );
                 //int categoryOptionComboId = Integer.parseInt( categoryComboUID );
                 
@@ -549,7 +545,7 @@ public class ExportDataResultAction
                 
                 replaceString = dataElement.getId() + "." + categoryOptionCombo.getId();
                 
-                //System.out.println( " replaceString in side fetch value --" + replaceString );
+               // System.out.println( " replaceString in side fetch value --" + replaceString );
                 
                 replaceString = aggDeMap.get( replaceString );
 
