@@ -275,6 +275,7 @@ public class GenerateTabularAnalysisFormAction
                 alldeIterator.remove();
             }
         }
+        
         System.out.println(" dataElements size = "+dataElements.size());
         
         //dataElementGroups = new ArrayList<DataElementGroup>( dataElementService.getAllDataElementGroups() );

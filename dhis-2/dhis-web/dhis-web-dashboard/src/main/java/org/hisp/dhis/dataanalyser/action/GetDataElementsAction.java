@@ -205,8 +205,7 @@ public class GetDataElementsAction
             // de1.getDomainType()
             // if ( !de1.getType().equals( DataElement.VALUE_TYPE_INT ) ||
             // !de1.getType().equals( DataElement.DOMAIN_TYPE_AGGREGATE ) )
-            if ( !de1.getValueType().isInteger()
-                || !de1.getDomainType().getValue().equals( "AGGREGATE" ) )
+            if ( !de1.getDomainType().getValue().equalsIgnoreCase( "AGGREGATE" ) )
             {
 
                 alldeIterator.remove();

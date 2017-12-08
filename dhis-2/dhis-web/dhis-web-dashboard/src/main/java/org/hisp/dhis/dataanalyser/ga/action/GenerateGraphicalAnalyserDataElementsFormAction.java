@@ -260,7 +260,7 @@ public class GenerateGraphicalAnalyserDataElementsFormAction implements Action
         while ( alldeIterator.hasNext() )
         {
             DataElement de1 = alldeIterator.next();
-            if ( !de1.getValueType().isInteger() || !de1.getDomainType().getValue().equalsIgnoreCase( "AGGREGATE" ) )
+            if ( !de1.getDomainType().getValue().equalsIgnoreCase( "AGGREGATE" ) )
             {
                 alldeIterator.remove();
             }

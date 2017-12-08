@@ -131,7 +131,7 @@ public class GetDataElementsForTabularAnalysisAction implements Action
         {
             System.out.println("The id is null");
             dataElements = new ArrayList<DataElement>( dataElementService.getAllDataElements() );
-            System.out.println( " DataElements size = "+ dataElements.size() );
+            System.out.println( " DataElements size 11 = "+ dataElements.size() );
         } 
         else
         {
@@ -141,7 +141,7 @@ public class GetDataElementsForTabularAnalysisAction implements Action
                 if ( dataElementGroup != null )
                 {
                     dataElements = new ArrayList<DataElement>( dataElementGroup.getMembers() );
-                    //System.out.println( "dataElementGroup id = " + id + " dataElements size = " + dataElements.size() );
+                    System.out.println( "dataElementGroup id = " + id + " dataElements size = " + dataElements.size() );
                 }
                 else
                 {
@@ -162,20 +162,26 @@ public class GetDataElementsForTabularAnalysisAction implements Action
                 }
             }
         }
-        //System.out.println( " dataElements size = " + dataElements.size() );
+        //System.out.println( " dataElements size 22 = " + dataElements.size() );
         Iterator<DataElement> alldeIterator = dataElements.iterator();
         while ( alldeIterator.hasNext() )
         {
             DataElement de1 = alldeIterator.next();
-            if ( !de1.getValueType().isInteger()
-                || !de1.getDomainType().getValue().equals( "AGGREGATE" )  )
-           // if ( de1.getType().equals( DataElement.VALUE_TYPE_BOOL ) )
+            /*
+            if ( !de1.getValueType().isInteger() || !de1.getDomainType().getValue().equals( "AGGREGATE" )  )
             {
                 alldeIterator.remove();
             }
+            */
+            if ( !de1.getDomainType().getValue().equalsIgnoreCase( "AGGREGATE" ) )
+	        {
+            	alldeIterator.remove();
+	        }
         }
         
+        //System.out.println( " dataElements size 33 = " + dataElements.size() );
         Collections.sort( dataElements, dataElementComparator );
+        
 
         //displayPropertyHandler.handle( dataElements );
 
