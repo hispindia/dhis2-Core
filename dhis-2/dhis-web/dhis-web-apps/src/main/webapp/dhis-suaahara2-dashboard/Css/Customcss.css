@@ -42,6 +42,9 @@ html {
 #a22 {
   display: none;
 }
+#a33 {
+  display: none;
+}
 #c1 {
     display: none;
 }
@@ -147,6 +150,19 @@ width: 138px;
 }
 
 .IR22 div {
+  margin: 0.5%;
+  /* text-align: left; */
+}
+
+
+ /* IR22 */
+.IR33{
+  margin: auto;
+  display: none;
+  padding: 2%;
+}
+
+.IR33 div {
   margin: 0.5%;
   /* text-align: left; */
 }
