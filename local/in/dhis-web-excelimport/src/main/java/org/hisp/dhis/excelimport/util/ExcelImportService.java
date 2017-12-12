@@ -70,14 +70,14 @@ public class ExcelImportService
             NodeList listOfDECodes = doc.getElementsByTagName( "de-code" );
             int totalDEcodes = listOfDECodes.getLength();
 
-            System.out.print( "totalDEcodes"+totalDEcodes );
+            //System.out.print( "totalDEcodes"+totalDEcodes );
             for ( int s = 0; s < totalDEcodes; s++ )
             {
                 Element deCodeElement = (Element) listOfDECodes.item( s );
                 NodeList textDECodeList = deCodeElement.getChildNodes();
 
                 String expression = ((Node) textDECodeList.item( 0 )).getNodeValue().trim();
-                System.out.println("expression -- "  +expression);
+              //  System.out.println("expression -- "  +expression);
                 if( expression != null && !expression.equalsIgnoreCase( "0" ))
                 {
                     String dataelement = deCodeElement.getAttribute( "dataelement" );

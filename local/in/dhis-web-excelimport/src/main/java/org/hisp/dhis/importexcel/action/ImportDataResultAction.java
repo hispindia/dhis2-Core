@@ -244,7 +244,7 @@ implements Action
 
       csvReader.close();
 
-      System.out.println( "Row size -- " + allRows.size());
+      //System.out.println( "Row size -- " + allRows.size());
 
       int count1 = 0;
       int addCount = 0;

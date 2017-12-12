@@ -65,7 +65,7 @@ public class ExportFormAction
     public void setYearList( String year )
     {
         System.out.println( year );
-        System.out.println( "hello" );
+     //   System.out.println( "hello" );
     }
 
     private SimpleDateFormat simpleDateFormat;

@@ -215,7 +215,7 @@ public class ExportDataResultAction
             excelExportDesignList = new ArrayList<ExcelImport>(
             excelImportService.getExcelImportDesignDesign( deCodesXMLFileName ) );
             String dataElmentIdsByComma = excelImportService.getDataelementIds( excelExportDesignList );
-            System.out.println( " ALL dataElmentIdsByComma  --  " + dataElmentIdsByComma );
+           // System.out.println( " ALL dataElmentIdsByComma  --  " + dataElmentIdsByComma );
             
             orgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( orgUnitGroupId );
             
@@ -238,7 +238,7 @@ public class ExportDataResultAction
             deCodesXMLFileName = "exportData.xml";
             excelExportDesignList = new ArrayList<ExcelImport>( excelImportService.getExcelImportDesignDesign( deCodesXMLFileName ) );
             String dataElmentIdsByComma = excelImportService.getDataelementIds( excelExportDesignList );
-            System.out.println( " Selected dataElmentIdsByComma  --  " + dataElmentIdsByComma );
+          //  System.out.println( " Selected dataElmentIdsByComma  --  " + dataElmentIdsByComma );
             
             
             // orgUnit Details
