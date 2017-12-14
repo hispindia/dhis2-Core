@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -2382,8 +2383,8 @@ public class GenerateTabularAnalysisResultAction
         sheet0.addCell( new Label( headerCol, headerRow, "Sl.No.", getCellFormat1() ) );
 
         selOrgUnit = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitListCB.get( 0 ) ) );
-        selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
-
+        //selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        selOUList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
         Map<Integer, Integer> orgunitLevelMap = new HashMap<Integer, Integer>( reportService.getOrgunitLevelMap() );
     
         Iterator<OrganisationUnit> ouIterator = selOUList.iterator();
@@ -2394,6 +2395,7 @@ public class GenerateTabularAnalysisResultAction
             Integer level = orgunitLevelMap.get( orgU.getId() );
             if( level == null )
                 level = organisationUnitService.getOrganisationUnitLevel( orgU.getId() ).getLevel();
+            System.out.println("level ===" + level);
             if ( level > orgUnitLevelCB )
             {
                 ouIterator.remove();
@@ -2402,11 +2404,26 @@ public class GenerateTabularAnalysisResultAction
 
         int minOULevel = 1;
         int maxOuLevel = 1;
+        System.out.println("out of if statement");
+        
         if ( selOUList != null && selOUList.size() > 0 )
         {
-            minOULevel = organisationUnitService.getOrganisationUnitLevel( selOUList.get( 0 ).getId() ).getLevel();
+        	 System.out.println(" in if statement" + selOUList);
+        	 System.out.println("selOu = " + selOUList.get( 0 ));
+        	 System.out.println("selOu id = " + selOUList.get( 0 ).getId());
+        	 System.out.println("selOu id = " + selOUList.get( 0 ).getId());
+        	 
+        	 //System.out.println("selOu service = " + organisationUnitService.getLevel());
+        	 System.out.println("selOu level = " + organisationUnitService.getOrganisationUnitLevel(selOUList.get( 0 ).getLevel() ));
+        	 
+           // minOULevel = organisationUnitService.getOrganisationUnitLevel( selOUList.get( 0 ).getId() ).getLevel();
+        	// minOULevel = organisationUnitService.getOrganisationUnitLevel( selOUList.get( 0 ).getId() ).getId();
+        	 minOULevel = selOUList.get( 0 ).getLevel();
+        	 System.out.println ( " monOULevel = " + maxOuLevel);
+        
         }
         maxOuLevel = orgUnitLevelCB;
+        System.out.println ( " maxOuLevel = " + maxOuLevel);
 
         int c1 = headerCol + 1;
         for ( int i = minOULevel; i <= maxOuLevel; i++ )
@@ -2456,12 +2473,16 @@ public class GenerateTabularAnalysisResultAction
             Integer level = orgunitLevelMap.get( ou.getId() );
             if( level == null )
             {
-                level = organisationUnitService.getOrganisationUnitLevel( ou.getId() ).getLevel();
+                //level = organisationUnitService.getOrganisationUnitLevel( ou.getId() ).getLevel();
+                level = ou.getLevel();
             }
             
             colCount = 1 + level - minOULevel;
+            System.out.println("11  ougetname = " +  ou.getName() + "    ou.getlevel = " + ou.getLevel());
+            
             sheet0.addCell( new Label( colCount, headerRow + 1 + rowCount, ou.getName(), getCellFormat2() ) );
-
+            System.out.println("22  ougetname = " +  ou.getName() + "    ou.getlevel = " + ou.getLevel());
+            
             colCount = c1;
             int deListCount = 0;
             int indListCount = 0;
@@ -7508,5 +7529,71 @@ public class GenerateTabularAnalysisResultAction
             throw new RuntimeException( "Illegal DataElement id", ex );
         }
     }
+    
+    
+    
+    
+    
+    
+// supportive methods
+    
+    public Collection<OrganisationUnit> getOrganisationUnitWithChildren( int id )
+    {
+        OrganisationUnit organisationUnit = organisationUnitService.getOrganisationUnit( id );
+
+        if ( organisationUnit == null )
+        {
+            return Collections.emptySet();
+        }
+
+        List<OrganisationUnit> result = new ArrayList<OrganisationUnit>();
+
+        int rootLevel = 1;
+
+        organisationUnit.setHierarchyLevel( rootLevel );
+
+        result.add( organisationUnit );
+
+        addOrganisationUnitChildren( organisationUnit, result, rootLevel );
+
+        return result;
+    }
+
+    /**
+     * Support method for getOrganisationUnitWithChildren(). Adds all
+     * OrganisationUnit children to a result collection.
+     */
+    private void addOrganisationUnitChildren( OrganisationUnit parent, List<OrganisationUnit> result, int level )
+    {
+        if ( parent.getChildren() != null && parent.getChildren().size() > 0 )
+        {
+            level++;
+        }
+
+        List<OrganisationUnit> childList = parent.getSortedChildren();
+
+        for ( OrganisationUnit child : childList )
+        {
+            child.setHierarchyLevel( level );
+
+            result.add( child );
+
+            addOrganisationUnitChildren( child, result, level );
+        }
+
+        level--;
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
 }// class end
