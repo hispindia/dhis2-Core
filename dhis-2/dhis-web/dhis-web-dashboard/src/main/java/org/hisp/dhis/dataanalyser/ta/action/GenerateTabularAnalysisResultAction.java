@@ -2395,7 +2395,7 @@ public class GenerateTabularAnalysisResultAction
             Integer level = orgunitLevelMap.get( orgU.getId() );
             if( level == null )
                 level = organisationUnitService.getOrganisationUnitLevel( orgU.getId() ).getLevel();
-            System.out.println("level ===" + level);
+            //System.out.println("level ===" + level);
             if ( level > orgUnitLevelCB )
             {
                 ouIterator.remove();
@@ -2404,26 +2404,26 @@ public class GenerateTabularAnalysisResultAction
 
         int minOULevel = 1;
         int maxOuLevel = 1;
-        System.out.println("out of if statement");
+        //System.out.println("out of if statement");
         
         if ( selOUList != null && selOUList.size() > 0 )
         {
-        	 System.out.println(" in if statement" + selOUList);
-        	 System.out.println("selOu = " + selOUList.get( 0 ));
-        	 System.out.println("selOu id = " + selOUList.get( 0 ).getId());
-        	 System.out.println("selOu id = " + selOUList.get( 0 ).getId());
+//        	 System.out.println(" in if statement" + selOUList);
+//        	 System.out.println("selOu = " + selOUList.get( 0 ));
+//        	 System.out.println("selOu id = " + selOUList.get( 0 ).getId());
+//        	 System.out.println("selOu id = " + selOUList.get( 0 ).getId());
         	 
         	 //System.out.println("selOu service = " + organisationUnitService.getLevel());
-        	 System.out.println("selOu level = " + organisationUnitService.getOrganisationUnitLevel(selOUList.get( 0 ).getLevel() ));
+        	// System.out.println("selOu level = " + organisationUnitService.getOrganisationUnitLevel(selOUList.get( 0 ).getLevel() ));
         	 
            // minOULevel = organisationUnitService.getOrganisationUnitLevel( selOUList.get( 0 ).getId() ).getLevel();
         	// minOULevel = organisationUnitService.getOrganisationUnitLevel( selOUList.get( 0 ).getId() ).getId();
         	 minOULevel = selOUList.get( 0 ).getLevel();
-        	 System.out.println ( " monOULevel = " + maxOuLevel);
+        	// System.out.println ( " monOULevel = " + maxOuLevel);
         
         }
         maxOuLevel = orgUnitLevelCB;
-        System.out.println ( " maxOuLevel = " + maxOuLevel);
+       // System.out.println ( " maxOuLevel = " + maxOuLevel);
 
         int c1 = headerCol + 1;
         for ( int i = minOULevel; i <= maxOuLevel; i++ )
@@ -2478,10 +2478,10 @@ public class GenerateTabularAnalysisResultAction
             }
             
             colCount = 1 + level - minOULevel;
-            System.out.println("11  ougetname = " +  ou.getName() + "    ou.getlevel = " + ou.getLevel());
+           // System.out.println("11  ougetname = " +  ou.getName() + "    ou.getlevel = " + ou.getLevel());
             
             sheet0.addCell( new Label( colCount, headerRow + 1 + rowCount, ou.getName(), getCellFormat2() ) );
-            System.out.println("22  ougetname = " +  ou.getName() + "    ou.getlevel = " + ou.getLevel());
+          //  System.out.println("22  ougetname = " +  ou.getName() + "    ou.getlevel = " + ou.getLevel());
             
             colCount = c1;
             int deListCount = 0;
