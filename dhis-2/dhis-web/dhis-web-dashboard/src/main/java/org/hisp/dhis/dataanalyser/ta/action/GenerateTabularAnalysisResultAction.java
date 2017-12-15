@@ -788,7 +788,8 @@ public class GenerateTabularAnalysisResultAction
         sheet0.addCell( new Label( headerCol, headerRow, "Sl.No.", getCellFormat1() ) );
 
         selOrgUnit = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitListCB.get( 0 ) ) );
-        selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        //selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        selOUList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
 
         Map<Integer, Integer> orgunitLevelMap = new HashMap<Integer, Integer>( reportService.getOrgunitLevelMap() );
     
@@ -1046,7 +1047,8 @@ public class GenerateTabularAnalysisResultAction
         sheet0.addCell( new Label( headerCol, headerRow, "Sl.No.", getCellFormat1() ) );
 
         selOrgUnit = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitListCB.get( 0 ) ) );
-        selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        //selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        selOUList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
 
         OrganisationUnitGroup selOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( orgUnitLevelCB );
         List<OrganisationUnit> orgUnitList1 = new ArrayList<OrganisationUnit>( selOrgUnitGroup.getMembers() );
@@ -2025,8 +2027,8 @@ public class GenerateTabularAnalysisResultAction
         sheet0.addCell( new Label( headerCol, headerRow, "Sl.No.", getCellFormat1() ) );
 
         selOrgUnit = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitListCB.get( 0 ) ) );
-        List<OrganisationUnit> selOUList = new ArrayList<OrganisationUnit>( organisationUnitService
-            .getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        //List<OrganisationUnit> selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        List<OrganisationUnit> selOUList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
         OrganisationUnitGroup selOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( orgUnitLevelCB );
         List<OrganisationUnit> orgUnitList1 = new ArrayList<OrganisationUnit>( selOrgUnitGroup.getMembers() );
 
@@ -2743,8 +2745,8 @@ public class GenerateTabularAnalysisResultAction
         sheet0.addCell( new Label( headerCol, headerRow, "Sl.No.", getCellFormat1() ) );
 
         selOrgUnit = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitListCB.get( 0 ) ) );
-        selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
-        
+        //selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        selOUList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
         OrganisationUnitGroup selOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( orgUnitLevelCB );
         List<OrganisationUnit> orgUnitList1 = new ArrayList<OrganisationUnit>( selOrgUnitGroup.getMembers() );
 
@@ -3323,7 +3325,8 @@ public class GenerateTabularAnalysisResultAction
             sheet0.addCell( new Number( headerCol, headerRow + rowCount, rowCount, getCellFormat2() ) );
             sheet0.addCell( new Label( 1, headerRow + rowCount, ou.getName(), getCellFormat2() ) );
             
-            List<OrganisationUnit> ouChildList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( ou.getId() ) );
+            //List<OrganisationUnit> ouChildList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( ou.getId() ) );
+            List<OrganisationUnit> ouChildList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( ou.getId() ) );
             List<Integer> orgUnitIds = new ArrayList<Integer>( getIdentifiers(OrganisationUnit.class, ouChildList ) );
             orgUnitIdsByComma = getCommaDelimitedString( orgUnitIds );
             Map<String, String> aggDataMap = new HashMap<String, String>( reportService.getAggDataFromDataValueTable( orgUnitIdsByComma, dataElementIdsByComma, periodIdsByComma ) );
@@ -3517,8 +3520,8 @@ public class GenerateTabularAnalysisResultAction
         sheet0.addCell( new Label( headerCol, headerRow, "Sl.No.", getCellFormat1() ) );
 
         selOrgUnit = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitListCB.get( 0 ) ) );
-        selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
-
+        //selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        selOUList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
         Map<Integer, Integer> orgunitLevelMap = new HashMap<Integer, Integer>( reportService.getOrgunitLevelMap() );
     
         Iterator<OrganisationUnit> ouIterator = selOUList.iterator();
@@ -3781,8 +3784,8 @@ public class GenerateTabularAnalysisResultAction
         sheet0.addCell( new Label( headerCol, headerRow, "Sl.No.", getCellFormat1() ) );
 
         selOrgUnit = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitListCB.get( 0 ) ) );
-        selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
-
+        //selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        selOUList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
         OrganisationUnitGroup selOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( orgUnitLevelCB );
         List<OrganisationUnit> orgUnitList1 = new ArrayList<OrganisationUnit>( selOrgUnitGroup.getMembers() );
 
@@ -4047,8 +4050,8 @@ public class GenerateTabularAnalysisResultAction
         sheet0.addCell( new Label( headerCol, headerRow, "Sl.No.", getCellFormat1() ) );
 
         selOrgUnit = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitListCB.get( 0 ) ) );
-        selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
-
+        //selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        selOUList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
         Map<Integer, Integer> orgunitLevelMap = new HashMap<Integer, Integer>( reportService.getOrgunitLevelMap() );
     
         Iterator<OrganisationUnit> ouIterator = selOUList.iterator();
@@ -4394,8 +4397,8 @@ public class GenerateTabularAnalysisResultAction
         sheet0.addCell( new Label( headerCol, headerRow, "Sl.No.", getCellFormat1() ) );
 
         selOrgUnit = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitListCB.get( 0 ) ) );
-        selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
-
+        //selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        selOUList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
         OrganisationUnitGroup selOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( orgUnitLevelCB );
         List<OrganisationUnit> orgUnitList1 = new ArrayList<OrganisationUnit>( selOrgUnitGroup.getMembers() );
 
@@ -4767,7 +4770,8 @@ public class GenerateTabularAnalysisResultAction
             sheet0.addCell( new Number( headerCol, headerRow + 1 + rowCount, rowCount, getCellFormat2() ) );
             sheet0.addCell( new Label( 1, rowCount + 1, ou.getName(), getCellFormat2() ) );
 
-            List<OrganisationUnit> ouChildList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( ou.getId() ) );
+            //List<OrganisationUnit> ouChildList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( ou.getId() ) );
+            List<OrganisationUnit> ouChildList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( ou.getId() ) );
             List<Integer> orgUnitIds = new ArrayList<Integer>( getIdentifiers(OrganisationUnit.class, ouChildList ) );
             orgUnitIdsByComma = getCommaDelimitedString( orgUnitIds );
             Map<String, String> aggDataMap = new HashMap<String, String>( reportService.getAggDataFromDataValueTableByDeAndPeriodwise( orgUnitIdsByComma, dataElementIdsByComma, periodIdsByComma ) );
@@ -5047,8 +5051,8 @@ public class GenerateTabularAnalysisResultAction
         sheet0.addCell( new Label( headerCol, headerRow, "Sl.No.", getCellFormat1() ) );
 
         selOrgUnit = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitListCB.get( 0 ) ) );
-        selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
-
+        //selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        selOUList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
         System.out.println( "Before getting orgunitlevelmap "+new Date() );
         Map<Integer, Integer> orgunitLevelMap = new HashMap<Integer, Integer>( reportService.getOrgunitLevelMap() );
         System.out.println( "After getting orgunitlevelmap "+new Date() );
@@ -5393,7 +5397,8 @@ public class GenerateTabularAnalysisResultAction
         sheet0.addCell( new Label( headerCol, headerRow, "Sl.No.", getCellFormat1() ) );
 
         selOrgUnit = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitListCB.get( 0 ) ) );
-        selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        //selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        selOUList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
         OrganisationUnitGroup selOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( orgUnitLevelCB );
         List<OrganisationUnit> orgUnitList1 = new ArrayList<OrganisationUnit>( selOrgUnitGroup.getMembers() );
         selOUList.retainAll( orgUnitList1 );
@@ -6036,8 +6041,8 @@ public class GenerateTabularAnalysisResultAction
         sheet0.addCell( new Label( headerCol, headerRow, "Sl.No.", getCellFormat1() ) );
 
         selOrgUnit = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitListCB.get( 0 ) ) );
-        selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
-
+        //selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        selOUList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
         System.out.println( "Before getting orgunitlevelmap "+new Date() );
         Map<Integer, Integer> orgunitLevelMap = new HashMap<Integer, Integer>( reportService.getOrgunitLevelMap() );
         System.out.println( "After getting orgunitlevelmap "+new Date() );
@@ -6291,8 +6296,8 @@ public class GenerateTabularAnalysisResultAction
         sheet0.addCell( new Label( headerCol, headerRow, "Sl.No.", getCellFormat1() ) );
 
         selOrgUnit = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitListCB.get( 0 ) ) );
-        selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
-
+        //selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        selOUList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
         OrganisationUnitGroup selOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( orgUnitLevelCB );
         List<OrganisationUnit> orgUnitList1 = new ArrayList<OrganisationUnit>( selOrgUnitGroup.getMembers() );
 
@@ -6762,8 +6767,8 @@ public class GenerateTabularAnalysisResultAction
         sheet0.addCell( new Label( headerCol, headerRow, "Sl.No.", getCellFormat1() ) );
 
         selOrgUnit = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitListCB.get( 0 ) ) );
-        selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
-
+        //selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        selOUList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
         System.out.println( "Before getting orgunitlevelmap "+new Date() );
         Map<Integer, Integer> orgunitLevelMap = new HashMap<Integer, Integer>( reportService.getOrgunitLevelMap() );
         System.out.println( "After getting orgunitlevelmap "+new Date() );
@@ -7530,11 +7535,6 @@ public class GenerateTabularAnalysisResultAction
         }
     }
     
-    
-    
-    
-    
-    
 // supportive methods
     
     public Collection<OrganisationUnit> getOrganisationUnitWithChildren( int id )
@@ -7582,18 +7582,5 @@ public class GenerateTabularAnalysisResultAction
         }
 
         level--;
-    }
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    }   
 }// class end
