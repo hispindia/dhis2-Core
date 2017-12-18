@@ -1991,17 +1991,17 @@ function registerCompleteDataSet()
 		if (value != "true" && value != "false")
 		{
 			alert("please select FRU fields " );
-			return false;
+			return true;
 		}
        else if(value1 != "true" && value1 != "false")
 		{
 			alert("please select Delivery  fields " );
-			return false;
+			return true;
 		}
 		else if (value1 != "false" &&  value2 == ""  )
 		{
 			alert("please select delivery point fields " );
-			return false;
+			return true;
 		}
 		
 	}
@@ -2013,12 +2013,12 @@ function registerCompleteDataSet()
 	if (value3 != "true" && value3 != "false")
 		{
 			alert("please select Delivery point fields " );
-			return false;
+			return true;
 		}
 		else if (value3 != "false" &&  value4 == ""  )
 		{
 			alert("please select level of delivery point  fields " );
-			return false;
+			return true;
 		}
 		
 	}
@@ -2033,12 +2033,12 @@ function registerCompleteDataSet()
 			 if (value6 != "true" && value6 != "false")
 			{
 			alert("please select Delivery point fields " );
-			return false;
+			return true;
 			}
 			else if (value6 != "false" &&  value7 == ""  )
 			{
 			alert("please select level of delivery point  fields " );
-			return false;
+			return true;
 			}
 	}
 	else if (testdataSetId == 'WjvnPtSMCCR')
@@ -2048,19 +2048,18 @@ function registerCompleteDataSet()
 			 if (value8 != "true" && value8 != "false")
 			{
 			alert("please select Delivery point fields " );
-			return false;
+			return true;
 			}
 			else if (value8 != "false" &&  value9 == ""  )
 			{
 			alert("please select delivery point  fields " );
-			return false;
+			return true;
 			}
 	}
 		
 		
 		else{	
-		return true;
-			}
+		}
 	
 	
 	dhis2.de.validate( true, function() 
