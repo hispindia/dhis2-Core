@@ -21,8 +21,8 @@
      <ul>   
 		<li>
             <a href = "../dhis-web-reporting/displayViewDocumentForm.action">Download Reporting Format</a>
-			<a href = "exportForm.action">Export CSV</a>
-			<a href = "importForm.action">Upload Data</a>
+			<a href = "exportForm.action">Export - Global DHIS2</a>
+			<a href = "importForm.action">Import - eCMIS</a>
 			<!--
 			<a href = "exportExcelFile.action?fileType=CBD_SRH_NSRH_FPAN.xls" target="_blank">Format for CBD Reporting</a>
             <a href = "exportExcelFile.action?fileType=HIVAIDS.xls" target="_blank">Format for SRH-HIV/AIDS Services</a>
