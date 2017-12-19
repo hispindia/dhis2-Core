@@ -32,7 +32,6 @@
 	<module>dhis-web-maintenance-in</module>
 	<module>dhis-web-reports-national</module>
 	<module>dhis-web-dashboard</module>
-	<module>dhis-web-dashboard</module>
 	<module>dhis-web-birtreports</module>
 	<!-- India Module -->
     <module>dhis-web-portal</module>
