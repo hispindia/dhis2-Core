@@ -1,0 +1,222 @@
+<html>
+<head>
+    <style type="text/css">
+            /* The CSS */
+        .gradientBoxesWithOuterShadows {
+            height: 200px;
+            width: 400px;
+            padding: 20px;
+            background-color: white;
+
+            /* outer shadows  (note the rgba is red, green, blue, alpha) */
+            -webkit-box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.4);
+            -moz-box-shadow: 0px 1px 6px rgba(23, 69, 88, .5);
+
+            /* rounded corners */
+            -webkit-border-radius: 12px;
+            -moz-border-radius: 7px;
+            border-radius: 7px;
+
+            /* gradients */
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #0bd0ff), color-stop(15%, #0cbbff), color-stop(100%, #0e99ff));
+            background: -moz-linear-gradient(top, #0bd0ff 0%, #0cbbff 55%, #0e99ff 130%);
+        }
+
+        h3 {
+            font: "Lucida Grande";
+        }
+
+        select {
+            padding: 3px;
+            margin: 0;
+            -webkit-border-radius: 4px;
+            -moz-border-radius: 4px;
+            border-radius: 4px;
+            -webkit-box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
+            -moz-box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
+            box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
+            background: #f8f8f8;
+            color: #888;
+            border: none;
+            outline: none;
+            display: inline-block;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        input {
+            padding: 3px;
+            margin: 0;
+            -webkit-border-radius: 4px;
+            -moz-border-radius: 4px;
+            border-radius: 4px;
+            -webkit-box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
+            -moz-box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
+            box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
+            background: #f8f8f8;
+            color: #888;
+            border: none;
+            outline: none;
+            display: inline-block;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+            /* Targetting Webkit browsers only. FF will show the dropdown arrow with so much padding. */
+        @media screen and (-webkit-min-device-pixel-ratio:0) {
+            select {
+                padding-right: 18px
+            }
+        }
+
+        label {
+            position: relative
+        }
+
+        label:after {
+            content: '<>';
+            font: 11px "Consolas", monospace;
+            color: #aaa;
+            -webkit-transform: rotate(90deg);
+            -moz-transform: rotate(90deg);
+            -ms-transform: rotate(90deg);
+            transform: rotate(90deg);
+            right: 8px;
+            top: 2px;
+            padding: 0 0 2px;
+            border-bottom: 1px solid #ddd;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        label:before {
+            content: '';
+            right: 6px;
+            top: 0px;
+            width: 20px;
+            height: 20px;
+            background: #f8f8f8;
+            position: absolute;
+            pointer-events: none;
+            display: block;
+        }
+    </style>
+
+    <title>DHIS Birt Engine</title>
+
+    <script type="text/javascript" defer="defer">
+        function cascadeSelect(parent, child) {
+            var childOptions = child.find('option:not(.static)');
+            child.data('options', childOptions);
+
+            parent.change(function () {
+                childOptions.remove();
+                child
+                        .append(child.data('options').filter('.sub_' + this.value))
+                        .change();
+            })
+
+            childOptions.not('.static, .sub_' + parent.val()).remove();
+
+        }
+
+        $(function () {
+            cascadeForm = $('.cascadeTest');
+            orgSelect = cascadeForm.find('.orgSelect');
+            terrSelect = cascadeForm.find('.terrSelect');
+
+            cascadeSelect(orgSelect, terrSelect);
+        });
+
+        function formValidations() {
+            var orgunitIdValue = document.reportForm.ouIDTB.value;
+            if (orgunitIdValue == null || orgunitIdValue == "" || orgunitIdValue == " ") {
+                alert("Please Select OrganisationUnit");
+                return false;
+            }
+            return true;
+        }
+    </script>
+
+</head>
+<body>
+<h3>Birt Reports</h3>
+<br>
+<br>
+<center>
+    <div class=gradientBoxesWithOuterShadows>
+        <form id="reportForm" name="reportForm" action="#" class="cascadeTest">
+            </br>
+            </br>
+            <label>
+                Category
+                &nbsp;
+                <select id="typeSelect" name="orgSelect" class="orgSelect" style="width: 280px">
+                    <option value="default">--Select--</option>
+                    #foreach ( $reportTypes in $birtReportTypeObjectList)
+                        <option value="$reportTypes.reportTypeId">$reportTypes.reportTypeName</option>
+                    #end
+                </select>
+            </label>
+            </br>
+            </br>
+            <label>
+                &nbsp;
+                &nbsp;
+                Report
+                &nbsp;
+                <select id="reportSelect" name="terrSelect" class="terrSelect" style="width: 300px">
+                    <option value="sub_default">--Select--</option>
+                    #foreach ( $report in $birtReportOptionsList)
+                        <option value="$report.reportDesignFileName"
+                                class="$report.reportClass">$report.reportName</option>
+                    #end
+                </select>
+            </label>
+            </br>
+            </br>
+            <label>
+                &nbsp;
+                &nbsp;
+                Output Format
+                &nbsp;
+                <select id="formatSelect" name="formatSelect" class="formatSelect" style="width: 260px">
+                    <option value="sub_default">--Select--</option>
+                    <option value="pdf">PDF</option>
+                    <option value="html">HTML</option>
+                    <option value="doc">D0C</option>
+                    <option value="ppt">PPT</option>
+                    <option value="xls_spudsoft">XLS</option>
+                </select>
+            </label>
+        </form>
+        <br>
+        <br>
+        <input type="button" onclick="getSelectedText('reportSelect','formatSelect');" value=Generate style="width:12em"/>
+    </div>
+</center>
+</body>
+
+<script>
+    function getSelectedText(reportId, formatType)
+    {
+        var elt = document.getElementById(reportId);
+        var format = document.getElementById(formatType);
+
+        if (elt.selectedIndex == -1)
+            return null;
+
+        var currURL = document.URL;
+        var brkURL = currURL.split("/");
+        var absURL = brkURL[0]+"/"+brkURL[1]+"/"+brkURL[2]+"/";
+
+            var url = absURL + 'birtviewer/run?__report=' + elt.options[elt.selectedIndex].value+'&__format='+format.options[format.selectedIndex].value;
+            var windowName = 'Birt Viewer';
+            window.open(url, windowName);
+    }
+</script>
+
+</html>
