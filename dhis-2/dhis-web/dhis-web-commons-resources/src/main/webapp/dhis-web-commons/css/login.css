@@ -231,3 +231,19 @@ a:hover
     font-weight: normal;
     font-style: normal;
 }
+
+
+#main { 
+  width: 80%;
+  margin: 14% auto;
+}
+#sidebar > img {
+  height: 200px;
+  float: left;
+}
+
+#page-wrap > img {
+  height: 160px;
+  float: right;
+}
+

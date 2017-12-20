@@ -1,74 +1,72 @@
-<html>
+<!DOCTYPE HTML>
+<html class="loginPage">
 
 <head>
-<title>DHIS 2</title>
-
-<meta name="viewport" content="width=device-width, user-scalable=no" />
-<link rel="stylesheet" href="../css/login_mobile.css" />
-
+    <title>$!encoder.htmlEncode( ${applicationTitle} )</title>
+    <meta name="description" content="DHIS 2">
+    <meta name="keywords" content="DHIS 2">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <script type="text/javascript" src="../javascripts/jQuery/jquery.min.js"></script>
+    <script type="text/javascript" src="login.js"></script>
+    <link type="text/css" rel="stylesheet" href="../css/widgets.css">
+    <link rel="stylesheet" href="../css/login_mobile.css" />
+    <link type="text/css" rel="stylesheet" href="../../api/files/style/external" />
 </head>
 
-<body>
+<body class="loginPage">
 
-<div id="wrap">
 
-<div id="header">
-	<a href="login.action" tabindex="-1"><img src="logo_mobile.png" width="88" height="24" alt="DHIS 2"></a>
-</div>
+    <div id="loginField">
+        <div id="loginArea">
 
-<div id="content" align="center" style="text-align: left;">
+            <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">
+                <div>
+                    <div id="signInLabel">Sign in</div>
+                    <div><input type="text" id="j_username" name="j_username" placeholder="Username"></div>
+                    <div><input type="password" id="j_password" name="j_password" autocomplete="off" placeholder="Password"></div>
+                </div>
+                <div id="submitDiv">
+                    <input id="submit" class="button" type="submit" value="Sign in">
+                </div>
+                #if( $keyAccountRecovery )
+                <div style="padding-bottom: 10px">
+                    <a id="forgotPasswordLink" href="recovery.action">Forgot password?</a>
+                </div>
+                #end #if( $keyConfig.selfRegistrationAllowed() )
+                <div style="padding-bottom: 10px">
+                    <a id="createAccountLink" href="account.action">Create an account</a>
+                </div>
+                #end
+            </form>
+            #if( $keyOpenIdProvider )
+            <form id="openIdLoginForm" action="../../dhis-web-commons-security/openid.action" method="post">
+                <input name="openid_identifier" type="hidden" value="$keyOpenIdProvider" />
+                <div id="submitDiv">
+                    #if( $keyOpenIdProviderLabel )
+                    <input style="width: 269px;" id="submit" class="button" type="submit" value="$keyOpenIdProviderLabel">                    #else
+                    <input style="width: 269px;" id="submit" class="button" type="submit" value="Sign in with OpenID"> #end
+                </div>
+            </form>
+            #end #if( $failed == true )
+            <div id="loginMessage">
+                $!{request.getSession().getAttribute("LOGIN_FAILED_MESSAGE")}
+            </div>
+            #end #if ( $keyApplicationNotification )
+            <div id="notificationArea">
+                $!{keyApplicationNotification}
+            </div>
+            #end
 
-#if( $failed == true )
-<div class="header-box" align="center">
-	<h3 style="text-align: left; background-color: red; color: black;">Wrong username or password</h3>
-</div>
-#end
+        </div>
+    </div>
 
-<form id='loginForm' action="../../dhis-web-commons-security/login.action" method="POST">
 
-<div class="header-box" align="center">
-	<h3 style="text-align: left;">Login</h3>
-	<p style="text-align: left;">
-		<label for="j_username">Username</label> <input type="text" id="j_username" name="j_username" size="24"> <br />
-		<label for="j_password">Password</label> <input type="password" id="j_password" name="j_password" size="24"> <br /> <br />
-        <label for="mobileVersion">Mobile Version</label><br />
-        <select id="mobileVersion" name="mobileVersion" style="width: 100%;">
-            <option value="basic">Basic</option>
-            <option value="smartphone">Smartphone</option>
-            <option value="desktop">Desktop</option>
-        </select>
-	</p>
-</div>
-
-<div class="header-box" align="center">
-	<p>
-		<input type="submit" style="width: 48%;" value="Login"/>
-		<input type="reset" style="width: 48%;" value="Reset"/>
-	</p>
-</div>
-
-#if ( $keyConfig.selfRegistrationAllowed() )
-<div class="header-box" align="center"><a href="account.action">Create an account</a></div>
-#end
-
-</form>
-</div>
-</div>
-
-#* Seems we can't access macros.vm from login.vm/login_mobile.vm so we include the full script here *#
-#if( $googleAnalyticsUA && $googleAnalyticsUA != '' )
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', '$encoder.jsEncode($googleAnalyticsUA)']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-</script>
-#end
+    <div id="main">
+        <div id="sidebar"> <img src="./img/Picture1.png" /></div>
+        <div id="page-wrap"> <img src="./img/Picture2.png" /></div>
+    </div>
 
 </body>
+
 </html>
