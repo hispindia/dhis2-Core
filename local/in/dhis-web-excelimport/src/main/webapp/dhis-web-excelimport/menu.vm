@@ -1,7 +1,7 @@
 
 <h2>Data Integration</h2>
 <ul>
-    <li>Data Import</li>
+   <!-- <li>Data Import</li> -->
     <ul>
         <li>
             <a href = "excelImportForm.action">Data Import From Excel</a>
@@ -17,7 +17,7 @@
     </ul>        
  </ul>       
 <ul>
-     <li>Downloads</li>
+    <!-- <li>Downloads</li> -->
      <ul>   
 		<li>
             <a href = "../dhis-web-reporting/displayViewDocumentForm.action">Download Reporting Format</a>

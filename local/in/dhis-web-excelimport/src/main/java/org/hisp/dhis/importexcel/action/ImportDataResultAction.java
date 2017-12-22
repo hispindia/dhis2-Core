@@ -184,7 +184,7 @@ implements Action
       totalCount = "";
       addingCount = "";
       updatingCount = "";
-      
+      int totrec = 0;
       System.out.println( "Start Time : " + new Date() );
       simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
 
@@ -476,9 +476,9 @@ implements Action
           
       }// inner while loop end
       */
-      
+      totrec = addCount+updateCount;
     message= "The report has been imported successfully";
-    totalCount = "Total records are imported : "+count1;
+    totalCount = "Total records are imported : "+totrec;
     addingCount = "New records are added : "+addCount;
     updatingCount = "New records are updated : "+updateCount;
 
