@@ -61,11 +61,6 @@
 	    </action>
 
 
-
-
-
-
-
         <action name="rejectImport"
             class="org.hisp.dhis.excelimport.action.RejectAction">
             <result name="success" type="velocity">/main.vm</result>
@@ -164,7 +159,7 @@
             <param name="menu">/dhis-web-excelimport/menu.vm</param>
             <param name="javascripts">../dhis-web-commons/ouwt/ouwt.js,javascript/reports.js,javascript/hashtable.js</param>
             <param name="stylesheets">css/StylesForTags.css</param>
-            <param name="requiredAuthorities">F_EXPORT_DATA</param>
+            <param name="requiredAuthorities">F_EXPORT_GLOBAL</param>
         </action>		
 		
         <action name="exportDataResult"
@@ -185,9 +180,7 @@
             <param name="menu">/dhis-web-excelimport/menu.vm</param>
             <param name="javascripts">../dhis-web-commons/ouwt/ouwt.js,javascript/reports.js,javascript/hashtable.js</param>
             <param name="stylesheets">css/StylesForTags.css</param>
-            <param name="requiredAuthorities">F_EXPORT_DATA</param>
-            <param name="javascripts">../dhis-web-commons/ouwt/ouwt.js,javascript/reports.js,javascript/hashtable.js</param>
-            
+            <param name="requiredAuthorities">F_IMPORT_ECMIS</param>            
         </action>		
 		
         <!-- <action name="importDataResult"
