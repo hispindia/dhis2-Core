@@ -478,9 +478,9 @@ implements Action
       */
       totrec = addCount+updateCount;
     message= "The report has been imported successfully";
-    totalCount = "Total records are imported : "+totrec;
-    addingCount = "New records are added : "+addCount;
-    updatingCount = "New records are updated : "+updateCount;
+    totalCount = "Total records imported : "+totrec;
+    addingCount = "New records added : "+addCount;
+    updatingCount = "Records updated : "+updateCount;
 
 
 	try
