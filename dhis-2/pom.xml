@@ -28,6 +28,7 @@
 
   <modules>
     <module>dhis-api</module>
+	<module>dhis-in-api</module>
     <module>dhis-services</module>
     <module>dhis-support</module>
   </modules>

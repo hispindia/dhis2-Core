@@ -179,7 +179,16 @@ public class DefaultDataSetService
             return Lists.newArrayList( user.getUserCredentials().getAllDataSets() );
         }
     }
-
+    // write method for PBF
+    /**
+     * Returns all DataSets associated with the specified sources.
+     */  
+    @Override
+    public List<DataSet> getDataSetsBySources( Collection<OrganisationUnit> sources )
+    {
+        return dataSetStore.getDataSetsBySources( sources );
+    }
+    
     // -------------------------------------------------------------------------
     // DataSet LockExceptions
     // -------------------------------------------------------------------------

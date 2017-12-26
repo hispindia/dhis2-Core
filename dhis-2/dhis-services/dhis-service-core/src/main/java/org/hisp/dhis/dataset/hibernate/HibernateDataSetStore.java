@@ -29,7 +29,9 @@ package org.hisp.dhis.dataset.hibernate;
  */
 
 import com.google.common.collect.Lists;
+
 import org.hibernate.criterion.Restrictions;
+import org.hisp.dhis.common.IdentifiableObjectUtils;
 import org.hisp.dhis.common.hibernate.HibernateIdentifiableObjectStore;
 import org.hisp.dhis.dataentryform.DataEntryForm;
 import org.hisp.dhis.dataset.DataSet;
@@ -38,6 +40,8 @@ import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.period.PeriodService;
 import org.hisp.dhis.period.PeriodType;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -112,5 +116,17 @@ public class HibernateDataSetStore
         final String hql = "from DataSet d where d.dataEntryForm = :dataEntryForm";
 
         return getQuery( hql ).setEntity( "dataEntryForm", dataEntryForm ).list();
+    }
+    
+    // write method for PBF
+    /**
+     * Returns all DataSets associated with the specified sources.
+     */    
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<DataSet> getDataSetsBySources( Collection<OrganisationUnit> sources )
+    {
+        String hql = "select distinct d from DataSet d join d.sources s where s.id in (:ids)";
+        return getQuery( hql ).setParameterList( "ids", IdentifiableObjectUtils.getIdentifiers( sources ) ).list();
     }
 }

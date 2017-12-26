@@ -31,6 +31,7 @@ package org.hisp.dhis.dataelement;
 import org.hisp.dhis.hierarchy.HierarchyViolationException;
 import org.hisp.dhis.period.PeriodType;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -158,6 +159,15 @@ public interface DataElementService
      */
     List<DataElement> getDataElementsByAggregationLevel( int aggregationLevel );
 
+    // for PBF
+    /**
+     * Returns a DataElement with a given short name.
+     *
+     * @param shortName the short name of the DataElement to return.
+     * @return the DataElement with the given short name, or null if no match.
+     */
+    DataElement getDataElementByShortName( String shortName );    
+        
     // -------------------------------------------------------------------------
     // DataElementGroup
     // -------------------------------------------------------------------------

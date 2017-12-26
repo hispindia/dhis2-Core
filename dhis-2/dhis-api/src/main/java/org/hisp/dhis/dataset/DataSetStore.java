@@ -28,6 +28,7 @@ package org.hisp.dhis.dataset;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import java.util.Collection;
 import java.util.List;
 
 import org.hisp.dhis.common.GenericNameableObjectStore;
@@ -66,4 +67,10 @@ public interface DataSetStore
      * @return a list of DataSets.
      */
     List<DataSet> getDataSetsByDataEntryForm( DataEntryForm dataEntryForm );
+    
+    // write method for PBF
+    /**
+     * Returns all DataSets associated with the specified sources.
+     */
+    List<DataSet> getDataSetsBySources( Collection<OrganisationUnit> sources );    
 }

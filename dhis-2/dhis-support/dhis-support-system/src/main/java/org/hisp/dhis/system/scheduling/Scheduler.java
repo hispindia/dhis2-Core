@@ -40,6 +40,7 @@ import java.util.concurrent.Callable;
 public interface Scheduler
 {
     String CRON_DAILY_11PM = "0 0 23 * * ?";
+    String CRON_DAILY_10PM = "0 0 22 * * ?";
     String CRON_DAILY_0AM = "0 0 0 * * ?";
     String CRON_DAILY_2AM = "0 0 2 * * ?";
     String CRON_DAILY_5AM = "0 0 5 * * ?";

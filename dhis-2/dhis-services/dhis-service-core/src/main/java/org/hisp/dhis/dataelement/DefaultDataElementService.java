@@ -33,6 +33,7 @@ import org.hisp.dhis.common.GenericNameableObjectStore;
 import org.hisp.dhis.period.PeriodType;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -165,6 +166,15 @@ public class DefaultDataElementService
         return dataElementStore.getDataElementsByAggregationLevel( aggregationLevel );
     }
 
+    // for PBF
+    @Override
+    public DataElement getDataElementByShortName( String shortName )
+    {
+        List<DataElement> dataElements = dataElementStore.getAllEqShortName( shortName );
+
+        return !dataElements.isEmpty() ? dataElements.get( 0 ) : null;
+    }
+    
     // -------------------------------------------------------------------------
     // DataElementGroup
     // -------------------------------------------------------------------------
@@ -289,4 +299,5 @@ public class DefaultDataElementService
     {
         return dataElementGroupSetStore.getAll();
     }
+
 }
