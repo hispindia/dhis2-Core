@@ -22,7 +22,7 @@
    	
    	
    	<task:scheduled-tasks scheduler="scheduleCountTEI">
-        <task:scheduled ref="org.hisp.dhis.dataadmin.action.scheduecalculatetei.ScheduleCountTEI" method="execute" cron="0 0 0/1 1/1 * ?"/>
+        <task:scheduled ref="org.hisp.dhis.dataadmin.action.scheduecalculatetei.ScheduleCountTEI" method="execute" cron="0 0 22 * * ?"/>
         <!--<task:scheduled ref="org.hisp.dhis.dataadmin.action.schedulingupdatelicensestatus.ScheduleUpdateLicenseStatus" method="execute" cron="0 0/3 * * * ?"/>-->
    	</task:scheduled-tasks>
 	
@@ -30,6 +30,7 @@
 	<!-- value="0 0 22 * * ?" // for 10 PM daily -->
 	<!-- value="0 0/30 * * * ?" // for every 30 minute -->
 	<!-- cron="0 0/3 * * * ?" // every 3 min -->
+	<!-- cron="0 0/1 * * * ?" // every 1 min -->
 	
 	<task:scheduler id="scheduleCountTEI" pool-size="1"/>
 	<bean id="org.hisp.dhis.dataadmin.action.scheduecalculatetei.ScheduleCountTEI"

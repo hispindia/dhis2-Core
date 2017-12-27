@@ -71,15 +71,14 @@ public class ScheduleCountTEI implements Action
         
         //PeriodType periodType = periodService.getPeriodTypeByName( dailyPeriodTypeName );
         
+        String importStatus = "";
+        Integer updateCount = 0;
+        Integer insertCount = 0;
+        
         List<String> trackedEntityInstances = new ArrayList<String>( getTrackedEntityInstanceCountByAttributeId( BLOCK_TALUK_ATTRIBUTE_ID, startDateOfCurrentMonth, endDateOfCurrentMonth ) );
         
         if( trackedEntityInstances != null && trackedEntityInstances.size() > 0 )
         {
-            String importStatus = "";
-
-            Integer updateCount = 0;
-            Integer insertCount = 0;
-
             String storedBy = "admin";
             int count = 1;
             long t;
@@ -96,7 +95,7 @@ public class ScheduleCountTEI implements Action
                 for( String combinedString : trackedEntityInstances )
                 {
                     int periodId;
-                    int sourceId;
+                    Integer sourceId;
                     int dataElementId = 0;
                     int categoryComboId = 15;
                     int attributeoptioncomboid = 15;
@@ -117,73 +116,78 @@ public class ScheduleCountTEI implements Action
                     
                     sourceId = getOrganisationUnitId( combinedString.split( ":" )[0] );
                     
-                    value =  combinedString.split( ":" )[3];
-                    
-                    if( combinedString.split( ":" )[1].equalsIgnoreCase( "201" ))
+                    if( sourceId != null )
                     {
-                        dataElementId = (int)aesDeId.getValue();
-                    }
-                    else if( combinedString.split( ":" )[1].equalsIgnoreCase( "23824" ) )
-                    {
-                        dataElementId = (int)amesDeId.getValue();
-                    }
-                  
-                    query = "SELECT value FROM datavalue WHERE dataelementid = " + dataElementId + " AND categoryoptioncomboid = " + categoryComboId + " AND attributeoptioncomboid = " + attributeoptioncomboid + " AND periodid = " + periodId + " AND sourceid = " + sourceId;
-                    SqlRowSet sqlResultSet1 = jdbcTemplate.queryForRowSet( query );
-                    if ( sqlResultSet1 != null && sqlResultSet1.next() )
-                    {
-                        String updateQuery = "UPDATE datavalue SET value = '" + value + "', storedby = '" + storedBy + "',lastupdated='" + lastUpdatedDate + "' WHERE dataelementid = " + dataElementId + " AND periodid = "
-                            + periodId + " AND sourceid = " + sourceId + " AND categoryoptioncomboid = " + categoryComboId + " AND attributeoptioncomboid = " + attributeoptioncomboid;
-
-                        jdbcTemplate.update( updateQuery );
+                        value =  combinedString.split( ":" )[3];
                         
-                        //System.out.println(" update Query -  " + updateQuery );
-                        
-                        updateCount++;
-                    }
-                    else
-                    {
-                        if ( value != null && !value.trim().equals( "" ) )
+                        if( combinedString.split( ":" )[1].equalsIgnoreCase( "201" ))
                         {
-                            insertQuery += "( " + dataElementId + ", " + periodId + ", " + sourceId + ", " + categoryComboId +  ", " + attributeoptioncomboid + ", '" + value + "', '" + storedBy + "', '" + created + "', '" + lastUpdatedDate + "', false ), ";
-                            insertFlag = 2;
-                            insertCount++;
+                            dataElementId = (int)aesDeId.getValue();
                         }
-                    }
-                    
-                    if ( count == 1000 )
-                    {
-                        count = 1;
-
-                        if ( insertFlag != 1 )
+                        else if( combinedString.split( ":" )[1].equalsIgnoreCase( "23824" ) )
                         {
-                            insertQuery = insertQuery.substring( 0, insertQuery.length() - 2 );
-                            jdbcTemplate.update( insertQuery );
+                            dataElementId = (int)amesDeId.getValue();
+                        }
+                      
+                        query = "SELECT value FROM datavalue WHERE dataelementid = " + dataElementId + " AND categoryoptioncomboid = " + categoryComboId + " AND attributeoptioncomboid = " + attributeoptioncomboid + " AND periodid = " + periodId + " AND sourceid = " + sourceId;
+                        SqlRowSet sqlResultSet1 = jdbcTemplate.queryForRowSet( query );
+                        if ( sqlResultSet1 != null && sqlResultSet1.next() )
+                        {
+                            String updateQuery = "UPDATE datavalue SET value = '" + value + "', storedby = '" + storedBy + "',lastupdated='" + lastUpdatedDate + "' WHERE dataelementid = " + dataElementId + " AND periodid = "
+                                + periodId + " AND sourceid = " + sourceId + " AND categoryoptioncomboid = " + categoryComboId + " AND attributeoptioncomboid = " + attributeoptioncomboid;
+
+                            jdbcTemplate.update( updateQuery );
+                            
+                            //System.out.println(" update Query -  " + updateQuery );
+                            
+                            updateCount++;
+                        }
+                        else
+                        {
+                            if ( value != null && !value.trim().equals( "" ) )
+                            {
+                                insertQuery += "( " + dataElementId + ", " + periodId + ", " + sourceId + ", " + categoryComboId +  ", " + attributeoptioncomboid + ", '" + value + "', '" + storedBy + "', '" + created + "', '" + lastUpdatedDate + "', false ), ";
+                                insertFlag = 2;
+                                insertCount++;
+                            }
+                        }
+                        
+                        if ( count == 1000 )
+                        {
+                            count = 1;
+
+                            if ( insertFlag != 1 )
+                            {
+                                insertQuery = insertQuery.substring( 0, insertQuery.length() - 2 );
+                                System.out.println( " insert Query 2 -  " );
+                                jdbcTemplate.update( insertQuery );
+                            }
+
+                            insertFlag = 1;
+
+                            insertQuery = "INSERT INTO datavalue ( dataelementid, periodid, sourceid, categoryoptioncomboid, attributeoptioncomboid, value, storedby, created, lastupdated, deleted ) VALUES ";
                         }
 
-                        insertFlag = 1;
-
-                        insertQuery = "INSERT INTO datavalue ( dataelementid, periodid, sourceid, categoryoptioncomboid, attributeoptioncomboid, value, storedby, created, lastupdated, deleted ) VALUES ";
+                        count++;
+                            
+                        //System.out.println(" program id - "  + combinedString.split( ":" )[1]  +   " de : " + dataElementId + " value -- " + value + " orgUnit -- " +  sourceId + " period id -- " + periodId );
                     }
-
-                    count++;
-                        
-                    //System.out.println(" program id - "  + combinedString.split( ":" )[1]  +   " de : " + dataElementId + " value -- " + value + " orgUnit -- " +  sourceId + " period id -- " + periodId );
+                   
                 }
-                
+                System.out.println(" Count - "  + count + " -- Insert Count : " + insertCount + "  Update Count -- " + updateCount );
                 if ( insertFlag != 1 )
                 {
                     insertQuery = insertQuery.substring( 0, insertQuery.length() - 2 );
+                    System.out.println(" insert Query 1 -  ");
                     jdbcTemplate.update( insertQuery );
-                    
-                    //System.out.println(" insert Query -  " + insertQuery );
                 }
                 
                 importStatus = "Successfully populated aggregated data : "; 
                 importStatus += "<br/> Total new records : " + insertCount;
                 importStatus += "<br/> Total updated records : " + updateCount;
                 
-                System.out.println( importStatus );
+                //System.out.println( importStatus );     
+                
             }
             catch ( Exception e )
             {
@@ -191,7 +195,8 @@ public class ScheduleCountTEI implements Action
             }
             
         }
-            
+        
+        System.out.println("Insert Count : " + insertCount + "  Update Count -- " + updateCount);
         System.out.println("INFO: Scheduler job has ended at : " + new Date() );
         
         return SUCCESS;
@@ -208,8 +213,8 @@ public class ScheduleCountTEI implements Action
     {
         List<String> trackedEntityInstances = new ArrayList<String>();
         
-        String startDateOfCurrentMonth1 = "2017-01-01";
-        String endDateOfCurrentMonth1 = "2017-12-31";
+        //String startDateOfCurrentMonth1 = "2017-01-01";
+        //String endDateOfCurrentMonth1 = "2017-12-31";
         try
         {
             /* on the basis of TEI Creation
@@ -245,11 +250,7 @@ public class ScheduleCountTEI implements Action
             group by teiav.value, pi.programid,pi.enrollmentdate::date order by pi.enrollmentdate::date ASC;
             */
             
-            System.out.println( "query = " + query );
-            
-            
-            
-            
+            //System.out.println( "query = " + query );
             
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
@@ -284,10 +285,9 @@ public class ScheduleCountTEI implements Action
         try
         {
             String query = " SELECT organisationunitid, uid, hierarchylevel, featuretype, coordinates FROM organisationunit"
-                                   + " WHERE hierarchylevel = 6 AND name = '" + orgUnitName +"'";
+                                   + " WHERE hierarchylevel = 6 AND name ILIKE '" + orgUnitName +"'";
                 
-            
-            //SELECT organisationunitid, uid,hierarchylevel,featuretype,coordinates FROM organisationunit WHERE name = 'Barbhui' and hierarchylevel = 7;
+            //SELECT organisationunitid, uid, hierarchylevel, featuretype, coordinates FROM organisationunit"+ " WHERE hierarchylevel = 6 AND name ILIKE '%" + orgUnitName +"%'";
             //System.out.println( "query = " + query );
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
@@ -300,8 +300,11 @@ public class ScheduleCountTEI implements Action
                     organisationUnitIds.add( orgUnitId );
                 }
             }
-            
-            organisationUnitId = organisationUnitIds.get( 0 );
+            //System.out.println( orgUnitName + " -- Count -- " + organisationUnitIds.size() );
+            if( organisationUnitIds != null && organisationUnitIds.size() > 0 )
+            {
+                organisationUnitId = organisationUnitIds.get( 0 );
+            }
             //System.out.println( organisationUnitId + " -- organisationUnitId -- " );
         }
         catch ( Exception e )
