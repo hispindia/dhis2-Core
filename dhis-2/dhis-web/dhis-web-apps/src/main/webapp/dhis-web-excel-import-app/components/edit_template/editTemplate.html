@@ -101,7 +101,7 @@
                 </td>
                 <td>
                     <select class='form-control' ng-model="item.metadata">
-                        <option ng-repeat="option in availableOptions | orderBy:'name'"
+                        <option ng-repeat="option in availableOptions"
                                 value="{{option.id}}"
                                 ng-selected="{{option.id == item.metadata}}">{{option.name}}
                         </option>
@@ -120,7 +120,7 @@
                 </td>
                 <td>
                     <select class='form-control' ng-model="model.newDEwithCOC">
-                        <option ng-repeat="option in availableOptions | orderBy:'name'"
+                        <option ng-repeat="option in availableOptions"
                                 value="{{option.id}}">{{option.name}}
                         </option>
                     </select>
