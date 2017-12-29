@@ -16,11 +16,7 @@
 		#if( $auth.hasAccess( "dhis-web-reports", "upwardReportAnalyser") )
 			<li><a href = "upwardReportAnalyser.action">GOI Reports</a></li>
 		#end
-		<!--
-		#if( $auth.hasAccess( "dhis-web-reports", "goiMonthlyReportAnalyser") )
-			<li><a href = "goiMonthlyReportAnalyser.action">GOI Monthly Report(Captured Data)</a></li>
-		#end
-		-->
+		
 		#if( $auth.hasAccess( "dhis-web-reports", "periodWiseprogressReportAnalyser") )
 			<li><a href = "periodWiseprogressReportAnalyser.action">Periodwise Progress Reports</a></li>
 		#end
@@ -30,6 +26,13 @@
 		#end
 		
 		<!--
+		#if( $auth.hasAccess( "dhis-web-reports", "goiMonthlyReportAnalyser") )
+			<li><a href = "goiMonthlyReportAnalyser.action">GOI Monthly Report(Captured Data)</a></li>
+		#end
+		
+		
+		-->
+		<!--
 		#if( $auth.hasAccess( "dhis-web-reports", "programWiseOrgUnitProgressReportAnalyser") )
 			<li><a href = "programWiseOrgUnitProgressReportAnalyser.action">Programwise OrgUnitProgress Reports</a></li>
 		#end
@@ -38,21 +41,24 @@
 			<li><a href = "periodOrgUnitServiceProgressReportAnalyser.action">Period OrgUnit Progress Reports</a></li>
 		#end	
 		-->
-				
+		
+		#if( $auth.hasAccess( "dhis-web-reports", "autoReportAnalyser") )
+			<li><a href = "autoReportAnalyser.action">Bulk Reports</a></li>
+		#end
+		
+		#if( $auth.hasAccess( "dhis-web-reports", "metaDataReportAnalyser") )
+			<li><a href = "metaDataReportAnalyser.action">Meta Data Reports</a></li>
+		#end		
+		
+		<!--
 		#if( $auth.hasAccess( "dhis-web-reports", "linelistingWebPortalReportAnalyser") )
 			<li><a href = "linelistingWebPortalReportAnalyser.action">Linelisting WebPortal Reports</a></li>
 		#end
 		#if( $auth.hasAccess( "dhis-web-reports", "lineListingBulkReportAnalyser") )
 			<li><a href = "lineListingBulkReportAnalyser.action">Linelisting Bulk Report</a></li>
 		#end
-		#if( $auth.hasAccess( "dhis-web-reports", "metaDataReportAnalyser") )
-			<li><a href = "metaDataReportAnalyser.action">Meta Data Reports</a></li>
-		#end
-		
-		#if( $auth.hasAccess( "dhis-web-reports", "autoReportAnalyser") )
-			<li><a href = "autoReportAnalyser.action">Bulk Reports</a></li>
-		#end
-		
+		-->
+
 		<!--		
 		#if( $auth.hasAccess( "dhis-web-reports", "populateMultipleUsersForm") )
 			<li><a href = "populateMultipleUsersForm.action">Populate Users From Excel</a></li>
