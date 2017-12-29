@@ -119,9 +119,9 @@ text-align: left;
 
         var currURL = document.URL;
         var brkURL = currURL.split("/");
-        var absURL = brkURL[0]+"/"+brkURL[1]+"/"+brkURL[2]+"/"+ brkURL[3];
+        var absURL = brkURL[0]+"/"+brkURL[1]+"/"+brkURL[2]+"/";
 
-            var url = absURL + '/run?__report=' + elt.options[elt.selectedIndex].value+'&__format='+format.options[format.selectedIndex].value;
+            var url = absURL + 'birtviewer/run?__report=' + elt.options[elt.selectedIndex].value+'&__format='+format.options[format.selectedIndex].value;
             var windowName = 'Birt Viewer';
             window.open(url, windowName);
     }
