@@ -1,35 +1,4 @@
-/*
- * Copyright (c) 2004-2009, University of Oslo
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- * * Redistributions of source code must retain the above copyright notice, this
- *   list of conditions and the following disclaimer.
- * * Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- * * Neither the name of the HISP project nor the names of its contributors may
- *   be used to endorse or promote products derived from this software without
- *   specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 package org.hisp.dhis.reports.auto.action;
-
-/**
- * @author Brajesh Murari
- * @version $Id$
- */
 
 import static org.hisp.dhis.util.ConversionUtils.getIdentifiers;
 import static org.hisp.dhis.util.TextUtils.getCommaDelimitedString;
@@ -40,10 +9,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -55,21 +27,21 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import jxl.CellType;
-import jxl.Workbook;
 import jxl.format.Alignment;
 import jxl.format.Border;
 import jxl.format.BorderLineStyle;
-import jxl.format.CellFormat;
-import jxl.write.Blank;
-import jxl.write.Label;
-import jxl.write.Number;
-import jxl.write.WritableCell;
+import jxl.format.VerticalAlignment;
 import jxl.write.WritableCellFormat;
-import jxl.write.WritableSheet;
-import jxl.write.WritableWorkbook;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.hisp.dhis.config.Configuration_IN;
+import org.hisp.dhis.dataelement.DataElement;
+import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
+import org.hisp.dhis.dataelement.DataElementCategoryService;
+import org.hisp.dhis.dataelement.DataElementService;
 import org.hisp.dhis.i18n.I18nFormat;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.organisationunit.OrganisationUnitGroup;
@@ -80,49 +52,57 @@ import org.hisp.dhis.reports.ReportService;
 import org.hisp.dhis.reports.Report_in;
 import org.hisp.dhis.reports.Report_inDesign;
 import org.hisp.dhis.system.util.MathUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import com.opensymphony.xwork2.Action;
 
+/**
+ * @author Mithilesh Kumar Thakur
+ */
 public class GenerateAutoReportAnalyserResultAction implements Action
 {
-    
+   
     private final String GENERATEAGGDATA = "generateaggdata";
 
     private final String USEEXISTINGAGGDATA = "useexistingaggdata";
 
     private final String USECAPTUREDDATA = "usecaptureddata";
+    
+    
     // -------------------------------------------------------------------------
     // Dependencies
     // -------------------------------------------------------------------------
-    /*
-	private StatementManager statementManager;
+        /*
+    private StatementManager statementManager;
 
     public void setStatementManager( StatementManager statementManager )
     {
         this.statementManager = statementManager;
     }
-	*/
+    */
     private ReportService reportService;
 
     public void setReportService( ReportService reportService )
     {
         this.reportService = reportService;
     }
-
-    private PeriodService periodService;
-
-    public void setPeriodService( PeriodService periodService )
-    {
-        this.periodService = periodService;
-    }
-
+    
     private OrganisationUnitService organisationUnitService;
 
     public void setOrganisationUnitService( OrganisationUnitService organisationUnitService )
     {
         this.organisationUnitService = organisationUnitService;
     }
+    
+    private PeriodService periodService;
 
+    public void setPeriodService( PeriodService periodService )
+    {
+        this.periodService = periodService;
+    }
+    
     private I18nFormat format;
 
     public void setFormat( I18nFormat format )
@@ -130,10 +110,29 @@ public class GenerateAutoReportAnalyserResultAction implements Action
         this.format = format;
     }
     
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private DataElementService dataElementService;
+
+    public void setDataElementService( DataElementService dataElementService )
+    {
+        this.dataElementService = dataElementService;
+    }
+    
+    private DataElementCategoryService dataElementCategoryOptionComboService;
+
+    public void setDataElementCategoryOptionComboService(
+        DataElementCategoryService dataElementCategoryOptionComboService )
+    {
+        this.dataElementCategoryOptionComboService = dataElementCategoryOptionComboService;
+    }
+    
     // -------------------------------------------------------------------------
     // Properties
     // -------------------------------------------------------------------------
-
+    
     private InputStream inputStream;
 
     public InputStream getInputStream()
@@ -147,56 +146,36 @@ public class GenerateAutoReportAnalyserResultAction implements Action
     {
         return fileName;
     }
-
+    
     private String reportList;
 
     public void setReportList( String reportList )
     {
         this.reportList = reportList;
     }
-
+    /*
     private int ouIDTB;
 
     public void setOuIDTB( int ouIDTB )
     {
         this.ouIDTB = ouIDTB;
     }
+    */
+    
+    
+    private String ouIDTB;
+    
+    public void setOuIDTB(String ouIDTB) 
+    {
+		this.ouIDTB = ouIDTB;
+	}
 
-    private int availablePeriods;
+	private int availablePeriods;
 
     public void setAvailablePeriods( int availablePeriods )
     {
         this.availablePeriods = availablePeriods;
     }
-/*
-    private String aggCB;
-
-    public void setAggCB( String aggCB )
-    {
-        this.aggCB = aggCB;
-    }
-*/
-    private String reportFileNameTB;
-
-    private String reportModelTB;
-
-    private List<OrganisationUnit> orgUnitList;
-
-    private Period selectedPeriod;
-
-    private SimpleDateFormat simpleDateFormat;
-
-    private SimpleDateFormat monthFormat;
-    
-    private SimpleDateFormat yearFormat;
-
-    private SimpleDateFormat simpleMonthFormat;
-
-    private Date sDate;
-
-    private Date eDate;
-
-    private String raFolderName;
     
     private String aggData;
     
@@ -204,12 +183,39 @@ public class GenerateAutoReportAnalyserResultAction implements Action
     {
         this.aggData = aggData;
     }
+    
+    private List<OrganisationUnit> orgUnitList;
+    
+    private String raFolderName;
+    
+    private SimpleDateFormat simpleDateFormat;
+    
+    private SimpleDateFormat monthFormat;
 
+    private SimpleDateFormat simpleMonthFormat;
+    
+    private SimpleDateFormat yearFormat;
+    
+    private String reportFileNameTB;
+
+    private String reportModelTB;
+    
+    private Period selectedPeriod;
+    
+    private Date sDate;
+
+    private Date eDate;
+    
+    private Map<String, String> resMap;
+
+    private Map<String, String> resMapForDeath;
+    
+    private SimpleDateFormat simpleDateMonthYearFormat;
+    
     // -------------------------------------------------------------------------
     // Action Implementation
     // -------------------------------------------------------------------------
-    public String execute()
-        throws Exception
+    public String execute() throws Exception
     {
         //statementManager.initialise();
 
@@ -220,6 +226,7 @@ public class GenerateAutoReportAnalyserResultAction implements Action
         monthFormat = new SimpleDateFormat( "MMMM" );
         yearFormat = new SimpleDateFormat( "yyyy" );
         simpleMonthFormat = new SimpleDateFormat( "MMM" );
+        simpleDateMonthYearFormat = new SimpleDateFormat( "dd/MM/yyyy" );
         String parentUnit = "";
         
         Report_in selReportObj =  reportService.getReport( Integer.parseInt( reportList ) );
@@ -229,16 +236,20 @@ public class GenerateAutoReportAnalyserResultAction implements Action
         reportModelTB = selReportObj.getModel();
         reportFileNameTB = selReportObj.getExcelTemplateName();
         
+        initializeResultMap();
 
+        initializeLLDeathResultMap();
+        
         String inputTemplatePath = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + "template" + File.separator + reportFileNameTB;
-        //String outputReportFolderPath = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + "output" + File.separator + UUID.randomUUID().toString();
+        //String outputReportFolderPath = System.get e n v( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + "output" + File.separator + UUID.randomUUID().toString();
         String outputReportFolderPath = System.getenv( "DHIS2_HOME" ) + File.separator +  Configuration_IN.DEFAULT_TEMPFOLDER + File.separator + UUID.randomUUID().toString();
         File newdir = new File( outputReportFolderPath );
         if( !newdir.exists() )
         {
             newdir.mkdirs();
         }
-
+        
+        // Org Unit INFO
         if( reportModelTB.equalsIgnoreCase( "STATIC" ) || reportModelTB.equalsIgnoreCase( "STATIC-DATAELEMENTS" ) || reportModelTB.equalsIgnoreCase( "STATIC-FINANCIAL" ) )
         {
             orgUnitList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( ouIDTB ) );
@@ -251,10 +262,7 @@ public class GenerateAutoReportAnalyserResultAction implements Action
             return INPUT;
         }
         
-       
-       // System.out.println(  "---Size of Org Unit List ----: " + orgUnitList.size() + ",Report Group name is :---" + selReportObj.getOrgunitGroup().getName() + ", Size of Group member is ----:" + selReportObj.getOrgunitGroup().getMembers().size()  );
-        
-        System.out.println( " ---- Size of OrgUnit List is ---- " + orgUnitList.size() );
+        System.out.println(  "---Size of Org Unit List ----: " + orgUnitList.size() + ",Report Group name is :---" + selReportObj.getOrgunitGroup().getName() + ", Size of Group member is ----:" + selReportObj.getOrgunitGroup().getMembers().size()  );
         
         OrganisationUnit selOrgUnit = organisationUnitService.getOrganisationUnit( ouIDTB );
         
@@ -266,8 +274,7 @@ public class GenerateAutoReportAnalyserResultAction implements Action
 
         eDate = format.parseDate( String.valueOf( selectedPeriod.getEndDate() ) );
 
-        Workbook templateWorkbook = Workbook.getWorkbook( new File( inputTemplatePath ) );
-
+        //Workbook templateWorkbook = Workbook.getWorkbook( new File( inputTemplatePath ) );
        
         // collect periodId by commaSepareted
         List<Period> tempPeriodList = new ArrayList<Period>( periodService.getIntersectingPeriods( sDate, eDate ) );
@@ -280,10 +287,19 @@ public class GenerateAutoReportAnalyserResultAction implements Action
         List<Report_inDesign> reportDesignList = reportService.getReportDesign( deCodesXMLFileName );
         
         // collect dataElementIDs by commaSepareted
-        String dataElmentIdsByComma = reportService.getDataelementIds( reportDesignList );
+        //String dataElmentIdsByComma = reportService.getDataelementIds( reportDesignList );
+        String dataElmentIdsByComma = getDataelementIdsByComma( reportDesignList );
+
+        //System.out.println( " dataElmentIdsByComma - " + dataElmentIdsByComma );
+        
+        List<Integer> selOrgUnitIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, orgUnitList ) );
+        String orgUnitIdsByComma = getCommaDelimitedString( selOrgUnitIds );
+        Map<String, String> aggDeMapForCaptureData = new HashMap<String, String>();
+        
+        aggDeMapForCaptureData.putAll( reportService.getDataFromDataValueTableByPeriodAgg( orgUnitIdsByComma, dataElmentIdsByComma, periodIdsByComma ) );
         
         int orgUnitCount = 0;
-
+        
         Iterator<OrganisationUnit> it = orgUnitList.iterator();
         while ( it.hasNext() )
         {
@@ -292,12 +308,23 @@ public class GenerateAutoReportAnalyserResultAction implements Action
             String outPutFileName = reportFileNameTB.replace( ".xls", "" );
             outPutFileName += "_" + currentOrgUnit.getShortName();
             outPutFileName += "_" + simpleDateFormat.format( selectedPeriod.getStartDate() ) + ".xls";
-
-            String outputReportPath = outputReportFolderPath + File.separator + outPutFileName;
-            WritableWorkbook outputReportWorkbook = Workbook.createWorkbook( new File( outputReportPath ), templateWorkbook );
             
+            
+            FileInputStream tempFile = new FileInputStream( new File( inputTemplatePath ) );
+            HSSFWorkbook apachePOIWorkbook = new HSSFWorkbook( tempFile );
+            String outputReportPath = outputReportFolderPath + File.separator + outPutFileName;
+            
+            /*
+            Map<String, String> aggDeMap = new HashMap<String, String>();
+            List<OrganisationUnit> childOrgUnitTree = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( currentOrgUnit.getId() ) );
+            List<Integer> childOrgUnitTreeIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, childOrgUnitTree ) );
+            String childOrgUnitsByComma = getCommaDelimitedString( childOrgUnitTreeIds );
+
+            aggDeMap.putAll( reportService.getAggDataFromDataValueTable( childOrgUnitsByComma, dataElmentIdsByComma, periodIdsByComma ) );
+            */
             
             Map<String, String> aggDeMap = new HashMap<String, String>();
+            
             if( aggData.equalsIgnoreCase( USEEXISTINGAGGDATA ) )
             {
                 aggDeMap.putAll( reportService.getResultDataValueFromAggregateTable( currentOrgUnit.getId(), dataElmentIdsByComma, periodIdsByComma ) );
@@ -312,10 +339,9 @@ public class GenerateAutoReportAnalyserResultAction implements Action
             }
             else if( aggData.equalsIgnoreCase( USECAPTUREDDATA ) )
             {
-                aggDeMap.putAll( reportService.getAggDataFromDataValueTable( ""+currentOrgUnit.getId(), dataElmentIdsByComma, periodIdsByComma ) );
+                //aggDeMap.putAll( reportService.getAggDataFromDataValueTable( ""+currentOrgUnit.getId(), dataElmentIdsByComma, periodIdsByComma ) );
             }
-            
-            
+
             int count1 = 0;
             Iterator<Report_inDesign> reportDesignIterator = reportDesignList.iterator();
             while ( reportDesignIterator.hasNext() )
@@ -326,6 +352,8 @@ public class GenerateAutoReportAnalyserResultAction implements Action
                 String sType = report_inDesign.getStype();
                 String deCodeString = report_inDesign.getExpression();
                 String tempStr = "";
+                String tempadeInAdeStr = "";
+                String tempStr1 = "";
 
                 Calendar tempStartDate = Calendar.getInstance();
                 Calendar tempEndDate = Calendar.getInstance();
@@ -373,9 +401,14 @@ public class GenerateAutoReportAnalyserResultAction implements Action
                 else if( deCodeString.equalsIgnoreCase( "PERIOD-MONTH" ) )
                 {
                     tempStr = monthFormat.format( sDate );
-                } 
+                }
+                else if ( deCodeString.equalsIgnoreCase( "YEAR-FROMTO" ) )
+                {
+                    tempStr = yearFormat.format( sDate );
+                }
                 else if( deCodeString.equalsIgnoreCase( "PERIOD-YEAR" ) )
                 {
+                    
                     tempStr = yearFormat.format( sDate );
                 } 
                 else if( deCodeString.equalsIgnoreCase( "MONTH-START-SHORT" ) )
@@ -401,65 +434,15 @@ public class GenerateAutoReportAnalyserResultAction implements Action
                 else if( deCodeString.equalsIgnoreCase( "NA" ) )
                 {
                     tempStr = " ";
+                    tempadeInAdeStr = " ";
                 } 
                 else
                 {
                     if( sType.equalsIgnoreCase( "dataelement" ) )
                     {
-                        if ( aggData.equalsIgnoreCase( USECAPTUREDDATA ) )
+                        if( aggData.equalsIgnoreCase( USEEXISTINGAGGDATA ) )
                         {
-                            tempStr = getAggVal( deCodeString, aggDeMap );
-                            
-                            if ( deCodeString.equalsIgnoreCase( "[1.1]" ) || deCodeString.equalsIgnoreCase( "[2.1]" ) || deCodeString.equalsIgnoreCase( "[153.1]" ) 
-                                || deCodeString.equalsIgnoreCase( "[155.1]" ) || deCodeString.equalsIgnoreCase( "[157.1]" ) || deCodeString.equalsIgnoreCase( "[158.1]" )
-                                || deCodeString.equalsIgnoreCase( "[160.1]" ) )
-                            {
-                                //System.out.println( " USECAPTUREDDATA Before Converting : SType : " + sType + " DECode : " + deCodeString + "   TempStr : " + tempStr );
-                                
-                                if( tempStr.equalsIgnoreCase( "0.0" ) )
-                                {
-                                    tempStr = ""+ 1.0;
-                                }
-                                else if ( tempStr.equalsIgnoreCase( "1.0" ) )
-                                {
-                                    tempStr = ""+ 0.0;
-                                }
-                                else
-                                {
-                                }
-                                //System.out.println( " USECAPTUREDDATA After Converting : SType : " + sType + " DECode : " + deCodeString + "   TempStr : " + tempStr );
-                            }
-                            //tempStr = reportService.getIndividualResultDataValue(deCodeString, tempStartDate.getTime(), tempEndDate.getTime(), currentOrgUnit, reportModelTB );
-                        } 
-                        else if( aggData.equalsIgnoreCase( GENERATEAGGDATA ) )
-                        {
-                            tempStr = getAggVal( deCodeString, aggDeMap );
-                            
-                            if ( deCodeString.equalsIgnoreCase( "[1.1]" ) || deCodeString.equalsIgnoreCase( "[2.1]" ) || deCodeString.equalsIgnoreCase( "[153.1]" ) 
-                                || deCodeString.equalsIgnoreCase( "[155.1]" ) || deCodeString.equalsIgnoreCase( "[157.1]" ) || deCodeString.equalsIgnoreCase( "[158.1]" )
-                                || deCodeString.equalsIgnoreCase( "[160.1]" ) )
-                            {
-                                //System.out.println( " GENERATEAGGDATA Before Converting : SType : " + sType + " DECode : " + deCodeString + "   TempStr : " + tempStr );
-                                
-                                if( tempStr.equalsIgnoreCase( "0.0" ) )
-                                {
-                                    tempStr = ""+ 1.0;
-                                }
-                                else if ( tempStr.equalsIgnoreCase( "1.0" ) )
-                                {
-                                    tempStr = ""+ 0.0;
-                                }
-                                else
-                                {
-                                }
-                                //System.out.println( " GENERATEAGGDATA After Converting : SType : " + sType + " DECode : " + deCodeString + "   TempStr : " + tempStr );
-                            }
-                            //tempStr = reportService.getResultDataValue( deCodeString, tempStartDate.getTime(), tempEndDate.getTime(), currentOrgUnit, reportModelTB );
-                        }
-                        else if( aggData.equalsIgnoreCase( USEEXISTINGAGGDATA ) )
-                        {
-                            
-                            tempStr = getAggVal( deCodeString, aggDeMap );
+                            tempStr = getAggVal( deCodeString, aggDeMap, currentOrgUnit.getId() );
                             
                             if ( deCodeString.equalsIgnoreCase( "[1.1]" ) || deCodeString.equalsIgnoreCase( "[2.1]" ) || deCodeString.equalsIgnoreCase( "[153.1]" ) 
                                 || deCodeString.equalsIgnoreCase( "[155.1]" ) || deCodeString.equalsIgnoreCase( "[157.1]" ) || deCodeString.equalsIgnoreCase( "[158.1]" )
@@ -480,63 +463,106 @@ public class GenerateAutoReportAnalyserResultAction implements Action
                                 }
                                 //System.out.println( "  USEEXISTINGAGGDATA After Converting : SType : " + sType + " DECode : " + deCodeString + "   TempStr : " + tempStr );
                             }
-                            
-                            /*
-                            List<Period> periodList = new ArrayList<Period>( periodService.getPeriodsBetweenDates( tempStartDate.getTime(), tempEndDate.getTime() ) );
-                            Collection<Integer> periodIds = new ArrayList<Integer>( getIdentifiers(Period.class, periodList ) );
-                            tempStr = reportService.getResultDataValueFromAggregateTable( deCodeString, periodIds, currentOrgUnit, reportModelTB );
-                            */
                         }
+                        else if( aggData.equalsIgnoreCase( GENERATEAGGDATA ) )
+                        {
+                            tempStr = getAggVal( deCodeString, aggDeMap, currentOrgUnit.getId() );
+                            
+                            if ( deCodeString.equalsIgnoreCase( "[1.1]" ) || deCodeString.equalsIgnoreCase( "[2.1]" ) || deCodeString.equalsIgnoreCase( "[153.1]" ) 
+                                || deCodeString.equalsIgnoreCase( "[155.1]" ) || deCodeString.equalsIgnoreCase( "[157.1]" ) || deCodeString.equalsIgnoreCase( "[158.1]" )
+                                || deCodeString.equalsIgnoreCase( "[160.1]" ) )
+                            {
+                                //System.out.println( " GENERATEAGGDATA Before Converting : SType : " + sType + " DECode : " + deCodeString + "   TempStr : " + tempStr );
+                                
+                                if( tempStr.equalsIgnoreCase( "0.0" ) )
+                                {
+                                    tempStr = ""+ 1.0;
+                                }
+                                else if ( tempStr.equalsIgnoreCase( "1.0" ) )
+                                {
+                                    tempStr = ""+ 0.0;
+                                }
+                                else
+                                {
+                                }
+                                //System.out.println( " GENERATEAGGDATA After Converting : SType : " + sType + " DECode : " + deCodeString + "   TempStr : " + tempStr );
+                            }
+                        }
+                        
+                        else if( aggData.equalsIgnoreCase( USECAPTUREDDATA ) ) 
+                        {
+                            tempStr = getAggVal( deCodeString, aggDeMapForCaptureData, currentOrgUnit.getId() );
+                            
+                            if ( deCodeString.equalsIgnoreCase( "[1.1]" ) || deCodeString.equalsIgnoreCase( "[2.1]" ) || deCodeString.equalsIgnoreCase( "[153.1]" ) 
+                                || deCodeString.equalsIgnoreCase( "[155.1]" ) || deCodeString.equalsIgnoreCase( "[157.1]" ) || deCodeString.equalsIgnoreCase( "[158.1]" )
+                                || deCodeString.equalsIgnoreCase( "[160.1]" ) )
+                            {
+                                //System.out.println( " USECAPTUREDDATA Before Converting : SType : " + sType + " DECode : " + deCodeString + "   TempStr : " + tempStr );
+                                
+                                if( tempStr.equalsIgnoreCase( "0.0" ) )
+                                {
+                                    tempStr = ""+ 1.0;
+                                }
+                                else if ( tempStr.equalsIgnoreCase( "1.0" ) )
+                                {
+                                    tempStr = ""+ 0.0;
+                                }
+                                else
+                                {
+                                }
+                                //System.out.println( " USECAPTUREDDATA After Converting : SType : " + sType + " DECode : " + deCodeString + "   TempStr : " + tempStr );
+                            }
+                        }
+                  
+                       // tempStr = getAggVal( deCodeString, aggDeMap );
+                        //tempStr = reportService.getResultDataValue( deCodeString, tempStartDate.getTime(), tempEndDate.getTime(), currentOrgUnit, reportModelTB );
                     } 
                     else if ( sType.equalsIgnoreCase( "dataelement-boolean" ) )
                     {
-                        if ( aggData.equalsIgnoreCase( USECAPTUREDDATA ) )
+                        tempStr = reportService.getBooleanDataValue(deCodeString, tempStartDate.getTime(), tempEndDate.getTime(), currentOrgUnit, reportModelTB);
+                    }
+                    // for added new dataElement in GOI Report
+                    else if ( sType.equalsIgnoreCase( "dataelement-date" ) )
+                    {
+                    	if( aggData.equalsIgnoreCase( USECAPTUREDDATA ) ) 
                         {
-                            tempStr = reportService.getBooleanDataValue(deCodeString, tempStartDate.getTime(), tempEndDate.getTime(), currentOrgUnit, reportModelTB);
-                        } 
-                        else if( aggData.equalsIgnoreCase( GENERATEAGGDATA ) )
-                        {
-                            tempStr = reportService.getBooleanDataValue(deCodeString, tempStartDate.getTime(), tempEndDate.getTime(), currentOrgUnit, reportModelTB);
+                            String tempDateString = getStringDataFromDataValue( deCodeString, selectedPeriod.getId(),currentOrgUnit.getId() );
+                            if( tempDateString != null && !tempDateString.equalsIgnoreCase(""))
+                            {
+                            	Date tempDate = format.parseDate( tempDateString );
+                                tempStr = simpleDateMonthYearFormat.format(tempDate);
+                            }
+                            
+                            //System.out.println( " USECAPTUREDDATA  SType : " + sType + " DECode : " + deCodeString + "   TempStr : " + tempStr );
                         }
-                        else if( aggData.equalsIgnoreCase( USEEXISTINGAGGDATA ) )
+                    }
+                    else if ( sType.equalsIgnoreCase( "dataelement-string" ) )
+                    {
+                    	if( aggData.equalsIgnoreCase( USECAPTUREDDATA ) ) 
                         {
-                            tempStr = reportService.getBooleanDataValue(deCodeString, tempStartDate.getTime(), tempEndDate.getTime(), currentOrgUnit, reportModelTB);
+                    		tempadeInAdeStr = getStringDataFromDataValue( deCodeString, selectedPeriod.getId(),currentOrgUnit.getId() );
+                            //System.out.println( " USECAPTUREDDATA  SType : " + sType + " DECode : " + deCodeString + "   TempStr : " + tempStr );
+                            
                         }
                     }
                     else
                     {
-                        if ( aggData.equalsIgnoreCase( USECAPTUREDDATA ) )
-                        {
-                            tempStr = reportService.getIndividualResultIndicatorValue( deCodeString, tempStartDate.getTime(), tempEndDate.getTime(), currentOrgUnit );
-                        } 
-                        else if( aggData.equalsIgnoreCase( GENERATEAGGDATA ) )
-                        {
-                            //tempStr = reportService.getResultIndicatorValue( deCodeString, tempStartDate.getTime(), tempEndDate.getTime(), currentOrgUnit );
-                        }
-                        else if( aggData.equalsIgnoreCase( USEEXISTINGAGGDATA ) )
-                        {
-                            //List<Period> periodList = new ArrayList<Period>( periodService.getPeriodsBetweenDates( tempStartDate.getTime(), tempEndDate.getTime() ) );
-                            //Collection<Integer> periodIds = new ArrayList<Integer>( getIdentifiers(Period.class, periodList ) );
-                            //tempStr = reportService.getResultIndicatorValue( deCodeString, tempStartDate.getTime(), tempEndDate.getTime(), currentOrgUnit );
-                        }
+                        //tempStr = reportService.getResultIndicatorValue( deCodeString, tempStartDate.getTime(), tempEndDate.getTime(), currentOrgUnit );
                     }
+                    
                 }
         
                 int tempRowNo = report_inDesign.getRowno();
                 int tempColNo = report_inDesign.getColno();
                 int sheetNo = report_inDesign.getSheetno();
-                WritableSheet sheet0 = outputReportWorkbook.getSheet( sheetNo );
+                
+                //WritableSheet sheet0 = outputReportWorkbook.getSheet( sheetNo );
+                Sheet sheet0 = apachePOIWorkbook.getSheetAt( sheetNo );
                 
                 if ( tempStr == null || tempStr.equals( " " ) )
                 {
                     tempColNo += orgUnitCount;
-        
-                    WritableCellFormat wCellformat = new WritableCellFormat();
-                    wCellformat.setBorder( Border.ALL, BorderLineStyle.THIN );
-                    wCellformat.setWrap( true );
-                    wCellformat.setAlignment( Alignment.CENTRE );
-        
-                    sheet0.addCell( new Blank( tempColNo, tempRowNo, wCellformat ) );
+                 
                 } 
                 else
                 {
@@ -566,46 +592,92 @@ public class GenerateAutoReportAnalyserResultAction implements Action
                             tempRowNo += orgUnitCount;
                         }
                     }
-    
-                    WritableCell cell = sheet0.getWritableCell( tempColNo, tempRowNo );
-    
-                    CellFormat cellFormat = cell.getCellFormat();
-                    WritableCellFormat wCellformat = new WritableCellFormat();
-                    wCellformat.setBorder( Border.ALL, BorderLineStyle.THIN );
-                    wCellformat.setWrap( true );
-                    wCellformat.setAlignment( Alignment.CENTRE );
-    
-                    if ( cell.getType() == CellType.LABEL )
+                    
+                    if ( sType.equalsIgnoreCase( "dataelement" ) )
                     {
-                        Label l = (Label) cell;
-                        l.setString( tempStr );
-                        l.setCellFormat( cellFormat );
-                    } 
-                    else
+                    	 try
+                         {
+                    		 Row row = sheet0.getRow( tempRowNo );
+                             Cell cell = row.getCell( tempColNo );
+                             cell.setCellValue( Double.parseDouble( tempStr ) );
+                         }
+                         catch ( Exception e )
+                         {
+                             //sheet0.addCell( new Label( tempColNo, tempRowNo, tempStr, wCellformat ) );
+                             Row row = sheet0.getRow( tempRowNo );
+                             Cell cell = row.getCell( tempColNo );
+                             cell.setCellValue( tempStr );
+                         }
+                         
+                    }
+                    else if ( sType.equalsIgnoreCase( "dataelement-date" ) )
                     {
                         try
                         {
-                            sheet0.addCell( new Number( tempColNo, tempRowNo, Double.parseDouble( tempStr ), wCellformat ) );
+                            Row row = sheet0.getRow( tempRowNo );
+                            Cell cell = row.getCell( tempColNo );
+                            cell.setCellValue( tempStr );
+                            
                         }
-                        catch( Exception e )
+                        catch ( Exception e )
                         {
-                            sheet0.addCell( new Label( tempColNo, tempRowNo, tempStr, wCellformat ) );
+                        	//System.out.println( " Exception : " + e.getMessage() );
+                        	Row row = sheet0.getRow( tempRowNo );
+                        	Cell cell = row.getCell( tempColNo );
+                        	cell.setCellValue( tempStr );
                         }
                     }
+                    else if ( sType.equalsIgnoreCase( "dataelement-string" ) )
+                    {
+                        
+                    	if ( tempadeInAdeStr != null && tempadeInAdeStr.equalsIgnoreCase("Adequate") )
+                        {
+                            tempStr1 = "59";
+                        }
+                    	else if ( tempadeInAdeStr != null && tempadeInAdeStr.equalsIgnoreCase("Inadequate") )
+                        {
+                            tempStr1 = "60";
+                        }
+                       
+                    	try
+                        {
+                            Row row = sheet0.getRow( tempRowNo );
+                            
+                            Cell cell_1 = row.getCell( tempColNo - 1 );
+                            cell_1.setCellValue( tempStr1 );
+                            
+                            Cell cell_2 = row.getCell( tempColNo );
+                            cell_2.setCellValue( tempadeInAdeStr );
+                        }
+                        catch ( Exception e )
+                        {
+                            //sheet0.addCell( new Label( tempColNo, tempRowNo, tempStr, wCellformat ) );
+                            Row row = sheet0.getRow( tempRowNo );
+                            Cell cell = row.getCell( tempColNo );
+                            cell.setCellValue( tempadeInAdeStr );
+                        }
+                    }           
                 }
                 
                 count1++;
             }// inner while loop end
+
+            //outputReportWorkbook.write();
+            //outputReportWorkbook.close();
             
-            outputReportWorkbook.write();
-            outputReportWorkbook.close();
-
+            tempFile.close(); //Close the InputStream
+            
+            FileOutputStream output_file = new FileOutputStream( new File(  outputReportPath ) );  //Open FileOutputStream to write updates
+            
+            apachePOIWorkbook.write( output_file ); //write changes
+              
+            output_file.close();  //close the stream   
+            
             orgUnitCount++;
-        }// outer while loop end
-
-
+        }
         //statementManager.destroy();
-
+        
+        
         if( zipDirectory( outputReportFolderPath, outputReportFolderPath+".zip" ) )
         {
             System.out.println( selOrgUnit.getName()+ " : " + selReportObj.getName()+" Report Generation End Time is : " + new Date() );
@@ -623,10 +695,8 @@ public class GenerateAutoReportAnalyserResultAction implements Action
         {
             return INPUT;
         }
+    }      
         
-    }
-        
-    
     public boolean zipDirectory( String dir, String zipfile ) throws IOException, IllegalArgumentException 
     {
         
@@ -675,10 +745,313 @@ public class GenerateAutoReportAnalyserResultAction implements Action
         
         return true;
     }
+
+ // Supported Methods
+    
+    
+    public void initializeResultMap()
+    {
+        resMap = new HashMap<String, String>();
+    
+        resMap.put( "NONE", "---" );
+        resMap.put( "M", "Male" );
+        resMap.put( "F", "Female" );
+        resMap.put( "Y", "YES" );
+        resMap.put( "N", "NO" );
+        resMap.put( "B1WEEK", "1 DAY - 1 WEEK" );
+        resMap.put( "B1MONTH", "1 WEEK - 1 MONTH" );
+        resMap.put( "B1YEAR", "1 MONTH - 1 YEAR" );
+        resMap.put( "B5YEAR", "1 YEAR - 5 YEARS" );
+        resMap.put( "O5YEAR", "6 YEARS - 14 YEARS" );
+        resMap.put( "O15YEAR", "15 YEARS - 55 YEARS" );
+        resMap.put( "O55YEAR", "OVER 55 YEARS" );
+        resMap.put( "IMMREAC", "Immunization reactions" );
+        resMap.put( "PRD", "Pregnancy Related Death( maternal mortality)" );
+        resMap.put( "SRD", "Sterilisation related deaths" );
+        //resMap.put( "AI", "Accidents or Injuries" );
+        
+        
+        //infant Death( Up to 1 Year of age )
+        resMap.put( "B1DAY", "C01-WITHIN 24 HOURS OF BIRTH" );
+        resMap.put( "SEPSIS", "C02-SEPSIS" );
+        resMap.put( "ASPHYXIA", "C03-ASPHYXIA" );
+        resMap.put( "LOWBIRTHWEIGH", "C04-Low Birth Wight(LBW) for Children upto 4 weeks of age only" );
+        resMap.put( "PNEUMONIA", "C05-Pneumonia" );
+        //resMap.put( "DIADIS", "C06-Diarrhoea" );
+        //resMap.put( "OFR",, "C07-Fever related" );
+        resMap.put( "MEASLES", "C08-Measles" );
+        resMap.put( "OTHERS", "C09-Others" );
+        
+        
+        //Adolescents and Adults
+        resMap.put( "DIADIS", "A01-Diarrhoeal diseases" );
+        resMap.put( "TUBER", "A02-Tuberculosis" );
+        resMap.put( "RID", "A03-Respiratory disease including infections(other than TB)" );
+        resMap.put( "MALARIA", "A04-Malaria" );
+        resMap.put( "OFR", "A05-Other Fever related" );
+        resMap.put( "HIVAIDS", "A06-HIV/AIDS" );
+        resMap.put( "HDH", "A07-Heart disease/Hypertension related" );
+        resMap.put( "SND", "A08-Neurological disease including Strokes" );
+        resMap.put( "AI", "A09-Trauma/Accidents/Burn cases" );
+        resMap.put( "SUICIDES", "A10-Suicides" );
+        resMap.put( "ABS", "A11-Animal Bites or Stings" );
+        
+        // Maternal death cause
+        resMap.put( "ABORTION", "M01-Abortion" );
+        resMap.put( "OPL", "M02-OBSTRUCTED/PROLONGED LABOUR" );
+        resMap.put( "SH", "M03-SEVERE HYPERTENSION/FITS" );
+        resMap.put( "FITS", "M03-SEVERE HYPERTENSION/FITS" );
+        resMap.put( "BBCD", "M04-BLEEDING" );
+        resMap.put( "BACD", "M04-BLEEDING" );
+        resMap.put( "HFBD", "M05-HIGH FEVER" );
+        resMap.put( "HFAD", "M05-HIGH FEVER" );
+        resMap.put( "MDNK", "M06-Other Causes (including cause not known)" );
+        
+        
+        
+        
+        //Others Disease
+        resMap.put( "OKAD", "A12-Known Acute Disease" );
+        resMap.put( "OKCD", "A13-Known Chronic Disease" );
+        resMap.put( "NK", "A14-Causes not known" );
+        
+        
+        resMap.put( "FTP", "FIRST TRIMESTER PREGNANCY" );
+        resMap.put( "STP", "SECOND TRIMESTER PREGNANCY" );
+        resMap.put( "TTP", "THIRD TRIMESTER PREGNANCY" );
+        resMap.put( "DELIVERY", "DELIVERY" );
+        resMap.put( "ADW42D", "AFTER DELIVERY WITHIN 42 DAYS" );
+        resMap.put( "HOME", "HOME" );
+        resMap.put( "SC", "SUBCENTER" );
+        resMap.put( "PHC", "PHC" );
+        resMap.put( "CHC", "CHC" );
+        resMap.put( "MC", "MEDICAL COLLEGE" );
+        resMap.put( "UNTRAINED", "UNTRAINED" );
+        resMap.put( "TRAINED", "TRAINED" );
+        resMap.put( "ANM", "ANM" );
+        resMap.put( "NURSE", "NURSE" );
+        resMap.put( "DOCTOR", "DOCTOR" );
+        
+
+    
+        
+        //resMap.put( "SH", "M03-SEVERE HYPERTENSION" );
+        //resMap.put( "FITS", "FITS" );
+        
+        //resMap.put( "BBCD", "BLEEDING BEFORE CHILD DELIVERY" );
+        //resMap.put( "BACD", "BLEEDING AFTER CHILD DELIVERY" );
+        //resMap.put( "HFBD", "HIGH FEVER BEFORE DELIVERY" );
+        //resMap.put( "HFAD", "HIGH FEVER AFTER DELIVERY" );
+    }
+
+    public void initializeLLDeathResultMap()
+    {
+        resMapForDeath = new HashMap<String, String>();
+
+        resMapForDeath.put( "B1DAY", "Hrs:12" );
+        resMapForDeath.put( "B1WEEK", "Weeks:1" );
+        resMapForDeath.put( "B1MONTH", "Weeks:3" );
+        resMapForDeath.put( "B1YEAR", "Months:6" );
+        resMapForDeath.put( "B5YEAR", "Years:3" );
+        resMapForDeath.put( "O5YEAR", "Years:10" );
+        resMapForDeath.put( "O15YEAR", "Years:40" );
+        resMapForDeath.put( "O55YEAR", "Years:60" );
+    }
+
+    public WritableCellFormat getCellFormat1()
+        throws Exception
+    {
+        WritableCellFormat wCellformat = new WritableCellFormat();
+
+        wCellformat.setBorder( Border.ALL, BorderLineStyle.THIN );
+        wCellformat.setAlignment( Alignment.CENTRE );
+        wCellformat.setWrap( true );
+
+        return wCellformat;
+    }
+
+    public WritableCellFormat getCellFormat2()
+        throws Exception
+    {
+        WritableCellFormat wCellformat = new WritableCellFormat();
+
+        wCellformat.setBorder( Border.ALL, BorderLineStyle.THIN );
+        wCellformat.setAlignment( Alignment.LEFT );
+        wCellformat.setWrap( true );
+
+        return wCellformat;
+    }
+    
+    
+    public List<Integer> getLinelistingDeathRecordNos( OrganisationUnit organisationUnit, Period period )
+    {
+        List<Integer> recordNosList = new ArrayList<Integer>();
+        
+        int  dataElementid = 1027;
+        String query = "";
+
+        try
+        {
+            query = "SELECT recordno FROM lldatavalue WHERE dataelementid = " + dataElementid + " AND periodid = "
+                + period.getId() + " AND sourceid = " + organisationUnit.getId();
+
+            SqlRowSet rs1 = jdbcTemplate.queryForRowSet( query );
+
+            while ( rs1.next() )
+            {
+                recordNosList.add( rs1.getInt( 1 ) );
+            }
+
+            Collections.sort( recordNosList );
+        }
+        catch ( Exception e )
+        {
+            System.out.println( "SQL Exception : " + e.getMessage() );
+        }
+
+        return recordNosList;
+    }   
+ /*  
+    public String getLLDataValue( String formula, Period period, OrganisationUnit organisationUnit, Integer recordNo )
+    {
+        Statement st1 = null;
+        ResultSet rs1 = null;
+        // System.out.println( "Inside LL Data Value Method" );
+        String query = "";
+        try
+        {
+
+            // int deFlag1 = 0;
+            // int deFlag2 = 0;
+            Pattern pattern = Pattern.compile( "(\\[\\d+\\.\\d+\\])" );
+
+            Matcher matcher = pattern.matcher( formula );
+            StringBuffer buffer = new StringBuffer();
+
+            while ( matcher.find() )
+            {
+                String replaceString = matcher.group();
+
+                replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
+                String optionComboIdStr = replaceString.substring( replaceString.indexOf( '.' ) + 1, replaceString
+                    .length() );
+
+                replaceString = replaceString.substring( 0, replaceString.indexOf( '.' ) );
+
+                int dataElementId = Integer.parseInt( replaceString );
+                int optionComboId = Integer.parseInt( optionComboIdStr );
+
+                DataElement dataElement = dataElementService.getDataElement( dataElementId );
+                DataElementCategoryOptionCombo optionCombo = dataElementCategoryOptionComboService
+                    .getDataElementCategoryOptionCombo( optionComboId );
+
+                if ( dataElement == null || optionCombo == null )
+                {
+                    replaceString = "";
+                    matcher.appendReplacement( buffer, replaceString );
+                    continue;
+                }
+
+                // DataValue dataValue = dataValueService.getDataValue(
+                // organisationUnit, dataElement, period,
+                // optionCombo );
+                // st1 = con.createStatement();
+
+                // System.out.println(
+                // "Before getting value : OrganisationUnit Name : " +
+                // organisationUnit.getName() + ", Period is : " +
+                // period.getId() + ", DataElement Name : " +
+                // dataElement.getName() + ", Record No: " + recordNo );
+
+                query = "SELECT value FROM lldatavalue WHERE sourceid = " + organisationUnit.getId()
+                    + " AND periodid = " + period.getId() + " AND dataelementid = " + dataElement.getId()
+                    + " AND recordno = " + recordNo;
+                // rs1 = st1.executeQuery( query );
+
+                SqlRowSet sqlResultSet = jdbcTemplate.queryForRowSet( query );
+
+                String tempStr = "";
+
+                if ( sqlResultSet.next() )
+                {
+                    tempStr = sqlResultSet.getString( 1 );
+                }
+
+                replaceString = tempStr;
+
+                matcher.appendReplacement( buffer, replaceString );
+            }
+
+            matcher.appendTail( buffer );
+
+            String resultValue = "";
+
+            resultValue = buffer.toString();
+
+            return resultValue;
+        }
+        catch ( NumberFormatException ex )
+        {
+            throw new RuntimeException( "Illegal DataElement id", ex );
+        }
+        catch ( Exception e )
+        {
+            System.out.println( "SQL Exception : " + e.getMessage() );
+            return null;
+        }
+        finally
+        {
+            try
+            {
+                if ( st1 != null )
+                    st1.close();
+
+                if ( rs1 != null )
+                    rs1.close();
+            }
+            catch ( Exception e )
+            {
+                System.out.println( "SQL Exception : " + e.getMessage() );
+                return null;
+            }
+        }// finally block end
+    }
+*/
+    
+    public List<Integer> getLinelistingMateralanRecordNos( OrganisationUnit organisationUnit, Period period )
+    {
+        List<Integer> recordNosList = new ArrayList<Integer>();
+
+        String query = "";
+
+        int dataElementid = 1032;
+
+        try
+        {
+            query = "SELECT recordno FROM lldatavalue WHERE dataelementid = " + dataElementid + " AND periodid = "
+                + period.getId() + " AND sourceid = " + organisationUnit.getId();
+
+            SqlRowSet rs1 = jdbcTemplate.queryForRowSet( query );
+
+            while ( rs1.next() )
+            {
+                recordNosList.add( rs1.getInt( 1 ) );
+            }
+
+            Collections.sort( recordNosList );
+        }
+        catch ( Exception e )
+        {
+            System.out.println( "SQL Exception : " + e.getMessage() );
+        }
+
+        return recordNosList;
+    }
     
     // getting data value using Map
-    private String getAggVal( String expression, Map<String, String> aggDeMap )
+    private String getAggVal( String expression, Map<String, String> aggDeMap, Integer orgUnitId )
     {
+    	int flag = 0;
         try
         {
             Pattern pattern = Pattern.compile( "(\\[\\d+\\.\\d+\\])" );
@@ -694,11 +1067,26 @@ public class GenerateAutoReportAnalyserResultAction implements Action
 
                 replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
 
-                replaceString = aggDeMap.get( replaceString );
+                if( aggData.equalsIgnoreCase( USECAPTUREDDATA ) )
+                {
+                    replaceString = replaceString.replaceAll( "\\.", ":" );
+                    replaceString = orgUnitId + ":" + replaceString;
+
+                    //System.out.println( replaceString );
+                    replaceString = aggDeMap.get( replaceString );
+                }
+                else
+                {
+                    replaceString = aggDeMap.get( replaceString );
+                }
                 
                 if( replaceString == null )
                 {
                     replaceString = "0";
+                }
+                else
+                {
+                    flag = 1;
                 }
                 
                 matcher.appendReplacement( buffer, replaceString );
@@ -720,13 +1108,198 @@ public class GenerateAutoReportAnalyserResultAction implements Action
             }
             
             resultValue = "" + (double) d;
-
-            return resultValue;
+            
+            if( flag == 0 )
+            {
+                return "";
+            }
+                
+            else
+            {
+            	//System.out.println( " expression -- " + expression +" -- resultValue " + resultValue);
+                return resultValue;
+            }
+            
+            
+            //return resultValue;
         }
         catch ( NumberFormatException ex )
         {
             throw new RuntimeException( "Illegal DataElement id", ex );
         }
     }
+
     
+    private String getLlDeathVal( String expression,Integer recordNo, Map<String, String> aggDeForLLDeathMap )
+    {
+        try
+        {
+            Pattern pattern = Pattern.compile( "(\\[\\d+\\.\\d+\\])" );
+
+            Matcher matcher = pattern.matcher( expression );
+            StringBuffer buffer = new StringBuffer();
+
+            String resultValue = "";
+
+            while ( matcher.find() )
+            {
+                String replaceString = matcher.group();
+
+                replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
+                
+                
+                replaceString = aggDeForLLDeathMap.get( replaceString+":"+recordNo );
+                
+                if( replaceString == null )
+                {
+                    replaceString = "";
+                }
+                
+                matcher.appendReplacement( buffer, replaceString );
+
+                resultValue = replaceString;
+            }
+
+            matcher.appendTail( buffer );
+           
+            resultValue = buffer.toString();
+
+            return resultValue;
+            
+        }
+        catch ( NumberFormatException ex )
+        {
+            throw new RuntimeException( "Illegal DataElement id", ex );
+        }
+        catch ( Exception e )
+        {
+            System.out.println( "SQL Exception : " + e.getMessage() );
+            return null;
+        }
+    }
+
+    public String getRecordNoByComma( List<Integer> recordNosList )
+    {
+        String recordNoByComma = "-1";
+        
+        for( Integer recordNo : recordNosList )
+        {
+            recordNoByComma += "," + recordNo;
+        }
+        
+        return recordNoByComma;
+    }
+    
+    
+    
+    // get capture data for which dataType String or date
+    public String getStringDataFromDataValue( String formula, Integer periodId, Integer organisationUnitId )
+    {
+        //Statement st1 = null;
+        //ResultSet rs1 = null;
+        // System.out.println( "Inside LL Data Value Method" );
+        String query = "";
+        String resultValue = "";
+        try
+        {
+            Pattern pattern = Pattern.compile( "(\\[\\d+\\.\\d+\\])" );
+    
+            Matcher matcher = pattern.matcher( formula );
+            StringBuffer buffer = new StringBuffer();
+    
+            while ( matcher.find() )
+            {
+                String replaceString = matcher.group();
+    
+                replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
+                String optionComboIdStr = replaceString.substring( replaceString.indexOf( '.' ) + 1, replaceString
+                    .length() );
+    
+                replaceString = replaceString.substring( 0, replaceString.indexOf( '.' ) );
+    
+                int dataElementId = Integer.parseInt( replaceString );
+                int categoryOptionComboId = Integer.parseInt( optionComboIdStr );
+
+                query = "SELECT value FROM datavalue WHERE sourceid = " + organisationUnitId
+                        + " AND periodid = " + periodId + " AND dataelementid = " + dataElementId + " AND categoryoptioncomboid = " + categoryOptionComboId;
+                
+                SqlRowSet sqlResultSet = jdbcTemplate.queryForRowSet( query );
+                
+                /*
+                if ( sqlResultSet.next() )
+                {
+                	resultValue = sqlResultSet.getString( 1 );
+                }
+                */
+                
+                while ( sqlResultSet.next() )
+                {
+                	String stringDataValue = sqlResultSet.getString( 1 );
+                    if ( stringDataValue != null )
+                    {
+                    	resultValue = stringDataValue;
+                    }
+                }
+    
+            }
+    
+            //System.out.println( "resultValue - " + resultValue);
+            
+        }
+        catch ( NumberFormatException ex )
+        {
+            throw new RuntimeException( "Illegal DataElement id", ex );
+        }
+        catch ( Exception e )
+        {
+            System.out.println( "SQL Exception : " + e.getMessage() );
+            return null;
+        }
+        
+        return resultValue;
+    }
+    
+    public String getDataelementIdsByComma( List<Report_inDesign> reportDesignList )
+    {
+        String dataElmentIdsByComma = "-1";
+        for ( Report_inDesign report_inDesign : reportDesignList )
+        {
+            String formula = report_inDesign.getExpression();
+            try
+            {
+                Pattern pattern = Pattern.compile( "(\\[\\d+\\.\\d+\\])" );
+
+                Matcher matcher = pattern.matcher( formula );
+                StringBuffer buffer = new StringBuffer();
+
+                while ( matcher.find() )
+                {
+                    String replaceString = matcher.group();
+
+                    replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
+                    replaceString = replaceString.substring( 0, replaceString.indexOf( '.' ) );
+
+                    int dataElementId = Integer.parseInt( replaceString );
+                    
+                    DataElement dataElement = dataElementService.getDataElement( dataElementId );
+                    if( dataElement.getValueType().isInteger() || dataElement.getValueType().isNumeric() )
+                    {
+                    	dataElmentIdsByComma += "," + dataElementId;
+                    	//System.out.println( " dataElmentIdsByComma - " + dataElmentIdsByComma );
+                        replaceString = "";
+                        matcher.appendReplacement( buffer, replaceString );
+                    }
+                }
+            }
+            catch ( Exception e )
+            {
+
+            }
+        }
+
+        return dataElmentIdsByComma;
+    }       
+    
+
 }
+

@@ -2915,6 +2915,7 @@ GROUP BY sag.parent, sag1.dataelementid,sag1.categoryoptioncomboid ORDER BY sag.
     {
         Map<String, String> aggDeMap = new HashMap<String, String>();
         DatabaseInfo dataBaseInfo = databaseInfoProvider.getDatabaseInfo();
+        //System.out.println( " orgUnitIdsByComma : " + orgUnitIdsByComma + " dataElmentIdsByComma : " + dataElmentIdsByComma + "   periodIdsByComma : " + periodIdsByComma );
         try
         {
             String query = "";
@@ -2933,7 +2934,8 @@ GROUP BY sag.parent, sag1.dataelementid,sag1.categoryoptioncomboid ORDER BY sag.
                     + ") GROUP BY dataelementid,categoryoptioncomboid";
 
             }
-
+            
+            //System.out.println( " query : " + query  );
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
             while ( rs.next() )
@@ -2944,6 +2946,8 @@ GROUP BY sag.parent, sag1.dataelementid,sag1.categoryoptioncomboid ORDER BY sag.
                 if ( aggregatedValue != null )
                 {
                     aggDeMap.put( deId + "." + optionComId, "" + aggregatedValue );
+                    
+                    //System.out.println( " deId : " + deId + " optionComId : " + optionComId + "   aggregatedValue : " + aggregatedValue );
                 }
             }
 
