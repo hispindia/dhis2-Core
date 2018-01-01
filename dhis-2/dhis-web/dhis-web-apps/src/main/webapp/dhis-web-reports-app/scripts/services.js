@@ -243,7 +243,7 @@ var reportsAppServices = angular.module('reportsAppServices',[])
     .service('userService',  function ($http){
         return {
             getCurrentUser: function () {
-                var promise = $http.get('../api/me.json?fields=id,name,userCredentials,userGroups[id,name]&paging=false').then(function (response) {
+                var promise = $http.get('../api/me.json?fields=id,name,userCredentials[*,userRoles[*]],userGroups[id,name]&paging=false').then(function (response) {
                     return response.data ;
                 });
                 return promise;
