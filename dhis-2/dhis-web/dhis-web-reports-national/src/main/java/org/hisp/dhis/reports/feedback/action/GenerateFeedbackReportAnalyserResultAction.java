@@ -933,7 +933,7 @@ public class GenerateFeedbackReportAnalyserResultAction
                     else if ( sType.equalsIgnoreCase( "survey" ) )
                     {
                         //tempStr = getResultSurveyValue( deCodeString, currentOrgUnit );
-                        tempStr = reportService.getResultSurveyValue( deCodeString, currentOrgUnit );
+                        //tempStr = reportService.getResultSurveyValue( deCodeString, currentOrgUnit );
                     }
                     else if ( sType.equalsIgnoreCase( "dataelement-boolean" ) )
                     {

@@ -150,10 +150,12 @@ public interface ReportService
     
     Period getPreviousPeriod( Period selectedPeriod );
     
+    /*
     String getResultSurveyValue( String formula, OrganisationUnit organisationUnit );
 
     String getSurveyDesc( String formula );
-
+	*/
+    
     //String getResultDataValueFromAggregateTable( String formula, Collection<Integer> periodIds, OrganisationUnit organisationUnit , String reportModelTB );
 
     String getAggCountForTextData( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit );
