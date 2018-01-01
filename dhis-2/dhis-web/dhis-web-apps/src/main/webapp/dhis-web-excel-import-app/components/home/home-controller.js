@@ -20,6 +20,7 @@ excelUpload.controller('HomeController',function($scope) {
 	};
 
 	$scope.facilitywiseAction =  function(){
+		javascript:window.location.reload(true);
 		window.location.assign("#facilitywise");
 	};
 });
