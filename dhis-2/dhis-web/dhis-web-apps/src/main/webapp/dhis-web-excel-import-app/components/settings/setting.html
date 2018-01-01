@@ -3,7 +3,7 @@
 	<div id="buttonsHolder">
 		<div class="selButton" onclick = "window.location.assign('#manage-templates')"> Manage Templates </div>
 		<!-- <div class="selButton" onclick = "window.location.assign('#data-import')"> Import Data </div> -->
-		<div class="selButton" onclick = "window.location.assign('#facilitywise')"> Import Facility-wise </div>
+		<div class="selButton" onclick = "window.location.assign('#facilitywise'); javascript:window.location.reload(true);"> Import Facility-wise </div>
 		<div class="selButton" onclick = "window.location.assign('#logs')"> Logs and Statistics </div>
 		<div class="selButton active" onclick = "location.reload()"> Settings </div>
 	</div>
@@ -28,7 +28,7 @@
 	
 	<div id="content">
 		<table id="tblSet" class="table">
-			<tr> <td> Map Organisation Units </td> <td> <button  class="btn btn-success"  onclick="window.location.assign('#orgunit_mapping')"> Map</button></td></tr>
+			<tr> <td> Map Organisation Units </td> <td> <button  class="btn btn-success"  onclick="window.location.assign('#orgunit_mapping'); javascript:window.location.reload(true);"> Map</button></td></tr>
 			<tr> <td> Clear All Inport History </td>  <td> <button  class="btn btn-warning"  onclick=""> Clear</button></td></tr>
 			<tr> <td> Reset All </td>  <td> <button  class="btn btn-danger"  onclick=""> Reset</button></td></tr>
 		</table>

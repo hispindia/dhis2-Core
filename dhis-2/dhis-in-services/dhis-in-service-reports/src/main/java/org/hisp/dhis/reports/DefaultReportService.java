@@ -25,9 +25,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-
-//import org.hisp.dhis.aggregation.AggregatedDataValueService;
-//import org.hisp.dhis.aggregation.AggregationService;
 import org.hisp.dhis.config.ConfigurationService;
 import org.hisp.dhis.config.Configuration_IN;
 import org.hisp.dhis.dataelement.DataElement;
@@ -38,7 +35,6 @@ import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.dataset.DataSetService;
 import org.hisp.dhis.datavalue.DataValue;
 import org.hisp.dhis.datavalue.DataValueService;
-import org.hisp.dhis.expression.ExpressionService;
 import org.hisp.dhis.indicator.Indicator;
 import org.hisp.dhis.indicator.IndicatorService;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
@@ -49,10 +45,6 @@ import org.hisp.dhis.period.PeriodService;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramService;
-import org.hisp.dhis.survey.Survey;
-import org.hisp.dhis.survey.SurveyService;
-import org.hisp.dhis.surveydatavalue.SurveyDataValue;
-import org.hisp.dhis.surveydatavalue.SurveyDataValueService;
 import org.hisp.dhis.system.database.DatabaseInfo;
 import org.hisp.dhis.system.database.DatabaseInfoProvider;
 import org.hisp.dhis.system.util.MathUtils;
@@ -110,13 +102,6 @@ public class DefaultReportService
         this.indicatorService = indicatorService;
     }
 
-    private ExpressionService expressionService;
-
-    public void setExpressionService( ExpressionService expressionService )
-    {
-        this.expressionService = expressionService;
-    }
-
     private PeriodService periodService;
 
     public void setPeriodService( PeriodService periodService )
@@ -146,44 +131,12 @@ public class DefaultReportService
         this.dataElementCategoryOptionComboService = dataElementCategoryOptionComboService;
     }
     
-    /*
-    private AggregationService aggregationService;
-
-    public void setAggregationService( AggregationService aggregationService )
-    {
-        this.aggregationService = aggregationService;
-    }
-	*/
-    
     private DataValueService dataValueService;
 
     public void setDataValueService( DataValueService dataValueService )
     {
         this.dataValueService = dataValueService;
     }
-
-    private SurveyService surveyService;
-
-    public void setSurveyService( SurveyService surveyService )
-    {
-        this.surveyService = surveyService;
-    }
-
-    private SurveyDataValueService surveyDataValueService;
-
-    public void setSurveyDataValueService( SurveyDataValueService surveyDataValueService )
-    {
-        this.surveyDataValueService = surveyDataValueService;
-    }
-
-    /*
-    private AggregatedDataValueService aggregatedDataValueService;
-
-    public void setAggregatedDataValueService( AggregatedDataValueService aggregatedDataValueService )
-    {
-        this.aggregatedDataValueService = aggregatedDataValueService;
-    }
-	*/
     
     private DatabaseInfoProvider databaseInfoProvider;
 
@@ -1230,7 +1183,8 @@ public class DefaultReportService
     // -------------------------------------------------------------------------
     // Get Aggregated Result for dataelement expression
     // -------------------------------------------------------------------------
-    public String getResultDataValue( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit,
+    @SuppressWarnings("unused")
+	public String getResultDataValue( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit,
         String reportModelTB )
     {
         int deFlag1 = 0;
@@ -1596,7 +1550,8 @@ public class DefaultReportService
 
     // functoin getBooleanDataValue stsrt
 
-    public String getBooleanDataValue( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit,
+    @SuppressWarnings("unused")
+	public String getBooleanDataValue( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit,
         String reportModelTB )
     {
         int deFlag1 = 0;
@@ -2369,6 +2324,7 @@ public class DefaultReportService
         return reportDesignList;
     }
 
+    /*
     public String getResultSurveyValue( String formula, OrganisationUnit organisationUnit )
     {
         try
@@ -2475,11 +2431,12 @@ public class DefaultReportService
             throw new RuntimeException( "Illegal Indicator and survey id", ex );
         }
     }
-
+*/
     // -------------------------------------------------------------------------
     // Get Aggregated Result for dataelement expression from Aggregated Table
     // -------------------------------------------------------------------------
-    public String getResultDataValueFromAggregateTable( String formula, Collection<Integer> periodIds,
+    @SuppressWarnings("unused")
+	public String getResultDataValueFromAggregateTable( String formula, Collection<Integer> periodIds,
         OrganisationUnit organisationUnit, String reportModelTB )
     {
         int deFlag1 = 0;
@@ -3661,6 +3618,7 @@ GROUP BY sag.parent, sag1.dataelementid,sag1.categoryoptioncomboid ORDER BY sag.
         }
     }
 
+    /*
     public String getSurveyDesc( String formula )
     {
         try
@@ -3708,7 +3666,8 @@ GROUP BY sag.parent, sag1.dataelementid,sag1.categoryoptioncomboid ORDER BY sag.
             throw new RuntimeException( "Illegal DataElement id", ex );
         }
     }
-
+	*/
+    
     public String getAggCountForTextData( String formula, Date startDate, Date endDate,
         OrganisationUnit organisationUnit )
     {

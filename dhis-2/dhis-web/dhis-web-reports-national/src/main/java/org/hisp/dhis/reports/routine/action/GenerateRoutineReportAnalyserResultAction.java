@@ -1072,11 +1072,11 @@ public class GenerateRoutineReportAnalyserResultAction
                     }
                     else if( sType.equalsIgnoreCase( "survey" ))
                     {
-                        tempStr = reportService.getResultSurveyValue( deCodeString, currentOrgUnit );
+                        //tempStr = reportService.getResultSurveyValue( deCodeString, currentOrgUnit );
                     }
                     else if( sType.equalsIgnoreCase( "surveydesc" ) )
                     {
-                        tempStr = reportService.getSurveyDesc( deCodeString );
+                        //tempStr = reportService.getSurveyDesc( deCodeString );
                     }
                     else if ( sType.equalsIgnoreCase( "dataelement-boolean" ) )
                     {
