@@ -646,7 +646,7 @@ excelUpload.controller('ImportFacilitywiseController',
 		
 	
 							factype = data5.comment;
-							factype = factype.substring(factype.indexOf(":") + 1);
+							factype = factype.substring(factype.indexOf(":") + 1).trim();
 							console.log(factype);
 
 							},
