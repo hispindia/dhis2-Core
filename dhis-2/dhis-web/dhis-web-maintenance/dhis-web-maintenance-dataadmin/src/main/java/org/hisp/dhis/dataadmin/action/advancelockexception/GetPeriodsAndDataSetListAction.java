@@ -12,6 +12,7 @@ import org.hisp.dhis.i18n.I18nFormat;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodService;
 import org.hisp.dhis.period.PeriodType;
+import org.hisp.dhis.period.comparator.PeriodComparator;
 
 import com.opensymphony.xwork2.Action;
 
@@ -108,7 +109,7 @@ public class GetPeriodsAndDataSetListAction implements Action
             period.setName( format.formatPeriod( period ) );
         }
 
-        //Collections.sort( periods, new PeriodComparator() );
+        Collections.sort( periods, new PeriodComparator() );
         Collections.sort( periods );
         
         //Collections.sort( dataSets, new IdentifiableObjectNameComparator() );
