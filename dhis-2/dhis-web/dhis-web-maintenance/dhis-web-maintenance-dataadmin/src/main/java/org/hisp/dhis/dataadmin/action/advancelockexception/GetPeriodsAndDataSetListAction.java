@@ -110,9 +110,7 @@ public class GetPeriodsAndDataSetListAction implements Action
         }
 
         Collections.sort( periods, new PeriodComparator() );
-        
-        //
-        Collections.sort( dataSets, new IdentifiableObjectNameComparator() );
+        //Collections.sort( dataSets, new IdentifiableObjectNameComparator() );
         Collections.sort( dataSets );
         
         return SUCCESS;
