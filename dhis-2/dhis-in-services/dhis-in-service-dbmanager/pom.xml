@@ -38,34 +38,20 @@
 			<groupId>org.hisp.dhis</groupId>
 			<artifactId>dhis-support-system</artifactId>
 		</dependency>
-		<!--
-		<dependency>
-		<groupId>org.hisp.dhis</groupId>
-		<artifactId>dhis-service-options</artifactId>
-		</dependency>  
-		-->
+
 		<dependency>
 			<groupId>net.sourceforge.jexcelapi</groupId>
 			<artifactId>jxl</artifactId>
 		</dependency>
 		
-		<!-- Other -->
-		<!--
-		<dependency>
-		<groupId>mysql</groupId>
-		<artifactId>mysql-connector-java</artifactId>
-		</dependency>
-		-->
-		<!--
-		<dependency>
-			<groupId>jep</groupId>
-			<artifactId>jep</artifactId>
-		</dependency>
-		-->
 		<dependency>
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
 		</dependency>
 		
 	</dependencies>
+
+  <properties>
+    <rootDir>../../</rootDir>
+  </properties>
 </project>

@@ -66,6 +66,9 @@
 		  <groupId>org.hisp.dhis</groupId>
 		  <artifactId>dhis-web-api</artifactId>
 		</dependency>
-
     </dependencies>
+    
+  <properties>
+    <rootDir>../../</rootDir>
+  </properties> 
 </project>
