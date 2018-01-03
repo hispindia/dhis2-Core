@@ -44,24 +44,9 @@
 			<artifactId>dhis-web-commons-resources</artifactId>
 			<type>war</type>
 		</dependency>
-		<!--
-		<dependency>
-		<groupId>org.hisp.dhis</groupId>
-		<artifactId>dhis-service-aggregationengine-default</artifactId>
-		<version>${project.version}</version>
-		</dependency>
-		
-		<dependency>
-		<groupId>net.sourceforge.jexcelapi</groupId>
-		<artifactId>jxl</artifactId>
-		</dependency>    
-		-->
-		<!-- Other -->
-		<!--
-		<dependency>
-		<groupId>mysql</groupId>
-		<artifactId>mysql-connector-java</artifactId>
-		</dependency>
-		-->
 	</dependencies>
+	
+  <properties>
+	<rootDir>../../</rootDir>
+  </properties>	
 </project>

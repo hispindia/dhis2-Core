@@ -15,8 +15,11 @@
     <dependency>
       <groupId>org.hisp.dhis</groupId>
       <artifactId>dhis-api</artifactId>
-	  <version>${project.version}</version>
+	  <!--<version>${project.version}</version>-->
     </dependency>
   </dependencies>
-			
+  
+  <properties>
+    <rootDir>../</rootDir>
+  </properties>
 </project>

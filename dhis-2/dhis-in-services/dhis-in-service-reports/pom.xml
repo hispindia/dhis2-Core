@@ -30,20 +30,7 @@
       <groupId>org.hisp.dhis</groupId>
       <artifactId>dhis-service-core</artifactId>
     </dependency>
-    <!--
-	<dependency>
-      <groupId>org.hisp.dhis</groupId>
-      <artifactId>dhis-in-service-configuration</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-	-->
-	<!--
-	<dependency>
-      <groupId>org.hisp.dhis</groupId>
-      <artifactId>dhis-service-aggregationengine-default</artifactId>
-      <version>${project.version}</version>   
-    </dependency>
-	-->	
+
     <dependency>
       <groupId>org.hisp.dhis</groupId>
       <artifactId>dhis-support-system</artifactId>
@@ -65,6 +52,10 @@
       <artifactId>commons-math</artifactId>
 	  <version>1.2</version>
     </dependency>
-    
   </dependencies>
+  
+  <properties>
+    <rootDir>../../</rootDir>
+  </properties>
+  
 </project>

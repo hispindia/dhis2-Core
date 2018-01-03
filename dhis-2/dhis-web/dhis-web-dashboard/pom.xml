@@ -108,7 +108,7 @@
 			<version>2.6.12</version>
 		</dependency>
 	</dependencies>
-	<properties>
-		<rootDir>../../</rootDir>
-	</properties>
+  <properties>
+    <rootDir>../../</rootDir>
+  </properties>
 </project>
