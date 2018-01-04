@@ -17,97 +17,61 @@
 		<finalName>dhis-web-dashboard</finalName>
 	</build>
 	
-	<dependencies>
+<dependencies>
 		
-		<!-- DHIS -->
-		<dependency>
-			<groupId>org.hisp.dhis</groupId>
-			<artifactId>dhis-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.hisp.dhis</groupId>
-			<artifactId>dhis-service-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.hisp.dhis</groupId>
-			<artifactId>dhis-web-commons</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.hisp.dhis</groupId>
-			<artifactId>dhis-web-commons-resources</artifactId>
-			<type>war</type>
-		</dependency>
-		<dependency>
-			<groupId>org.hisp.dhis</groupId>
-			<artifactId>dhis-support-external</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.hisp.dhis</groupId>
-			<artifactId>dhis-support-system</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.hisp.dhis</groupId>
-			<artifactId>dhis-in-api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hisp.dhis</groupId>
-			<artifactId>dhis-in-service-configuration</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hisp.dhis</groupId>
-			<artifactId>dhis-in-service-reports</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hisp.dhis</groupId>
-			<artifactId>dhis-in-service-dataentrystatus</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+	</dependency>		
+		
+	<!-- DHIS -->
+	<dependency>
+		<groupId>org.hisp.dhis</groupId>
+		<artifactId>dhis-api</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.hisp.dhis</groupId>
+		<artifactId>dhis-in-api</artifactId>
+		<version>${project.version}</version>
+	</dependency>		
+	<dependency>
+		<groupId>org.hisp.dhis</groupId>
+		<artifactId>dhis-service-core</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.hisp.dhis</groupId>
+		<artifactId>dhis-web-commons</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.hisp.dhis</groupId>
+		<artifactId>dhis-web-commons-resources</artifactId>
+		<type>war</type>
+	</dependency>
+	<dependency>
+		<groupId>org.hisp.dhis</groupId>
+		<artifactId>dhis-support-external</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.hisp.dhis</groupId>
+		<artifactId>dhis-support-system</artifactId>
+	</dependency>
 
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context-support</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>opensymphony</groupId>
-			<artifactId>quartz</artifactId>
-			<version>1.6.3</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>jfree</groupId>
-			<artifactId>jfreechart</artifactId>
-			<version>1.0.9</version>
-		</dependency>
-		<dependency>
-			<groupId>jfree</groupId>
-			<artifactId>jfreechart-experimental</artifactId>
-			<version>1.0.9</version>
-		</dependency>
-		<dependency>
-			<groupId>jfree</groupId>
-			<artifactId>jcommon</artifactId>
-			<version>1.0.9</version>
-		</dependency>
-		<dependency>
-			<groupId>com.lowagie</groupId>
-			<artifactId>itext</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>2.5</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.sourceforge.jexcelapi</groupId>
-			<artifactId>jxl</artifactId>
-			<version>2.6.12</version>
-		</dependency>
-	</dependencies>
+	<dependency>
+		<groupId>org.hisp.dhis</groupId>
+		<artifactId>dhis-in-service-configuration</artifactId>
+		<version>${project.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.hisp.dhis</groupId>
+		<artifactId>dhis-in-service-reports</artifactId>
+		<version>${project.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>net.sourceforge.jexcelapi</groupId>
+		<artifactId>jxl</artifactId>
+		<version>2.6.12</version>
+	</dependency>
+</dependencies>
   <properties>
     <rootDir>../../</rootDir>
   </properties>
