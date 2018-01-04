@@ -358,11 +358,12 @@ public class HibernateDataValueStore
             return result;
         }
 
-        String sql = "select dv.dataelementid, coc.uid, dv.attributeoptioncomboid, dv.periodid, " +
+        String sql = "select dv.dataelementid, coc.uid, aoc.uid, dv.periodid, " +
             "sum( cast( dv.value as " + statementBuilder.getDoubleColumnType() + " ) ) as value " +
             "from datavalue dv " +
             "join organisationunit o on o.organisationunitid = dv.sourceid " +
             "join categoryoptioncombo coc on coc.categoryoptioncomboid = dv.categoryoptioncomboid " +
+            "join categoryoptioncombo aoc on aoc.categoryoptioncomboid = dv.attributeoptioncomboid " +
             "where o.path like '" + orgUnit.getPath() + "%' " +
             "and dv.periodid in (" + TextUtils.getCommaDelimitedString( periodIdList ) + ") " +
             "and dv.value is not null " +
@@ -391,6 +392,7 @@ public class HibernateDataValueStore
         {
             Integer dataElementId = rowSet.getInt( 1 );
             String categoryOptionComboUid = rowSet.getString( 2 );
+            String attributeOptionComboUid = rowSet.getString( 3 );
             Integer periodId = rowSet.getInt( 4 );
             Double value = rowSet.getDouble( 5 );
 
@@ -401,16 +403,11 @@ public class HibernateDataValueStore
 
             for ( DataElementOperand deo : deos )
             {
-                if ( deo.getCategoryOptionCombo() == null || deo.getCategoryOptionCombo().getUid() == categoryOptionComboUid )
+                if ( deo.getCategoryOptionCombo() == null || deo.getCategoryOptionCombo().getUid().equals( categoryOptionComboUid ) )
                 {
-                    Double existingValue = result.getValue(period, categoryOptionComboUid, deo );
+                    double existingValue = ObjectUtils.firstNonNull( result.getValue(period, categoryOptionComboUid, deo ), 0.0 );
 
-                    if ( existingValue != null )
-                    {
-                        value += existingValue;
-                    }
-
-                    result.putEntry( period, categoryOptionComboUid, deo, value );
+                    result.putEntry( period, categoryOptionComboUid, deo, value + existingValue );
                 }
             }
         }
@@ -568,8 +565,7 @@ public class HibernateDataValueStore
 
                 for ( DataElementOperand deo : deos )
                 {
-                    if ( deo.getDataElement().getUid().equals( dataElement ) &&
-                        ( deo.getCategoryOptionCombo() == null || deo.getCategoryOptionCombo().getUid().equals( categoryOptionCombo ) ) )
+                    if ( deo.getCategoryOptionCombo() == null || deo.getCategoryOptionCombo().getUid().equals( categoryOptionCombo ) )
                     {
                         double existingValue = ObjectUtils.firstNonNull( map.getValue(attributeOptionCombo, deo), 0.0 );
 
