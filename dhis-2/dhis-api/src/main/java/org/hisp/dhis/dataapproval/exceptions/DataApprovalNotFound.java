@@ -1,4 +1,4 @@
-package org.hisp.dhis.schema.descriptors;
+package org.hisp.dhis.dataapproval.exceptions;
 
 /*
  * Copyright (c) 2004-2017, University of Oslo
@@ -28,19 +28,14 @@ package org.hisp.dhis.schema.descriptors;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import org.hisp.dhis.program.ProgramTrackedEntityAttributeDimensionItem;
-import org.hisp.dhis.schema.Schema;
-import org.hisp.dhis.schema.SchemaDescriptor;
-
-public class ProgramTrackedEntityAttributeDimensionItemSchemaDescriptor implements SchemaDescriptor
+/**
+ * @author Jim Grace
+ */
+public class DataApprovalNotFound
+    extends DataApprovalException
 {
-    public static final String SINGULAR = "ProgramTrackedEntityAttributeDimensionItem";
-
-    public static final String PLURAL = "ProgramTrackedEntityAttributeDimensionItems";
-
-    @Override
-    public Schema getSchema()
+    public DataApprovalNotFound( String message )
     {
-        return new Schema( ProgramTrackedEntityAttributeDimensionItem.class, SINGULAR, PLURAL );
+        super( message );
     }
 }
