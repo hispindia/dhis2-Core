@@ -6,11 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="./assets/css/bootstrap-select.css" rel="stylesheet" type="text/css"/>
     <link href="./assets/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
-
-
+    <link href="./lib/jquery.rateyo.min.css" rel="stylesheet" type="text/css">
+    
+    
     <script src="//dhis2-cdn.org/v221/ext/ext-all.js"></script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAK41RDayiPtLRKtuwYoOU2nc8VhpBLJGs"> </script>
-
+	
 
     <style>
         .noDisplay{
@@ -231,14 +232,15 @@
             <form>
                 <div class="col-xs-12 col-sm-4 col-md-4 col-lg-2 select-holder">
                     <p>Select State or District</p>
-                    <select id="drop1" class="selectpicker" name="state" multiple data-live-search="true">
+                    <select id="drop1" class="selectpicker" name="state" single data-live-search="true">
                         <option value="wSslG6mcGXl"  hidden>Entire State (Punjab)</option>
                     </select>
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4 col-lg-2 select-holder">
                     <p>Select Hospital</p>
-                    <select id="drophospital"  class="selectpicker" name="hospitals" data-toggle="tooltip" data-placement="top"  multiple   data-live-search="true">
-                        <option hidden > </option>
+                    <select id="drophospital"  class="selectpicker" name="hospitals" data-toggle="tooltip" data-placement="top"  single   data-live-search="true">
+                        <option value="all" disabled>Nothing Selected </option>    
+                        <option value="all">Select All</option>
                     </select>
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4 col-lg-2 select-holder">
@@ -260,7 +262,7 @@
                 <div class="col-xs-12 col-sm-4 col-md-4 col-lg-2 btn-holder">
                     <p>&nbsp;</p>
                     <!--<input type="submit" name="submit" class="btn btn-default btn-violet" value="Find Facilities">-->
-                    <button type="button" class="btn btn-success" onclick="initialize(orgid,defservice,defavail,defowner,defhealthfacility)">Map View</button>
+                    <!--<button type="button" class="btn btn-success" onclick="initialize(orgid,defservice,defavail,defowner,defhealthfacility)">Map View</button>-->
                     <button type="button" class="btn btn-primary" onclick="generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfacility);">List View</button>
                 </div>
             </form><!--Dropdowns-->
@@ -364,6 +366,7 @@
 <script type="text/javascript" src="./js/jquery-2.1.3.js"></script>
 <script type="text/javascript" src="./assets/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="./assets/js/bootstrap-select.min.js"></script>
+<script src="./lib/jquery.rateyo.min.js" ></script>
 <script>
     jQuery('.mobile').click(function () {
         jQuery('.menu-holder').toggleClass('hidden-sm');

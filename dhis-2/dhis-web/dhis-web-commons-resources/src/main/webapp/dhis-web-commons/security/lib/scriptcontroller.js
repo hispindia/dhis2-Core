@@ -261,10 +261,13 @@ Ext.onReady( function() {
 
     }
 
+    
+
     $("#drop1").change(function () {
         drop2org=[];
-        // $('#drophospital').prop('selectedIndex',0);
+        //$('#drophospital').prop('selectedIndex',1);
         var selected = $("#drop1 option:selected");
+        
         orgid="";
         selected.each(function () {
             drop2org.push($(this).val());
@@ -287,7 +290,7 @@ Ext.onReady( function() {
                     return 0 //default return value (no sorting)
                 });
                 var element = document.getElementById("drophospital");
-                for (var i = element.length-1; i >= 0; i--) {
+                for (var i = element.length-1; i >= 2; i--) {
 
                     if(element[i].selected)
 
@@ -312,6 +315,10 @@ Ext.onReady( function() {
                                 return 1
                             return 0 //default return value (no sorting)
                         });
+                        
+                        
+                        // $('#drophospital').append($('<option value="all" disabled Selected></option>')).val("all").html("Nothing Selected").text("Nothing Selected");
+                        // $('#drophospital').append($('<option value="all"></option>')).val("all").html("Select All").text("Select All");
                         $.each(organisationUnitschildren, function (index1, item1) {
 
                             if(Subgroup.includes(item1.id))
@@ -320,39 +327,42 @@ Ext.onReady( function() {
                             else
                             {
 
-        if(eventOrg.includes(item1.id)){
-            $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
-        }
+        
+                                if(eventOrg.includes(item1.id)){
+                                    $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
+                                }
 
-        else
-        {
-        }
-
-
-                            }});}
+                                else
+                                {
+                                }
 
 
-    if(eventOrg.includes(item1.id))
-    {
-        $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
-
-    }
-
-    else
-{
-   
-}
+                            }
+                        });
+                    }
 
 
+                        if(eventOrg.includes(item1.id))
+                        {
+                            $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
 
-                });
-                $('#drophospital').selectpicker('refresh');});
+                        }
+
+                        else
+                            {
+                            
+                            }
+
+
+
+                                    });
+                                    $('#drophospital').selectpicker('refresh');});
         }});
 
     $("#drophospital").change(function () {
 
         var selected = $("#drophospital option:selected");
-     if($(this).val()!=null)
+     if($(this).val()!=null && $(this).val()!="all")
      {
          hospital="";
          selected.each(function () {
@@ -1500,6 +1510,7 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
     var healthfac="",ownership=[],availspecialiti=[];
     var arrayMap = [];latitude=[];longitude=[];
 
+    var ratings = getRating();
 
     $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR;LAST_5_YEARS&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs"+defservice+"&dimension="+defavail+"&dimension="+defowner+defhealthfacility+"&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
         var constants={key:name, value: value}
@@ -1575,6 +1586,8 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
 
         }
 
+        
+
         for (var i = 0; i < ouid.length; i++) {
 
 
@@ -1584,7 +1597,13 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
             }
             else
             {
-                obj = new constructor_obj(document.body, name[i], addressjoin[i], pincode[i], mobile[i], spec[i], owner[i],availspecialiti[i], contactpname[i], contactpnumber[i], email[i], hfschemes[i], nothfschemes[i], ouid[i],ownership[i]);
+                var ratingVal = getRatingFor(ouid[i],ratings);
+                obj = new constructor_obj(document.body, name[i], addressjoin[i], pincode[i], mobile[i], spec[i], owner[i],availspecialiti[i], contactpname[i], contactpnumber[i], email[i], hfschemes[i], nothfschemes[i], ouid[i],ownership[i],ratingVal);
+                $("#"+"x"+ouid[i]).rateYo({//adding an extra X infront of id because 
+                    rating: ratingVal,
+                    starWidth: "15px",
+                    readOnly: true
+                  });
                 resultcount++;
             }
 
@@ -1597,9 +1616,47 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
 
 }
 
+function getRating(){
+    //var=0;
+    var ratings = {};
+	$.ajax({
+		type:'GET',
+        url :"../../api/sqlViews/mPi31WOSFhN/data",//for production
+        //url :"../../api/sqlViews/MBDh6G7i2uF/data",// for local
+		dataType : 'json',
+		async:false,
+		success:function(data){
+            var rows = data['rows'];
+            
+			for(var key in rows){
+				var row = rows[key];
+				var ouidre = row[3];
+				var val = row[0];
+                
+                ratings[ouidre] = val;
+				// if(ouidre==ouid){
+				// 	rating = val;
+				// 	break;
+				// }
+			}
+		}
+	});
+
+	//$.getJSON("../../api//sqlViews/MBDh6G7i2uF/data.json",);
+	return ratings;
+}
+
+function getRatingFor(ouid,ratings){
+    if(ratings[ouid]){
+        return ratings[ouid];
+    }else{
+        return 0;
+    }
+}
 
 
-function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaialability,contactpname,contactpnumber, email,hfschemes,nothfschemes,ouid,ownership) {
+
+function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaialability,contactpname,contactpnumber, email,hfschemes,nothfschemes,ouid,ownership,rating) {
     var procedures=[],costs=[];
     this.parent = parent;
     this.title = title.toUpperCase();
@@ -1616,7 +1673,7 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
     this.nothfschemes = nothfschemes;
     this.ouid = ouid;
     this.ownership = ownership;
-
+    this.rating = rating;
 //this.avgRating = avgRating;
 
     var div = document.createElement('div');
@@ -1651,6 +1708,8 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
 
     });
 
+	//var rating = getRating(ouid);
+
     if(ownership=="Public")
     {
         div.innerHTML='\
@@ -1662,7 +1721,7 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
     <div class="col-xs-12 col-sm-8 list-content">\
         <div class="col-xs-12 list-title">\
         <h4 class="title"></h4>\
-<p><a id="createAccountLink" target="_blank" href="lib/controllers/feedback.html?ouid='+ouid+'">Rate this Facility</a></p>\
+<p><a id="createAccountLink" target="_blank" href="lib/controllers/feedback.html?ouid='+ouid+'">Rate this Facility</a><span id="'+"x"+ouid+'"></span></p>\
     </div>\
     <div class="col-xs-12 list-main">\
         <ul>\
@@ -1737,7 +1796,7 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
     <div class="col-xs-12 col-sm-8 list-content">\
         <div class="col-xs-12 list-title">\
         <h4 class="title"></h4>\
-<p><a id="createAccountLink"  target="_blank" href="lib/controllers/feedback.html?ouid='+ouid+'">Rate this Facility</a></p>\
+<p><a id="createAccountLink"  target="_blank" href="lib/controllers/feedback.html?ouid='+ouid+'">Rate this Facility</a><span id="'+"x"+ouid+'"></span></p>\
     </div>\
     <div class="col-xs-12 list-main">\
         <ul>\
@@ -1812,7 +1871,7 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
     <div class="col-xs-12 col-sm-8 list-content">\
         <div class="col-xs-12 list-title">\
         <h4 class="title"></h4>\
-<p><a id="createAccountLink" target="_blank" href="lib/controllers/feedback.html?ouid='+ouid+'">Rate this Facility</a></p>\
+<p><a id="createAccountLink" target="_blank" href="lib/controllers/feedback.html?ouid='+ouid+'">Rate this Facility</a><span id="'+"x"+ouid+'"></span></p>\
     </div>\
     <div class="col-xs-12 list-main">\
         <ul>\

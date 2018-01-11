@@ -58,7 +58,7 @@
                 <label>User Name</label>
                 <input class="w3-input" type="text" id="username" onblur="usercheck(this.value)" onchange="usercheck(this.value)">
                 <span
-                    id="usid" style="color:red; display:none;">Wrong user name...! enter only alphabets</span>
+                    id="usid" style="color:red; display:none;">Wrong user name...! Enter 2 to 20 characters</span>
             </p>
             <p>
                 <label>Email: </label>
@@ -80,13 +80,16 @@
                     <label>Hospital Name</label>
                     <input class="w3-input" type="text" id="hospital" onblur="hospcheck(this.value)" onchange="hospcheck(this.value)">
                     <span
-                        id="hoid" style="color:red; display:none;"> Wrong hospital name...! enter only alphabets </span>
+                        id="hoid" style="color:red; display:none;"> Wrong hospital name...! Enter 2 to 40 characters</span>
                 </p>
                 
     </form>
 	<p style="padding:20px; text-align:center"><button class="w3-btn" id="submit" onclick="submitdata()" style="background-color:#2978B3">Register<span id="suid" style="color:red; display:none;">please enter all the fields</span></button></p>
 </div>
 <script type="text/javascript">
+
+
+
     function phonecheck(inputtxt) {
         var phoneno = /^\d{10}$/;
         if (inputtxt.match(phoneno)) {
@@ -118,7 +121,7 @@
     }
 
     function hospcheck(inputtxt) {
-        var hos = /^[a-zA-Z ]*$/;
+        var hos = /^[a-zA-Z ]{2,40}$/;
         if (inputtxt.match(hos)) {
 
             $('#hoid').css({
@@ -149,12 +152,11 @@
     }
 
     function usercheck(inputtxt) {
-        var use = /^[a-zA-Z]*$/;
+        var use = /^[a-zA-Z0-9]{2,20}$/;
         if (inputtxt.match(use)) {
             $('#usid').css({
                 'display': 'none'
             });
-
             return true;
         }
         else {
@@ -237,10 +239,37 @@
 
 
 
-        var phonecheck = "", emailcheck = "", usernamecheck = "", passcheck = "", validationcheck = true;
+        var phonechecked = "", emailchecked = "", usernamechecked = "", passchecked = "", validationcheck = true;
 
         if (email == "" || username == "" || password == "" || orgname == "") {
             document.getElementById("suid").style.display = "block";
+            return;
+        }
+        console.log("Organization Unit" + orgid);
+        if(orgid==null){
+            alert("Please select your district");
+            return;
+        }
+        if(!usercheck(username)){
+            alert("Invalid username");
+            return;
+        }
+        if(!emailcheck(email)){
+            alert("Invalid email");
+            return;
+        }
+        if(!phonecheck(phone)){
+            alert("Invalid Phone number");
+            return;
+        }
+        if(!pwdcheck(password)){
+            alert("Invalid Password");
+            return;
+        }
+        
+        
+        if(!hospcheck(orgname)){
+            alert("Invalid hospitle name");
             return;
         }
         else{   
@@ -263,17 +292,17 @@
                     $.each(data1, function (index, item) {
                         //console.log(data1);
                         if (item.email == email) {
-                            emailcheck = "true";
+                            emailchecked = "true";
                             alert("Email already registered, Please try again with different Email");
                             validationcheck = false;
                         }
                         if (item.phoneNumber == phone) {
-                            phonecheck = "true";
+                            phonechecked = "true";
                             alert("Phone already registered,Please try again with different Phone Number");
                             validationcheck = false;
                         }
                         if (item.userCredentials.username == username) {
-                            usernamecheck = "true";
+                            usernamechecked = "true";
                             alert("Username already registered, Please try again with different username");
                             validationcheck = false;
                         }
@@ -453,7 +482,7 @@
 
     }
     validationcheck = "";
-
+ window.location.replace('../../../../dhis-web-commons/security/login.action');
     }
 
 </script>

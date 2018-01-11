@@ -316,7 +316,6 @@ Ext.onReady( function() {
 
                             if(Subgroup.includes(item1.id))
                             {
-
                             }
                             else
                             {
@@ -327,7 +326,12 @@ Ext.onReady( function() {
 
                                 else
                                 {
-                                }}});}
+                                }
+
+
+                            }});}
+
+
                     if(eventOrg.includes(item1.id))
                     {
                         $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
@@ -339,7 +343,7 @@ Ext.onReady( function() {
 
                     }
 
-                    $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
+
 
                 });
                 $('#drophospital').selectpicker('refresh');});

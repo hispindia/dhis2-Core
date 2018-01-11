@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="./assets/css/bootstrap-select.css" rel="stylesheet" type="text/css"/>
     <link href="./assets/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
-
+    <link href="./lib/jquery.rateyo.css" rel="stylesheet" type="text/css">
 
     <script src="//dhis2-cdn.org/v221/ext/ext-all.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAK41RDayiPtLRKtuwYoOU2nc8VhpBLJGs"> </script>
@@ -225,14 +225,15 @@
             <form>
                 <div class="col-xs-12 col-sm-4 col-md-4 col-lg-2 select-holder">
                     <p>Select State or District</p>
-                    <select id="drop1" class="selectpicker" name="state" multiple data-live-search="true">
+                    <select id="drop1" class="selectpicker" name="state" single data-live-search="true">
                         <option value="wSslG6mcGXl"  hidden>Entire State (Punjab)</option>
                     </select>
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4 col-lg-2 select-holder">
                     <p>Select Hospital</p>
-                    <select id="drophospital"  class="selectpicker" name="hospitals" data-toggle="tooltip" data-placement="top"  multiple   data-live-search="true">
-                        <option hidden > </option>
+                    <select id="drophospital"  class="selectpicker" name="hospitals" data-toggle="tooltip" data-placement="top"  single   data-live-search="true">
+                        <option value="all" disabled Selected>Nothing Selected </option>    
+                        <option value="all">Select All</option>
                     </select>
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4 col-lg-2 select-holder">
@@ -262,9 +263,9 @@
         </div>
     </div>
 </section>
-<!--<MARQUEE style="background: navajowhite;" scrollamount="15">
+<MARQUEE style="background: navajowhite;" scrollamount="15">
     <p style="font-family: Arial;font-weight: bold;color: #0f0f0f;  text-align:center " >Please call HISP India at 9643208385 for any technical support you may require</p>
-</MARQUEE>-->
+</MARQUEE>
 
 <!--How it Works Section--Section 3rd   -->
 <div id="content1">
@@ -356,6 +357,7 @@
 <script type="text/javascript" src="./js/jquery-2.1.3.js"></script>
 <script type="text/javascript" src="./assets/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="./assets/js/bootstrap-select.min.js"></script>
+<script src="./lib/jquery.rateyo.js" ></script>
 <script>
     jQuery('.mobile').click(function () {
         jQuery('.menu-holder').toggleClass('hidden-sm');
