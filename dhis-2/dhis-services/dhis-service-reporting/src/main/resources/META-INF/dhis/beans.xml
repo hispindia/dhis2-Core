@@ -29,6 +29,10 @@
 
   <bean id="credentialsExpiryAlertTask" class="org.hisp.dhis.credentials.CredentialsExpiryAlertTask" scope="prototype"/>
 
+  <!--  custom for TIBET -->
+  <bean id="scheduleCustomeTask" class="org.hisp.dhis.customschedule.ScheduleCustomeTask" scope="prototype"/>
+  <!--  custom for TIBET -->
+  
   <!-- ReportTable -->
 
   <bean id="org.hisp.dhis.reporttable.ReportTableService" class="org.hisp.dhis.reporttable.impl.DefaultReportTableService">
@@ -191,6 +195,9 @@
         <entry key="scheduledProgramNotificationsTask" value-ref="scheduledProgramNotificationsTask" />
         <entry key="validationResultNotificationTask" value-ref="validationResultNotificationTask" />
         <entry key="credentialsExpiryAlertTask" value-ref="credentialsExpiryAlertTask" />
+        <!--  custom for TIBET -->
+        <entry key="scheduleCustomeTask" value-ref="scheduleCustomeTask" />
+        <!--  custom for TIBET -->
       </map>
     </property>
   </bean>
