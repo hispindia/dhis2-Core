@@ -31,9 +31,9 @@
 
 	<div id="logo"></div>
 	<div id="buttonsHolder">
-		<div class="selButton" ng-click = "manageTemplateAction()"> Manage Templates </div>
+		<div class="selButton" ng-if="accessAuthority" ng-click = "manageTemplateAction()"> Manage Templates </div>
 		<!-- <div class="selButton" ng-click = "dataImportAction()"> Import Data </div>--> 
-		<div class="selButton" ng-click = "settingsAction()"> Settings </div>
+		<div class="selButton" ng-if="accessAuthority" ng-click = "settingsAction()"> Settings </div>
 	</div>
 	
 	<div id="content">
