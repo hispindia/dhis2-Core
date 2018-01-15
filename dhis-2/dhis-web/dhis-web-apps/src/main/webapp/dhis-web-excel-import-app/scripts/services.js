@@ -197,6 +197,38 @@ var excelUploadServices = angular.module('excelUploadServices', ['ngResource'])
     };
 })
 
+/*User service for different userroles*/
+.service('userService',  function ($http){
+    return {
+        getCurrentUser: function () {
+            var promise = $http.get('../api/me.json?fields=id,name,userCredentials[*,userRoles[*]],userGroups[id,name]&paging=false').then(function (response) {
+                return response.data ;
+            });
+            return promise;
+        },
+
+        getUsersByUserGroup: function(userGroupUid){
+            if(  userGroupUid != "" ){
+                var promise = $http.get( '../api/userGroups.json?filter=id:eq:' + userGroupUid + '&fields=id,name,users[id,name]&paging=false' ).then(function(response){
+                    return response.data ;
+                });
+            }
+            return promise;
+        },
+        isUserInUserGroup: function(currentUserUid,users){
+            var returnVariable = false;
+            angular.forEach(users,function(user){
+                if(user.id === currentUserUid){
+                    returnVariable = true;
+                }
+
+            })
+            return returnVariable;
+        }
+    };
+})
+
+
 /*Orgunit service for local db */
 .service('OrgUnitService', function($window, $q){
     
