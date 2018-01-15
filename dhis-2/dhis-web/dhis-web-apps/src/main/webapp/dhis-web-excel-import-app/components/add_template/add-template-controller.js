@@ -14,6 +14,7 @@ excelUpload.controller('AddTemplateController',
              MetaDataFactory,
              orderByFilter,
              OrgUnitService,
+             userService,
              DialogService) {
 
 
@@ -26,6 +27,38 @@ excelUpload.controller('AddTemplateController',
         $scope.engAddress = ["","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
         $scope.tempCells = [];
         $scope.selectedDataSetInfo = {};
+
+        $scope.accessAuthority = false;
+	$scope.tempAccessAuthority = false;
+
+	userService.getCurrentUser().then(function (responseUser){
+		$scope.currentUser = responseUser;
+		//$scope.currentUserName = responseUser.userCredentials.username;
+		$scope.currentUserName = responseUser.userCredentials.username;// for 2.20
+		$scope.currentUserRoles = responseUser.userCredentials.userRoles;
+		$scope.superUserAuthority = "";
+		for(var i=0 ; i < $scope.currentUserRoles.length; i++){
+			$scope.currentUserRoleAuthorities = responseUser.userCredentials.userRoles[i].authorities;
+			for(var j = 0 ; j < $scope.currentUserRoleAuthorities.length; j++)
+			{
+				if(  $scope.currentUserRoleAuthorities[j] === "ALL")
+				{
+					//$scope.accessAuthority = true;
+					$scope.superUserAuthority = "YES";
+					break;
+				}
+			}
+		}
+		console.log("Current User Uid  --" + $scope.currentUser.id + "  Current User Name  --" + $scope.currentUserName);
+
+		 if(  $scope.currentUserName === 'admin' || $scope.superUserAuthority === "YES" )
+		 {
+			 $scope.accessAuthority = true;
+		 }
+
+		//console.log("accessAuthority --" + $scope.accessAuthority);
+	});
+	
 
         //showing and hiding input by temp type
         if( $rootScope.selectedTemplateType == 1 )
