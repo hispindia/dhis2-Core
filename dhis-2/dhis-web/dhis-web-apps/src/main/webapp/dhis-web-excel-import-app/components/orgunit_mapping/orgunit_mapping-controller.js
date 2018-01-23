@@ -38,6 +38,7 @@ excelUpload.controller('OrgUnitMappingController',
 		$("#templateProgress").html("Fetching all organisation units...");
 		$.get('../api/organisationUnits.json?paging=false', function(ou){
 			console.log( ou );
+			
 			$scope.orgUnits = ou.organisationUnits;
 			$scope.printLabels();
 			$("#loader").hide();

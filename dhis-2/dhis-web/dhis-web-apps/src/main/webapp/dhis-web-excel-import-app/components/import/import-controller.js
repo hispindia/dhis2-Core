@@ -61,7 +61,43 @@ excelUpload.controller('ImportController',
 				$("#templateProgress").html("Fetching organisation unit groups...");
 				$.get('../api/organisationUnitGroups.json?paging=false', function(ou){
 					console.log( ou );
-					$scope.orgUnitGroups = ou.organisationUnitGroups;
+					var ouid = [];
+                        
+                    var ids;
+                    var dn;
+                    for(var i=0;i<ou.organisationUnitGroups.length;i++){
+                        ids = ou.organisationUnitGroups[i].id;
+                        dn = ou.organisationUnitGroups[i].displayName;
+                        ouid.push([ids,dn]);
+                    }
+                   
+                  
+                    var uniques = new Array();
+                    var itemsFound = {};
+                    for(var i = 0, l = ouid.length; i < l; i++) {
+                        var stringified = JSON.stringify(ouid[i]);
+                        if(itemsFound[stringified]) { continue; }
+                        uniques.push(ouid[i]);
+                        itemsFound[stringified] = true;
+                    }
+
+                    var i; 
+                    var n = uniques.length;
+                    var tmp = new Array();
+                    for (i=0; i<n; i++)
+                    {
+                        
+                        tmp.push({
+                                id:uniques[i][0],
+                                displayName:uniques[i][1]
+                        });
+                    }
+
+                    var mObj = new Object;
+                    mObj.uniques = tmp;
+                  
+                    $scope.orgUnitGroups = mObj.uniques;
+					//$scope.orgUnitGroups = ou.organisationUnitGroups;
 					
 					//datasets
 					$("#templateProgress").html("Fetching all the data sets...");
