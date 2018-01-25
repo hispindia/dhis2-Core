@@ -236,30 +236,38 @@ excelUpload.controller('ImportFacilitywiseController',
 
             var orgUnitGroupID = $("#imOrgUnitGrp").val();
             var parentUnitID = $scope.selectedOrgUnit.id;
+            var parentUnitName = $scope.selectedOrgUnit.displayName;
             var parentvalues = [];
             var parentnames = [];
-            var url = "../api/organisationUnits.json?paging=false&fields=id,name&filter=parent.id:eq:" + parentUnitID;
+            var url;
+            var i;
+
+            url = "../api/organisationUnits.json?paging=false&fields=id,name&filter=parent.id:eq:" + parentUnitID;
             $.get(url, function (ous) {
                 length1 = ous.organisationUnits.length;
-                for (var i = 0; i < length1; i++) {
+                for (i = 0; i < length1; i++) {
                     parentvalues[i] = ous.organisationUnits[i].id;
                     parentnames[i] = ous.organisationUnits[i].name;
                 }
+                parentvalues[length1] = parentUnitID;
+                parentnames[length1] = parentUnitName;
                 return length1, parentvalues, parentnames;
             });
             var parentvalues1 = [];
             var parentnames1 = [];
+            var j;
             var url1 = "../api/organisationUnits.json?paging=false&fields=id,name&filter=organisationUnitGroups.id:eq:" + orgUnitGroupID;
             $.get(url1, function (ous1) {
                 length2 = ous1.organisationUnits.length;
-                for (var j = 0; j < length2; j++) {
+                for ( j = 0; j < length2; j++) {
                     parentvalues1[j] = ous1.organisationUnits[j].id;
                     parentnames1[j] = ous1.organisationUnits[j].name;
                 }
+               
                 return length2, parentvalues1, parentnames1;
             });
-            for (var a = 0; a < length1; a++) {
-                for (var b = 0; b < length2; b++) {
+            for (var a = 0; a <= length1; a++) {
+                for (var b = 0; b <= length2; b++) {
                     if (parentvalues[a] == parentvalues1[b] && parentnames[a] == parentnames1[b]) {
                         var storename = parentnames1[b];
                         var storedata = parentvalues1[b];
