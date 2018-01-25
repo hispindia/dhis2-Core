@@ -90,7 +90,7 @@ excelUpload.controller('OrgUnitMappingController',
 						{
 							isFound = true;
 							htmlString += '<tr>';
-							htmlString += '<td>' + m.label + '</td>';
+							htmlString += '<td>' +  $('<b/>').text( m.label).html() + '</td>';
 							var ev = "removeLabel('" + m.label + "')";
 							htmlString += '<td align="right"> <input type="button" style="padding: 0 10px;" class="btn btn-danger" value="X" onclick="'+ ev +'"/> </td>';
 							htmlString += '</tr>';
