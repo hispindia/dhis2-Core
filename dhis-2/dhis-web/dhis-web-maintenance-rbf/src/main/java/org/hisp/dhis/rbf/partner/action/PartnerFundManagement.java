@@ -69,7 +69,7 @@ public class PartnerFundManagement
         if ( activitesOptionSet != null )
         {
             options = new ArrayList<Option>( activitesOptionSet.getOptions() );
-            
+
             dataSets = new ArrayList<DataSet>( dataSetService.getAllDataSets() );
             
             List<Lookup> lookups = new ArrayList<Lookup>( lookupService.getAllLookupsByType( Lookup.DS_PBF_TYPE ) );

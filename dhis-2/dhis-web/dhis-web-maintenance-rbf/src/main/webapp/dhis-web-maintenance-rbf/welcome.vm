@@ -30,14 +30,30 @@
         #introListImgItem( "bankDetailsManagement.action" "bank_details_management" "bank_details" )
     #end
 
-    #if( $auth.hasAccess( "dhis-web-maintenance-rbf", "utilizationRuleManagement") )
-        #introListImgItem( "utilizationRuleManagement.action" "utilization_rule_management" "utilization" )
-    #end
-
     #if( $auth.hasAccess( "dhis-web-maintenance-rbf", "qualityScorePaymentList") )
         #introListImgItem( "qualityScorePaymentList.action" "quality_score_payment" "category" )
     #end
 
+
+    #if( $auth.hasAccess( "dhis-web-maintenance-rbf", "getAllLookups") )
+        #introListImgItem( "getAllLookups.action" "lookup" "search" )
+    #end
+    #if( $auth.hasAccess( "dhis-web-maintenance-rbf", "getPaymentAdjustmentDetail") )
+        #introListImgItem( "getPaymentAdjustmentDetail.action" "payment_adjustment" "payment" )
+    #end
+
+	
+	<!-- hide for rowanda -->
+	
+	<!--
+    #if( $auth.hasAccess( "dhis-web-maintenance-rbf", "utilizationRuleManagement") )
+        #introListImgItem( "utilizationRuleManagement.action" "utilization_rule_management" "utilization" )
+    #end
+	-->
+
+	<!-- hide for rowanda -->
+	
+	<!--
     #if( $auth.hasAccess( "dhis-web-maintenance-rbf", "aggregationQueryList") )
 		 #introListImgItem( "aggregationQueryList.action" "aggregation_query_list" "sqlview" )
          #introListImgItem( "runAggregationQueryForm.action" "manual_aggregation" "scheduling" )
@@ -47,13 +63,6 @@
         #introListImgItem( "reportManagement.action" "report_management" "indicator" )
         #introListImgItem( "pbfReportForm.action" "pbf_report" "reporttable" )
     #end
-
-    #if( $auth.hasAccess( "dhis-web-maintenance-rbf", "getAllLookups") )
-        #introListImgItem( "getAllLookups.action" "lookup" "search" )
-    #end
-    #if( $auth.hasAccess( "dhis-web-maintenance-rbf", "getPaymentAdjustmentDetail") )
-        #introListImgItem( "getPaymentAdjustmentDetail.action" "payment_adjustment" "payment" )
-    #end
-
+	-->
 
 </ul>

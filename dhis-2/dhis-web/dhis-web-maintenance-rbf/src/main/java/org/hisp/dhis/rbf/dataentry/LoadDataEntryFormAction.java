@@ -148,6 +148,7 @@ public class LoadDataEntryFormAction implements Action
     @Autowired
     private DataElementCategoryService categoryService;
     
+
     /*
     private I18nService i18nService;
 
@@ -555,8 +556,7 @@ public class LoadDataEntryFormAction implements Action
                     pbfDataValueService.updatePBFDataValue( pbfDataValue );
                 }
             }
-            
-            /*
+           
             if ( pbfDataValue.getOption() == null || pbfDataValue.getOption().toString().trim().equals( "" ) )
             {
                 Option option = partnerMap.get( de.getId() );
@@ -568,9 +568,7 @@ public class LoadDataEntryFormAction implements Action
                                         
                     pbfDataValueService.updatePBFDataValue( pbfDataValue );
                 }
-                
             }
-            */
             
             pbfDataValueMap.put( de, pbfDataValue );
         }
@@ -703,6 +701,14 @@ public class LoadDataEntryFormAction implements Action
                     utilizationRateDataElements.add( de );
                 }
             }
+            
+            /*
+            System.out.println(" 1 De name ---" + pbfDataValueMap.get( de ).getDataElement().getName() +" Partner Name -- " + pbfDataValueMap.get( de ).getOption() );
+            if( pbfDataValueMap.get( de ).getOption() != null )
+            {
+                System.out.println(" 2 De name ---" + pbfDataValueMap.get( de ).getDataElement().getName() +" Partner Name -- " + pbfDataValueMap.get( de ).getOption().getDisplayName() );
+            }
+            */
         }
         
         

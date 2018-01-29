@@ -29,50 +29,50 @@ function orgUnitHasBeenSelected( orgUnitIds, orgUnitNames )
         setFieldValue('orgUnitName', orgUnitNames[0] );
         setFieldValue('selectedOrgunitName', orgUnitNames[0] );
         
-		alert('Please Select Correct OrgUnit');
+		//alert('Please Select Correct OrgUnit');
 	}
 	else
 	{		
-	if( orgUnitIds != null && orgUnitIds != "" )
-	{
-		var dataSetId = $( '#dataSetId' ).val();
-		var periodId = $( '#selectedPeriodId' ).val();
-		 $.getJSON( 'getOrganisationUnitForPayment.action', {orgUnitId:orgUnitIds[0]}
-	        , function( json ) 
-	        {
-	            var type = json.response;	            
-	            setFieldValue('orgUnitName', json.message );
-	            setFieldValue('selectedOrgunitName', json.message );	            
-	            if( type == "success" )
-	            {
-					enable('dataSetId');
-					
-					var options = '';
-					
-		            $.each(json.dataSets, function(i, obj){
-		                options += '<option value="' + obj.id + '"'+ '>' + obj.name + '</option>';
-		            });
-		            $("select#dataSetId").html(options);
-		            
-		            $("select#dataSetId option[value="+dataSetId+"]").attr('selected', 'selected');
-		            $("select#selectedPeriodId option[value="+periodId+"]").attr('selected', 'selected');
-		            loadPeriods();		            
-					setFieldValue('selectedOrgunitID',orgUnitIds[0])
-	                setFieldValue('orgUnitName', json.message );
-	                setFieldValue('selectedOrgunitName', json.message );	                
-	            }
-	            else if( type == "input" )
-	            {
-	                disable('dataSetId');
-	                disable('selectedPeriodId');
-	                disable('prevButton');
-	                disable('nextButton');
-	                
-	                setFieldValue('orgUnitName', json.message );
-	                setFieldValue('selectedOrgunitName', json.message );
-	            }
-	        } );		
-	}
+		if( orgUnitIds != null && orgUnitIds != "" )
+		{
+			var dataSetId = $( '#dataSetId' ).val();
+			var periodId = $( '#selectedPeriodId' ).val();
+			 $.getJSON( 'getOrganisationUnitForPayment.action', {orgUnitId:orgUnitIds[0]}
+		        , function( json ) 
+		        {
+		            var type = json.response;	            
+		            setFieldValue('orgUnitName', json.message );
+		            setFieldValue('selectedOrgunitName', json.message );	            
+		            if( type == "success" )
+		            {
+						enable('dataSetId');
+						
+						var options = '';
+						
+			            $.each(json.dataSets, function(i, obj){
+			                options += '<option value="' + obj.id + '"'+ '>' + obj.name + '</option>';
+			            });
+			            $("select#dataSetId").html(options);
+			            
+			            $("select#dataSetId option[value="+dataSetId+"]").attr('selected', 'selected');
+			            $("select#selectedPeriodId option[value="+periodId+"]").attr('selected', 'selected');
+			            loadPeriods();		            
+						setFieldValue('selectedOrgunitID',orgUnitIds[0])
+		                setFieldValue('orgUnitName', json.message );
+		                setFieldValue('selectedOrgunitName', json.message );	                
+		            }
+		            else if( type == "input" )
+		            {
+		                disable('dataSetId');
+		                disable('selectedPeriodId');
+		                disable('prevButton');
+		                disable('nextButton');
+		                
+		                setFieldValue('orgUnitName', json.message );
+		                setFieldValue('selectedOrgunitName', json.message );
+		            }
+		        } );		
+		}
 	}
 }
 jQuery(window).load(function() 

@@ -172,6 +172,21 @@ public class SaveDataValueAction
         return statusCode;
     }
 
+    private String maxScore;
+    
+    public void setMaxScore( String maxScore )
+    {
+        this.maxScore = maxScore;
+    }
+
+    private String percentageScore;
+    
+    public void setPercentageScore( String percentageScore )
+    {
+        this.percentageScore = percentageScore;
+    }
+
+    
     // -------------------------------------------------------------------------
     // Action implementation
     // -------------------------------------------------------------------------
@@ -265,6 +280,76 @@ public class SaveDataValueAction
             dataValueService.updateDataValue( dataValue );  
         }
         
+        // for saving MAX Score in aggregated dataValue
+        if ( maxScore != null && !maxScore.trim().equals( "" ) )
+        {
+            //System.out.println(" maxScore -- " + maxScore);
+            DataElement maxScoreDataElement = dataElementService.getDataElementByCode( "MX-"+dataElement.getId() );
+            if ( maxScoreDataElement != null )
+            {
+                //System.out.println(" maxScore -- " + maxScore + " MAX DE - " + maxScoreDataElement.getId());
+                DataValue maxScoreDataValue = dataValueService.getDataValue( maxScoreDataElement, period, organisationUnit, optionCombo);
+                if ( maxScoreDataValue == null )
+                {
+                    maxScoreDataValue = new DataValue();
+                    
+                    maxScoreDataValue.setPeriod(period);
+                    maxScoreDataValue.setDataElement(maxScoreDataElement);
+                    maxScoreDataValue.setSource(organisationUnit);
+                    maxScoreDataValue.setCategoryOptionCombo(optionCombo);
+                    
+                    maxScoreDataValue.setValue( maxScore.trim() );
+                    maxScoreDataValue.setLastUpdated( now );
+                    maxScoreDataValue.setStoredBy( storedBy );
+                    
+                    dataValueService.addDataValue( maxScoreDataValue );
+                }
+                else
+                {   
+                    maxScoreDataValue.setValue( maxScore );
+                    maxScoreDataValue.setLastUpdated( now );
+                    maxScoreDataValue.setStoredBy( storedBy );
+
+                    dataValueService.updateDataValue( maxScoreDataValue );  
+                }
+            }
+        }
+        
+        // for saving percentage Score in aggregated dataValue
+        if ( percentageScore != null && !percentageScore.trim().equals( "" ) )
+        {
+            //System.out.println(" percentageScore -- " + percentageScore);
+            DataElement percentageScoreDataElement = dataElementService.getDataElementByCode( "PE-"+dataElement.getId() );
+            if ( percentageScoreDataElement != null )
+            {
+                //System.out.println(" percentageScore -- " + percentageScore + " PE DE - " + percentageScoreDataElement.getId());
+                DataValue percentageScoreDataValue = dataValueService.getDataValue( percentageScoreDataElement, period, organisationUnit, optionCombo);
+                if ( percentageScoreDataValue == null )
+                {
+                    percentageScoreDataValue = new DataValue();
+                    
+                    percentageScoreDataValue.setPeriod(period);
+                    percentageScoreDataValue.setDataElement(percentageScoreDataElement);
+                    percentageScoreDataValue.setSource(organisationUnit);
+                    percentageScoreDataValue.setCategoryOptionCombo(optionCombo);
+                    
+                    percentageScoreDataValue.setValue( percentageScore.trim() );
+                    percentageScoreDataValue.setLastUpdated( now );
+                    percentageScoreDataValue.setStoredBy( storedBy );
+                    
+                    dataValueService.addDataValue( percentageScoreDataValue );
+                }
+                else
+                {   
+                    percentageScoreDataValue.setValue( percentageScore );
+                    percentageScoreDataValue.setLastUpdated( now );
+                    percentageScoreDataValue.setStoredBy( storedBy );
+
+                    dataValueService.updateDataValue( percentageScoreDataValue );  
+                }
+            }
+        }
+                
         // for saving Over All Score
         
         if ( overAllScoreValue != null && overAllScoreDeId != null )

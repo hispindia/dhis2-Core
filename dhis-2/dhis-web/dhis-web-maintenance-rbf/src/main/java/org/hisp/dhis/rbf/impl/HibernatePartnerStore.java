@@ -319,9 +319,23 @@ public class HibernatePartnerStore
                 " WHERE " +
                     " organisationunitid = " + organisationUnit.getId() + " AND " +
                     " datasetid = " + dataSet.getId() + " AND " +
+                    " startdate < '" + curPeriodEndDate + "' AND " + 
+                    " enddate >= '" + curPeriodEndDate + "' ";
+            
+            
+            /*
+            String query = "SELECT dataelementid, optionid FROM partner " +
+                " WHERE " +
+                    " organisationunitid = " + organisationUnit.getId() + " AND " +
+                    " datasetid = " + dataSet.getId() + " AND " +
                     " startdate BETWEEN '" + curPeriodStartDate + "' AND '" + curPeriodEndDate + "' AND " +  
                     " enddate BETWEEN '" + curPeriodStartDate + "' AND '" + curPeriodEndDate + "' ";
+                    
+                    select * from partner where startdate < '2018-01-31' and enddate >= '2018-01-31' order by lastupdated desc;
+
+                    select * from partner where startdate <= '2018-01-01' and enddate >= '2018-01-01' order by lastupdated desc;
             
+            */
             
             /*
             String query = "SELECT dataelementid, optionid FROM partner " +
@@ -343,6 +357,8 @@ public class HibernatePartnerStore
             
             */
             
+            //System.out.println( " query : " + query );
+            
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
             while ( rs.next() )
             {
@@ -352,6 +368,8 @@ public class HibernatePartnerStore
                 if ( optionId != null )
                 {
                     Option option = optionService.getOption( optionId );
+                    //System.out.println( " query : " + option.getId() + " -- " + option.getName() );
+                    
                     partnerMap.put( dataElementId, option );
                     
                 }

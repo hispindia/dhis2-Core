@@ -111,6 +111,9 @@ function saveValue(dataElementId)
 	var period = document.getElementById("selectedPeriodId").value;
 	var valueId = "score_"+dataElementId;
 	
+	var maxScore = document.getElementById("max_"+dataElementId).value;
+	var percentageScore = document.getElementById("percentage_"+dataElementId).value;
+	
 	var overAllScoreValue = document.getElementById("all-total").value;
 	
 	//var overAllScoreDeId = "126";
@@ -142,23 +145,25 @@ function saveValue(dataElementId)
 	
 	if(defaultValue != value)
 	{
-	var dataValue = {
-        'dataElementId' : dataElementId,        
-        'organisationUnitId' : $("#selectedOrgunitID").val(),
-        'periodIso' : period,
-        'value' : value,
-        'overAllScoreValue' : overAllScoreValue,
-        'overAllScoreDeId'  : overAllScoreDeId,
-        'overHeadPaymentValue' : overHeadPaymentValue,
-        'overHeadPaymentDeId' : overHeadPaymentDeId
-    };
-	    jQuery.ajax( {
-	            url: 'saveDataValue.action',
-	            data: dataValue,
-	            dataType: 'json',
-	            success: handleSuccess,
-	            error: handleError
-	        } );
+		var dataValue = {
+	        'dataElementId' : dataElementId,
+	        'organisationUnitId' : $("#selectedOrgunitID").val(),
+	        'periodIso' : period,
+	        'value' : value,
+	        'overAllScoreValue' : overAllScoreValue,
+	        'overAllScoreDeId'  : overAllScoreDeId,
+	        'overHeadPaymentValue' : overHeadPaymentValue,
+	        'overHeadPaymentDeId' : overHeadPaymentDeId,
+	        'maxScore' : maxScore,
+	        'percentageScore' : percentageScore
+	    };
+		    jQuery.ajax( {
+		            url: 'saveDataValue.action',
+		            data: dataValue,
+		            dataType: 'json',
+		            success: handleSuccess,
+		            error: handleError
+		        } );
 	}
 	
 	function handleSuccess( json )
