@@ -182,7 +182,7 @@
                 <!-- Dashboard -->
                 <artifactItem>
                   <groupId>org.hisp.dhis</groupId>
-                  <artifactId>dhis-app-dashboard</artifactId>
+                  <artifactId>dhis-app-dashboard-state</artifactId>
                   <version>2.27-SNAPSHOT</version>
                   <overWrite>true</overWrite>
                   <outputDirectory>${project.build.directory}/${project.artifactId}/dhis-web-dashboard-integration</outputDirectory>
