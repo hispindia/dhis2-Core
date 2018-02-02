@@ -101,6 +101,7 @@ excelUpload.controller('ImportFacilitywiseController',
                     //org unit group
                     $("#templateProgress").html("Fetching organisation unit groups...");
                     $.get('../api/organisationUnitGroups.json?paging=false', function (ou) {
+                      
                         console.log(ou);
                         $scope.orgUnitGroups = ou.organisationUnitGroups;
 
@@ -235,30 +236,38 @@ excelUpload.controller('ImportFacilitywiseController',
 
             var orgUnitGroupID = $("#imOrgUnitGrp").val();
             var parentUnitID = $scope.selectedOrgUnit.id;
+            var parentUnitName = $scope.selectedOrgUnit.displayName;
             var parentvalues = [];
             var parentnames = [];
-            var url = "../api/organisationUnits.json?paging=false&fields=id,name&filter=parent.id:eq:" + parentUnitID;
+            var url;
+            var i;
+
+            url = "../api/organisationUnits.json?paging=false&fields=id,name&filter=parent.id:eq:" + parentUnitID;
             $.get(url, function (ous) {
                 length1 = ous.organisationUnits.length;
-                for (var i = 0; i < length1; i++) {
+                for (i = 0; i < length1; i++) {
                     parentvalues[i] = ous.organisationUnits[i].id;
                     parentnames[i] = ous.organisationUnits[i].name;
                 }
+                parentvalues[length1] = parentUnitID;
+                parentnames[length1] = parentUnitName;
                 return length1, parentvalues, parentnames;
             });
             var parentvalues1 = [];
             var parentnames1 = [];
+            var j;
             var url1 = "../api/organisationUnits.json?paging=false&fields=id,name&filter=organisationUnitGroups.id:eq:" + orgUnitGroupID;
             $.get(url1, function (ous1) {
                 length2 = ous1.organisationUnits.length;
-                for (var j = 0; j < length2; j++) {
+                for ( j = 0; j < length2; j++) {
                     parentvalues1[j] = ous1.organisationUnits[j].id;
                     parentnames1[j] = ous1.organisationUnits[j].name;
                 }
+               
                 return length2, parentvalues1, parentnames1;
             });
-            for (var a = 0; a < length1; a++) {
-                for (var b = 0; b < length2; b++) {
+            for (var a = 0; a <= length1; a++) {
+                for (var b = 0; b <= length2; b++) {
                     if (parentvalues[a] == parentvalues1[b] && parentnames[a] == parentnames1[b]) {
                         var storename = parentnames1[b];
                         var storedata = parentvalues1[b];
@@ -574,6 +583,7 @@ excelUpload.controller('ImportFacilitywiseController',
         $scope.importData = function (orgUnit, index, callbackfunct) {
             var selectedTemp = $scope.getTemplate($scope.confirmedUploads.TempVal);
             var dataValues = [];
+            //var orgUnitUIDs = [];
             //				$("#loader").fadeIn();
             $("#templateProgress").html(orgUnit.name + " -> preparing data values to import");
 
@@ -643,27 +653,30 @@ excelUpload.controller('ImportFacilitywiseController',
                     var cellAddress = selectedTemp.DEMappings[x].cellAddress;
 
                     var dataValue = {};
-					/* *** */			dataValue.period = $scope.confirmedUploads.periodVal;
+					dataValue.period = $scope.confirmedUploads.periodVal;
                     dataValue.dataElement = selectedTemp.DEMappings[x].metadata.split("-")[0];
                     dataValue.categoryOptionCombo = selectedTemp.DEMappings[x].metadata.split("-")[1];
 					/* org unit will be taken from input box
 					 var ouLabel = $scope.getImportData( selectedTemp.orgUnitCell.rn , selectedTemp.orgUnitCell.cn );
 					 dataValue.orgUnit = $scope.getOrgUnitByLabel( ouLabel );
 					 */
-					/* *** */			dataValue.orgUnit = orgUnit.id;
-
+                    dataValue.orgUnit = orgUnit.id;
+                   // orgUnitUIDs.push(orgUnit.id );
+                   
                     dataValue.value = $scope.getImportDataByAddress(cellAddress, orgUnit);
 
                     /* *** */							//if( $scope.confirmedUploads.importEmptyVal == 2 )
                     // dataValue.value = dataValue.value == "" ? "omit" : dataValue.value;
                     // else
-                    dataValue.value = dataValue.value == "" ? 0 : dataValue.value;
+                    dataValue.value = dataValue.value == "" ? "omit" : dataValue.value;
 
 
                     if (dataValue.orgUnit != "" && dataValue.value != "omit") {
                         dataValues.push(dataValue);
                     }
                 }
+                
+                   
                 //}
 				/*else
 				 {
@@ -708,28 +721,31 @@ excelUpload.controller('ImportFacilitywiseController',
             //making ready to import data
             $.get("../api/system/info", function (data) {
                 //adding history
-                //					var h = {};
+                // var h = {};
 
                 $scope.h.time = data.serverDate.split("T")[0] + " (" + data.serverDate.split("T")[1].split(".")[0] + ")";
-                //					$scope.h.orgUnitGroup = $scope.confirmedUploads.orgUnitGrpName;
+                $scope.h.orgUnitGroup = $scope.confirmedUploads.orgUnitGrpName;
                 $scope.h.orgUnits[index] = orgUnit.name;
-                //					$scope.h.dataSet = $scope.confirmedUploads.dataSetName;
-                //					$scope.h.period = $scope.confirmedUploads.periodName;
-                //					$scope.h.template = $scope.confirmedUploads.TempName;
+                $scope.h.dataSet = $scope.confirmedUploads.dataSetName;
+                $scope.h.dataSet1 = $scope.confirmedUploads.dataSetVal;
+                $scope.h.period = $scope.confirmedUploads.periodName;
+                $scope.h.template = $scope.confirmedUploads.TempName;
 
                 if ($scope.validatedMessage.length == 0 && $scope.isEverythingOK)
                     $scope.validatedMessage.push("Everything was perfect as per validations");
 
+
                 $scope.h.orgUnits[index] = $scope.validatedMessage;
-                //					$scope.h.stats = {};
-                //					$scope.h.stats.upc = 0;
-                //					$scope.h.stats.imc = 0;
-                //					$scope.h.stats.igc = 0;
+                $scope.h.stats = {};
+                $scope.h.stats.upc = 0;
+                $scope.h.stats.imc = 0;
+                $scope.h.stats.igc = 0;
                 $scope.h.orgUnits[index].stats = {};
+
 
                 //saving data
                 ExcelMappingService.importData(dataValueSet).then(function (tem) {
-                    //						$("#loader").hide();
+                    //$("#loader").hide();
                     console.log("index : " + index);
                     console.log("no of orgUnits : " + $scope.confirmedUploads.orgUnits.length);
                     console.log(tem.data.importCount.updated);
@@ -740,14 +756,14 @@ excelUpload.controller('ImportFacilitywiseController',
                     if (tem.data.importCount.updated > 0 || tem.data.importCount.imported > 0) {
                         for (var i = 0; i < $scope.confirmedUploads.orgUnits.length; i++) {
                             var dataSetCompleteParams = {
-                                'ds': $("#imDataSetId").val(),
-                                'pe': $("#importPeriod").val(),
+                                'ds': $scope.h.dataSet1,
+                                'pe': $scope.confirmedUploads.periodVal,
                                 'ou': $scope.confirmedUploads.orgUnits[i].id,
                                 'multiOu': false
                             };
 
                             $.ajax({
-                                url: '../api/completeDataSetRegistrations',
+                                url: '../api/25/completeDataSetRegistrations',
                                 data: dataSetCompleteParams,
                                 dataType: 'json',
                                 type: 'post',
@@ -771,7 +787,7 @@ excelUpload.controller('ImportFacilitywiseController',
 
                             console.log(dataSetCompleteParams);
 
-                            console.log($scope.confirmedUploads.orgUnits[i].id + " --" + $("#imDataSetId").val() + "--" + $("#importPeriod").val());
+                           // console.log($scope.confirmedUploads.orgUnits[i].id + " --" + $("#imDataSetId").val() + "--" + $("#importPeriod").val());
                         }
 
                     }
@@ -795,10 +811,10 @@ excelUpload.controller('ImportFacilitywiseController',
                     console.log("imc stat : " + $scope.h.stats.imc);
                     console.log("igc stat : " + $scope.h.stats.igc);
 
-                    //						$("#upc").html(tem.data.importCount.updated);
-                    //						$("#imct").html(tem.data.importCount.imported);
-                    //						$("#igc").html(tem.data.importCount.ignored);
-                    //						$("#stModal").modal('show');
+                    $("#upc").html(tem.data.importCount.updated);
+                    $("#imct").html(tem.data.importCount.imported);
+                    $("#igc").html(tem.data.importCount.ignored);
+                    $("#stModal").modal('show');
                     if ($scope.confirmedUploads.orgUnits.length == (index + 1)) {
                         callbackfunct();
                     }
