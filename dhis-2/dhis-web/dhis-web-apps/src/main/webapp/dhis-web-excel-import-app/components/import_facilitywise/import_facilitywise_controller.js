@@ -1,7 +1,7 @@
 /* global excelUpload, angular */
 
 $.ajaxSetup({
-    async: false
+   // async: false
 });
 var favorites = [];
 var length1;
@@ -41,7 +41,6 @@ excelUpload.controller('ImportFacilitywiseController',
 		/* **************************************************************************************
 		 **** RETRIEVING ROOT JSON AND NEEDED DATA ***********************************************
 		 ************************************************************************************* **/
-
         //templates
         $("#templateProgress").html("Retrieving all the saved templates...");
         ExcelMappingService.get('Excel-import-app-templates').then(function (tem) {
@@ -69,92 +68,88 @@ excelUpload.controller('ImportFacilitywiseController',
                 ExcelMappingService.get('Excel-import-app-history').then(function (his) {
                     $scope.history = jQuery.isEmptyObject(his) ? JSON.parse('{"history" : []}') : his;
                     console.log(his);
+                   
 
-                    //org unit group
                     $("#templateProgress").html("Fetching organisation unit groups...");
-                    $.get('../api/organisationUnitGroups.json?paging=false', function (ou) {
+                    $("#templateProgress").html("Fetching all the data sets...");
+        $.when(
+            $.getJSON("../api/organisationUnitGroups.json?paging=false", {
+                format: "json"
+            }),
+            
+            $.getJSON("../api/dataSets.json?paging=false", {
+                format: "json"
+            }),
+            $.getJSON("../api/dataElements.json?fields=id,name,shortName,categoryCombo[categoryOptionCombos[id,name]]&paging=false", {
+                format: "json"
+            }),
+         
+        ).then(function (ou, ds,ds1) {
 
-                        var ouid = [];
+           // organisation
 
-                        var ids;
-                        var dn;
-                        for (var i = 0; i < ou.organisationUnitGroups.length; i++) {
-                            ids = ou.organisationUnitGroups[i].id;
-                            dn = ou.organisationUnitGroups[i].displayName;
-                            ouid.push([ids, dn]);
-                        }
+           console.log( ou );
+           /*****/
+           var ouid = [];
+                                   
+                               var ids;
+                               var dn;
+                               for(var i=0;i<ou[0].organisationUnitGroups.length;i++){
+                                   ids = ou[0].organisationUnitGroups[i].id;
+                                   dn = ou[0].organisationUnitGroups[i].displayName;
+                                   ouid.push([ids,dn]);
+                               }
+                              
+                             
+                               var uniques = new Array();
+                               var itemsFound = {};
+                              for(var i = 0, l = ouid.length; i < l; i++) {
+                                   var stringified = JSON.stringify(ouid[i]);
+                                   if(itemsFound[stringified]) { continue; }
+                                   uniques.push(ouid[i]);
+                                   itemsFound[stringified] = true;
+                               }
+           
+                               var i; 
+                               var n = uniques.length;
+                               var tmp = new Array();
+                               for (i=0; i<n; i++)
+                               {
+                                   
+                                  tmp.push({
+                                           id:uniques[i][0],
+                                           displayName:uniques[i][1]
+                                  });
+                              }
+           
+                             var mObj = new Object;
+                             mObj.uniques = tmp;
+                             
+                            $scope.orgUnitGroups = mObj.uniques;
+           /******/
+          // $scope.orgUnitGroups = ou[0].organisationUnitGroups;
 
+            // data set
+            console.log(ds);
+            $scope.dataSets = ds[0].dataSets;
 
-                        var uniques = new Array();
-                        var itemsFound = {};
-                        for (var i = 0, l = ouid.length; i < l; i++) {
-                            var stringified = JSON.stringify(ouid[i]);
-                            if (itemsFound[stringified]) { continue; }
-                            uniques.push(ouid[i]);
-                            itemsFound[stringified] = true;
-                        }
+            //data element
 
-                        var i;
-                        var n = uniques.length;
-                        var tmp = new Array();
-                        for (i = 0; i < n; i++) {
+            console.log(ds);
+            $scope.dataElements = ds1[0].dataElements;
 
-                            tmp.push({
-                                id: uniques[i][0],
-                                displayName: uniques[i][1]
-                            });
-                        }
+            $scope.generateEnglishAddresses();
+            $scope.startBuilding();
+            $("#loader").hide();
 
-                        var mObj = new Object;
-                        mObj.uniques = tmp;
-
-                        $scope.orgUnitGroups = mObj.uniques;
-
-                        console.log($scope.orgUnitGroups);
-
-                        //datasets
-                        $("#templateProgress").html("Fetching all the data sets...");
-                        $.get('../api/dataSets.json?paging=false', function (ds) {
-                            console.log(ds);
-                            $scope.dataSets = ds.dataSets;
-
-                            //dataelements
-                            $("#templateProgress").html("Fetching all the data elements...");
-                            $.get('../api/dataElements.json?fields=id,name,shortName,categoryCombo[categoryOptionCombos[id,name]]&paging=false', function (ds) {
-                                console.log(ds);
-                                $scope.dataElements = ds.dataElements;
-								/* is service is not used for new requirement, orgUnits are load using orgUnitTree
-								 //orgunits
-								 $("#templateProgress").html("Fetching all the organisation units...");
-								 $.get('../api/organisationUnits.json?paging=false', function(ds){
-								 console.log( ds );
-								 $scope.organisationUnits = ds.organisationUnits;
-								 }).
-								 fail(function(jqXHR, textStatus, errorThrown){
-								 $("#templateProgress").html("Failed to fetch organisation units ( " + errorThrown + " )");
-								 });
-								 */
-
-                                $scope.generateEnglishAddresses();
-                                $scope.startBuilding();
-                                $("#loader").hide();
-
-                            }).
-                                fail(function (jqXHR, textStatus, errorThrown) {
-                                    $("#templateProgress").html("Failed to fetch data elements ( " + errorThrown + " )");
-                                });
-                        }).
-                            fail(function (jqXHR, textStatus, errorThrown) {
-                                $("#templateProgress").html("Failed to fetch data sets ( " + errorThrown + " )");
-                            });
-
-                    }).
-                        fail(function (jqXHR, textStatus, errorThrown) {
-                            $("#templateProgress").html("Failed to fetch organisation unit groups ( " + errorThrown + " )");
-                        });
-                });
-            });
+         
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            $("#templateProgress").html("Failed to fetch data elements ( " + errorThrown + " )");
         });
+
+    });
+});
+});
         //**************************************************************************************************************
 
         //building UIs
@@ -236,35 +231,65 @@ excelUpload.controller('ImportFacilitywiseController',
             }
         };
 
+//-------------------------------------------------------------------------------------------
+var orgUnitGroupID ;
+var parentUnitID ;
+var parentvalues = [];
+var parentnames = [];
+var parentvalues1 = [];
+var parentnames1 = [];
+
 
 
         //----------------------------------------------------------------------------------------------
-        $scope.filterOrgUnits = function () {
+         $scope.filterOrgUnits = function () {
 
-            var orgUnitGroupID = $("#imOrgUnitGrp").val();
-            var parentUnitID = $scope.selectedOrgUnit.id;
-            var parentvalues = [];
-            var parentnames = [];
-            var url = "../api/organisationUnits.json?paging=false&fields=id,name&filter=parent.id:eq:" + parentUnitID;
-            $.get(url, function (ous) {
-                length1 = ous.organisationUnits.length;
-                for (var i = 0; i < length1; i++) {
-                    parentvalues[i] = ous.organisationUnits[i].id;
-                    parentnames[i] = ous.organisationUnits[i].name;
-                }
-                return length1, parentvalues, parentnames;
-            });
-            var parentvalues1 = [];
-            var parentnames1 = [];
-            var url1 = "../api/organisationUnits.json?paging=false&fields=id,name&filter=organisationUnitGroups.id:eq:" + orgUnitGroupID;
-            $.get(url1, function (ous1) {
-                length2 = ous1.organisationUnits.length;
-                for (var j = 0; j < length2; j++) {
-                    parentvalues1[j] = ous1.organisationUnits[j].id;
-                    parentnames1[j] = ous1.organisationUnits[j].name;
-                }
-                return length2, parentvalues1, parentnames1;
-            });
+             orgUnitGroupID = $("#imOrgUnitGrp").val();
+             parentUnitID = $scope.selectedOrgUnit.id;
+            
+
+           $.when(
+                $.getJSON("../api/organisationUnits.json?paging=false&fields=id,name&filter=parent.id:eq:" + parentUnitID+"&paging=false", {
+                    format: "json"
+                }),
+                $.getJSON("../api/organisationUnits.json?paging=false&fields=id,name&filter=organisationUnitGroups.id:eq:" + orgUnitGroupID+"&paging=false", {
+                    format: "json"
+                }),
+              
+            ).then(function (ous, ous1) {
+
+              orgs(ous,ous1);
+            
+            })
+            
+        }
+
+        function orgs(ous,ous1)
+        {
+
+            length1 = ous[0].organisationUnits.length;
+            for (var i = 0; i < length1; i++) {
+                parentvalues[i] = ous[0].organisationUnits[i].id;
+                parentnames[i] = ous[0].organisationUnits[i].name;
+            }
+           // return length1, parentvalues, parentnames;
+
+            length2 = ous1[0].organisationUnits.length;
+            for (var j = 0; j < length2; j++) {
+                parentvalues1[j] = ous1[0].organisationUnits[j].id;
+                parentnames1[j] = ous1[0].organisationUnits[j].name;
+            }
+            //return length2, parentvalues1, parentnames1;
+
+
+            finalvalue(length1, parentvalues, parentnames,length2, parentvalues1, parentnames1);
+        }
+
+        
+
+function finalvalue(length1, parentvalues, parentnames,length2, parentvalues1, parentnames1){
+
+           
             for (var a = 0; a < length1; a++) {
                 for (var b = 0; b < length2; b++) {
                     if (parentvalues[a] == parentvalues1[b] && parentnames[a] == parentnames1[b]) {
@@ -653,13 +678,14 @@ excelUpload.controller('ImportFacilitywiseController',
                     var value2;
                     var value3;
                     var orgName;
+                    var factype;
 
                     dataValue.period = $scope.confirmedUploads.periodVal;
                     dataValue.dataElement = selectedTemp.DEMappings[x].metadata.split("-")[0];
                     dataValue.categoryOptionCombo = selectedTemp.DEMappings[x].metadata.split("-")[1];
                     dataValue.orgUnit = orgUnit.id;
                     orgName = orgUnit.name;
-                    $.ajax({
+                   /* $.ajax({
 
                         type: "GET",
                         dataType: "json",
@@ -674,7 +700,20 @@ excelUpload.controller('ImportFacilitywiseController',
 
                         },
                         error: function (response) { }
-                    });
+                    });*/
+
+                    
+    $.when(
+        $.getJSON("../api/organisationUnits/" + orgUnit.id + ".json?fields=comment", {
+            format: "json"
+        })
+       
+    ).then(function (data5) {
+      
+        factype = data5.comment;
+        factype = factype.substring(factype.indexOf(":") + 1).trim();
+        console.log(factype);
+    })
                     /*****************************************************************************************************************************************************/
                     /************************************* FOR SC ************************************************************/
                     if (factype == "SC") {
