@@ -554,6 +554,9 @@ reportsApp.controller('DataStatusController',
 			var includeZero = $scope.currentSelection.includeZero;
 			$scope.organisationUnits_id=[];
 			
+
+
+
 			//var url_1=;
 			$.get( "../api/dataSets/"+ selDataSetUid +".json",function(json){
 						for(var i=0;i<json.organisationUnits.length;i++)
@@ -589,7 +592,6 @@ reportsApp.controller('DataStatusController',
 				
 				htmlString += "<tr><td  style = 'background:#99FF99;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Entered </td></tr>";
 				htmlString += "<tr><td  style = 'background:#FFCCCC;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Not Entered </td></tr>";
-				htmlString += "<tr><td  style = 'background:#eee;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Not Assigned </td></tr>";
 				
 				htmlString += "<tr style = 'background:#fff'><td colspan = '"+ totPeriods +"' ></td></tr>";
 				
@@ -608,7 +610,8 @@ reportsApp.controller('DataStatusController',
 				var statusText = "";
 				
 				$scope.final_org=[];
-					
+				$scope.Final_orgNameWithBreaks=[];
+				
 				$scope.allOrgUnitChildren.forEach(function(org){
 					
 					/**$scope.organisationUnits_id.forEach(function(id){
@@ -665,76 +668,86 @@ reportsApp.controller('DataStatusController',
 					}
 					$scope.compulsoryDECount = 1;
 		
-					
-					
-					//orgNameWithBreaks += org.name;
-					
-					htmlString += "<tr><td style='padding:0 15px'>" + orgNameWithBreaks + "</td>";
-					$scope.final_org_id=[];
-					/**$scope.organisationUnits_id.forEach(function(data_id){
-							if(data_id==org.uid)
-							{
-								$scope.final_org_id.push(data_id);
-								currentStatus = 0;
-								statusText = "";
-								currentColor = "#ded2e3";//light purple
-								
-							}
-							else{
-								currentStatus = 0;
-								statusText = "";
-								currentColor = "#eeeeee";//grey
-						
-							}
-							});**/
-						$scope.allPeriods.forEach(function(pr){
-					
-							
-								if($scope.GetUID($scope.organisationUnits_id,org.uid))
-								{
-											currentStatus = 0;
-											statusText = "";
-											currentColor = "#FFCCCC";//light purple
-									
-										var val= $scope.isOrgFound_1( org.uid, summaryData ) ;
-											if( val)
-											{
-											currentStatus = 0;
-											currentColor = "#FFCCCC";//pink
-											statusText = "0(" + $scope.compulsoryDECount + ")";
-											
-											summaryData.forEach(function(sdata){
-												
-												if( sdata[3] == org.uid && sdata[1] == pr[0] )
-												{
-													currentStatus= sdata[4]/$scope.compulsoryDECount;
-													statusText = sdata[4] + "(" + $scope.compulsoryDECount + ")";
-													//console.log("currentStatus"+currentStatus+" "+"statusText"+statusText)		
-													}
-													
-											
-										});
-										
-										if( currentStatus >= 1 )
-											currentColor = "#99FF99";//green	
-									}
-									//var index=i;
 
-									//$scope.organisationUnits_id.splice(index, 1);
-									
-								}
-								else
-								{
-									currentStatus = 0;
-									statusText = "";
-									currentColor = "#eeeeee";//grey
-								}
-								
-							htmlString += "<td style='background:"+ currentColor +"'  style='padding:2px 15px;border-color: #0000ff;'></td>";
 					
-							})
-						htmlString += "</tr>";					
+					if($scope.GetUID($scope.organisationUnits_id,org.uid))
+					{
+
+						$scope.Final_orgNameWithBreaks[orgNameWithBreaks]=org.uid;
+						//$scope.Final_orgNameWithBreaks.push({orgNameWithBreaks});
+
+					//htmlString += "<tr><td style='padding:0 15px'>" + orgNameWithBreaks + "</td>";
+				
+					}
+					
+
+
 				});
+				$scope.Final_orgNameWithBreaks.sort();
+				for(var key in $scope.Final_orgNameWithBreaks)
+				{
+					htmlString += "<tr><td style='padding:0 15px'>" + key + "</td>";
+				
+					$scope.allPeriods.forEach(function(pr){
+						
+							
+												currentStatus = 0;
+												statusText = "";
+												currentColor = "#FFCCCC";//light purple
+										
+											var val= $scope.isOrgFound_1( $scope.Final_orgNameWithBreaks[key], summaryData ) ;
+												if( val)
+												{
+												currentStatus = 0;
+												currentColor = "#FFCCCC";//pink
+												statusText = "0(" + $scope.compulsoryDECount + ")";
+												
+												summaryData.forEach(function(sdata){
+													
+													if( sdata[3] == $scope.Final_orgNameWithBreaks[key] && sdata[1] == pr[0] )
+													{
+														currentStatus= sdata[4]/$scope.compulsoryDECount;
+														statusText = sdata[4] + "(" + $scope.compulsoryDECount + ")";
+														//console.log("currentStatus"+currentStatus+" "+"statusText"+statusText)		
+														}
+														
+												
+											});
+											
+											if( currentStatus >= 1 )
+												currentColor = "#99FF99";//green	
+										}
+										//var index=i;
+	
+										//$scope.organisationUnits_id.splice(index, 1);
+										
+									
+									
+									
+								htmlString += "<td style='background:"+ currentColor +"'  style='padding:2px 15px;border-color: #0000ff;'></td>";
+							
+								})
+				
+				
+								htmlString += "</tr>";		
+				
+				
+				
+				
+				
+				
+				
+				}
+					
+
+
+
+						
+								
+						
+						
+									
+			
                $("#tableContent").html(htmlString);
 				$("#dwnLoad").fadeIn();
 				$("#coverLoad").hide();
@@ -825,7 +838,6 @@ reportsApp.controller('DataStatusController',
 				htmlString += "<tr><td  style = 'background:#FF99FF;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Partially Completed (41-75)% </td></tr>";
 				htmlString += "<tr><td  style = 'background:#FFFF99;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Not Completed(1-40)% </td></tr>";
 				htmlString += "<tr><td  style = 'background:#FF9999;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Not Entered (0)% </td></tr>";
-				htmlString += "<tr><td  style = 'background:#eee;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Not Assigned </td></tr>";
 				
 				
 				htmlString += "<tr style = 'background:#fff'><td colspan = '"+ totPeriods +"' ></td></tr>";
@@ -841,6 +853,8 @@ reportsApp.controller('DataStatusController',
 				var currentStatus= 0;
 				var currentColor = "#eeeeee";
 				var statusText = "";
+				$scope.Final_orgNameWithBreaks=[];
+				
 				
 				$scope.allOrgUnitChildren.forEach(function(org){
 					
@@ -891,25 +905,39 @@ reportsApp.controller('DataStatusController',
 						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6+" / "+ParentName_7;
 					}
 					
+
+					if($scope.GetUID($scope.organisationUnits_id,org.uid))
+					{
+
+						$scope.Final_orgNameWithBreaks[orgNameWithBreaks]=org.uid;
+						//$scope.Final_orgNameWithBreaks.push({orgNameWithBreaks});
+
+					//htmlString += "<tr><td style='padding:0 15px'>" + orgNameWithBreaks + "</td>";
+				
+					}
+
+
+				});
 		
-					//orgNameWithBreaks += org.name;
 					
-					htmlString += "<tr><td style='padding:0 15px'>" + orgNameWithBreaks + "</td>";
-									
+				
+					for(var key in $scope.Final_orgNameWithBreaks)
+					{
+						htmlString += "<tr><td style='padding:0 15px'>" + key + "</td>";
+						
 					$scope.allPeriods.forEach(function(pr){
-						if($scope.GetUID($scope.organisationUnits_id,org.uid))
-								{
+						
 											currentStatus = 0;
 											statusText = "";
 											currentColor = "#FF9999";//light purple
 									
 									 
-									if( $scope.isOrgFound_1( org.uid, summaryData ) )
+									if( $scope.isOrgFound_1( $scope.Final_orgNameWithBreaks[key], summaryData ) )
 									{
 										statusText = 0;//"0(" + $scope.compulsoryDECount + ")";
 										
 										summaryData.forEach(function(sdata){
-											if( sdata[3] == org.uid && sdata[1] == pr[0] )
+											if( sdata[3] == $scope.Final_orgNameWithBreaks[key] && sdata[1] == pr[0] )
 											{
 												currentStatus= sdata[4]/$scope.compulsoryDECount*100;
 												statusText =  Math.ceil(currentStatus) ;//+ "(" + $scope.compulsoryDECount + ")";
@@ -925,19 +953,15 @@ reportsApp.controller('DataStatusController',
 										else
 											currentColor = "#FF9999";	
 									}
-								}
-								else
-								{
-									currentStatus = "";
-									statusText = "";
-									currentColor = "#eeeeee";//grey
-								}
+								
+								
 								
 						htmlString += "<td style='background:"+ currentColor +";padding:0 15px'>"+statusText +"</td>";
 					});
-										
 					htmlString += "</tr>";
-				});
+				}			
+					
+				
 				
 				$("#tableContent").html(htmlString);
 				$("#dwnLoad").fadeIn();
@@ -1398,7 +1422,13 @@ reportsApp.controller('DataStatusController',
 					});
 				});
 			});
+
+
+
+
 		};
+
+
 		//*****************************************************************************
 		//Format Date
 		//*****************************************************************************
