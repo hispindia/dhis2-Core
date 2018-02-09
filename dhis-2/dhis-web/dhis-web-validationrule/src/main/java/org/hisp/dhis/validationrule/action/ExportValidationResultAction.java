@@ -29,6 +29,7 @@ package org.hisp.dhis.validationrule.action;
  */
 
 import com.opensymphony.xwork2.Action;
+
 import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.common.Grid;
 import org.hisp.dhis.common.GridHeader;
@@ -155,7 +156,8 @@ public class ExportValidationResultAction
             Period period = validationResult.getPeriod();
 
             grid.addRow();
-            grid.addValue( unit.getName() );
+            //grid.addValue( unit.getName() );
+            grid.addValue( getHierarchyOrgunit( unit ) );
             grid.addValue( format.formatPeriod( period ) );
             grid.addValue( validationResult.getValidationRule().getName() );
             grid.addValue( i18n.getString( validationResult.getValidationRule().getImportance().toString().toLowerCase() ) );
@@ -168,4 +170,24 @@ public class ExportValidationResultAction
 
         return grid;
     }
+    
+    //for Orgunit Hierarchy
+    private String getHierarchyOrgunit( OrganisationUnit orgunit )
+    {
+        //String hierarchyOrgunit = orgunit.getName();
+        String hierarchyOrgunit = "";
+       
+        while ( orgunit.getParent() != null )
+        {
+            hierarchyOrgunit = orgunit.getParent().getName() + "/" + hierarchyOrgunit;
+
+            orgunit = orgunit.getParent();
+        }
+        
+        hierarchyOrgunit = hierarchyOrgunit.substring( hierarchyOrgunit.indexOf( "/" ) + 1 );
+        
+        return hierarchyOrgunit;
+    }
+    
+    
 }
