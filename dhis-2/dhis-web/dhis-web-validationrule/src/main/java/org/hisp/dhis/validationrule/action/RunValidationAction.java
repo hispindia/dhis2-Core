@@ -28,7 +28,12 @@ package org.hisp.dhis.validationrule.action;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.opensymphony.xwork2.Action;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
@@ -43,9 +48,7 @@ import org.hisp.dhis.validation.ValidationRuleService;
 import org.hisp.dhis.validation.ValidationService;
 import org.hisp.dhis.validation.comparator.ValidationResultComparator;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.opensymphony.xwork2.Action;
 
 /**
  * @author Margrethe Store
@@ -71,7 +74,7 @@ public class RunValidationAction
     }
 
     private ValidationService validationService;
-    
+
     public void setValidationService( ValidationService validationService )
     {
         this.validationService = validationService;
@@ -189,25 +192,39 @@ public class RunValidationAction
         return organisationUnit;
     }
 
+    private Map<Integer, String> orgUnitHierarchyMap = new HashMap<Integer, String>();
+    
+    public Map<Integer, String> getOrgUnitHierarchyMap()
+    {
+        return orgUnitHierarchyMap;
+    }
+
+
     // -------------------------------------------------------------------------
     // Execute
     // -------------------------------------------------------------------------
+
 
     @Override
     public String execute()
     {
         organisationUnit = organisationUnitService.getOrganisationUnit( organisationUnitId );
 
-        List<OrganisationUnit> organisationUnits = organisationUnitService.getOrganisationUnitWithChildren( organisationUnit.getId() );
+        List<OrganisationUnit> organisationUnits = organisationUnitService
+            .getOrganisationUnitWithChildren( organisationUnit.getId() );
 
-        ValidationRuleGroup group = validationRuleGroupId == -1 ? null : validationRuleService.getValidationRuleGroup( validationRuleGroupId );
+        ValidationRuleGroup group = validationRuleGroupId == -1 ? null : validationRuleService
+            .getValidationRuleGroup( validationRuleGroupId );
 
-        DataElementCategoryOptionCombo attributeOptionCombo = attributeOptionComboId == null || attributeOptionComboId == -1 ? null : dataElementCategoryService.getDataElementCategoryOptionCombo( attributeOptionComboId );
+        DataElementCategoryOptionCombo attributeOptionCombo = attributeOptionComboId == null
+            || attributeOptionComboId == -1 ? null : dataElementCategoryService
+            .getDataElementCategoryOptionCombo( attributeOptionComboId );
 
-        log.info( "Validating data for " + ( group == null ? "all rules" : "group: " + group.getName() ) );
+        log.info( "Validating data for " + (group == null ? "all rules" : "group: " + group.getName()) );
 
-        validationResults = new ArrayList<>( validationService.startInteractiveValidationAnalysis( format.parseDate( startDate ), format.parseDate( endDate ),
-                organisationUnits, persistResults, attributeOptionCombo, group, sendNotifications, format ) );
+        validationResults = new ArrayList<>( validationService.startInteractiveValidationAnalysis(
+            format.parseDate( startDate ), format.parseDate( endDate ), organisationUnits, persistResults,
+            attributeOptionCombo, group, sendNotifications, format ) );
 
         maxExceeded = validationResults.size() > ValidationService.MAX_INTERACTIVE_ALERTS;
 
@@ -216,6 +233,12 @@ public class RunValidationAction
         SessionUtils.setSessionVar( KEY_VALIDATIONRESULT, validationResults );
 
         computeShowAttributeCombos();
+
+        // for Orgunit Hierarchy
+        for ( ValidationResult result : validationResults )
+        {
+            orgUnitHierarchyMap.put( result.getOrganisationUnit().getId(), getHierarchyOrgunit( result.getOrganisationUnit() ) );
+        }
 
         log.info( "Validation done" );
 
@@ -238,5 +261,22 @@ public class RunValidationAction
                 break;
             }
         }
+    }
+    //for Orgunit Hierarchy
+    private String getHierarchyOrgunit( OrganisationUnit orgunit )
+    {
+        //String hierarchyOrgunit = orgunit.getName();
+        String hierarchyOrgunit = "";
+       
+        while ( orgunit.getParent() != null )
+        {
+            hierarchyOrgunit = orgunit.getParent().getName() + "/" + hierarchyOrgunit;
+
+            orgunit = orgunit.getParent();
+        }
+        
+        hierarchyOrgunit = hierarchyOrgunit.substring( hierarchyOrgunit.indexOf( "/" ) + 1 );
+        
+        return hierarchyOrgunit;
     }
 }
