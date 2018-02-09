@@ -112,7 +112,7 @@
 		#foreach( $result in $validationResults )
 		<tr id="tr${result.id}">
 		  <!--<td>$encoder.htmlEncode( $!result.organisationUnit.name )</td>-->
-		  <td>$!orgUnitHierarchyMap.get( $result.getOrganisationUnit().getId() )</td>
+		  <td>$!orgUnitHierarchyMap.get( $result.getOrganisationUnit().getId() ) $encoder.htmlEncode( $!result.organisationUnit.name ) </td>
 		  <td>$!format.formatPeriod( $result.period )</td>
           #if( $showAttributeCombos )
               <td>#if($result.attributeOptionCombo.isDefault()=='false') $encoder.htmlEncode( $!result.attributeOptionCombo.name ) #end</td>

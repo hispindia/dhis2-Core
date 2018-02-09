@@ -157,7 +157,7 @@ public class ExportValidationResultAction
 
             grid.addRow();
             //grid.addValue( unit.getName() );
-            grid.addValue( getHierarchyOrgunit( unit ) );
+            grid.addValue( getHierarchyOrgunit( unit ) + "" + unit.getName() )  ;
             grid.addValue( format.formatPeriod( period ) );
             grid.addValue( validationResult.getValidationRule().getName() );
             grid.addValue( i18n.getString( validationResult.getValidationRule().getImportance().toString().toLowerCase() ) );
