@@ -1,5 +1,9 @@
 
 <h2>$subject</h2>
+<!-- for avoid Scripting -->
+<!--
+<h2>$!encoder.htmlEncode($subject)</h2>
+-->
 
 <form method="POST" action="sendReply.action">
 <div class="header-box" align="center">
@@ -16,6 +20,11 @@
 <div class="header-box" align="center">
 	<h3 style="text-align: left;">Reply from $message.sender.getName()</h3>
     <p style="text-align: left;">$message.text</p>
+	<!-- for avoid Scripting -->
+	<!--
+	<h3 style="text-align: left;">Reply from $!encoder.htmlEncode($message.sender.getName())</h3>
+    <p style="text-align: left;">$!encoder.htmlEncode($message.text)</p>
+	-->
 </div>
 #end
 

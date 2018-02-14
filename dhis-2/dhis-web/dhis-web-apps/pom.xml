@@ -191,7 +191,7 @@
                 <!-- Interpretation wall -->
                 <artifactItem>
                   <groupId>org.hisp.dhis</groupId>
-                  <artifactId>dhis-app-interpretation</artifactId>
+                  <artifactId>dhis-app-interpretation-state</artifactId>
                   <version>2.27-SNAPSHOT</version>
                   <overWrite>true</overWrite>
                   <outputDirectory>${project.build.directory}/${project.artifactId}/dhis-web-interpretation</outputDirectory>

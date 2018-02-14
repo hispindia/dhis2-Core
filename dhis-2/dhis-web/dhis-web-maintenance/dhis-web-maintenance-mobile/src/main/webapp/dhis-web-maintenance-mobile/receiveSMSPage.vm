@@ -223,6 +223,11 @@
 		<tr>
 			<td style="width:135px">$i18n.getString('filter_by_phone_number'):</td>
 			<td style="width:150px"><input type="text" name="keyword" #if($keyword) value="$keyword" #else value="" #end style="width: 150px; height: 10px"/></td>
+			<!-- for avoid Scripting -->
+			<!--
+			<td style="width:150px"><input type="text" name="keyword" #if($encoder.jsEscape($keyword)) value="$keyword" #else value="" #end style="width: 150px; height: 10px"/></td>
+			-->
+			<!-- for avoid Scripting -->
 			<td style="width:50px"><input type="submit" name="filter" value="Filter"/></td>
 			<td style="text-align:right"><input type="button" name="btnDelete"  value="$i18n.getString( 'delete_checked_option' )" onclick="deleteChecked()"/></td>
 		</tr>
