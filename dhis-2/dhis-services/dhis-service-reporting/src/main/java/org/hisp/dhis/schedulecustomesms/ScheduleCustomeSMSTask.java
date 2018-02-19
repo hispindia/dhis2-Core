@@ -59,6 +59,8 @@ public class ScheduleCustomeSMSTask
     private final static int EDD_DATAELEMENT_ID = 3896;
 
     private final static int DATE_OF_BIRTH_INFANT_DATAELEMENT_ID = 10398;
+    
+    private final static int DNA_PCR_TEST_RESULT_DATAELEMENT_ID = 10328;
 
     public static final String KEY_TASK = "scheduleCustomeSMSTask";
 
@@ -113,33 +115,45 @@ public class ScheduleCustomeSMSTask
     {
         List<String> biMonthelyMessages = new ArrayList<String>();
         biMonthelyMessages.add( "औषधी शुरु गरेको र CD4 जाँच गरेको ६ महिना भए , पुनः CD4 जाँच गर्ने होइन त ?" );
-        biMonthelyMessages.add( "CD4 जाँच गराऔ रोगसँग लडने क्षमता कति छ भनेर बुझौ |" );
-        biMonthelyMessages.add( "भाइरल लोड जाँच गराई शरिरमा भाइरसको अवस्था थाहा पाउनुहोस्  |" );
-        biMonthelyMessages
-            .add( "भाइरल लोड जाँचले तपाईको अवस्था मात्र होइन तपाईको नजिकको साथीलाई पनि संक्रमणबाट सुरक्षित राख्छ |" );
-        biMonthelyMessages
-            .add( "औषधि शुरु गरेको पहिलो वर्ष २ पटक (६/६ महिनामा) र त्यसपछिको हरेक बर्षमा एक पटक मात्र भाइरल लोडको जाँच गराउनुहोला।" );
-        biMonthelyMessages.add( "स्वास्थ्य संस्थामा सुत्केरी गराऔ, आमा र बच्चा दुवैको स्वास्थ्य पक्का गराऔ |" );
-        biMonthelyMessages.add( "संक्रमित महिलाहरुले स्वास्थ्यकर्मीसंग सल्लाह लिऔ,स्वस्थ बच्चा जन्माऔ |" );
+        biMonthelyMessages.add( "औषधि शुरु गरेको पहिलो वर्ष २ पटक (६/६ महिनामा) र त्यसपछिको हरेक बर्षमा एक पटक मात्र भाइरल लोडको जाँच गराउनुहोला । " );
+        //biMonthelyMessages.add( "स्वास्थ्य संस्थामा सुत्केरी गराऔ, आमा र बच्चा दुवैको स्वास्थ्य पक्का गराऔं |" );
+        //biMonthelyMessages.add( "à¤­à¤¾à¤‡à¤°à¤² à¤²à¥‹à¤¡ à¤œà¤¾à¤�à¤šà¤²à¥‡ à¤¤à¤ªà¤¾à¤ˆà¤•à¥‹ à¤…à¤µà¤¸à¥�à¤¥à¤¾ à¤®à¤¾à¤¤à¥�à¤° à¤¹à¥‹à¤‡à¤¨ à¤¤à¤ªà¤¾à¤ˆà¤•à¥‹ à¤¨à¤œà¤¿à¤•à¤•à¥‹ à¤¸à¤¾à¤¥à¥€à¤²à¤¾à¤ˆ à¤ªà¤¨à¤¿ à¤¸à¤‚à¤•à¥�à¤°à¤®à¤£à¤¬à¤¾à¤Ÿ à¤¸à¥�à¤°à¤•à¥�à¤·à¤¿à¤¤ à¤°à¤¾à¤–à¥�à¤› |" );
+        //biMonthelyMessages.add( "à¤”à¤·à¤§à¤¿ à¤¶à¥�à¤°à¥� à¤—à¤°à¥‡à¤•à¥‹ à¤ªà¤¹à¤¿à¤²à¥‹ à¤µà¤°à¥�à¤· à¥¨ à¤ªà¤Ÿà¤• (à¥¬/à¥¬ à¤®à¤¹à¤¿à¤¨à¤¾à¤®à¤¾) à¤° à¤¤à¥�à¤¯à¤¸à¤ªà¤›à¤¿à¤•à¥‹ à¤¹à¤°à¥‡à¤• à¤¬à¤°à¥�à¤·à¤®à¤¾ à¤�à¤• à¤ªà¤Ÿà¤• à¤®à¤¾à¤¤à¥�à¤° à¤­à¤¾à¤‡à¤°à¤² à¤²à¥‹à¤¡à¤•à¥‹ à¤œà¤¾à¤�à¤š à¤—à¤°à¤¾à¤‰à¤¨à¥�à¤¹à¥‹à¤²à¤¾à¥¤" );
+        //biMonthelyMessages.add( "à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯ à¤¸à¤‚à¤¸à¥�à¤¥à¤¾à¤®à¤¾ à¤¸à¥�à¤¤à¥�à¤•à¥‡à¤°à¥€ à¤—à¤°à¤¾à¤”, à¤†à¤®à¤¾ à¤° à¤¬à¤šà¥�à¤šà¤¾ à¤¦à¥�à¤µà¥ˆà¤•à¥‹ à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯ à¤ªà¤•à¥�à¤•à¤¾ à¤—à¤°à¤¾à¤” |" );
+        //biMonthelyMessages.add( "à¤¸à¤‚à¤•à¥�à¤°à¤®à¤¿à¤¤ à¤®à¤¹à¤¿à¤²à¤¾à¤¹à¤°à¥�à¤²à¥‡ à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯à¤•à¤°à¥�à¤®à¥€à¤¸à¤‚à¤— à¤¸à¤²à¥�à¤²à¤¾à¤¹ à¤²à¤¿à¤”,à¤¸à¥�à¤µà¤¸à¥�à¤¥ à¤¬à¤šà¥�à¤šà¤¾ à¤œà¤¨à¥�à¤®à¤¾à¤” |" );
 
         List<String> monthlyMessages = new ArrayList<String>();
-        monthlyMessages.add( "स्वस्थ जीवनको लागि नियमित स्वास्थ्य जांच तथा अन्य संक्रमणको (क्षयरोग) जांच गराउनुहोला ।" );
-        monthlyMessages.add( "समयको ख्याल राख्नुहोस नियमित औषधी लिन आउनुहोस् ।" );
-        monthlyMessages.add( "आफ्नो  जोडीको (पार्टनर)  पनि रक्त जांच गराऔ, सम्बन्ध अझै बलियो बनाऔ ।" );
-        monthlyMessages.add( "नियमित औषधिको सेवन, अवसरबादी संक्रमण रहित जीवन |" );
+        monthlyMessages.add( "स्वस्थ जीवनको लागि नियमित स्वास्थ्य जांच तथा अन्य संक्रमणको पनि  जांच गराउनुहोला ।" );
+        monthlyMessages.add( "आफ्नो  साथीको पनि जांच गराऔ, सम्बन्ध अझै बलियो बनाऔं ।" );
+        //monthlyMessages.add( "महिलाहरुले स्वास्थ्यकर्मीसंग सल्लाह लिई स्वस्थ बच्चा जन्माऔं |" );
+        monthlyMessages.add( "नियमित औषधिको सेवन, अवसरबादी समस्या रहित जीवन  |" );
 
         List<String> quarterlyMessages = new ArrayList<String>();
-        quarterlyMessages.add( "कण्डमको प्रयोग ,आफू र साथीलाई सहयोग ।" );
+        quarterlyMessages.add( "CD4 जाँच गराऔ रोगसँग लडने क्षमता कति छ भनेर बुझौ} |" );
+        quarterlyMessages.add( "भाइरल लोड जाँच गराई शरिरमा भाइरसको अवस्था थाहा पाउनुहोस्  |" );
+        quarterlyMessages.add( "भाइरल लोड जाँचले तपाईको अवस्था मात्र होइन तपाईको नजिकको साथीलाई पनि सुरक्षित राख्छ  |" );
+        //quarterlyMessages.add( "नियमित पाठेघरको जांच गराऔ ,पछि हुन सक्ने समस्यालाई अहिले नै पत्ता लगाऔं  |" );
+        
+        
+        
         // quarterlyMessages.add(
-        // "नियमित पाठेघरको जांच गराऔ ,पछि हुन सक्ने समस्यालाई अहिले नै पत्ता लगाऔ |"
+        // "à¤¨à¤¿à¤¯à¤®à¤¿à¤¤ à¤ªà¤¾à¤ à¥‡à¤˜à¤°à¤•à¥‹ à¤œà¤¾à¤‚à¤š à¤—à¤°à¤¾à¤” ,à¤ªà¤›à¤¿ à¤¹à¥�à¤¨ à¤¸à¤•à¥�à¤¨à¥‡ à¤¸à¤®à¤¸à¥�à¤¯à¤¾à¤²à¤¾à¤ˆ à¤…à¤¹à¤¿à¤²à¥‡ à¤¨à¥ˆ à¤ªà¤¤à¥�à¤¤à¤¾ à¤²à¤—à¤¾à¤” |"
         // );
 
+        /*
         List<String> dailyMessages = new ArrayList<String>();
-        dailyMessages.add( "हरेक दिन औषधी सेवन ,राख्छ स्वस्थ जीवन |" );
-
+        dailyMessages.add( "à¤¹à¤°à¥‡à¤• à¤¦à¤¿à¤¨ à¤”à¤·à¤§à¥€ à¤¸à¥‡à¤µà¤¨ ,à¤°à¤¾à¤–à¥�à¤› à¤¸à¥�à¤µà¤¸à¥�à¤¥ à¤œà¥€à¤µà¤¨ |" );
+        */
+        
         List<String> weeklyMessages = new ArrayList<String>();
         weeklyMessages.add( "राखी राख्नुहोस  सम्झना, हरेक दिन औषधी सेवन र  गणना ।" );
 
+        List<String> fortNightlyMessages = new ArrayList<String>();
+        fortNightlyMessages.add( "समयको ख्याल राख्नुहोस नियमित औषधी लिन आउनुहोस् ।" );
+        fortNightlyMessages.add( "हरेक दिन औषधी सेवन ,राख्छ स्वस्थ जीवन |" );
+        
+        
+        
         simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
         SimpleDateFormat timeFormat = new SimpleDateFormat( "HH:mm:ss" );
         // get current date time with Date()
@@ -168,17 +182,14 @@ public class ScheduleCustomeSMSTask
 
         try
         {
-            // scheduledCustomePillPickUPANDTbScreeingSMS(
-            // ART_FOLLOW_UP_PROGRAM_STAGE_ID, SMS_CONSENT_ATTRIBUTE_ID,
-            // MOBILE_NUMBER_ATTRIBUTE_ID );
-            // scheduledCustomeCD4CountSMS( MEDICAL_HISTORY_PROGRAM_STAGE_ID,
-            // SMS_CONSENT_ATTRIBUTE_ID, MOBILE_NUMBER_ATTRIBUTE_ID,
-            // CD4_TEST_DATAELEMENT_ID );
-            // scheduledCustomeCD4CountAndViralLoadARTSMS( teiList );
-            // scheduledPMTCTAndCervicalCancerSMS( teiList );
-            // scheduledAwarenessForEIDSMS( teiList );
-            // scheduledAwarenessChildComplete18MonthSMS( teiList );
-            scheduledEIDAfter4WeekOfDevliverySMS( teiList );
+             scheduledCustomePillPickUPANDTbScreeingSMS( ART_FOLLOW_UP_PROGRAM_STAGE_ID, SMS_CONSENT_ATTRIBUTE_ID, MOBILE_NUMBER_ATTRIBUTE_ID );
+             scheduledCustomeCD4CountSMS( MEDICAL_HISTORY_PROGRAM_STAGE_ID, SMS_CONSENT_ATTRIBUTE_ID, MOBILE_NUMBER_ATTRIBUTE_ID, CD4_TEST_DATAELEMENT_ID );
+             scheduledCustomeCD4CountAndViralLoadARTSMS( teiList );
+             scheduledPMTCTAndCervicalCancerSMS( teiList );
+             scheduledAwarenessForEIDSMS( teiList );
+             scheduledAwarenessChildComplete18MonthSMS( teiList );
+             scheduledEIDAfter4WeekOfDevliverySMS( teiList );
+             scheduledPMTCTEIDSMS( teiList );
         }
         catch ( IOException e1 )
         {
@@ -188,7 +199,7 @@ public class ScheduleCustomeSMSTask
         }
 
         // daily Message
-
+        /*
         try
         {
             scheduledCustomeSMS( mobileNumbers, dailyMessages );
@@ -198,6 +209,8 @@ public class ScheduleCustomeSMSTask
             e.printStackTrace();
             System.out.println( "Error SMS " + e.getMessage() );
         }
+        */
+        
 
         // Monthly Messages
         if ( currentDate.equalsIgnoreCase( "01" ) )
@@ -227,6 +240,20 @@ public class ScheduleCustomeSMSTask
             }
         }
 
+        // Fortnightly
+        if ( currentDate.equalsIgnoreCase( "01" ) || currentDate.equalsIgnoreCase( "14" ) || currentDate.equalsIgnoreCase( "28" ) )
+        {
+            try
+            {
+                scheduledCustomeSMS( mobileNumbers, fortNightlyMessages );
+            }
+            catch ( IOException e )
+            {
+                e.printStackTrace();
+                System.out.println( "Error SMS " + e.getMessage() );
+            }
+        }        
+        
         // Weekly Messages
         if ( currentDate.equalsIgnoreCase( "01" ) || currentDate.equalsIgnoreCase( "08" )
             || currentDate.equalsIgnoreCase( "15" ) || currentDate.equalsIgnoreCase( "22" )
@@ -354,10 +381,11 @@ public class ScheduleCustomeSMSTask
                                 .println( tei.getId() + " -- " + teaValue.getValue() + " -- " + orgUnit.getName() );
                             if ( teaValue.getValue() != null && teaValue.getValue().length() == 10 )
                             {
-                                String customMessagePillPick = "तपाइको औषधि लिने बेला भयो, तपाई मिति  " + dueDate
-                                    + " मा " + orgUnit.getName() + " को ए आर टि केन्द्रमा आउनुहोला |";
+                                String customMessagePillPick = "तपाइको औषधि लिने बेला भयो,तपाई  मिति  " + dueDate
+                                    + " मा  " + orgUnit.getName() + " को ए आर टि केन्द्रमा आउनुहोला  |";
+                                
                                 String customMessageTBScreening = "क्षयरोग (टि. बी) को जोखिमबाट बच्न मिति  " + dueDate
-                                    + " मा " + orgUnit.getName() + " मा क्षयरोग (टि. बी) को जांच गर्न आउनुहोला  | ";
+                                    + " मा " + orgUnit.getName() + " मा क्षयरोग (टि. बी) को जांच गर्न आउनुहोला | ";
 
                                 bulkSMSHTTPInterface.sendSMS( customMessagePillPick, teaValue.getValue() );
                                 bulkSMSHTTPInterface.sendSMS( customMessageTBScreening, teaValue.getValue() );
@@ -438,9 +466,8 @@ public class ScheduleCustomeSMSTask
                                 .println( tei.getId() + " -- " + teaValue.getValue() + " -- " + orgUnit.getName() );
                             if ( teaValue.getValue() != null && teaValue.getValue().length() == 10 )
                             {
-                                String customMessage = "६ महिना भयो, CD4 गर्न मिति   "
-                                    + simpleDateFormat.format( sixMonthAfterDate ) + " मा " + orgUnit.getName()
-                                    + " को ए आर टि केन्द्रमा आउनुहोला |";
+                                String customMessage = "६ महिना भयो, CD4 गर्न मिति    "
+                                    + simpleDateFormat.format( sixMonthAfterDate ) + " मा  " + orgUnit.getName() + " को ए आर टि केन्द्रमा आउनुहोला |";
                                 bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
                                 System.out.println( teaValue.getValue() + " -------- > " + customMessage );
                             }
@@ -513,7 +540,7 @@ public class ScheduleCustomeSMSTask
                             if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString )
                                 || todayDate.equalsIgnoreCase( twoDayBeforeDateString ) )
                             {
-                                String customMessage = "६ महिना भयो, CD4 गर्न मिति   "
+                                String customMessage = "भाइरल लोड जाचँ को लागि मिति   "
                                     + simpleDateFormat.format( sixMonthAfterDate ) + " मा " + orgUnit.getName()
                                     + " को ए आर टि केन्द्रमा आउनुहोला |";
                                 bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
@@ -552,8 +579,8 @@ public class ScheduleCustomeSMSTask
                             if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString )
                                 || todayDate.equalsIgnoreCase( twoDayBeforeDateString ) )
                             {
-                                String customMessage = "(Viral Load) भाइरल लोड जाचँ गराऔ , मिति   "
-                                    + simpleDateFormat.format( sixMonthAfterDate ) + " मा " + orgUnit.getName()
+                                String customMessage = "भाइरल लोड जाचँ को लागि मिति   "
+                                    + simpleDateFormat.format( sixMonthAfterDate ) + " मा  " + orgUnit.getName()
                                     + " को ए आर टि केन्द्रमा आउनुहोला |";
                                 bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
                                 System.out.println( teaValue.getValue() + " -------- > " + customMessage );
@@ -610,12 +637,25 @@ public class ScheduleCustomeSMSTask
                                         + " PMTCT And Cervical Cancer SMS Monthly -- " + teaSex.getValue() );
                                     if ( Integer.parseInt( ageAtVisit ) >= 15 && Integer.parseInt( ageAtVisit ) <= 49 )
                                     {
-                                        String generalMessage = "स्वास्थ्य संस्थामा सुत्केरी गराऔ, आमा र बच्चा दुवैको स्वास्थ्य पक्का गराऔ |";
-                                        String specificMessage = "संक्रमित महिलाहरुले स्वास्थ्यकर्मीसंग सल्लाह लिऔ,स्वस्थ बच्चा जन्माऔ  |";
-                                        bulkSMSHTTPInterface.sendSMS( generalMessage, teaValueMobileNo.getValue() );
-                                        bulkSMSHTTPInterface.sendSMS( specificMessage, teaValueMobileNo.getValue() );
-                                        System.out.println( teaValueMobileNo.getValue() + " -------- > "
-                                            + specificMessage );
+                                        //String generalMessage = "स्वास्थ्य संस्थामा सुत्केरी गराऔ, आमा र बच्चा दुवैको स्वास्थ्य पक्का गराऔं |";
+                                        if ( currentDate.equalsIgnoreCase( "01" ) )
+                                        {
+                                            String generalMessage1 = "स्वास्थ्य संस्थामा सुत्केरी गराऔ, आमा र बच्चा दुवैको स्वास्थ्य पक्का गराऔं |";
+                                            String generalMessage2 = "महिलाहरुले स्वास्थ्यकर्मीसंग सल्लाह लिई स्वस्थ बच्चा जन्माऔं |";
+                                            bulkSMSHTTPInterface.sendSMS( generalMessage1, teaValueMobileNo.getValue() );
+                                            bulkSMSHTTPInterface.sendSMS( generalMessage2, teaValueMobileNo.getValue() );
+                                        }
+                                        if ( currentDate.equalsIgnoreCase( "15" ) )
+                                        {
+                                            String generalMessage1 = "स्वास्थ्य संस्थामा सुत्केरी गराऔ, आमा र बच्चा दुवैको स्वास्थ्य पक्का गराऔं |";
+                                            bulkSMSHTTPInterface.sendSMS( generalMessage1, teaValueMobileNo.getValue() );
+                                            System.out.println( teaValueMobileNo.getValue() + " -------- > " + generalMessage1 );
+                                        }     
+                                        
+                                        //String specificMessage = "à¤¸à¤‚à¤•à¥�à¤°à¤®à¤¿à¤¤ à¤®à¤¹à¤¿à¤²à¤¾à¤¹à¤°à¥�à¤²à¥‡ à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯à¤•à¤°à¥�à¤®à¥€à¤¸à¤‚à¤— à¤¸à¤²à¥�à¤²à¤¾à¤¹ à¤²à¤¿à¤”,à¤¸à¥�à¤µà¤¸à¥�à¤¥ à¤¬à¤šà¥�à¤šà¤¾ à¤œà¤¨à¥�à¤®à¤¾à¤”  |";
+                                        //bulkSMSHTTPInterface.sendSMS( generalMessage, teaValueMobileNo.getValue() );
+                                        //bulkSMSHTTPInterface.sendSMS( specificMessage, teaValueMobileNo.getValue() );
+                                        
                                     }
                                 }
                             }
@@ -653,10 +693,14 @@ public class ScheduleCustomeSMSTask
                                         if ( Integer.parseInt( ageAtVisit ) >= 15
                                             && Integer.parseInt( ageAtVisit ) <= 49 )
                                         {
-                                            String generalMessage = "नियमित पाठेघरको जांच गराऔ ,पछि हुन सक्ने समस्यालाई अहिले नै पत्ता लगाऔ  |";
-                                            bulkSMSHTTPInterface.sendSMS( generalMessage, teaValueMobileNo.getValue() );
+                                            String generalMessage1 = "नियमित पाठेघरको जांच गराऔ ,पछि हुन सक्ने समस्यालाई अहिले नै पत्ता लगाऔं  |";
+                                            String generalMessage2 = "स्वास्थ्यकर्मीसंग सल्लाह लिई स्वस्थ बच्चा जन्माऔं  |";
+                                            bulkSMSHTTPInterface.sendSMS( generalMessage1, teaValueMobileNo.getValue() );
+                                            bulkSMSHTTPInterface.sendSMS( generalMessage2, teaValueMobileNo.getValue() );
+                                            
+                                            
                                             System.out.println( teaValueMobileNo.getValue() + " -------- > "
-                                                + generalMessage );
+                                                + generalMessage2 );
                                         }
                                     }
                                 }
@@ -718,38 +762,42 @@ public class ScheduleCustomeSMSTask
                             Date twoMonthBeforeDate = twoMonthBefore.getTime();
 
                             // three month before from edd date
-                            Calendar threeMonthBefore = Calendar.getInstance();
-                            threeMonthBefore.setTime( eddDateObject );
-                            threeMonthBefore.set( Calendar.MONTH, (threeMonthBefore.get( Calendar.MONTH ) - 3) );
-                            Date threeMonthBeforeDate = threeMonthBefore.getTime();
+                            Calendar fiveMonthBefore = Calendar.getInstance();
+                            fiveMonthBefore.setTime( eddDateObject );
+                            fiveMonthBefore.set( Calendar.MONTH, (fiveMonthBefore.get( Calendar.MONTH ) - 5) );
+                            Date fiveMonthBeforeDate = fiveMonthBefore.getTime();
 
                             String oneMonthBeforeDateString = simpleDateFormat.format( oneMonthBeforeDate );
                             String twoMonthBeforeDateString = simpleDateFormat.format( twoMonthBeforeDate );
-                            String threeMonthBeforeDateString = simpleDateFormat.format( threeMonthBeforeDate );
+                            String fiveMonthBeforeDateString = simpleDateFormat.format( fiveMonthBeforeDate );
 
                             // one month before
                             if ( todayDate.equalsIgnoreCase( oneMonthBeforeDateString ) )
                             {
-                                String customMessage = "बच्चा जन्मने बित्तिकै  " + orgUnit.getName()
-                                    + " मा बच्चाको रगत जांच गराऊ, बच्चालाई स्वस्थ बनाऔ |";
+                                String customMessage = "बच्चा जन्मने बित्तिकै  " + orgUnit.getName() + " मा बच्चालाई जांच गराऔं, बच्चालाई स्वस्थ बनाऔं |";
                                 bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
                                 System.out.println( teaValue.getValue() + " -------- > " + customMessage );
                             }
-
+                            
                             // two month before
+                            /*
                             if ( todayDate.equalsIgnoreCase( twoMonthBeforeDateString ) )
                             {
-                                String customMessage = "स्वास्थ्यकर्मीसंग सल्लाह लिऔ,स्वस्थ बच्चा जन्माऔ  |";
+                                String customMessage = "à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯à¤•à¤°à¥�à¤®à¥€à¤¸à¤‚à¤— à¤¸à¤²à¥�à¤²à¤¾à¤¹ à¤²à¤¿à¤”,à¤¸à¥�à¤µà¤¸à¥�à¤¥ à¤¬à¤šà¥�à¤šà¤¾ à¤œà¤¨à¥�à¤®à¤¾à¤”  |";
                                 bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
                                 System.out.println( teaValue.getValue() + " -------- > " + customMessage );
                             }
-                            // three month before
-                            if ( todayDate.equalsIgnoreCase( threeMonthBeforeDateString ) )
+                            */
+                            // five month before
+                            
+                            if ( todayDate.equalsIgnoreCase( fiveMonthBeforeDateString ) )
                             {
-                                String customMessage = "स्वास्थ्य संस्थामा सुत्केरी गराऔ, आमा र बच्चा दुवैको स्वास्थ्य पक्का गराऔ |";
+                                String customMessage = "स्वास्थ्य संस्थामा सुत्केरी गराऔं, आमा र बच्चा दुवैको स्वास्थ्य पक्का गराऔं  |";
                                 bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
                                 System.out.println( teaValue.getValue() + " -------- > " + customMessage );
                             }
+                            
+                            
                         }
 
                     }
@@ -818,14 +866,28 @@ public class ScheduleCustomeSMSTask
                             String twoDayBeforeDateString = simpleDateFormat.format( twoDayBeforeDate );
 
                             // one day before
+                            /*
                             if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString )
                                 || todayDate.equalsIgnoreCase( twoDayBeforeDateString ) )
                             {
-                                String customMessage = "तपाईको बच्चा १८  महिना पुगेपछि ,३ महिना स्तनपान गराउन छुटाई ,बच्चाको जाँचको लागि स्वास्थ्य संस्थामा ल्याउनु  होला  |";
+                                String customMessage = "à¤¤à¤ªà¤¾à¤ˆà¤•à¥‹ à¤¬à¤šà¥�à¤šà¤¾ à¥§à¥®  à¤®à¤¹à¤¿à¤¨à¤¾ à¤ªà¥�à¤—à¥‡à¤ªà¤›à¤¿ ,à¥© à¤®à¤¹à¤¿à¤¨à¤¾ à¤¸à¥�à¤¤à¤¨à¤ªà¤¾à¤¨ à¤—à¤°à¤¾à¤‰à¤¨ à¤›à¥�à¤Ÿà¤¾à¤ˆ ,à¤¬à¤šà¥�à¤šà¤¾à¤•à¥‹ à¤œà¤¾à¤�à¤šà¤•à¥‹ à¤²à¤¾à¤—à¤¿ à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯ à¤¸à¤‚à¤¸à¥�à¤¥à¤¾à¤®à¤¾ à¤²à¥�à¤¯à¤¾à¤‰à¤¨à¥�  à¤¹à¥‹à¤²à¤¾  |";
                                 bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
                                 System.out.println( " inside schedule SMS " + teaValue.getValue() + " -------- > "
                                     + customMessage );
                             }
+                            */
+                            
+                            // Quarterly Messages
+                            if ( currentMonth.equalsIgnoreCase( "01" ) || currentMonth.equalsIgnoreCase( "04" )
+                                || currentMonth.equalsIgnoreCase( "07" ) || currentMonth.equalsIgnoreCase( "10" ) )
+                            {
+                                if ( currentDate.equalsIgnoreCase( "01" ) )
+                                {
+                                    String customMessage = "तपाईको बच्चा १८  महिना पुगेपछि ,३ महिना स्तनपान गराउन छुटाई ,बच्चाको जाँचको लागि स्वास्थ्य संस्थामा ल्याउनु  होला |";
+                                    bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
+                                    System.out.println( " inside schedule SMS " + teaValue.getValue() + " -------- > " + customMessage );
+                                }
+                            }                            
                         }
 
                     }
@@ -901,9 +963,9 @@ public class ScheduleCustomeSMSTask
                             if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString )
                                 || todayDate.equalsIgnoreCase( twoDayBeforeDateString ) )
                             {
-                                String customMessage = "तपाईको बच्चा जन्मेको ६ हप्ता भित्रमा जांच गराउन  "
+                                String customMessage = "तपाईको बच्चा जन्मेको ६ हफ्ता भित्रमा जाच  गराउन  "
                                     + orgUnit.getName() + " मा " + simpleDateFormat.format( fourWeekAfterDate )
-                                    + " गते ल्याउनु होला |";
+                                    + " गते  ल्याउनु होला |";
                                 bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
                                 System.out.println( " inside schedule SMS " + teaValue.getValue() + " -------- > "
                                     + customMessage );
@@ -923,6 +985,64 @@ public class ScheduleCustomeSMSTask
         System.out.println( " EID After 4Week Of Devlivery SMS Scheduler End at : " + new Date() );
     }
 
+    // PMTCT And EID Female PLHIV (15- 49 years) Positive pregnant women
+
+    public void scheduledPMTCTEIDSMS( List<TrackedEntityInstance> teiList ) throws IOException
+    {
+        System.out.println( "PMTCT And EID Female PLHIV (15- 49 years) Positive pregnant women SMS Scheduler Started at : " + new Date() );
+        TrackedEntityAttribute teMobileNoAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( MOBILE_NUMBER_ATTRIBUTE_ID );
+        TrackedEntityAttribute teSexAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( SEX_ATTRIBUTE_ID );
+        BulkSMSHttpInterface bulkSMSHTTPInterface = new BulkSMSHttpInterface();
+
+        try
+        {
+            if ( currentDate.equalsIgnoreCase( "01" ) )
+            {
+                if ( teiList != null && teiList.size() > 0 )
+                {
+                    for ( TrackedEntityInstance tei : teiList )
+                    {
+                        String orgUnitAndTestResultValue = getLatestEventOrgAndDataValue( EID_AND_TREATMENT_PROGRAM_STAGE_ID, DNA_PCR_TEST_RESULT_DATAELEMENT_ID, tei.getId() );
+                        
+                        if ( orgUnitAndTestResultValue != null && !orgUnitAndTestResultValue.equalsIgnoreCase( "" ))
+                        {
+                            System.out.println( " inside schedule SMS Not Send " + tei.getId() + " -------- > "   );
+                        }
+                        else
+                        {
+                            TrackedEntityAttributeValue teaValueMobileNo = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( tei, teMobileNoAttribute );
+                            TrackedEntityAttributeValue teaSex = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( tei, teSexAttribute );
+                            if ( teaValueMobileNo != null && teaValueMobileNo.getValue() != null  && teaValueMobileNo.getValue().length() == 10 )
+                            {
+                                if ( teaSex != null && teaSex.getValue() != null && teaSex.getValue().equalsIgnoreCase( "Female" ) )
+                                {
+                                    String orgUnitAndAgeAtVisit = getLatestEventOrgAndDataValue( ART_FOLLOW_UP_PROGRAM_STAGE_ID, AGE_AT_VISIT_DATAELEMENT_ID, tei.getId() );
+                                    
+                                    if ( orgUnitAndAgeAtVisit != null && !orgUnitAndAgeAtVisit.equalsIgnoreCase( "" ) )
+                                    {
+                                        String ageAtVisit = orgUnitAndAgeAtVisit.split( ":" )[1];
+                                        OrganisationUnit orgUnit = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitAndAgeAtVisit.split( ":" )[0] ) );
+                                        if ( Integer.parseInt( ageAtVisit ) >= 15 && Integer.parseInt( ageAtVisit ) <= 49 )
+                                        {
+                                            String mesage = "जन्मने बित्तिकै " +  orgUnit.getName() + " मा बच्चाको रगत जांच गराऔं  ,बच्चालाई स्वस्थ बनाऔं |";
+                                            bulkSMSHTTPInterface.sendSMS( mesage, teaValueMobileNo.getValue() );
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "PMTCT And EID Female PLHIV (15- 49 years) Positive pregnant women SMS Exception -- ", e );
+        }
+
+        System.out.println( " PMTCT And EID Female PLHIV (15- 49 years) Positive pregnant women SMS Scheduler End at : " + new Date() );
+    }    
+    
     // --------------------------------------------------------------------------------
     // Get TrackedEntityInstance Ids from tracked entity attribute value
     // --------------------------------------------------------------------------------
@@ -1056,6 +1176,7 @@ public class ScheduleCustomeSMSTask
                 orgUnitIdAndValue = tempResult.get( 0 );
             }
 
+            //System.out.println( " orgUnitIdAndValue : " + orgUnitIdAndValue );
             return orgUnitIdAndValue;
         }
         catch ( Exception e )
