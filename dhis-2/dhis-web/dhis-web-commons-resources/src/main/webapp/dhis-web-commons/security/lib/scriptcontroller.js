@@ -1597,8 +1597,9 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
             }
             else
             {
+				//convert scientific notation to number for mobile
                 var ratingVal = getRatingFor(ouid[i],ratings);
-                obj = new constructor_obj(document.body, name[i], addressjoin[i], pincode[i], mobile[i], spec[i], owner[i],availspecialiti[i], contactpname[i], contactpnumber[i], email[i], hfschemes[i], nothfschemes[i], ouid[i],ownership[i],ratingVal);
+                obj = new constructor_obj(document.body, name[i], addressjoin[i], pincode[i], Number(mobile[i]), spec[i], owner[i],availspecialiti[i], contactpname[i], contactpnumber[i], email[i], hfschemes[i], nothfschemes[i], ouid[i],ownership[i],ratingVal);
                 $("#"+"x"+ouid[i]).rateYo({//adding an extra X infront of id because 
                     rating: ratingVal,
                     starWidth: "15px",
