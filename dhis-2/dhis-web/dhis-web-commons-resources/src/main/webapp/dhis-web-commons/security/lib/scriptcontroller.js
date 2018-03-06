@@ -1,8 +1,5 @@
-/**
- * Created by rohil on 2/8/2017.
- */
 
-
+var today="";
 var base = "../../";
 var url=base+"dhis-web-commons-security/login.action";
 var orgid="wSslG6mcGXl";
@@ -100,7 +97,7 @@ var header = {
 
 
 Ext.onReady( function() {
- 
+
     var header = {
 
         "Authorization": "Basic " + btoa( "homepage" + ':' + "Homepage123" )
@@ -117,7 +114,19 @@ Ext.onReady( function() {
 
     function setLinks() {
 
+      today = new Date();
+           var dd = today.getDate();
+           var mm = today.getMonth()+1; //January is 0!
+           var yyyy = today.getFullYear();
 
+           if(dd<10) {
+             dd = '0'+dd
+           }
+
+           if(mm<10) {
+             mm = '0'+mm
+           }
+           today = yyyy + '-' + mm + '-' + dd;
         $.ajax({
 
             async : false,
@@ -261,13 +270,13 @@ Ext.onReady( function() {
 
     }
 
-    
+
 
     $("#drop1").change(function () {
         drop2org=[];
         //$('#drophospital').prop('selectedIndex',1);
         var selected = $("#drop1 option:selected");
-        
+
         orgid="";
         selected.each(function () {
             drop2org.push($(this).val());
@@ -277,7 +286,7 @@ Ext.onReady( function() {
         var organisationUnits;
         for(var i=0;i<drop2org.length;i++)
         {
-            $.getJSON("../../api/organisationUnits/"+drop2org[i]+"?paging=false&fields=children[id,name,children[id,name]]", function (data) {
+            $.getJSON("../../api/organisationUnits/"+drop2org[i]+"?paging=false&fields=children[id,name,closedDate,children[id,name,closedDate]]", function (data) {
                 var organisationUnits=data.children;
 
 
@@ -304,6 +313,7 @@ Ext.onReady( function() {
 
 
                 $.each(organisationUnits, function (index1, item1) {
+
                     if(item1.children.length>0)
                     {
                         var organisationUnitschildren=item1.children;
@@ -315,43 +325,64 @@ Ext.onReady( function() {
                                 return 1
                             return 0 //default return value (no sorting)
                         });
-                        
-                        
+
+
                         // $('#drophospital').append($('<option value="all" disabled Selected></option>')).val("all").html("Nothing Selected").text("Nothing Selected");
                         // $('#drophospital').append($('<option value="all"></option>')).val("all").html("Select All").text("Select All");
                         $.each(organisationUnitschildren, function (index1, item1) {
+                          if(item1.closedDate!=null)
+                               {
 
-                            if(Subgroup.includes(item1.id))
-                            {
-                            }
-                            else
-                            {
+                                 if(item1.closedDate.substring(0,10)<today)
+                                 {
+                                   console.log(item1.name);
+                                   // alert("less");
+                                 }
+                               }
+                               else {
+          if(Subgroup.includes(item1.id))
+          {
 
-        
-                                if(eventOrg.includes(item1.id)){
-                                    $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
-                                }
+          }
+          else
+          {
+              if(eventOrg.includes(item1.id)){
+                  $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
+              }
 
-                                else
-                                {
-                                }
+              else
+              {
+              }
 
 
-                            }
-                        });
+          }
+
+        }
+                      });
                     }
 
+                    if(item1.closedDate!=null)
+                         {
 
-                        if(eventOrg.includes(item1.id))
-                        {
-                            $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
+                           if(item1.closedDate.substring(0,10)<today)
+                           {
+                             console.log(item1.name);
+                             // alert("less");
+                           }
+                         }
+                         else {
+                           if(eventOrg.includes(item1.id))
+                           {
+                               $('#drophospital').append($('<option></option>').val(item1.id).html(item1.name).text(item1.name));
 
-                        }
+                           }
 
-                        else
-                            {
-                            
-                            }
+                           else
+                               {
+
+                               }
+
+                         }
 
 
 
@@ -1493,7 +1524,6 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
     ]
 
     document.getElementById("resultcount").style.display = "block";
-
     resultcount=0;
     $("#content1").hide();
     $("#footer1").hide();
@@ -1514,7 +1544,6 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
 
     $.getJSON("../../api/analytics/events/query/tzR46QRZ6FJ.json?stage=o6ps51YxGNb&dimension=pe:THIS_YEAR;LAST_5_YEARS&dimension=ou:"+orgid+"&dimension=l8VDWUvIHmv&dimension=KOhqEw0UKxA&dimension=xjJR4dTmn4p&dimension=wcmHow1kcBi&dimension=pqVIj8NyTXb&dimension=g7vyRbNim1K&dimension=Gx4VSNet1dC&dimension=bUg8a8bAvJs"+defservice+"&dimension="+defavail+"&dimension="+defowner+defhealthfacility+"&dimension=ZUbPsfW6y0C&dimension=CAOM6riDtfU&dimension=YL7OJoQCAmF&dimension=vJO1Jac84Ar&dimension=kF8ZJYe9SJZ&dimension=tNhLX6c7KHp&dimension=bVENUe0eDsO&displayProperty=NAME", function (data) {
         var constants={key:name, value: value}
-
         analyticsMap = calculateIndex(data.headers,analyticsMap);
 
         if(data.rows.length==0)
@@ -1586,21 +1615,50 @@ function generatefilterrecordlist(orgid,defservice,defavail,defowner,defhealthfa
 
         }
 
-        
+
 
         for (var i = 0; i < ouid.length; i++) {
-
-
             if(Subgroup.includes(ouid[i]))
             {
 
             }
             else
             {
-				//convert scientific notation to number for mobile
                 var ratingVal = getRatingFor(ouid[i],ratings);
-                obj = new constructor_obj(document.body, name[i], addressjoin[i], pincode[i], Number(mobile[i]), spec[i], owner[i],availspecialiti[i], contactpname[i], contactpnumber[i], email[i], hfschemes[i], nothfschemes[i], ouid[i],ownership[i],ratingVal);
-                $("#"+"x"+ouid[i]).rateYo({//adding an extra X infront of id because 
+                $.ajax({
+                async : false,
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json",
+                headers : header,
+                url: '../../api/organisationUnits/'+ouid[i]+'.json?fields=id,name,openingDate,closedDate',
+                success: function(data){
+                  if(data.closedDate!=null)
+                  {
+
+                    if(data.closedDate.substring(0,10)<today)
+                    {
+                        console.log("exclude"+data.id);
+                        console.log("exclude"+data.name);
+                    }
+                    else {
+                      obj = new constructor_obj(document.body, name[i], addressjoin[i], pincode[i], Number(mobile[i]), spec[i], owner[i],availspecialiti[i], contactpname[i], contactpnumber[i], email[i], hfschemes[i], nothfschemes[i], ouid[i],ownership[i],ratingVal);
+
+                    }
+                  }
+                else
+                  {
+                    obj = new constructor_obj(document.body, name[i], addressjoin[i], pincode[i], Number(mobile[i]), spec[i], owner[i],availspecialiti[i], contactpname[i], contactpnumber[i], email[i], hfschemes[i], nothfschemes[i], ouid[i],ownership[i],ratingVal);
+
+                  }
+                  },
+                  error: function(response){
+
+                  }
+                });
+
+
+                $("#"+"x"+ouid[i]).rateYo({//adding an extra X infront of id because
                     rating: ratingVal,
                     starWidth: "15px",
                     readOnly: true
@@ -1628,12 +1686,12 @@ function getRating(){
 		async:false,
 		success:function(data){
             var rows = data['rows'];
-            
+
 			for(var key in rows){
 				var row = rows[key];
 				var ouidre = row[3];
 				var val = row[0];
-                
+
                 ratings[ouidre] = val;
 				// if(ouidre==ouid){
 				// 	rating = val;
@@ -1713,81 +1771,83 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
 
     if(ownership=="Public")
     {
-        div.innerHTML='\
- <div class="col-xs-12 list-item">\
-        <div class="col-xs-12 col-sm-4 list-image text-center">\
-        <img src="./assets/img/i9.png" alt=""/>\
-        <h4>Public Facility</h4>\
-    </div>\
-    <div class="col-xs-12 col-sm-8 list-content">\
-        <div class="col-xs-12 list-title">\
-        <h4 class="title"></h4>\
-<p><a id="createAccountLink" target="_blank" href="lib/controllers/feedback.html?ouid='+ouid+'">Rate this Facility</a><span id="'+"x"+ouid+'"></span></p>\
-    </div>\
-    <div class="col-xs-12 list-main">\
-        <ul>\
-        <li class="address  location"">Near Civil Hospital, Phase-VI, Sector 56A, Sahibzada Ajit Singh Nagar, Punjab 160055, India</li>\
-        <li class="mobile phone">0-991-5199-525</li>\
-        <li class="pincode votes">144001</li>\
-        </ul>\
-        </div>\
-        <div class="col-xs-12 col-sm-6 col-lg-3">\
-        <a class="btn btn-default btn-blue-border" id="createAccountLink" target="_blank" href="lib/controllers/procedures.html?ouid='+ouid+'&ownership='+ownership+'"> Procedure LIst</a>\
-    </div>\
-    <div class="col-xs-12 col-sm-6 col-lg-3">\
-        <a  class="btn btn-default btn-blue-border" id="createAccountLink" target="_blank" href="lib/controllers/doctors.html?ouid='+ouid+'">Doctors List</a>\
-    </div>\
-    <div class="col-xs-12 col-lg-3 hidden-xs hidden-sm hidden-md">&nbsp;</div>\
-    <div class="col-xs-12 col-sm-6 col-sm-push-3 col-lg-push-0 col-lg-3">\
-        <a  class="btn btn-default btn-violet" onclick="myfunc(\''+ouid+'\')">More Details</a>\
-        </div>\
-        </br>\
-        <div class="noDisplay" id="'+ouid+'">\
-          </br>\
-        <table width="100%"  class="table table-striped" style="background-color: #00acc1">\
-        <tr>\
-        <td width="20%"><p><strong style="margin-left: 10%">Specialities</strong></p></td>\
-        <td width="80%"><p style="text-align: justify;" class="specialty"></p></td>\
-     </tr>\
-    <tr>\
-    <td width="20%"><p><strong style="margin-left: 10%">Health Facilites</strong></p></td>\
-    <td><p class="owner"></p></td>\
-    </tr>\
-    <tr>\
-    <td width="20%"><p><strong style="margin-left: 10%">Services</strong></p></td>\
-        <td width="80%"><p class="availability"></p></td>\
-    </tr>\
-    <tr>\
-    <td width="20%"><p><strong style="margin-left: 10%">Contact Person</strong></p></td>\
-    <td width="80%"><p class="contactperson"></p></td>\
-    </tr>\
-        <tr>\
-    <td width="20%"><p><strong style="margin-left: 10%">Email</p></strong></td>\
-    <td width="80%"><p class="email"></p></td>\
-    </tr>\
-     <tr>\
-    <td width="20%"><p><strong style="margin-left: 10%">Phone:</strong></p></td>\
-    <td width="80%"><p class="contactpnumber"></p></td>\
-    </tr>\
-    <tr>\
-    <td width="20%"><strong style="margin-left: 10%">Schemes</strong></td>\
-        <td width="80%"><p class="hfschemes"></p></td>\
-    </tr>\
-    <tr>\
-    <td width="20%"><strong style="margin-left:10%">Ownership</strong></td>\
-        <td width="80%"><p class="ownership"></p></td>\
-        </tr>\
-        </table>\
-        </br>\
-    </div>\
-    </div>\
-    </div>\
-    ';
 
+         div.innerHTML='\
+  <div class="col-xs-12 list-item">\
+         <div class="col-xs-12 col-sm-4 list-image text-center">\
+         <img src="./assets/img/i9.png" alt=""/>\
+         <h4>Public Facility</h4>\
+     </div>\
+     <div class="col-xs-12 col-sm-8 list-content">\
+         <div class="col-xs-12 list-title">\
+         <h4 class="title"></h4>\
+  <p><a id="createAccountLink" target="_blank" href="lib/controllers/feedback.html?ouid='+ouid+'">Rate this Facility</a><span id="'+"x"+ouid+'"></span></p>\
+     </div>\
+     <div class="col-xs-12 list-main">\
+         <ul>\
+         <li class="address  location"">Near Civil Hospital, Phase-VI, Sector 56A, Sahibzada Ajit Singh Nagar, Punjab 160055, India</li>\
+         <li class="mobile phone">0-991-5199-525</li>\
+         <li class="pincode votes">144001</li>\
+         </ul>\
+         </div>\
+         <div class="col-xs-12 col-sm-6 col-lg-3">\
+         <a class="btn btn-default btn-blue-border" id="createAccountLink" target="_blank" href="lib/controllers/procedures.html?ouid='+ouid+'&ownership='+ownership+'"> Procedure LIst</a>\
+     </div>\
+     <div class="col-xs-12 col-sm-6 col-lg-3">\
+         <a  class="btn btn-default btn-blue-border" id="createAccountLink" target="_blank" href="lib/controllers/doctors.html?ouid='+ouid+'">Doctors List</a>\
+     </div>\
+     <div class="col-xs-12 col-lg-3 hidden-xs hidden-sm hidden-md">&nbsp;</div>\
+     <div class="col-xs-12 col-sm-6 col-sm-push-3 col-lg-push-0 col-lg-3">\
+         <a  class="btn btn-default btn-violet" onclick="myfunc(\''+ouid+'\')">More Details</a>\
+         </div>\
+         </br>\
+         <div class="noDisplay" id="'+ouid+'">\
+           </br>\
+         <table width="100%"  class="table table-striped" style="background-color: #00acc1">\
+         <tr>\
+         <td width="20%"><p><strong style="margin-left: 10%">Specialities</strong></p></td>\
+         <td width="80%"><p style="text-align: justify;" class="specialty"></p></td>\
+      </tr>\
+     <tr>\
+     <td width="20%"><p><strong style="margin-left: 10%">Health Facilites</strong></p></td>\
+     <td><p class="owner"></p></td>\
+     </tr>\
+     <tr>\
+     <td width="20%"><p><strong style="margin-left: 10%">Services</strong></p></td>\
+         <td width="80%"><p class="availability"></p></td>\
+     </tr>\
+     <tr>\
+     <td width="20%"><p><strong style="margin-left: 10%">Contact Person</strong></p></td>\
+     <td width="80%"><p class="contactperson"></p></td>\
+     </tr>\
+         <tr>\
+     <td width="20%"><p><strong style="margin-left: 10%">Email</p></strong></td>\
+     <td width="80%"><p class="email"></p></td>\
+     </tr>\
+      <tr>\
+     <td width="20%"><p><strong style="margin-left: 10%">Phone:</strong></p></td>\
+     <td width="80%"><p class="contactpnumber"></p></td>\
+     </tr>\
+     <tr>\
+     <td width="20%"><strong style="margin-left: 10%">Schemes</strong></td>\
+         <td width="80%"><p class="hfschemes"></p></td>\
+     </tr>\
+     <tr>\
+     <td width="20%"><strong style="margin-left:10%">Ownership</strong></td>\
+         <td width="80%"><p class="ownership"></p></td>\
+         </tr>\
+         </table>\
+         </br>\
+     </div>\
+     </div>\
+     </div>\
+     ';
     }
 
     else if(ownership=="Private")
     {
+
+
         div.innerHTML='\
  <div class="col-xs-12 list-item">\
         <div class="col-xs-12 col-sm-4 list-image text-center">\
@@ -1934,25 +1994,26 @@ function constructor_obj(parent, title, address,pincode,mobile,spec,owner,avaial
     </div>\
     ';
 
+
     }
 
-    this.parent.appendChild(div);
-    div.getElementsByClassName('title')[0].innerHTML = this.title?this.title:"";
-    div.getElementsByClassName('address')[0].innerHTML = this.address?this.address:"";
-    div.getElementsByClassName('mobile')[0].innerHTML = this.mobile?this.mobile:"";
-    div.getElementsByClassName('pincode')[0].innerHTML = this.pincode?this.pincode.substring(0,this.pincode.length -2):"";
-    div.getElementsByClassName('specialty')[0].innerHTML = this.spec?this.spec:"";
-    div.getElementsByClassName('contactperson')[0].innerHTML = this.contactpname?this.contactpname:"";
-    div.getElementsByClassName('contactpnumber')[0].innerHTML = this.contactpnumber?this.contactpnumber:"";
-    div.getElementsByClassName('email')[0].innerHTML = this.email?this.email:"";
-    div.getElementsByClassName('owner')[0].innerHTML = this.owner?this.owner:"";
-    div.getElementsByClassName('availability')[0].innerHTML = this.avaialability?this.avaialability:"";
-    div.getElementsByClassName('hfschemes')[0].innerHTML = this.hfschemes?this.hfschemes:"";
-    div.getElementsByClassName('ownership')[0].innerHTML = this.ownership?this.ownership:"";
+
 
 //        div.getElementsByClassName('rating')[0].innerHTML = "3.0";
 //        div.getElementsByClassName('rating')[0].innerHTML = this.avgRating;
-
+this.parent.appendChild(div);
+div.getElementsByClassName('title')[0].innerHTML = this.title?this.title:"";
+div.getElementsByClassName('address')[0].innerHTML = this.address?this.address:"";
+div.getElementsByClassName('mobile')[0].innerHTML = this.mobile?this.mobile:"";
+div.getElementsByClassName('pincode')[0].innerHTML = this.pincode?this.pincode.substring(0,this.pincode.length -2):"";
+div.getElementsByClassName('specialty')[0].innerHTML = this.spec?this.spec:"";
+div.getElementsByClassName('contactperson')[0].innerHTML = this.contactpname?this.contactpname:"";
+div.getElementsByClassName('contactpnumber')[0].innerHTML = this.contactpnumber?this.contactpnumber:"";
+div.getElementsByClassName('email')[0].innerHTML = this.email?this.email:"";
+div.getElementsByClassName('owner')[0].innerHTML = this.owner?this.owner:"";
+div.getElementsByClassName('availability')[0].innerHTML = this.avaialability?this.avaialability:"";
+div.getElementsByClassName('hfschemes')[0].innerHTML = this.hfschemes?this.hfschemes:"";
+div.getElementsByClassName('ownership')[0].innerHTML = this.ownership?this.ownership:"";
     this.parent="";
     document.getElementById("resultcount")== "asdsadsa";
     document.getElementById("loader").style.display = "none";
