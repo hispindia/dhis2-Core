@@ -15,6 +15,7 @@ import org.hisp.dhis.config.ConfigurationService;
 import org.hisp.dhis.config.Configuration_IN;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementService;
+import org.hisp.dhis.reports.Report_inDesign;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -31,7 +32,7 @@ public class ExcelImportService
     // Dependencies
     // -------------------------------------------------------------------------
     private ConfigurationService configurationService;
-    
+
     public void setConfigurationService( ConfigurationService configurationService )
     {
         this.configurationService = configurationService;
@@ -39,10 +40,10 @@ public class ExcelImportService
 
     @Autowired
     private DataElementService dataElementService;
-    
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
-    
+
     // -------------------------------------------------------------------------
     // Support Methods Defination
     // -------------------------------------------------------------------------
@@ -53,8 +54,7 @@ public class ExcelImportService
         String raFolderName = configurationService.getConfigurationByKey( Configuration_IN.KEY_REPORTFOLDER )
             .getValue();
 
-        String path = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator
-            + xmlFileName;
+        String path = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + xmlFileName;
 
         try
         {
@@ -70,15 +70,13 @@ public class ExcelImportService
             NodeList listOfDECodes = doc.getElementsByTagName( "de-code" );
             int totalDEcodes = listOfDECodes.getLength();
 
-            //System.out.print( "totalDEcodes"+totalDEcodes );
             for ( int s = 0; s < totalDEcodes; s++ )
             {
                 Element deCodeElement = (Element) listOfDECodes.item( s );
                 NodeList textDECodeList = deCodeElement.getChildNodes();
 
                 String expression = ((Node) textDECodeList.item( 0 )).getNodeValue().trim();
-              //  System.out.println("expression -- "  +expression);
-                if( expression != null && !expression.equalsIgnoreCase( "0" ))
+                if ( expression != null && !expression.equalsIgnoreCase( "0" ) )
                 {
                     String dataelement = deCodeElement.getAttribute( "dataelement" );
                     String orgunit = deCodeElement.getAttribute( "orgunit" );
@@ -86,21 +84,19 @@ public class ExcelImportService
                     String attributeoptioncombo = deCodeElement.getAttribute( "attributeoptioncombo" );
                     String comment = deCodeElement.getAttribute( "comment" );
                     String orgunitgroup = deCodeElement.getAttribute( "orgunitgroup" );
-                    
-                    
-                   // System.out.println("orgunitgroup"+orgunitgroup);
+
                     int sheetno = new Integer( deCodeElement.getAttribute( "sheetno" ) );
                     int rowno = new Integer( deCodeElement.getAttribute( "rowno" ) );
                     int colno = new Integer( deCodeElement.getAttribute( "colno" ) );
 
-                    ExcelImport exportDataDesign = new ExcelImport( dataelement, orgunit, categoryoptioncombo, attributeoptioncombo, comment, orgunitgroup, sheetno, rowno, colno,
-                        expression );
+                    ExcelImport exportDataDesign = new ExcelImport( dataelement, orgunit, categoryoptioncombo,
+                        attributeoptioncombo, comment, orgunitgroup, sheetno, rowno, colno, expression );
 
                     deCodes.add( exportDataDesign );
                 }
-                
-            }// end of for loop with s var
-        }// try block end
+
+            } // end of for loop with s var
+        } // try block end
         catch ( SAXParseException err )
         {
             System.out.println( "** Parsing error" + ", line " + err.getLineNumber() + ", uri " + err.getSystemId() );
@@ -124,49 +120,38 @@ public class ExcelImportService
         for ( ExcelImport excelImportDesign : reportDesignList )
         {
             String formula = excelImportDesign.getExpression();
-            
-            //System.out.println( "** formula -- " + formula );
+
             try
             {
-               // Pattern pattern = Pattern.compile( "(\\[\\d+\\.\\d+\\])" );
+                // Pattern pattern = Pattern.compile( "(\\[\\d+\\.\\d+\\])" );
                 Pattern pattern = Pattern.compile( "(\\[\\w+\\.\\w+\\])" );
 
                 Matcher matcher = pattern.matcher( formula );
-                
-                //System.out.println( "** matcher -- " + matcher );
-               /* System.out.println( "** matcher group -- " + matcher.group() );
-                System.out.println( "** matcher find -- " + matcher.find() );
-                System.out.println( "** matcher to string-- " + matcher.toString() );*/
-                
+
                 StringBuffer buffer = new StringBuffer();
 
                 while ( matcher.find() )
                 {
-                	//System.out.println( "** matcher find -- " + matcher.find() );
-                	
+
                     String replaceString = matcher.group();
-                    
+
                     replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
                     replaceString = replaceString.substring( 0, replaceString.indexOf( '.' ) );
-                    
-                    dataElementService.getDataElement(replaceString);
-                    
-                    //int dataElementId = Integer.parseInt( replaceString );
-                    //System.out.println( "** replaceString -- " + replaceString );
-                    
+
+                    dataElementService.getDataElement( replaceString );
+
                     String dataElementUid = replaceString;
-                    
-                    DataElement de = dataElementService.getDataElement(dataElementUid);
-                    if( de != null )
+
+                    DataElement de = dataElementService.getDataElement( dataElementUid );
+                    if ( de != null )
                     {
-                    	int dataElementId = de.getId();
-                        
+                        int dataElementId = de.getId();
+
                         dataElmentIdsByComma += "," + dataElementId;
                         replaceString = "";
                         matcher.appendReplacement( buffer, replaceString );
                     }
-                    
-                    //System.out.println( "** replaceString -- " + replaceString );
+
                 }
             }
             catch ( Exception e )
@@ -177,32 +162,67 @@ public class ExcelImportService
 
         return dataElmentIdsByComma;
     }
-    
-    
+
+    public String getDataelementUIds( List<ExcelImport> reportDesignList )
+    {
+        String dataElmentIdsByComma = "'" + "temp" + "'";
+        for ( ExcelImport report_inDesign : reportDesignList )
+        {
+            String formula = report_inDesign.getExpression();
+            try
+            {
+                Pattern pattern = Pattern.compile( "(\\[\\w+\\.\\w+\\])" );
+
+                Matcher matcher = pattern.matcher( formula );
+                StringBuffer buffer = new StringBuffer();
+
+                while ( matcher.find() )
+                {
+                    String replaceString = matcher.group();
+
+                    replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
+                    replaceString = replaceString.substring( 0, replaceString.indexOf( '.' ) );
+
+                    String dataElementUId = replaceString;
+                    dataElmentIdsByComma += "," + "'" + dataElementUId + "'";
+                    replaceString = "";
+                    matcher.appendReplacement( buffer, replaceString );
+                }
+            }
+            catch ( Exception e )
+            {
+
+            }
+        }
+
+        return dataElmentIdsByComma;
+    }
+
     public Map<String, String> getAggDataFromDataValueTable( String orgUnitIdsByComma, String dataElmentIdsByComma,
         String periodIdsByComma )
     {
         Map<String, String> aggDeMap = new HashMap<String, String>();
-        
+
         try
         {
             String query = "";
-            query = "SELECT dataelementid,categoryoptioncomboid, SUM( cast( value as numeric) ) FROM datavalue "
-                + " WHERE dataelementid IN (" + dataElmentIdsByComma + " ) AND " + " sourceid IN ("
-                + orgUnitIdsByComma + " ) AND " + " periodid IN (" + periodIdsByComma
-                + ") GROUP BY dataelementid,categoryoptioncomboid";
-            
-            //System.out.println( " SQL Query --" + query );
+
+            query = "SELECT de.uid,coc.uid, SUM( cast( dv.value as numeric) ) FROM datavalue dv  "
+                + " INNER JOIN dataelement de ON de.dataelementid = dv.dataelementid "
+                + " INNER JOIN categoryoptioncombo coc ON coc.categoryoptioncomboid = dv.categoryoptioncomboid "
+                + " WHERE de.uid IN (" + dataElmentIdsByComma + " ) AND " + " sourceid IN (" + orgUnitIdsByComma
+                + " ) AND " + " periodid IN (" + periodIdsByComma + ") GROUP BY de.uid,coc.uid";
+
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
             while ( rs.next() )
             {
-                Integer deId = rs.getInt( 1 );
-                Integer optionComId = rs.getInt( 2 );
+                String deUId = rs.getString( 1 );
+                String categoryComUId = rs.getString( 2 );
                 Double aggregatedValue = rs.getDouble( 3 );
                 if ( aggregatedValue != null )
                 {
-                    aggDeMap.put( deId + "." + optionComId, "" + aggregatedValue );
+                    aggDeMap.put( deUId + "." + categoryComUId, "" + aggregatedValue );
                 }
             }
 
@@ -213,7 +233,7 @@ public class ExcelImportService
             throw new RuntimeException( "Illegal DataElement id", e );
         }
     }
-    
+
     public List<ExcelImport> getExcelImportDesign( String xmlFileName )
     {
         List<ExcelImport> deCodes = new ArrayList<ExcelImport>();
@@ -221,8 +241,7 @@ public class ExcelImportService
         String raFolderName = configurationService.getConfigurationByKey( Configuration_IN.KEY_REPORTFOLDER )
             .getValue();
 
-        String path = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator
-            + xmlFileName;
+        String path = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + xmlFileName;
 
         try
         {
@@ -238,16 +257,13 @@ public class ExcelImportService
             NodeList listOfDECodes = doc.getElementsByTagName( "de-code" );
             int totalDEcodes = listOfDECodes.getLength();
 
-            //System.out.print( "totalDEcodes -- "+ totalDEcodes );
-            
             for ( int s = 0; s < totalDEcodes; s++ )
             {
                 Element deCodeElement = (Element) listOfDECodes.item( s );
                 NodeList textDECodeList = deCodeElement.getChildNodes();
 
                 String expression = ((Node) textDECodeList.item( 0 )).getNodeValue().trim();
-                //System.out.println("expression"+expression);
-                if( expression != null && !expression.equalsIgnoreCase( "0" ))
+                if ( expression != null && !expression.equalsIgnoreCase( "0" ) )
                 {
                     String dataelement = deCodeElement.getAttribute( "dataelement" );
                     String categoryoptioncombo = deCodeElement.getAttribute( "categoryoptioncombo" );
@@ -257,13 +273,14 @@ public class ExcelImportService
                     int rowno = new Integer( deCodeElement.getAttribute( "rowno" ) );
                     int colno = new Integer( deCodeElement.getAttribute( "colno" ) );
 
-                    ExcelImport exportDataDesign = new ExcelImport( dataelement, orgunit, categoryoptioncombo, attributeoptioncombo,sheetno, rowno, colno, expression );
+                    ExcelImport exportDataDesign = new ExcelImport( dataelement, orgunit, categoryoptioncombo,
+                        attributeoptioncombo, sheetno, rowno, colno, expression );
 
                     deCodes.add( exportDataDesign );
                 }
-                
-            }// end of for loop with s var
-        }// try block end
+
+            } // end of for loop with s var
+        } // try block end
         catch ( SAXParseException err )
         {
             System.out.println( "** Parsing error" + ", line " + err.getLineNumber() + ", uri " + err.getSystemId() );
@@ -279,8 +296,6 @@ public class ExcelImportService
             t.printStackTrace();
         }
         return deCodes;
-    }// getDECodes end    
-    
-    
-    
+    }// getDECodes end
+
 }

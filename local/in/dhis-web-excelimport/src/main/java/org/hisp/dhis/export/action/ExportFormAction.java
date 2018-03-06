@@ -28,10 +28,10 @@ public class ExportFormAction
 
     @Autowired
     private PeriodService periodService;
-    
+
     @Autowired
     private OrganisationUnitGroupService organisationUnitGroupService;
-    
+
     @Autowired
     private OrganisationUnitGroupSetStore organisationUnitGroupSetStore;
 
@@ -47,25 +47,22 @@ public class ExportFormAction
     }
 
     private List<String> yearList;
-    
+
     private List<OrganisationUnitGroup> organisationUnitGroups;
-    
+
     public List<OrganisationUnitGroup> getOrganisationUnitGroups()
     {
         return organisationUnitGroups;
     }
-
 
     public List<String> getYearList()
     {
         return yearList;
     }
 
-
     public void setYearList( String year )
     {
         System.out.println( year );
-     //   System.out.println( "hello" );
     }
 
     private SimpleDateFormat simpleDateFormat;
@@ -101,27 +98,12 @@ public class ExportFormAction
         {
             yearList.add( simpleDateFormat.format( p1.getStartDate() ) );
         }
-       
-        OrganisationUnitGroupSet OrganisationUnitGroupSet = organisationUnitGroupSetStore.getByCode( "ExcelExportGroupSet" );
-       
-        
-        organisationUnitGroups = new ArrayList<OrganisationUnitGroup>( OrganisationUnitGroupSet.getOrganisationUnitGroups());
-        
-       // System.out.println("organisationUnitGroups---"+organisationUnitGroups);
 
-        //System.out.println("organisationUnitGroups---"+organisationUnitGroups);
-//        orgUnit=new ArrayList<String>();
-//        
-//        
-//        
-//        orgUnit.add( "VnGNfO08w38" );
-//        orgUnit.add( "oPJQbzZ20Ff" );
-//        orgUnit.add( "FrKiTIjDUxU" );
-//        orgUnit.add( "GhuHmwRnPBs" );
-//        
-//            System.out.println("orgUnit value---"+orgUnit);
-       
-        
+        OrganisationUnitGroupSet OrganisationUnitGroupSet = organisationUnitGroupSetStore
+            .getByCode( "ExcelExportGroupSet" );
+
+        organisationUnitGroups = new ArrayList<OrganisationUnitGroup>(
+            OrganisationUnitGroupSet.getOrganisationUnitGroups() );
 
         return SUCCESS;
     }

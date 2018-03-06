@@ -56,7 +56,7 @@ public class ExportDataResultAction
     private static final String COMMA_DELIMITER = ",";
 
     private static final String NEW_LINE_SEPARATOR = "\n";
-    
+
     @Autowired
     private OrganisationUnitGroupSetStore organisationUnitGroupSetStore;
 
@@ -78,20 +78,12 @@ public class ExportDataResultAction
 
     @Autowired
     private OrganisationUnitGroupService organisationUnitGroupService;
-    
+
     @Autowired
     private DataElementService dataElementService;
-    
+
     @Autowired
     private DataElementCategoryService dataElementCategoryService;
-
-    // private DatabaseInfoProvider databaseInfoProvider;
-    //
-    // public void setDatabaseInfoProvider( DatabaseInfoProvider
-    // databaseInfoProvider )
-    // {
-    // this.databaseInfoProvider = databaseInfoProvider;
-    // }
 
     // -------------------------------------------------------------------------
     // Input/Output
@@ -142,20 +134,22 @@ public class ExportDataResultAction
     // Action implementation
     // -------------------------------------------------------------------------
     OrganisationUnitGroup orgUnitGroup;
+
     OrganisationUnitGroup orgUnitGroup1;
 
-    String orgGroup ,orgGroupUid;
+    String orgGroup, orgGroupUid;
 
     private ArrayList<OrganisationUnitGroup> organisationUnitGroups;
- 
+
     @SuppressWarnings( "unchecked" )
     public String execute()
         throws Exception
     {
-       // System.out.println( "orgunit --" + org );
-        OrganisationUnitGroupSet OrganisationUnitGroupSet = organisationUnitGroupSetStore.getByCode( "ExcelExportGroupSet" );
-        organisationUnitGroups = new ArrayList<OrganisationUnitGroup>( OrganisationUnitGroupSet.getOrganisationUnitGroups());
-        
+        OrganisationUnitGroupSet OrganisationUnitGroupSet = organisationUnitGroupSetStore
+            .getByCode( "ExcelExportGroupSet" );
+        organisationUnitGroups = new ArrayList<OrganisationUnitGroup>(
+            OrganisationUnitGroupSet.getOrganisationUnitGroups() );
+
         System.out.println( "Start Time : " + new Date() );
         simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
 
@@ -164,9 +158,6 @@ public class ExportDataResultAction
 
         String userName = currentUserService.getCurrentUsername();
         List<ExcelImport> excelExportDesignList = new ArrayList<ExcelImport>();
-        // excelExportDesignList = new ArrayList<ExcelImport>(
-        // excelImportService.getExcelImportDesignDesign( deCodesXMLFileName )
-        // );
 
         // collect dataElementIDs by commaSepareted
 
@@ -185,88 +176,70 @@ public class ExportDataResultAction
 
             if ( period != null )
             {
-                periods = new ArrayList<Period>( periodService.getPeriodsBetweenDates( periodType,
-                    period.getStartDate(), period.getEndDate() ) );
+                periods = new ArrayList<Period>(
+                    periodService.getPeriodsBetweenDates( periodType, period.getStartDate(), period.getEndDate() ) );
             }
 
             Collection<Integer> periodIds = new ArrayList<Integer>( getIdentifiers( Period.class, periods ) );
             periodIdsByComma = getCommaDelimitedString( periodIds );
         }
 
-      //System.out.println("outside value"+orgUnitGroupId);
-
         Map<String, String> aggDeMap = new HashMap<String, String>();
-        
-        
-        List<Map<String,String>> list = new ArrayList<Map<String,String>>();
-        
-        
+
+        List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+
         List<String> getUID = new ArrayList<String>();
- 
-        
-        List<Map<String,String>> listUid = new ArrayList<Map<String,String>>();
-        
-        
+
+        List<Map<String, String>> listUid = new ArrayList<Map<String, String>>();
+
         if ( orgUnitGroupId != null && !orgUnitGroupId.equalsIgnoreCase( "ALL" )
             && !orgUnitGroupId.equalsIgnoreCase( "NA" ) )
         {
 
             deCodesXMLFileName = "exportData.xml";
             excelExportDesignList = new ArrayList<ExcelImport>(
-            excelImportService.getExcelImportDesignDesign( deCodesXMLFileName ) );
-            String dataElmentIdsByComma = excelImportService.getDataelementIds( excelExportDesignList );
-           // System.out.println( " ALL dataElmentIdsByComma  --  " + dataElmentIdsByComma );
-            
+                excelImportService.getExcelImportDesignDesign( deCodesXMLFileName ) );
+
+            String dataElmentIdsByComma = excelImportService.getDataelementUIds( excelExportDesignList );
+
             orgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( orgUnitGroupId );
-            
-            
-            
+
             List<OrganisationUnit> groupMember = new ArrayList<OrganisationUnit>( orgUnitGroup.getMembers() );
             List<Integer> orgaUnitIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, groupMember ) );
             String orgaUnitIdsByComma = getCommaDelimitedString( orgaUnitIds );
+
             aggDeMap.putAll( excelImportService.getAggDataFromDataValueTable( orgaUnitIdsByComma, dataElmentIdsByComma,
                 periodIdsByComma ) );
-          
-            
-            orgGroup = orgUnitGroup.getUid();
 
-            // System.out.println( "neworgGroup value --" +neworgGroup );
+            orgGroup = orgUnitGroup.getUid();
 
         }
         else
         {
             deCodesXMLFileName = "exportData.xml";
-            excelExportDesignList = new ArrayList<ExcelImport>( excelImportService.getExcelImportDesignDesign( deCodesXMLFileName ) );
-            String dataElmentIdsByComma = excelImportService.getDataelementIds( excelExportDesignList );
-          //  System.out.println( " Selected dataElmentIdsByComma  --  " + dataElmentIdsByComma );
-            
-            
+            excelExportDesignList = new ArrayList<ExcelImport>(
+                excelImportService.getExcelImportDesignDesign( deCodesXMLFileName ) );
+            String dataElmentIdsByComma = excelImportService.getDataelementUIds( excelExportDesignList );
+
             // orgUnit Details
 
-            
-              
-                for( OrganisationUnitGroup x: organisationUnitGroups)
-                {
+            int i = 1;
+            for ( OrganisationUnitGroup x : organisationUnitGroups )
+            {
                 orgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( x.getUid() );
-               
+
                 List<OrganisationUnit> groupMember = new ArrayList<OrganisationUnit>( orgUnitGroup.getMembers() );
-                List<Integer> orgaUnitIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, groupMember ) );
+                List<Integer> orgaUnitIds = new ArrayList<Integer>(
+                    getIdentifiers( OrganisationUnit.class, groupMember ) );
                 String orgaUnitIdsByComma = getCommaDelimitedString( orgaUnitIds );
-                list.add( ( excelImportService.getAggDataFromDataValueTable( orgaUnitIdsByComma, dataElmentIdsByComma,
-                    periodIdsByComma ) ) );
-               
-               
-                //System.out.println( "x.getUid()--"+x.getUid() );
-              
-               }
-                
-            
-            
 
-            
+                list.add( (excelImportService.getAggDataFromDataValueTable( orgaUnitIdsByComma, dataElmentIdsByComma,
+                    periodIdsByComma )) );
+                i++;
+
+            }
+
         }
-
-        // deCodesXMLFileName = "exportData.xml";
 
         String outputReportPath = System.getenv( "DHIS2_HOME" ) + File.separator + Configuration_IN.DEFAULT_TEMPFOLDER;
         File file = new File( outputReportPath );
@@ -275,9 +248,6 @@ public class ExportDataResultAction
             file.mkdirs();
         }
         outputReportPath += File.separator + UUID.randomUUID().toString() + ".csv";
-
-        // System.out.println( "periodIdsByComma is " + "  " + periodIdsByComma
-        // + " --" );
 
         FileWriter fileWriter = null;
         fileWriter = new FileWriter( outputReportPath );
@@ -293,31 +263,26 @@ public class ExportDataResultAction
             ExcelImport exceEmportDesign = (ExcelImport) excelExportDesignIterator.next();
 
             String deCodeString = exceEmportDesign.getExpression();
-            String tempStr = "",neworgGroup="";
-           
-            // int tempRowNo = report_inDesign.getRowno();
-            // int tempColNo = report_inDesign.getColno();
+            String tempStr = "", neworgGroup = "";
 
             try
             {
 
-                
                 if ( orgUnitGroupId != null && !orgUnitGroupId.equalsIgnoreCase( "ALL" )
-            && !orgUnitGroupId.equalsIgnoreCase( "NA" ) ){
+                    && !orgUnitGroupId.equalsIgnoreCase( "NA" ) )
+                {
+
                     tempStr = getAggVal( deCodeString, aggDeMap );
 
-                    //System.out.println("deCodeString----"+deCodeString);
-                    //System.out.println("getOrgunitgroup---"+exceEmportDesign.getOrgunitgroup());
                     if ( !tempStr.equalsIgnoreCase( "0" ) )
                     {
                         fileWriter.append( exceEmportDesign.getDataelement() );
                         fileWriter.append( COMMA_DELIMITER );
                         fileWriter.append( year.toString() );
                         fileWriter.append( COMMA_DELIMITER );
-                        
-                        if ( orgUnitGroupId.equalsIgnoreCase( "VnGNfO08w38" )   )
+
+                        if ( orgUnitGroupId.equalsIgnoreCase( "VnGNfO08w38" ) )
                         {
-                            // System.out.println("in the if");
                             neworgGroup = "CL205-0000";
                         }
                         else if ( orgUnitGroupId.equalsIgnoreCase( "oPJQbzZ20Ff" ) )
@@ -332,7 +297,7 @@ public class ExportDataResultAction
                         {
                             neworgGroup = "CB205-0000";
                         }
-                       
+
                         fileWriter.append( neworgGroup );
                         fileWriter.append( COMMA_DELIMITER );
 
@@ -354,128 +319,109 @@ public class ExportDataResultAction
                         fileWriter.append( COMMA_DELIMITER );
 
                         fileWriter.append( NEW_LINE_SEPARATOR );
-                }
-                    
+                    }
+
                     else
                     {
-                       
+
                     }
                 }
-                    else{
-                        
-                                              
-                         int i=0;
-                        for(Map<String, String> li :list)
+                else
+                {
+
+                    int i = 0;
+                    for ( Map<String, String> li : list )
+                    {
+
+                        tempStr = getAggVal( deCodeString, li );
+                        String val = exceEmportDesign.getOrgunitgroup();
+
+                        if ( !tempStr.equalsIgnoreCase( "0" ) )
                         {
-                        
-                           tempStr = getAggVal( deCodeString, li );
-                           String val=exceEmportDesign.getOrgunitgroup();
-                           
-                           
-                            if ( !tempStr.equalsIgnoreCase( "0" ) )
+                            fileWriter.append( exceEmportDesign.getDataelement() );
+                            fileWriter.append( COMMA_DELIMITER );
+                            fileWriter.append( year.toString() );
+                            fileWriter.append( COMMA_DELIMITER );
+
+                            if ( i == 0 )
                             {
-                                fileWriter.append( exceEmportDesign.getDataelement() );
-                                fileWriter.append( COMMA_DELIMITER );
-                                fileWriter.append( year.toString() );
-                                fileWriter.append( COMMA_DELIMITER );
-                              
-                             
-                                    // System.out.println("in the if");
-                               
-
-                                    if ( i==0   )
-                                    {
-                                        // System.out.println("in the if");
-                                        neworgGroup = "CL205-0000";
-                                    }
-                                    else if ( i==1 )
-                                    {
-                                        neworgGroup = "AS205-0000";
-                                        
-                                    }
-                                    else if ( i==2 )
-                                    {
-                                        neworgGroup = "OU205-0000";
-                                    }
-                                    else if ( i==3 )
-                                    {
-                                        neworgGroup = "CB205-0000";
-                                    }
-                                    
-                                    fileWriter.append( neworgGroup );                                  
-                                    fileWriter.append( COMMA_DELIMITER );
-                                 
-                                fileWriter.append( exceEmportDesign.getCategoryoptioncombo() );
-                                fileWriter.append( COMMA_DELIMITER );
-                                fileWriter.append( exceEmportDesign.getAttributeoptioncombo() );
-                                fileWriter.append( COMMA_DELIMITER );
-
-                                fileWriter.append( tempStr );
-                                fileWriter.append( COMMA_DELIMITER );
-
-                                fileWriter.append( userName );
-                                fileWriter.append( COMMA_DELIMITER );
-                                fileWriter.append( simpleDateFormat.format( new Date() ) );
-                                fileWriter.append( COMMA_DELIMITER );
-                                fileWriter.append( exceEmportDesign.getComment() );
-                                fileWriter.append( COMMA_DELIMITER );
-                                fileWriter.append( "" );
-                                fileWriter.append( COMMA_DELIMITER );
-
-                                fileWriter.append( NEW_LINE_SEPARATOR );
-                            
-                            
-                           
-                            
+                                neworgGroup = "CL205-0000";
                             }
-                            
-                            else
+                            else if ( i == 1 )
                             {
-                                
+                                neworgGroup = "AS205-0000";
+
                             }
-                        
-                        
-                            i++;
+                            else if ( i == 2 )
+                            {
+                                neworgGroup = "OU205-0000";
+                            }
+                            else if ( i == 3 )
+                            {
+                                neworgGroup = "CB205-0000";
+                            }
+
+                            fileWriter.append( neworgGroup );
+                            fileWriter.append( COMMA_DELIMITER );
+
+                            fileWriter.append( exceEmportDesign.getCategoryoptioncombo() );
+                            fileWriter.append( COMMA_DELIMITER );
+                            fileWriter.append( exceEmportDesign.getAttributeoptioncombo() );
+                            fileWriter.append( COMMA_DELIMITER );
+
+                            fileWriter.append( tempStr );
+                            fileWriter.append( COMMA_DELIMITER );
+
+                            fileWriter.append( userName );
+                            fileWriter.append( COMMA_DELIMITER );
+                            fileWriter.append( simpleDateFormat.format( new Date() ) );
+                            fileWriter.append( COMMA_DELIMITER );
+                            fileWriter.append( exceEmportDesign.getComment() );
+                            fileWriter.append( COMMA_DELIMITER );
+                            fileWriter.append( "" );
+                            fileWriter.append( COMMA_DELIMITER );
+
+                            fileWriter.append( NEW_LINE_SEPARATOR );
+
+                        }
+
+                        else
+                        {
+
+                        }
+
+                        i++;
                     }
-                        
-                    }
+
                 }
-                        
-                        catch ( Exception e )
-                        {
-                           
-                            System.out.println( "Error in CsvFileWriter !!!" );
-                            e.printStackTrace();
-                        } 
-                /*
-                 * Map<String, String> aggDeMap = new HashMap<String, String>();
-                 * String orgUnitGroupUid = exceEmportDesign.getOrgunitgroup();
-                 * 
-                 * OrganisationUnitGroup orgUnitGroup =
-                 * organisationUnitGroupService.getOrganisationUnitGroup(
-                 * orgUnitGroupUid );
-                 * 
-                 * List<OrganisationUnit> groupMember = new
-                 * ArrayList<OrganisationUnit>( orgUnitGroup.getMembers() );
-                 * List<Integer> orgaUnitIds = new ArrayList<Integer>(
-                 * getIdentifiers( OrganisationUnit.class, groupMember ) );
-                 * String orgaUnitIdsByComma = getCommaDelimitedString(
-                 * orgaUnitIds );
-                 * 
-                 * aggDeMap.putAll(
-                 * excelImportService.getAggDataFromDataValueTable(
-                 * orgaUnitIdsByComma, dataElmentIdsByComma, periodIdsByComma )
-                 * );
-                 */
-                
-                
-               
-                
-               
+            }
 
-                // fileWriter.append( NEW_LINE_SEPARATOR );
-            
-           
+            catch ( Exception e )
+            {
+
+                System.out.println( "Error in CsvFileWriter !!!" );
+                e.printStackTrace();
+            }
+            /*
+             * Map<String, String> aggDeMap = new HashMap<String, String>();
+             * String orgUnitGroupUid = exceEmportDesign.getOrgunitgroup();
+             * 
+             * OrganisationUnitGroup orgUnitGroup =
+             * organisationUnitGroupService.getOrganisationUnitGroup(
+             * orgUnitGroupUid );
+             * 
+             * List<OrganisationUnit> groupMember = new
+             * ArrayList<OrganisationUnit>( orgUnitGroup.getMembers() );
+             * List<Integer> orgaUnitIds = new ArrayList<Integer>(
+             * getIdentifiers( OrganisationUnit.class, groupMember ) ); String
+             * orgaUnitIdsByComma = getCommaDelimitedString( orgaUnitIds );
+             * 
+             * aggDeMap.putAll( excelImportService.getAggDataFromDataValueTable(
+             * orgaUnitIdsByComma, dataElmentIdsByComma, periodIdsByComma ) );
+             */
+
+            // fileWriter.append( NEW_LINE_SEPARATOR );
+
         }
 
         try
@@ -506,8 +452,8 @@ public class ExportDataResultAction
     {
         try
         {
-            //Pattern pattern = Pattern.compile( "(\\[\\d+\\.\\d+\\])" );
-            Pattern pattern = Pattern.compile( "(\\[\\w+\\.\\w+\\])" );	
+            // Pattern pattern = Pattern.compile( "(\\[\\d+\\.\\d+\\])" );
+            Pattern pattern = Pattern.compile( "(\\[\\w+\\.\\w+\\])" );
             Matcher matcher = pattern.matcher( expression );
             StringBuffer buffer = new StringBuffer();
 
@@ -518,35 +464,32 @@ public class ExportDataResultAction
                 String replaceString = matcher.group();
 
                 replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
-                
-                //System.out.println( " replaceString in side fetch value --" + replaceString );
-                //String deUID = replaceString.split(".")[0];
-                //String categoryComboUID = replaceString.split(".")[1];
-                
-                String categoryComboUID = replaceString.substring( replaceString.indexOf( '.' ) + 1, replaceString
-                        .length() );
 
-                    //System.out.println( "** In side DeAndCombo 1 Replacing String" + replaceString  );
-                    
-                    replaceString = replaceString.substring( 0, replaceString.indexOf( '.' ) );
-                    
-                    //System.out.println( "** In side DeAndCombo 2 Replacing String" + replaceString  );
-                    
-                    //int dataElementId = Integer.parseInt( replaceString );
-                    //int optionComboId = Integer.parseInt( optionComboIdStr );
-     
-                //int dataElementId = Integer.parseInt( deUID );
-                //int categoryOptionComboId = Integer.parseInt( categoryComboUID );
-                
-                //System.out.println( "** In side DeAndCombo 1 " + dataElementId + ":" + optionComboId );
-                
-                DataElement dataElement = dataElementService.getDataElement( replaceString );
-                DataElementCategoryOptionCombo categoryOptionCombo = dataElementCategoryService.getDataElementCategoryOptionCombo(categoryComboUID);
-                
-                replaceString = dataElement.getId() + "." + categoryOptionCombo.getId();
-                
-               // System.out.println( " replaceString in side fetch value --" + replaceString );
-                
+                String categoryComboUID = replaceString.substring( replaceString.indexOf( '.' ) + 1,
+                    replaceString.length() );
+
+                replaceString = replaceString.substring( 0, replaceString.indexOf( '.' ) );
+
+                // int dataElementId = Integer.parseInt( replaceString );
+                // int optionComboId = Integer.parseInt( optionComboIdStr );
+
+                // int dataElementId = Integer.parseInt( deUID );
+                // int categoryOptionComboId = Integer.parseInt(
+                // categoryComboUID );
+
+                /*
+                 * DataElement dataElement = dataElementService.getDataElement(
+                 * replaceString ); DataElementCategoryOptionCombo
+                 * categoryOptionCombo =
+                 * dataElementCategoryService.getDataElementCategoryOptionCombo(
+                 * categoryComboUID);
+                 * 
+                 * replaceString = dataElement.getId() + "." +
+                 * categoryOptionCombo.getId();
+                 */
+
+                replaceString = replaceString + "." + categoryComboUID;
+
                 replaceString = aggDeMap.get( replaceString );
 
                 if ( replaceString == null )
