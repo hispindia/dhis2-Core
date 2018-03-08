@@ -733,7 +733,7 @@
       <dependency>
         <groupId>commons-validator</groupId>
         <artifactId>commons-validator</artifactId>
-        <version>1.4.0</version>
+        <version>1.6</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>
@@ -796,7 +796,7 @@
       <dependency>
         <groupId>com.github.mihaicostin</groupId>
         <artifactId>hibernate-l2-memcached</artifactId>
-        <version>5.1.5.1</version>
+        <version>5.2.10.0</version>
       </dependency>
       <!-- javassist in use by hibernate - make sure versions are kept in sync  -->
       <dependency>
@@ -1129,7 +1129,7 @@
     <rootDir></rootDir>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <spring.version>4.3.9.RELEASE</spring.version>
-    <spring-security.version>4.2.3.RELEASE</spring-security.version>
+    <spring-security.version>4.2.4.RELEASE</spring-security.version>
     <spring-security-oauth2.version>2.0.13.RELEASE</spring-security-oauth2.version>
     <struts.version>2.3.32</struts.version>
     <hibernate.version>5.2.10.Final</hibernate.version>
