@@ -31,6 +31,7 @@
 	<module>dhis-in-api</module><!-- local-in-api -->
     <module>dhis-services</module>
     <module>dhis-support</module>
+	<module>dhis-in-services</module><!-- local-in-services -->
   </modules>
 
   <licenses>
