@@ -435,8 +435,8 @@ implements Action
             {
                 o = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitIterator.next() ) );
                 orgUnitList.add( o );                
-                //Collections.sort( orgUnitList, new IdentifiableObjectNameComparator() ); 
-                Collections.sort( orgUnitList );     
+                //Collections.sort( orgUnitList, new IdentifiableObjectNameComparator() );
+                Collections.sort( orgUnitList );  
                 //displayPropertyHandler.handle( orgUnitList );
             }
         }

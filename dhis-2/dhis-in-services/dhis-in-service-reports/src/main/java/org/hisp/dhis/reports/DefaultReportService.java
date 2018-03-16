@@ -6,12 +6,14 @@ import static org.hisp.dhis.util.TextUtils.getCommaDelimitedString;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,11 +25,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-
-/*
-import org.hisp.dhis.aggregation.AggregatedDataValueService;
-import org.hisp.dhis.aggregation.AggregationService;
-*/
 import org.hisp.dhis.config.ConfigurationService;
 import org.hisp.dhis.config.Configuration_IN;
 import org.hisp.dhis.dataelement.DataElement;
@@ -38,7 +35,6 @@ import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.dataset.DataSetService;
 import org.hisp.dhis.datavalue.DataValue;
 import org.hisp.dhis.datavalue.DataValueService;
-import org.hisp.dhis.expression.ExpressionService;
 import org.hisp.dhis.indicator.Indicator;
 import org.hisp.dhis.indicator.IndicatorService;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
@@ -49,10 +45,6 @@ import org.hisp.dhis.period.PeriodService;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramService;
-import org.hisp.dhis.survey.Survey;
-import org.hisp.dhis.survey.SurveyService;
-import org.hisp.dhis.surveydatavalue.SurveyDataValue;
-import org.hisp.dhis.surveydatavalue.SurveyDataValueService;
 import org.hisp.dhis.system.database.DatabaseInfo;
 import org.hisp.dhis.system.database.DatabaseInfoProvider;
 import org.hisp.dhis.system.util.MathUtils;
@@ -110,13 +102,6 @@ public class DefaultReportService
         this.indicatorService = indicatorService;
     }
 
-    private ExpressionService expressionService;
-    
-    public void setExpressionService(ExpressionService expressionService) 
-    {
-	this.expressionService = expressionService;
-    }
-
     private PeriodService periodService;
 
     public void setPeriodService( PeriodService periodService )
@@ -145,15 +130,6 @@ public class DefaultReportService
     {
         this.dataElementCategoryOptionComboService = dataElementCategoryOptionComboService;
     }
-
-    /*
-    private AggregationService aggregationService;
-
-    public void setAggregationService( AggregationService aggregationService )
-    {
-        this.aggregationService = aggregationService;
-    }
-    */
     
     private DataValueService dataValueService;
 
@@ -161,29 +137,6 @@ public class DefaultReportService
     {
         this.dataValueService = dataValueService;
     }
-
-    private SurveyService surveyService;
-
-    public void setSurveyService( SurveyService surveyService )
-    {
-        this.surveyService = surveyService;
-    }
-
-    private SurveyDataValueService surveyDataValueService;
-
-    public void setSurveyDataValueService( SurveyDataValueService surveyDataValueService )
-    {
-        this.surveyDataValueService = surveyDataValueService;
-    }
-    
-    /*
-    private AggregatedDataValueService aggregatedDataValueService;
-
-    public void setAggregatedDataValueService( AggregatedDataValueService aggregatedDataValueService )
-    {
-        this.aggregatedDataValueService = aggregatedDataValueService;
-    }
-    */
     
     private DatabaseInfoProvider databaseInfoProvider;
 
@@ -191,15 +144,15 @@ public class DefaultReportService
     {
         this.databaseInfoProvider = databaseInfoProvider;
     }
-    
+
     private ProgramService programService;
-    
+
     public void setProgramService( ProgramService programService )
     {
         this.programService = programService;
-        
+
     }
-    
+
     // -------------------------------------------------------------------------
     // Report_in
     // -------------------------------------------------------------------------
@@ -270,7 +223,7 @@ public class DefaultReportService
     {
         return reportStore.getReportsByPeriodSourceAndReportType( periodType, source, reportType );
     }
-	
+
     // get Patients List ByOrgUnit
     /*
     @Transactional
@@ -289,9 +242,6 @@ public class DefaultReportService
     }
     */
     
-	
-	
-	
     // -------------------------------------------------------------------------
     // for Report Result Action input/otput
     // -------------------------------------------------------------------------
@@ -302,14 +252,14 @@ public class DefaultReportService
     // Support Methods Defination
     // -------------------------------------------------------------------------
 
-	
-	// get Programs List ByOrgUnit
+    // get Programs List ByOrgUnit
     public Collection<Program> getProgramsByOrgUnit( OrganisationUnit organisationUnit )
     {
-        //System.out.println( "In side  get Programs By OrgUnit Method " );
+        // System.out.println( "In side  get Programs By OrgUnit Method " );
         List<Program> programList = new ArrayList<Program>();
-        
-        //List<Program> allProgramList = new ArrayList<Program>( programService.getAllPrograms() );
+
+        // List<Program> allProgramList = new ArrayList<Program>(
+        // programService.getAllPrograms() );
 
         for ( Program program : programService.getAllPrograms() )
         {
@@ -318,17 +268,11 @@ public class DefaultReportService
                 programList.add( program );
             }
         }
-        //System.out.println( "Size of Program List is   : " + programList.size() );
+        // System.out.println( "Size of Program List is   : " +
+        // programList.size() );
         return programList;
     }
-	
-	
-	
-	
-	
-	
-	
-	
+
     // ----------------------------------------------------------------------------------------------------
     // START
     // Fetch Global Decode Configuration
@@ -567,7 +511,7 @@ public class DefaultReportService
         {
             dataElementid = 7280;
         }
-                
+
         try
         {
             query = "SELECT recordno FROM lldatavalue WHERE dataelementid = " + dataElementid + " AND periodid = "
@@ -656,8 +600,7 @@ public class DefaultReportService
      * Returns Previous Month's Period object For ex:- selected period is
      * Aug-2007 it returns the period object corresponding July-2007
      */
-    
- 
+
     public List<Report_inDesign> getReportDesignForGlobalSetting( Report_in report )
     {
         List<Report_inDesign> deCodes = new ArrayList<Report_inDesign>();
@@ -736,7 +679,6 @@ public class DefaultReportService
         return deCodes;
     }// getDECodes end
 
-    
     // -------------------------------------------------------------------------
     // Get Aggregated Result for dataelement expression for Global Setting
     // -------------------------------------------------------------------------
@@ -822,10 +764,8 @@ public class DefaultReportService
             t.printStackTrace();
         }
         return reportDesignList;
-    }    
-    
-    
-    
+    }
+
     public List<Report_inDesign> getReportDesignForTracker( Report_in report )
     {
         List<Report_inDesign> deCodes = new ArrayList<Report_inDesign>();
@@ -888,7 +828,6 @@ public class DefaultReportService
         return deCodes;
     }// getDECodes end
 
-    
     // -------------------------------------------------------------------------
     // Get Aggregated Result for dataelement/attribute/tracker expression
     // -------------------------------------------------------------------------
@@ -961,14 +900,14 @@ public class DefaultReportService
         }
         return reportDesignList;
     }
-    
+
     public List<Report_inDesign> getReportDesignForHeader( String fileName )
     {
         List<Report_inDesign> deCodes = new ArrayList<Report_inDesign>();
 
         String path = System.getProperty( "user.home" ) + File.separator + "dhis" + File.separator
-        + configurationService.getConfigurationByKey( Configuration_IN.KEY_REPORTFOLDER ).getValue()
-        + File.separator + fileName;
+            + configurationService.getConfigurationByKey( Configuration_IN.KEY_REPORTFOLDER ).getValue()
+            + File.separator + fileName;
         try
         {
             String newpath = System.getenv( "DHIS2_HOME" );
@@ -983,7 +922,7 @@ public class DefaultReportService
         {
             System.out.println( "DHIS2_HOME not set" );
         }
-        
+
         try
         {
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -1032,8 +971,7 @@ public class DefaultReportService
         }
         return deCodes;
     }// getDECodes end
-    
-   
+
     public Period getPreviousPeriod( Date startDate, Date endDate )
     {
         Period period = new Period();
@@ -1245,8 +1183,8 @@ public class DefaultReportService
     // -------------------------------------------------------------------------
     // Get Aggregated Result for dataelement expression
     // -------------------------------------------------------------------------
-    /*
-    public String getResultDataValue( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit,
+    @SuppressWarnings("unused")
+	public String getResultDataValue( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit,
         String reportModelTB )
     {
         int deFlag1 = 0;
@@ -1266,8 +1204,8 @@ public class DefaultReportService
                 String replaceString = matcher.group();
 
                 replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
-                String optionComboIdStr = replaceString.substring( replaceString.indexOf( '.' ) + 1, replaceString
-                    .length() );
+                String optionComboIdStr = replaceString.substring( replaceString.indexOf( '.' ) + 1,
+                    replaceString.length() );
 
                 replaceString = replaceString.substring( 0, replaceString.indexOf( '.' ) );
 
@@ -1284,11 +1222,14 @@ public class DefaultReportService
                     matcher.appendReplacement( buffer, replaceString );
                     continue;
                 }
-                if ( dataElement.getType().equalsIgnoreCase( "int" ) )
+                //if ( dataElement.getType().equalsIgnoreCase( "int" ) )
+               	if ( dataElement.getValueType().isInteger() )	
                 {
-                    Double aggregatedValue = aggregationService.getAggregatedDataValue( dataElement, optionCombo,
-                        startDate, endDate, organisationUnit );
-                   
+               		Double aggregatedValue = null;
+                	//Double aggregatedValue = aggregationService.getAggregatedDataValue( dataElement, optionCombo, startDate, endDate, organisationUnit );
+                    // System.out.println( dataElement.getId() + " : " +
+                    // optionCombo.getId() + " : " + startDate + " : " + endDate
+                    // + " : " + organisationUnit + " : " + aggregatedValue);
                     if ( aggregatedValue == null )
                     {
                         replaceString = NULL_REPLACEMENT;
@@ -1323,7 +1264,7 @@ public class DefaultReportService
 
                     //DataValue dataValue = dataValueService.getDataValue( organisationUnit, dataElement, tempPeriod, optionCombo );
                     
-                    DataValue dataValue = dataValueService.getDataValue( dataElement, tempPeriod, organisationUnit,  optionCombo );
+                    DataValue dataValue = dataValueService.getDataValue( dataElement, tempPeriod, organisationUnit, optionCombo );
 
                     if ( dataValue != null && dataValue.getValue() != null )
                     {
@@ -1413,7 +1354,6 @@ public class DefaultReportService
             throw new RuntimeException( "Illegal DataElement id", ex );
         }
     }
-*/    
 
     // -------------------------------------------------------------------------
     // Get Individual Result for dataelement expression
@@ -1438,8 +1378,8 @@ public class DefaultReportService
                 String replaceString = matcher.group();
 
                 replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
-                String optionComboIdStr = replaceString.substring( replaceString.indexOf( '.' ) + 1, replaceString
-                    .length() );
+                String optionComboIdStr = replaceString.substring( replaceString.indexOf( '.' ) + 1,
+                    replaceString.length() );
 
                 replaceString = replaceString.substring( 0, replaceString.indexOf( '.' ) );
 
@@ -1457,7 +1397,7 @@ public class DefaultReportService
                     continue;
                 }
                 //if ( dataElement.getType().equalsIgnoreCase( "int" ) )
-                if( dataElement.getValueType().isInteger() )
+                if ( dataElement.getValueType().isInteger() )
                 {
 
                     PeriodType dePeriodType = getDataElementPeriodType( dataElement );
@@ -1479,7 +1419,7 @@ public class DefaultReportService
                         for ( Period tempPeriod : periodList )
                         {
                             //DataValue dataValue = dataValueService.getDataValue( organisationUnit, dataElement, tempPeriod, optionCombo );
-                            DataValue dataValue = dataValueService.getDataValue( dataElement, tempPeriod, organisationUnit,  optionCombo );
+                            DataValue dataValue = dataValueService.getDataValue( dataElement, tempPeriod, organisationUnit, optionCombo );
 
                             if ( dataValue != null && dataValue.getValue() != null )
                             {
@@ -1513,8 +1453,8 @@ public class DefaultReportService
                     }
 
                     //DataValue dataValue = dataValueService.getDataValue( organisationUnit, dataElement, tempPeriod, optionCombo );
-                    DataValue dataValue = dataValueService.getDataValue( dataElement, tempPeriod, organisationUnit,  optionCombo );
-
+                    DataValue dataValue = dataValueService.getDataValue( dataElement, tempPeriod, organisationUnit, optionCombo );
+                    
                     if ( dataValue != null )
                     {
                         replaceString = dataValue.getValue();
@@ -1610,7 +1550,8 @@ public class DefaultReportService
 
     // functoin getBooleanDataValue stsrt
 
-    public String getBooleanDataValue( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit,
+    @SuppressWarnings("unused")
+	public String getBooleanDataValue( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit,
         String reportModelTB )
     {
         int deFlag1 = 0;
@@ -1627,8 +1568,8 @@ public class DefaultReportService
                 String replaceString = matcher.group();
 
                 replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
-                String optionComboIdStr = replaceString.substring( replaceString.indexOf( '.' ) + 1, replaceString
-                    .length() );
+                String optionComboIdStr = replaceString.substring( replaceString.indexOf( '.' ) + 1,
+                    replaceString.length() );
 
                 replaceString = replaceString.substring( 0, replaceString.indexOf( '.' ) );
 
@@ -1645,9 +1586,8 @@ public class DefaultReportService
                     matcher.appendReplacement( buffer, replaceString );
                     continue;
                 }
-
                 //if ( dataElement.getType().equalsIgnoreCase( "bool" ) )
-                if( dataElement.getValueType().isBoolean() )    
+                if ( dataElement.getValueType().isBoolean() )
                 {
                     deFlag1 = 1;
                     deFlag2 = 0;
@@ -1670,7 +1610,8 @@ public class DefaultReportService
                     }
 
                     //DataValue dataValue = dataValueService.getDataValue( organisationUnit, dataElement, tempPeriod, optionCombo );
-                    DataValue dataValue = dataValueService.getDataValue( dataElement, tempPeriod, organisationUnit,  optionCombo );
+                    DataValue dataValue = dataValueService.getDataValue( dataElement, tempPeriod, organisationUnit, optionCombo );
+
                     if ( dataValue != null )
                     {
                         // Works for both text and boolean data types
@@ -1693,11 +1634,10 @@ public class DefaultReportService
                         replaceString = "";
                     }
                 }
-                /*
                 else
                 {
-                    Double aggregatedValue = aggregationService.getAggregatedDataValue( dataElement, optionCombo,
-                        startDate, endDate, organisationUnit );
+                    //Double aggregatedValue = aggregationService.getAggregatedDataValue( dataElement, optionCombo, startDate, endDate, organisationUnit );
+                    Double aggregatedValue = null;
                     if ( aggregatedValue == null )
                     {
                         replaceString = NULL_REPLACEMENT;
@@ -1709,8 +1649,6 @@ public class DefaultReportService
                         deFlag2 = 1;
                     }
                 }
-                */
-                
                 matcher.appendReplacement( buffer, replaceString );
             }
 
@@ -1773,21 +1711,21 @@ public class DefaultReportService
 
         Period previousPeriod = new Period();
         previousPeriod = getPreviousPeriod( selectedPeriod );
-        
+
         // Financial current year
         if ( deType.equalsIgnoreCase( "fcy" ) )
         {
             tempStartDate.setTime( selectedPeriod.getStartDate() );
             tempEndDate.setTime( selectedPeriod.getStartDate() );
-            
+
             int currentYear = tempStartDate.get( Calendar.YEAR );
-            
+
             if ( tempStartDate.get( Calendar.MONTH ) < Calendar.APRIL )
             {
-                tempStartDate.set( Calendar.YEAR, currentYear-1 );
+                tempStartDate.set( Calendar.YEAR, currentYear - 1 );
                 tempStartDate.set( Calendar.MONTH, Calendar.APRIL );
                 tempStartDate.set( Calendar.DATE, 1 );
-                
+
                 tempEndDate.set( Calendar.YEAR, currentYear );
                 tempEndDate.set( Calendar.MONTH, Calendar.MARCH );
                 tempEndDate.set( Calendar.DATE, 31 );
@@ -1797,12 +1735,12 @@ public class DefaultReportService
                 tempStartDate.set( Calendar.YEAR, currentYear );
                 tempStartDate.set( Calendar.MONTH, Calendar.APRIL );
                 tempStartDate.set( Calendar.DATE, 1 );
-                
-                tempEndDate.set( Calendar.YEAR, currentYear+1 );
+
+                tempEndDate.set( Calendar.YEAR, currentYear + 1 );
                 tempEndDate.set( Calendar.MONTH, Calendar.MARCH );
-                tempEndDate.set( Calendar.DATE, 31 );                
+                tempEndDate.set( Calendar.DATE, 31 );
             }
-            
+
         }
         // Financial previous year
         else if ( deType.equalsIgnoreCase( "fpy" ) )
@@ -1812,15 +1750,15 @@ public class DefaultReportService
 
             tempStartDate.roll( Calendar.YEAR, -1 );
             tempEndDate.roll( Calendar.YEAR, -1 );
-            
+
             int currentYear = tempStartDate.get( Calendar.YEAR );
-            
+
             if ( tempStartDate.get( Calendar.MONTH ) < Calendar.APRIL )
             {
-                tempStartDate.set( Calendar.YEAR, currentYear-1 );
+                tempStartDate.set( Calendar.YEAR, currentYear - 1 );
                 tempStartDate.set( Calendar.MONTH, Calendar.APRIL );
                 tempStartDate.set( Calendar.DATE, 1 );
-                
+
                 tempEndDate.set( Calendar.YEAR, currentYear );
                 tempEndDate.set( Calendar.MONTH, Calendar.MARCH );
                 tempEndDate.set( Calendar.DATE, 31 );
@@ -1830,15 +1768,14 @@ public class DefaultReportService
                 tempStartDate.set( Calendar.YEAR, currentYear );
                 tempStartDate.set( Calendar.MONTH, Calendar.APRIL );
                 tempStartDate.set( Calendar.DATE, 1 );
-                
-                tempEndDate.set( Calendar.YEAR, currentYear+1 );
+
+                tempEndDate.set( Calendar.YEAR, currentYear + 1 );
                 tempEndDate.set( Calendar.MONTH, Calendar.MARCH );
-                tempEndDate.set( Calendar.DATE, 31 );                
+                tempEndDate.set( Calendar.DATE, 31 );
             }
-            
+
         }
-        
-        
+
         // Commutative current month and current year from April
         else if ( deType.equalsIgnoreCase( "ccmcy" ) )
         {
@@ -1850,7 +1787,7 @@ public class DefaultReportService
             tempStartDate.set( Calendar.MONTH, Calendar.APRIL );
             tempEndDate.setTime( selectedPeriod.getEndDate() );
         }
-        
+
         else if ( deType.equalsIgnoreCase( "cpmcy" ) )
         {
             tempStartDate.setTime( previousPeriod.getStartDate() );
@@ -1861,7 +1798,7 @@ public class DefaultReportService
             tempStartDate.set( Calendar.MONTH, Calendar.APRIL );
             tempEndDate.setTime( previousPeriod.getEndDate() );
         }
-        
+
         // current month previous year
         else if ( deType.equalsIgnoreCase( "cmpy" ) )
         {
@@ -1871,7 +1808,7 @@ public class DefaultReportService
             tempStartDate.roll( Calendar.YEAR, -1 );
             tempEndDate.roll( Calendar.YEAR, -1 );
         }
-        
+
         // Commutative current month previous year
         else if ( deType.equalsIgnoreCase( "ccmpy" ) )
         {
@@ -1887,7 +1824,7 @@ public class DefaultReportService
             }
             tempStartDate.set( Calendar.MONTH, Calendar.APRIL );
         }
-        // previous month current year  
+        // previous month current year
         else if ( deType.equalsIgnoreCase( "pmcy" ) )
         {
             tempStartDate.setTime( previousPeriod.getStartDate() );
@@ -1939,7 +1876,7 @@ public class DefaultReportService
             tempEndDate.set( Calendar.MONTH, Calendar.DECEMBER );
             tempEndDate.set( Calendar.DATE, 31 );
         }
-        
+
         else if ( deType.equalsIgnoreCase( "bfq1" ) )
         {
             tempStartDate.setTime( selectedPeriod.getStartDate() );
@@ -2012,9 +1949,9 @@ public class DefaultReportService
 
         return period;
     }
-    
-    /*
-    public String getResultIndicatorValue( String formula, Date startDate, Date endDate,
+
+    @SuppressWarnings("unused")
+	public String getResultIndicatorValue( String formula, Date startDate, Date endDate,
         OrganisationUnit organisationUnit )
     {
         int deFlag1 = 0;
@@ -2046,9 +1983,9 @@ public class DefaultReportService
                     continue;
                 }
 
-                Double aggregatedValue = aggregationService.getAggregatedIndicatorValue( indicator, startDate, endDate,
-                    organisationUnit );
-
+                //Double aggregatedValue = aggregationService.getAggregatedIndicatorValue( indicator, startDate, endDate, organisationUnit );
+                
+                Double aggregatedValue = null;
                 if ( aggregatedValue == null )
                 {
                     replaceString = NULL_REPLACEMENT;
@@ -2109,7 +2046,7 @@ public class DefaultReportService
             throw new RuntimeException( "Illegal DataElement id", ex );
         }
     }
-*/
+
     public String getIndividualResultIndicatorValue( String formula, Date startDate, Date endDate,
         OrganisationUnit organisationUnit )
     {
@@ -2387,6 +2324,7 @@ public class DefaultReportService
         return reportDesignList;
     }
 
+    /*
     public String getResultSurveyValue( String formula, OrganisationUnit organisationUnit )
     {
         try
@@ -2404,8 +2342,8 @@ public class DefaultReportService
 
                 replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
 
-                String surveyIdString = replaceString.substring( replaceString.indexOf( '.' ) + 1, replaceString
-                    .length() );
+                String surveyIdString = replaceString.substring( replaceString.indexOf( '.' ) + 1,
+                    replaceString.length() );
 
                 replaceString = replaceString.substring( 0, replaceString.indexOf( '.' ) );
 
@@ -2493,12 +2431,12 @@ public class DefaultReportService
             throw new RuntimeException( "Illegal Indicator and survey id", ex );
         }
     }
-
+*/
     // -------------------------------------------------------------------------
     // Get Aggregated Result for dataelement expression from Aggregated Table
     // -------------------------------------------------------------------------
-    /*
-    public String getResultDataValueFromAggregateTable( String formula, Collection<Integer> periodIds,
+    @SuppressWarnings("unused")
+	public String getResultDataValueFromAggregateTable( String formula, Collection<Integer> periodIds,
         OrganisationUnit organisationUnit, String reportModelTB )
     {
         int deFlag1 = 0;
@@ -2518,8 +2456,8 @@ public class DefaultReportService
                 String replaceString = matcher.group();
 
                 replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
-                String optionComboIdStr = replaceString.substring( replaceString.indexOf( '.' ) + 1, replaceString
-                    .length() );
+                String optionComboIdStr = replaceString.substring( replaceString.indexOf( '.' ) + 1,
+                    replaceString.length() );
 
                 replaceString = replaceString.substring( 0, replaceString.indexOf( '.' ) );
 
@@ -2537,11 +2475,10 @@ public class DefaultReportService
                     continue;
                 }
                 //if ( dataElement.getType().equalsIgnoreCase( "int" ) )
-                if( dataElement.getValueType().isInteger() )
+                if ( dataElement.getValueType().isInteger() )
                 {
-                    Double aggregatedValue = aggregatedDataValueService.getAggregatedValue( dataElement.getId(),
-                        optionCombo.getId(), periodIds, organisationUnit.getId() );
-
+                    //Double aggregatedValue = aggregatedDataValueService.getAggregatedValue( dataElement.getId(), optionCombo.getId(), periodIds, organisationUnit.getId() );
+                    Double aggregatedValue = null;
                     if ( aggregatedValue == null )
                     {
                         replaceString = NULL_REPLACEMENT;
@@ -2572,8 +2509,8 @@ public class DefaultReportService
                     }
 
                     //DataValue dataValue = dataValueService.getDataValue( organisationUnit, dataElement, tempPeriod, optionCombo );
-                    DataValue dataValue = dataValueService.getDataValue( dataElement, tempPeriod, organisationUnit,  optionCombo );
-                    
+                    DataValue dataValue = dataValueService.getDataValue( dataElement, tempPeriod, organisationUnit, optionCombo );
+
                     if ( dataValue != null && dataValue.getValue() != null )
                     {
                         replaceString = dataValue.getValue();
@@ -2662,7 +2599,7 @@ public class DefaultReportService
             throw new RuntimeException( "Illegal DataElement id", ex );
         }
     }
-*/
+
     public Map<String, String> getResultDataValueFromAggregateTable( Integer orgunitId, String dataElmentIdsByComma,
         String periodIdsByComma )
     {
@@ -2714,6 +2651,25 @@ public class DefaultReportService
         }
     }
 
+    
+    /*
+     * SELECT sag.level, sag.parent, sag.name, case when sag1.dataelementid is null then 0 else sag1.dataelementid  end AS DE,
+ case when sag1.categoryoptioncomboid is null then 0 else sag1.categoryoptioncomboid end  AS CCI,
+SUM(  case when sag1.value is null then 0 else sag1.value::integer  end ) AS total, sag1.de_uid, sag1.coc_uid 
+FROM ( SELECT os.level,os.organisationunitid AS parent,ou.name,os1.organisationunitid AS actual 
+FROM _orgunitstructure os 
+INNER JOIN organisationunit ou ON ou.organisationunitid=os.organisationunitid INNER JOIN _orgunitstructure os1 ON os.organisationunitid = 
+CASE WHEN os.level=2 THEN os1.idlevel2 WHEN os.level=3 THEN os1.idlevel3 WHEN os.level=4 THEN os1.idlevel4 WHEN os.level=5 THEN os1.idlevel5 WHEN os.level=6 THEN os1.idlevel6 END 
+WHERE os.organisationunitid IN (9541, 10176, 10181, 10177, 1345995, 10178, 10179, 10180, 10478) )sag 
+INNER JOIN ( SELECT dv.dataelementid, de.uid AS de_uid, dv.categoryoptioncomboid, coc.uid AS coc_uid, dv.value,dv.sourceid FROM datavalue dv 
+INNER JOIN period p ON p.periodid=dv.periodid 
+INNER JOIN dataelement de ON de.dataelementid=dv.dataelementid 
+INNER JOIN categoryoptioncombo coc ON coc.categoryoptioncomboid=dv.categoryoptioncomboid 
+WHERE dv.dataelementid IN (-1,3) AND dv.periodid IN (309, 307, 296, 306, 233, 310, 261, 294))sag1 ON sag.actual = sag1.sourceid 
+GROUP BY sag.parent, sag1.dataelementid,sag1.categoryoptioncomboid ORDER BY sag.level,sag.parent
+     */
+    
+    
     public Map<String, String> getResultDataValueFromAggregateTableByPeriodAgg( String orgUnitIdsByComma,
         String dataElmentIdsByComma, String periodIdsByComma )
     {
@@ -2916,6 +2872,7 @@ public class DefaultReportService
     {
         Map<String, String> aggDeMap = new HashMap<String, String>();
         DatabaseInfo dataBaseInfo = databaseInfoProvider.getDatabaseInfo();
+        //System.out.println( " orgUnitIdsByComma : " + orgUnitIdsByComma + " dataElmentIdsByComma : " + dataElmentIdsByComma + "   periodIdsByComma : " + periodIdsByComma );
         try
         {
             String query = "";
@@ -2932,7 +2889,10 @@ public class DefaultReportService
                     + " WHERE dataelementid IN (" + dataElmentIdsByComma + " ) AND " + " sourceid IN ("
                     + orgUnitIdsByComma + " ) AND " + " periodid IN (" + periodIdsByComma
                     + ") GROUP BY dataelementid,categoryoptioncomboid";
+
             }
+            
+            //System.out.println( " query : " + query  );
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
             while ( rs.next() )
@@ -2943,6 +2903,8 @@ public class DefaultReportService
                 if ( aggregatedValue != null )
                 {
                     aggDeMap.put( deId + "." + optionComId, "" + aggregatedValue );
+                    
+                    //System.out.println( " deId : " + deId + " optionComId : " + optionComId + "   aggregatedValue : " + aggregatedValue );
                 }
             }
 
@@ -2954,29 +2916,28 @@ public class DefaultReportService
         }
     }
 
-    
-    public Map<String, String> getBatchDataFromDataValueTable( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma )
+    public Map<String, String> getBatchDataFromDataValueTable( String orgUnitIdsByComma, String dataElmentIdsByComma,
+        String periodIdsByComma )
     {
         Map<String, String> aggDeMap = new HashMap<String, String>();
 
         try
         {
             String query = "";
-            query = "SELECT periodid, value FROM datavalue "
-                + " WHERE dataelementid IN (" + dataElmentIdsByComma + " ) AND " + " sourceid IN ("
-                + orgUnitIdsByComma + " ) AND " + " periodid IN (" + periodIdsByComma
+            query = "SELECT periodid, value FROM datavalue " + " WHERE dataelementid IN (" + dataElmentIdsByComma
+                + " ) AND " + " sourceid IN (" + orgUnitIdsByComma + " ) AND " + " periodid IN (" + periodIdsByComma
                 + ")";
-            
+
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
             while ( rs.next() )
             {
                 Integer periodId = rs.getInt( 1 );
-                //Double aggregatedValue = rs.getDouble( 2 );
+                // Double aggregatedValue = rs.getDouble( 2 );
                 Integer aggregatedValue = rs.getInt( 2 );
                 if ( aggregatedValue != null )
                 {
-                    aggDeMap.put( "" + periodId ,"" + aggregatedValue );
+                    aggDeMap.put( "" + periodId, "" + aggregatedValue );
                 }
             }
 
@@ -2987,10 +2948,7 @@ public class DefaultReportService
             throw new RuntimeException( "Illegal DataElement id", e );
         }
     }
-    
-    
-    
-    
+
     public List<Report_inDesign> getHeaderInfo( String fileName )
     {
         List<Report_inDesign> reportDesignList = new ArrayList<Report_inDesign>();
@@ -3059,64 +3017,63 @@ public class DefaultReportService
         }
         return reportDesignList;
     }
-    
+
     // get text data and date from data value table
-    public String getTextDataFromDataValueTable( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma )
+    public String getTextDataFromDataValueTable( String orgUnitIdsByComma, String dataElmentIdsByComma,
+        String periodIdsByComma )
     {
         String textData = "";
-        
+
         try
-        {            
+        {
             String query = "";
-            
-            query = "SELECT  value  FROM datavalue "
-                + " WHERE dataelementid IN (" + dataElmentIdsByComma + " ) AND " + " sourceid IN ("
-                + orgUnitIdsByComma + " ) AND " + " periodid IN (" + periodIdsByComma
-                + ")";
-            
+
+            query = "SELECT  value  FROM datavalue " + " WHERE dataelementid IN (" + dataElmentIdsByComma + " ) AND "
+                + " sourceid IN (" + orgUnitIdsByComma + " ) AND " + " periodid IN (" + periodIdsByComma + ")";
+
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
-            
+
             while ( rs.next() )
             {
                 String textValue = rs.getString( 1 );
-               
+
                 if ( textValue != null )
                 {
-                    //textData += "," + textValue;
-                    
+                    // textData += "," + textValue;
+
                     textData += textValue + ",";
                 }
             }
-            
+
             return textData;
         }
         catch ( Exception e )
         {
             throw new RuntimeException( "Illegal DataElement id", e );
         }
-    }   
-    
+    }
+
     // get count of dataElement from data value table
-    public Integer getDataCountFromDataValueTable( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma )
+    public Integer getDataCountFromDataValueTable( String orgUnitIdsByComma, String dataElmentIdsByComma,
+        String periodIdsByComma )
     {
         Integer dataCount = 0;
-        
+
         try
-        {            
+        {
             String query = "";
-            
-            query = "SELECT COUNT( value ) FROM datavalue "
-                + " WHERE dataelementid IN (" + dataElmentIdsByComma + " ) AND " + " sourceid IN ("
-                + orgUnitIdsByComma + " ) AND " + " periodid IN (" + periodIdsByComma
+
+            query = "SELECT COUNT( value ) FROM datavalue " + " WHERE dataelementid IN (" + dataElmentIdsByComma
+                + " ) AND " + " sourceid IN (" + orgUnitIdsByComma + " ) AND " + " periodid IN (" + periodIdsByComma
                 + ")";
-            
+
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
-            
+
             if ( rs.next() )
             {
                 dataCount = rs.getInt( 1 );
             }
-            
+
             return dataCount;
         }
         catch ( Exception e )
@@ -3124,159 +3081,125 @@ public class DefaultReportService
             throw new RuntimeException( "Illegal DataElement id", e );
         }
     }
-    
-    public Map<String, String> getAggDataFromDataValueTableByDeAndOrgUnitwise( String orgUnitIdsByComma, String dataElmentIdsByComma, String startDate, String endDate )
+
+    public Map<String, String> getAggDataFromDataValueTableByDeAndOrgUnitwise( String orgUnitIdsByComma,
+        String dataElmentIdsByComma, String startDate, String endDate )
     {
-    	
-    	//int ouMaxLevel = organisationUnitService.getMaxOfOrganisationUnitLevels();
-    	int ouMaxLevel = organisationUnitService.getNumberOfOrganisationalLevels();
-    	
-    	Map<String, String> aggDataMap = new HashMap<String, String>();
+        
+        DatabaseInfo dataBaseInfo = databaseInfoProvider.getDatabaseInfo();
+        //int ouMaxLevel = organisationUnitService.getMaxOfOrganisationUnitLevels();
+        int ouMaxLevel = organisationUnitService.getNumberOfOrganisationalLevels();
+        
+        String query = "";
+        
+        Map<String, String> aggDataMap = new HashMap<String, String>();
         try
         {
-            String query = 
-            		
-            		"SELECT sag.level, sag.parent, sag.name, IFNULL(sag1.dataelementid,0) AS DE,IFNULL(sag1.categoryoptioncomboid,0) AS CCI,SUM(IFNULL(sag1.value,0)) AS total, sag1.de_uid, sag1.coc_uid " +
-            				" FROM " +
-            					"( " +
-            						"SELECT os.level,os.organisationunitid AS parent,ou.name,os1.organisationunitid AS actual " +
-            						" FROM _orgunitstructure os " +
-            						" INNER JOIN organisationunit ou ON ou.organisationunitid=os.organisationunitid " +
-            						" INNER JOIN _orgunitstructure os1 ON os.organisationunitid = CASE ";
-            						
-            						for( int i = 2; i <= ouMaxLevel; i++ )
-            						{
-            							query += " WHEN os.level="+i+" THEN os1.idlevel"+i+ " ";
-            						}
-            						 
-            						query += " END" +
-            						" WHERE os.organisationunitid IN ("+ orgUnitIdsByComma +") " +
-            					")sag" +
-            		" INNER JOIN "+ 
-            		" ( " +
-            			" SELECT dv.dataelementid, de.uid AS de_uid, dv.categoryoptioncomboid, coc.uid AS coc_uid, dv.value,dv.sourceid " +
-            				" FROM datavalue dv "+
-            				" INNER JOIN period p ON p.periodid=dv.periodid "+ 
-            				" INNER JOIN dataelement de ON de.dataelementid=dv.dataelementid " +
-            				" INNER JOIN categoryoptioncombo coc ON coc.categoryoptioncomboid=dv.categoryoptioncomboid " +
-            				" WHERE dv.dataelementid IN ("+ dataElmentIdsByComma +") " +
-            				" AND p.startdate BETWEEN '"+ startDate +"' AND '"+ endDate +"'" +            				
-            		")sag1 " +
-            		"ON sag.actual = sag1.sourceid " +
-            		" GROUP BY sag.parent, sag1.dataelementid,sag1.categoryoptioncomboid " +
-            		" ORDER BY sag.level,sag.parent";
-
-            		
-            		/*
-            		
-            		"SELECT sag.level, sag.parent, sag.name, IFNULL(sag1.dataelementid,0) AS DE,IFNULL(sag1.categoryoptioncomboid,0) AS CCI,SUM(IFNULL(sag1.value,0)) AS total " +
-            				" FROM " +
-            					"( " +
-            						"SELECT os.level,os.organisationunitid AS parent,ou.name,os1.organisationunitid AS actual " +
-            						" FROM _orgunitstructure os " +
-            						" INNER JOIN organisationunit ou ON ou.organisationunitid=os.organisationunitid " +
-            						" INNER JOIN _orgunitstructure os1 ON os.organisationunitid = CASE ";
-            						
-            						for( int i = 2; i <= ouMaxLevel; i++ )
-            						{
-            							query += " WHEN os.level="+i+" THEN os1.idlevel"+i+ " ";
-            						}
-            						 
-            						query += " END" +
-            						" WHERE os.organisationunitid IN ("+ orgUnitIdsByComma +") " +
-            					")sag" +
-            		" INNER JOIN "+ 
-            		" ( " +
-            			" SELECT dv.dataelementid,dv.categoryoptioncomboid,dv.value,dv.sourceid " +
-            				" FROM datavalue dv "+
-            				" INNER JOIN period p ON p.periodid=dv.periodid "+ 
-            				" WHERE dv.dataelementid IN ("+ dataElmentIdsByComma +") " +
-            				" AND p.startdate BETWEEN '"+ startDate +"' AND '"+ endDate +"'" +            				
-            		")sag1 " +
-            		"ON sag.actual = sag1.sourceid " +
-            		" GROUP BY sag.parent, sag1.dataelementid,sag1.categoryoptioncomboid " +
-            		" ORDER BY sag.level,sag.parent";
-            		
-            		*/
-            		
-            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
-
-            while ( rs.next() )
+            if ( dataBaseInfo.getType().equalsIgnoreCase( "postgresql" ) )
             {
-            	Integer ouId = rs.getInt(2 );
-                Integer deId = rs.getInt( 4 );
-                Integer optionComId = rs.getInt( 5 );
-                //Integer periodId = rs.getInt( 3 );
-                Double aggregatedValue = rs.getDouble( 6 );
-                String deUID = rs.getString( 7 );
-                String optionComUID = rs.getString( 8 );
+                query = 
+                    "SELECT sag.level, sag.parent, sag.name, case when sag1.dataelementid is null then 0 else sag1.dataelementid end AS DE, case when sag1.categoryoptioncomboid is null then 0 else sag1.categoryoptioncomboid end AS CCI,SUM( case when sag1.value is null then 0 else sag1.value::integer  end ) AS total, sag1.de_uid, sag1.coc_uid "
+                        + " FROM "
+                        + "( "
+                        + "SELECT os.level,os.organisationunitid AS parent,ou.name,os1.organisationunitid AS actual "
+                        + " FROM _orgunitstructure os "
+                        + " INNER JOIN organisationunit ou ON ou.organisationunitid=os.organisationunitid "
+                        + " INNER JOIN _orgunitstructure os1 ON os.organisationunitid = CASE ";
+
+                    for ( int i = 2; i <= ouMaxLevel; i++ )
+                    {
+                        query += " WHEN os.level=" + i + " THEN os1.idlevel" + i + " ";
+                    }
+            
+                    query += " END" + " WHERE os.organisationunitid IN ("
+                        + orgUnitIdsByComma
+                        + ") "
+                        + ")sag"
+                        + " INNER JOIN "
+                        + " ( "
+                        + " SELECT dv.dataelementid, de.uid AS de_uid, dv.categoryoptioncomboid, coc.uid AS coc_uid, dv.value,dv.sourceid "
+                        + " FROM datavalue dv " + " INNER JOIN period p ON p.periodid=dv.periodid "
+                        + " INNER JOIN dataelement de ON de.dataelementid=dv.dataelementid "
+                        + " INNER JOIN categoryoptioncombo coc ON coc.categoryoptioncomboid=dv.categoryoptioncomboid "
+                        + " WHERE dv.dataelementid IN (" + dataElmentIdsByComma + ") " + " AND p.startdate BETWEEN '"
+                        + startDate + "' AND '" + endDate + "'" + ")sag1 " + "ON sag.actual = sag1.sourceid "
+                        + " GROUP BY sag.parent, sag1.dataelementid,sag1.categoryoptioncomboid "
+                        + " ORDER BY sag.level,sag.parent";
+
+            }
+            
+            else if ( dataBaseInfo.getType().equalsIgnoreCase( "mysql" ) )
+            {
+                query = 
+                    "SELECT sag.level, sag.parent, sag.name, IFNULL(sag1.dataelementid,0) AS DE,IFNULL(sag1.categoryoptioncomboid,0) AS CCI,SUM(IFNULL(sag1.value,0)) AS total, sag1.de_uid, sag1.coc_uid "
+                        + " FROM "
+                        + "( "
+                        + "SELECT os.level,os.organisationunitid AS parent,ou.name,os1.organisationunitid AS actual "
+                        + " FROM _orgunitstructure os "
+                        + " INNER JOIN organisationunit ou ON ou.organisationunitid=os.organisationunitid "
+                        + " INNER JOIN _orgunitstructure os1 ON os.organisationunitid = CASE ";
+
+                    for ( int i = 2; i <= ouMaxLevel; i++ )
+                    {
+                        query += " WHEN os.level=" + i + " THEN os1.idlevel" + i + " ";
+                    }
+
+                    query += " END" + " WHERE os.organisationunitid IN ("
+                        + orgUnitIdsByComma
+                        + ") "
+                        + ")sag"
+                        + " INNER JOIN "
+                        + " ( "
+                        + " SELECT dv.dataelementid, de.uid AS de_uid, dv.categoryoptioncomboid, coc.uid AS coc_uid, dv.value,dv.sourceid "
+                        + " FROM datavalue dv " + " INNER JOIN period p ON p.periodid=dv.periodid "
+                        + " INNER JOIN dataelement de ON de.dataelementid=dv.dataelementid "
+                        + " INNER JOIN categoryoptioncombo coc ON coc.categoryoptioncomboid=dv.categoryoptioncomboid "
+                        + " WHERE dv.dataelementid IN (" + dataElmentIdsByComma + ") " + " AND p.startdate BETWEEN '"
+                        + startDate + "' AND '" + endDate + "'" + ")sag1 " + "ON sag.actual = sag1.sourceid "
+                        + " GROUP BY sag.parent, sag1.dataelementid,sag1.categoryoptioncomboid "
+                        + " ORDER BY sag.level,sag.parent";
                 
-                if ( aggregatedValue != null )
-                {
-                    aggDataMap.put( ouId + ":" + deUID + ":" + optionComUID, "" + aggregatedValue );
-                }
+                
             }
 
-            return aggDataMap;
-        }
-        catch ( Exception e )
-        {
-            throw new RuntimeException( "Illegal DataElement id", e );
-        }
-    }
-
-    public Map<String, String> getAggDataFromDataValueTableByDeAndOrgUnitwise( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma )
-    {
-    	
-    	//int ouMaxLevel = organisationUnitService.getMaxOfOrganisationUnitLevels();
-    	int ouMaxLevel = organisationUnitService.getNumberOfOrganisationalLevels();
-    	
-    	Map<String, String> aggDataMap = new HashMap<String, String>();
-        try
-        {
-            String query = 
-            		
-            		"SELECT sag.level, sag.parent, sag.name, IFNULL(sag1.dataelementid,0) AS DE,IFNULL(sag1.categoryoptioncomboid,0) AS CCI,SUM(IFNULL(sag1.value,0)) AS total, sag1.de_uid, sag1.coc_uid " +
-            				" FROM " +
-            					"( " +
-            						"SELECT os.level,os.organisationunitid AS parent,ou.name,os1.organisationunitid AS actual " +
-            						" FROM _orgunitstructure os " +
-            						" INNER JOIN organisationunit ou ON ou.organisationunitid=os.organisationunitid " +
-            						" INNER JOIN _orgunitstructure os1 ON os.organisationunitid = CASE ";
-            						
-            						for( int i = 2; i <= ouMaxLevel; i++ )
-            						{
-            							query += " WHEN os.level="+i+" THEN os1.idlevel"+i+ " ";
-            						}
-            						 
-            						query += " END" +
-            						" WHERE os.organisationunitid IN ("+ orgUnitIdsByComma +") " +
-            					")sag" +
-            		" INNER JOIN "+ 
-            		" ( " +
-            			" SELECT dv.dataelementid, de.uid AS de_uid, dv.categoryoptioncomboid, coc.uid AS coc_uid, dv.value,dv.sourceid " +
-            				" FROM datavalue dv "+
-            				" INNER JOIN period p ON p.periodid=dv.periodid "+ 
-            				" INNER JOIN dataelement de ON de.dataelementid=dv.dataelementid " +
-            				" INNER JOIN categoryoptioncombo coc ON coc.categoryoptioncomboid=dv.categoryoptioncomboid " +
-            				" WHERE dv.dataelementid IN ("+ dataElmentIdsByComma +") " +
-            				" AND dv.periodid IN ("+ periodIdsByComma +")" +            				
-            		")sag1 " +
-            		"ON sag.actual = sag1.sourceid " +
-            		" GROUP BY sag.parent, sag1.dataelementid,sag1.categoryoptioncomboid " +
-            		" ORDER BY sag.level,sag.parent";
+            /*
+             * 
+             * "SELECT sag.level, sag.parent, sag.name, IFNULL(sag1.dataelementid,0) AS DE,IFNULL(sag1.categoryoptioncomboid,0) AS CCI,SUM(IFNULL(sag1.value,0)) AS total "
+             * + " FROM " + "( " +
+             * "SELECT os.level,os.organisationunitid AS parent,ou.name,os1.organisationunitid AS actual "
+             * + " FROM _orgunitstructure os " +
+             * " INNER JOIN organisationunit ou ON ou.organisationunitid=os.organisationunitid "
+             * +
+             * " INNER JOIN _orgunitstructure os1 ON os.organisationunitid = CASE "
+             * ;
+             * 
+             * for( int i = 2; i <= ouMaxLevel; i++ ) { query +=
+             * " WHEN os.level="+i+" THEN os1.idlevel"+i+ " "; }
+             * 
+             * query += " END" + " WHERE os.organisationunitid IN ("+
+             * orgUnitIdsByComma +") " + ")sag" + " INNER JOIN "+ " ( " +
+             * " SELECT dv.dataelementid,dv.categoryoptioncomboid,dv.value,dv.sourceid "
+             * + " FROM datavalue dv "+
+             * " INNER JOIN period p ON p.periodid=dv.periodid "+
+             * " WHERE dv.dataelementid IN ("+ dataElmentIdsByComma +") " +
+             * " AND p.startdate BETWEEN '"+ startDate +"' AND '"+ endDate +"'"
+             * + ")sag1 " + "ON sag.actual = sag1.sourceid " +
+             * " GROUP BY sag.parent, sag1.dataelementid,sag1.categoryoptioncomboid "
+             * + " ORDER BY sag.level,sag.parent";
+             */
 
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
             while ( rs.next() )
             {
-            	Integer ouId = rs.getInt(2 );
+                Integer ouId = rs.getInt( 2 );
                 //Integer deId = rs.getInt( 4 );
                 //Integer optionComId = rs.getInt( 5 );
+                // Integer periodId = rs.getInt( 3 );
                 Double aggregatedValue = rs.getDouble( 6 );
                 String deUID = rs.getString( 7 );
                 String optionComUID = rs.getString( 8 );
-                
+
                 if ( aggregatedValue != null )
                 {
                     aggDataMap.put( ouId + ":" + deUID + ":" + optionComUID, "" + aggregatedValue );
@@ -3291,36 +3214,175 @@ public class DefaultReportService
         }
     }
 
+    public Map<String, String> getAggDataFromDataValueTableByDeAndOrgUnitwise( String orgUnitIdsByComma,
+        String dataElmentIdsByComma, String periodIdsByComma )
+    {
+        
+        DatabaseInfo dataBaseInfo = databaseInfoProvider.getDatabaseInfo();
+        //int ouMaxLevel = organisationUnitService.getMaxOfOrganisationUnitLevels();
+        int ouMaxLevel = organisationUnitService.getNumberOfOrganisationalLevels();
 
-    public Map<String, String> getCapturedDataFromDataValueTableByDeAndOrgUnitwise( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma )
-    {    	
-    	Map<String, String> aggDataMap = new HashMap<String, String>();
+        Map<String, String> aggDataMap = new HashMap<String, String>();
+        
+        String query = "";
+        
         try
         {
-            String query = 
-            			" SELECT dv.sourceid, de.uid AS de_uid, coc.uid AS coc_uid, SUM(dv.value) " +
-            				" FROM datavalue dv "+
-            				" INNER JOIN period p ON p.periodid=dv.periodid "+
-            				" INNER JOIN dataelement de ON de.dataelementid=dv.dataelementid " +
-            				" INNER JOIN categoryoptioncombo coc ON coc.categoryoptioncomboid=dv.categoryoptioncomboid " +
-            				" WHERE " +
-            					" dv.dataelementid IN ("+ dataElmentIdsByComma +") AND " +
-            					" dv.periodid IN ("+ periodIdsByComma +") AND " +
-            					" dv.sourceid IN ("+ orgUnitIdsByComma +") " +
-            				" GROUP BY dv.sourceid, dv.dataelementid, dv.categoryoptioncomboid ";
+            if ( dataBaseInfo.getType().equalsIgnoreCase( "mysql" ) )
+            {
+                query =
 
+                    "SELECT sag.level, sag.parent, sag.name, IFNULL(sag1.dataelementid,0) AS DE,IFNULL(sag1.categoryoptioncomboid,0) AS CCI,SUM(IFNULL(sag1.value,0)) AS total, sag1.de_uid, sag1.coc_uid "
+                        + " FROM "
+                        + "( "
+                        + "SELECT os.level,os.organisationunitid AS parent,ou.name,os1.organisationunitid AS actual "
+                        + " FROM _orgunitstructure os "
+                        + " INNER JOIN organisationunit ou ON ou.organisationunitid=os.organisationunitid "
+                        + " INNER JOIN _orgunitstructure os1 ON os.organisationunitid = CASE ";
+
+                    for ( int i = 2; i <= ouMaxLevel; i++ )
+                    {
+                        query += " WHEN os.level=" + i + " THEN os1.idlevel" + i + " ";
+                    }
+
+                    query += " END"
+                        + " WHERE os.organisationunitid IN ("
+                        + orgUnitIdsByComma
+                        + ") "
+                        + ")sag"
+                        + " INNER JOIN "
+                        + " ( "
+                        + " SELECT dv.dataelementid, de.uid AS de_uid, dv.categoryoptioncomboid, coc.uid AS coc_uid, dv.value,dv.sourceid "
+                        + " FROM datavalue dv " + " INNER JOIN period p ON p.periodid=dv.periodid "
+                        + " INNER JOIN dataelement de ON de.dataelementid=dv.dataelementid "
+                        + " INNER JOIN categoryoptioncombo coc ON coc.categoryoptioncomboid=dv.categoryoptioncomboid "
+                        + " WHERE dv.dataelementid IN (" + dataElmentIdsByComma + ") " + " AND dv.periodid IN ("
+                        + periodIdsByComma + ")" + ")sag1 " + "ON sag.actual = sag1.sourceid "
+                        + " GROUP BY sag.level, sag.parent, sag.name, sag1.dataelementid, sag1.categoryoptioncomboid, sag1.de_uid, sag1.coc_uid "
+                        + " ORDER BY sag.level,sag.parent";
+            }
+           
+            else if ( dataBaseInfo.getType().equalsIgnoreCase( "postgresql" ) )
+            {
+                query =
+
+                    "SELECT sag.level, sag.parent, sag.name, case when sag1.dataelementid is null then 0 else sag1.dataelementid  end AS DE, case when sag1.categoryoptioncomboid is null then 0 else sag1.categoryoptioncomboid end  AS CCI, SUM( case when sag1.value is null then 0 else sag1.value::integer  end ) AS total, sag1.de_uid, sag1.coc_uid "
+                        + " FROM "
+                        + "( "
+                        + "SELECT os.level,os.organisationunitid AS parent,ou.name,os1.organisationunitid AS actual "
+                        + " FROM _orgunitstructure os "
+                        + " INNER JOIN organisationunit ou ON ou.organisationunitid=os.organisationunitid "
+                        + " INNER JOIN _orgunitstructure os1 ON os.organisationunitid = CASE ";
+
+                    for ( int i = 2; i <= ouMaxLevel; i++ )
+                    {
+                        query += " WHEN os.level=" + i + " THEN os1.idlevel" + i + " ";
+                    }
+
+                    query += " END"
+                        + " WHERE os.organisationunitid IN ("
+                        + orgUnitIdsByComma
+                        + ") "
+                        + ")sag"
+                        + " INNER JOIN "
+                        + " ( "
+                        + " SELECT dv.dataelementid, de.uid AS de_uid, dv.categoryoptioncomboid, coc.uid AS coc_uid, dv.value,dv.sourceid "
+                        + " FROM datavalue dv " + " INNER JOIN period p ON p.periodid=dv.periodid "
+                        + " INNER JOIN dataelement de ON de.dataelementid=dv.dataelementid "
+                        + " INNER JOIN categoryoptioncombo coc ON coc.categoryoptioncomboid=dv.categoryoptioncomboid "
+                        + " WHERE dv.dataelementid IN (" + dataElmentIdsByComma + ") " + " AND dv.periodid IN ("
+                        + periodIdsByComma + ")" + ")sag1 " + "ON sag.actual = sag1.sourceid "
+                        + " GROUP BY sag.level, sag.parent, sag.name, sag1.dataelementid, sag1.categoryoptioncomboid, sag1.de_uid, sag1.coc_uid "
+                        + " ORDER BY sag.level,sag.parent";                
+            }
+            
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
             while ( rs.next() )
             {
-            	Integer ouId = rs.getInt( 1 );
+                Integer ouId = rs.getInt( 2 );
+                // Integer deId = rs.getInt( 4 );
+                // Integer optionComId = rs.getInt( 5 );
+                Double aggregatedValue = rs.getDouble( 6 );
+                String deUID = rs.getString( 7 );
+                String optionComUID = rs.getString( 8 );
+
+                if ( aggregatedValue != null )
+                {
+                    aggDataMap.put( ouId + ":" + deUID + ":" + optionComUID, "" + aggregatedValue );
+                }
+            }
+
+            return aggDataMap;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal DataElement id", e );
+        }
+    }
+
+    public Map<String, String> getCapturedDataFromDataValueTableByDeAndOrgUnitwise( String orgUnitIdsByComma,
+        String dataElmentIdsByComma, String periodIdsByComma )
+    {
+        
+        DatabaseInfo dataBaseInfo = databaseInfoProvider.getDatabaseInfo();
+        String query = "";
+        
+        Map<String, String> aggDataMap = new HashMap<String, String>();
+        try
+        {
+            if ( dataBaseInfo.getType().equalsIgnoreCase( "mysql" ) )
+            {
+                query = " SELECT dv.sourceid, de.uid AS de_uid, coc.uid AS coc_uid, SUM(dv.value) "
+                    + " FROM datavalue dv " + " INNER JOIN period p ON p.periodid=dv.periodid "
+                    + " INNER JOIN dataelement de ON de.dataelementid=dv.dataelementid "
+                    + " INNER JOIN categoryoptioncombo coc ON coc.categoryoptioncomboid=dv.categoryoptioncomboid "
+                    + " WHERE " + " dv.dataelementid IN (" + dataElmentIdsByComma + ") AND " + " dv.periodid IN ("
+                    + periodIdsByComma + ") AND " + " dv.sourceid IN (" + orgUnitIdsByComma + ") "
+                    + " GROUP BY dv.sourceid, dv.dataelementid, dv.categoryoptioncomboid ";
+            }
+            
+            else if ( dataBaseInfo.getType().equalsIgnoreCase( "postgresql" ) )
+            {
+                /*
+                query = " SELECT dv.sourceid, de.uid AS de_uid, coc.uid AS coc_uid, SUM( cast( value as numeric) ) "
+                    + " FROM datavalue dv " + " INNER JOIN period p ON p.periodid=dv.periodid "
+                    + " INNER JOIN dataelement de ON de.dataelementid=dv.dataelementid "
+                    + " INNER JOIN categoryoptioncombo coc ON coc.categoryoptioncomboid=dv.categoryoptioncomboid "
+                    + " WHERE " + " dv.dataelementid IN (" + dataElmentIdsByComma + ") AND " + " dv.periodid IN ("
+                    + periodIdsByComma + ") AND " + " dv.sourceid IN (" + orgUnitIdsByComma + ") "
+                    + " GROUP BY dv.sourceid, dv.dataelementid, dv.categoryoptioncomboid ";
+                
+                */
+                
+                query = " SELECT dv.sourceid, de.uid AS de_uid, coc.uid AS coc_uid, SUM( cast( value as numeric) ) "
+                    + " FROM datavalue dv " + " INNER JOIN period p ON p.periodid=dv.periodid "
+                    + " INNER JOIN dataelement de ON de.dataelementid=dv.dataelementid "
+                    + " INNER JOIN categoryoptioncombo coc ON coc.categoryoptioncomboid=dv.categoryoptioncomboid "
+                    + " WHERE " + " dv.dataelementid IN (" + dataElmentIdsByComma + ") AND " + " dv.periodid IN ("
+                    + periodIdsByComma + ") AND " + " dv.sourceid IN (" + orgUnitIdsByComma + ") "
+                    + " GROUP BY dv.sourceid, de.uid, coc.uid "; 
+                
+                //System.out.println( "Query -- " + query );
+                
+                
+            }
+            
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+            while ( rs.next() )
+            {
+                Integer ouId = rs.getInt( 1 );
                 String deUID = rs.getString( 2 );
                 String optionComUID = rs.getString( 3 );
                 Double aggregatedValue = rs.getDouble( 4 );
-                
+
                 if ( aggregatedValue != null )
                 {
                     aggDataMap.put( ouId + ":" + deUID + ":" + optionComUID, "" + aggregatedValue );
+                    
+                    //System.out.println( ouId +  " -- " + deUID +  " -- " + optionComUID +  " -- " + aggregatedValue );
+                    
                 }
             }
 
@@ -3486,8 +3548,8 @@ public class DefaultReportService
                 String replaceString = matcher.group();
 
                 replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
-                String optionComboIdStr = replaceString.substring( replaceString.indexOf( '.' ) + 1, replaceString
-                    .length() );
+                String optionComboIdStr = replaceString.substring( replaceString.indexOf( '.' ) + 1,
+                    replaceString.length() );
 
                 replaceString = replaceString.substring( 0, replaceString.indexOf( '.' ) );
 
@@ -3556,6 +3618,7 @@ public class DefaultReportService
         }
     }
 
+    /*
     public String getSurveyDesc( String formula )
     {
         try
@@ -3603,7 +3666,8 @@ public class DefaultReportService
             throw new RuntimeException( "Illegal DataElement id", ex );
         }
     }
-
+	*/
+    
     public String getAggCountForTextData( String formula, Date startDate, Date endDate,
         OrganisationUnit organisationUnit )
     {
@@ -3614,8 +3678,8 @@ public class DefaultReportService
         String compareText = partsOfFormula[2];
 
         Collection<Period> periods = new ArrayList<Period>( periodService.getPeriodsBetweenDates( startDate, endDate ) );
-        Collection<OrganisationUnit> orgUnits = new ArrayList<OrganisationUnit>( organisationUnitService
-            .getOrganisationUnitWithChildren( organisationUnit.getId() ) );
+        Collection<OrganisationUnit> orgUnits = new ArrayList<OrganisationUnit>(
+            organisationUnitService.getOrganisationUnitWithChildren( organisationUnit.getId() ) );
 
         int recordCount = 0;
         try
@@ -3676,7 +3740,7 @@ public class DefaultReportService
 
     public String getDataelementIdsAsString( List<Indicator> indicatorList )
     {
-        String dataElmentIdsByComma = null;
+    	String dataElmentIdsByComma = null;
         //Set<DataElement> dataElementList = expressionService.getDataElementsInIndicators( indicatorList );
         
         //Collection<Integer> dataElementIds = new ArrayList<Integer>( getIdentifiers( DataElement.class, dataElementList ) );
@@ -3712,7 +3776,7 @@ public class DefaultReportService
 
         return dataElmentIdsByComma;
     }
-    
+
     public String getDataelementIdsByStype( List<Report_inDesign> reportDesignList, String sType )
     {
         String dataElmentIdsByComma = "-1";
@@ -4203,7 +4267,6 @@ public class DefaultReportService
         Integer reportingOrgUnitCount = 0;
         //int maxOULevels = organisationUnitService.getMaxOfOrganisationUnitLevels();
         int maxOULevels = organisationUnitService.getNumberOfOrganisationalLevels();
-
         try
         {
             String query = "SELECT COUNT(*) FROM datasetsource WHERE datasetid = " + dataSetId + " AND "
@@ -4293,7 +4356,7 @@ public class DefaultReportService
                 dataStatusPercentatge = 100;
             }
 
-            //System.out.println( query + "  : " + dataStatusPercentatge );
+            // System.out.println( query + "  : " + dataStatusPercentatge );
 
             dataStatusPercentatge = Math.round( dataStatusPercentatge * Math.pow( 10, 0 ) ) / Math.pow( 10, 0 );
             if ( dataStatusPercentatge > constValue )
@@ -4304,34 +4367,34 @@ public class DefaultReportService
 
         return reportingOrgUnitCount;
     }
-    
-    public String getResultDataValueForOrgUnitGroupMember( String formula, String orgUnitIdsByComma ,Date startDate, Date endDate,  String reportModelTB )
+
+    public String getResultDataValueForOrgUnitGroupMember( String formula, String orgUnitIdsByComma, Date startDate,
+        Date endDate, String reportModelTB )
     {
         int deFlag1 = 0;
         int isAggregated = 0;
-        
+
         List<Period> tempPeriodList = new ArrayList<Period>( periodService.getIntersectingPeriods( startDate, endDate ) );
-        Collection<Integer> tempPeriodIds = new ArrayList<Integer>( getIdentifiers(Period.class, tempPeriodList ) );
+        Collection<Integer> tempPeriodIds = new ArrayList<Integer>( getIdentifiers( Period.class, tempPeriodList ) );
         String periodIdsByComma = getCommaDelimitedString( tempPeriodIds );
-        
+
         try
         {
             Pattern pattern = Pattern.compile( "(\\[\\d+\\.\\d+\\])" );
 
             Matcher matcher = pattern.matcher( formula );
             StringBuffer buffer = new StringBuffer();
-            
-            
+
             String query = "";
             String resultValue = "";
-            
+
             while ( matcher.find() )
             {
                 String replaceString = matcher.group();
 
                 replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
-                String optionComboIdStr = replaceString.substring( replaceString.indexOf( '.' ) + 1, replaceString
-                    .length() );
+                String optionComboIdStr = replaceString.substring( replaceString.indexOf( '.' ) + 1,
+                    replaceString.length() );
 
                 replaceString = replaceString.substring( 0, replaceString.indexOf( '.' ) );
 
@@ -4341,28 +4404,27 @@ public class DefaultReportService
                 DataElement dataElement = dataElementService.getDataElement( dataElementId );
                 DataElementCategoryOptionCombo optionCombo = dataElementCategoryOptionComboService
                     .getDataElementCategoryOptionCombo( optionComboId );
-                
-                
+
                 if ( dataElement == null || optionCombo == null )
                 {
                     replaceString = "";
                     matcher.appendReplacement( buffer, replaceString );
                     continue;
                 }
-                
+
                 //if ( dataElement.getType().equalsIgnoreCase( "int" ) )
-                if( dataElement.getValueType().isInteger() )    
+                if ( dataElement.getValueType().isInteger() )
                 {
-                    query = "SELECT SUM(value) FROM datavalue "
-                        + " WHERE dataelementid = " + dataElement.getId() + " AND " + " sourceid IN ("
-                        + orgUnitIdsByComma + " ) AND " + " periodid IN (" + periodIdsByComma + ")";
-                    
+                    query = "SELECT SUM(value) FROM datavalue " + " WHERE dataelementid = " + dataElement.getId()
+                        + " AND " + " sourceid IN (" + orgUnitIdsByComma + " ) AND " + " periodid IN ("
+                        + periodIdsByComma + ")";
+
                     SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
                     if ( rs.next() )
                     {
                         Double aggregatedValue = rs.getDouble( 1 );
-                        
+
                         if ( aggregatedValue == null )
                         {
                             replaceString = NULL_REPLACEMENT;
@@ -4374,7 +4436,7 @@ public class DefaultReportService
                         }
                     }
                 }
-                
+
                 else
                 {
                     deFlag1 = 1;
@@ -4394,16 +4456,16 @@ public class DefaultReportService
                         tempPeriod = (Period) periodList.get( 0 );
                     }
 
-                    query = "SELECT CONCAT(value)  FROM datavalue "
-                        + " WHERE dataelementid =" + dataElement.getId() + " AND " + " sourceid IN ("
-                        + orgUnitIdsByComma + " ) AND " + " periodid = " + tempPeriod.getId() + ")";
-                    
+                    query = "SELECT CONCAT(value)  FROM datavalue " + " WHERE dataelementid =" + dataElement.getId()
+                        + " AND " + " sourceid IN (" + orgUnitIdsByComma + " ) AND " + " periodid = "
+                        + tempPeriod.getId() + ")";
+
                     SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
                     if ( rs.next() )
                     {
                         String value = rs.getString( 1 );
-                        
+
                         if ( value != null )
                         {
                             replaceString = value;
@@ -4413,7 +4475,7 @@ public class DefaultReportService
                             replaceString = "";
                         }
                     }
-                    
+
                     if ( replaceString == null )
                     {
                         replaceString = "";
@@ -4485,19 +4547,20 @@ public class DefaultReportService
 
             return resultValue;
         }
-        
+
         catch ( NumberFormatException ex )
         {
             throw new RuntimeException( "Illegal DataElement id", ex );
         }
     }
-  
-    public Map<String, String> getResultDataFromDataValueTable( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma )
+
+    public Map<String, String> getResultDataFromDataValueTable( String orgUnitIdsByComma, String dataElmentIdsByComma,
+        String periodIdsByComma )
     {
-        //System.out.println( " Inside Query Start : " + new Date() ); 
-        
+        // System.out.println( " Inside Query Start : " + new Date() );
+
         Map<String, String> aggDataMap = new HashMap<String, String>();
-        
+
         try
         {
             String query = "SELECT sourceid,dataelementid,categoryoptioncomboid,periodid,value FROM datavalue "
@@ -4511,31 +4574,31 @@ public class DefaultReportService
                 Integer orgUnitId = rs.getInt( 1 );
                 Integer deId = rs.getInt( 2 );
                 Integer optionComId = rs.getInt( 3 );
-                //Integer periodId = rs.getInt( 4 );
+                // Integer periodId = rs.getInt( 4 );
                 Double aggregatedValue = rs.getDouble( 5 );
                 if ( aggregatedValue != null )
                 {
                     aggDataMap.put( deId + "." + optionComId + ":" + orgUnitId, "" + aggregatedValue );
                 }
             }
-            
-            //System.out.println( " Inside Query End : " + new Date() );
-            
+
+            // System.out.println( " Inside Query End : " + new Date() );
+
             return aggDataMap;
         }
         catch ( Exception e )
         {
             throw new RuntimeException( "Illegal DataElement id", e );
         }
-    }  
+    }
 
     // delete Batch lock exception
     public void deleteLockException( String orgUnitIdsByComma, String periodIdsByComma, String dataSetIdsByComma )
     {
         try
         {
-            String query = "DELETE FROM lockexception WHERE organisationunitid IN (" + orgUnitIdsByComma + ")" + " AND periodid IN ("
-                + periodIdsByComma + ")" + " AND datasetid IN (" + dataSetIdsByComma + ")";
+            String query = "DELETE FROM lockexception WHERE organisationunitid IN (" + orgUnitIdsByComma + ")"
+                + " AND periodid IN (" + periodIdsByComma + ")" + " AND datasetid IN (" + dataSetIdsByComma + ")";
 
             jdbcTemplate.execute( query );
 
@@ -4544,8 +4607,8 @@ public class DefaultReportService
         {
             e.printStackTrace();
         }
-    }    
-    
+    }
+
     // create batch lock exception
     public void createBatchLockExceptions( String insertQuery )
     {
@@ -4557,17 +4620,17 @@ public class DefaultReportService
         {
             e.printStackTrace();
         }
-    }    
-    
+    }
+
     // get Lock Exception from organisationUnitId,periodId,dataSetId
     public Boolean getLockException( Integer organisationUnitId, Integer periodId, Integer dataSetId )
     {
         Boolean recordExist = false;
-        
+
         try
         {
-            String query = "SELECT organisationunitid,periodid,datasetid FROM lockexception WHERE organisationunitid = " + organisationUnitId + " AND "
-                + " periodid = " + periodId + " AND datasetid = " + dataSetId;
+            String query = "SELECT organisationunitid,periodid,datasetid FROM lockexception WHERE organisationunitid = "
+                + organisationUnitId + " AND " + " periodid = " + periodId + " AND datasetid = " + dataSetId;
 
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
@@ -4580,28 +4643,28 @@ public class DefaultReportService
         {
             e.printStackTrace();
         }
-        
+
         return recordExist;
     }
-    
+
     // Methods for delete Lock Exception
     @Transactional
     public void deleteLockException( DataSet dataSet, Period period, OrganisationUnit organisationUnit )
     {
         reportStore.deleteLockException( dataSet, period, organisationUnit );
-    }        
-    
+    }
+
     // Get Data value for Latest Period
     @Transactional
-    public DataValue getLatestDataValue( DataElement dataElement, DataElementCategoryOptionCombo optionCombo, OrganisationUnit organisationUnit )
+    public DataValue getLatestDataValue( DataElement dataElement, DataElementCategoryOptionCombo optionCombo,
+        OrganisationUnit organisationUnit )
     {
         return reportStore.getLatestDataValue( dataElement, optionCombo, organisationUnit );
     }
-    
-    
-    
+
     // methods for getting Data from data value for GOI Monthly Report
-    public Map<String, String> getDataFromDataValueTableForGoiMonthly( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma )
+    public Map<String, String> getDataFromDataValueTableForGoiMonthly( String orgUnitIdsByComma,
+        String dataElmentIdsByComma, String periodIdsByComma )
     {
         Map<String, String> aggDeMap = new HashMap<String, String>();
         DatabaseInfo dataBaseInfo = databaseInfoProvider.getDatabaseInfo();
@@ -4617,13 +4680,11 @@ public class DefaultReportService
             }
             else if ( dataBaseInfo.getType().equalsIgnoreCase( "mysql" ) )
             {
-                query = "SELECT dataelementid,categoryoptioncomboid, SUM(value) FROM datavalue " + 
-                             " WHERE "+
-                                 " dataelementid IN (" + dataElmentIdsByComma + " ) AND " + 
-                                 " sourceid = " + orgUnitIdsByComma + " AND " + 
-                                 " periodid IN (" + periodIdsByComma + ") GROUP BY dataelementid,categoryoptioncomboid";
+                query = "SELECT dataelementid,categoryoptioncomboid, SUM(value) FROM datavalue " + " WHERE "
+                    + " dataelementid IN (" + dataElmentIdsByComma + " ) AND " + " sourceid = " + orgUnitIdsByComma
+                    + " AND " + " periodid IN (" + periodIdsByComma + ") GROUP BY dataelementid,categoryoptioncomboid";
             }
-            
+
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
             while ( rs.next() )
@@ -4645,23 +4706,226 @@ public class DefaultReportService
         }
     }
 
-    public String getResultDataValue( String arg0, Date arg1, Date arg2, OrganisationUnit arg3, String arg4 )
+    /*
+    public String getDataelementIds(List<Report_inDesign> reportDesignList)
     {
-        // TODO Auto-generated method stub
-        return null;
+      String dataElmentIdsByComma = "-1";
+      for (Report_inDesign report_inDesign : reportDesignList)
+      {
+        String formula = report_inDesign.getExpression();
+        try
+        {
+          Pattern pattern = Pattern.compile("(\\[\\d+\\.\\d+\\])");
+
+          Matcher matcher = pattern.matcher(formula);
+          StringBuffer buffer = new StringBuffer();
+
+          while (matcher.find())
+          {
+            String replaceString = matcher.group();
+
+            replaceString = replaceString.replaceAll("[\\[\\]]", "");
+            replaceString = replaceString.substring(0, replaceString.indexOf(46));
+
+            int dataElementId = Integer.parseInt(replaceString);
+            dataElmentIdsByComma = dataElmentIdsByComma + "," + dataElementId;
+            replaceString = "";
+            matcher.appendReplacement(buffer, replaceString);
+          }
+        }
+        catch (Exception e)
+        {
+        }
+
+      }
+
+      return dataElmentIdsByComma;
+    }    
+    */
+    
+    //@SuppressWarnings( "unchecked" )
+    public List<Integer> getDataElementIds(List<Report_inDesign> reportDesignList)
+    {
+      List<Integer> dataElmentIdsList = new ArrayList<Integer>();
+      for (Report_inDesign report_inDesign : reportDesignList)
+      {
+        String formula = report_inDesign.getExpression();
+        try
+        {
+          Pattern pattern = Pattern.compile("(\\[\\d+\\.\\d+\\])");
+
+          Matcher matcher = pattern.matcher(formula);
+          StringBuffer buffer = new StringBuffer();
+
+          while (matcher.find())
+          {
+            String replaceString = matcher.group();
+
+            replaceString = replaceString.replaceAll("[\\[\\]]", "");
+            replaceString = replaceString.substring(0, replaceString.indexOf(46));
+
+            int dataElementId = Integer.parseInt(replaceString);
+            dataElmentIdsList.add(Integer.valueOf(dataElementId));
+            replaceString = "";
+            matcher.appendReplacement(buffer, replaceString);
+          }
+        }
+        catch (Exception e)
+        {
+        }
+      }
+      return dataElmentIdsList;
+    }    
+    // New Line Listing Report Related methods
+    
+    //--------------------------------------------------------------------------------
+    // get Program Stage Instance Ids
+    //--------------------------------------------------------------------------------
+    public Set<Integer> getProgramStageInstanceIds( Integer programId, Integer programStageId, Integer organisationUnitId, Period period )
+    {
+        Set<Integer> programStageInstanceIds = new HashSet<Integer>();
+        
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        try
+        {
+            String query = "SELECT  programstageinstanceid FROM programstageinstance  " +
+                            " INNER JOIN programinstance on programinstance.programinstanceid = programstageinstance.programinstanceid " +  
+                            " WHERE " +  
+                                " programinstance.programid = "+ programId +"  AND " + 
+                                " programstageinstance.programstageid = " + programStageId + " AND " + 
+                                " programstageinstance.organisationunitid = "+ organisationUnitId + " AND " +  
+                                " programstageinstance.executiondate between '"+ simpleDateFormat.format( period.getStartDate() ) + "'" + " AND '" + simpleDateFormat.format( period.getEndDate() ) + "'"; 
+           
+            
+            /*
+            SELECT  programstageinstanceid FROM programstageinstance 
+            INNER JOIN programinstance on programinstance.programinstanceid = programstageinstance.programinstanceid
+            WHERE  programinstance.programid = 465 AND 
+                   programstageinstance.programstageid = 466 AND  
+                   programstageinstance.organisationunitid = 50 AND    
+                   programstageinstance.executiondate between '2015-07-01' and '2015-07-31';
+            */
+            
+            
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+            while ( rs.next() )
+            {
+                Integer programStageInstanceId = rs.getInt( 1 );
+               
+                
+                if ( programStageInstanceId != null  )
+                {
+                    programStageInstanceIds.add( programStageInstanceId );
+                }
+            }
+            
+            return programStageInstanceIds;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal Program Stage Instance Id ", e );
+        }
+    }    
+
+    // get LineListing data with programStageInstanceId and dataElements from tracker Data Value
+    public Map<String, String> getTrackedEntityDataValue( Integer programId, Integer programStageId, String orgUnitIdsByComma, String dataElementIdsByComma, Period period )
+    {
+        Map<String, String> trackedEntityDataValueMap = new HashMap<String, String>();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        
+        try
+        {
+            
+            String query = "SELECT  programstageinstance.organisationunitid,trackedentitydatavalue.programstageinstanceid,dataelementid, value FROM trackedentitydatavalue  " +
+                           " INNER JOIN programstageinstance ON programstageinstance.programstageinstanceid = trackedentitydatavalue.programstageinstanceid " +  
+                           " INNER JOIN programinstance on programinstance.programinstanceid = programstageinstance.programinstanceid " +      
+                           " WHERE " +  
+                           " programinstance.programid = "+ programId +"  AND " + 
+                           " programstageinstance.programstageid = " + programStageId + " AND " + 
+                           " programstageinstance.organisationunitid IN ( "+ orgUnitIdsByComma + " ) AND " + 
+                           " trackedentitydatavalue.dataelementid IN ( "+ dataElementIdsByComma + " ) AND " + 
+                           " programstageinstance.executiondate between '"+ simpleDateFormat.format( period.getStartDate() ) + "'" + " AND '" + simpleDateFormat.format( period.getEndDate() ) + "'"; 
+            
+            /*
+            SELECT  programstageinstance.organisationunitid,trackedentitydatavalue.programstageinstanceid,dataelementid, value FROM trackedentitydatavalue 
+            INNER JOIN programstageinstance ON programstageinstance.programstageinstanceid = trackedentitydatavalue.programstageinstanceid
+            INNER JOIN programinstance on programinstance.programinstanceid = programstageinstance.programinstanceid
+            WHERE  
+                 programinstance.programid = 465 AND 
+                 programstageinstance.programstageid = 466 AND  
+                 programstageinstance.organisationunitid IN (49,50) AND   
+                 trackedentitydatavalue.dataelementid IN ( 468,469,470,471,472,473 ) AND 
+                 programstageinstance.executiondate between '2015-08-01' and '2015-08-31';           
+            */
+            
+                        
+            //System.out.println( " SQUERY ======  :" + query );
+            
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+                
+            while ( rs.next() )
+            {
+                Integer orgUnitId = rs.getInt( 1 );
+                Integer programStageInstanceId = rs.getInt( 2 );
+                Integer dataElementId = rs.getInt( 3 );
+                String trackedDataValue = rs.getString( 4 );
+                
+                if ( trackedDataValue!= null  )
+                {
+                    String mapKey = orgUnitId + ":" + programStageInstanceId + ":" + dataElementId;
+                    
+                    //System.out.println("Map Key : \t" + mapKey + "Map Value : \t" + trackedDataValue );
+                    trackedEntityDataValueMap.put( mapKey,  trackedDataValue );
+                }
+            }
+            
+                //System.out.println( " Size of tracked Entity DataValue Map  inside service is ======  :" + trackedEntityDataValueMap.size() ); 
+                
+            return trackedEntityDataValueMap;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal DataElement id", e );
+        }
+    }    
+        
+    
+    
+    @Transactional
+    public Collection<Report_in> getAllNonSchedulableRports()
+    {
+        return ((DefaultReportService) reportStore).getAllNonSchedulableRports();
     }
 
-    public String getResultDataValueFromAggregateTable( String arg0, Collection<Integer> arg1, OrganisationUnit arg2,
-        String arg3 )
+    @Transactional
+    public Collection<Report_in> getAllNonScheduledRports()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return ((DefaultReportService) reportStore).getAllNonScheduledRports();
     }
 
-    public String getResultIndicatorValue( String arg0, Date arg1, Date arg2, OrganisationUnit arg3 )
+    @Transactional
+    public Collection<Report_in> getAllSchedulableReports()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return ((DefaultReportService) reportStore).getAllSchedulableReports();
+    }
+
+    @Transactional
+    public Collection<Report_in> getAllSchedulabledEmailableReports()
+    {
+        return ((DefaultReportService) reportStore).getAllSchedulabledEmailableReports();
+    }
+
+    @Transactional
+    public Collection<Report_in> getAllSchedulabledNonEmailableReports()
+    {
+        return ((DefaultReportService) reportStore).getAllSchedulabledNonEmailableReports();
+    }
+
+    @Transactional
+    public Collection<Report_in> getAllScheduledReports()
+    {
+        return ((DefaultReportService) reportStore).getAllScheduledReports();
     }
 
 }

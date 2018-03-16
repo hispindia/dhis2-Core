@@ -32,6 +32,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+
 
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
@@ -42,6 +45,8 @@ import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.program.Program;
+
+
 
 public interface ReportService
 {
@@ -127,7 +132,7 @@ public interface ReportService
     
     List<Report_inDesign> getReportDesignForHeader( String fileName );
     
-    
+    //List<Report_inDesign> aaaaa = new ArrayList<>();
 
     List<Report_inDesign> getDistrictFeedbackReportDesign( String fileName );
     
@@ -141,14 +146,16 @@ public interface ReportService
     
     String getBooleanDataValue( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit , String reportModelTB );
     
-    List<Calendar> getStartingEndingPeriods( String deType , Period selectedPeriod );
+    List<java.util.Calendar> getStartingEndingPeriods( String deType , Period selectedPeriod );
     
     Period getPreviousPeriod( Period selectedPeriod );
     
+    /*
     String getResultSurveyValue( String formula, OrganisationUnit organisationUnit );
 
     String getSurveyDesc( String formula );
-
+	*/
+    
     //String getResultDataValueFromAggregateTable( String formula, Collection<Integer> periodIds, OrganisationUnit organisationUnit , String reportModelTB );
 
     String getAggCountForTextData( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit );
@@ -238,5 +245,11 @@ public interface ReportService
     
     // methods for getting Data from data value for GOI Monthly Report
     Map<String, String> getDataFromDataValueTableForGoiMonthly( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma );
+ 
+   // New Line Listing Report Related methods
+    
+    Set<Integer> getProgramStageInstanceIds( Integer programId, Integer programStageId, Integer organisationUnitId, Period period );
+    Map<String, String> getTrackedEntityDataValue( Integer programId, Integer programStageId, String orgUnitIdsByComma, String dataElementIdsByComma, Period period );
+    
     
 }

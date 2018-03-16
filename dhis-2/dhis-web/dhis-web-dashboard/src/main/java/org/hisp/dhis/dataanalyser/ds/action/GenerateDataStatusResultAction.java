@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.hibernate.SessionFactory;
+//import org.hisp.dhis.common.comparator.IdentifiableObjectNameComparator;
 import org.hisp.dhis.dataanalyser.util.DashBoardService;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataset.DataSet;
@@ -255,6 +256,7 @@ public class GenerateDataStatusResultAction
         this.immChildOption = immChildOption;
     }
 
+    /*
     private int sDateLB;
 
     public void setSDateLB( int dateLB )
@@ -266,7 +268,22 @@ public class GenerateDataStatusResultAction
     {
         return sDateLB;
     }
+    */
+    
 
+    private String sDateLB;
+    
+    public String getsDateLB()
+    {
+        return sDateLB;
+    }
+
+    public void setsDateLB( String sDateLB )
+    {
+        this.sDateLB = sDateLB;
+    }
+    
+    /*
     private int eDateLB;
 
     public void setEDateLB( int dateLB )
@@ -277,6 +294,19 @@ public class GenerateDataStatusResultAction
     public int getEDateLB()
     {
         return eDateLB;
+    }
+    */
+    
+    private String eDateLB;
+   
+    public String geteDateLB()
+    {
+        return eDateLB;
+    }
+
+    public void seteDateLB( String eDateLB )
+    {
+        this.eDateLB = eDateLB;
     }
 
     private String facilityLB;
@@ -491,8 +521,10 @@ public class GenerateDataStatusResultAction
         }
 
         // Period Related Info
-        Period startPeriod = periodService.getPeriod( sDateLB );
-        Period endPeriod = periodService.getPeriod( eDateLB );
+        //Period startPeriod = periodService.getPeriod( sDateLB );
+        //Period endPeriod = periodService.getPeriod( eDateLB );
+        Period startPeriod = periodService.getPeriod( Integer.parseInt( sDateLB ));
+        Period endPeriod = periodService.getPeriod( Integer.parseInt( eDateLB ) );
 
         PeriodType dataSetPeriodType = selDataSet.getPeriodType();
         periodList = new ArrayList<Period>( periodService.getPeriodsBetweenDates( dataSetPeriodType, startPeriod

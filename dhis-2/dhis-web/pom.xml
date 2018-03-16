@@ -31,8 +31,9 @@
 	<!-- India Module -->
 	<module>dhis-web-maintenance-in</module>
 	<module>dhis-web-reports-national</module>
-	<module>dhis-web-birtreports</module>
 	<module>dhis-web-dashboard</module>
+	<module>dhis-web-excelimport</module>
+	<module>dhis-web-birtreports</module>
 	<!-- India Module -->
 	
 	

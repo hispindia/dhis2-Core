@@ -280,6 +280,7 @@ public class GenerateNullReportResultAction implements Action
         System.out.println( "Zero Loop count: " + count1 + ", Not Zero loop count : " + count2 );
         for( DataElement dataElement : dataElementList )
         {
+            //List<DataElementCategoryOptionCombo> decocList = new ArrayList<DataElementCategoryOptionCombo>(dataElement.getCategoryCombo().getOptionCombos() );
             List<DataElementCategoryOptionCombo> decocList = new ArrayList<DataElementCategoryOptionCombo>(dataElement.getDataElementCategoryCombo().getOptionCombos() );
             String deAndOptionCombo = "";
             for( DataElementCategoryOptionCombo deCom  : decocList )

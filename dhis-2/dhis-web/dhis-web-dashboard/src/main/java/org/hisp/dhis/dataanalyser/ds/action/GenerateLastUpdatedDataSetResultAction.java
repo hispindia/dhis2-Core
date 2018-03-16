@@ -282,6 +282,7 @@ implements Action
         this.immChildOption = immChildOption;
     }
 
+    /*
     private int sDateLB;
 
     public void setSDateLB( int dateLB )
@@ -293,7 +294,22 @@ implements Action
     {
         return sDateLB;
     }
+    */
+    
 
+    private String sDateLB;
+    
+    public String getsDateLB()
+    {
+        return sDateLB;
+    }
+
+    public void setsDateLB( String sDateLB )
+    {
+        this.sDateLB = sDateLB;
+    }
+    
+    /*
     private int eDateLB;
 
     public void setEDateLB( int dateLB )
@@ -305,7 +321,20 @@ implements Action
     {
         return eDateLB;
     }
+    */
+    
+    private String eDateLB;
+   
+    public String geteDateLB()
+    {
+        return eDateLB;
+    }
 
+    public void seteDateLB( String eDateLB )
+    {
+        this.eDateLB = eDateLB;
+    }
+	
     private String facilityLB;
 
     public void setFacilityLB( String facilityLB )
@@ -462,7 +491,7 @@ implements Action
                 o = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitIterator.next() ) );
                 orgUnitList.add( o );                
                 //Collections.sort( orgUnitList, new IdentifiableObjectNameComparator() );
-                Collections.sort( orgUnitList );
+                Collections.sort( orgUnitList );  
                 //displayPropertyHandler.handle( orgUnitList );
             }
         }
@@ -496,9 +525,14 @@ implements Action
         }
        
         // Period Related Info
-        Period startPeriod = periodService.getPeriod( sDateLB );
-        Period endPeriod = periodService.getPeriod( eDateLB );
+        //Period startPeriod = periodService.getPeriod( sDateLB );
+        //Period endPeriod = periodService.getPeriod( eDateLB );
 
+        Period startPeriod = periodService.getPeriod( Integer.parseInt( sDateLB ));
+        Period endPeriod = periodService.getPeriod( Integer.parseInt( eDateLB ) );
+
+		
+		
         PeriodType dataSetPeriodType = selDataSet.getPeriodType();        
         periodList = periodService.getPeriodsBetweenDates( dataSetPeriodType, startPeriod.getStartDate(),
             endPeriod.getEndDate() );
@@ -752,7 +786,7 @@ implements Action
         //Collections.sort( children, new IdentifiableObjectNameComparator() );
         Collections.sort( children );
 
-        Iterator childIterator = children.iterator();
+        Iterator<OrganisationUnit> childIterator = children.iterator();
         OrganisationUnit child;
         while ( childIterator.hasNext() )
         {

@@ -110,6 +110,7 @@ public class GenerateDataStatusFormAction
         
         //Collections.sort( dataSetList, new IdentifiableObjectNameComparator() );
         Collections.sort( dataSetList );
+
         /* Monthly Periods */
         //monthlyPeriods = new ArrayList<Period>( periodService.getPeriodsByPeriodType( new MonthlyPeriodType() ) );
         //Collections.sort( monthlyPeriods, new PeriodStartDateComparator() );

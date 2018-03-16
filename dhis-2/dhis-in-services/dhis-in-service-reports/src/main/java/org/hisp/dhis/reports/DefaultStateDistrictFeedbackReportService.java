@@ -161,7 +161,6 @@ public class DefaultStateDistrictFeedbackReportService implements StateDistrictF
 
                         //List<DataElement> dataElementList = new ArrayList<DataElement>(dataSetService.getDataElements(facilityDataSet));
                         List<DataElement> dataElementList = new ArrayList<DataElement>(facilityDataSet.getDataElements());
-
                         totalEntries = (dataElementList.size() * orgUnitGroupList.size()) ;
 
                         Collection<Integer> dataElementCollection = new ArrayList<Integer>(getIdentifiers(DataElement.class, dataElementList));
