@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    
+    <!--Birt Reports -->
+    <bean id="org.hisp.dhis.birtreports.action.ReportsHomePageAction"
+        class="org.hisp.dhis.birtreports.action.ReportsHomePageAction"
+        scope="prototype">
+    </bean>
+
+	<bean id="org.hisp.dhis.birtreports.action.ReportFormAction" class="org.hisp.dhis.birtreports.action.ReportFormAction"
+	    scope="prototype">
+	    <property name="organisationUnitService" ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+	    <property name="organisationUnitGroupService" ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
+	    <property name="constantService" ref="org.hisp.dhis.constant.ConstantService" />
+	</bean>	
+	
+	<!--  Birt Reports List -->
+	<bean id="org.hisp.dhis.birtreports.action.GetBirtReportsAction" class="org.hisp.dhis.birtreports.action.GetBirtReportsAction"
+	    scope="prototype">
+	    <property name="organisationUnitService" ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
+	    <property name="reportService" ref="org.hisp.dhis.reports.ReportService" />
+	    <property name="periodService" ref="org.hisp.dhis.period.PeriodService" />
+	</bean>	
+
+</beans>

@@ -30,7 +30,8 @@
     <module>dhis-web-apps</module>
 	<!-- India Module -->
 	<module>dhis-web-maintenance-in</module>
-	
+	<module>dhis-web-birtreports</module>
+	<module>dhis-web-dashboard</module>
 	<!-- India Module -->
 	
 	
