@@ -409,7 +409,8 @@ public class GenerateSummaryDataStatusResultAction
         if ( facilityLB.equals( "children" ) )
         {
             selectedOrgUnit = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitListCB.get( 0 ) ) );
-            orgUnitList.addAll( organisationUnitService.getOrganisationUnitWithChildren( selectedOrgUnit.getId() ) );
+            //orgUnitList.addAll( organisationUnitService.getOrganisationUnitWithChildren( selectedOrgUnit.getId() ) );
+            orgUnitList.addAll( getOrganisationUnitWithChildren( selectedOrgUnit.getId() ) );
         }
         else if ( facilityLB.equals( "immChildren" ) )
         {
@@ -905,9 +906,58 @@ public class GenerateSummaryDataStatusResultAction
     private List<OrganisationUnit> filterChildOrgUnitsByDataSet( DataSet selectedDataSet,
         OrganisationUnit selectedOrganisationUnit )
     {
-        List<OrganisationUnit> filteredOrganisationUnits = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selectedOrganisationUnit.getId() ) );
+        //List<OrganisationUnit> filteredOrganisationUnits = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selectedOrganisationUnit.getId() ) );
+        List<OrganisationUnit> filteredOrganisationUnits = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( selectedOrganisationUnit.getId() ) );
         filteredOrganisationUnits.retainAll( dso );
         return filteredOrganisationUnits;
     }
 
+    
+    /**
+     * Support method for getOrganisationUnitWithChildren(). Adds all
+     * OrganisationUnit children to a result collection.
+     */
+    public Collection<OrganisationUnit> getOrganisationUnitWithChildren( int id )
+    {
+        OrganisationUnit organisationUnit = organisationUnitService.getOrganisationUnit( id );
+
+        if ( organisationUnit == null )
+        {
+            return Collections.emptySet();
+        }
+
+        List<OrganisationUnit> result = new ArrayList<OrganisationUnit>();
+
+        int rootLevel = 1;
+
+        organisationUnit.setHierarchyLevel( rootLevel );
+
+        result.add( organisationUnit );
+
+        addOrganisationUnitChildren( organisationUnit, result, rootLevel );
+
+        return result;
+    }
+
+
+    private void addOrganisationUnitChildren( OrganisationUnit parent, List<OrganisationUnit> result, int level )
+    {
+        if ( parent.getChildren() != null && parent.getChildren().size() > 0 )
+        {
+            level++;
+        }
+
+        List<OrganisationUnit> childList = parent.getSortedChildren();
+
+        for ( OrganisationUnit child : childList )
+        {
+            child.setHierarchyLevel( level );
+
+            result.add( child );
+
+            addOrganisationUnitChildren( child, result, level );
+        }
+
+        level--;
+    }
 }// class end

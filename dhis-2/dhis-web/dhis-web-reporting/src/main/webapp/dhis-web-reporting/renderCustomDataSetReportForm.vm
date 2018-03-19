@@ -1,7 +1,37 @@
+<!-- add for ippf -->
 
-#parse( "dhis-web-reporting/renderDataSetReportHeader.vm" )
+<script type="text/javascript">
 
-#set( $css = "cde cde-$!{selectedDataSet.dataEntryForm.style}" )
-<div class="${css}">
-	$customDataEntryFormCode
-</div>
+	function exportCustumDataSetReportToWorkBook()
+	{			    
+	    document.getElementById('htmlCode').value = document.getElementById('formResult').innerHTML;			    			
+	    return true;
+	}
+</script>
+
+<form id="form" name="form" action="exportToExcel.action" method="post" onsubmit="exportCustumDataSetReportToWorkBook()" target="_newtab">
+	<input type="hidden" name="htmlCode" id="htmlCode" />
+	<input type="hidden" name="reportName" id="reportName" value="$encoder.htmlEncode( $selectedOrgunit.name )-$format.formatPeriod( $selectedPeriod )"/>	
+	
+	<div id="export">
+		<table> 
+			<tr>
+				<td colspan="2" style="height:5px"></td>
+			</tr>
+			<tr>
+				<td>
+					<input type="submit" value="$i18n.getString( 'get_report_as_workbook' )" style="width:140px;" />
+                </td>
+            </tr>
+        </table>
+    </div>
+	
+	#parse( "dhis-web-reporting/renderDataSetReportHeader.vm" )
+	<div id="formResult">
+		#set( $css = "cde cde-$!{selectedDataSet.dataEntryForm.style}" )
+		<div class="${css}">
+			$customDataEntryFormCode
+		</div>
+	</div>	
+</form>	
+

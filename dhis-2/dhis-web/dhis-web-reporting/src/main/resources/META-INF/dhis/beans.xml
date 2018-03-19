@@ -95,6 +95,8 @@
     <property name="organisationUnitGroupService" ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
     <property name="categoryService" ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
     <property name="selectionTreeManager" ref="org.hisp.dhis.oust.manager.SelectionTreeManager" />
+    <!--  add for IPPF -->
+    <property name="periodService" ref="org.hisp.dhis.period.PeriodService" />
   </bean>
 
   <bean id="org.hisp.dhis.reporting.dataset.action.GenerateDataSetReportAction" class="org.hisp.dhis.reporting.dataset.action.GenerateDataSetReportAction"
@@ -149,5 +151,17 @@
     scope="prototype">
     <property name="organisationUnitGroupService" ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
   </bean>
+  
+  <!-- add for IPPF -->	
+  <!-- Get Weekly Periods -->
+  <bean id="org.hisp.dhis.reporting.dataset.action.GetWeeklyPeriodsAction" class="org.hisp.dhis.reporting.dataset.action.GetWeeklyPeriodsAction"
+    scope="prototype">
+    <property name="periodService" ref="org.hisp.dhis.period.PeriodService" />
+  </bean>  
+  
+  <!--  for download dataSet Report as dataEntry Screen to excel -->
+  <bean id="org.hisp.dhis.reporting.excel.ExportToExcelAction"
+	class="org.hisp.dhis.reporting.excel.ExportToExcelAction" scope="prototype">
+  </bean> 
   
 </beans>
