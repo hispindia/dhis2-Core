@@ -20,7 +20,8 @@
 
 		<action name="index"
 			class="org.hisp.dhis.dataanalyser.action.NoAction">
-			<result name="success" type="velocity">/main.vm</result>
+			<!--<result name="success" type="velocity">/main.vm</result>-->
+			<result name="success" type="redirect">dataStatusForm.action</result>
 			<param name="page">/dhis-web-dashboard/welcome.vm</param>
 			<param name="menu">/dhis-web-dashboard/menu.vm</param>
 		</action>		

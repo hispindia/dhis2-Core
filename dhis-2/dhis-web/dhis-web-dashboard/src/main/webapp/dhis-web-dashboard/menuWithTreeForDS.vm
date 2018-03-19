@@ -1,5 +1,5 @@
-<a href="index.action"><h2>$i18n.getString( "dataanalyser" )</h2></a>
-
+<!--<a href="index.action"><h2>$i18n.getString( "dataanalyser" )</h2></a>-->
+<a href="dataStatusForm.action"><h2>$i18n.getString( "dataanalyser" )</h2></a>
 <ul>
 	<li>$i18n.getString( "ds_datastatus" )</li>
 	<ul>
