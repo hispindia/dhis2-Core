@@ -12,7 +12,14 @@
 <ul>
 	<li>Report Analysis</li>
 	<ul>
-		
+		#if( $auth.hasAccess( "dhis-web-reports", "upwardReportAnalyser") )
+ 			<li><a href = "upwardReportAnalyser.action">GOI Reports</a></li>
+ 		#end
+ 	   <!--
+ 		#if( $auth.hasAccess( "dhis-web-reports", "upwardReportAnalyser") )
+ 			<li><a href = "upwardReportAnalyserPrivate.action">GOI Reports(Private Institution)</a></li>
+ 		#end
+                
 		#if( $auth.hasAccess( "dhis-web-reports", "upwardReportAnalyser") )
 			<li><a href = "upwardReportAnalyser.action">GOI Reports</a></li>
 		#end
@@ -24,7 +31,8 @@
 		#if( $auth.hasAccess( "dhis-web-reports", "ouWiseProgressReportAnalyser") )
 			<li><a href = "ouWiseProgressReportAnalyser.action">Orgunitwise Progress Reports</a></li>
 		#end
-		
+		-->
+                
 		<!--
 		#if( $auth.hasAccess( "dhis-web-reports", "goiMonthlyReportAnalyser") )
 			<li><a href = "goiMonthlyReportAnalyser.action">GOI Monthly Report(Captured Data)</a></li>

@@ -122,14 +122,16 @@ public class GetReportsAction
                 //selectedOrgUnitLevel = organisationUnitService.getLevelOfOrganisationUnit( Integer.parseInt( ouId ) );
                 
                 PeriodType periodTypeObj = periodService.getPeriodTypeByName( periodType );
-                
+
+                System.out.println( "ouName  : " + orgUnit.getShortName() + "---- ouLavel  : " + orgUnit.getLevel() + "------LAVEL----- " + selectedOrgUnitLevel+"---"+reportType );
+
                 reportList = new ArrayList<Report_in>( reportService.getReportsByPeriodSourceAndReportType( periodTypeObj, orgUnit, reportType ) );
                 System.out.println( "ouName  : " + orgUnit.getShortName() + "---- ouLavel  : " + orgUnit.getLevel() + "------LAVEL----- " + selectedOrgUnitLevel + " Report List Size -- " + reportList.size());
                 Collections.sort( reportList, new Report_inNameComparator() );
             }
             catch ( Exception e )
             {
-                System.out.println( "Exception while getting Reports List : " + e.getMessage() );
+                System.out.println( "Exception while getting Reports List : ") ; e.printStackTrace();
             }
         }
 

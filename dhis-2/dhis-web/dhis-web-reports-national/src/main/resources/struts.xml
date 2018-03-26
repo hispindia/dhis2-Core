@@ -373,6 +373,18 @@
             <param name="requiredAuthorities">F_REPORT_GOI</param>
             <interceptor-ref name="organisationUnitTreeStack"/>
         </action>
+
+        <action name="upwardReportAnalyserPrivate"
+            class="org.hisp.dhis.reports.upward.action.GenerateUpwardReportAnalyserFormAction">
+            <result name="success" type="velocity">/main.vm</result>
+            <param name="page">/dhis-web-reports/linelstingWebPortalReportAnalyserFrontPrivate.vm</param>
+            <param name="menu">/dhis-web-reports/menuWithTreeForGOIReports.vm</param>
+            <param name="javascripts">../dhis-web-commons/ouwt/ouwt.js,../dhis-web-commons/javascripts/lists.js,javascript/reportManagement.js,javascript/hashtable.js</param>
+            <param name="stylesheets">css/StylesForTags.css</param>
+            <param name="requiredAuthorities">F_REPORT_GOI</param>
+            <interceptor-ref name="organisationUnitTreeStack"/>
+         </action>
+         
         <action name="generateUpwardReport"
             class="org.hisp.dhis.reports.upward.action.GenerateUpwardReportAnalyserResultAction">
             <result name="success" type="stream">
