@@ -78,7 +78,7 @@ return false;
 */
 </script>
 
-<h1>$i18n.getString( "Export Form" )</h1>
+<h1>$i18n.getString( "export_form" )</h1>
 <hr /><br />
             
 <form id="exportDataForm" name="exportDataForm" action="exportDataResult.action" method="post" target="_blank">

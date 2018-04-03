@@ -188,15 +188,17 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 		</property>
 	</bean>
 
-	<bean id="org.hisp.dhis.export.action.ExportDataResultAction"
-		class="org.hisp.dhis.export.action.ExportDataResultAction" scope="prototype">
+	<bean id="org.hisp.dhis.excelimport.export.action.ExportDataResultAction"
+		class="org.hisp.dhis.excelimport.export.action.ExportDataResultAction" scope="prototype">
 		<property name="excelImportService"
 			ref="org.hisp.dhis.excelimport.util.ExcelImportService" />
 	</bean>
 
-	<!-- <bean id="org.hisp.dhis.importexcel.action.ImportDataResultAction" 
-		class="org.hisp.dhis.importexcel.action.ImportDataResultAction" scope="prototype"> 
-		<property name="excelImportService" ref="org.hisp.dhis.excelimport.util.ExcelImportService" 
-		/> </bean> -->
+	<!-- 
+	<bean id="org.hisp.dhis.excelimport.importexcel.action.ImportDataResultAction" 
+		class="org.hisp.dhis.excelimport.importexcel.action.ImportDataResultAction" scope="prototype"> 
+		<property name="excelImportService" ref="org.hisp.dhis.excelimport.util.ExcelImportService" /> 
+	</bean> 
+	-->
 
 </beans>

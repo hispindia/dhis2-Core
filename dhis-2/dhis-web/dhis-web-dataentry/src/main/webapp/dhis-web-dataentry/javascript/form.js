@@ -1224,8 +1224,13 @@ function dataSetSelected()
             {
                 document.getElementsByClassName('weeklyperiods')[0].id="selectedPeriodId";
             }
-
-            changeDate();
+			
+			dhis2.de.currentPeriodOffset = 0;
+			displayPeriods();
+			dhis2.de.clearSectionFilters();
+			dhis2.de.clearEntryForm();
+			
+			changeDate();            
         }
         else
         {
