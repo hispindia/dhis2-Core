@@ -77,6 +77,7 @@ public class ScheduleCountTEI implements Action
         
         List<String> trackedEntityInstances = new ArrayList<String>( getTrackedEntityInstanceCountByAttributeId( BLOCK_TALUK_ATTRIBUTE_ID, startDateOfCurrentMonth, endDateOfCurrentMonth ) );
         
+        System.out.println(" TEI List Size - " + trackedEntityInstances.size() );
         if( trackedEntityInstances != null && trackedEntityInstances.size() > 0 )
         {
             String storedBy = "admin";
