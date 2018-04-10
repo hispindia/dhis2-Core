@@ -1,3 +1,5 @@
+/* Updated by Sunakshi and Mithilesh Kumar Thakur on 10/04/18
+ * Line 239*/
 package org.hisp.dhis.excelimport.util;
 
 import java.io.File;
@@ -232,6 +234,37 @@ public class ExcelImportService
         {
             throw new RuntimeException( "Illegal DataElement id", e );
         }
+    }
+
+    /* get attribute value and code */
+
+    public Map<String, String> getAttributeValueCode()
+    {
+
+        String query = "";
+
+        Map<String, String> attValueMap = new HashMap<String, String>();
+
+        query = "SELECT orgUnitGroup.uid, av.value FROM attributevalue av "
+            + " INNER JOIN orgunitgroupattributevalues oav ON av.attributevalueid = oav.attributevalueid "
+            + " INNER JOIN orgunitgroup orgUnitGroup ON orgUnitGroup.orgunitgroupid = oav.orgunitgroupid "
+            + " INNER JOIN attribute attr ON av.attributeid = attr.attributeid "
+            + " WHERE attr.code = 'OrgUnitGroupCode' ";
+
+        SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+        while ( rs.next() )
+        {
+            String orgGroupUId = rs.getString( 1 );
+            String attributeValue = rs.getString( 2 );
+
+            if ( orgGroupUId != null && attributeValue != null )
+            {
+                attValueMap.put( orgGroupUId, attributeValue );
+            }
+        }
+        return attValueMap;
+
     }
 
     public List<ExcelImport> getExcelImportDesign( String xmlFileName )
