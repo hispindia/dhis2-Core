@@ -120,7 +120,8 @@ public class BulkSMSHttpInterface
         password = "hisp1234";
         senderName = "HSSPIN";
         
-        String token = "2Ca4N06OnVfBBl0BMemc";
+        //String token = "2Ca4N06OnVfBBl0BMemc";
+		String token="fzuvg0cm8J6DJdFTP2kr";
         String from = "infoSMS";
         
         //Populating the data according to the api link
