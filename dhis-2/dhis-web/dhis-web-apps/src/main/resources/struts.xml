@@ -136,5 +136,12 @@
             <result name="success" type="redirect">#</result>
         </action>
     </package>
-
+	
+	<!-- local internal apps -->
+    <package name="dhis-web-reports-app" extends="dhis-web-commons" namespace="/dhis-web-reports-app">
+        <action name="index" class="org.hisp.dhis.commons.action.NoAction">
+            <result name="success" type="redirect">index.html</result>
+        </action>
+    </package>
+    
 </struts>
