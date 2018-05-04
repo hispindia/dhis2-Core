@@ -148,10 +148,8 @@ function getReports( ouId, reportListFileName )
 { 
   var periodTypeList = document.getElementById( "periodTypeId" );
   var periodType = periodTypeList.options[ periodTypeList.selectedIndex ].value;
-  //var reportListFileName = document.reportForm.reportListFileNameTB.value;
   var autogenvalue = document.getElementById( "autogen" ).value;
- // alert("file:" +reportListFileName + ", periodType :" + periodType + ", ouid:" + ouId);
-  
+	  
   var yearList = document.getElementById( "year" );
   var year = yearList.options[ yearList.selectedIndex ].value;
   
@@ -161,7 +159,6 @@ function getReports( ouId, reportListFileName )
 		{
 			periodType : periodType,
 			ouId : ouId,
-			//ouId : ouId[0],
 			reportListFileName : reportListFileName,
 			autogenrep : autogenvalue
 		},
@@ -201,7 +198,6 @@ function getReportsReceived( xmlObject )
 		option.text = name;
 		reportsList.add( option, null );
 	
-		//$("#reportList").append("<option value='"+ id +"'>" + name + "</option>");
 		reportModels.put( id, model );
 		reportFileNames.put( id, fileName );
 		checkerFileNames.put( id, checkerFileName );
@@ -263,14 +259,11 @@ function getWeeklyPeriods()
 	   clearList( availablePeriods );
 	   clearList( reportList );
 	}
-	
-	//var ouId = document.reportForm.ouIDTB.value;
-	
+		
 	var ouId = document.getElementById( "ouIDTB" ).value;
 	
 	var reportListFileName = document.reportForm.reportListFileNameTB.value;
 	
-	//alert( ouId );
 	getReports(ouId, reportListFileName);
 }
 
@@ -289,10 +282,6 @@ function getWeeklyPeriodsReceived( xmlObject )
 		var isoPeriod = periods[ i ].getElementsByTagName( "isoDate" )[0].firstChild.nodeValue;
 		var periodName = isoPeriod + " - "  +periods[ i ].getElementsByTagName( "periodname" )[0].firstChild.nodeValue;
 		
-		/*var monthLists = document.getElementById( "month" );
-		var months = monthLists.options[ monthLists.selectedIndex ].value;
-		console.log("months is ------"+month);*/
-		
 		var option = document.createElement( "option" );
 		option.value = id;
 		option.text = periodName;
@@ -303,13 +292,8 @@ function getWeeklyPeriodsReceived( xmlObject )
 
 function submitImportForm()
 {
-	if ( formValidations() )
 	{
-		//var radioButtonvalue = document.getElementById("riRadio").value;
-		
-		//alert( radioButtonvalue );
-		//alert($("input[type=radio]:checked").val());
-		
+	
 		var radioButtonvalue = $("input[type=radio]:checked").val();
 		
 		if( radioButtonvalue == "overWrite")
@@ -320,9 +304,7 @@ function submitImportForm()
 			var orgunitIdValue = document.reportForm.ouIDTB.value;
 			
 			var dataSetId = document.reportForm.dataSetId.value;
-			
-			//alert( periodId + "--" + orgunitIdValue + "--" + dataSetId );
-			 
+						 
 		    $.post("validateExcelImportUpdateData.action",
 			{
 		    	availablePeriods : periodId,
@@ -340,7 +322,7 @@ function submitImportForm()
 			setMessage( "Importing started");
 			document.getElementById( "reportForm" ).submit();
 		}
-	}
+	//}
 }
 
 function getDataReceived(messageElement) 
@@ -358,7 +340,6 @@ function getDataReceived(messageElement)
 			document.getElementById( "reportForm" ).submit();
 	    }
 		
-		//alert( messageElement.firstChild.nodeValue );
 	} 
 	
 }

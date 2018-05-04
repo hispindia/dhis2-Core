@@ -1,3 +1,5 @@
+// Modified By Sunakshi
+// Line 218 to 328	
 package org.hisp.dhis.excelimport.importexcel.action;
 
 import java.io.File;
@@ -177,9 +179,7 @@ implements Action
   public String execute()
       throws Exception
   {
-      OrganisationUnitGroupSet OrganisationUnitGroupSet = organisationUnitGroupSetStore.getByCode( "ExcelExportGroupSet" );
-      organisationUnitGroups = new ArrayList<OrganisationUnitGroup>( OrganisationUnitGroupSet.getOrganisationUnitGroups());
-
+    
       message = "";
       totalCount = "";
       addingCount = "";
@@ -194,20 +194,11 @@ implements Action
       // period information
       weeklyPeriodTypeName = WeeklyPeriodType.NAME;
       PeriodType periodType = periodService.getPeriodTypeByName( weeklyPeriodTypeName );
-
-      
+  
       storedBy = currentUserService.getCurrentUsername();
       List<ExcelImport> excelExportDesignList = new ArrayList<ExcelImport>();
       
-     // deCodesXMLFileName = "importData.xml";
-      
-     // excelExportDesignList = new ArrayList<ExcelImport>( excelImportService.getExcelImportDesign( deCodesXMLFileName ) );
-      
-      
       String fileType = fileName.substring( fileName.indexOf( '.' ) + 1, fileName.length() );
-      
-      
-      //InputStream in = new FileInputStream( file );
       CSVReader csvReader = new CSVReader( new FileReader( file ), ',', '\'' );
       
      
@@ -222,59 +213,36 @@ implements Action
       List allRows = new ArrayList<String>();
       String[] row = null;
       int count = 0;
-      
-      List<String> dataElementsCode = new ArrayList<String>();
-      List<String> isoPeriod = new ArrayList<String>();
-      List<String> orgUnitsCode = new ArrayList<String>();
-      List<String> categoryComboUid = new ArrayList<String>();
-      List<String> attributeComboUid = new ArrayList<String>();
-      List<String> cellValues = new ArrayList<String>();
-      
+
       while ( (row = csvReader.readNext()) != null )
       {
-    	  dataElementsCode.add( row[0] );
-    	  isoPeriod.add( row[1] );
-    	  orgUnitsCode.add( row[2] );
-    	  categoryComboUid.add( row[3] );
-    	  attributeComboUid.add( row[4] );
-    	  cellValues.add( row[5] );
-    	 // System.out.println( count++ + " : " + row[0] + " : " + row[1] + " : " + row[2]);
           allRows.add( row );
       }
-
       csvReader.close();
-
-      //System.out.println( "Row size -- " + allRows.size());
 
       int count1 = 0;
       int addCount = 0;
       int updateCount = 0;
       
-      for( int i = 0; i< allRows.size()-1; i++ )
+      for( Object obj : allRows )
       {
-    	  String dataElementCode = dataElementsCode.get( i + 1 );
-          String categroyComboUid = categoryComboUid.get( i + 1 );
-          String attComboUid = attributeComboUid.get( i + 1 );
-          String orgUnitCode = orgUnitsCode.get( i + 1 );
+
+    	  String[] oneRow = (String[]) obj;
+          int noOfCols = oneRow.length;
+
+          DataElement dataElement = dataElementService.getDataElementByCode( oneRow[0] );
+          DataElementCategoryOptionCombo categoryOptionCombo = categoryService.getDataElementCategoryOptionCombo( oneRow[3] );
           
-          String cellContent = cellValues.get( i + 1 );
-          String cellContentPeriodUid = isoPeriod.get( i+1 );
+          DataElementCategoryOptionCombo attributeOptionCombo = categoryService.getDataElementCategoryOptionCombo( oneRow[4] );
           
-          //System.out.println( dataElementCode + " : " + categroyComboUid + " : " + attComboUid + " : " + orgUnitCode + " : " + cellContent + " : " + cellContentPeriodUid );
-          
-          DataElement dataElement = dataElementService.getDataElementByCode( dataElementCode );
-          DataElementCategoryOptionCombo categoryOptionCombo = categoryService.getDataElementCategoryOptionCombo( categroyComboUid );
-          
-          DataElementCategoryOptionCombo attributeOptionCombo = categoryService.getDataElementCategoryOptionCombo( attComboUid );
-          
-          OrganisationUnit organisationUnit = organisationUnitService.getOrganisationUnitByCode( orgUnitCode );
+          OrganisationUnit organisationUnit = organisationUnitService.getOrganisationUnitByCode( oneRow[2] );
           
           List<Period> periods = new ArrayList<Period>();
           Period tempPeriod  = new Period();
-          if ( cellContentPeriodUid != null )
+          if ( oneRow[1] != null )
           {
 
-              Period period = periodService.reloadIsoPeriod( cellContentPeriodUid );
+              Period period = periodService.reloadIsoPeriod( oneRow[1] );
 
               if ( period != null )
               {
@@ -298,9 +266,9 @@ implements Action
               }
           }
           
-          if ( cellContent.equalsIgnoreCase( "" ) || cellContent == null || cellContent.equalsIgnoreCase( " " ) )
+          if ( oneRow[5].equalsIgnoreCase( "" ) || oneRow[5] == null || oneRow[5].equalsIgnoreCase( " " ) )
           {
-              i++;
+        	  noOfCols++;
 
               continue;
           }
@@ -310,7 +278,7 @@ implements Action
           if( dataElement != null && tempPeriod != null && organisationUnit != null && categoryOptionCombo != null && attributeOptionCombo != null )
           {
         	  DataValue dataValue = dataValueService.getDataValue( dataElement, tempPeriod, organisationUnit, categoryOptionCombo, attributeOptionCombo );
-              
+                      	  
               if ( dataValue == null )
               {
             	  try
@@ -322,10 +290,11 @@ implements Action
                       dataValue.setSource( organisationUnit );
                       dataValue.setCategoryOptionCombo( categoryOptionCombo );
                       dataValue.setAttributeOptionCombo(attributeOptionCombo);
-                      dataValue.setLastUpdated(  new Date() );
+                      dataValue.setLastUpdated(  now );
                       dataValue.setStoredBy( storedBy );
-                      dataValue.setValue(cellContent);
+                      dataValue.setValue(oneRow[5]);
                       dataValue.setCreated( now );
+                      
                       dataValueService.addDataValue( dataValue );                
                       addCount++;
                       
@@ -340,7 +309,7 @@ implements Action
               {
                   try
                   {
-                	  dataValue.setValue( cellContent );
+                	  dataValue.setValue( oneRow[5] );
                 	  dataValue.setLastUpdated( now );
                 	  dataValue.setStoredBy( storedBy );
 
@@ -357,126 +326,8 @@ implements Action
           
 
       }
-      /*
-      Iterator<ExcelImport> excelExportDesignIterator = excelExportDesignList.iterator();
-      int count1 = 0;
-      int addCount = 0;
-      int updateCount = 0;
-      
-      while ( excelExportDesignIterator.hasNext() )
-      {
-    	
-    	  ExcelImport exceEmportDesign = (ExcelImport) excelExportDesignIterator.next();
-
-          String deCodeString = exceEmportDesign.getExpression();
-        
-          String dataElementUid = exceEmportDesign.getDataelement();
-          String categroyComboUid = exceEmportDesign.getCategoryoptioncombo();
-          String attributeComboUid = exceEmportDesign.getAttributeoptioncombo();
-          String orgUnitUid = exceEmportDesign.getOrgunit();
-          int tempRowNo = exceEmportDesign.getRowno();
-          int tempColNo = exceEmportDesign.getColno();
-          int sheetNo = exceEmportDesign.getSheetno();
-   
-          String cellContent = cellValues.get( count1 + 1 );
-          String cellContentPeriodUid = isoPeriod.get( count1+1 );
- 
-          DataElement dataElement = dataElementService.getDataElement(dataElementUid);
-          DataElementCategoryOptionCombo categoryOptionCombo = categoryService.getDataElementCategoryOptionCombo( categroyComboUid );
-          
-          DataElementCategoryOptionCombo attributeOptionCombo = categoryService.getDataElementCategoryOptionCombo( attributeComboUid );
-          
-          OrganisationUnit organisationUnit = organisationUnitService.getOrganisationUnit(orgUnitUid);
-          
-          
-          List<Period> periods = new ArrayList<Period>();
-          Period tempPeriod  = new Period();
-          if ( cellContentPeriodUid != null )
-          {
-
-              Period period = periodService.reloadIsoPeriod( cellContentPeriodUid );
-
-              if ( period != null )
-              {
-                  periods = new ArrayList<Period>( periodService.getPeriodsBetweenDates( periodType,
-                      period.getStartDate(), period.getEndDate() ) );
-              }
-              
-              if( periods != null && periods.size() > 0 )
-              {
-            	  
-            	  if( periods.size() == 4 )
-            	  {  
-            		  tempPeriod = periods.get(1);
-            		
-            	  }
-            	  else
-            	  {
-            		  tempPeriod = periods.get(0);
-            	  }
-            	  
-              }
-          }
-          
-          if ( cellContent.equalsIgnoreCase( "" ) || cellContent == null || cellContent.equalsIgnoreCase( " " ) )
-          {
-              count1++;
-
-              continue;
-          }
-          
-          Date now = new Date();
-
-          DataValue dataValue = dataValueService.getDataValue( dataElement, tempPeriod, organisationUnit, categoryOptionCombo, attributeOptionCombo );
-          
-          if ( dataValue == null )
-          {
-        	  try
-              {                 
-                  dataValue = new DataValue();
-
-                  dataValue.setDataElement( dataElement );
-                  dataValue.setPeriod( tempPeriod );
-                  dataValue.setSource( organisationUnit );
-                  dataValue.setCategoryOptionCombo( categoryOptionCombo );
-                  dataValue.setAttributeOptionCombo(attributeOptionCombo);
-                  dataValue.setLastUpdated(  new Date() );
-                  dataValue.setStoredBy( storedBy );
-                  dataValue.setValue(cellContent);
-                  dataValue.setCreated( now );
-                  dataValueService.addDataValue( dataValue );                
-                  addCount++;
-                  
-                  
-              }
-              catch ( Exception ex )
-              {
-                  throw new RuntimeException( "Cannot add datavalue", ex );
-              }
-          } 
-          else 
-          {
-              try
-              {
-            	  dataValue.setValue( cellContent );
-            	  dataValue.setLastUpdated( now );
-            	  dataValue.setStoredBy( storedBy );
-
-                  dataValueService.updateDataValue( dataValue );
-                  
-                  updateCount++;             
-              }
-              catch ( Exception ex )
-              {
-                  throw new RuntimeException( "Cannot update datavalue", ex );
-              }
-          }
-
-          count1++;
-          
-      }// inner while loop end
-      */
-      totrec = addCount+updateCount;
+    
+    totrec = addCount+updateCount;
     message= "The report has been imported successfully";
     totalCount = "Total records imported : "+totrec;
     addingCount = "New records added : "+addCount;

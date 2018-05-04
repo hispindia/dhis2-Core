@@ -117,12 +117,7 @@ public class ImportFormAction  implements Action
         {
             yearList.add( simpleDateFormat.format( p1.getStartDate() ) );
         }
-       
-        OrganisationUnitGroupSet OrganisationUnitGroupSet = organisationUnitGroupSetStore.getByCode( "ExcelExportGroupSet" );
-       
-        
-        organisationUnitGroups = new ArrayList<OrganisationUnitGroup>( OrganisationUnitGroupSet.getOrganisationUnitGroups());
-
+	
         return SUCCESS;
     }
 
