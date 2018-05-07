@@ -237,16 +237,9 @@ implements Action
     	  String[] oneRow = (String[]) obj;
           int noOfCols = oneRow.length;
           
-         // String orgUnitCode = oneRow[2];
           Integer organisationUnitId = getOrgUnitIdByCode( oneRow[2] );
-          
-          //String deCode = oneRow[0];
           Integer dataElementId = getDataElementByCode( oneRow[0] );               
-          
-         // String categoryOptionComboUid = oneRow[3];
           Integer categoryOptionComboId = getCategoryOptionComboByUid( oneRow[3] );
-          
-        //  String attributOptionComboUid = oneRow[3];
           Integer attributeOptionComboId = getCategoryOptionComboByUid( oneRow[4] );
   
           List<Period> periods = new ArrayList<Period>();
@@ -291,8 +284,8 @@ implements Action
           java.sql.Date lastUpdatedDate = new java.sql.Date( t );
           
           String comment = "false";
-          String followup = "f";
-          String deleted = "f";    
+          String followup = "false";
+          String deleted = "false";    
     	  
           if( dataElementId != null && tempPeriod != null && organisationUnitId != null && categoryOptionComboId != null && attributeOptionComboId != null)
           {
@@ -324,8 +317,7 @@ implements Action
                           updateCount++;
                           
                   }
-              }
-        		        
+              }	        
 
       }
       }
