@@ -1,5 +1,4 @@
-// Modified By Sunakshi
-// Line 218 to 328	
+// Modified By Sunakshi on 7 may 2018
 package org.hisp.dhis.excelimport.importexcel.action;
 
 import java.io.File;
@@ -38,6 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.opensymphony.xwork2.Action;
 
 import au.com.bytecode.opencsv.CSVReader;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 public class ImportDataResultAction
 implements Action
@@ -155,7 +156,12 @@ implements Action
       return updatingCount;
   }
   
-  
+  private JdbcTemplate jdbcTemplate;
+
+  public void setJdbcTemplate( JdbcTemplate jdbcTemplate )
+  {
+      this.jdbcTemplate = jdbcTemplate;
+  }
   OrganisationUnitGroup orgUnitGroup;
   OrganisationUnitGroup orgUnitGroup1;
 
@@ -168,8 +174,8 @@ implements Action
   String splitBy = ",";
  
  
-  
-  
+
+
 
   // -------------------------------------------------------------------------
   // Action implementation
@@ -218,7 +224,8 @@ implements Action
       {
           allRows.add( row );
       }
-      csvReader.close();
+      
+       csvReader.close();
 
       int count1 = 0;
       int addCount = 0;
@@ -229,14 +236,19 @@ implements Action
 
     	  String[] oneRow = (String[]) obj;
           int noOfCols = oneRow.length;
-
-          DataElement dataElement = dataElementService.getDataElementByCode( oneRow[0] );
-          DataElementCategoryOptionCombo categoryOptionCombo = categoryService.getDataElementCategoryOptionCombo( oneRow[3] );
           
-          DataElementCategoryOptionCombo attributeOptionCombo = categoryService.getDataElementCategoryOptionCombo( oneRow[4] );
+         // String orgUnitCode = oneRow[2];
+          Integer organisationUnitId = getOrgUnitIdByCode( oneRow[2] );
           
-          OrganisationUnit organisationUnit = organisationUnitService.getOrganisationUnitByCode( oneRow[2] );
+          //String deCode = oneRow[0];
+          Integer dataElementId = getDataElementByCode( oneRow[0] );               
           
+         // String categoryOptionComboUid = oneRow[3];
+          Integer categoryOptionComboId = getCategoryOptionComboByUid( oneRow[3] );
+          
+        //  String attributOptionComboUid = oneRow[3];
+          Integer attributeOptionComboId = getCategoryOptionComboByUid( oneRow[4] );
+  
           List<Period> periods = new ArrayList<Period>();
           Period tempPeriod  = new Period();
           if ( oneRow[1] != null )
@@ -273,58 +285,49 @@ implements Action
               continue;
           }
           
-          Date now = new Date();
-
-          if( dataElement != null && tempPeriod != null && organisationUnit != null && categoryOptionCombo != null && attributeOptionCombo != null )
-          {
-        	  DataValue dataValue = dataValueService.getDataValue( dataElement, tempPeriod, organisationUnit, categoryOptionCombo, attributeOptionCombo );
-                      	  
-              if ( dataValue == null )
-              {
-            	  try
-                  {                 
-                      dataValue = new DataValue();
-
-                      dataValue.setDataElement( dataElement );
-                      dataValue.setPeriod( tempPeriod );
-                      dataValue.setSource( organisationUnit );
-                      dataValue.setCategoryOptionCombo( categoryOptionCombo );
-                      dataValue.setAttributeOptionCombo(attributeOptionCombo);
-                      dataValue.setLastUpdated(  now );
-                      dataValue.setStoredBy( storedBy );
-                      dataValue.setValue(oneRow[5]);
-                      dataValue.setCreated( now );
-                      
-                      dataValueService.addDataValue( dataValue );                
-                      addCount++;
-                      
-                      
-                  }
-                  catch ( Exception ex )
-                  {
-                      throw new RuntimeException( "Cannot add datavalue", ex );
-                  }
-              } 
-              else 
-              {
-                  try
-                  {
-                	  dataValue.setValue( oneRow[5] );
-                	  dataValue.setLastUpdated( now );
-                	  dataValue.setStoredBy( storedBy );
-
-                      dataValueService.updateDataValue( dataValue );
-                      
-                      updateCount++;             
-                  }
-                  catch ( Exception ex )
-                  {
-                      throw new RuntimeException( "Cannot update datavalue", ex );
-                  }
-              } 
-          }
+          long t;
+          Date d = new Date();
+          t = d.getTime();
+          java.sql.Date lastUpdatedDate = new java.sql.Date( t );
           
+          String comment = "false";
+          String followup = "f";
+          String deleted = "f";    
+    	  
+          if( dataElementId != null && tempPeriod != null && organisationUnitId != null && categoryOptionComboId != null && attributeOptionComboId != null)
+          {
+     	 
+        	  Integer periodId = tempPeriod.getId();
+        	  
+        	  String selectQuery = "SELECT * FROM datavalue WHERE dataelementid == " + dataElementId + " AND  periodid == " + periodId + " AND sourceid == " + organisationUnitId + " AND categoryoptioncomboid == " + categoryOptionComboId + " ";
+    	          	  
+        	  if ( selectQuery != null )
+              {
+        		
+        		  try
+                  {  
+        			  String insertQuery = "INSERT INTO datavalue ( dataelementid, periodid, sourceid, categoryoptioncomboid, attributeoptioncomboid, value, storedby, lastupdated,comment,followup, created,deleted ) VALUES "
+            		  +"("+dataElementId+","+periodId+","+organisationUnitId+","+categoryOptionComboId+","+attributeOptionComboId+","+oneRow[5]+",'"+storedBy+"','"+lastUpdatedDate+"','"+comment+"','"+followup+"','"+lastUpdatedDate+"','"+deleted+"');";
+        			  jdbcTemplate.update( insertQuery );
 
+        			  addCount++;	
+              
+                  }
+                  catch ( Exception ex )
+                  {
+                	  String updateQuery = "UPDATE datavalue SET value = '" + oneRow[5] + "', storedby = '" + storedBy
+                              + "',lastupdated='" + lastUpdatedDate + "' WHERE dataelementid = " + dataElementId
+                              + " AND periodid = " + periodId + " AND sourceid = " + organisationUnitId
+                              + " AND categoryoptioncomboid = " + categoryOptionComboId;
+                          
+                          jdbcTemplate.update( updateQuery );
+                          updateCount++;
+                          
+                  }
+              }
+        		        
+
+      }
       }
     
     totrec = addCount+updateCount;
@@ -404,5 +407,87 @@ implements Action
       }
   }
 
+
+  public Integer getOrgUnitIdByCode( String orgUnitCode )
+  {
+	  Integer organisationId = null; 
+      String query = "SELECT organisationunitid FROM organisationunit WHERE  code = '" + orgUnitCode + "'";
+      
+      SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+      while ( rs.next() )
+      {
+    	  Integer ouId = rs.getInt(1);
+
+          if ( ouId != null  )
+          {
+        	  organisationId = ouId;
+          }
+      }
+      
+      return organisationId;
+  }
+  
+  public Integer getCategoryOptionComboByUid( String categoryOptionComboUid )
+  {
+	  Integer categoryOptionComboId = null; 
+      String query = "SELECT categoryoptioncomboid FROM categoryoptioncombo WHERE  uid = '" + categoryOptionComboUid + "'";
+      
+      SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+      while ( rs.next() )
+      {
+    	  Integer cocId = rs.getInt(1);
+
+          if ( cocId != null  )
+          {
+        	  categoryOptionComboId = cocId;
+          }
+      }
+      
+      return categoryOptionComboId;
+  }
+  public Integer getAttributeOptionComboByUid( String attributeOptionComboUid )
+  {
+	  Integer attributeOptionComboId = null; 
+      String query = "SELECT categoryoptioncomboid FROM categoryoptioncombo WHERE  uid = '" + attributeOptionComboUid + "'";
+      
+      SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+      while ( rs.next() )
+      {
+    	  Integer aocId = rs.getInt(1);
+
+          if ( aocId != null  )
+          {
+        	  attributeOptionComboId = aocId;
+          }
+      }
+      
+      return attributeOptionComboId;
+  }
+  public Integer getDataElementByCode( String dataElementCode )
+  {
+	  Integer dataElementId = null; 
+      String query = "SELECT dataelementid FROM dataelement WHERE code = '" + dataElementCode + "'";
+      
+      SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+      while ( rs.next() )
+      {
+    	  Integer deId = rs.getInt(1);
+
+          if ( deId != null  )
+          {
+        	  dataElementId = deId;
+          }
+      }
+      
+      return dataElementId;
+  }
+  
+    
+  
+  
 }
 
