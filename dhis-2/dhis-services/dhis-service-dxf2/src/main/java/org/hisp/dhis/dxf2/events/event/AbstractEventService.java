@@ -986,6 +986,18 @@ public abstract class AbstractEventService
             organisationUnit = programStageInstance.getOrganisationUnit();
         }
 
+        // push event coordinate while registering event
+        if( organisationUnit.getCoordinates() != null )
+        {
+            String longitudeLatitude = organisationUnit.getCoordinates().substring( 1, organisationUnit.getCoordinates().length()-1);
+            if( longitudeLatitude != null )
+            {
+                programStageInstance.setLongitude( Double.parseDouble( longitudeLatitude.split( "," )[0]) );
+                programStageInstance.setLatitude( Double.parseDouble( longitudeLatitude.split( "," )[1]) );
+            }
+        }
+        //end
+        
         Date executionDate = new Date();
 
         if ( event.getEventDate() != null )
@@ -1508,7 +1520,19 @@ public abstract class AbstractEventService
         programStageInstance.setOrganisationUnit( organisationUnit );
         programStageInstance.setAttributeOptionCombo( aoc );
         programStageInstance.setDeleted( event.isDeleted() );
-
+        
+        // push event coordinate while registering event
+        if( organisationUnit.getCoordinates() != null )
+        {
+            String longitudeLatitude = organisationUnit.getCoordinates().substring( 1, organisationUnit.getCoordinates().length()-1);
+            if( longitudeLatitude != null )
+            {
+                programStageInstance.setLongitude( Double.parseDouble( longitudeLatitude.split( "," )[0]) );
+                programStageInstance.setLatitude( Double.parseDouble( longitudeLatitude.split( "," )[1]) );
+            }
+        }
+        // end
+        
         if ( programStage.getCaptureCoordinates() )
         {
             if ( coordinate != null && coordinate.isValid() )
