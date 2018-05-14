@@ -292,8 +292,6 @@ function getWeeklyPeriodsReceived( xmlObject )
 
 function submitImportForm()
 {
-	{
-	
 		var radioButtonvalue = $("input[type=radio]:checked").val();
 		
 		if( radioButtonvalue == "overWrite")
@@ -322,7 +320,6 @@ function submitImportForm()
 			setMessage( "Importing started");
 			document.getElementById( "reportForm" ).submit();
 		}
-	//}
 }
 
 function getDataReceived(messageElement) 
