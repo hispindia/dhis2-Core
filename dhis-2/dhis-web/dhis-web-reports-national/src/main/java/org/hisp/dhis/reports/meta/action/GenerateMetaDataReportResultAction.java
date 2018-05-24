@@ -1002,8 +1002,8 @@ public class GenerateMetaDataReportResultAction
     {
         OrganisationUnit rootOrgUnit = organisationUnitService.getRootOrganisationUnits().iterator().next();
 
-        List<OrganisationUnit> OrganisitionUnitList = new ArrayList<OrganisationUnit>( organisationUnitService
-            .getOrganisationUnitWithChildren( rootOrgUnit.getId() ) );
+        //List<OrganisationUnit> OrganisitionUnitList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( rootOrgUnit.getId() ) );
+        List<OrganisationUnit> OrganisitionUnitList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( rootOrgUnit.getId() ) );
 
         // String outputReportPath = System.getenv( "DHIS2_HOME" ) +
         // File.separator + raFolderName + File.separator + "output" +
@@ -1108,9 +1108,8 @@ public class GenerateMetaDataReportResultAction
     {
         OrganisationUnit rootOrgUnit = organisationUnitService.getRootOrganisationUnits().iterator().next();
 
-        List<OrganisationUnit> OrganisitionUnitList = new ArrayList<OrganisationUnit>( organisationUnitService
-            .getOrganisationUnitWithChildren( rootOrgUnit.getId() ) );
-
+        //List<OrganisationUnit> OrganisitionUnitList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( rootOrgUnit.getId() ) );
+        List<OrganisationUnit> OrganisitionUnitList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( rootOrgUnit.getId() ) );
         // String outputReportPath = System.getenv( "DHIS2_HOME" ) +
         // File.separator + raFolderName + File.separator + "output" +
         // File.separator + UUID.randomUUID().toString() + ".xls";
@@ -2352,5 +2351,52 @@ public class GenerateMetaDataReportResultAction
         wCellformat.setWrap( false );
         return wCellformat;
     }
+    /**
+     * Support method for getOrganisationUnitWithChildren(). Adds all
+     * OrganisationUnit children to a result collection.
+     */
+    public Collection<OrganisationUnit> getOrganisationUnitWithChildren( int id )
+    {
+        OrganisationUnit organisationUnit = organisationUnitService.getOrganisationUnit( id );
+
+        if ( organisationUnit == null )
+        {
+            return Collections.emptySet();
+        }
+
+        List<OrganisationUnit> result = new ArrayList<OrganisationUnit>();
+
+        int rootLevel = 1;
+
+        organisationUnit.setHierarchyLevel( rootLevel );
+
+        result.add( organisationUnit );
+
+        addOrganisationUnitChildren( organisationUnit, result, rootLevel );
+
+        return result;
+    }
+
+
+    private void addOrganisationUnitChildren( OrganisationUnit parent, List<OrganisationUnit> result, int level )
+    {
+        if ( parent.getChildren() != null && parent.getChildren().size() > 0 )
+        {
+            level++;
+        }
+
+        List<OrganisationUnit> childList = parent.getSortedChildren();
+
+        for ( OrganisationUnit child : childList )
+        {
+            child.setHierarchyLevel( level );
+
+            result.add( child );
+
+            addOrganisationUnitChildren( child, result, level );
+        }
+
+        level--;
+    }       
 
 }
