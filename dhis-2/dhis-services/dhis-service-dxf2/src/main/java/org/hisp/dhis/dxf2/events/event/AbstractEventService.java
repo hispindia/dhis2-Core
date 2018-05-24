@@ -104,6 +104,8 @@ import org.hisp.dhis.trackedentitycomment.TrackedEntityComment;
 import org.hisp.dhis.trackedentitycomment.TrackedEntityCommentService;
 import org.hisp.dhis.trackedentitydatavalue.TrackedEntityDataValue;
 import org.hisp.dhis.trackedentitydatavalue.TrackedEntityDataValueService;
+
+import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValue;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserCredentials;
@@ -136,7 +138,9 @@ public abstract class AbstractEventService
     implements EventService
 {
     private static final Log log = LogFactory.getLog( AbstractEventService.class );
-
+    
+    private final static int TE_ATTRIBUTE_ID = 11522;
+    
     public static final List<String> STATIC_EVENT_COLUMNS = Arrays.asList( EVENT_ID, EVENT_CREATED_ID,
         EVENT_LAST_UPDATED_ID, EVENT_STORED_BY_ID, EVENT_COMPLETED_BY_ID, EVENT_COMPLETED_DATE_ID,
         EVENT_EXECUTION_DATE_ID, EVENT_DUE_DATE_ID, EVENT_ORG_UNIT_ID, EVENT_ORG_UNIT_NAME, EVENT_STATUS_ID,
@@ -1042,6 +1046,15 @@ public abstract class AbstractEventService
                     programStageInstance.setLongitude( null );
                 }
             }
+            
+            // for update Longitude and Latitude while creating Event in HIV-Tracker
+            String longitudeLatitude = getLongitudeAndLatitude( programStageInstance );
+            if( longitudeLatitude != null )
+            {
+                programStageInstance.setLongitude( Double.parseDouble( longitudeLatitude.split( "," )[0]) );
+                programStageInstance.setLatitude( Double.parseDouble( longitudeLatitude.split( "," )[1]) );
+            }
+            
         }
 
         Program program = getProgram( importOptions.getIdSchemes().getProgramIdScheme(), event.getProgram() );
@@ -1489,6 +1502,15 @@ public abstract class AbstractEventService
         programStageInstance.setAttributeOptionCombo( aoc );
         programStageInstance.setDeleted( event.isDeleted() );
 
+        // get Longitude and Latitude from TrackedEntityAttribute attribute
+        String longitudeLatitude = getLongitudeAndLatitude( programStageInstance );
+        if( longitudeLatitude != null )
+        {
+            programStageInstance.setLongitude( Double.parseDouble( longitudeLatitude.split( "," )[0]) );
+            programStageInstance.setLatitude( Double.parseDouble( longitudeLatitude.split( "," )[1]) );
+        }
+        
+        
         if ( programStage.getCaptureCoordinates() )
         {
             if ( coordinate != null && coordinate.isValid() )
@@ -1911,4 +1933,29 @@ public abstract class AbstractEventService
 
         return attrOptCombo;
     }
+    
+    // get Longitude and Latitude from TrackedEntityAttribute attribute
+    // get Longitude and Latitude from TrackedEntityAttribute attribute
+    public String getLongitudeAndLatitude( ProgramStageInstance programStageInstance )
+    {
+        String longitudeLatitude = null;
+        
+        for( TrackedEntityAttributeValue trackedEntityAttributeValue : programStageInstance.getProgramInstance().getEntityInstance().getTrackedEntityAttributeValues() )
+        {
+            if ( trackedEntityAttributeValue.getAttribute().getId() == TE_ATTRIBUTE_ID )
+            {
+                String coordinates = trackedEntityAttributeValue.getValue();
+                
+                if( coordinates != null && !coordinates.equals(""))
+                {
+                        longitudeLatitude = coordinates.substring( 1, coordinates.length()-1);
+                        //System.out.println( coordinates + " --  Longitude -- " + longitudeLatitude.split( "," )[0] );
+                        //System.out.println( coordinates + " --  Latitude -- " + longitudeLatitude.split( "," )[1] );
+                }
+            }
+        }
+        
+        return longitudeLatitude;
+    }    
+    
 }
