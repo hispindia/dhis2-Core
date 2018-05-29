@@ -650,7 +650,7 @@ reportsApp.controller('DataStatusController',
 					}
 					else if(totBreaks==4)
 					{
-						ParentName_4=org.name;
+						ParentName_5=org.name;
 						for( var x = 0 ; x < totBreaks ; x++ )
 						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5;
 					}
@@ -666,6 +666,7 @@ reportsApp.controller('DataStatusController',
 						for( var x = 0 ; x < totBreaks ; x++ )
 						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6+" / "+ParentName_7;
 					}
+				
 					$scope.compulsoryDECount = 1;
 		
 
@@ -732,22 +733,8 @@ reportsApp.controller('DataStatusController',
 								htmlString += "</tr>";		
 				
 				
-				
-				
-				
-				
-				
 				}
 					
-
-
-
-						
-								
-						
-						
-									
-			
                $("#tableContent").html(htmlString);
 				$("#dwnLoad").fadeIn();
 				$("#coverLoad").hide();
