@@ -1,0 +1,134 @@
+
+// for maharashtra
+
+1 - Name - DS App Data Status
+ Query - SELECT  P .periodid, P .startdate ,dv.sourceid, ou.uid, COUNT (VALUE) entered FROM datavalue dv 
+INNER JOIN datasetelement  dsm ON dv.dataelementid = dsm.dataelementid 
+INNER JOIN dataset ds ON ds.datasetid = dsm.datasetid INNER JOIN organisationunit ou ON dv.sourceid = ou.organisationunitid 
+ INNER JOIN period P ON dv.periodid = P .periodid WHERE ou.uid IN(Select  uid FROM organisationunit  where parentid IN 
+        ( Select  organisationunitid FROM organisationunit where parentid IN 
+        (Select organisationunitid FROM organisationunit  where parentid IN 
+        (Select organisationunitid FROM organisationunit  where parentid IN 
+        (Select organisationunitid FROM organisationunit  where parentid IN
+        (Select organisationunitid FROM organisationunit  where parentid IN
+	( SELECT organisationunitid FROM organisationunit where organisationunitid='${orgUnitUids}'  or parentid='${orgUnitUids}' ) ) or organisationunitid In
+	( SELECT organisationunitid FROM organisationunit where organisationunitid='${orgUnitUids}'  or parentid='${orgUnitUids}' ))or organisationunitid In
+	( SELECT organisationunitid FROM organisationunit where organisationunitid='${orgUnitUids}'  or parentid='${orgUnitUids}' ))or organisationunitid In
+	( SELECT organisationunitid FROM organisationunit where organisationunitid='${orgUnitUids}'  or parentid='${orgUnitUids}' ))or organisationunitid In
+	( SELECT organisationunitid FROM organisationunit where organisationunitid='${orgUnitUids}'  or parentid='${orgUnitUids}' ))or organisationunitid In
+	( Select  organisationunitid FROM organisationunit  where parentid IN 
+	(Select organisationunitid FROM organisationunit  where parentid IN
+	( SELECT organisationunitid FROM organisationunit where organisationunitid='${orgUnitUids}'  or parentid='${orgUnitUids}' )) or organisationunitid In
+	( SELECT organisationunitid FROM organisationunit where organisationunitid='${orgUnitUids}'  or parentid='${orgUnitUids}' )) ) and ds.uid = '${dataSetUid}' AND dv.periodid IN 
+ ( SELECT periodid FROM period WHERE periodtypeid IN ( SELECT periodtypeid from dataset where uid= '${dataSetUid}' )
+  AND startdate >= '${startDate}' AND enddate <= '${endDate}') GROUP BY ou.uid, P .periodid, P .startdate ,dv.sourceid, ou.uid ORDER BY ou.uid ASC
+  
+ 
+2 - Name -  DS App Data Status without Zero
+ Query - SELECT P .periodid, P .startdate, COUNT (VALUE) entered, (COUNT(VALUE) * 100) / ${compulsoryDECount} comp FROM datavalue dv 
+ INNER JOIN datasetmembers dsm ON dv.dataelementid = dsm.dataelementid 
+ INNER JOIN dataset ds ON ds.datasetid = dsm.datasetid 
+ INNER JOIN organisationunit ou ON dv.sourceid = ou.organisationunitid 
+ INNER JOIN period P ON dv.periodid = P .periodid WHERE ds.uid = '${dataSetUid}' 
+ AND dv.periodid IN ( SELECT periodid FROM period WHERE periodtypeid IN ( SELECT periodtypeid from dataset where uid= '${dataSetUid}' ) ) 
+ AND ou.uid = '${orgUnitUid}' AND dv.value != '0' AND dv.value != '' GROUP BY P .periodid, P .startdate ORDER BY P .startdate ASC;
+ 
+ 
+ 
+3 - Name - DS App Data Summary
+ Query - SELECT  P .periodid, P .startdate,dv.sourceid, ou.uid , COUNT (VALUE) entered, (COUNT(VALUE) * 100) / 232 
+comp FROM datavalue dv 
+INNER JOIN datasetelement dsm ON dv.dataelementid = dsm.dataelementid 
+INNER JOIN organisationunit ou ON dv.sourceid = ou.organisationunitid 
+INNER JOIN period P ON dv.periodid = P .periodid 
+INNER JOIN dataset ds ON dsm.datasetid = ds.datasetid 
+WHERE dv.periodid IN ( SELECT periodid FROM period WHERE periodtypeid IN
+  ( SELECT periodtypeid FROM dataset WHERE uid = '${dataSetUid}' ) AND startdate >= '${startDate}' AND enddate <= '${endDate}' )
+   AND ds.uid = '${dataSetUid}' AND  ou.uid IN( Select  uid FROM organisationunit  where parentid IN 
+        ( Select  organisationunitid FROM organisationunit where parentid IN 
+        (Select organisationunitid FROM organisationunit  where parentid IN 
+        (Select organisationunitid FROM organisationunit  where parentid IN 
+        (Select organisationunitid FROM organisationunit  where parentid IN
+        (Select organisationunitid FROM organisationunit  where parentid IN
+	( SELECT organisationunitid FROM organisationunit where organisationunitid='${orgUnitUids}'  or parentid='${orgUnitUids}' ) ) or organisationunitid In
+	( SELECT organisationunitid FROM organisationunit where organisationunitid='${orgUnitUids}'  or parentid='${orgUnitUids}' ))or organisationunitid In
+	( SELECT organisationunitid FROM organisationunit where organisationunitid='${orgUnitUids}'  or parentid='${orgUnitUids}' ))or organisationunitid In
+	( SELECT organisationunitid FROM organisationunit where organisationunitid='${orgUnitUids}'  or parentid='${orgUnitUids}' ))or organisationunitid In
+	( SELECT organisationunitid FROM organisationunit where organisationunitid='${orgUnitUids}'  or parentid='${orgUnitUids}' ))or organisationunitid In
+	( Select  organisationunitid FROM organisationunit  where parentid IN 
+	(Select organisationunitid FROM organisationunit  where parentid IN
+	( SELECT organisationunitid FROM organisationunit where organisationunitid='${orgUnitUids}'  or parentid='${orgUnitUids}' )) or organisationunitid In
+	( SELECT organisationunitid FROM organisationunit where organisationunitid='${orgUnitUids}'  or parentid='${orgUnitUids}' )) )   GROUP BY ou.uid, P .periodid, P .startdate ,dv.sourceid, ou.uid ORDER BY ou.uid ASC
+
+	
+4 - Name - DS App Data Summary without Zero
+ Query - SELECT P .periodid, P .startdate, COUNT (VALUE) entered, (COUNT(VALUE) * 100) / ${compulsoryDECount} comp FROM datavalue dv 
+ INNER JOIN datasetmembers dsm ON dv.dataelementid = dsm.dataelementid 
+ INNER JOIN organisationunit ou ON dv.sourceid = ou.organisationunitid 
+ INNER JOIN period P ON dv.periodid = P .periodid 
+ INNER JOIN dataset ds ON dsm.datasetid = ds.datasetid 
+ WHERE dv.periodid IN ( SELECT periodid FROM period WHERE periodtypeid IN ( SELECT periodtypeid FROM dataset WHERE uid = '${dataSetUid}' ) ) 
+ AND ou.uid = '${orgUnitUid}' AND ds.uid = '${dataSetUid}' AND dv.value != '0' AND dv.value != '' GROUP BY P .periodid, P .startdate 
+ ORDER BY P .startdate ASC;
+ 
+5 - Name - DS App Comments
+ Query -  SELECT ou.uid,p.startdate, dv.comment, max(dv.lastupdated) FROM datavalue dv 
+ INNER JOIN datasetmembers dsm ON dv.dataelementid = dsm.dataelementid 
+ INNER JOIN dataset ds ON ds.datasetid = dsm.datasetid 
+ INNER JOIN organisationunit ou ON dv.sourceid = ou.organisationunitid 
+ INNER JOIN period P ON dv.periodid = P .periodid WHERE ds.uid = '${dataSetUid}' 
+ AND dv.periodid IN ( SELECT periodid FROM period WHERE periodtypeid IN ( SELECT periodtypeid from dataset where uid= '${dataSetUid}' ) ) 
+ GROUP BY ou.uid, P .periodid, P .startdate, dv.comment ORDER BY ou.uid ASC;
+ 
+6 - Name - DS App Comments without Zero
+ Query - SELECT pd.periodid, pd.startdate, rs. COMMENT, MAX (rs.lastupdated) AS latestdate 
+ FROM ( SELECT * FROM period WHERE periodtypeid IN ( SELECT periodtypeid FROM dataset WHERE uid = '${dataSetUid}' ) ) pd 
+ LEFT JOIN ( SELECT dv. COMMENT, dv.periodid, dv.lastupdated FROM datavalue dv 
+ INNER JOIN datasetmembers dm ON dv.dataelementid = dm.dataelementid 
+ INNER JOIN dataset ds ON ds.datasetid = dm.datasetid 
+ INNER JOIN organisationunit o ON o.organisationunitid = dv.sourceid 
+ WHERE ds.uid = '${dataSetUid}' AND o.uid = '${orgUnitUid}' AND dv.value != '0' AND dv.value != '' ) rs ON pd.periodid = rs.periodid 
+ GROUP BY pd.periodid, pd.startdate, rs. COMMENT ORDER BY pd.startdate ASC;
+ 
+ 
+7 - Name - DS App Periods
+ Query -  select startdate from period where startdate >= '${startDate}' and startdate <='${endDate}' 
+ and periodtypeid in ( select periodtypeid from dataset where uid = '${dataSetUidForLevel}' ) order by startdate ASC;
+ 
+8 - Name - DS App User Details
+Query - SELECT ou.uid,p.startdate, dv.storedby, max(dv.lastupdated) FROM datavalue dv 
+INNER JOIN datasetelement dsm ON dv.dataelementid = dsm.dataelementid 
+INNER JOIN dataset ds ON ds.datasetid = dsm.datasetid 
+INNER JOIN organisationunit ou ON dv.sourceid = ou.organisationunitid 
+INNER JOIN period P ON dv.periodid = P .periodid 
+WHERE ds.uid = '${dataSetUid}' AND dv.periodid IN ( SELECT periodid FROM period 
+WHERE periodtypeid IN ( SELECT periodtypeid from dataset where uid= '${dataSetUid}' ) ) 
+GROUP BY ou.uid, P .periodid, P .startdate, dv.storedby ORDER BY ou.uid ASC;
+
+
+9 - Name - DS App User Details without Zero
+Query - SELECT pd.periodid, pd.startdate, rs.storedby, MAX (rs.lastupdated) AS latestdate 
+FROM ( SELECT * FROM period WHERE periodtypeid IN ( SELECT periodtypeid FROM dataset WHERE uid = '${dataSetUid}' ) ) pd 
+LEFT JOIN ( SELECT dv.storedby, dv.periodid, dv.lastupdated FROM datavalue dv 
+INNER JOIN datasetmembers dm ON dv.dataelementid = dm.dataelementid 
+INNER JOIN dataset ds ON ds.datasetid = dm.datasetid 
+INNER JOIN organisationunit o ON o.organisationunitid = dv.sourceid 
+WHERE ds.uid = '${dataSetUid}' AND o.uid = '${orgUnitUid}' AND dv.value != '0' AND dv.value != '' ) rs ON pd.periodid = rs.periodid 
+GROUP BY pd.periodid, pd.startdate, rs.storedby ORDER BY pd.startdate ASC;
+
+
+10 - GetOrgUnitId
+Query - SELECT organisationunitid, uid, name, parentid, hierarchylevel  FROM organisationunit where uid='${orgUnitId}';
+
+11 - CategoryComboId
+Query - SELECT distinct (dataelement.dataelementid),dataelement.name, categories_categoryoptions.categoryoptionid, dataelementcategoryoption.name from dataelement
+INNER JOIN categorycombos_categories ON categorycombos_categories.categorycomboid = dataelement.categorycomboid
+INNER JOIN categories_categoryoptions ON categories_categoryoptions.categoryid = categorycombos_categories.categoryid
+INNER JOIN dataelementcategoryoption ON dataelementcategoryoption.categoryoptionid = categories_categoryoptions.categoryoptionid
+INNER JOIN datasetelement  ON  datasetelement.dataelementid = dataelement.dataelementid where dataelement.dataelementid in 
+( select datasetelement.dataelementid from datasetelement where datasetelement.datasetid = '${datasetelementid}' )
+order by dataelement.dataelementid;
+
+12 - getdataElementid
+Query - select datasetid from dataset where uid = '${dataSetID}';
+ 
