@@ -244,10 +244,12 @@ implements Action
 
 			List<Period> periods = new ArrayList<Period>();
 			Period tempPeriod  = new Period();
+
 			if ( oneRow[1] != null )
 			{
 
 				Period period = periodService.reloadIsoPeriod( oneRow[1] );
+				
 
 				if ( period != null )
 				{
@@ -257,13 +259,18 @@ implements Action
 
 				if( periods != null && periods.size() > 0 )
 				{
-
 					if( periods.size() == 4 )
 					{  
 						tempPeriod = periods.get(1);
 
 					}
-					else
+					if( periods.size() == 3 )
+					{  
+						tempPeriod = periods.get(1);
+
+
+					}
+					if( periods.size() == 5)
 					{
 						tempPeriod = periods.get(0);
 					}
