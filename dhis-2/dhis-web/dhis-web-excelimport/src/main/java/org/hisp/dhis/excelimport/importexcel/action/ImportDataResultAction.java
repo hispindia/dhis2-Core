@@ -1,4 +1,4 @@
-// Modified By Sunakshi on 7 may 2018
+// Modified By Sunakshi
 package org.hisp.dhis.excelimport.importexcel.action;
 
 import java.io.File;
@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -248,32 +250,19 @@ implements Action
 			if ( oneRow[1] != null )
 			{
 
-				Period period = periodService.reloadIsoPeriod( oneRow[1] );
-				
+				Period period = periodService.getPeriod(oneRow[1]);
 
 				if ( period != null )
 				{
 					periods = new ArrayList<Period>( periodService.getPeriodsBetweenDates( periodType,
-							period.getStartDate(), period.getEndDate() ) );
+							period.getStartDate(), period.getEndDate() ) );					
+					Collections.sort(periods);
+
 				}
 
 				if( periods != null && periods.size() > 0 )
-				{
-					if( periods.size() == 4 )
-					{  
-						tempPeriod = periods.get(1);
-
-					}
-					if( periods.size() == 3 )
-					{  
-						tempPeriod = periods.get(1);
-
-
-					}
-					if( periods.size() == 5)
-					{
-						tempPeriod = periods.get(0);
-					}
+				{					
+					tempPeriod = periods.get(1);
 
 				}
 			}
