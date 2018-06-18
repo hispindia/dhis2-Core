@@ -296,6 +296,7 @@ function submitImportForm()
 		
 		if( radioButtonvalue == "overWrite")
 		{
+			lockScreen();
 			var periodIdList = document.getElementById( 'availablePeriods' );
 			var periodId = periodIdList.options[periodIdList.selectedIndex].value;
 			
@@ -330,7 +331,7 @@ function getDataReceived(messageElement)
 	if ( type == 'success') 
 	{
 		var result = window.confirm( messageElement.firstChild.nodeValue );
-		
+		unLockScreen();
 		if ( result )
 	    {
 			setMessage( "Importing started");
@@ -338,5 +339,37 @@ function getDataReceived(messageElement)
 	    }
 		
 	} 
-	
 }
+
+//-----------------------------------------------------------------------------
+//GUI operations
+//-----------------------------------------------------------------------------
+
+/**
+* Clock screen by mask *
+*/
+/*
+function lockScreen()
+{
+	jQuery.blockUI({ message: i18n_waiting , css: { 
+		border: 'none', 
+		padding: '15px', 
+		backgroundColor: '#000', 
+		'-webkit-border-radius': '10px', 
+		'-moz-border-radius': '10px', 
+		opacity: .5, 
+		color: '#fff'			
+	} }); 
+}
+*/
+
+/**
+* unClock screen *
+*/
+/*
+function unLockScreen()
+{
+	jQuery.unblockUI();
+}
+
+*/

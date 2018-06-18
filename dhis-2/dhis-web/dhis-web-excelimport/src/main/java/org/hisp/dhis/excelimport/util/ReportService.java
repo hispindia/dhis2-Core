@@ -130,7 +130,7 @@ public class ReportService
         try
         {
             String query = "SELECT count(*) from datavalue where periodid = " + periodId + " AND "
-                + " sourceid = " + sourceId + " AND dataelementid in ( SELECT dataelementid FROM datasetmembers where datasetid = " + dataSetId + " )" ;
+                + " sourceid = " + sourceId + " AND dataelementid in ( SELECT dataelementid FROM datasetelement where datasetid = " + dataSetId + " )" ;
 
 
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
