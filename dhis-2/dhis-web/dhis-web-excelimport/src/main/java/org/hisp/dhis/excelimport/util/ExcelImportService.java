@@ -4,6 +4,7 @@ package org.hisp.dhis.excelimport.util;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,13 @@ import org.hisp.dhis.config.ConfigurationService;
 import org.hisp.dhis.config.Configuration_IN;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementService;
+import org.hisp.dhis.period.Period;
+import org.hisp.dhis.period.PeriodService;
+import org.hisp.dhis.period.PeriodType;
+import org.hisp.dhis.period.WeeklyPeriodType;
+import org.hisp.dhis.period.comparator.PeriodComparator;
 import org.hisp.dhis.reports.Report_inDesign;
+import org.hisp.dhis.system.util.MathUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -43,6 +50,9 @@ public class ExcelImportService
     @Autowired
     private DataElementService dataElementService;
 
+    @Autowired
+    private PeriodService periodService;
+    
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -331,4 +341,259 @@ public class ExcelImportService
         return deCodes;
     }// getDECodes end
 
+    public Map<String, Integer> getDataElementsIdCodeMap()
+    {
+        Map<String, Integer> dataElementIdCodeMap = new HashMap<String, Integer>();
+
+        try
+        {
+            String query = "";
+
+            query = "SELECT dataelementid, code FROM dataelement where code is not null;";
+
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+            while ( rs.next() )
+            {
+                Integer deId = rs.getInt( 1 );
+                String deCode = rs.getString( 2 );
+                
+                if ( deCode != null && deId != null )
+                {
+                    dataElementIdCodeMap.put( deCode, deId);
+                }
+            }
+
+            return dataElementIdCodeMap;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal DataElement id, code", e );
+        }
+    }
+    
+    public Map<String, Integer> getCOCIdUidMap()
+    {
+        Map<String, Integer> cocIdUidMap = new HashMap<String, Integer>();
+
+        try
+        {
+            String query = "";
+
+            query = "SELECT categoryoptioncomboid,uid FROM categoryoptioncombo;";
+
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+            while ( rs.next() )
+            {
+                Integer cocId = rs.getInt( 1 );
+                String cocUid = rs.getString( 2 );
+                
+                if ( cocId != null && cocUid != null )
+                {
+                    cocIdUidMap.put( cocUid, cocId );
+                }
+            }
+
+            return cocIdUidMap;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal categoryoptioncomboid,uid", e );
+        }
+    }    
+
+    public Map<String, Integer> getOrgUnitIdCodeMap()
+    {
+        Map<String, Integer> orgUnitIdUidMap = new HashMap<String, Integer>();
+
+        try
+        {
+            String query = "";
+
+            query = "SELECT organisationunitid, code FROM organisationunit where code is not null;";
+
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+            while ( rs.next() )
+            {
+                Integer orgUnitId = rs.getInt( 1 );
+                String orgUnitCode = rs.getString( 2 );
+                
+                if ( orgUnitId != null && orgUnitCode != null )
+                {
+                    orgUnitIdUidMap.put( orgUnitCode, orgUnitId );
+                }
+            }
+
+            return orgUnitIdUidMap;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal organisationunitid, code", e );
+        }
+    }    
+ 
+    public Integer getSecondWeekPeriodId( String isoPeriod )
+    {
+        Integer periodId = null;
+        
+        String weeklyPeriodTypeName = WeeklyPeriodType.NAME;
+        PeriodType periodType = periodService.getPeriodTypeByName( weeklyPeriodTypeName );
+        
+        Period period = periodService.reloadIsoPeriod( isoPeriod );
+        List<Period> periods = new ArrayList<Period>( );
+        
+        if( period != null )
+        {
+            periods = new ArrayList<Period>( periodService.getPeriodsBetweenDates( periodType, period.getStartDate(), period.getEndDate() ) );
+            
+            if ( periods != null && periods.size() > 0 )
+            {
+                Collections.sort( periods, new PeriodComparator() );
+                Collections.reverse( periods );
+                periodId = periods.get( 1 ).getId();
+
+            }
+        }
+        
+        return periodId;
+    }    
+    
+    //
+    @SuppressWarnings( "unused" )
+    private String getAggVal( String expression, Map<String, String> aggDeMap )
+    {
+        try
+        {
+            Pattern pattern = Pattern.compile( "(\\[\\d+\\.\\d+\\])" );
+
+            Matcher matcher = pattern.matcher( expression );
+            StringBuffer buffer = new StringBuffer();
+
+            String resultValue = "";
+
+            while ( matcher.find() )
+            {
+                String replaceString = matcher.group();
+
+                replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
+
+                replaceString = aggDeMap.get( replaceString );
+
+                if ( replaceString == null )
+                {
+                    replaceString = "0";
+                }
+
+                matcher.appendReplacement( buffer, replaceString );
+
+                resultValue = replaceString;
+            }
+
+            matcher.appendTail( buffer );
+
+            double d = 0.0;
+            try
+            {
+                d = MathUtils.calculateExpression( buffer.toString() );
+            }
+            catch ( Exception e )
+            {
+                d = 0.0;
+                resultValue = "";
+            }
+
+            resultValue = "" + (int) d;
+
+            return resultValue;
+        }
+        catch ( NumberFormatException ex )
+        {
+            throw new RuntimeException( "Illegal DataElement id", ex );
+        }
+    }
+
+    public Integer getOrgUnitIdByCode( String orgUnitCode )
+    {
+        Integer organisationId = null;
+        String query = "SELECT organisationunitid FROM organisationunit WHERE  code = '" + orgUnitCode + "'";
+
+        SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+        while ( rs.next() )
+        {
+            Integer ouId = rs.getInt( 1 );
+
+            if ( ouId != null )
+            {
+                organisationId = ouId;
+            }
+        }
+
+        return organisationId;
+    }
+
+    public Integer getCategoryOptionComboByUid( String categoryOptionComboUid )
+    {
+        Integer categoryOptionComboId = null;
+        String query = "SELECT categoryoptioncomboid FROM categoryoptioncombo WHERE  uid = '" + categoryOptionComboUid
+            + "'";
+
+        SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+        while ( rs.next() )
+        {
+            Integer cocId = rs.getInt( 1 );
+
+            if ( cocId != null )
+            {
+                categoryOptionComboId = cocId;
+            }
+        }
+
+        return categoryOptionComboId;
+    }
+
+    public Integer getAttributeOptionComboByUid( String attributeOptionComboUid )
+    {
+        Integer attributeOptionComboId = null;
+        String query = "SELECT categoryoptioncomboid FROM categoryoptioncombo WHERE  uid = '" + attributeOptionComboUid
+            + "'";
+
+        SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+        while ( rs.next() )
+        {
+            Integer aocId = rs.getInt( 1 );
+
+            if ( aocId != null )
+            {
+                attributeOptionComboId = aocId;
+            }
+        }
+
+        return attributeOptionComboId;
+    }
+
+    public Integer getDataElementByCode( String dataElementCode )
+    {
+        Integer dataElementId = null;
+        String query = "SELECT dataelementid FROM dataelement WHERE code = '" + dataElementCode + "'";
+
+        SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+        while ( rs.next() )
+        {
+            Integer deId = rs.getInt( 1 );
+
+            if ( deId != null )
+            {
+                dataElementId = deId;
+            }
+        }
+
+        return dataElementId;
+    }
+   
 }
