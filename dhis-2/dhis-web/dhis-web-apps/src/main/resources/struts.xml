@@ -139,15 +139,19 @@
 	
 	<!-- local-internal-apps -->
 	<!-- dhis-web-reports-app -->
+	<!--
     <package name="dhis-web-reports-app" extends="dhis-web-commons" namespace="/dhis-web-reports-app">
         <action name="index" class="org.hisp.dhis.commons.action.NoAction">
             <result name="success" type="redirect">index.html</result>
         </action>
     </package>
+    -->
     <!-- dhis-web-Excel-Import-app -->
+    <!--
     <package name="dhis-web-excel-import-app" extends="dhis-web-commons" namespace="/dhis-web-excel-import-app">
 		<action name="index" class="org.hisp.dhis.commons.action.NoAction">
 			<result name="success" type="redirect">index.html</result>
 		</action>
-    </package>    
+    </package>
+    -->   
 </struts>
