@@ -1,155 +1,152 @@
 <!DOCTYPE html>
 <html>
+
 <head>
- <link rel="stylesheet" type="text/css" href="http://dhis2-cdn.org/v222/ext/resources/css/ext-plugin-gray.css" />
-    <script src="https://dhis2-cdn.org/v221/ext/ext-all.js"></script>
-    <script src="https://dhis2-cdn.org/v221/plugin/table.js"></script>
-    <script src="./lib/controllers/jqueryIe.js"></script>
-  <script   src="https://code.jquery.com/jquery-3.0.0.min.js"    crossorigin="true"></script>
+  <title>Pivot-Table</title>
+  <link rel="stylesheet" type="text/css" href="http://dhis2-cdn.org/v222/ext/resources/css/ext-plugin-gray.css" />
+  <script src="https://dhis2-cdn.org/v221/ext/ext-all.js"></script>
+  <script src="https://dhis2-cdn.org/v221/plugin/table.js"></script>
+  <script src="./lib/controllers/jqueryIe.js"></script>
+  <script src="http://code.jquery.com/jquery-2.2.4.min.js"></script>
+  <!-- <script src="reporttable.js"></script> -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+
   <script type="text/javascript" src="html2canvas.js"></script>
-
-
-					<!-- Global Site Tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-107770983-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-107770983-1');
-</script>
+  <!-- Global Site Tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-107770983-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'UA-107770983-1');
+  </script>
 
 </head>
 
 <body>
-<style>
-  /*.PopupPanel*/
-  /*{*/
-    /*!*border: solid 1px black;*!*/
-    /*position: absolute;*/
-    /*left: 30%;*/
-    /*!*top: 50%;*!*/
-    /*background-color: white;*/
-    /*z-index: 10;*/
+  <style>
+    .PopupPanel1 {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      background-color: white;
+      z-index: 100;
 
-    /*height: 1000px;*/
-    /*margin-top: -200px;*/
+      height: 400px;
+      margin-top: -150px;
 
-    /*width: 1000px;*/
-    /*margin-left: -300px;*/
-  /*}*/
-  .PopupPanel1
-  {
-    /*border: solid 1px black;*/
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    background-color: white;
-    z-index: 100;
+      width: 600px;
+      margin-left: -300px;
+    }
 
-    height: 400px;
-    margin-top: -150px;
-
-    width: 600px;
-    margin-left: -300px;
-  }
+   thead{
+     background: #1d5288;
+     color: white;
+    }
+    th,td{
+      text-align: center!important;
+    }
   </style>
 
-
-<div class="PopupPanel" id="table1">
-
-</div>
-
-
-<div id="canvas">
-
-</div>
-
-<a href="#" id="exportExcel" onclick="javascript:fnExcelReport('table1', 'Table');">Export to Excel</a>
-	 
-    <div id="previewImage">
+  <div class="PopupPanel container" >
+    <table id="table1" class="table table-striped table-hover">
+    </table>
+    <div style="text-align: center">
+        <button href="#" class="btn btn-primary" id="exportExcel" onclick="javascript:fnExcelReport('table1', 'Table');">Export to Excel</button>
     </div>
+  </div>
 
-<script>
-function fnExcelReport(id, name) {
-    var tab_text = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
-    tab_text = tab_text + '<head><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>';
-    tab_text = tab_text + '<x:Name>Test Sheet</x:Name>';
-    tab_text = tab_text + '<x:WorksheetOptions><x:Panes></x:Panes></x:WorksheetOptions></x:ExcelWorksheet>';
-    tab_text = tab_text + '</x:ExcelWorksheets></x:ExcelWorkbook></xml></head><body>';
-    tab_text = tab_text + "<table border='1px'>";
-    var exportTable = $('#' + id).clone();
-    exportTable.find('input').each(function (index, elem) { $(elem).remove(); });
-    tab_text = tab_text + exportTable.html();
-    tab_text = tab_text + '</table></body></html>';
-    var data_type = 'data:application/vnd.ms-excel';
-    var ua = window.navigator.userAgent;
-    var msie = ua.indexOf("MSIE ");
 
-    var fileName = name + '_' + parseInt(Math.random() * 10000000000) + '.xls';
-    if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) {
+  <div id="canvas">
+
+  </div>
+
+
+
+  <div id="previewImage">
+  </div>
+
+  <script>
+    function fnExcelReport(id, name) {
+      var tab_text = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+      tab_text = tab_text + '<head><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>';
+      tab_text = tab_text + '<x:Name>Test Sheet</x:Name>';
+      tab_text = tab_text + '<x:WorksheetOptions><x:Panes></x:Panes></x:WorksheetOptions></x:ExcelWorksheet>';
+      tab_text = tab_text + '</x:ExcelWorksheets></x:ExcelWorkbook></xml></head><body>';
+      tab_text = tab_text + "<table border='1px'>";
+      var exportTable = $('#' + id).clone();
+      exportTable.find('input').each(function (index, elem) { $(elem).remove(); });
+      tab_text = tab_text + exportTable.html();
+      tab_text = tab_text + '</table></body></html>';
+      var data_type = 'data:application/vnd.ms-excel';
+      var ua = window.navigator.userAgent;
+      var msie = ua.indexOf("MSIE ");
+
+      var fileName = name + '_' + parseInt(Math.random() * 10000000000) + '.xls';
+      if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) {
         if (window.navigator.msSaveBlob) {
-            var blob = new Blob([tab_text], {
-                type: "application/csv;charset=utf-8;"
-            });
-            navigator.msSaveBlob(blob, fileName);
+          var blob = new Blob([tab_text], {
+            type: "application/csv;charset=utf-8;"
+          });
+          navigator.msSaveBlob(blob, fileName);
         }
-    } else {
+      } else {
         $('#exportExcel').attr('href', data_type + ', ' + encodeURIComponent(tab_text));
         $('#exportExcel').attr('download', fileName);
-    }
-}
-</script>
-
-
-<script>
-  function filterParams(){
-
-    var query = decodeURIComponent(window.location.search);
-    //var query = decodeURIComponent("http://180.151.233.59:20092/test/newtab.html?arr=[{%22id%22:%22;OFhn35sUfSB;A049qT5clp5;qT2W96IdBC7;AWDDPPMOl2U%22,%22name%22:%22;Health%20worker%20density%20and%20distribution;Output%20training%20institutions;Headcount%20ratio%20of%20catastrophic%20health%20expenditure;Adolescents%2010-19%20yrs%20(%)%22}]");
-    //var query = decodeURIComponent("http://180.151.233.59:20092/test/newtab.html?arr=[{%22id%22:%22;OFhn35sUfSB;A049qT5clp5;qT2W96IdBC7;AWDDPPMOl2U%22,%22name%22:%22;Health%20worker%20density%20and%20distribution;Output%20training%20institutions;Headcount%20ratio%20of%20catastrophic%20health%20expenditure;Adolescents%2010-19%20yrs%20(%)%22}]&peid=;2015;2013;2012;2011&orgid=;sCU6B2ZOTYr;GY9dLYENyOU;AFkkfLBwuHc;sQeCnfgIko4&orgname=BangladeshBhutanDPR%20KoreaIndia");
-    console.log("query"+ query);
-	query = query.substring(1);
-    var params = query.split("&");
-    for (var i=0;i<params.length;i++) {
-      var param = params[i].split("=");
-      switch(param[0]) {
-        case "arr":
-          arr = JSON.parse(param[1]);
-          break;
-        case "peid":
-          peid = param[1];
-          break;
-        case "orgid":
-          orgid = param[1];
-          break;
-        case "orgname":
-          orgname = param[1];
-          break;
       }
     }
-  }
-
-  $(document).ready(function(){
-
-    console.log("values arr ");
-    filterParams();
-    console.log(arr);
-    console.log(peid);
-    console.log(orgid);console.log(orgname);
-    showtable(arr,peid,orgid,orgname);
+  </script>
 
 
-});
+  <script>
+    function filterParams() {
+      var query = decodeURIComponent(window.location.search);
+      query = query.substring(1);
+      var params = query.split("&");
+      for (var i = 0; i < params.length; i++) {
+        var param = params[i].split("=");
+        switch (param[0]) {
+          case "arr":
+            arr = JSON.parse(param[1]);
+            break;
+          case "peid":
+            peid = param[1];
+            break;
+          case "orgid":
+            orgid = param[1];
+            break;
+          case "orgname":
+            orgname = param[1];
+            break;
+        }
+      }
+    }
 
-    
+    $(document).ready(function () {
+      filterParams();
+      // showtable(arr, peid, orgid, orgname);
+      console.log(arr[0].id);
+      console.log(peid);
+      console.log(orgid);
+      console.log(orgname);
 
- 
-</script>
-<script   src="https://code.jquery.com/jquery-3.0.0.min.js"    crossorigin="true"></script>
-<script src="//dhis2-cdn.org/v221/plugin/table.js"></script>
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          document.getElementById("table1").innerHTML = this.responseText;
+        }
+      };
+      xhttp.open("GET", "../../api/26/analytics.html+css?dimension=ou:" + orgid + "&dimension=dx:" + arr[0].id + "&dimension=pe:" + peid + "&displayProperty=NAME&tableLayout=true&columns=ou&rows=dx;pe", true);
+      xhttp.send();
+    });
 
-<script src="showtable.js"></script>
+
+
+
+  </script>
+
+  <script src="./reporttable.js"></script>
+  <script src="showtable.js"></script>
 </body>
 
 </html>
