@@ -476,9 +476,9 @@ Ext.onReady( function() {
                 //alert(dename);
 
             });
-            
+
         });
-        
+
         $("#dropm4").change(function () {
             var selected = $("#dropm4 option:selected");
             mdename = "";
@@ -540,7 +540,7 @@ Ext.onReady( function() {
                 type: "GET",
                 dataType: "json",
                 contentType: "application/json",
-                url: '../../api/organisationUnitGroups/' + orglevel + '.json',
+                url: '../../api/organisationUnitGroups/' + orglevel + '.json?fields=id,name,organisationUnits[id,name]',
                 success: function(data){
                     organisationUnits = data.organisationUnits;
 
@@ -583,7 +583,7 @@ Ext.onReady( function() {
                 type: "GET",
                 dataType: "json",
                 contentType: "application/json",
-                url: '../../api/organisationUnitGroups/' + corglevel + '.json',
+                url: '../../api/organisationUnitGroups/' + corglevel + '.json?fields=id,name,organisationUnits[id,name]',
                 success: function(data){
                     corganisationUnits = data.organisationUnits;
 
@@ -698,11 +698,6 @@ Ext.onReady( function() {
         });
 
     });	});
-
-
-
-
-
 function validatetable() {
 arr=[];
     arr.push({"id": deid, "name": dename});
@@ -765,7 +760,7 @@ arr=[];
 
     else ( isValidated === "true")
     {
-        
+
 
         window.open('newtab.html?arr='+encodeURIComponent(JSON.stringify(arr))+'&peid='+peid+'&orgid='+orgid+'&orgname='+orgname);
         // window.open('newtab.html?deid='+deid+'&peid='+peid+'&orgid='+orgid+'&orgname='+orgname);
