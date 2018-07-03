@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <script src="http://dhis2-cdn.org/v221/ext/ext-all.js"></script>
-    <script src="http://dhis2-cdn.org/v221/openlayers/OpenLayers.js"></script>
-    <script src="http://dhis2-cdn.org/v221/plugin/map.js"></script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"
-            type="text/javascript"></script>
-    <link rel="stylesheet" href="//dhis2-cdn.org/v221/ext/resources/css/ext-plugin-gray.css" />
-    <style type="text/css">
 
+<head>
+    <title>GIS-Map</title>
+    <script src="http://dhis2-cdn.org/v221/ext/ext-all.js"></script>
+    <script src="../../js/ol.js"></script>
+    <script src="../../js/map.js"></script>
+    <link rel="stylesheet" href="//dhis2-cdn.org/v221/ext/resources/css/ext-plugin-gray.css" />
+    <link rel="stylesheet" href="../../js/ol.css" />
+    <script src="http://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <style type="text/css">
         li {
             float: left;
         }
@@ -17,35 +18,50 @@
             border: 0;
             margin: 10px;
         }
+
         .map.wide {
             width: 900px;
             height: 500px;
         }
-	section.section0
-	{
-    margin-left: 170px;
-    border-left: 0px solid;
-    padding: 1em;
-    overflow: hidden;
-	}
-	header, footer
-	{
-    padding: 0.5em;
-    color: white;
-    background-color: #16629E;
-    clear: left;
-    text-align: center;
-	font-family:Arial, Helvetica, sans-serif;
-	font-size:90%;
-	}
 
-	
+        section.section0 {
+            margin: 0% 10% 0% 10%;
+            border-left: 0px solid;
+            padding: 1em;
+            overflow: hidden;
+        }
+
+        header,
+        footer {
+            padding: 0.5em;
+            color: white;
+            background-color: #16629E;
+            clear: left;
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 90%;
+        }
+
+        .leaflet-container {
+            height: 550px !important;
+        }
+
+        .leaflet-control-legend-content {
+            display: block !important;
+
+        }
+        .leaflet-control-legend-toggle{
+            display: none!important;
+            padding: 10%!important;
+        }
+
+
     </style>
 
     <!-- Login and initialize maps -->
 
     <script>
-        Ext.onReady( function() {
+        Ext.onReady(function () {
             Ext.Ajax.request({
                 url: "dhis-web-commons-security/login.action?authOnly=true",
                 method: 'POST',
@@ -75,17 +91,17 @@
         function setLinks() {
 
             var query = decodeURIComponent(window.location.search);
-            console.log("query"+ query);
+            console.log("query" + query);
             query = query.substring(1);
             var params = query.split("&");
-            for (var i=0;i<params.length;i++) {
+            for (var i = 0; i < params.length; i++) {
                 var param = params[i].split("=");
-                switch(param[0]) {
+                switch (param[0]) {
                     case "mdeid":
                         mdeid = param[1];
 
                         break;
-					
+
                     case "mpeid":
                         mpeid = param[1];
                         break;
@@ -97,10 +113,6 @@
                         break;
                 }
             }
-//            console.log(deid);
-//            console.log(peid);
-//            console.log(orgid);
-//            console.log(orgname);
             DHIS.getMap({
                 "mapViews": [
                     {
@@ -145,44 +157,50 @@
             });
         }
     </script>
-						<!-- Global Site Tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-107770983-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <!-- Global Site Tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-107770983-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
 
-  gtag('config', 'UA-107770983-1');
-</script>
-
+        gtag('config', 'UA-107770983-1');
+    </script>
 </head>
 
 <body>
 
-<header>
-   <h1>Maps</h1>
-</header>
+    <header>
+        <h1>Maps</h1>
+    </header>
 
-<section class="section0">
+    <section class="section0">
 
-    <div id="map" class="map wide"></div>
+        <div id="map" class="map wide"></div>
 
-    <div id="canvas">
+        <div id="canvas">
 
-    </div>
-    
-</section>
-</br>
-</br>
-<footer >
-<section class="indent-1">
-<table>
-	<tr>
-		<td><img src="./img/dis.png" width="300px" height="100px"></img></td>
-		<td>
-		<p style="font-size:18px; text-align:left;">
-The Boundaries and names shown and the designations used on this map do not imply the expression of any opinion whatsoever on the part of World Health Organization concerning th leagal status of any country, territory, city or area or of its authorities, or concerning the delimitation of its frontiers or boundaries. Dotted lines on maps represent approximate border lines for which there may not yet be full agreement.</p></td>
-</section>
-</footer>
+        </div>
+
+    </section>
+    </br>
+    </br>
+    <footer>
+        <section class="indent-1">
+            <table>
+                <tr>
+                    <td>
+                        <img src="../../img/dis.png" width="300px" height="100px"></img>
+                    </td>
+                    <td>
+                        <p style="font-size:18px; text-align:left;">
+                            The Boundaries and names shown and the designations used on this map do not imply the expression of any opinion whatsoever
+                            on the part of World Health Organization concerning th leagal status of any country, territory,
+                            city or area or of its authorities, or concerning the delimitation of its frontiers or boundaries.
+                            Dotted lines on maps represent approximate border lines for which there may not yet be full agreement.</p>
+                    </td>
+        </section>
+    </footer>
 </body>
+
 </html>
