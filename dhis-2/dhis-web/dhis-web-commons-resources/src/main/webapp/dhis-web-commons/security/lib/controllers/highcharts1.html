@@ -2,7 +2,7 @@
 <![if !IE]>
 <html >
 <head>
-
+ <title>Charts</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <script   src="../highcharts1/jquery-3.0.0.min.js"    crossorigin="true"></script>
     <script src="../highcharts1/highcharts.js"></script>
@@ -169,7 +169,7 @@
 //
 //        console.log("degroupid"+ cdegroupid);
 //        console.log("peid"+ cpeid);
-        myFunction();
+        myFunction(corgname,corgid,cpeid);
         // alert(peid+orgid+orgname);
 
         $.get("../../../../api/system/info", function (json) {
@@ -1442,7 +1442,7 @@
             function standardlizeData(jsonRes) {
                 var json = jsonRes;
                 /*  var datarows = json.rows;
-                 var peArr = json.metaData.pe;
+                 var peArr = json.metaData.dimensions.pe;
                  var facilityArr = json.metaData[facility];
                  var dataResult = [];
 
@@ -1463,7 +1463,7 @@
                  }
                  }
                  json.rows = datarows;
-                 json.metaData.pe = peArr;
+                 json.metaData.dimensions.pe = peArr;
                  json.metaData[facility] = facilityArr;*/
                 return json;
             }
@@ -1479,8 +1479,8 @@
                 var
                         peArr = json.metaData.
                                 pe;
-                var peArrNames = json.metaData.
-                        names;
+                // var peArrNames = json.metaData.
+                //         names;
                 var
                         facilityArr =
                                 json.metaData[secondKey]
@@ -1504,7 +1504,7 @@
                     }
                 }
                 json.rows = datarows;
-                json.metaData.pe = peArr;
+                json.metaData.dimensions.pe = peArr;
                 json.metaData[secondKey] = facilityArr;
                 return json;
             }
@@ -1513,8 +1513,8 @@
 
                 var json = jsonRes;
                 var datarows = json.rows;
-                var peArr = json.metaData.pe;
-                var peArrNames = json.metaData.names;
+                var peArr = json.metaData.dimensions.pe;
+                // var peArrNames = json.metaData.names;
                 var facilityArr = json.metaData[secondKey];
                 var dataResult = [];
 
@@ -1535,7 +1535,7 @@
                     }
                 }
                 json.rows = datarows;
-                json.metaData.pe = peArr;
+                json.metaData.dimensions.pe = peArr;
                 json.metaData[secondKey] = facilityArr;
                 return json;
             }
@@ -1544,9 +1544,9 @@
 
                 var json = jsonRes;
                 var datarows = json.rows;
-                var peArr = json.metaData.pe;
-                var peArrNames = json.metaData.names;
-                var facilityArr = json.metaData[secondKey];
+                var peArr = json.metaData.dimensions.pe;
+                // var peArrNames = json.metaData.names;
+                var facilityArr = json.metaData.dimensions[secondKey];
                 var dataResult = [];
 
                 for (var i = 0; i < peArr.length; i++) {
@@ -1566,7 +1566,7 @@
                     }
                 }
                 json.rows = datarows;
-                json.metaData.pe = peArr;
+                json.metaData.dimensions.pe = peArr;
                 json.metaData[secondKey] = facilityArr;
                 return json;
             }
@@ -1575,9 +1575,9 @@
 
                 var json = jsonRes;
                 var datarows = json.rows;
-                var peArr = json.metaData.pe;
-                var peArrNames = json.metaData.names;
-                var facilityArr = json.metaData[secondKey];
+                var peArr = json.metaData.dimensions.pe;
+                // var peArrNames = json.metaData.names;
+                var facilityArr = json.metaData.dimensions[secondKey];
                 var dataResult = [];
 
                 for (var i = 0; i < peArr.length; i++) {
@@ -1597,7 +1597,7 @@
                     }
                 }
                 json.rows = datarows;
-                json.metaData.pe = peArr;
+                json.metaData.dimensions.pe = peArr;
                 json.metaData[secondKey] = facilityArr;
                 return json;
             }
@@ -1606,9 +1606,9 @@
 
                 var json = jsonRes;
                 var datarows = json.rows;
-                var peArr = json.metaData.ou;
-                var peArrNames = json.metaData.names;
-                var facilityArr = json.metaData[secondKey];
+                var peArr = json.metaData.dimensions.pe;
+                // var peArrNames = json.metaData.names;
+                var facilityArr = json.metaData.dimensions[secondKey];
                 var dataResult = [];
 
                 for (var i = 0; i < peArr.length; i++) {
@@ -1628,14 +1628,14 @@
                     }
                 }
                 json.rows = datarows;
-                json.metaData.pe = peArr;
+                json.metaData.dimensions.pe = peArr;
                 json.metaData[secondKey] = facilityArr;
                 return json;
             }
 
             /* function sortDataRowsbyPeArr(json) {
              var datarows = json.rows;
-             var peArr = json.metaData.pe;
+             var peArr = json.metaData.dimensions.pe;
              var dataResult = [];
              for (var i = 0; i < peArr.length; i++) {
              var minPe = peArr[i];
@@ -1654,7 +1654,7 @@
 
             /*   function sortDataRowsbyPeArr_1(json, secondKey) {
              var datarows = json.rows;
-             var peArr = json.metaData.ou;
+             var peArr = json.metaData.dimensions.ou;
              var facilityArr = json.metaData[secondKey];
              var dataResult = [];
              for (var i = 0; i < peArr.length; i++) {
@@ -1670,7 +1670,7 @@
              }
              function sortDataRowsbyPeArr_11(json, secondKey) {
              var datarows = json.rows;
-             var peArr = json.metaData.pe;
+             var peArr = json.metaData.dimensions.pe;
              var facilityArr = json.metaData[secondKey];
              var dataResult = [];
              for (var i = 0; i < peArr.length; i++) {
@@ -1686,8 +1686,8 @@
              }*/
             function sortDataRowsbyPeArr_1P(json, secondKey) {
                 var datarows = json.rows;
-                var peArr = json.metaData.pe;
-                var facilityArr = json.metaData[secondKey];
+                var peArr = json.metaData.dimensions.pe;
+                var facilityArr = json.metaData.dimensions[secondKey];
                 var dataResult = [];
                 for (var i = 0; i < peArr.length; i++) {
                     var minPe = peArr[i];
@@ -1706,8 +1706,8 @@
                 return dataResult;
             }      function sortDataRowsbyPeArr_2P(json, secondKey) {
                 var datarows = json.rows;
-                var peArr = json.metaData.pe;
-                var facilityArr = json.metaData[secondKey];
+                var peArr = json.metaData.dimensions.pe;
+                var facilityArr = json.metaData.dimensions[secondKey];
                 var dataResult = [];
                 for (var i = 0; i < peArr.length; i++) {
                     var minPe = peArr[i];
@@ -1728,8 +1728,8 @@
 
             function sortDataRowsbyPeArr_3P(json, secondKey) {
                 var datarows = json.rows;
-                var peArr = json.metaData.pe;
-                var facilityArr = json.metaData[secondKey];
+                var peArr = json.metaData.dimensions.pe;
+                var facilityArr = json.metaData.dimensions[secondKey];
                 var dataResult = [];
                 for (var i = 0; i < peArr.length; i++) {
                     var minPe = peArr[i];
@@ -1753,7 +1753,7 @@
             /*
              function preparingDataforChart(json, count, secondKey) {
 
-             var peArr = json.metaData.dx;
+             var peArr = json.metaData.dimensions.dx;
              //var facilityArr = json.metaData["ou"];
              var facilityArr = json.metaData["ou"];
              var dataResult = sortDataRowsbyPeArr_1(json, secondKey);
@@ -1787,7 +1787,7 @@
 
              function preparingDataforChart1(json, secondKey) {
 
-             var peArr = json.metaData.dx;
+             var peArr = json.metaData.dimensions.dx;
              //var facilityArr = json.metaData["ou"];
              var facilityArr = json.metaData["pe"];
              var dataResult = sortDataRowsbyPeArr_11(json, secondKey);
@@ -1820,21 +1820,21 @@
              }*/
             function preparingDataforChart1P(json, secondKey) {
 
-                var peArr = json.metaData.dx;
-                var facilityArr = json.metaData["ou"];
-                var periodarr = json.metaData["pe"];
+                var peArr = json.metaData.dimensions.dx;
+                var facilityArr = json.metaData.dimensions["ou"];
+                var periodarr = json.metaData.dimensions["pe"];
                 var dataResult = sortDataRowsbyPeArr_1P(json, secondKey);
 
 
                 var xAxisCategoriesArr = [];
                 for (var i = 0; i < facilityArr.length; i++) {
-                    xAxisCategoriesArr.push(json.metaData.names[facilityArr[i]])
+                    xAxisCategoriesArr.push(json.metaData.items[facilityArr[i]].name)
 //                if (xAxisCategoriesArr.length >= count) break;
                 }
                 var dataSeriesArrO = [];
 
                 for (var i = 0; i < periodarr.length; i++) {
-                    var name = json.metaData.names[periodarr[i]];
+                    var name = json.metaData.items[periodarr[i]].name;
                     var data = [];
 
                     for (var z = 0; z < facilityArr.length; z++){
@@ -1860,15 +1860,15 @@
 
             function preparingDataforChart1Pie(json, secondKey) {
 
-                var peArr = json.metaData.dx;
-                var facilityArr = json.metaData["ou"];
-                var periodarr = json.metaData["pe"];
+                var peArr = json.metaData.dimensions.dx;
+                var facilityArr = json.metaData.dimensions["ou"];
+                var periodarr = json.metaData.dimensions["pe"];
                 var dataResult = sortDataRowsbyPeArr_1P(json, secondKey);
 
 
                 var xAxisCategoriesArr = [];
                 for (var i = 0; i < facilityArr.length; i++) {
-                    xAxisCategoriesArr.push(json.metaData.names[facilityArr[i]])
+                    xAxisCategoriesArr.push(json.metaData.items[facilityArr[i]].name)
 //                if (xAxisCategoriesArr.length >= count) break;
                 }
                 var dataSeriesArrO = [];
@@ -1908,21 +1908,21 @@
 
             function preparingDataforChart1PL(json, secondKey) {
 
-                var peArr = json.metaData.dx;
-                var facilityArr = json.metaData["pe"];
-                var periodarr = json.metaData["ou"];
+                var peArr = json.metaData.dimensions.dx;
+                var facilityArr = json.metaData.dimensions["ou"];
+                var periodarr = json.metaData.dimensions["pe"];
                 var dataResult = sortDataRowsbyPeArr_1P(json, secondKey);
 
 
                 var xAxisCategoriesArr = [];
                 for (var i = 0; i < facilityArr.length; i++) {
-                    xAxisCategoriesArr.push(json.metaData.names[facilityArr[i]])
+                    xAxisCategoriesArr.push(json.metaData.items[facilityArr[i]].name)
 //                if (xAxisCategoriesArr.length >= count) break;
                 }
                 var dataSeriesArrO = [];
 
                 for (var i = 0; i < periodarr.length; i++) {
-                    var name = json.metaData.names[periodarr[i]];
+                    var name = json.metaData.items[periodarr[i]].name;
                     var data = [];
 
                     for (z = 0; z < facilityArr.length; z++){
@@ -1948,21 +1948,21 @@
 
             function preparingDataforChart2P(json, secondKey) {
 
-                var peArr = json.metaData.dx;
-                var facilityArr = json.metaData["dx"];
-                var periodarr = json.metaData["pe"];
+                var peArr = json.metaData.dimensions.dx;
+                var facilityArr = json.metaData.dimensions["dx"];
+                var periodarr = json.metaData.dimensions["pe"];
                 var dataResult = sortDataRowsbyPeArr_2P(json, secondKey);
 
 
                 var xAxisCategoriesArr = [];
                 for (var i = 0; i < facilityArr.length; i++) {
-                    xAxisCategoriesArr.push(json.metaData.names[facilityArr[i]])
+                    xAxisCategoriesArr.push(json.metaData.items[facilityArr[i]].name)
 //                if (xAxisCategoriesArr.length >= count) break;
                 }
                 var dataSeriesArrO = [];
 
                 for (var i = 0; i < periodarr.length; i++) {
-                    var name = json.metaData.names[periodarr[i]];
+                    var name = json.metaData.items[periodarr[i]].name;
                     var data = [];
 
                     for (z = 0; z < facilityArr.length; z++){
@@ -1988,21 +1988,21 @@
 
             function preparingDataforChart3P(json, secondKey) {
 
-                var peArr = json.metaData.dx;
-                var facilityArr = json.metaData["ou"];
-                var periodarr = json.metaData["dx"];
+                var peArr = json.metaData.dimensions.dx;
+                var facilityArr = json.metaData.dimensions["ou"];
+                var periodarr = json.metaData.dimensions["dx"];
                 var dataResult = sortDataRowsbyPeArr_3P(json, secondKey);
 
 
                 var xAxisCategoriesArr = [];
                 for (var i = 0; i < facilityArr.length; i++) {
-                    xAxisCategoriesArr.push(json.metaData.names[facilityArr[i]])
+                    xAxisCategoriesArr.push(json.metaData.items[facilityArr[i]].name)
 //                if (xAxisCategoriesArr.length >= count) break;
                 }
                 var dataSeriesArrO = [];
 
                 for (var i = 0; i < periodarr.length; i++) {
-                    var name = json.metaData.names[periodarr[i]];
+                    var name = json.metaData.items[periodarr[i]].name;
                     var data = [];
 
                     for (z = 0; z < facilityArr.length; z++){
@@ -2028,7 +2028,7 @@
 
 //            function preparingDataforChart3P(json, secondKey) {
 //
-//                var peArr = json.metaData.dx;
+//                var peArr = json.metaData.dimensions.dx;
 //                var facilityArr = json.metaData["dx"];
 //                var periodarr = json.metaData["pe"];
 //                var dataResult = sortDataRowsbyPeArr_2P(json, secondKey);
@@ -2036,13 +2036,13 @@
 //
 //                var xAxisCategoriesArr = [];
 //                for (var i = 0; i < facilityArr.length; i++) {
-//                    xAxisCategoriesArr.push(json.metaData.names[facilityArr[i]])
+//                    xAxisCategoriesArr.push(json.metaData.items.[facilityArr[i]].name)
 ////                if (xAxisCategoriesArr.length >= count) break;
 //                }
 //                var dataSeriesArrO = [];
 //
 //                for (var i = 0; i < periodarr.length; i++) {
-//                    var name = json.metaData.names[periodarr[i]];
+//                    var name = json.metaData.items[periodarr[i]].name;
 //                    //var data = [];
 //var data=[];
 //                    for (z = 0; z < facilityArr.length; z++){
@@ -2081,11 +2081,11 @@
 
             function swapAlternativePe(json) {
                 var peArr = [];
-                var mid = json.metaData.pe.length / 2;
+                var mid = json.metaData.dimensions.pe.length / 2;
                 for (var i = 0; i < mid; i++) {
-                    peArr.push(json.metaData.pe[i], json.metaData.pe[i + mid]);
+                    peArr.push(json.metaData.dimensions.pe[i], json.metaData.dimensions.pe[i + mid]);
                 }
-                json.metaData.pe = peArr;
+                json.metaData.dimensions.pe = peArr;
                 return json;
             }
         }
@@ -2119,9 +2119,9 @@
             var chartData = [];
             var datas = json.rows;
 
-            for (var i = 0; i < json.metaData.dx.length; i++) {
-                indicatorIDArr.push(json.metaData.dx[i]);
-                indicatorNameArr.push(json.metaData.names[json.metaData.dx[i]]);
+            for (var i = 0; i < json.metaData.dimensions.dx.length; i++) {
+                indicatorIDArr.push(json.metaData.dimensions.dx[i]);
+                indicatorNameArr.push(json.metaData.names[json.metaData.dimensions.dx[i]]);
             }
 
             console.log("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
@@ -2129,7 +2129,7 @@
 //                swapCol(indicatorIDArr, indicatorNameArr, datas, 3, 5);
 
             var orgFixLength = (datas.length / indicatorIDArr.length);
-//            for (var i = 0; i < json.metaData.ou.length; i++) {
+//            for (var i = 0; i < json.metaData.dimensions.ou.length; i++) {
             for (var i = 0; i < json.rows.length; i++) {
 
 
@@ -2605,7 +2605,7 @@
                 <!--<a class="mdl-navigation__link" id="PC1">Polar Charts</a>-->
             </nav>
         </div>
-							<!-- Global Site Tag (gtag.js) - Google Analytics -->
+					<!-- Global Site Tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-107770983-1"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
