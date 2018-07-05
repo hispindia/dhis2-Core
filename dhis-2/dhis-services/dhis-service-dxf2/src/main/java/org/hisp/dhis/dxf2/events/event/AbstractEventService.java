@@ -87,6 +87,7 @@ import org.hisp.dhis.program.ProgramStageInstanceService;
 import org.hisp.dhis.program.ProgramStageService;
 import org.hisp.dhis.program.ProgramStatus;
 import org.hisp.dhis.program.ProgramType;
+import org.hisp.dhis.program.notification.ProgramNotificationService;
 import org.hisp.dhis.query.Order;
 import org.hisp.dhis.query.Query;
 import org.hisp.dhis.query.QueryService;
@@ -206,6 +207,9 @@ public abstract class AbstractEventService
 
     @Autowired
     protected QueryService queryService;
+
+    @Autowired
+    protected ProgramNotificationService programNotificationService;
 
     protected static final int FLUSH_FREQUENCY = 100;
 
@@ -1143,6 +1147,8 @@ public abstract class AbstractEventService
             }
         }
 
+        sendProgramNotification( programStageInstance, importOptions );
+
         if ( !singleValue )
         {
             dataValues.forEach( dataValueService::deleteTrackedEntityDataValue );
@@ -1430,9 +1436,22 @@ public abstract class AbstractEventService
             }
         }
 
+        sendProgramNotification( programStageInstance, importOptions );
+
         importSummary.setStatus( importSummary.getConflicts().isEmpty() ? ImportStatus.SUCCESS : ImportStatus.WARNING );
 
         return importSummary;
+    }
+
+    private void sendProgramNotification( ProgramStageInstance programStageInstance, ImportOptions importOptions )
+    {
+        if ( programStageInstance.isCompleted() )
+        {
+            if ( !importOptions.isSkipNotifications() )
+            {
+                programNotificationService.sendCompletionNotifications( programStageInstance );
+            }
+        }
     }
 
     private void saveDataValue( ProgramStageInstance programStageInstance, String storedBy, DataElement dataElement,
@@ -1452,6 +1471,8 @@ public abstract class AbstractEventService
                 dataValue.setProvidedElsewhere( providedElsewhere );
 
                 dataValueService.saveTrackedEntityDataValue( dataValue );
+
+                programStageInstance.getDataValues().add( dataValue );
 
                 if ( importSummary != null )
                 {
