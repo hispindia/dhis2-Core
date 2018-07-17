@@ -209,7 +209,14 @@ var reportsAppServices = angular.module('reportsAppServices',[])
                 }
                 return promise;
             },
-
+            getSQLViewData : function(sqlViewUID){
+                
+                var promise = $http.get( '../api/sqlViews/'+sqlViewUID+"/data?").then(function(response){
+                    return response.data ;
+                });
+                return promise;
+              
+            },
             getOrganisationUnitLevelLength: function(){
                 var promise = $http.get( '../api/organisationUnitLevels.json?paging=false' ).then(function(response){
                     return response.data ;
