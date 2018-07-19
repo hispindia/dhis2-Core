@@ -108,12 +108,7 @@ reportsApp.controller('DataStatusController',
                 $scope.getdataElementid=$scope.sqlViews[i].id;
 			}
 			
-			if($scope.sqlViews[i].name=="OrgUnit_Heirarchy")
-		{
-			$scope.OrgUnit_Heirarchy=$scope.sqlViews[i].id;
-		
-		}
-
+			
 		}
 			
 			
@@ -224,16 +219,7 @@ reportsApp.controller('DataStatusController',
 				
 				
 				});
-
-				$scope.orgunitheirarchy=[]
-				OrganisationUnitService.getSQLViewData($scope.OrgUnit_Heirarchy).then(function (orguinit) {
-					   
-					for(var i=0;i<orguinit.rows.length;i++){
-						$scope.orgunitheirarchy[orguinit.rows[i][0]]=orguinit.rows[i][1]
-					}
-				})
-
-            }, 10);
+			}, 10);
 			
 			$scope.showHideButtons();
         };
@@ -664,12 +650,70 @@ reportsApp.controller('DataStatusController',
 				
 				$scope.final_org=[];
 				$scope.Final_orgNameWithBreaks=[];
+				var ParentName_1="",ParentName_2="",ParentName_3="",ParentName_4="",ParentName_5="",ParentName_6="",ParentName_7="",ParentName_8="";
 				
 				$scope.allOrgUnitChildren.forEach(function(org){
 					
-						hierarchy=getheirarchy(org.uid)
-						$scope.Final_orgNameWithBreaks[hierarchy]=org.uid;
-					});
+					var orgNameWithBreaks = "";
+					var totBreaks = org.level - $scope.grandParentLevel;
+					
+					for( var x = 0 ; x < totBreaks ; x++ )
+						orgNameWithBreaks += "|-------------";
+					if(totBreaks==0)
+					{
+						ParentName_1=org.name;
+						orgNameWithBreaks=ParentName_1;
+					}
+					else if(totBreaks==1)
+					{
+						ParentName_2=org.name;
+						for( var x = 0 ; x < totBreaks ; x++ )
+						orgNameWithBreaks = ParentName_1+" / "+ParentName_2;
+					}
+					else if(totBreaks==2)
+					{
+						ParentName_3=org.name;
+						for( var x = 0 ; x < totBreaks ; x++ )
+						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3;
+					}
+					else if(totBreaks==3)
+					{
+						ParentName_4=org.name;
+						for( var x = 0 ; x < totBreaks ; x++ )
+						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4;
+					}
+					else if(totBreaks==4)
+					{
+						ParentName_4=org.name;
+						for( var x = 0 ; x < totBreaks ; x++ )
+						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5;
+					}
+					else if(totBreaks==5)
+					{
+						ParentName_6=org.name;
+						for( var x = 0 ; x < totBreaks ; x++ )
+						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6;
+					}
+					else if(totBreaks==6)
+					{
+						ParentName_7=org.name;
+						for( var x = 0 ; x < totBreaks ; x++ )
+						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6+" / "+ParentName_7;
+					}
+					
+
+					if($scope.GetUID($scope.organisationUnits_id,org.uid))
+					{
+
+						$scope.Final_orgNameWithBreaks[orgNameWithBreaks]=org.uid;
+						//$scope.Final_orgNameWithBreaks.push({orgNameWithBreaks});
+
+					//htmlString += "<tr><td style='padding:0 15px'>" + orgNameWithBreaks + "</td>";
+				
+					}
+
+
+				});
 
 					$scope.Final_orgNameWithBreaks.sort();
 				for(var key in $scope.Final_orgNameWithBreaks)
@@ -806,9 +850,7 @@ reportsApp.controller('DataStatusController',
 					$scope.NewcompulsoryDECount=$scope.newDECountvalue.length;
 				}
 
-
-
-				$scope.OrgUnit_uid	=$scope.filteredOrgUnitList.toString();
+			$scope.OrgUnit_uid	=$scope.filteredOrgUnitList.toString();
 			if( includeZero )
 				var url = $scope.basicUrl + $scope.dataStatusSV + "/data.json?";
 			else
@@ -856,9 +898,66 @@ reportsApp.controller('DataStatusController',
 				
 				$scope.allOrgUnitChildren.forEach(function(org){
 					
-					hierarchy=getheirarchy(org.uid)
-				    $scope.Final_orgNameWithBreaks[hierarchy]=org.uid;
-					});
+					var orgNameWithBreaks = "";
+					var totBreaks = org.level - $scope.grandParentLevel;
+					
+					for( var x = 0 ; x < totBreaks ; x++ )
+						orgNameWithBreaks += "|-------------";
+					if(totBreaks==0)
+					{
+						ParentName_1=org.name;
+						orgNameWithBreaks=ParentName_1;
+					}
+					else if(totBreaks==1)
+					{
+						ParentName_2=org.name;
+						for( var x = 0 ; x < totBreaks ; x++ )
+						orgNameWithBreaks = ParentName_1+" / "+ParentName_2;
+					}
+					else if(totBreaks==2)
+					{
+						ParentName_3=org.name;
+						for( var x = 0 ; x < totBreaks ; x++ )
+						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3;
+					}
+					else if(totBreaks==3)
+					{
+						ParentName_4=org.name;
+						for( var x = 0 ; x < totBreaks ; x++ )
+						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4;
+					}
+					else if(totBreaks==4)
+					{
+						ParentName_4=org.name;
+						for( var x = 0 ; x < totBreaks ; x++ )
+						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5;
+					}
+					else if(totBreaks==5)
+					{
+						ParentName_6=org.name;
+						for( var x = 0 ; x < totBreaks ; x++ )
+						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6;
+					}
+					else if(totBreaks==6)
+					{
+						ParentName_7=org.name;
+						for( var x = 0 ; x < totBreaks ; x++ )
+						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6+" / "+ParentName_7;
+					}
+					
+
+					if($scope.GetUID($scope.organisationUnits_id,org.uid))
+					{
+
+						$scope.Final_orgNameWithBreaks[orgNameWithBreaks]=org.uid;
+						//$scope.Final_orgNameWithBreaks.push({orgNameWithBreaks});
+
+					//htmlString += "<tr><td style='padding:0 15px'>" + orgNameWithBreaks + "</td>";
+				
+					}
+
+
+				});
 		
 					
 				
@@ -1383,16 +1482,7 @@ reportsApp.controller('DataStatusController',
 
 
 		};
-		//*****************************************************************************
-		//Get heirarchy
-		//*****************************************************************************
 		
-		getheirarchy=function(org){
-			$scope.hierarchy=$scope.orgunitheirarchy[org]
-			 return $scope.hierarchy;
-			 
-		 }
-
 		//*****************************************************************************
 		//Format Date
 		//*****************************************************************************
