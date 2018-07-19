@@ -149,5 +149,4 @@
     scope="prototype">
     <property name="organisationUnitGroupService" ref="org.hisp.dhis.organisationunit.OrganisationUnitGroupService" />
   </bean>
-  
 </beans>
