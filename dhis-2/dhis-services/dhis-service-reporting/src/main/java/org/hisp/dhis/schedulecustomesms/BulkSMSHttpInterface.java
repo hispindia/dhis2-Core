@@ -147,7 +147,7 @@ public class BulkSMSHttpInterface
         
         //url_string = "https://myvaluefirst.com/smpp/sendsms?";
         
-       // http://bulksms.mysmsmantra.com:8080/WebSMS/SMSAPI.jsp?username=hispindia&password=hisp1234&sendername=HSSPIN&mobileno=9643274071&message=à¤”à¤·à¤§à¥€ à¤¶à¥�à¤°à¥� à¤—à¤°à¥‡à¤•à¥‹ à¤° CD4 à¤œà¤¾à¤�à¤š à¤—à¤°à¥‡à¤•à¥‹ à¥¬ à¤®à¤¹à¤¿à¤¨à¤¾ à¤­à¤�
+       // http://bulksms.mysmsmantra.com:8080/WebSMS/SMSAPI.jsp?username=hispindia&password=hisp1234&sendername=HSSPIN&mobileno=9643274071&message=aaaaa
         
         //http://api.sparrowsms.com/v2/sms/?token=2Ca4N06OnVfBBl0BMemc&from=infoSMS&to=9643274071&text=test
         
@@ -547,7 +547,7 @@ public class BulkSMSHttpInterface
         
         //url_string = "https://myvaluefirst.com/smpp/sendsms?";
         
-       // http://bulksms.mysmsmantra.com:8080/WebSMS/SMSAPI.jsp?username=hispindia&password=hisp1234&sendername=HSSPIN&mobileno=9643274071&message=à¤”à¤·à¤§à¥€ à¤¶à¥�à¤°à¥� à¤—à¤°à¥‡à¤•à¥‹ à¤° CD4 à¤œà¤¾à¤�à¤š à¤—à¤°à¥‡à¤•à¥‹ à¥¬ à¤®à¤¹à¤¿à¤¨à¤¾ à¤­à¤�
+       // http://bulksms.mysmsmantra.com:8080/WebSMS/SMSAPI.jsp?username=hispindia&password=hisp1234&sendername=HSSPIN&mobileno=9643274071&message=aaa
         
         //http://api.sparrowsms.com/v2/sms/?token=2Ca4N06OnVfBBl0BMemc&from=infoSMS&to=9643274071&text=test
         
@@ -609,7 +609,7 @@ public class BulkSMSHttpInterface
 		
 		String genratedhashKey = hashGenerator(username, senderId, finalmessage, secureKey);
 		HttpClient client = new HttpClient();
-		PostMethod method = new PostMethod("http://msdgweb.mgov.gov.in/esms/sendsmsrequest");
+		PostMethod method = new PostMethod("https://msdgweb.mgov.gov.in/esms/sendsmsrequest");
 		
 		try {
 			encryptedPassword  = MD5(password);
