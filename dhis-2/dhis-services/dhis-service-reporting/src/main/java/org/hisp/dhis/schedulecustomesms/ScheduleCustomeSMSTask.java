@@ -147,7 +147,7 @@ public class ScheduleCustomeSMSTask
     public void scheduledNPCDCSProgramCustomeSMS( Integer mobile_attribute_id, Integer program_stage_id  )
         throws IOException
     {
-        System.out.println( " NPCDCS_FOLLOW_UP SMS Scheduler Started at : " + new Date() );
+        System.out.println( " NPCDCS_FOLLOW_UP SMS Scheduler Started at : " + new Date() + " -- current date  -  " + todayDate );
 
         TrackedEntityAttribute teAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( NAME_ATTRIBUTE_ID );
 
@@ -183,10 +183,12 @@ public class ScheduleCustomeSMSTask
                     Date oneDayBeforeDate = oneDayBefore.getTime();
 
                     String oneDayBeforeDateString = simpleDateFormat.format( oneDayBeforeDate );
-
+                    
+                    //System.out.println(  " 11-------- oneDayBeforeDateString " + oneDayBeforeDateString   );
                     if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString ) )
                     {
-                        TrackedEntityInstance tei = trackedEntityInstanceService.getTrackedEntityInstance( teiID );
+                    	 //System.out.println(  " 12-------- oneDayBeforeDateString " + oneDayBeforeDateString   );
+                    	TrackedEntityInstance tei = trackedEntityInstanceService.getTrackedEntityInstance( teiID );
                         TrackedEntityAttributeValue teaValue = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( tei, teAttribute );
                         OrganisationUnit orgUnit = organisationUnitService.getOrganisationUnit( orgUnitID );
                         
@@ -224,7 +226,7 @@ public class ScheduleCustomeSMSTask
     public void scheduledANCProgrammeCustomeSMS( Integer mobile_attribute_id, Integer program_stage_id  )
             throws IOException
         {
-            System.out.println( " ANC Programme SMS Scheduler Started at : " + new Date() );
+            System.out.println( " ANC Programme SMS Scheduler Started at : " + new Date() + " -- current date  -  " + todayDate );
 
             TrackedEntityAttribute teAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( NAME_ATTRIBUTE_ID );
 
@@ -260,10 +262,11 @@ public class ScheduleCustomeSMSTask
                         Date oneDayBeforeDate = oneDayBefore.getTime();
 
                         String oneDayBeforeDateString = simpleDateFormat.format( oneDayBeforeDate );
-
+                        //System.out.println(  " 21-------- oneDayBeforeDateString " + oneDayBeforeDateString   );
                         if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString ) )
                         {
-                            TrackedEntityInstance tei = trackedEntityInstanceService.getTrackedEntityInstance( teiID );
+                        	//System.out.println(  " 22-------- oneDayBeforeDateString " + oneDayBeforeDateString   );
+                        	TrackedEntityInstance tei = trackedEntityInstanceService.getTrackedEntityInstance( teiID );
                             TrackedEntityAttributeValue teaValue = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( tei, teAttribute );
                             OrganisationUnit orgUnit = organisationUnitService.getOrganisationUnit( orgUnitID );
                             
@@ -303,7 +306,7 @@ public class ScheduleCustomeSMSTask
     public void scheduledANCVISITS24CustomeSMS( Integer mobile_attribute_id, Integer program_stage_id  )
             throws IOException
         {
-            System.out.println( " ANC Programme 2 and 4 SMS Scheduler Started at : " + new Date() );
+            System.out.println( " ANC Programme 2 and 4 SMS Scheduler Started at : " + new Date() + " -- current date  -  " + todayDate );
 
             TrackedEntityAttribute teAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( NAME_ATTRIBUTE_ID );
 
@@ -339,10 +342,11 @@ public class ScheduleCustomeSMSTask
                         Date oneDayBeforeDate = oneDayBefore.getTime();
 
                         String oneDayBeforeDateString = simpleDateFormat.format( oneDayBeforeDate );
-
+                        //System.out.println(  " 31-------- oneDayBeforeDateString " + oneDayBeforeDateString   );
                         if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString ) )
                         {
-                            TrackedEntityInstance tei = trackedEntityInstanceService.getTrackedEntityInstance( teiID );
+                        	//System.out.println(  " 32-------- oneDayBeforeDateString " + oneDayBeforeDateString   );
+                        	TrackedEntityInstance tei = trackedEntityInstanceService.getTrackedEntityInstance( teiID );
                             TrackedEntityAttributeValue teaValue = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( tei, teAttribute );
                             OrganisationUnit orgUnit = organisationUnitService.getOrganisationUnit( orgUnitID );
                             
@@ -381,7 +385,7 @@ public class ScheduleCustomeSMSTask
     public void scheduledPNCProgrammeCustomeSMS( Integer mobile_attribute_id, Integer program_stage_id  )
             throws IOException
         {
-            System.out.println( " PNC Programme SMS Scheduler Started at : " + new Date() );
+            System.out.println( " PNC Programme SMS Scheduler Started at : " + new Date() + " -- current date  -  " + todayDate );
 
             TrackedEntityAttribute teAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( NAME_ATTRIBUTE_ID );
 
@@ -417,10 +421,11 @@ public class ScheduleCustomeSMSTask
                         Date oneDayBeforeDate = oneDayBefore.getTime();
 
                         String oneDayBeforeDateString = simpleDateFormat.format( oneDayBeforeDate );
-
+                        //System.out.println(  " 41-------- oneDayBeforeDateString " + oneDayBeforeDateString   );
                         if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString ) )
                         {
-                            TrackedEntityInstance tei = trackedEntityInstanceService.getTrackedEntityInstance( teiID );
+                        	//System.out.println(  " 42-------- oneDayBeforeDateString " + oneDayBeforeDateString   );
+                        	TrackedEntityInstance tei = trackedEntityInstanceService.getTrackedEntityInstance( teiID );
                             TrackedEntityAttributeValue teaValue = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( tei, teAttribute );
                             OrganisationUnit orgUnit = organisationUnitService.getOrganisationUnit( orgUnitID );
                             
@@ -459,7 +464,7 @@ public class ScheduleCustomeSMSTask
     public void scheduledChildHealthProgrammeCustomeSMS( Integer mobile_attribute_id, Integer program_stage_id  )
             throws IOException
         {
-            System.out.println( " Child Health Programme(On Scheduling) SMS Scheduler Started at : " + new Date() );
+            System.out.println( " Child Health Programme(On Scheduling) SMS Scheduler Started at : " + new Date() + " -- current date  -  " + todayDate );
 
             TrackedEntityAttribute teAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( NAME_ATTRIBUTE_ID );
 
@@ -495,10 +500,11 @@ public class ScheduleCustomeSMSTask
                         Date oneDayBeforeDate = oneDayBefore.getTime();
 
                         String oneDayBeforeDateString = simpleDateFormat.format( oneDayBeforeDate );
-
+                        //System.out.println(  " 51-------- oneDayBeforeDateString " + oneDayBeforeDateString   );
                         if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString ) )
                         {
-                            TrackedEntityInstance tei = trackedEntityInstanceService.getTrackedEntityInstance( teiID );
+                        	//System.out.println(  " 52-------- oneDayBeforeDateString " + oneDayBeforeDateString   );
+                        	TrackedEntityInstance tei = trackedEntityInstanceService.getTrackedEntityInstance( teiID );
                             TrackedEntityAttributeValue teaValue = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( tei, teAttribute );
                             OrganisationUnit orgUnit = organisationUnitService.getOrganisationUnit( orgUnitID );
                             
