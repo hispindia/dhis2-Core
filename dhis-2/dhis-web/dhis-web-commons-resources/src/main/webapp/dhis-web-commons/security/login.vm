@@ -11,15 +11,7 @@
     <link type="text/css" rel="stylesheet" href="../css/widgets.css">
     <link type="text/css" rel="stylesheet" href="./css/login.css">
     <link type="text/css" rel="stylesheet" href="../../api/files/style/external" />
-	<style>
-         blink, .blink {
-            animation: blinker 1s linear infinite;
-        }
 
-       @keyframes blinker {  
-            50% { opacity: 0; }
-       }
-      </style>
 </head>
 
 <body class="loginPage">
@@ -66,7 +58,7 @@
                 <tr>
                     <td><a href="./Documents/Data_defination_SOP_English.pdf"><span style="color:#1D5288;"><strong>- Data defination/SOP(English)</strong></span></td><td>&nbsp;</td></tr>
 				<tr><td><a href="./Documents/Data_defination_SOP_Hindi.pdf"><span style="color:#1D5288;"><strong>- Data defination/SOP(Hindi)</strong></span></td><td>&nbsp;</td></tr>
-				<tr><td><a href="https://ihatin-my.sharepoint.com/:u:/g/personal/shariqul_islam_ihat_in/Eb6N9b3kg8BHt8pjAnR9lpkBpJNrEMRuDMvFvpyjlBYoTg?e=4%3aLoW0tW&at=9"><span style="color:#F98B73;" class="blink"><strong>- Data Use Campaign-Training Material</strong></span></td><td>&nbsp;</td></tr>
+				<tr><td><a href="https://ihatin-my.sharepoint.com/:u:/g/personal/shariqul_islam_ihat_in/Eb6N9b3kg8BHt8pjAnR9lpkBpJNrEMRuDMvFvpyjlBYoTg?e=4%3aLoW0tW&at=9"><span style="color:#1D5288;"><strong>- Data Use Campaign-Training Material <span style="color:#CF2618;"><strong>-New</strong><span></strong></span></td><td>&nbsp;</td></tr>
                 <tr>
                     <tr>
                         <td><a href="./Documents/uphmis_support_.pdf"><span style="color:#1D5288;"><strong>- Support</strong></span></td><td>&nbsp;</td>
