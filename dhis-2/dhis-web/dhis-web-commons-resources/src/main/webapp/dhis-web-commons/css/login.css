@@ -73,8 +73,20 @@ a:hover
 {
   position: relative;
   margin: 128px auto 0 auto;
-  width: 270px;
+  width: 400px;
 }
+
+/* for hearing */
+#loginArea
+{
+` text-align:center!important;
+}
+
+#loginForm
+{
+  text-align:center!important;
+}
+
 
 #signInLabel
 {
