@@ -217,5 +217,27 @@
       <param name="stylesheets">style/userProfile.css</param>
     </action>
 
+   <!-- Multiple User Population Form-->
+     <action name="populateMultipleUsersForm"
+       class="org.hisp.dhis.userimport.action.AddMultipleUserFormAction">
+       <result name="success" type="velocity">/main.vm</result>
+       <param name="page">/dhis-web-maintenance-user/multipleUserForm.vm</param>
+       <param name="menu">/dhis-web-maintenance-user/menu.vm</param>
+       <param name="requiredAuthorities">F_IMPORT_POPULATE_USERS</param>
+     </action>
+
+     <!-- Multiple User Population Result-->
+     <action name="populateMultipleUsers"
+         class="org.hisp.dhis.userimport.action.AddMultipleUserAction">
+         <result name="success" type="velocity">/main.vm</result>
+         <param name="page">/dhis-web-maintenance-user/responseUserImport.vm</param>
+         <param name="menu">/dhis-web-maintenance-user/menu.vm</param>
+         <interceptor-ref name="fileUploadStack"/>
+         <param name="requiredAuthorities">F_IMPORT_POPULATE_USERS</param>
+     </action>
+
+
+
+
   </package>
 </struts>
