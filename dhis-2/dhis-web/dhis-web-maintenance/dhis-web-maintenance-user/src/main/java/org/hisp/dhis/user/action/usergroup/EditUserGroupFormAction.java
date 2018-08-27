@@ -36,13 +36,13 @@ import org.hisp.dhis.system.util.AttributeUtils;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserGroup;
 import org.hisp.dhis.user.UserGroupService;
-import org.hisp.dhis.user.comparator.UserComparator;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Lars Helge Overland
@@ -131,14 +131,16 @@ public class EditUserGroupFormAction
 
         groupMembers = new ArrayList<>( group.getMembers() );
 
+        groupMembers.forEach( m -> m.setDisplayName( m.getName() + ( !Objects.isNull( m.getUserCredentials() ) ? " (" + m.getUserCredentials().getUsername() + ")" : "" ) ) );
+
         managedGroups = new ArrayList<>( group.getManagedGroups() );
 
         attributes = new ArrayList<>( attributeService.getAttributes( UserGroup.class ) );
 
         attributeValues = AttributeUtils.getAttributeValueMap( group.getAttributeValues() );
 
-        Collections.sort( groupMembers, UserComparator.INSTANCE );
         Collections.sort( managedGroups );
+        
         Collections.sort( attributes, AttributeSortOrderComparator.INSTANCE );
 
         return SUCCESS;
