@@ -63,6 +63,9 @@ public class DataValueSet
     protected static final String FIELD_PERIOD = "period";
     protected static final String FIELD_ORGUNIT = "orgUnit";
     protected static final String FIELD_ATTRIBUTE_OPTION_COMBO = "attributeOptionCombo";
+    
+    // add Properties for skip dataValue audit
+    protected static final String FIELD_SKIP_DATA_VALUE_AUDIT = "skipDataValueAudit";
 
     //--------------------------------------------------------------------------
     // Options
@@ -99,7 +102,11 @@ public class DataValueSet
     protected List<DataValue> dataValues = new ArrayList<>();
 
     protected List<String> attributeCategoryOptions;
+    
+    // add Properties for skip dataValue audit
+    protected String skipDataValueAudit;
 
+    
     //--------------------------------------------------------------------------
     // Constructors
     //--------------------------------------------------------------------------
@@ -279,6 +286,19 @@ public class DataValueSet
     public void setAttributeCategoryOptions( List<String> attributeCategoryOptions )
     {
         this.attributeCategoryOptions = attributeCategoryOptions;
+    }
+
+    // add Properties for skip dataValue audit
+    @JsonProperty
+    @JacksonXmlProperty( isAttribute = true )
+    public String getSkipDataValueAudit()
+    {
+        return skipDataValueAudit;
+    }
+
+    public void setSkipDataValueAudit( String skipDataValueAudit )
+    {
+        this.skipDataValueAudit = skipDataValueAudit;
     }
 
     //--------------------------------------------------------------------------
