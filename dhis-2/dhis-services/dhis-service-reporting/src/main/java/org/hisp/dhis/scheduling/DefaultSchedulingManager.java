@@ -140,7 +140,8 @@ public class DefaultSchedulingManager
         scheduler.scheduleTask( ValidationResultNotificationTask.KEY_TASK, validationResultNotificationTask, Scheduler.CRON_DAILY_7AM );
         scheduler.scheduleTask( CredentialsExpiryAlertTask.KEY_TASK, credentialsExpiryAlertTask, Scheduler.CRON_DAILY_2AM );
         scheduler.scheduleTask( DataSetNotificationTask.KEY_TASK, dataSetNotificationTask, Scheduler.CRON_DAILY_2AM );
-        scheduler.scheduleTask( ScheduleCustomeSMSTask.KEY_TASK, scheduleCustomeSMSTask, Scheduler.CRON_DAILY_10AM );
+        //scheduler.scheduleTask( ScheduleCustomeSMSTask.KEY_TASK, scheduleCustomeSMSTask, Scheduler.CRON_DAILY_10AM );
+		scheduler.scheduleTask( ScheduleCustomeSMSTask.KEY_TASK, scheduleCustomeSMSTask, Scheduler.CRON_DAILY_12PM );
         //scheduler.scheduleTask( ScheduleCustomeSMSTask.KEY_TASK, scheduleCustomeSMSTask, Scheduler.CRON_EVERY_MIN );
     }
     
