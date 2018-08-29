@@ -154,6 +154,14 @@ public class StreamingXmlDataValueSet
         return new StreamingXmlDataValue( reader );
     }
 
+    // add Properties for skip dataValue audit
+    @Override
+    public String getSkipDataValueAudit()
+    {
+        return skipDataValueAudit = skipDataValueAudit == null ? reader.getAttributeValue( FIELD_SKIP_DATA_VALUE_AUDIT ) : skipDataValueAudit;
+    }
+    
+    
     //--------------------------------------------------------------------------
     // Setters
     //--------------------------------------------------------------------------
@@ -211,6 +219,14 @@ public class StreamingXmlDataValueSet
     {
         writer.writeAttribute( FIELD_ORGUNIT, orgUnit );
     }
+    
+    // add Properties for skip dataValue audit
+    @Override
+    public void setSkipDataValueAudit( String skipDataValueAudit )
+    {
+        writer.writeAttribute( FIELD_SKIP_DATA_VALUE_AUDIT, skipDataValueAudit );
+    }    
+    
     
     @Override
     public DataValue getDataValueInstance()

@@ -599,7 +599,9 @@ public class DefaultDataValueSetService
     private ImportSummary saveDataValueSet( ImportOptions importOptions, TaskId id, DataValueSet dataValueSet )
     {
         importOptions = ObjectUtils.firstNonNull( importOptions, ImportOptions.getDefaultImportOptions() );
-
+        
+        //System.out.println( " -- " + trimToNull( dataValueSet.getOrgUnit() ) + "--" + dataValueSet.getPeriod() + " -- " + dataValueSet.getSkipDataValueAudit() );
+        
         Clock clock = new Clock( log ).startClock().logTime( "Starting data value import, options: " + importOptions );
         NotificationLevel notificationLevel = importOptions.getNotificationLevel( INFO );
         notifier.clear( id ).notify( id, notificationLevel, "Process started" );
@@ -1106,7 +1108,12 @@ public class DefaultDataValueSetService
                     {
                         dataValueBatchHandler.updateObject( internalValue );
 
-                        auditBatchHandler.addObject( auditValue );
+                        //auditBatchHandler.addObject( auditValue );
+                        // add Properties for skip dataValue audit
+                        if( dataValueSet.getSkipDataValueAudit() == null || !dataValueSet.getSkipDataValueAudit().equalsIgnoreCase( "true" ) )
+                        {
+                            auditBatchHandler.addObject( auditValue );
+                        }
 
                         if ( dataElement.isFileType() )
                         {
@@ -1130,9 +1137,13 @@ public class DefaultDataValueSetService
                     if ( !dryRun )
                     {
                         dataValueBatchHandler.updateObject( internalValue );
-
-                        auditBatchHandler.addObject( auditValue );
-
+                        //auditBatchHandler.addObject( auditValue );
+                        // add Properties for skip dataValue audit
+                        if( dataValueSet.getSkipDataValueAudit() == null || !dataValueSet.getSkipDataValueAudit().equalsIgnoreCase( "true" ) )
+                        {
+                            auditBatchHandler.addObject( auditValue );
+                        }
+                        
                         if ( dataElement.isFileType() )
                         {
                             FileResource fr = fileResourceService.getFileResource( internalValue.getValue() );
