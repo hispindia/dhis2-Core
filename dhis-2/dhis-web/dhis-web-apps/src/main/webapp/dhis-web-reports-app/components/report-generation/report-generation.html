@@ -102,7 +102,7 @@ td {
         </tr>
         <tr ng-if="currentReport.id">
             <td style="vertical-align: middle;"><h3 style="color:#8A0868; font-size:125%;font-family:arial;" align="left"><strong>{{'report_generation_select_period' | translate}}</strong></h3></td>
-            <td ng-if="reportSettingMapping[currentReport.id].periodType =='monthly'">
+            <td ng-if="reportSettingMapping[currentReport.id].periodType =='monthly' >
 <div class="col-md-3">
 		<select class="form-control input-small" style="width:100%" ng-model="currentReport.period.month" placeholder="{{'please_select_month' | translate}}" 
                         ng-options="month.id as month.name for month in monthList">
@@ -136,6 +136,13 @@ td {
                        ng-disabled="editingDisabled" ng-required="true"/>
 -->
             </td>
+            <td ng-if="reportSettingMapping[currentReport.id].periodType =='yearly'">
+                  <div class="col-md-3">
+                        <select class="form-control " style="width:100%" ng-model="currentReport.period.year" placeholder="{{'please_select_year' | translate}}"
+                                        ng-options="year as year for year in yearList">
+                                </select>
+                </div>
+                          </td>
             <td ng-if="reportSettingMapping[currentReport.id].periodType == 'start-end'">
 <div class="col-md-3">
                 <input type="text"
