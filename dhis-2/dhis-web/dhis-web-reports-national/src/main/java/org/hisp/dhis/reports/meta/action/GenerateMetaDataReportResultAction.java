@@ -3,6 +3,8 @@ package org.hisp.dhis.reports.meta.action;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +25,18 @@ import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hisp.dhis.config.Configuration_IN;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementGroup;
@@ -43,7 +57,6 @@ import org.hisp.dhis.user.UserService;
 import org.hisp.dhis.validation.ValidationRule;
 import org.hisp.dhis.validation.ValidationRuleGroup;
 import org.hisp.dhis.validation.ValidationRuleService;
-import org.hisp.quick.StatementManager;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
@@ -222,7 +235,7 @@ public class GenerateMetaDataReportResultAction
         }
         else if ( metaDataId.equalsIgnoreCase( ORGUNITGRP ) )
         {
-            generateOrgUnitGroupList();
+            generateOrgUnitGroupListPOI();
         }
         else if ( metaDataId.equalsIgnoreCase( DATAELEMENT ) )
         {
@@ -479,27 +492,31 @@ public class GenerateMetaDataReportResultAction
             if ( incID.equalsIgnoreCase( SOURCE ) )
             {
                 sheet0.addCell( new Label( colStart, rowStart, "DataElementID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 1, rowStart, "DataElementUID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 2, rowStart, "DataElementName", getCellFormat1() ) );
             }
             else if ( incID.equalsIgnoreCase( PRINT ) )
             {
                 sheet0.addCell( new Label( colStart, rowStart, "DataElementID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 1, rowStart, "DataElementUID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 2, rowStart, "DataElementName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 3, rowStart, "DataElementAlternativeName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 4, rowStart, "DataElementAggregationOperator", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 5, rowStart, "DataElementDescription", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 6, rowStart, "DataElementCode", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 7, rowStart, "DataElementShortName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 8, rowStart, "DataElementType", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 9, rowStart, "DataElementUrl", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 10, rowStart, "DomainType", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 11, rowStart, "NumberType", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 12, rowStart, "PeriodType", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 13, rowStart, "LastUpdated", getCellFormat1() ) );
+            }
+            else
+            {
                 sheet0.addCell( new Label( colStart + 1, rowStart, "DataElementName", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 2, rowStart, "DataElementAlternativeName", getCellFormat1() ) );
-                sheet0
-                    .addCell( new Label( colStart + 3, rowStart, "DataElementAggregationOperator", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 4, rowStart, "DataElementDescription", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 5, rowStart, "DataElementCode", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 6, rowStart, "DataElementShortName", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 7, rowStart, "DataElementType", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 8, rowStart, "DataElementUrl", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 9, rowStart, "DomainType", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 10, rowStart, "NumberType", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 11, rowStart, "PeriodType", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 12, rowStart, "LastUpdated", getCellFormat1() ) );
             }
         }
-
-        sheet0.addCell( new Label( colStart + 1, rowStart, "DataElementName", getCellFormat1() ) );
 
         rowStart++;
 
@@ -510,20 +527,23 @@ public class GenerateMetaDataReportResultAction
                 if ( incID.equalsIgnoreCase( SOURCE ) )
                 {
                     sheet0.addCell( new Number( colStart, rowStart, dataElement.getId(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 1, rowStart, dataElement.getUid(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 2, rowStart, dataElement.getName(), wCellformat ) );
                 }
                 else if ( incID.equalsIgnoreCase( PRINT ) )
                 {
                     sheet0.addCell( new Number( colStart, rowStart, dataElement.getId(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 1, rowStart, dataElement.getName(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 1, rowStart, dataElement.getUid(), wCellformat ) );
                     sheet0.addCell( new Label( colStart + 2, rowStart, dataElement.getName(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 3, rowStart, dataElement.getName(), wCellformat ) );
                     //sheet0.addCell( new Label( colStart + 3, rowStart, dataElement.getAggregationOperator(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 3, rowStart, dataElement.getAggregationType().getValue(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 4, rowStart, dataElement.getDescription(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 5, rowStart, dataElement.getCode(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 6, rowStart, dataElement.getShortName(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 4, rowStart, dataElement.getAggregationType().getValue(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 5, rowStart, dataElement.getDescription(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 6, rowStart, dataElement.getCode(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 7, rowStart, dataElement.getShortName(), wCellformat ) );
                     //sheet0.addCell( new Label( colStart + 7, rowStart, dataElement.getType(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 7, rowStart, dataElement.getValueType().name(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 8, rowStart, dataElement.getUrl(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 8, rowStart, dataElement.getValueType().name(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 9, rowStart, dataElement.getUrl(), wCellformat ) );
 
                     String domainType = new String();
                     if ( dataElement.getDomainType() != null )
@@ -535,7 +555,8 @@ public class GenerateMetaDataReportResultAction
                     {
                         domainType = "";
                     }
-                    sheet0.addCell( new Label( colStart + 9, rowStart, domainType, wCellformat ) );
+                    
+                    sheet0.addCell( new Label( colStart + 10, rowStart, domainType, wCellformat ) );
 
                     String numberType = new String();
                     //if ( dataElement.getNumberType() != null )
@@ -548,7 +569,7 @@ public class GenerateMetaDataReportResultAction
                     {
                         numberType = "";
                     }
-                    sheet0.addCell( new Label( colStart + 10, rowStart, numberType, wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 11, rowStart, numberType, wCellformat ) );
 
                     String periodType = new String();
                     if ( dataElement.getPeriodType() != null )
@@ -559,7 +580,7 @@ public class GenerateMetaDataReportResultAction
                     {
                         periodType = "";
                     }
-                    sheet0.addCell( new Label( colStart + 11, rowStart, periodType, wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 12, rowStart, periodType, wCellformat ) );
 
                     String lastUpdate = new String();
                     if ( dataElement.getLastUpdated() != null )
@@ -570,11 +591,13 @@ public class GenerateMetaDataReportResultAction
                     {
                         lastUpdate = "";
                     }
-                    sheet0.addCell( new Label( colStart + 12, rowStart, lastUpdate, wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 13, rowStart, lastUpdate, wCellformat ) );
+                }
+                else
+                {
+                    sheet0.addCell( new Label( colStart + 1, rowStart, dataElement.getName(), wCellformat ) );
                 }
             }
-
-            sheet0.addCell( new Label( colStart + 1, rowStart, dataElement.getName(), wCellformat ) );
 
             rowStart++;
         }
@@ -629,27 +652,31 @@ public class GenerateMetaDataReportResultAction
             if ( incID.equalsIgnoreCase( SOURCE ) )
             {
                 sheet0.addCell( new Label( colStart, rowStart, "DataElementID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 1, rowStart, "DataElementUID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 2, rowStart, "DataElementName", getCellFormat1() ) );
             }
             else if ( incID.equalsIgnoreCase( PRINT ) )
             {
                 sheet0.addCell( new Label( colStart, rowStart, "DataElementID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 1, rowStart, "DataElementUID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 2, rowStart, "DataElementName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 3, rowStart, "DataElementAlternativeName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 4, rowStart, "DataElementAggregationOperator", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 5, rowStart, "DataElementDescription", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 6, rowStart, "DataElementCode", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 7, rowStart, "DataElementShortName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 8, rowStart, "DataElementType", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 9, rowStart, "DataElementUrl", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 10, rowStart, "DomainType", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 11, rowStart, "NumberType", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 12, rowStart, "PeriodType", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 13, rowStart, "LastUpdated", getCellFormat1() ) );
+            }
+            else
+            {
                 sheet0.addCell( new Label( colStart + 1, rowStart, "DataElementName", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 2, rowStart, "DataElementAlternativeName", getCellFormat1() ) );
-                sheet0
-                    .addCell( new Label( colStart + 3, rowStart, "DataElementAggregationOperator", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 4, rowStart, "DataElementDescription", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 5, rowStart, "DataElementCode", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 6, rowStart, "DataElementShortName", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 7, rowStart, "DataElementType", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 8, rowStart, "DataElementUrl", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 9, rowStart, "DomainType", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 10, rowStart, "NumberType", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 11, rowStart, "PeriodType", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 12, rowStart, "LastUpdated", getCellFormat1() ) );
             }
         }
-
-        sheet0.addCell( new Label( colStart + 1, rowStart, "DataElementName", getCellFormat1() ) );
 
         rowStart++;
 
@@ -657,17 +684,23 @@ public class GenerateMetaDataReportResultAction
         {
             if ( incID != null )
             {
-                if ( incID.equalsIgnoreCase( SOURCE ) || incID.equalsIgnoreCase( PRINT ) )
+                if ( incID.equalsIgnoreCase( SOURCE ) )
                 {
                     sheet0.addCell( new Number( colStart, rowStart, dataElementGroup.getId(), getCellFormat1() ) );
+                    sheet0.addCell( new Label( colStart + 1, rowStart, dataElementGroup.getUid(), getCellFormat1() ) );
+                    sheet0.addCell( new Label( colStart + 2, rowStart, dataElementGroup.getName(), getCellFormat1() ) );
                 }
-            }
-
-            sheet0.addCell( new Label( colStart + 1, rowStart, dataElementGroup.getName(), getCellFormat1() ) );
-
-            if ( incID.equalsIgnoreCase( PRINT ) )
-            {
-                sheet0.mergeCells( colStart + 1, rowStart, colStart + 12, rowStart );
+                else if( incID.equalsIgnoreCase( PRINT )  )
+                {
+                    sheet0.addCell( new Number( colStart, rowStart, dataElementGroup.getId(), getCellFormat1() ) );
+                    sheet0.addCell( new Label( colStart + 1, rowStart, dataElementGroup.getUid(), getCellFormat1() ) );
+                    sheet0.addCell( new Label( colStart + 2, rowStart, dataElementGroup.getName(), getCellFormat1() ) );
+                    sheet0.mergeCells( colStart + 2, rowStart, colStart + 13, rowStart );
+                }
+                else
+                {
+                    sheet0.addCell( new Label( colStart + 1, rowStart, dataElementGroup.getName(), getCellFormat1() ) );
+                }
             }
 
             rowStart++;
@@ -684,20 +717,23 @@ public class GenerateMetaDataReportResultAction
                     if ( incID.equalsIgnoreCase( SOURCE ) )
                     {
                         sheet0.addCell( new Number( colStart, rowStart, dataElement.getId(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 1, rowStart, dataElement.getUid(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 2, rowStart, dataElement.getName(), wCellformat ) );
                     }
                     else if ( incID.equalsIgnoreCase( PRINT ) )
                     {
                         sheet0.addCell( new Number( colStart, rowStart, dataElement.getId(), wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 1, rowStart, dataElement.getName(), wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 2, rowStart, dataElement.getName(),wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 1, rowStart, dataElement.getUid(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 2, rowStart, dataElement.getName(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 3, rowStart, dataElement.getName(),wCellformat ) );
                         //sheet0.addCell( new Label( colStart + 3, rowStart, dataElement.getAggregationOperator(), wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 3, rowStart, dataElement.getAggregationType().getValue(), wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 4, rowStart, dataElement.getDescription(), wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 5, rowStart, dataElement.getCode(), wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 6, rowStart, dataElement.getShortName(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 4, rowStart, dataElement.getAggregationType().getValue(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 5, rowStart, dataElement.getDescription(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 6, rowStart, dataElement.getCode(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 7, rowStart, dataElement.getShortName(), wCellformat ) );
                         //sheet0.addCell( new Label( colStart + 7, rowStart, dataElement.getType(), wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 7, rowStart, dataElement.getValueType().name(), wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 8, rowStart, dataElement.getUrl(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 8, rowStart, dataElement.getValueType().name(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 9, rowStart, dataElement.getUrl(), wCellformat ) );
 
                         String domainType = new String();
                         if ( dataElement.getDomainType() != null )
@@ -709,7 +745,7 @@ public class GenerateMetaDataReportResultAction
                         {
                             domainType = "";
                         }
-                        sheet0.addCell( new Label( colStart + 9, rowStart, domainType, wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 10, rowStart, domainType, wCellformat ) );
 
                         String numberType = new String();
 //                        if ( dataElement.getNumberType() != null )
@@ -724,7 +760,7 @@ public class GenerateMetaDataReportResultAction
                         {
                             numberType = "";
                         }
-                        sheet0.addCell( new Label( colStart + 10, rowStart, numberType, wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 11, rowStart, numberType, wCellformat ) );
 
                         String periodType = new String();
                         if ( dataElement.getPeriodType() != null )
@@ -735,7 +771,7 @@ public class GenerateMetaDataReportResultAction
                         {
                             periodType = "";
                         }
-                        sheet0.addCell( new Label( colStart + 11, rowStart, periodType, wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 12, rowStart, periodType, wCellformat ) );
 
                         String lastUpdate = new String();
                         if ( dataElement.getLastUpdated() != null )
@@ -746,11 +782,13 @@ public class GenerateMetaDataReportResultAction
                         {
                             lastUpdate = "";
                         }
-                        sheet0.addCell( new Label( colStart + 12, rowStart, lastUpdate, wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 13, rowStart, lastUpdate, wCellformat ) );
+                    }
+                    else
+                    {
+                        sheet0.addCell( new Label( colStart + 1, rowStart, dataElement.getName(), wCellformat ) );
                     }
                 }
-
-                sheet0.addCell( new Label( colStart + 1, rowStart, dataElement.getName(), wCellformat ) );
 
                 rowStart++;
             }
@@ -770,7 +808,7 @@ public class GenerateMetaDataReportResultAction
     // Methods for getting Organisation Unit Groupwise List in Excel Sheet
     // -------------------------------------------------------------------------
 
-    public void generateOrgUnitGroupList()
+    public void generateOrgUnitGroupListJXL()
         throws Exception
     {
         List<OrganisationUnitGroup> orgUnitGroupList = new ArrayList<OrganisationUnitGroup>(
@@ -993,6 +1031,344 @@ public class GenerateMetaDataReportResultAction
         outputReportFile.deleteOnExit();
     }
 
+    
+    public void generateOrgUnitGroupListPOI()
+        throws Exception
+    {
+        List<OrganisationUnitGroup> orgUnitGroupList = new ArrayList<OrganisationUnitGroup>( organisationUnitgroupService.getAllOrganisationUnitGroups() );
+
+        String outputReportPath = System.getenv( "DHIS2_HOME" ) + File.separator + Configuration_IN.DEFAULT_TEMPFOLDER;
+        File newdir = new File( outputReportPath );
+        if ( !newdir.exists() )
+        {
+            newdir.mkdirs();
+        }
+        outputReportPath += File.separator + UUID.randomUUID().toString() + ".xlsx";
+        
+        
+        // create a new workbook
+        XSSFWorkbook apachePOIWorkbook = new XSSFWorkbook();
+
+        // add a new sheet to the workbook
+        Sheet sheet0 = apachePOIWorkbook.createSheet( "OrganisationUnitGroupWiseList" );
+        int rowStart = 0;
+        int colStart = 0;
+        
+        Row row1 = sheet0.createRow( rowStart );
+        if ( incID != null )
+        {
+            if ( incID.equalsIgnoreCase( SOURCE ) )
+            {
+                Cell row1col1 = row1.createCell( colStart );
+                row1col1.setCellValue( "OrganisationUnitID" );
+                row1col1.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                
+                Cell row1col2 = row1.createCell( colStart + 1 );
+                row1col2.setCellValue( "OrganisationUnitUID" );
+                row1col2.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                
+                Cell row1col3 = row1.createCell( colStart + 2 );
+                row1col3.setCellValue( "OrganisationUnitName" );
+                row1col3.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                
+            }
+            else if ( incID.equalsIgnoreCase( PRINT ) )
+            {
+                Cell row1col1 = row1.createCell( colStart );
+                row1col1.setCellValue( "OrganisationUnitID" );
+                row1col1.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                
+                Cell row1col2 = row1.createCell( colStart + 1 );
+                row1col2.setCellValue( "OrganisationUnitUID" );
+                row1col2.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                
+                Cell row1col3 = row1.createCell( colStart + 2 );
+                row1col3.setCellValue( "OrganisationUnitName" );
+                row1col3.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                
+                Cell row1col4 = row1.createCell( colStart + 3 );
+                row1col4.setCellValue( "organisationUnitHierarchy" );
+                row1col4.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                
+                Cell row1col5 = row1.createCell( colStart + 4 );
+                row1col5.setCellValue( "organisationUnitShortName" );
+                row1col5.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+
+                Cell row1col6 = row1.createCell( colStart + 5 );
+                row1col6.setCellValue( "organisationUnitCode" );
+                row1col6.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                
+                Cell row1col7 = row1.createCell( colStart + 6 );
+                row1col7.setCellValue( "organisationUnitOpeningDate" );
+                row1col7.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                
+                Cell row1col8 = row1.createCell( colStart + 7 );
+                row1col8.setCellValue( "organisationUnitClosedDate" );
+                row1col8.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+               
+                Cell row1col9 = row1.createCell( colStart + 8 );
+                row1col9.setCellValue( "organisationUnitUrl" );
+                row1col9.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                
+                Cell row1col10 = row1.createCell( colStart + 9 );
+                row1col10.setCellValue( "Last Updated" );
+                row1col10.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                
+                Cell row1col11 = row1.createCell( colStart + 10 );
+                row1col11.setCellValue( "Contact Person" );
+                row1col11.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                
+                Cell row1col12 = row1.createCell( colStart + 11 );
+                row1col12.setCellValue( "Phone Number" );
+                row1col12.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                
+                Cell row1col13 = row1.createCell( colStart + 12 );
+                row1col13.setCellValue( "Email" );
+                row1col13.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                
+                Cell row1col14 = row1.createCell( colStart + 13 );
+                row1col14.setCellValue( "Comment" );
+                row1col14.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                
+                Cell row1col15 = row1.createCell( colStart + 14 );
+                row1col15.setCellValue( "Coordinates" );
+                row1col15.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+            }
+            else
+            {
+                Cell row1col2 = row1.createCell( colStart + 1 );
+                row1col2.setCellValue( "OrganisationUnitName" );
+                row1col2.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                
+            }
+        }
+        
+        rowStart++;
+        
+        for ( OrganisationUnitGroup organisationUnitGroup : orgUnitGroupList )
+        {
+            Row tempRow = sheet0.createRow( rowStart );
+            if ( incID != null )
+            {
+                if ( incID.equalsIgnoreCase( SOURCE ) )
+                {
+                    Cell tempColGrpId = tempRow.createCell( colStart );
+                    tempColGrpId.setCellValue( organisationUnitGroup.getId() );
+                    tempColGrpId.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                    
+                    Cell tempColGrpUID = tempRow.createCell( colStart + 1 );
+                    tempColGrpUID.setCellValue( organisationUnitGroup.getUid() );
+                    tempColGrpUID.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                    
+                    Cell tempColGrpName = tempRow.createCell( colStart + 2 );
+                    tempColGrpName.setCellValue( organisationUnitGroup.getName() );
+                    tempColGrpName.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                    
+                }
+                else if ( incID.equalsIgnoreCase( PRINT ) )
+                {
+                    Cell tempColGrpId = tempRow.createCell( colStart );
+                    tempColGrpId.setCellValue( organisationUnitGroup.getId() );
+                    tempColGrpId.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                    
+                    Cell tempColGrpUID = tempRow.createCell( colStart + 1 );
+                    tempColGrpUID.setCellValue( organisationUnitGroup.getUid() );
+                    tempColGrpUID.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                    
+                    Cell tempColGrpName = tempRow.createCell( colStart + 2 );
+                    tempColGrpName.setCellValue( organisationUnitGroup.getName() );
+                    sheet0.addMergedRegion( new CellRangeAddress( rowStart, rowStart, colStart + 2, colStart + 14 ) );
+                    tempColGrpName.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                }
+                else
+                {
+                    Cell tempColGrpName = tempRow.createCell( colStart + 1 );
+                    tempColGrpName.setCellValue( organisationUnitGroup.getName() );
+                    tempColGrpName.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                }
+            }
+
+            rowStart++;
+            
+            List<OrganisationUnit> organisationUnitList = new ArrayList<OrganisationUnit>( organisationUnitGroup.getMembers() );
+
+            Collections.sort( organisationUnitList );
+
+            for ( OrganisationUnit organisationUnit : organisationUnitList )
+            {
+                if ( incID != null )
+                {
+                    Row tempRow1 = sheet0.createRow( rowStart );
+                    
+                    if ( incID.equalsIgnoreCase( SOURCE ) )
+                    {
+                        Cell tempCol1 = tempRow1.createCell( colStart );
+                        tempCol1.setCellValue( organisationUnit.getId() );
+                        
+                        Cell tempCol2 = tempRow1.createCell( colStart + 1 );
+                        tempCol2.setCellValue( organisationUnit.getUid() );
+                        
+                        Cell tempCol3 = tempRow1.createCell( colStart + 2 );
+                        tempCol3.setCellValue( organisationUnit.getName() );
+                    }
+                    else if ( incID.equalsIgnoreCase( PRINT ) )
+                    {
+                        
+                        Cell tempCol1 = tempRow1.createCell( colStart );
+                        tempCol1.setCellValue( organisationUnit.getId() );
+                        
+                        Cell tempCol2 = tempRow1.createCell( colStart + 1 );
+                        tempCol2.setCellValue( organisationUnit.getUid() );
+                        
+                        Cell tempCol3 = tempRow1.createCell( colStart + 2 );
+                        tempCol3.setCellValue( organisationUnit.getName() );
+                        
+                        Cell tempCol4 = tempRow1.createCell( colStart + 3 );
+                        tempCol4.setCellValue( getHierarchyOrgunit( organisationUnit ) );
+                        
+                        Cell tempCo5 = tempRow1.createCell( colStart + 4 );
+                        tempCo5.setCellValue( organisationUnit.getShortName() );
+
+                        Cell tempCo6 = tempRow1.createCell( colStart + 5 );
+                        tempCo6.setCellValue( organisationUnit.getCode() );
+                        
+                        String opendate = new String();
+                        if ( organisationUnit.getOpeningDate() != null )
+                        {
+                            opendate = organisationUnit.getOpeningDate().toString();
+                        }
+                        else
+                        {
+                            opendate = "";
+                        }
+                        
+                        Cell tempCo7 = tempRow1.createCell( colStart + 6 );
+                        tempCo7.setCellValue( opendate );
+                        
+                        String closedate = new String();
+                        if ( organisationUnit.getClosedDate() != null )
+                        {
+                            closedate = organisationUnit.getClosedDate().toString();
+                        }
+                        else
+                        {
+                            closedate = "";
+                        }
+
+                        Cell tempCol8 = tempRow1.createCell( colStart + 7 );
+                        tempCol8.setCellValue( closedate );
+                        
+                       
+                        
+                        Cell tempCol9 = tempRow1.createCell( colStart + 8 );
+                        tempCol9.setCellValue( organisationUnit.getUrl() );
+                        
+                        String lastUpdate = new String();
+                        if ( organisationUnit.getLastUpdated() != null )
+                        {
+                            lastUpdate = organisationUnit.getLastUpdated().toString();
+                        }
+                        else
+                        {
+                            lastUpdate = "";
+                        }
+
+                        Cell tempCol10 = tempRow1.createCell( colStart + 9 );
+                        tempCol10.setCellValue( lastUpdate );
+
+                        String contactPerson = new String();
+                        if ( organisationUnit.getContactPerson() != null )
+                        {
+                            contactPerson = organisationUnit.getContactPerson();
+                        }
+                        else
+                        {
+                            contactPerson = "";
+                        }
+                        
+                        Cell tempCol11 = tempRow1.createCell( colStart + 10 );
+                        tempCol11.setCellValue( contactPerson );
+                        
+                        String phoneNumber = new String();
+                        if ( organisationUnit.getPhoneNumber() != null )
+                        {
+                            phoneNumber = organisationUnit.getPhoneNumber();
+                        }
+                        else
+                        {
+                            phoneNumber = "";
+                        }
+                        
+                        Cell tempCol12 = tempRow1.createCell( colStart + 11 );
+                        tempCol12.setCellValue( phoneNumber );
+                        
+                        String email = new String();
+                        if ( organisationUnit.getEmail() != null )
+                        {
+                            email = organisationUnit.getEmail();
+                        }
+                        else
+                        {
+                            email = "";
+                        }
+
+                        Cell tempCol13 = tempRow1.createCell( colStart + 12 );
+                        tempCol13.setCellValue( email );
+                        
+
+                        String comment = new String();
+                        if ( organisationUnit.getComment() != null )
+                        {
+                            comment = organisationUnit.getComment();
+                        }
+                        else
+                        {
+                            comment = "";
+                        }
+
+                        Cell tempCol14 = tempRow1.createCell( colStart + 13 );
+                        tempCol14.setCellValue( comment );
+                        
+                        String coordinates = new String();
+                        if ( organisationUnit.getCoordinates() != null )
+                        {
+                            coordinates = organisationUnit.getCoordinates();
+                        }
+                        else
+                        {
+                            coordinates = "";
+                        }
+
+                        Cell tempCol15 = tempRow1.createCell( colStart + 14 );
+                        tempCol15.setCellValue( coordinates );
+                    }
+                    else
+                    {
+                        Cell tempCol2 = tempRow1.createCell( colStart + 1 );
+                        tempCol2.setCellValue( organisationUnit.getName() );
+                    }
+                }
+
+                rowStart++;
+            }
+        }
+        try
+        {
+            FileOutputStream output_file = new FileOutputStream( new File( outputReportPath ) );
+            apachePOIWorkbook.write( output_file ); // write changes
+            output_file.close(); // close the stream
+            
+            fileName = "OrganisationUnitGroupWiseList.xlsx";
+            File outputReportFile = new File( outputReportPath );
+            inputStream = new BufferedInputStream( new FileInputStream( outputReportFile ) );
+        }
+        catch ( IOException e )
+        {
+            e.printStackTrace();
+        }
+    }
+
+    
     // -------------------------------------------------------------------------
     // OrganisationUnit Tree along with Users
     // -------------------------------------------------------------------------
@@ -1130,7 +1506,7 @@ public class GenerateMetaDataReportResultAction
         WritableCellFormat wCellformat = new WritableCellFormat();
         wCellformat.setBorder( Border.ALL, BorderLineStyle.THIN );
         wCellformat.setWrap( false );
-        wCellformat.setAlignment( Alignment.CENTRE );
+        wCellformat.setAlignment( Alignment.LEFT );
 
         int rowStart = 0;
         int colStart = 0;
@@ -1145,7 +1521,7 @@ public class GenerateMetaDataReportResultAction
                 sheet0.addCell( new Label( colStart + 2, rowStart, "OrganisationUnitShortName", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 3, rowStart, "OrganisationUnitOpeningDate", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 4, rowStart, "OrganisationUnitClosedDate", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 5, rowStart, "OrganisationUnitParentName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 5, rowStart, "organisationUnitHierarchy", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 6, rowStart, "OrganisationUnitCode", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 7, rowStart, "OrganisationUnitUrl", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 8, rowStart, "Last Updated", getCellFormat1() ) );
@@ -1209,6 +1585,7 @@ public class GenerateMetaDataReportResultAction
                     }
                     sheet0.addCell( new Label( colStart + 4, rowStart, closedate, wCellformat ) );
 
+                    /*
                     String PARENT = new String();
                     if ( ou.getParent() != null )
                     {
@@ -1218,7 +1595,9 @@ public class GenerateMetaDataReportResultAction
                     {
                         PARENT = "ROOT";
                     }
-                    sheet0.addCell( new Label( colStart + 5, rowStart, PARENT, wCellformat ) );
+                    */
+                    
+                    sheet0.addCell( new Label( colStart + 5, rowStart, getHierarchyOrgunit( ou ), wCellformat ) );
 
                     sheet0.addCell( new Label( colStart + 6, rowStart, ou.getCode(), wCellformat ) );
                     sheet0.addCell( new Label( colStart + 7, rowStart, ou.getUrl(), wCellformat ) );
@@ -1293,7 +1672,7 @@ public class GenerateMetaDataReportResultAction
                 {
                     sheet0.addCell( new Number( colStart, rowStart, ou.getId(), getCellFormat2() ) );
                     int ouLevel = ou.getLevel();
-                    sheet0.addCell( new Label( colStart + ouLevel, rowStart, ou.getShortName(), getCellFormat2() ) );
+                    sheet0.addCell( new Label( colStart + ouLevel, rowStart, ou.getName(), getCellFormat2() ) );
                 }
                 else
                 {
@@ -1352,34 +1731,34 @@ public class GenerateMetaDataReportResultAction
             if ( incID.equalsIgnoreCase( SOURCE ) )
             {
                 sheet0.addCell( new Label( colStart, rowStart, "IndicatorID", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 1, rowStart, "IndicatorName", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 2, rowStart, "IndicatorNumerator", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 3, rowStart, "IndicatorDenominator", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 1, rowStart, "IndicatorUID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 2, rowStart, "IndicatorName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 3, rowStart, "IndicatorNumerator", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 4, rowStart, "IndicatorDenominator", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 5, rowStart, "IndicatorNumeratorDescription", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 6, rowStart, "IndicatorDenominatorDescription", getCellFormat1() ) );
             }
             else if ( incID.equalsIgnoreCase( PRINT ) )
             {
                 sheet0.addCell( new Label( colStart, rowStart, "IndicatorID", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 1, rowStart, "IndicatorName", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 2, rowStart, "IndicatorAlternativeName", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 3, rowStart, "IndicatorCode", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 4, rowStart, "IndicatorNumerator", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 5, rowStart, "IndicatorDenominator", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 6, rowStart, "IndicatorNumeratorDescription", getCellFormat1() ) );
-                sheet0
-                    .addCell( new Label( colStart + 7, rowStart, "IndicatorDenominatorDescription", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 8, rowStart, "IndicatorNumeratorAggregationOperator",
-                    getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 9, rowStart, "IndicatorDenominatorAggregationOperator",
-                    getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 10, rowStart, "IndicatorDescription", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 11, rowStart, "IndicatorShortName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 1, rowStart, "IndicatorUID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 2, rowStart, "IndicatorName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 3, rowStart, "IndicatorAlternativeName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 4, rowStart, "IndicatorCode", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 5, rowStart, "IndicatorNumerator", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 6, rowStart, "IndicatorDenominator", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 7, rowStart, "IndicatorNumeratorDescription", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 8, rowStart, "IndicatorDenominatorDescription", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 9, rowStart, "IndicatorDescription", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 10, rowStart, "IndicatorShortName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 11, rowStart, "IndicatorType", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 12, rowStart, "IndicatorUrl", getCellFormat1() ) );
             }
             else
             {
                 sheet0.addCell( new Label( colStart + 1, rowStart, "IndicatorName", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 2, rowStart, "IndicatorNumerator", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 3, rowStart, "IndicatorDenominator", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 2, rowStart, "IndicatorNumeratorDescription", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 3, rowStart, "IndicatorDenominatorDescription", getCellFormat1() ) );
             }
         }
 
@@ -1392,47 +1771,36 @@ public class GenerateMetaDataReportResultAction
                 if ( incID.equalsIgnoreCase( SOURCE ) )
                 {
                     sheet0.addCell( new Number( colStart, rowStart, indicator.getId(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 1, rowStart, indicator.getName(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 2, rowStart, expressionService
-                        .getExpressionDescription( indicator.getNumerator() ), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 3, rowStart, expressionService
-                        .getExpressionDescription( indicator.getDenominator() ), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 1, rowStart, indicator.getUid(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 2, rowStart, indicator.getName(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 3, rowStart, indicator.getNumerator(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 4, rowStart, indicator.getDenominator(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 5, rowStart, indicator.getNumeratorDescription(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 6, rowStart, indicator.getDenominatorDescription(), wCellformat ) );
+                    //sheet0.addCell( new Label( colStart + 3, rowStart, expressionService.getExpressionDescription( indicator.getNumerator() ), wCellformat ) );
+                    //sheet0.addCell( new Label( colStart + 4, rowStart, expressionService.getExpressionDescription( indicator.getDenominator() ), wCellformat ) );
                 }
                 else if ( incID.equalsIgnoreCase( PRINT ) )
                 {
                     sheet0.addCell( new Number( colStart, rowStart, indicator.getId(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 1, rowStart, indicator.getName(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 1, rowStart, indicator.getUid(), wCellformat ) );
                     sheet0.addCell( new Label( colStart + 2, rowStart, indicator.getName(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 3, rowStart, indicator.getCode(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 4, rowStart, expressionService
-                        .getExpressionDescription( indicator.getNumerator() ), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 5, rowStart, expressionService
-                        .getExpressionDescription( indicator.getDenominator() ), wCellformat ) );
-                    sheet0
-                        .addCell( new Label( colStart + 6, rowStart, indicator.getNumeratorDescription(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 7, rowStart, indicator.getDenominatorDescription(),
-                        wCellformat ) );
-                    // sheet0.addCell( new Label( colStart + 8, rowStart,
-                    // indicator.getNumeratorAggregationOperator(),wCellformat )
-                    // );
-                    sheet0
-                        .addCell( new Label( colStart + 8, rowStart, indicator.getNumeratorDescription(), wCellformat ) );
-                    // sheet0.addCell( new Label( colStart + 9, rowStart,
-                    // indicator.getDenominatorAggregationOperator(),wCellformat
-                    // ) );
-                    sheet0.addCell( new Label( colStart + 9, rowStart, indicator.getDenominatorDescription(),
-                        wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 10, rowStart, indicator.getDescription(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 11, rowStart, indicator.getShortName(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 3, rowStart, indicator.getName(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 4, rowStart, indicator.getCode(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 5, rowStart, indicator.getNumerator(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 6, rowStart, indicator.getDenominator(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 7, rowStart, indicator.getNumeratorDescription(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 8, rowStart, indicator.getDenominatorDescription(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 9, rowStart, indicator.getDescription(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 10, rowStart, indicator.getShortName(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 11, rowStart, indicator.getIndicatorType().getName(), wCellformat ) );
                     sheet0.addCell( new Label( colStart + 12, rowStart, indicator.getUrl(), wCellformat ) );
                 }
                 else
                 {
                     sheet0.addCell( new Label( colStart + 1, rowStart, indicator.getName(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 2, rowStart, expressionService
-                        .getExpressionDescription( indicator.getNumerator() ), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 3, rowStart, expressionService
-                        .getExpressionDescription( indicator.getDenominator() ), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 2, rowStart, indicator.getNumeratorDescription(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 3, rowStart, indicator.getDenominatorDescription(), wCellformat ) );
                 }
             }
 
@@ -1456,8 +1824,7 @@ public class GenerateMetaDataReportResultAction
     public void generateIndicatorGroupList()
         throws Exception
     {
-        List<IndicatorGroup> indicatorGroupList = new ArrayList<IndicatorGroup>( indicatorService
-            .getAllIndicatorGroups() );
+        List<IndicatorGroup> indicatorGroupList = new ArrayList<IndicatorGroup>( indicatorService.getAllIndicatorGroups() );
 
         // String outputReportPath = System.getenv( "DHIS2_HOME" ) +
         // File.separator + raFolderName + File.separator
@@ -1489,6 +1856,12 @@ public class GenerateMetaDataReportResultAction
             if ( incID.equalsIgnoreCase( SOURCE ) )
             {
                 sheet0.addCell( new Label( colStart, rowStart, "IndicatorID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 1, rowStart, "IndicatorUID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 2, rowStart, "IndicatorName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 3, rowStart, "IndicatorNumerator", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 4, rowStart, "IndicatorDenominator", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 5, rowStart, "IndicatorNumeratorDescription", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 6, rowStart, "IndicatorDenominatorDescription", getCellFormat1() ) );
             }
             else if ( incID.equalsIgnoreCase( PRINT ) )
             {
@@ -1499,39 +1872,43 @@ public class GenerateMetaDataReportResultAction
                 sheet0.addCell( new Label( colStart + 4, rowStart, "IndicatorNumerator", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 5, rowStart, "IndicatorDenominator", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 6, rowStart, "IndicatorNumeratorDescription", getCellFormat1() ) );
-                sheet0
-                    .addCell( new Label( colStart + 7, rowStart, "IndicatorDenominatorDescription", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 8, rowStart, "IndicatorNumeratorAggregationOperator",
-                    getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 9, rowStart, "IndicatorDenominatorAggregationOperator",
-                    getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 10, rowStart, "IndicatorDescription", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 11, rowStart, "IndicatorShortName", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 12, rowStart, "IndicatorUrl", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 7, rowStart, "IndicatorDenominatorDescription", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 8, rowStart, "IndicatorDescription", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 9, rowStart, "IndicatorShortName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 10, rowStart, "IndicatorType", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 11, rowStart, "IndicatorUrl", getCellFormat1() ) );
+            }
+            else
+            {
+                sheet0.addCell( new Label( colStart + 1, rowStart, "IndicatorName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 2, rowStart, "IndicatorNumeratorDescription", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 3, rowStart, "IndicatorDenominatorDescription", getCellFormat1() ) );
             }
         }
-
-        sheet0.addCell( new Label( colStart + 1, rowStart, "IndicatorName", getCellFormat1() ) );
-        sheet0.addCell( new Label( colStart + 2, rowStart, "IndicatorNumerator", getCellFormat1() ) );
-        sheet0.addCell( new Label( colStart + 3, rowStart, "IndicatorDenominator", getCellFormat1() ) );
 
         rowStart++;
         for ( IndicatorGroup indicatorGroup : indicatorGroupList )
         {
             if ( incID != null )
             {
-                if ( incID.equalsIgnoreCase( SOURCE ) || incID.equalsIgnoreCase( PRINT ) )
+                if ( incID.equalsIgnoreCase( SOURCE ) )
                 {
                     sheet0.addCell( new Number( colStart, rowStart, indicatorGroup.getId(), getCellFormat1() ) );
+                    sheet0.addCell( new Label( colStart + 1, rowStart, indicatorGroup.getUid(), getCellFormat1() ) );
+                    sheet0.addCell( new Label( colStart + 2, rowStart, indicatorGroup.getName(), getCellFormat1() ) );
                 }
-            }
-
-            sheet0.addCell( new Label( colStart + 1, rowStart, indicatorGroup.getName(), getCellFormat1() ) );
-            sheet0.mergeCells( colStart + 1, rowStart, colStart + 3, rowStart );
-
-            if ( incID.equalsIgnoreCase( PRINT ) )
-            {
-                sheet0.mergeCells( colStart + 1, rowStart, colStart + 12, rowStart );
+                else if( incID.equalsIgnoreCase( PRINT ) )
+                {
+                    sheet0.addCell( new Number( colStart, rowStart, indicatorGroup.getId(), getCellFormat1() ) );
+                    sheet0.addCell( new Label( colStart + 1, rowStart, indicatorGroup.getUid(), getCellFormat1() ) );
+                    sheet0.addCell( new Label( colStart + 2, rowStart, indicatorGroup.getName(), getCellFormat1() ) );
+                    sheet0.mergeCells( colStart + 2, rowStart, colStart + 11, rowStart );
+                }
+                else
+                {
+                    sheet0.addCell( new Label( colStart + 1, rowStart, indicatorGroup.getName(), getCellFormat1() ) );
+                    sheet0.mergeCells( colStart + 1, rowStart, colStart + 3, rowStart );
+                }
             }
 
             rowStart++;
@@ -1546,44 +1923,35 @@ public class GenerateMetaDataReportResultAction
                     if ( incID.equalsIgnoreCase( SOURCE ) )
                     {
                         sheet0.addCell( new Number( colStart, rowStart, indicator.getId(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 1, rowStart, indicator.getUid(), getCellFormat1() ) );
+                        sheet0.addCell( new Label( colStart + 2, rowStart, indicator.getName(), getCellFormat1() ) );
+                        sheet0.addCell( new Label( colStart + 3, rowStart, indicator.getNumerator(), getCellFormat1() ) );
+                        sheet0.addCell( new Label( colStart + 4, rowStart, indicator.getDenominator(), getCellFormat1() ) );
+                        sheet0.addCell( new Label( colStart + 5, rowStart, indicator.getNumeratorDescription(), getCellFormat1() ) );
+                        sheet0.addCell( new Label( colStart + 6, rowStart, indicator.getDenominatorDescription(), getCellFormat1() ) );
                     }
                     else if ( incID.equalsIgnoreCase( PRINT ) )
                     {
                         sheet0.addCell( new Number( colStart, rowStart, indicator.getId(), wCellformat ) );
                         sheet0.addCell( new Label( colStart + 1, rowStart, indicator.getName(), wCellformat ) );
-                        sheet0
-                            .addCell( new Label( colStart + 2, rowStart, indicator.getName(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 2, rowStart, indicator.getName(), wCellformat ) );
                         sheet0.addCell( new Label( colStart + 3, rowStart, indicator.getCode(), wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 4, rowStart, expressionService
-                            .getExpressionDescription( indicator.getNumerator() ), wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 5, rowStart, expressionService
-                            .getExpressionDescription( indicator.getDenominator() ), wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 6, rowStart, indicator.getNumeratorDescription(),
-                            wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 7, rowStart, indicator.getDenominatorDescription(),
-                            wCellformat ) );
-                        // sheet0.addCell( new Label( colStart + 8, rowStart,
-                        // indicator.getNumeratorAggregationOperator(),wCellformat
-                        // ) );
-                        sheet0.addCell( new Label( colStart + 8, rowStart, indicator.getNumeratorDescription(),
-                            wCellformat ) );
-                        // sheet0.addCell( new Label( colStart + 9, rowStart,
-                        // indicator.getDenominatorAggregationOperator(),
-                        // wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 9, rowStart, indicator.getDenominatorDescription(),
-                            wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 10, rowStart, indicator.getDescription(), wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 11, rowStart, indicator.getShortName(), wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 12, rowStart, indicator.getUrl(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 4, rowStart, indicator.getNumerator(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 5, rowStart, indicator.getDenominator(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 6, rowStart, indicator.getNumeratorDescription(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 7, rowStart, indicator.getDenominatorDescription(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 8, rowStart, indicator.getDescription(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 9, rowStart, indicator.getShortName(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 10, rowStart, indicator.getIndicatorType().getName(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 11, rowStart, indicator.getUrl(), wCellformat ) );
+                    }
+                    else
+                    {
+                        sheet0.addCell( new Label( colStart + 1, rowStart, indicator.getName(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 2, rowStart, indicator.getNumerator(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 3, rowStart, indicator.getDenominator(), wCellformat ) );
                     }
                 }
-
-                sheet0.addCell( new Label( colStart + 1, rowStart, indicator.getName(), wCellformat ) );
-                sheet0.addCell( new Label( colStart + 3, rowStart, expressionService
-                    .getExpressionDescription( indicator.getNumerator() ), wCellformat ) );
-                sheet0.addCell( new Label( colStart + 2, rowStart, expressionService
-                    .getExpressionDescription( indicator.getDenominator() ), wCellformat ) );
-
                 rowStart++;
             }
         }
@@ -1638,19 +2006,24 @@ public class GenerateMetaDataReportResultAction
             if ( incID.equalsIgnoreCase( SOURCE ) )
             {
                 sheet0.addCell( new Label( colStart, rowStart, "DataSetID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 1, rowStart, "DataSetUID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 2, rowStart, "DataSetName", getCellFormat1() ) );
             }
             else if ( incID.equalsIgnoreCase( PRINT ) )
             {
                 sheet0.addCell( new Label( colStart, rowStart, "DataSetID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 1, rowStart, "DataSetUID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 2, rowStart, "DataSetName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 3, rowStart, "DataSetShortName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 4, rowStart, "DataSetCode", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 5, rowStart, "DataSetAlternativeName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 6, rowStart, "DataSetPeriodType", getCellFormat1() ) );
+            }
+            else
+            {
                 sheet0.addCell( new Label( colStart + 1, rowStart, "DataSetName", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 2, rowStart, "DataSetShortName", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 3, rowStart, "DataSetCode", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 4, rowStart, "DataSetAlternativeName", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 5, rowStart, "DataSetPeriodType", getCellFormat1() ) );
             }
         }
-
-        sheet0.addCell( new Label( colStart + 1, rowStart, "DataSetName", getCellFormat1() ) );
 
         rowStart++;
 
@@ -1661,21 +2034,25 @@ public class GenerateMetaDataReportResultAction
                 if ( incID.equalsIgnoreCase( SOURCE ) )
                 {
                     sheet0.addCell( new Number( colStart, rowStart, dataSet.getId(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 1, rowStart, dataSet.getUid(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 2, rowStart, dataSet.getName(), wCellformat ) );
                 }
                 else if ( incID.equalsIgnoreCase( PRINT ) )
                 {
                     sheet0.addCell( new Number( colStart, rowStart, dataSet.getId(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 1, rowStart, dataSet.getUid(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 2, rowStart, dataSet.getName(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 3, rowStart, dataSet.getShortName(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 4, rowStart, dataSet.getCode(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 5, rowStart, dataSet.getName(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 6, rowStart, dataSet.getPeriodType().getName(), wCellformat ) );
+                }
+                else
+                {
                     sheet0.addCell( new Label( colStart + 1, rowStart, dataSet.getName(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 2, rowStart, dataSet.getShortName(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 3, rowStart, dataSet.getCode(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 4, rowStart, dataSet.getName(), wCellformat ) );
-                    sheet0
-                        .addCell( new Label( colStart + 5, rowStart, dataSet.getPeriodType().getName(), wCellformat ) );
                 }
             }
-
-            sheet0.addCell( new Label( colStart + 1, rowStart, dataSet.getName(), wCellformat ) );
-
+            
             rowStart++;
         }
 
@@ -1731,25 +2108,27 @@ public class GenerateMetaDataReportResultAction
             if ( incID.equalsIgnoreCase( SOURCE ) )
             {
                 sheet0.addCell( new Label( colStart, rowStart, "ValidationRuleID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 1, rowStart, "ValidationRuleUID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 2, rowStart, "ValidationRuleName", getCellFormat1() ) );
             }
             else if ( incID.equalsIgnoreCase( PRINT ) )
             {
                 sheet0.addCell( new Label( colStart, rowStart, "ValidationRuleID", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 1, rowStart, "ValidationRuleName", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 2, rowStart, "ValidationRuleDescription", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 3, rowStart, "ValidationRuleMathematicalOperator",
-                    getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 4, rowStart, "ValidationRuleOperator", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 5, rowStart, "ValidationRuleType", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 6, rowStart, "ValidationRuleLeftSideDescription",
-                    getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 7, rowStart, "ValidationRuleRightSideDescription",
-                    getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 8, rowStart, "ValidationRulePeriodType", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 2, rowStart, "ValidationRuleUID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 3, rowStart, "ValidationRuleDescription", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 4, rowStart, "ValidationRuleMathematicalOperator",getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 5, rowStart, "ValidationRuleOperator", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 6, rowStart, "ValidationRuleImportance", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 7, rowStart, "ValidationRuleLeftSideDescription", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 8, rowStart, "ValidationRuleRightSideDescription", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 9, rowStart, "ValidationRulePeriodType", getCellFormat1() ) );
+            }
+            else
+            {
+                sheet0.addCell( new Label( colStart + 1, rowStart, "ValidationRuleName", getCellFormat1() ) );
             }
         }
-
-        sheet0.addCell( new Label( colStart + 1, rowStart, "ValidationRuleName", getCellFormat1() ) );
 
         rowStart++;
 
@@ -1760,23 +2139,22 @@ public class GenerateMetaDataReportResultAction
                 if ( incID.equalsIgnoreCase( SOURCE ) )
                 {
                     sheet0.addCell( new Number( colStart, rowStart, validationRule.getId(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 1, rowStart, validationRule.getUid(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 2, rowStart, validationRule.getName(), wCellformat ) );
                 }
                 else if ( incID.equalsIgnoreCase( PRINT ) )
                 {
                     sheet0.addCell( new Number( colStart, rowStart, validationRule.getId(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 1, rowStart, validationRule.getName(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 2, rowStart, validationRule.getDescription(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 3, rowStart, validationRule.getOperator()
-                        .getMathematicalOperator(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 4, rowStart, validationRule.getOperator().toString(),
-                        wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 1, rowStart, validationRule.getUid(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 2, rowStart, validationRule.getName(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 3, rowStart, validationRule.getDescription(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 4, rowStart, validationRule.getOperator().getMathematicalOperator(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 5, rowStart, validationRule.getOperator().toString(), wCellformat ) );
                     //sheet0.addCell( new Label( colStart + 5, rowStart, validationRule.getRuleType().getType(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 5, rowStart, "", wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 6, rowStart, validationRule.getLeftSide().getDescription(),
-                        wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 7, rowStart, validationRule.getRightSide().getDescription(),
-                        wCellformat ) );
-
+                    sheet0.addCell( new Label( colStart + 6, rowStart, validationRule.getImportance().toString(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 7, rowStart, validationRule.getLeftSide().getDescription(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 8, rowStart, validationRule.getRightSide().getDescription(), wCellformat ) );
+                    validationRule.getImportance().toString();
                     String periodType = new String();
                     if ( validationRule.getPeriodType() != null )
                     {
@@ -1786,11 +2164,16 @@ public class GenerateMetaDataReportResultAction
                     {
                         periodType = "";
                     }
-                    sheet0.addCell( new Label( colStart + 8, rowStart, periodType, wCellformat ) );
+                    
+                    sheet0.addCell( new Label( colStart + 9, rowStart, periodType, wCellformat ) );
+                }
+                else
+                {
+                    sheet0.addCell( new Label( colStart + 1, rowStart, validationRule.getName(), wCellformat ) );
                 }
             }
 
-            sheet0.addCell( new Label( colStart + 1, rowStart, validationRule.getName(), wCellformat ) );
+            
 
             rowStart++;
         }
@@ -1845,25 +2228,27 @@ public class GenerateMetaDataReportResultAction
             if ( incID.equalsIgnoreCase( SOURCE ) )
             {
                 sheet0.addCell( new Label( colStart, rowStart, "ValidationRuleID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 1, rowStart, "ValidationUID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 1, rowStart, "ValidationRuleName", getCellFormat1() ) );
             }
             else if ( incID.equalsIgnoreCase( PRINT ) )
             {
                 sheet0.addCell( new Label( colStart, rowStart, "ValidationRuleID", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 1, rowStart, "ValidationRuleName", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 2, rowStart, "ValidationRuleDescription", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 3, rowStart, "ValidationRuleMathematicalOperator",
-                    getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 4, rowStart, "ValidationRuleOperator", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 5, rowStart, "ValidationRuleType", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 6, rowStart, "ValidationRuleLeftSideDescription",
-                    getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 7, rowStart, "ValidationRuleRightSideDescription",
-                    getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 8, rowStart, "ValidationRulePeriodType", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 2, rowStart, "ValidationUID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 3, rowStart, "ValidationRuleDescription", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 4, rowStart, "ValidationRuleMathematicalOperator", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 5, rowStart, "ValidationRuleOperator", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 6, rowStart, "ValidationRuleImportance", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 7, rowStart, "ValidationRuleLeftSideDescription", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 8, rowStart, "ValidationRuleRightSideDescription", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 9, rowStart, "ValidationRulePeriodType", getCellFormat1() ) );
+            }
+            else
+            {
+                sheet0.addCell( new Label( colStart + 1, rowStart, "ValidationRuleName", getCellFormat1() ) );
             }
         }
-
-        sheet0.addCell( new Label( colStart + 1, rowStart, "ValidationRuleName", getCellFormat1() ) );
 
         rowStart++;
 
@@ -1871,17 +2256,23 @@ public class GenerateMetaDataReportResultAction
         {
             if ( incID != null )
             {
-                if ( incID.equalsIgnoreCase( SOURCE ) || incID.equalsIgnoreCase( PRINT ) )
+                if ( incID.equalsIgnoreCase( SOURCE ) )
                 {
                     sheet0.addCell( new Number( colStart, rowStart, validationRuleGroup.getId(), getCellFormat1() ) );
+                    sheet0.addCell( new Label( colStart + 1, rowStart, validationRuleGroup.getUid(), getCellFormat1() ) );
+                    sheet0.addCell( new Label( colStart + 2, rowStart, validationRuleGroup.getName(), getCellFormat1() ) );
                 }
-            }
-
-            sheet0.addCell( new Label( colStart + 1, rowStart, validationRuleGroup.getName(), getCellFormat1() ) );
-
-            if ( incID.equalsIgnoreCase( PRINT ) )
-            {
-                sheet0.mergeCells( colStart + 1, rowStart, colStart + 8, rowStart );
+                else if( incID.equalsIgnoreCase( PRINT ) )
+                {
+                    sheet0.addCell( new Number( colStart, rowStart, validationRuleGroup.getId(), getCellFormat1() ) );
+                    sheet0.addCell( new Label( colStart + 1, rowStart, validationRuleGroup.getUid(), getCellFormat1() ) );
+                    sheet0.addCell( new Label( colStart + 2, rowStart, validationRuleGroup.getName(), getCellFormat1() ) );
+                    sheet0.mergeCells( colStart + 1, rowStart, colStart + 9, rowStart );
+                }
+                else
+                {
+                    sheet0.addCell( new Label( colStart + 1, rowStart, validationRuleGroup.getName(), getCellFormat1() ) );
+                }
             }
 
             rowStart++;
@@ -1896,23 +2287,21 @@ public class GenerateMetaDataReportResultAction
                     if ( incID.equalsIgnoreCase( SOURCE ) )
                     {
                         sheet0.addCell( new Number( colStart, rowStart, validationRule.getId(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 1, rowStart, validationRule.getUid(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 2, rowStart, validationRule.getName(), wCellformat ) );
                     }
                     else if ( incID.equalsIgnoreCase( PRINT ) )
                     {
                         sheet0.addCell( new Number( colStart, rowStart, validationRule.getId(), wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 1, rowStart, validationRule.getName(), wCellformat ) );
-                        sheet0
-                            .addCell( new Label( colStart + 2, rowStart, validationRule.getDescription(), wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 3, rowStart, validationRule.getOperator()
-                            .getMathematicalOperator(), wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 4, rowStart, validationRule.getOperator().toString(),
-                            wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 1, rowStart, validationRule.getUid(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 2, rowStart, validationRule.getName(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 3, rowStart, validationRule.getDescription(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 4, rowStart, validationRule.getOperator().getMathematicalOperator(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 5, rowStart, validationRule.getOperator().toString(), wCellformat ) );
                         //sheet0.addCell( new Label( colStart + 5, rowStart, validationRule.getType(), wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 5, rowStart, "", wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 6, rowStart, validationRule.getLeftSide()
-                            .getDescription(), wCellformat ) );
-                        sheet0.addCell( new Label( colStart + 7, rowStart, validationRule.getRightSide()
-                            .getDescription(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 6, rowStart, validationRule.getImportance().toString(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 7, rowStart, validationRule.getLeftSide().getDescription(), wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 8, rowStart, validationRule.getRightSide().getDescription(), wCellformat ) );
                         String periodType = new String();
                         if ( validationRule.getPeriodType() != null )
                         {
@@ -1922,11 +2311,14 @@ public class GenerateMetaDataReportResultAction
                         {
                             periodType = "";
                         }
-                        sheet0.addCell( new Label( colStart + 8, rowStart, periodType, wCellformat ) );
+                        sheet0.addCell( new Label( colStart + 9, rowStart, periodType, wCellformat ) );
+                    }
+                    else
+                    {
+                        sheet0.addCell( new Label( colStart + 1, rowStart, validationRule.getName(), wCellformat ) );
+
                     }
                 }
-
-                sheet0.addCell( new Label( colStart + 1, rowStart, validationRule.getName(), wCellformat ) );
 
                 rowStart++;
             }
@@ -1982,21 +2374,26 @@ public class GenerateMetaDataReportResultAction
             if ( incID.equalsIgnoreCase( SOURCE ) )
             {
                 sheet0.addCell( new Label( colStart, rowStart, "UserID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 1, rowStart, "UserUID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 2, rowStart, "UserName", getCellFormat1() ) );
             }
             else if ( incID.equalsIgnoreCase( PRINT ) )
             {
                 sheet0.addCell( new Label( colStart, rowStart, "userID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 1, rowStart, "UserUID", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 2, rowStart, "UserName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 3, rowStart, "UserFirstName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 4, rowStart, "UserSurName", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 5, rowStart, "UserEmail", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 6, rowStart, "UserPhoneNumber", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 7, rowStart, "UserOrganisationUnit", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 8, rowStart, "UserRole", getCellFormat1() ) );
+            }
+            else
+            {
                 sheet0.addCell( new Label( colStart + 1, rowStart, "UserName", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 2, rowStart, "UserFirstName", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 3, rowStart, "UserSurName", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 4, rowStart, "UserEmail", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 5, rowStart, "UserPhoneNumber", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 6, rowStart, "UserOrganisationUnit", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 7, rowStart, "UserRole", getCellFormat1() ) );
             }
         }
-
-        sheet0.addCell( new Label( colStart + 1, rowStart, "UserName", getCellFormat1() ) );
 
         rowStart++;
 
@@ -2026,18 +2423,20 @@ public class GenerateMetaDataReportResultAction
                 if ( incID.equalsIgnoreCase( SOURCE ) )
                 {
                     sheet0.addCell( new Number( colStart, rowStart, user.getId(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 1, rowStart, user.getUid(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 2, rowStart, userName, wCellformat ) );
                 }
                 else if ( incID.equalsIgnoreCase( PRINT ) )
                 {
                     sheet0.addCell( new Number( colStart, rowStart, user.getId(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 1, rowStart, userName, wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 2, rowStart, user.getFirstName(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 3, rowStart, user.getSurname(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 4, rowStart, user.getEmail(), wCellformat ) );
-                    sheet0.addCell( new Label( colStart + 5, rowStart, user.getPhoneNumber(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 1, rowStart, user.getUid(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 2, rowStart, userName, wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 3, rowStart, user.getFirstName(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 4, rowStart, user.getSurname(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 5, rowStart, user.getEmail(), wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 6, rowStart, user.getPhoneNumber(), wCellformat ) );
 
-                    List<OrganisationUnit> userOrganisationUnitlist = new ArrayList<OrganisationUnit>( user
-                        .getOrganisationUnits() );
+                    List<OrganisationUnit> userOrganisationUnitlist = new ArrayList<OrganisationUnit>( user.getOrganisationUnits() );
 
                     String ouNames = "";
                     for ( OrganisationUnit organisationUnit : userOrganisationUnitlist )
@@ -2045,7 +2444,7 @@ public class GenerateMetaDataReportResultAction
                         ouNames += organisationUnit.getName() + " , ";
                     }
 
-                    sheet0.addCell( new Label( colStart + 6, rowStart, ouNames, wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 7, rowStart, ouNames, wCellformat ) );
 
                     String userRoleName = "";
 
@@ -2071,11 +2470,13 @@ public class GenerateMetaDataReportResultAction
                         System.out.println( "Exception with jdbcTemplate: " + e.getMessage() );
                     }
 
-                    sheet0.addCell( new Label( colStart + 7, rowStart, userRoleName, wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 8, rowStart, userRoleName, wCellformat ) );
+                }
+                else
+                {
+                    sheet0.addCell( new Label( colStart + 1, rowStart, userName, wCellformat ) );
                 }
             }
-
-            sheet0.addCell( new Label( colStart + 1, rowStart, userName, wCellformat ) );
 
             rowStart++;
         }// for loop end
@@ -2397,6 +2798,68 @@ public class GenerateMetaDataReportResultAction
         }
 
         level--;
-    }       
+    }
+    
+    //for Orgunit Hierarchy
+    private String getHierarchyOrgunit( OrganisationUnit orgunit )
+    {
+        //String hierarchyOrgunit = orgunit.getName();
+        String hierarchyOrgunit = "";
+       
+        while ( orgunit.getParent() != null )
+        {
+            hierarchyOrgunit = orgunit.getParent().getName() + "/" + hierarchyOrgunit;
 
+            orgunit = orgunit.getParent();
+        }
+        
+        hierarchyOrgunit = hierarchyOrgunit.substring( hierarchyOrgunit.indexOf( "/" ) + 1 );
+        
+        return hierarchyOrgunit;
+    }
+    
+    public XSSFCellStyle getCellFormatPOIExtended( XSSFWorkbook apachePOIWorkbook )
+        throws Exception
+    {
+        /* Get access to XSSFCellStyle */
+        /*
+         * ExtendedFormatRecord e = new ExtendedFormatRecord();
+         * e.setShrinkToFit(true);
+         */
+
+        XSSFCellStyle my_style = apachePOIWorkbook.createCellStyle();
+        /* First, let us draw a thick border so that the color is visible */
+//        my_style.setBorderLeft( XSSFCellStyle.BORDER_THIN );
+//        my_style.setBorderRight( XSSFCellStyle.BORDER_THIN );
+//        my_style.setBorderTop( XSSFCellStyle.BORDER_THIN );
+//        my_style.setBorderBottom( XSSFCellStyle.BORDER_THIN );
+//        
+//        my_style.setBorderBottom(CellStyle.BORDER_THIN);
+//        my_style.setBorderTop(CellStyle.BORDER_THIN);
+//        my_style.setBorderLeft(CellStyle.BORDER_THIN);
+//        my_style.setBorderRight(CellStyle.BORDER_THIN);
+        
+        my_style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+        my_style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+        my_style.setBorderRight(HSSFCellStyle.BORDER_THIN);
+        my_style.setBorderTop(HSSFCellStyle.BORDER_THIN);
+        
+        
+        my_style.setAlignment( HorizontalAlignment.LEFT );
+        my_style.setVerticalAlignment( org.apache.poi.ss.usermodel.VerticalAlignment.CENTER );
+
+        // my_style.setFillBackgroundColor( IndexedColors.LIGHT_GREEN.getIndex()
+        // );
+        my_style.setFillForegroundColor( IndexedColors.LIGHT_GREEN.getIndex() );
+        my_style.setFillPattern( FillPatternType.SOLID_FOREGROUND );
+        my_style.setWrapText( true );
+
+        XSSFFont my_font = apachePOIWorkbook.createFont();
+        my_font.setBoldweight( HSSFFont.BOLDWEIGHT_BOLD );
+        /* attach the font to the style created earlier */
+        my_style.setFont( my_font );
+
+        return my_style;
+
+    }
 }
