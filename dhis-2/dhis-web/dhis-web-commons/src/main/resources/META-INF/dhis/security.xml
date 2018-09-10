@@ -23,7 +23,7 @@
     <sec:anonymous enabled="false" />
     <sec:http-basic entry-point-ref="oauthAuthenticationEntryPoint" />
     <sec:access-denied-handler ref="oauthAccessDeniedHandler" />
-    <sec:csrf disabled="true" />
+    <sec:csrf disabled="false" />
   </sec:http>
 
   <sec:http pattern="/uaa/oauth/authorize/**" authentication-manager-ref="authenticationManager" disable-url-rewriting="true" use-expressions="false"

@@ -437,6 +437,9 @@
 
   <bean id="org.hisp.dhis.user.UpperCasePatternValidationRule" class="org.hisp.dhis.user.UpperCasePatternValidationRule" />
 
+  <!-- custom change for security audit -->
+  <bean id="org.hisp.dhis.user.LowerCasePatternValidationRule" class="org.hisp.dhis.user.LowerCasePatternValidationRule" />
+  
   <bean id="org.hisp.dhis.user.SpecialCharacterValidationRule" class="org.hisp.dhis.user.SpecialCharacterValidationRule" />
 
   <bean id="org.hisp.dhis.user.PasswordDictionaryValidationRule" class="org.hisp.dhis.user.PasswordDictionaryValidationRule" />
