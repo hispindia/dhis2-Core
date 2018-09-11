@@ -25,12 +25,8 @@
         <link type="text/css" rel="stylesheet" href="../css/login.css">
         <link type="text/css" rel="stylesheet" href="../../api/files/style/external" />
     </head>
-
+	<!--<body onload="drawCaptcha();">-->
     <body class="loginPage">
-    
-        <div>
-           
-        </div>
 
         #if ( $keyConfig.selfRegistrationAllowed() )
         <div id="accountArea">
@@ -44,11 +40,17 @@
              <img src="./imgs/LOGO.gif" style="border:none; width:300px; height:200px;">
             </div>
             
-            <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">
-                <div>
+            <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post" onsubmit="return captchaValidations()">
+                <div style="width:300px">
                 	<div id="signInLabel" style='text-align:center'>Sign in</div>
                     <div><input type="text" id="j_username" name="j_username" placeholder="Username" style='width:300px'></div>
                     <div><input type="password" id="j_password" name="j_password" autocomplete="off" placeholder="Password" style='width:300px'></div>
+					<div>
+						<input type="text" id="txtCaptcha" style="text-align:center; border:none; background-image:url(./imgs/captcha_back_ground.png); color:red; font-weight:bold; font-family:Modern; width:100px" readonly/>
+						<input type="text" id="txtCaptchaInput" name="txtCaptchaInput" placeholder="Enter Captcha" style='width:148px;padding-left:2px;'/>
+						<a href="javascript:drawComplexCaptcha();" title="$i18n.getString( "Regenerate Captcha" )"><img src="./imgs/refresh.png" alt="$i18n.getString( "Regenerate Captcha" )"></a>
+						
+					</div>
                 </div>
                 <div id="submitDiv" style='text-align:center'>
                 	<input id="submit" class="button" type="submit" value="Sign in" >
@@ -91,7 +93,7 @@
             <![endif]-->
         </div>
         </div>
-        <div id="footerArea">
+  <div id="footerArea">
         	<div id="leftFooterArea" class="innerFooterArea">
 	        	Powered by <a href="http://www.dhis2.org">DHIS 2</a>&nbsp; <span id="applicationFooter">$!{keyApplicationFooter}</span>
 		    </div>
@@ -106,4 +108,9 @@
 		    </div>
         </div>
     </body>
+	
+<script type="text/javascript">
+    </script>	
+	
+	
 </html>
