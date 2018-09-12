@@ -173,23 +173,37 @@ public class ScheduleCustomeSMSTask
             getTrackedEntityInstancesByAttributeId( SMS_CONSENT_ATTRIBUTE_ID ) );
         String trackedEntityInstanceIds = getTrackedEntityInstanceIdsByAttributeId( SMS_CONSENT_ATTRIBUTE_ID );
         List<String> mobileNumbers = new ArrayList<String>();
+        //List<String> tempMobileNumbers = new ArrayList<String>();
         if ( trackedEntityInstanceIds != null && trackedEntityInstanceIds.length() > 0 )
         {
             mobileNumbers = new ArrayList<String>(
                 getTrackedEntityInstanceAttributeValueByAttributeIdAndTrackedEntityInstanceIds(
                     MOBILE_NUMBER_ATTRIBUTE_ID, trackedEntityInstanceIds ) );
+            //tempMobileNumbers = new ArrayList<String>(getTempTrackedEntityInstanceAttributeValueByAttributeIdAndTrackedEntityInstanceIds( MOBILE_NUMBER_ATTRIBUTE_ID, trackedEntityInstanceIds ) );
         }
 
         try
         {
-             scheduledCustomePillPickUPANDTbScreeingSMS( ART_FOLLOW_UP_PROGRAM_STAGE_ID, SMS_CONSENT_ATTRIBUTE_ID, MOBILE_NUMBER_ATTRIBUTE_ID );
-             scheduledCustomeCD4CountSMS( MEDICAL_HISTORY_PROGRAM_STAGE_ID, SMS_CONSENT_ATTRIBUTE_ID, MOBILE_NUMBER_ATTRIBUTE_ID, CD4_TEST_DATAELEMENT_ID );
-             scheduledCustomeCD4CountAndViralLoadARTSMS( teiList );
-             scheduledPMTCTAndCervicalCancerSMS( teiList );
-             scheduledAwarenessForEIDSMS( teiList );
-             scheduledAwarenessChildComplete18MonthSMS( teiList );
-             scheduledEIDAfter4WeekOfDevliverySMS( teiList );
-             scheduledPMTCTEIDSMS( teiList );
+            /*
+            if( tempMobileNumbers != null && tempMobileNumbers.size() > 0 )
+            {
+                scheduledCustomeSMS( tempMobileNumbers, monthlyMessages );
+            }
+            
+            else
+            {
+                System.out.println( todayDate + " --  no mobile numbers"  );
+            }
+            */
+            scheduledCustomePillPickUPANDTbScreeingSMS( ART_FOLLOW_UP_PROGRAM_STAGE_ID, SMS_CONSENT_ATTRIBUTE_ID, MOBILE_NUMBER_ATTRIBUTE_ID );
+            scheduledCustomeCD4CountSMS( MEDICAL_HISTORY_PROGRAM_STAGE_ID, SMS_CONSENT_ATTRIBUTE_ID, MOBILE_NUMBER_ATTRIBUTE_ID, CD4_TEST_DATAELEMENT_ID );
+            scheduledCustomeCD4CountAndViralLoadARTSMS( teiList );
+            scheduledPMTCTAndCervicalCancerSMS( teiList );
+            scheduledAwarenessForEIDSMS( teiList );
+            scheduledAwarenessChildComplete18MonthSMS( teiList );
+            scheduledEIDAfter4WeekOfDevliverySMS( teiList );
+            scheduledPMTCTEIDSMS( teiList );
+            
         }
         catch ( IOException e1 )
         {
@@ -1107,6 +1121,44 @@ public class ScheduleCustomeSMSTask
         }
     }
 
+    // --------------------------------------------------------------------------------
+    // Get TrackedEntityInstance Ids from tracked entity attribute value
+    // --------------------------------------------------------------------------------
+    public List<String> getTempTrackedEntityInstanceAttributeValueByAttributeIdAndTrackedEntityInstanceIds(
+        Integer attributeId, String trackedEntityInstanceIdsByComma )
+    {
+        List<String> mobileNumbers = new ArrayList<String>();
+
+        try
+        {
+            String query = "SELECT teav.value FROM trackedentityattributevalue teav "
+                + " INNER JOIN trackedentityinstance tei ON tei.trackedentityinstanceid = teav.trackedentityinstanceid "
+                + " WHERE teav.trackedentityattributeid =  " + attributeId + " AND teav.trackedentityinstanceid in ( " + trackedEntityInstanceIdsByComma + ") "
+                    + "AND tei.created::date >= '" + todayDate + "' ";
+
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+            while ( rs.next() )
+            {
+                String mobileNo = rs.getString( 1 );
+                if ( mobileNo != null )
+                {
+                    mobileNumbers.add( mobileNo );
+                }
+            }
+
+            return mobileNumbers;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal Attribute id", e );
+        }
+    }    
+    
+    
+    
+    
+    
     // --------------------------------------------------------------------------------
     // Get TrackedEntityInstance from tracked entity attribute value
     // --------------------------------------------------------------------------------

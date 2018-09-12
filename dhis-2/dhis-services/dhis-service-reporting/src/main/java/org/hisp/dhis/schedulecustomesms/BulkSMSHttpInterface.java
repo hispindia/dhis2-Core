@@ -140,7 +140,7 @@ public class BulkSMSHttpInterface
         
         //url_string = "https://myvaluefirst.com/smpp/sendsms?";
         
-       // http://bulksms.mysmsmantra.com:8080/WebSMS/SMSAPI.jsp?username=hispindia&password=hisp1234&sendername=HSSPIN&mobileno=9643274071&message=औषधी शुरु गरेको र CD4 जाँच गरेको ६ महिना भए
+       // http://bulksms.mysmsmantra.com:8080/WebSMS/SMSAPI.jsp?username=hispindia&password=hisp1234&sendername=HSSPIN&mobileno=9643274071&message=à¤”à¤·à¤§à¥€ à¤¶à¥�à¤°à¥� à¤—à¤°à¥‡à¤•à¥‹ à¤° CD4 à¤œà¤¾à¤�à¤š à¤—à¤°à¥‡à¤•à¥‹ à¥¬ à¤®à¤¹à¤¿à¤¨à¤¾ à¤­à¤�
         
         //http://api.sparrowsms.com/v2/sms/?token=2Ca4N06OnVfBBl0BMemc&from=infoSMS&to=9643274071&text=test
         
@@ -216,10 +216,13 @@ public class BulkSMSHttpInterface
             */
             
             
-            String token = "2Ca4N06OnVfBBl0BMemc";
+            String token = "fzuvg0cm8J6DJdFTP2kr";
+            //String token = "2Ca4N06OnVfBBl0BMemc";
             String from = "infoSMS";
             data = "token=" + token + "&from=" + from + "&to=" + phoneNo + "&text=" + message;
             
+            //http://api.sparrowsms.com/v2/sms/?token=fzuvg0cm8J6DJdFTP2kr&from=infoSMS&to=9898989898&text=testMsg
+                
             // Send data
             //HttpURLConnection conn = (HttpURLConnection) new URL( url_string ).openConnection();
             
