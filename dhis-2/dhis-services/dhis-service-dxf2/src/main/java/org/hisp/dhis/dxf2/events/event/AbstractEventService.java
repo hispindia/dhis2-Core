@@ -117,6 +117,7 @@ import org.hisp.dhis.trackedentitydatavalue.TrackedEntityDataValueService;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserCredentials;
+import org.hisp.dhis.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -251,6 +252,9 @@ public abstract class AbstractEventService
     @Autowired
     protected RelationshipService relationshipService;
 
+    @Autowired
+    protected UserService userService;
+
     protected static final int FLUSH_FREQUENCY = 100;
 
     // -------------------------------------------------------------------------
@@ -290,11 +294,11 @@ public abstract class AbstractEventService
     {
         ImportSummaries importSummaries = new ImportSummaries();
         importOptions = updateImportOptions( importOptions );
-
         List<List<Event>> partitions = Lists.partition( events, FLUSH_FREQUENCY );
 
         for ( List<Event> _events : partitions )
         {
+            reloadUser( importOptions );
             prepareCaches( importOptions.getUser(), _events );
 
             for ( Event event : _events )
@@ -1035,11 +1039,11 @@ public abstract class AbstractEventService
     {
         ImportSummaries importSummaries = new ImportSummaries();
         importOptions = updateImportOptions( importOptions );
-
         List<List<Event>> partitions = Lists.partition( events, FLUSH_FREQUENCY );
 
         for ( List<Event> _events : partitions )
         {
+            reloadUser( importOptions );
             prepareCaches( importOptions.getUser(), _events );
 
             for ( Event event : _events )
@@ -1178,25 +1182,34 @@ public abstract class AbstractEventService
             validateExpiryDays( event, program, programStageInstance );
         }
 
+        CategoryOptionCombo aoc = null;
+
         if ( (event.getAttributeCategoryOptions() != null && program.getCategoryCombo() != null)
             || event.getAttributeOptionCombo() != null )
         {
             IdScheme idScheme = importOptions.getIdSchemes().getCategoryOptionIdScheme();
 
-            CategoryOptionCombo attributeOptionCombo = getAttributeOptionCombo( program.getCategoryCombo(),
-                event.getAttributeCategoryOptions(), event.getAttributeOptionCombo(), idScheme );
-
-            if ( attributeOptionCombo == null )
+            try
+            {
+                aoc = getAttributeOptionCombo( program.getCategoryCombo(),
+                    event.getAttributeCategoryOptions(), event.getAttributeOptionCombo(), idScheme );
+            }
+            catch ( IllegalQueryException ex )
             {
                 importSummary.setStatus( ImportStatus.ERROR );
-                importSummary.getConflicts().add( new ImportConflict( "Invalid attribute option combo identifier:",
-                    event.getAttributeCategoryOptions() ) );
-
+                importSummary.getConflicts().add( new ImportConflict( ex.getMessage(), event.getAttributeCategoryOptions() ) );
                 return importSummary.incrementIgnored();
             }
-
-            programStageInstance.setAttributeOptionCombo( attributeOptionCombo );
         }
+
+        if ( aoc != null && aoc.isDefault() && program.getCategoryCombo() != null && !program.getCategoryCombo().isDefault() )
+        {
+            importSummary.setStatus( ImportStatus.ERROR );
+            importSummary.getConflicts().add( new ImportConflict( "attributeOptionCombo", "Default attribute option combo is not allowed since program has non-default category combo" ) );
+            return importSummary.incrementIgnored();
+        }
+
+        programStageInstance.setAttributeOptionCombo( aoc );
 
         if ( event.getGeometry() != null )
         {
@@ -1564,6 +1577,8 @@ public abstract class AbstractEventService
             catch ( IllegalQueryException ex )
             {
                 importSummary.getConflicts().add( new ImportConflict( ex.getMessage(), event.getAttributeCategoryOptions() ) );
+                importSummary.setStatus( ImportStatus.ERROR );
+                return importSummary.incrementIgnored();
             }
         }
         else
@@ -1573,7 +1588,9 @@ public abstract class AbstractEventService
 
         if ( aoc != null && aoc.isDefault() && program.getCategoryCombo() != null && !program.getCategoryCombo().isDefault() )
         {
-            importSummary.getConflicts().add( new ImportConflict( "attributeOptionCombo", "Default attribute option combo is not allowed since program has not default category combo" ) );
+            importSummary.getConflicts().add( new ImportConflict( "attributeOptionCombo", "Default attribute option combo is not allowed since program has non-default category combo" ) );
+            importSummary.setStatus( ImportStatus.ERROR );
+            return importSummary.incrementIgnored();
         }
 
         if ( !dryRun )
@@ -2182,5 +2199,15 @@ public abstract class AbstractEventService
         }
 
         return importOptions;
+    }
+
+    protected void reloadUser( ImportOptions importOptions )
+    {
+        if ( importOptions == null || importOptions.getUser() == null )
+        {
+            return;
+        }
+
+        importOptions.setUser( userService.getUser( importOptions.getUser().getId() ) );
     }
 }
