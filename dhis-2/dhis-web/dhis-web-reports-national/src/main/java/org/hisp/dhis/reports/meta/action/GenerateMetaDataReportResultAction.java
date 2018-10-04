@@ -10,8 +10,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import jxl.Workbook;
@@ -38,6 +40,8 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hisp.dhis.config.Configuration_IN;
+import org.hisp.dhis.constant.Constant;
+import org.hisp.dhis.constant.ConstantService;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementGroup;
 import org.hisp.dhis.dataelement.DataElementService;
@@ -52,11 +56,14 @@ import org.hisp.dhis.organisationunit.OrganisationUnitGroup;
 import org.hisp.dhis.organisationunit.OrganisationUnitGroupService;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.reports.ReportService;
+import org.hisp.dhis.system.database.DatabaseInfo;
+import org.hisp.dhis.system.database.DatabaseInfoProvider;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserService;
 import org.hisp.dhis.validation.ValidationRule;
 import org.hisp.dhis.validation.ValidationRuleGroup;
 import org.hisp.dhis.validation.ValidationRuleService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
@@ -94,6 +101,8 @@ public class GenerateMetaDataReportResultAction
     private final String SUMMARY = "SUMMARY";
 
     private final String DATASETMEMBER = "DATASETMEMBER";
+    
+    private final String  ORGUNIT_META_ATTRIBUTE_ID = "ORGUNIT_META_ATTRIBUTE_ID";
 
     // -------------------------------------------------------------------------
     // Dependencies
@@ -182,7 +191,12 @@ public class GenerateMetaDataReportResultAction
     {
         this.jdbcTemplate = jdbcTemplate;
     }
+    
+    @Autowired
+    private DatabaseInfoProvider databaseInfoProvider;
 
+    @Autowired
+    protected ConstantService constantService;
     // -------------------------------------------------------------------------
     // Input & Output
     // -------------------------------------------------------------------------
@@ -217,6 +231,8 @@ public class GenerateMetaDataReportResultAction
     @SuppressWarnings( "unused" )
     private String raFolderName;
 
+    private Map<Integer, String> orgUnitAttributeValueMap = new HashMap<Integer, String>();
+    
     // -------------------------------------------------------------------------
     // Action implementation
     // -------------------------------------------------------------------------
@@ -813,6 +829,10 @@ public class GenerateMetaDataReportResultAction
     {
         List<OrganisationUnitGroup> orgUnitGroupList = new ArrayList<OrganisationUnitGroup>(
             organisationUnitgroupService.getAllOrganisationUnitGroups() );
+        
+        orgUnitAttributeValueMap = new HashMap<Integer, String>( );
+        orgUnitAttributeValueMap.putAll( getOrgUnitAttributeValue( ) );
+        
         // String outputReportPath = System.getenv( "DHIS2_HOME" ) +
         // File.separator + raFolderName + File.separator
         // + "output" + File.separator + UUID.randomUUID().toString() + ".xls";
@@ -860,6 +880,7 @@ public class GenerateMetaDataReportResultAction
                 sheet0.addCell( new Label( colStart + 11, rowStart, "Email", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 12, rowStart, "Comment", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 13, rowStart, "Coordinates", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 14, rowStart, "AttributeValue", getCellFormat1() ) );
             }
         }
 
@@ -1009,7 +1030,18 @@ public class GenerateMetaDataReportResultAction
                             coordinates = "";
                         }
                         sheet0.addCell( new Label( colStart + 13, rowStart, coordinates, wCellformat ) );
+                        
+                        String attributeValue = new String();
+                        if ( orgUnitAttributeValueMap.get(organisationUnit.getId() ) != null )
+                        {
+                            attributeValue = orgUnitAttributeValueMap.get(organisationUnit.getId() );
+                        }
+                        else
+                        {
+                            attributeValue = "";
+                        }
 
+                        sheet0.addCell( new Label( colStart + 14, rowStart, attributeValue, wCellformat ) );
                     }
                     else
                     {
@@ -1036,7 +1068,9 @@ public class GenerateMetaDataReportResultAction
         throws Exception
     {
         List<OrganisationUnitGroup> orgUnitGroupList = new ArrayList<OrganisationUnitGroup>( organisationUnitgroupService.getAllOrganisationUnitGroups() );
-
+        orgUnitAttributeValueMap = new HashMap<Integer, String>( );
+        orgUnitAttributeValueMap.putAll( getOrgUnitAttributeValue( ) );
+        
         String outputReportPath = System.getenv( "DHIS2_HOME" ) + File.separator + Configuration_IN.DEFAULT_TEMPFOLDER;
         File newdir = new File( outputReportPath );
         if ( !newdir.exists() )
@@ -1133,6 +1167,11 @@ public class GenerateMetaDataReportResultAction
                 Cell row1col15 = row1.createCell( colStart + 14 );
                 row1col15.setCellValue( "Coordinates" );
                 row1col15.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                
+                Cell row1col16 = row1.createCell( colStart + 15 );
+                row1col16.setCellValue( "AttributeValue" );
+                row1col16.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                            
             }
             else
             {
@@ -1177,7 +1216,7 @@ public class GenerateMetaDataReportResultAction
                     
                     Cell tempColGrpName = tempRow.createCell( colStart + 2 );
                     tempColGrpName.setCellValue( organisationUnitGroup.getName() );
-                    sheet0.addMergedRegion( new CellRangeAddress( rowStart, rowStart, colStart + 2, colStart + 14 ) );
+                    sheet0.addMergedRegion( new CellRangeAddress( rowStart, rowStart, colStart + 2, colStart + 15 ) );
                     tempColGrpName.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 }
                 else
@@ -1341,6 +1380,19 @@ public class GenerateMetaDataReportResultAction
 
                         Cell tempCol15 = tempRow1.createCell( colStart + 14 );
                         tempCol15.setCellValue( coordinates );
+                        
+                        String attributeValue = new String();
+                        if ( orgUnitAttributeValueMap.get(organisationUnit.getId() ) != null )
+                        {
+                            attributeValue = orgUnitAttributeValueMap.get(organisationUnit.getId() );
+                        }
+                        else
+                        {
+                            attributeValue = "";
+                        }
+
+                        Cell tempCol16 = tempRow1.createCell( colStart + 15 );
+                        tempCol16.setCellValue( attributeValue );
                     }
                     else
                     {
@@ -1483,7 +1535,8 @@ public class GenerateMetaDataReportResultAction
         throws Exception
     {
         OrganisationUnit rootOrgUnit = organisationUnitService.getRootOrganisationUnits().iterator().next();
-
+        orgUnitAttributeValueMap = new HashMap<Integer, String>( );
+        orgUnitAttributeValueMap.putAll( getOrgUnitAttributeValue( ) );
         //List<OrganisationUnit> OrganisitionUnitList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( rootOrgUnit.getId() ) );
         List<OrganisationUnit> OrganisitionUnitList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( rootOrgUnit.getId() ) );
         // String outputReportPath = System.getenv( "DHIS2_HOME" ) +
@@ -1530,6 +1583,7 @@ public class GenerateMetaDataReportResultAction
                 sheet0.addCell( new Label( colStart + 11, rowStart, "Email", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 12, rowStart, "Comment", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 13, rowStart, "Coordinates", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 14, rowStart, "AttribureValue", getCellFormat1() ) );
             }
             else if ( incID.equalsIgnoreCase( SOURCE ) )
             {
@@ -1667,6 +1721,19 @@ public class GenerateMetaDataReportResultAction
                         coordinates = "";
                     }
                     sheet0.addCell( new Label( colStart + 13, rowStart, coordinates, wCellformat ) );
+                    
+                    String attributeValue = new String();
+                    if ( orgUnitAttributeValueMap.get(ou.getId() ) != null )
+                    {
+                        attributeValue = orgUnitAttributeValueMap.get(ou.getId() );
+                    }
+                    else
+                    {
+                        attributeValue = "";
+                    }
+
+                    sheet0.addCell( new Label( colStart + 14, rowStart, attributeValue, wCellformat ) );
+                    
                 }
                 else if ( incID.equalsIgnoreCase( SOURCE ) )
                 {
@@ -2862,4 +2929,48 @@ public class GenerateMetaDataReportResultAction
         return my_style;
 
     }
+    
+    public Map<Integer, String> getOrgUnitAttributeValue()
+    {
+        Map<Integer, String> orgUnitAttributeValueMap = new HashMap<Integer, String>();
+        DatabaseInfo dataBaseInfo = databaseInfoProvider.getDatabaseInfo();
+        Constant orgMetaAttributeId = constantService.getConstantByName( ORGUNIT_META_ATTRIBUTE_ID );
+        try
+        {
+            String query = "";
+            if ( dataBaseInfo.getType().equalsIgnoreCase( "postgresql" ) )
+            {
+                query = "SELECT orgAttrValue.organisationunitid, attrValue.attributeid, attrValue.value from organisationunitattributevalues orgAttrValue "
+                        + " INNER JOIN attributevalue attrValue ON attrValue.attributevalueid = orgAttrValue.attributevalueid "
+                        + " WHERE attrValue.attributeid = " + (int)orgMetaAttributeId.getValue() +" ";
+                   
+            }
+            else if ( dataBaseInfo.getType().equalsIgnoreCase( "mysql" ) )
+            {
+                query = "SELECT orgAttrValue.organisationunitid, attrValue.attributeid, attrValue.value from organisationunitattributevalues orgAttrValue "
+                    + " INNER JOIN attributevalue attrValue ON attrValue.attributevalueid = orgAttrValue.attributevalueid "
+                    + " WHERE attrValue.attributeid = " + (int)orgMetaAttributeId.getValue() +" ";
+
+            }
+            
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+            while ( rs.next() )
+            {
+                Integer orgUnitId = rs.getInt( 1 );
+                String orgUnitAttributeValue = rs.getString( 3 );
+                if ( orgUnitId != null && orgUnitAttributeValue != null )
+                {
+                    orgUnitAttributeValueMap.put( orgUnitId, orgUnitAttributeValue );
+                }
+            }
+
+            return orgUnitAttributeValueMap;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal OrgUnit Meta Attribute id", e );
+        }
+    }
+    
 }
