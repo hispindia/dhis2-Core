@@ -880,7 +880,7 @@ public class GenerateMetaDataReportResultAction
                 sheet0.addCell( new Label( colStart + 11, rowStart, "Email", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 12, rowStart, "Comment", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 13, rowStart, "Coordinates", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 14, rowStart, "AttributeValue", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 14, rowStart, "HMIS Name", getCellFormat1() ) );
             }
         }
 
@@ -1169,7 +1169,7 @@ public class GenerateMetaDataReportResultAction
                 row1col15.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
                 Cell row1col16 = row1.createCell( colStart + 15 );
-                row1col16.setCellValue( "AttributeValue" );
+                row1col16.setCellValue( "HMIS Name" );
                 row1col16.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                             
             }
@@ -1429,7 +1429,8 @@ public class GenerateMetaDataReportResultAction
         throws Exception
     {
         OrganisationUnit rootOrgUnit = organisationUnitService.getRootOrganisationUnits().iterator().next();
-
+        orgUnitAttributeValueMap = new HashMap<Integer, String>( );
+        orgUnitAttributeValueMap.putAll( getOrgUnitAttributeValue( ) );
         //List<OrganisationUnit> OrganisitionUnitList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( rootOrgUnit.getId() ) );
         List<OrganisationUnit> OrganisitionUnitList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( rootOrgUnit.getId() ) );
 
@@ -1467,8 +1468,9 @@ public class GenerateMetaDataReportResultAction
             sheet0.addCell( new Label( colStart + i, rowStart, "Level - " + i, getCellFormat1() ) );
         }
 
-        sheet0.addCell( new Label( colStart + i, rowStart, "UserID", getCellFormat1() ) );
-        sheet0.addCell( new Label( colStart + i + 1, rowStart, "UserName", getCellFormat1() ) );
+        sheet0.addCell( new Label( colStart + i, rowStart, "HMIS Name", getCellFormat1() ) );
+        sheet0.addCell( new Label( colStart + i + 1, rowStart, "UserID", getCellFormat1() ) );
+        sheet0.addCell( new Label( colStart + i + 2, rowStart, "UserName", getCellFormat1() ) );
 
         rowStart++;
 
@@ -1511,8 +1513,19 @@ public class GenerateMetaDataReportResultAction
                 System.out.println( "Exception with jdbcTemplate: " + e.getMessage() );
             }
 
-            sheet0.addCell( new Label( colStart + maxLevels + 1, rowStart, userId, getCellFormat2() ) );
-            sheet0.addCell( new Label( colStart + maxLevels + 2, rowStart, userName, getCellFormat2() ) );
+            String attributeValue = new String();
+            if ( orgUnitAttributeValueMap.get(ou.getId() ) != null )
+            {
+                attributeValue = orgUnitAttributeValueMap.get(ou.getId() );
+            }
+            else
+            {
+                attributeValue = "";
+            }
+            
+            sheet0.addCell( new Label( colStart + maxLevels + 1, rowStart, attributeValue, getCellFormat2() ) );
+            sheet0.addCell( new Label( colStart + maxLevels + 2, rowStart, userId, getCellFormat2() ) );
+            sheet0.addCell( new Label( colStart + maxLevels + 3, rowStart, userName, getCellFormat2() ) );
 
             rowStart++;
         }
@@ -1583,7 +1596,7 @@ public class GenerateMetaDataReportResultAction
                 sheet0.addCell( new Label( colStart + 11, rowStart, "Email", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 12, rowStart, "Comment", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 13, rowStart, "Coordinates", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 14, rowStart, "AttribureValue", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 14, rowStart, "HMIS Name", getCellFormat1() ) );
             }
             else if ( incID.equalsIgnoreCase( SOURCE ) )
             {
