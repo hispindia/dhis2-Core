@@ -1,8 +1,8 @@
 package org.hisp.dhis.schedulecustomesms;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -35,7 +35,11 @@ public class ScheduleCustomeSMSTask
     private final static int SEX_ATTRIBUTE_ID = 2613;
 
     private final static int MOBILE_NUMBER_ATTRIBUTE_ID = 2617;
-
+    
+    private final static int MARITAL_STATUS_ATTRIBUTE_ID = 2614;
+    
+    private final static int AGE_ATTRIBUTE_ID = 2612;
+    
     private final static int ART_FOLLOW_UP_PROGRAM_STAGE_ID = 2537;
 
     private final static int MEDICAL_HISTORY_PROGRAM_STAGE_ID = 2485;
@@ -61,7 +65,14 @@ public class ScheduleCustomeSMSTask
     private final static int DATE_OF_BIRTH_INFANT_DATAELEMENT_ID = 10398;
     
     private final static int DNA_PCR_TEST_RESULT_DATAELEMENT_ID = 10328;
-
+    
+    private final static int PREGNANCY_STATUS_DATAELEMENT_ID = 10328;
+    
+    private final static int STATUS_OF_INFANT_DATAELEMENT_ID = 2355;
+    
+    private final static int AGE_OF_INFANT_DATAELEMENT_ID = 10329;
+    
+    
     public static final String KEY_TASK = "scheduleCustomeSMSTask";
 
     // -------------------------------------------------------------------------
@@ -113,59 +124,48 @@ public class ScheduleCustomeSMSTask
     @Override
     public void run()
     {
+        /*
         List<String> biMonthelyMessages = new ArrayList<String>();
         biMonthelyMessages.add( "औषधी शुरु गरेको र CD4 जाँच गरेको ६ महिना भए , पुनः CD4 जाँच गर्ने होइन त ?" );
         biMonthelyMessages.add( "औषधि शुरु गरेको पहिलो वर्ष २ पटक (६/६ महिनामा) र त्यसपछिको हरेक बर्षमा एक पटक मात्र भाइरल लोडको जाँच गराउनुहोला । " );
-        //biMonthelyMessages.add( "स्वास्थ्य संस्थामा सुत्केरी गराऔ, आमा र बच्चा दुवैको स्वास्थ्य पक्का गराऔं |" );
-        //biMonthelyMessages.add( "à¤­à¤¾à¤‡à¤°à¤² à¤²à¥‹à¤¡ à¤œà¤¾à¤�à¤šà¤²à¥‡ à¤¤à¤ªà¤¾à¤ˆà¤•à¥‹ à¤…à¤µà¤¸à¥�à¤¥à¤¾ à¤®à¤¾à¤¤à¥�à¤° à¤¹à¥‹à¤‡à¤¨ à¤¤à¤ªà¤¾à¤ˆà¤•à¥‹ à¤¨à¤œà¤¿à¤•à¤•à¥‹ à¤¸à¤¾à¤¥à¥€à¤²à¤¾à¤ˆ à¤ªà¤¨à¤¿ à¤¸à¤‚à¤•à¥�à¤°à¤®à¤£à¤¬à¤¾à¤Ÿ à¤¸à¥�à¤°à¤•à¥�à¤·à¤¿à¤¤ à¤°à¤¾à¤–à¥�à¤› |" );
-        //biMonthelyMessages.add( "à¤”à¤·à¤§à¤¿ à¤¶à¥�à¤°à¥� à¤—à¤°à¥‡à¤•à¥‹ à¤ªà¤¹à¤¿à¤²à¥‹ à¤µà¤°à¥�à¤· à¥¨ à¤ªà¤Ÿà¤• (à¥¬/à¥¬ à¤®à¤¹à¤¿à¤¨à¤¾à¤®à¤¾) à¤° à¤¤à¥�à¤¯à¤¸à¤ªà¤›à¤¿à¤•à¥‹ à¤¹à¤°à¥‡à¤• à¤¬à¤°à¥�à¤·à¤®à¤¾ à¤�à¤• à¤ªà¤Ÿà¤• à¤®à¤¾à¤¤à¥�à¤° à¤­à¤¾à¤‡à¤°à¤² à¤²à¥‹à¤¡à¤•à¥‹ à¤œà¤¾à¤�à¤š à¤—à¤°à¤¾à¤‰à¤¨à¥�à¤¹à¥‹à¤²à¤¾à¥¤" );
-        //biMonthelyMessages.add( "à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯ à¤¸à¤‚à¤¸à¥�à¤¥à¤¾à¤®à¤¾ à¤¸à¥�à¤¤à¥�à¤•à¥‡à¤°à¥€ à¤—à¤°à¤¾à¤”, à¤†à¤®à¤¾ à¤° à¤¬à¤šà¥�à¤šà¤¾ à¤¦à¥�à¤µà¥ˆà¤•à¥‹ à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯ à¤ªà¤•à¥�à¤•à¤¾ à¤—à¤°à¤¾à¤” |" );
-        //biMonthelyMessages.add( "à¤¸à¤‚à¤•à¥�à¤°à¤®à¤¿à¤¤ à¤®à¤¹à¤¿à¤²à¤¾à¤¹à¤°à¥�à¤²à¥‡ à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯à¤•à¤°à¥�à¤®à¥€à¤¸à¤‚à¤— à¤¸à¤²à¥�à¤²à¤¾à¤¹ à¤²à¤¿à¤”,à¤¸à¥�à¤µà¤¸à¥�à¤¥ à¤¬à¤šà¥�à¤šà¤¾ à¤œà¤¨à¥�à¤®à¤¾à¤” |" );
 
         List<String> monthlyMessages = new ArrayList<String>();
         monthlyMessages.add( "स्वस्थ जीवनको लागि नियमित स्वास्थ्य जांच तथा अन्य संक्रमणको पनि  जांच गराउनुहोला ।" );
         monthlyMessages.add( "आफ्नो  साथीको पनि जांच गराऔ, सम्बन्ध अझै बलियो बनाऔं ।" );
-        //monthlyMessages.add( "महिलाहरुले स्वास्थ्यकर्मीसंग सल्लाह लिई स्वस्थ बच्चा जन्माऔं |" );
         monthlyMessages.add( "नियमित औषधिको सेवन, अवसरबादी समस्या रहित जीवन  |" );
 
         List<String> quarterlyMessages = new ArrayList<String>();
         quarterlyMessages.add( "CD4 जाँच गराऔ रोगसँग लडने क्षमता कति छ भनेर बुझौ} |" );
         quarterlyMessages.add( "भाइरल लोड जाँच गराई शरिरमा भाइरसको अवस्था थाहा पाउनुहोस्  |" );
         quarterlyMessages.add( "भाइरल लोड जाँचले तपाईको अवस्था मात्र होइन तपाईको नजिकको साथीलाई पनि सुरक्षित राख्छ  |" );
-        //quarterlyMessages.add( "नियमित पाठेघरको जांच गराऔ ,पछि हुन सक्ने समस्यालाई अहिले नै पत्ता लगाऔं  |" );
-        
-        
-        
-        // quarterlyMessages.add(
-        // "à¤¨à¤¿à¤¯à¤®à¤¿à¤¤ à¤ªà¤¾à¤ à¥‡à¤˜à¤°à¤•à¥‹ à¤œà¤¾à¤‚à¤š à¤—à¤°à¤¾à¤” ,à¤ªà¤›à¤¿ à¤¹à¥�à¤¨ à¤¸à¤•à¥�à¤¨à¥‡ à¤¸à¤®à¤¸à¥�à¤¯à¤¾à¤²à¤¾à¤ˆ à¤…à¤¹à¤¿à¤²à¥‡ à¤¨à¥ˆ à¤ªà¤¤à¥�à¤¤à¤¾ à¤²à¤—à¤¾à¤” |"
-        // );
-
-        /*
-        List<String> dailyMessages = new ArrayList<String>();
-        dailyMessages.add( "à¤¹à¤°à¥‡à¤• à¤¦à¤¿à¤¨ à¤”à¤·à¤§à¥€ à¤¸à¥‡à¤µà¤¨ ,à¤°à¤¾à¤–à¥�à¤› à¤¸à¥�à¤µà¤¸à¥�à¤¥ à¤œà¥€à¤µà¤¨ |" );
-        */
-        
+       
         List<String> weeklyMessages = new ArrayList<String>();
         weeklyMessages.add( "राखी राख्नुहोस  सम्झना, हरेक दिन औषधी सेवन र  गणना ।" );
 
         List<String> fortNightlyMessages = new ArrayList<String>();
         fortNightlyMessages.add( "समयको ख्याल राख्नुहोस नियमित औषधी लिन आउनुहोस् ।" );
         fortNightlyMessages.add( "हरेक दिन औषधी सेवन ,राख्छ स्वस्थ जीवन |" );
-        
-        
+        */
         
         simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
         SimpleDateFormat timeFormat = new SimpleDateFormat( "HH:mm:ss" );
         // get current date time with Date()
         Date date = new Date();
-        System.out.println( timeFormat.format( date ) );
+        //System.out.println( timeFormat.format( date ) );
 
         todayDate = simpleDateFormat.format( date );
         currentDate = simpleDateFormat.format( date ).split( "-" )[2];
         currentMonth = simpleDateFormat.format( date ).split( "-" )[1];
         currentYear = simpleDateFormat.format( date ).split( "-" )[0];
+        
+        LocalDate today = LocalDate.now();
+        
+        //Getting the day of week for a given date
+        java.time.DayOfWeek dayOfWeek = today.getDayOfWeek();
+        System.out.println(today + " was a " + dayOfWeek.toString().equalsIgnoreCase( "FRIDAY") );
+        
         String currentHour = timeFormat.format( date ).split( ":" )[0];
-
+        
         // System.out.println( todayDate + " -- " + currentDate + " --- " +
         // currentMonth + " --- " + currentYear + " --- "+ currentHour );
 
@@ -198,9 +198,9 @@ public class ScheduleCustomeSMSTask
             scheduledCustomePillPickUPANDTbScreeingSMS( ART_FOLLOW_UP_PROGRAM_STAGE_ID, SMS_CONSENT_ATTRIBUTE_ID, MOBILE_NUMBER_ATTRIBUTE_ID );
             scheduledCustomeCD4CountSMS( MEDICAL_HISTORY_PROGRAM_STAGE_ID, SMS_CONSENT_ATTRIBUTE_ID, MOBILE_NUMBER_ATTRIBUTE_ID, CD4_TEST_DATAELEMENT_ID );
             scheduledCustomeCD4CountAndViralLoadARTSMS( teiList );
-            scheduledPMTCTAndCervicalCancerSMS( teiList );
-            scheduledAwarenessForEIDSMS( teiList );
-            scheduledAwarenessChildComplete18MonthSMS( teiList );
+            //scheduledPMTCTAndCervicalCancerSMS( teiList );
+            //scheduledAwarenessForEIDSMS( teiList );
+            //scheduledAwarenessChildComplete18MonthSMS( teiList );
             scheduledEIDAfter4WeekOfDevliverySMS( teiList );
             scheduledPMTCTEIDSMS( teiList );
             
@@ -225,7 +225,7 @@ public class ScheduleCustomeSMSTask
         }
         */
         
-
+        /*
         // Monthly Messages
         if ( currentDate.equalsIgnoreCase( "01" ) )
         {
@@ -301,6 +301,283 @@ public class ScheduleCustomeSMSTask
                 }
             }
         }
+        */
+        
+        // trimester Messages
+        if ( currentMonth.equalsIgnoreCase( "03" ) || currentMonth.equalsIgnoreCase( "06" )
+            || currentMonth.equalsIgnoreCase( "09" ) || currentMonth.equalsIgnoreCase( "12" ) )
+        {
+            if ( currentDate.equalsIgnoreCase( "03" ) )
+            {
+                List<String> trimesterMessages = new ArrayList<String>();
+                trimesterMessages.add( "औषधी शुरु गरेको र CD4 जाँच गरेको ६ महिना भए , पुनः CD4 जाँच गर्ने होइन त ?" );
+                try
+                {
+                    scheduledCustomeSMS( mobileNumbers, trimesterMessages );
+                }
+                catch ( IOException e )
+                {
+                    e.printStackTrace();
+                    System.out.println( "Error SMS " + e.getMessage() );
+                }
+            }
+            
+            //Pregnant female clients
+            if ( currentDate.equalsIgnoreCase( "13" ) )
+            {
+                String trimesterMessage = "स्वास्थ्य संस्थामा सुत्केरी गराऔं, आमा र बच्चा दुवैको स्वास्थ्य पक्का गराऔं .";
+                try
+                {
+                    tempScheduledAwarenessEIDSMS( teiList, trimesterMessage );
+                }
+                catch ( IOException e )
+                {
+                    e.printStackTrace();
+                    System.out.println( "Error SMS " + e.getMessage() );
+                }
+            }
+            
+            //Female client who delivered live birth
+            if ( currentDate.equalsIgnoreCase( "14" ) )
+            {
+                String trimesterMessage = "तपाईको बच्चा १८ महिना पुगेपछि ,३ महिना स्तनपान गराउन छुटाई ,बच्चाको जाँचको लागि स्वास्थ्य संस्थामा ल्याउनु  होला.";
+                try
+                {
+                    tempScheduledAwarenessChildComplete18MonthSMS( teiList, trimesterMessage );
+                }
+                catch ( IOException e )
+                {
+                    e.printStackTrace();
+                    System.out.println( "Error SMS " + e.getMessage() );
+                }
+            }
+        }
+        
+
+        // Quarterly Messages
+        if ( currentMonth.equalsIgnoreCase( "04" ) || currentMonth.equalsIgnoreCase( "08" ) || currentMonth.equalsIgnoreCase( "12" ) )
+        {
+            //Married Male and Female clients
+            if ( currentDate.equalsIgnoreCase( "09" ) )
+            {
+                String quarterlyMessage = "स्वास्थ्य संस्थामा सुत्केरी गराऔ, आमा र बच्चा दुवैको स्वास्थ्य पक्का गराऔं.";
+                try
+                {
+                    scheduledAwarenessCustomeSMS( teiList, quarterlyMessage );
+                }
+                catch ( IOException e )
+                {
+                    e.printStackTrace();
+                    System.out.println( "Error SMS " + e.getMessage() );
+                }
+            }
+            
+            if ( currentDate.equalsIgnoreCase( "10" ) )
+            {
+                String quarterlyMessage = "आफ्नो  साथीको पनि जांच गराऔ, सम्बन्ध अझै बलियो बनाऔं ।";
+                try
+                {
+                    scheduledAwarenessCustomeSMS( teiList, quarterlyMessage );
+                }
+                catch ( IOException e )
+                {
+                    e.printStackTrace();
+                    System.out.println( "Error SMS " + e.getMessage() );
+                }
+            }
+            
+            //Female clients (20 years and above)
+            if ( currentDate.equalsIgnoreCase( "11" ) )
+            {
+                String quarterlyMessage = "नियमित पाठेघरको जांच गराऔ ,पछि हुन सक्ने समस्यालाई अहिले नै पत्ता लगाऔं .";
+                try
+                {
+                    tempScheduledAwarenessCustomeSMS( teiList, quarterlyMessage );
+                }
+                catch ( IOException e )
+                {
+                    e.printStackTrace();
+                    System.out.println( "Error SMS " + e.getMessage() );
+                }
+            }
+            
+            //Married Male and Female clients
+            if ( currentDate.equalsIgnoreCase( "12" ) )
+            {
+                String quarterlyMessage = "स्वास्थ्यकर्मीसंग सल्लाह लिई स्वस्थ बच्चा जन्माऔं .";
+                try
+                {
+                    scheduledAwarenessCustomeSMS( teiList, quarterlyMessage );
+                }
+                catch ( IOException e )
+                {
+                    e.printStackTrace();
+                    System.out.println( "Error SMS " + e.getMessage() );
+                }
+            }
+        }
+            
+        // bi annual Messages
+        if ( currentMonth.equalsIgnoreCase( "04" ) || currentMonth.equalsIgnoreCase( "10" ) )
+        {
+            if ( currentDate.equalsIgnoreCase( "04" ) )
+            {
+                List<String> biannualMessages = new ArrayList<String>();
+                biannualMessages.add( "CD4 जाँच गराऔ रोगसँग लडने क्षमता कति छ भनेर बुझौ." );
+                try
+                {
+                    scheduledCustomeSMS( mobileNumbers, biannualMessages );
+                }
+                catch ( IOException e )
+                {
+                    e.printStackTrace();
+                    System.out.println( "Error SMS " + e.getMessage() );
+                }
+            }
+        }
+        
+        // trimester Messages
+        if ( currentMonth.equalsIgnoreCase( "02" ) || currentMonth.equalsIgnoreCase( "05" ) || currentMonth.equalsIgnoreCase( "08" )
+            || currentMonth.equalsIgnoreCase( "11" ) )
+        {
+            if ( currentDate.equalsIgnoreCase( "02" ) )
+            {
+                List<String> trimesterMessages = new ArrayList<String>();
+                trimesterMessages.add( "भाइरल लोड जाँच गराई शरिरमा भाइरसको अवस्था थाहा पाउनुहोस् ." );
+                try
+                {
+                    scheduledCustomeSMS( mobileNumbers, trimesterMessages );
+                }
+                catch ( IOException e )
+                {
+                    e.printStackTrace();
+                    System.out.println( "Error SMS " + e.getMessage() );
+                }
+            }
+        }
+        
+        // bi annual Messages
+        if ( currentMonth.equalsIgnoreCase( "05" ) || currentMonth.equalsIgnoreCase( "11" ) )
+        {
+            if ( currentDate.equalsIgnoreCase( "05" ) )
+            {
+                List<String> biannualMessages = new ArrayList<String>();
+                biannualMessages.add( "भाइरल लोड जाँचले तपाईको अवस्था मात्र होइन तपाईको नजिकको साथीलाई पनि सुरक्षित राख्छ ." );
+                try
+                {
+                    scheduledCustomeSMS( mobileNumbers, biannualMessages );
+                }
+                catch ( IOException e )
+                {
+                    e.printStackTrace();
+                    System.out.println( "Error SMS " + e.getMessage() );
+                }
+            }
+        }
+ 
+        // bi annual Messages
+        if ( currentMonth.equalsIgnoreCase( "06" ) || currentMonth.equalsIgnoreCase( "12" ) )
+        {
+            if ( currentDate.equalsIgnoreCase( "06" ) )
+            {
+                List<String> biannualMessages = new ArrayList<String>();
+                biannualMessages.add( "औषधि शुरु गरेको पहिलो वर्ष २ पटक (६/६ महिनामा) र त्यसपछिको हरेक बर्षमा एक पटक मात्र भाइरल लोडको जाँच गराउनुहोला ।" );
+                try
+                {
+                    scheduledCustomeSMS( mobileNumbers, biannualMessages );
+                }
+                catch ( IOException e )
+                {
+                    e.printStackTrace();
+                    System.out.println( "Error SMS " + e.getMessage() );
+                }
+            }
+        }
+        
+        
+        // Monthly Messages
+        if ( currentDate.equalsIgnoreCase( "01" ) )
+        {
+            List<String> monthlyMessages = new ArrayList<String>();
+            monthlyMessages.add( "स्वस्थ जीवनको लागि नियमित स्वास्थ्य जांच तथा अन्य संक्रमणको पनि  जांच गराउनुहोला ।" );
+            try
+            {
+                scheduledCustomeSMS( mobileNumbers, monthlyMessages );
+            }
+            catch ( IOException e )
+            {
+                e.printStackTrace();
+                System.out.println( "Error SMS " + e.getMessage() );
+            }
+        }           
+        
+        // Monthly Messages
+        if ( currentDate.equalsIgnoreCase( "07" ) )
+        {
+            List<String> monthlyMessages = new ArrayList<String>();
+            monthlyMessages.add( "समयको ख्याल राख्नुहोस नियमित औषधी लिन आउनुहोस् ।" );
+            try
+            {
+                scheduledCustomeSMS( mobileNumbers, monthlyMessages );
+            }
+            catch ( IOException e )
+            {
+                e.printStackTrace();
+                System.out.println( "Error SMS " + e.getMessage() );
+            }
+        }
+        
+        // Monthly Messages
+        if ( currentDate.equalsIgnoreCase( "15" ) )
+        {
+            List<String> monthlyMessages = new ArrayList<String>();
+            monthlyMessages.add( "हरेक दिन औषधी सेवन ,राख्छ स्वस्थ जीवन ।" );
+            try
+            {
+                scheduledCustomeSMS( mobileNumbers, monthlyMessages );
+            }
+            catch ( IOException e )
+            {
+                e.printStackTrace();
+                System.out.println( "Error SMS " + e.getMessage() );
+            }
+        }     
+            
+        // bimonthly Messages
+        if ( currentMonth.equalsIgnoreCase( "02" ) || currentMonth.equalsIgnoreCase( "04" ) || currentMonth.equalsIgnoreCase( "06" ) )
+        {
+            if ( currentDate.equalsIgnoreCase( "08" ) )
+            {
+                List<String> bimonthlyMessages = new ArrayList<String>();
+                bimonthlyMessages.add( "नियमित औषधिको सेवन, अवसरबादी समस्या रहित जीवन ." );
+                try
+                {
+                    scheduledCustomeSMS( mobileNumbers, bimonthlyMessages );
+                }
+                catch ( IOException e )
+                {
+                    e.printStackTrace();
+                    System.out.println( "Error SMS " + e.getMessage() );
+                }
+            }
+        }            
+        
+        // for every FRIDAY
+        if( dayOfWeek.toString().equalsIgnoreCase( "FRIDAY") )
+        {
+            List<String> fridayMessages = new ArrayList<String>();
+            fridayMessages.add( "राखी राख्नुहोस  सम्झना, हरेक दिन औषधी सेवन र  गणना ।" );
+            try
+            {
+                scheduledCustomeSMS( mobileNumbers, fridayMessages );
+            }
+            catch ( IOException e )
+            {
+                e.printStackTrace();
+                System.out.println( "Error SMS " + e.getMessage() );
+            }
+        }
+
     }
 
     // -------------------------------------------------------------------------
@@ -366,23 +643,23 @@ public class ScheduleCustomeSMSTask
                 {
                     Date dueDateObject = simpleDateFormat.parse( dueDate );
 
-                    // one day before
-                    Calendar oneDayBefore = Calendar.getInstance();
-                    oneDayBefore.setTime( dueDateObject );
-                    oneDayBefore.add( Calendar.DATE, -1 );
-                    Date oneDayBeforeDate = oneDayBefore.getTime();
+                    // three day before
+                    Calendar threeDayBefore = Calendar.getInstance();
+                    threeDayBefore.setTime( dueDateObject );
+                    threeDayBefore.add( Calendar.DATE, -3 );
+                    Date threeDayBeforeDate = threeDayBefore.getTime();
 
-                    // 2 day before
-                    Calendar twoDayBefore = Calendar.getInstance();
-                    twoDayBefore.setTime( dueDateObject );
-                    twoDayBefore.add( Calendar.DATE, -2 );
-                    Date twoDayBeforeDate = twoDayBefore.getTime();
+                    // 2 day after
+                    Calendar twoDayAfter = Calendar.getInstance();
+                    twoDayAfter.setTime( dueDateObject );
+                    twoDayAfter.add( Calendar.DATE, 2 );
+                    Date twoDayAfterDate = twoDayAfter.getTime();
 
-                    String oneDayBeforeDateString = simpleDateFormat.format( oneDayBeforeDate );
-                    String twoDayBeforeDateString = simpleDateFormat.format( twoDayBeforeDate );
+                    String threeDayBeforeDateString = simpleDateFormat.format( threeDayBeforeDate );
+                    String twoDayAfterDateString = simpleDateFormat.format( twoDayAfterDate );
 
-                    if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString )
-                        || todayDate.equalsIgnoreCase( twoDayBeforeDateString ) )
+                    if ( todayDate.equalsIgnoreCase( threeDayBeforeDateString )
+                        || todayDate.equalsIgnoreCase( twoDayAfterDateString ) )
                     {
                         TrackedEntityInstance tei = trackedEntityInstanceService.getTrackedEntityInstance( teiID );
                         TrackedEntityAttributeValue teaValue = trackedEntityAttributeValueService
@@ -536,23 +813,23 @@ public class ScheduleCustomeSMSTask
                             calendar.set( Calendar.MONTH, (calendar.get( Calendar.MONTH ) + 6) );
                             Date sixMonthAfterDate = calendar.getTime();
 
-                            // one day before sixMonthAfterDate
-                            Calendar oneDayBefore = Calendar.getInstance();
-                            oneDayBefore.setTime( sixMonthAfterDate );
-                            oneDayBefore.add( Calendar.DATE, -1 );
-                            Date oneDayBeforeDate = oneDayBefore.getTime();
+                            // three day before sixMonthAfterDate
+                            Calendar threeDayBefore = Calendar.getInstance();
+                            threeDayBefore.setTime( sixMonthAfterDate );
+                            threeDayBefore.add( Calendar.DATE, -3 );
+                            Date threeDayBeforeDate = threeDayBefore.getTime();
 
-                            // 2 day before sixMonthAfterDate
-                            Calendar twoDayBefore = Calendar.getInstance();
-                            twoDayBefore.setTime( sixMonthAfterDate );
-                            twoDayBefore.add( Calendar.DATE, -2 );
-                            Date twoDayBeforeDate = twoDayBefore.getTime();
+                            // 2 day after sixMonthAfterDate
+                            Calendar twoDayAfter = Calendar.getInstance();
+                            twoDayAfter.setTime( sixMonthAfterDate );
+                            twoDayAfter.add( Calendar.DATE, -2 );
+                            Date twoDayAfterDate = twoDayAfter.getTime();
 
-                            String oneDayBeforeDateString = simpleDateFormat.format( oneDayBeforeDate );
-                            String twoDayBeforeDateString = simpleDateFormat.format( twoDayBeforeDate );
+                            String threeDayBeforeDateString = simpleDateFormat.format( threeDayBeforeDate );
+                            String twoDayAfterDateString = simpleDateFormat.format( twoDayAfterDate );
 
-                            if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString )
-                                || todayDate.equalsIgnoreCase( twoDayBeforeDateString ) )
+                            if ( todayDate.equalsIgnoreCase( threeDayBeforeDateString )
+                                || todayDate.equalsIgnoreCase( twoDayAfterDateString ) )
                             {
                                 String customMessage = "भाइरल लोड जाचँ को लागि मिति   "
                                     + simpleDateFormat.format( sixMonthAfterDate ) + " मा " + orgUnit.getName()
@@ -575,23 +852,23 @@ public class ScheduleCustomeSMSTask
                             calendar.set( Calendar.MONTH, (calendar.get( Calendar.MONTH ) + 6) );
                             Date sixMonthAfterDate = calendar.getTime();
 
-                            // one day before sixMonthAfterDate
-                            Calendar oneDayBefore = Calendar.getInstance();
-                            oneDayBefore.setTime( sixMonthAfterDate );
-                            oneDayBefore.add( Calendar.DATE, -1 );
-                            Date oneDayBeforeDate = oneDayBefore.getTime();
+                            // three day before sixMonthAfterDate
+                            Calendar threeDayBefore = Calendar.getInstance();
+                            threeDayBefore.setTime( sixMonthAfterDate );
+                            threeDayBefore.add( Calendar.DATE, -1 );
+                            Date threeDayBeforeDate = threeDayBefore.getTime();
 
-                            // 2 day before sixMonthAfterDate
-                            Calendar twoDayBefore = Calendar.getInstance();
-                            twoDayBefore.setTime( sixMonthAfterDate );
-                            twoDayBefore.add( Calendar.DATE, -2 );
-                            Date twoDayBeforeDate = twoDayBefore.getTime();
+                            // 2 day after sixMonthAfterDate
+                            Calendar twoDayAfter = Calendar.getInstance();
+                            twoDayAfter.setTime( sixMonthAfterDate );
+                            twoDayAfter.add( Calendar.DATE, -2 );
+                            Date twoDayAfterDate = twoDayAfter.getTime();
 
-                            String oneDayBeforeDateString = simpleDateFormat.format( oneDayBeforeDate );
-                            String twoDayBeforeDateString = simpleDateFormat.format( twoDayBeforeDate );
+                            String threeDayBeforeDateString = simpleDateFormat.format( threeDayBeforeDate );
+                            String twoDayAfterDateString = simpleDateFormat.format( twoDayAfterDate );
 
-                            if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString )
-                                || todayDate.equalsIgnoreCase( twoDayBeforeDateString ) )
+                            if ( todayDate.equalsIgnoreCase( threeDayBeforeDateString )
+                                || todayDate.equalsIgnoreCase( twoDayAfterDateString ) )
                             {
                                 String customMessage = "भाइरल लोड जाचँ को लागि मिति   "
                                     + simpleDateFormat.format( sixMonthAfterDate ) + " मा  " + orgUnit.getName()
@@ -614,6 +891,7 @@ public class ScheduleCustomeSMSTask
 
     // PMTCT And Cervical Cancer
 
+    /*
     public void scheduledPMTCTAndCervicalCancerSMS( List<TrackedEntityInstance> teiList )
         throws IOException
     {
@@ -731,9 +1009,11 @@ public class ScheduleCustomeSMSTask
 
         System.out.println( " PMTCT And Cervical Cancer SMS Scheduler End at : " + new Date() );
     }
-
+*/
+    
     // Awareness For EID
 
+    /*
     public void scheduledAwarenessForEIDSMS( List<TrackedEntityInstance> teiList )
         throws IOException
     {
@@ -793,15 +1073,6 @@ public class ScheduleCustomeSMSTask
                                 System.out.println( teaValue.getValue() + " -------- > " + customMessage );
                             }
                             
-                            // two month before
-                            /*
-                            if ( todayDate.equalsIgnoreCase( twoMonthBeforeDateString ) )
-                            {
-                                String customMessage = "à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯à¤•à¤°à¥�à¤®à¥€à¤¸à¤‚à¤— à¤¸à¤²à¥�à¤²à¤¾à¤¹ à¤²à¤¿à¤”,à¤¸à¥�à¤µà¤¸à¥�à¤¥ à¤¬à¤šà¥�à¤šà¤¾ à¤œà¤¨à¥�à¤®à¤¾à¤”  |";
-                                bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
-                                System.out.println( teaValue.getValue() + " -------- > " + customMessage );
-                            }
-                            */
                             // five month before
                             
                             if ( todayDate.equalsIgnoreCase( fiveMonthBeforeDateString ) )
@@ -826,6 +1097,7 @@ public class ScheduleCustomeSMSTask
 
         System.out.println( " Awareness For EID SMS Scheduler End at : " + new Date() );
     }
+*/
 
     // Awareness For Child Complete 18 Month
 
@@ -864,34 +1136,34 @@ public class ScheduleCustomeSMSTask
                             calendar.set( Calendar.MONTH, (calendar.get( Calendar.MONTH ) + 18) );
                             Date eighteenMonthAfterDate = calendar.getTime();
 
-                            // one day before eighteenMonthBeforeDate
-                            Calendar oneDayBefore = Calendar.getInstance();
-                            oneDayBefore.setTime( eighteenMonthAfterDate );
-                            oneDayBefore.add( Calendar.DATE, -1 );
-                            Date oneDayBeforeDate = oneDayBefore.getTime();
+                            // three day before eighteenMonthBeforeDate
+                            Calendar threeDayBefore = Calendar.getInstance();
+                            threeDayBefore.setTime( eighteenMonthAfterDate );
+                            threeDayBefore.add( Calendar.DATE, -3 );
+                            Date threeDayBeforeDate = threeDayBefore.getTime();
 
-                            // 2 day before eighteenMonthBeforeDate
-                            Calendar twoDayBefore = Calendar.getInstance();
-                            twoDayBefore.setTime( eighteenMonthAfterDate );
-                            twoDayBefore.add( Calendar.DATE, -2 );
-                            Date twoDayBeforeDate = twoDayBefore.getTime();
+                            // 2 day after eighteenMonthBeforeDate
+                            Calendar twoDayAfter = Calendar.getInstance();
+                            twoDayAfter.setTime( eighteenMonthAfterDate );
+                            twoDayAfter.add( Calendar.DATE, -2 );
+                            Date twoDayAfterDate = twoDayAfter.getTime();
 
-                            String oneDayBeforeDateString = simpleDateFormat.format( oneDayBeforeDate );
-                            String twoDayBeforeDateString = simpleDateFormat.format( twoDayBeforeDate );
+                            String threeDayBeforeDateString = simpleDateFormat.format( threeDayBeforeDate );
+                            String twoDayAfterDateString = simpleDateFormat.format( twoDayAfterDate );
 
                             // one day before
-                            /*
-                            if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString )
-                                || todayDate.equalsIgnoreCase( twoDayBeforeDateString ) )
+                            
+                            if ( todayDate.equalsIgnoreCase( threeDayBeforeDateString )
+                                || todayDate.equalsIgnoreCase( twoDayAfterDateString ) )
                             {
-                                String customMessage = "à¤¤à¤ªà¤¾à¤ˆà¤•à¥‹ à¤¬à¤šà¥�à¤šà¤¾ à¥§à¥®  à¤®à¤¹à¤¿à¤¨à¤¾ à¤ªà¥�à¤—à¥‡à¤ªà¤›à¤¿ ,à¥© à¤®à¤¹à¤¿à¤¨à¤¾ à¤¸à¥�à¤¤à¤¨à¤ªà¤¾à¤¨ à¤—à¤°à¤¾à¤‰à¤¨ à¤›à¥�à¤Ÿà¤¾à¤ˆ ,à¤¬à¤šà¥�à¤šà¤¾à¤•à¥‹ à¤œà¤¾à¤�à¤šà¤•à¥‹ à¤²à¤¾à¤—à¤¿ à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯ à¤¸à¤‚à¤¸à¥�à¤¥à¤¾à¤®à¤¾ à¤²à¥�à¤¯à¤¾à¤‰à¤¨à¥�  à¤¹à¥‹à¤²à¤¾  |";
+                                String customMessage = "तपाईको बच्चा १८  महिना पुगेपछि ,३ महिना स्तनपान गराउन छुटाई ,बच्चाको जाँचको लागि स्वास्थ्य संस्थामा ल्याउनु  होला |";
                                 bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
-                                System.out.println( " inside schedule SMS " + teaValue.getValue() + " -------- > "
-                                    + customMessage );
+                                System.out.println( " inside schedule SMS " + teaValue.getValue() + " -------- > " + customMessage );
                             }
-                            */
+                            
                             
                             // Quarterly Messages
+                            /*
                             if ( currentMonth.equalsIgnoreCase( "01" ) || currentMonth.equalsIgnoreCase( "04" )
                                 || currentMonth.equalsIgnoreCase( "07" ) || currentMonth.equalsIgnoreCase( "10" ) )
                             {
@@ -901,7 +1173,8 @@ public class ScheduleCustomeSMSTask
                                     bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
                                     System.out.println( " inside schedule SMS " + teaValue.getValue() + " -------- > " + customMessage );
                                 }
-                            }                            
+                            }
+                            */                           
                         }
 
                     }
@@ -953,20 +1226,20 @@ public class ScheduleCustomeSMSTask
                             calendar.add( Calendar.WEEK_OF_YEAR, 4 );
                             Date fourWeekAfterDate = calendar.getTime();
 
-                            // one day before fourWeekAfterDate
-                            Calendar oneDayBefore = Calendar.getInstance();
-                            oneDayBefore.setTime( fourWeekAfterDate );
-                            oneDayBefore.add( Calendar.DATE, -1 );
-                            Date oneDayBeforeDate = oneDayBefore.getTime();
+                            // three day before fourWeekAfterDate
+                            Calendar threeDayBefore = Calendar.getInstance();
+                            threeDayBefore.setTime( fourWeekAfterDate );
+                            threeDayBefore.add( Calendar.DATE, -1 );
+                            Date threeDayBeforeDate = threeDayBefore.getTime();
 
-                            // 2 day before fourWeekAfterDate
-                            Calendar twoDayBefore = Calendar.getInstance();
-                            twoDayBefore.setTime( fourWeekAfterDate );
-                            twoDayBefore.add( Calendar.DATE, -2 );
-                            Date twoDayBeforeDate = twoDayBefore.getTime();
+                            // 2 day after fourWeekAfterDate
+                            Calendar twoDayAfter = Calendar.getInstance();
+                            twoDayAfter.setTime( fourWeekAfterDate );
+                            twoDayAfter.add( Calendar.DATE, -2 );
+                            Date twoDayAfterDate = twoDayAfter.getTime();
 
-                            String oneDayBeforeDateString = simpleDateFormat.format( oneDayBeforeDate );
-                            String twoDayBeforeDateString = simpleDateFormat.format( twoDayBeforeDate );
+                            String threeDayBeforeDateString = simpleDateFormat.format( threeDayBeforeDate );
+                            String twoDayAfterDateString = simpleDateFormat.format( twoDayAfterDate );
                             // System.out.println( " Date of delivery -- " +
                             // infantDateOfBirth + " 4 week After Date : " +
                             // simpleDateFormat.format( fourWeekAfterDate ) +
@@ -974,8 +1247,8 @@ public class ScheduleCustomeSMSTask
                             // " two day before : " + twoDayBeforeDateString );
 
                             // one day before
-                            if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString )
-                                || todayDate.equalsIgnoreCase( twoDayBeforeDateString ) )
+                            if ( todayDate.equalsIgnoreCase( threeDayBeforeDateString )
+                                || todayDate.equalsIgnoreCase( twoDayAfterDateString ) )
                             {
                                 String customMessage = "तपाईको बच्चा जन्मेको ६ हफ्ता भित्रमा जाच  गराउन  "
                                     + orgUnit.getName() + " मा " + simpleDateFormat.format( fourWeekAfterDate )
@@ -1057,6 +1330,191 @@ public class ScheduleCustomeSMSTask
         System.out.println( " PMTCT And EID Female PLHIV (15- 49 years) Positive pregnant women SMS Scheduler End at : " + new Date() );
     }    
     
+    
+    // scheduledAwarenessCustomeSMS april/aug/dec 9th/10th/12th
+    public void scheduledAwarenessCustomeSMS( List<TrackedEntityInstance> teiList, String message )
+        throws IOException
+    {
+        System.out.println( " 1  Awareness Custome SMS Scheduler Started at : " + new Date() );
+        
+        TrackedEntityAttribute teMobileNoAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( MOBILE_NUMBER_ATTRIBUTE_ID );
+        TrackedEntityAttribute teSexAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( SEX_ATTRIBUTE_ID );
+        TrackedEntityAttribute maritalStatusAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( MARITAL_STATUS_ATTRIBUTE_ID );
+        
+        BulkSMSHttpInterface bulkSMSHTTPInterface = new BulkSMSHttpInterface();
+
+        try
+        {
+            if ( teiList != null && teiList.size() > 0 )
+            {
+                for ( TrackedEntityInstance tei : teiList )
+                {
+                    TrackedEntityAttributeValue teaValueMobileNo = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( tei, teMobileNoAttribute );
+                    TrackedEntityAttributeValue teaSex = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( tei, teSexAttribute );
+                    TrackedEntityAttributeValue maritalStatus = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( tei, maritalStatusAttribute );
+                    
+                    if ( teaValueMobileNo != null && teaValueMobileNo.getValue() != null  && teaValueMobileNo.getValue().length() == 10 )
+                    {
+                        if ( teaSex != null && teaSex.getValue() != null && ( teaSex.getValue().equalsIgnoreCase( "Female" ) || teaSex.getValue().equalsIgnoreCase( "Male" ) ) )
+                        {
+                            if ( maritalStatus != null && maritalStatus.getValue() != null && maritalStatus.getValue().equalsIgnoreCase( "married" ) )
+                            {
+                                bulkSMSHTTPInterface.sendSMS( message, teaValueMobileNo.getValue() );
+                                System.out.println( teaValueMobileNo.getValue() + " -------- > " + message );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( " 1 Awareness Custome SMS Scheduler Exception -- ", e );
+        }
+
+        System.out.println( " 1 Awareness Custome SMS Scheduler End at : " + new Date() );
+    }    
+    
+    // scheduledAwarenessCustomeSMS april/aug/dec 11th
+    public void tempScheduledAwarenessCustomeSMS( List<TrackedEntityInstance> teiList, String message )
+        throws IOException
+    {
+        System.out.println( " 2 Awareness Custome SMS Scheduler Started at : " + new Date() );
+        
+        TrackedEntityAttribute teMobileNoAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( MOBILE_NUMBER_ATTRIBUTE_ID );
+        TrackedEntityAttribute teSexAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( SEX_ATTRIBUTE_ID );
+        TrackedEntityAttribute ageAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( AGE_ATTRIBUTE_ID );
+        BulkSMSHttpInterface bulkSMSHTTPInterface = new BulkSMSHttpInterface();
+
+        try
+        {
+            if ( teiList != null && teiList.size() > 0 )
+            {
+                for ( TrackedEntityInstance tei : teiList )
+                {
+                    TrackedEntityAttributeValue teaValueMobileNo = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( tei, teMobileNoAttribute );
+                    TrackedEntityAttributeValue teaSex = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( tei, teSexAttribute );
+                    TrackedEntityAttributeValue age = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( tei, ageAttribute );
+                    
+                    if ( teaValueMobileNo != null && teaValueMobileNo.getValue() != null  && teaValueMobileNo.getValue().length() == 10 )
+                    {
+                        if ( teaSex != null && teaSex.getValue() != null && teaSex.getValue().equalsIgnoreCase( "Female" ) )
+                        {
+                            if ( age != null && age.getValue() != null && Integer.parseInt( age.getValue() ) >= 20 )
+                            {
+                                
+                                bulkSMSHTTPInterface.sendSMS( message, teaValueMobileNo.getValue() );
+                                System.out.println( teaValueMobileNo.getValue() + " -------- > " + message );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( " 2 Awareness Custome SMS Scheduler Exception -- ", e );
+        }
+
+        System.out.println( " 2 Awareness Custome SMS Scheduler End at : " + new Date() );
+    }    
+        
+    // scheduledAwarenessChildComplete18MonthSMS 03/06/09/12 14
+    public void tempScheduledAwarenessChildComplete18MonthSMS( List<TrackedEntityInstance> teiList, String message )
+        throws IOException
+    {
+        System.out.println( " Awareness message for rapid test which is to be sent before child completes 18 months SMS Scheduler Started at : " + new Date() );
+        TrackedEntityAttribute teMobileNoAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( MOBILE_NUMBER_ATTRIBUTE_ID );
+        
+        BulkSMSHttpInterface bulkSMSHTTPInterface = new BulkSMSHttpInterface();
+
+        try
+        {
+            if ( teiList != null && teiList.size() > 0 )
+            {
+                for ( TrackedEntityInstance tei : teiList )
+                {
+                    TrackedEntityAttributeValue mobileNumber = trackedEntityAttributeValueService
+                        .getTrackedEntityAttributeValue( tei, teMobileNoAttribute );
+                    if ( mobileNumber != null && mobileNumber.getValue() != null && mobileNumber.getValue().length() == 10 )
+                    {
+                        String statusOfInfantValue = getLatestEventOrgAndDataValue( PREGNANCY_DELIVERY_PROGRAM_STAGE_ID, STATUS_OF_INFANT_DATAELEMENT_ID, tei.getId() );
+                        
+                        String statusOfInfant = statusOfInfantValue.split( ":" )[1];
+                        
+                        if( statusOfInfant.equalsIgnoreCase( "alive" ))
+                        {
+                            String orgUnitAndEdDateValue = getLatestEventOrgAndDataValue( EID_AND_TREATMENT_PROGRAM_STAGE_ID, AGE_OF_INFANT_DATAELEMENT_ID, tei.getId() );
+
+                            if ( orgUnitAndEdDateValue != null && !orgUnitAndEdDateValue.equalsIgnoreCase( "" ) )
+                            {
+                                String infantage = orgUnitAndEdDateValue.split( ":" )[1];
+                                
+                                if ( infantage != null  && Integer.parseInt( infantage ) < 18 )
+                                {
+                                    bulkSMSHTTPInterface.sendSMS( message, mobileNumber.getValue() );
+                                    System.out.println( mobileNumber.getValue() + " -------- > " + message );
+                                }
+                            }
+                        }
+                        
+                    }
+                }
+            }
+
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Awareness message for rapid test which is to be sent before child completes 18 months. SMS Exception -- ", e );
+        }
+
+        System.out.println( " Awareness message for rapid test which is to be sent before child completes 18 months. SMS Scheduler End at : " + new Date() );
+    }    
+    
+    // scheduledAwarenessChildComplete18MonthSMS 03/06/09/12 13
+    public void tempScheduledAwarenessEIDSMS( List<TrackedEntityInstance> teiList, String message )
+        throws IOException
+    {
+        System.out.println( " Awareness message for EID which is to be sent before Expected Delivery Date mentioned in Pregnancy and Delivery Detail stage. SMS Scheduler Started at : " + new Date() );
+        TrackedEntityAttribute teMobileNoAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( MOBILE_NUMBER_ATTRIBUTE_ID );
+        
+        BulkSMSHttpInterface bulkSMSHTTPInterface = new BulkSMSHttpInterface();
+
+        try
+        {
+            if ( teiList != null && teiList.size() > 0 )
+            {
+                for ( TrackedEntityInstance tei : teiList )
+                {
+                    TrackedEntityAttributeValue mobileNumber = trackedEntityAttributeValueService
+                        .getTrackedEntityAttributeValue( tei, teMobileNoAttribute );
+                    if ( mobileNumber != null && mobileNumber.getValue() != null && mobileNumber.getValue().length() == 10 )
+                    {
+                        String eddValue = getLatestEventOrgAndDataValue( PREGNANCY_DELIVERY_PROGRAM_STAGE_ID, EDD_DATAELEMENT_ID, tei.getId() );
+                        
+                        String estimatedDeliveryDate  = eddValue.split( ":" )[1];
+                        
+                        Date estimatedDeliveryDateObject = simpleDateFormat.parse( estimatedDeliveryDate );
+                        
+                        if( estimatedDeliveryDateObject.compareTo( new Date() ) >= 0 )
+                        {
+                            bulkSMSHTTPInterface.sendSMS( message, mobileNumber.getValue() );
+                            System.out.println( mobileNumber.getValue() + " -------- > " + message );
+                        }
+                    }
+                }
+            }
+
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Awareness message for EID which is to be sent before Expected Delivery Date mentioned in Pregnancy and Delivery Detail stage. SMS Exception -- ", e );
+        }
+
+        System.out.println( "Awareness message for EID which is to be sent before Expected Delivery Date mentioned in Pregnancy and Delivery Detail stage. SMS Scheduler End at : " + new Date() );
+    }        
+    
+
     // --------------------------------------------------------------------------------
     // Get TrackedEntityInstance Ids from tracked entity attribute value
     // --------------------------------------------------------------------------------
