@@ -474,7 +474,7 @@ public abstract class AbstractEventService
         validateExpiryDays( event, program, null );
 
         List<String> errors = trackerAccessManager.canWrite( user, new ProgramStageInstance( programInstance, programStage )
-            .setOrganisationUnit( organisationUnit ) );
+            .setOrganisationUnit( organisationUnit ).setStatus( event.getStatus() ) );
 
         if ( !errors.isEmpty() )
         {
@@ -1200,6 +1200,12 @@ public abstract class AbstractEventService
             return;
         }
 
+        List<String> errors = trackerAccessManager.canWrite( currentUserService.getCurrentUser(), programStageInstance );
+        if ( !errors.isEmpty() )
+        {
+            return;
+        }
+        
         Date executionDate = new Date();
 
         if ( event.getEventDate() != null )
