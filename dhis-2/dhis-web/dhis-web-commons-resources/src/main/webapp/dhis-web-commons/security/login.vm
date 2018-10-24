@@ -19,7 +19,7 @@
 
        <h1 style="display:none">UPHMIS</h1>
     <div style="display:none">DHIS 2</div>
-    <div align="middle" id="mid">
+    <div align="center" id="mid" >
         <img src="./img/logo1new.png" />
     </div>
     <br/>
@@ -28,7 +28,7 @@
         <div id="loginField" style="margin-top: 1px; margin-bottom: 1px; margin-right: 50px; margin-left: 50px;">
 
                 <div id="quick">
-            <table align="left" style="background-color:white; padding-left:10px;padding-right:10px;padding-top:5px;padding-bottom:5px;">
+            <table  align="left" style="background-color:white; padding-left:10px;padding-right:10px;padding-top:5px;padding-bottom:5px;">
                 <tr align="center">
                     <td>
                         <h3><span style="color:#1D5288;"><u>Quick Links</u></span></h3>
@@ -100,7 +100,7 @@
 
     <br/>
     <div id="footerArea" align="middle">
-        <div align="middle" id="mid">
+        <div align="center" id="mid">
             <img src="img/logo2new.png" />
         </div>
         <span id="poweredByLabel">Powered by</span>
