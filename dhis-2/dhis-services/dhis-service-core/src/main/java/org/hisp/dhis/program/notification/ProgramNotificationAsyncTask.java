@@ -1,4 +1,4 @@
-package org.hisp.dhis.about.action;
+package org.hisp.dhis.program.notification;
 
 /*
  * Copyright (c) 2004-2018, University of Oslo
@@ -28,68 +28,47 @@ package org.hisp.dhis.about.action;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.opensymphony.xwork2.Action;
-
-import org.apache.struts2.ServletActionContext;
-import org.hisp.dhis.appmanager.App;
-import org.hisp.dhis.appmanager.AppManager;
-import org.hisp.dhis.setting.SettingKey;
-import org.hisp.dhis.setting.SystemSettingManager;
-import org.hisp.dhis.webapi.utils.ContextUtils;
+import org.hibernate.SessionFactory;
+import org.hisp.dhis.dbms.DbmsUtils;
+import org.hisp.dhis.security.SecurityContextRunnable;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 /**
- * @author Lars Helge Overland
+ * @author Viet Nguyen <viet@dhis2.org>
  */
-public class RedirectAction
-    implements Action
+public class ProgramNotificationAsyncTask
+    extends SecurityContextRunnable
 {
     @Autowired
-    private SystemSettingManager systemSettingManager;
+    private SessionFactory sessionFactory;
 
     @Autowired
-    private AppManager appManager;
+    private ProgramNotificationService programNotificationService;
 
-    private String redirectUrl;
+    private Consumer<ProgramNotificationService> function;
 
-    public String getRedirectUrl()
+    @Override
+    public void call()
     {
-        return redirectUrl;
+        function.accept( programNotificationService );
     }
 
     @Override
-    public String execute()
-        throws Exception
+    public void before()
     {
-        String startModule = (String) systemSettingManager.getSystemSetting( SettingKey.START_MODULE );
+        DbmsUtils.bindSessionToThread( sessionFactory );
+    }
 
-        String contextPath = (String) ContextUtils.getContextPath( ServletActionContext.getRequest() );
-        
-        if ( startModule != null && !startModule.trim().isEmpty() )
-        {
-            if ( startModule.startsWith( "app:" ) )
-            {
-                List<App> apps = appManager.getApps( contextPath );
+    @Override
+    public void after()
+    {
+        DbmsUtils.unbindSessionFromThread( sessionFactory );
+    }
 
-                for ( App app : apps )
-                {
-                    if ( app.getName().equals( startModule.substring( "app:".length() ) ) )
-                    {
-                        redirectUrl = app.getLaunchUrl();
-                        return SUCCESS;
-                    }
-                }
-            }
-            else
-            {
-                redirectUrl = "../" + startModule + "/";
-                return SUCCESS;
-            }
-        }
-
-        redirectUrl = "../dhis-web-dashboard/";
-        return SUCCESS;
+    public void setFunction( Consumer<ProgramNotificationService> function )
+    {
+        this.function = function;
     }
 }

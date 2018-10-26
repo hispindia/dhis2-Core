@@ -29,7 +29,7 @@ package org.hisp.dhis.dxf2.events.enrollment;
  */
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -98,10 +98,10 @@ public class JacksonEnrollmentService extends AbstractEnrollmentService
         module.addDeserializer( Date.class, new ParseDateStdDeserializer() );
         module.addSerializer( Date.class, new WriteDateStdSerializer() );
 
-        XML_MAPPER.configure( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true );
+        XML_MAPPER.configure( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false );
         XML_MAPPER.configure( DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, true );
         XML_MAPPER.configure( DeserializationFeature.WRAP_EXCEPTIONS, true );
-        JSON_MAPPER.configure( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true );
+        JSON_MAPPER.configure( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false );
         JSON_MAPPER.configure( DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, true );
         JSON_MAPPER.configure( DeserializationFeature.WRAP_EXCEPTIONS, true );
 
@@ -131,13 +131,13 @@ public class JacksonEnrollmentService extends AbstractEnrollmentService
         String input = StreamUtils.copyToString( inputStream, Charset.forName( "UTF-8" ) );
         List<Enrollment> enrollments = new ArrayList<>();
 
-        try
-        {
+        JsonNode root = JSON_MAPPER.readTree( input );
+
+        if ( root.get( "enrollments" ) != null ) {
             Enrollments fromJson = fromJson( input, Enrollments.class );
             enrollments.addAll( fromJson.getEnrollments() );
         }
-        catch ( JsonMappingException ex )
-        {
+        else {
             Enrollment fromJson = fromJson( input, Enrollment.class );
             enrollments.add( fromJson );
         }
@@ -151,13 +151,13 @@ public class JacksonEnrollmentService extends AbstractEnrollmentService
         String input = StreamUtils.copyToString( inputStream, Charset.forName( "UTF-8" ) );
         List<Enrollment> enrollments = new ArrayList<>();
 
-        try
-        {
+        JsonNode root = XML_MAPPER.readTree( input );
+
+        if ( root.get( "enrollments" ) != null ) {
             Enrollments fromXml = fromXml( input, Enrollments.class );
             enrollments.addAll( fromXml.getEnrollments() );
         }
-        catch ( JsonMappingException ex )
-        {
+        else {
             Enrollment fromXml = fromXml( input, Enrollment.class );
             enrollments.add( fromXml );
         }
