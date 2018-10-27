@@ -98,7 +98,7 @@ public class GenerateMetaDataReportResultAction
 
     private final String DATASETMEMBER = "DATASETMEMBER";
     
-    private final String  ORGUNIT_META_ATTRIBUTE_ID = "ORGUNIT_META_ATTRIBUTE_ID";
+    private final String  ORGUNIT_META_ATTRIBUTE_ID = "n8RyzrnvDOi";
 
     // -------------------------------------------------------------------------
     // Dependencies
@@ -2889,23 +2889,28 @@ public class GenerateMetaDataReportResultAction
         Map<Integer, String> orgUnitAttributeValueMap = new HashMap<Integer, String>();
         DatabaseInfo dataBaseInfo = databaseInfoProvider.getDatabaseInfo();
         Constant orgMetaAttributeId = constantService.getConstant( ORGUNIT_META_ATTRIBUTE_ID );
+        System.out.println( "Meta Data database info : " + dataBaseInfo );
+        System.out.println( "Meta Data Report Constant 1 : " + orgMetaAttributeId );
+        System.out.println( "Meta Data Report Constant 2 : " + (int)orgMetaAttributeId.getValue() );
         try
         {
             String query = "";
-            if ( dataBaseInfo.getName().equalsIgnoreCase( "postgresql" ) )
+            if ( dataBaseInfo.getUser().equalsIgnoreCase( "postgresql" ) )
             {
                 query = "SELECT orgAttrValue.organisationunitid, attrValue.attributeid, attrValue.value from organisationunitattributevalues orgAttrValue "
                         + " INNER JOIN attributevalue attrValue ON attrValue.attributevalueid = orgAttrValue.attributevalueid "
                         + " WHERE attrValue.attributeid = " + (int)orgMetaAttributeId.getValue() +" ";
                    
             }
-            else if ( dataBaseInfo.getName().equalsIgnoreCase( "mysql" ) )
+            else if ( dataBaseInfo.getUser().equalsIgnoreCase( "mysql" ) )
             {
                 query = "SELECT orgAttrValue.organisationunitid, attrValue.attributeid, attrValue.value from organisationunitattributevalues orgAttrValue "
                     + " INNER JOIN attributevalue attrValue ON attrValue.attributevalueid = orgAttrValue.attributevalueid "
                     + " WHERE attrValue.attributeid = " + (int)orgMetaAttributeId.getValue() +" ";
 
             }
+            
+            System.out.println( "query : " + query );
             
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 

@@ -9,7 +9,6 @@
 		    <td class="NormalB">
 		        Meta Data : <br /><br />
 		        <select id="metaDataId" name="metaDataId" style="width:200px">
-		            <option value="NA">[ Select Meta Data ]</option>
 					<option value="ORGUNIT">Organisation Unit</option>
 					<option value="ORGUNITGRP">Organisation Unit Group</option>
 					<option value="DATAELEMENTS">Data Elements</option>
