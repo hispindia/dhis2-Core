@@ -2895,7 +2895,7 @@ public class GenerateMetaDataReportResultAction
         try
         {
             String query = "";
-            if ( dataBaseInfo.getUser().equalsIgnoreCase( "postgresql" ) )
+            if ( dataBaseInfo.getUser().equalsIgnoreCase( "postgres" ) )
             {
                 query = "SELECT orgAttrValue.organisationunitid, attrValue.attributeid, attrValue.value from organisationunitattributevalues orgAttrValue "
                         + " INNER JOIN attributevalue attrValue ON attrValue.attributevalueid = orgAttrValue.attributevalueid "
