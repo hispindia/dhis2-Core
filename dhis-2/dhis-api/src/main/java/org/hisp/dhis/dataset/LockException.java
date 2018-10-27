@@ -28,14 +28,18 @@ package org.hisp.dhis.dataset;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.hisp.dhis.common.BaseIdentifiableObject;
 import org.hisp.dhis.common.DxfNamespaces;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.period.Period;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
  * @author Morten Olav Hansen <mortenoh@gmail.com>
@@ -71,7 +75,8 @@ public class LockException
             return dataSet.getName() + " (" + period.getName() + ")";
         }
 
-        return dataSet.getName() + " (" + organisationUnit.getName() + ", " + period.getName() + ")";
+        //return dataSet.getName() + " (" + organisationUnit.getName() + ", " + period.getName() + ")";
+        return dataSet.getName() + " (" + getHierarchyOrgunit( organisationUnit ) + organisationUnit.getName() + ", " + period.getName() + ")";
     }
 
     public int getId()
@@ -132,4 +137,24 @@ public class LockException
             ", dataSet=" + dataSet +
             '}';
     }
+    
+    // supportive methods
+    private String getHierarchyOrgunit( OrganisationUnit orgunit )
+    {
+        List<String> mobileNumbers = new ArrayList<>();
+        //String hierarchyOrgunit = orgunit.getName();
+        String hierarchyOrgunit = "";
+       
+        while ( orgunit.getParent() != null )
+        {
+            hierarchyOrgunit = orgunit.getParent().getName() + "/" + hierarchyOrgunit;
+
+            orgunit = orgunit.getParent();
+        }
+        
+        hierarchyOrgunit = hierarchyOrgunit.substring( hierarchyOrgunit.indexOf( "/" ) + 1 );
+        
+        return hierarchyOrgunit;
+    }
+    
 }
