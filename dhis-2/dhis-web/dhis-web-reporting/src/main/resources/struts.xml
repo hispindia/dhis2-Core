@@ -178,6 +178,52 @@
     <action name="getOrgUnitDistributionChart" class="org.hisp.dhis.reporting.orgunitdistribution.action.GetOrgUnitDistributionChartAction">
       <result name="success" type="chart"></result>
     </action>
+    
+    
+    
+<!--  for local customization -->
+	<!--  for download dataSet Report as dataEntry Screen to excel -->
+    <action name="exportToExcel" class="org.hisp.dhis.reporting.excel.ExportToExcelAction">
+      <result name="success" type="stream">
+      	<param name="contentType">application/vnd.ms-excel</param>
+      	<param name="inputName">inputStream</param>
+      	<param name="contentDisposition">filename="${fileName}"</param>
+      	<param name="bufferSize">10240</param>
+      </result>
+    </action>
+
+	<!--  DataEntry Form Status -->
+	<action name="dataEntryFormStatus"
+		class="org.hisp.dhis.reporting.dataentryformstatus.action.GenerateDataEntryStatusFormAction">
+		<result name="success" type="velocity">/main.vm</result>
+		<param name="page">/dhis-web-reporting/dataEntryStatusForm.vm</param>
+		<param name="menu">/dhis-web-reporting/menu.vm</param>
+		<param name="javascripts">javascript/dataEntryForm.js</param>
+		<param name="stylesheets">css/StylesForTags.css</param>
+		<param name="requiredAuthorities">F_DATA_ENTRY_FORM_DATAELEMENTS</param>
+	</action>		
+	
+   <!--  DataEntry Form Status Result -->
+	<action name="generateDataEntryFormStatusResult"
+		class="org.hisp.dhis.reporting.dataentryformstatus.action.GenerateDataEntryStatusResultAction">
+		<result name="success" type="velocity">/content.vm</result>
+		<param name="page">/dhis-web-reporting/dataEntryFormStatusResult.vm</param>
+		<!--<param name="stylesheets">css/StylesForTags.css</param>-->
+	</action>
+	
+	
+	<!-- Export To Excel -->
+		<action name="exportDataStatusToExcel"
+			class="org.hisp.dhis.reporting.dataentryformstatus.action.ExportToExcelAction">
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">filename="${fileName}"</param>
+				<param name="bufferSize">1024</param>
+			</result>
+		</action>
+
+
 
   </package>
 </struts>
