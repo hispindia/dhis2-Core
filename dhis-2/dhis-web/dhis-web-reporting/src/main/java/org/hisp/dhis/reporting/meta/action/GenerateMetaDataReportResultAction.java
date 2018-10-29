@@ -98,7 +98,7 @@ public class GenerateMetaDataReportResultAction
 
     private final String DATASETMEMBER = "DATASETMEMBER";
     
-    private final String  ORGUNIT_META_ATTRIBUTE_ID = "n8RyzrnvDOi";
+    private final String  ORGUNIT_META_ATTRIBUTE_ID = "ORGUNIT_META_ATTRIBUTE_ID";
 
     // -------------------------------------------------------------------------
     // Dependencies
@@ -962,7 +962,7 @@ public class GenerateMetaDataReportResultAction
                         sheet0.addCell( new Label( colStart + 12, rowStart, comment, wCellformat ) );
 
                         String coordinates = new String();
-                        if ( organisationUnit.getCoordinates() != null )
+                        if ( organisationUnit.getCoordinates() != null && organisationUnit.getCoordinates().length() < 32767 )
                         {
                             coordinates = organisationUnit.getCoordinates();
                         }
@@ -970,6 +970,7 @@ public class GenerateMetaDataReportResultAction
                         {
                             coordinates = "";
                         }
+                        
                         sheet0.addCell( new Label( colStart + 13, rowStart, coordinates, wCellformat ) );
                         
                         String attributeValue = new String();
@@ -1310,7 +1311,7 @@ public class GenerateMetaDataReportResultAction
                         tempCol14.setCellValue( comment );
                         
                         String coordinates = new String();
-                        if ( organisationUnit.getCoordinates() != null )
+                        if ( organisationUnit.getCoordinates() != null && organisationUnit.getCoordinates().length() < 32767  )
                         {
                             coordinates = organisationUnit.getCoordinates();
                         }
@@ -1666,7 +1667,7 @@ public class GenerateMetaDataReportResultAction
                     sheet0.addCell( new Label( colStart + 12, rowStart, comment, wCellformat ) );
 
                     String coordinates = new String();
-                    if ( ou.getCoordinates() != null )
+                    if ( ou.getCoordinates() != null && ou.getCoordinates().length() < 32767)
                     {
                         coordinates = ou.getCoordinates();
                     }
@@ -2888,25 +2889,33 @@ public class GenerateMetaDataReportResultAction
     {
         Map<Integer, String> orgUnitAttributeValueMap = new HashMap<Integer, String>();
         DatabaseInfo dataBaseInfo = databaseInfoProvider.getDatabaseInfo();
-        Constant orgMetaAttributeId = constantService.getConstant( ORGUNIT_META_ATTRIBUTE_ID );
+        Map<String, Double> constantMap =  constantService.getConstantParameterMap();
+        int attributeid = 0;        
         System.out.println( "Meta Data database info : " + dataBaseInfo );
-        System.out.println( "Meta Data Report Constant 1 : " + orgMetaAttributeId );
-        System.out.println( "Meta Data Report Constant 2 : " + (int)orgMetaAttributeId.getValue() );
+        
         try
         {
+            if( constantMap!= null && constantMap.size() > 0 )
+            {
+                attributeid = constantMap.get( ORGUNIT_META_ATTRIBUTE_ID ).intValue();
+            }
+            
+            System.out.println( "Meta Data Report Constant 1 : " + constantMap );
+            System.out.println( "Meta Data Report Constant 2 : " + attributeid );
+            
             String query = "";
             if ( dataBaseInfo.getUser().equalsIgnoreCase( "postgres" ) )
             {
                 query = "SELECT orgAttrValue.organisationunitid, attrValue.attributeid, attrValue.value from organisationunitattributevalues orgAttrValue "
                         + " INNER JOIN attributevalue attrValue ON attrValue.attributevalueid = orgAttrValue.attributevalueid "
-                        + " WHERE attrValue.attributeid = " + (int)orgMetaAttributeId.getValue() +" ";
+                        + " WHERE attrValue.attributeid = " + attributeid +" ";
                    
             }
             else if ( dataBaseInfo.getUser().equalsIgnoreCase( "mysql" ) )
             {
                 query = "SELECT orgAttrValue.organisationunitid, attrValue.attributeid, attrValue.value from organisationunitattributevalues orgAttrValue "
                     + " INNER JOIN attributevalue attrValue ON attrValue.attributevalueid = orgAttrValue.attributevalueid "
-                    + " WHERE attrValue.attributeid = " + (int)orgMetaAttributeId.getValue() +" ";
+                    + " WHERE attrValue.attributeid = " + attributeid +" ";
 
             }
             
