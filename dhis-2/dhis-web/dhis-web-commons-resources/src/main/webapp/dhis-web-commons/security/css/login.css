@@ -9,7 +9,7 @@ html,body
 {
   background-color: #1d5288;  
   color: white;
-  font-size: 11.5px;
+  font-size: 0.750em;
 }
 
 a
@@ -82,8 +82,8 @@ a:hover
 {
 float:left;
 width:25%;
-margin-left:35px;
-margin-right:70px;
+margin-left:2.188em;
+margin-right:4.375em;
 }
 
 
@@ -145,16 +145,14 @@ margin-right:70px;
   position: absolute;
   bottom: 0;
   left: 0;
-  padding: 8px 0 7px 0;
-  font-size: 13px;
+  padding: 0.500em 0 0.438em 0;
+  font-size: 1.250em;
   border-top: 1px solid #416f9d;
   color: #6b90b8;
   width: 100%;
 }
  #mid
 {
-margin-left: 15px;
-margin-right:70px;
  width: 100%;
 }
 .innerFooterArea

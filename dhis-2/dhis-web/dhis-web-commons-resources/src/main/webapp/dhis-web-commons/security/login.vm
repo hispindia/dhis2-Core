@@ -15,20 +15,20 @@
 </head>
 
 
-    <body class="loginPage">
+    <body class="loginPage" scroll="no" style="overflow: hidden">
 
        <h1 style="display:none">UPHMIS</h1>
     <div style="display:none">DHIS 2</div>
     <div align="center" id="mid" >
-        <img src="./img/logo1new.png" />
+        <img src="./img/logo1new.png" style="max-width: 100%; max-height: 100%;"/>
     </div>
     <br/>
     <br/>
        <h2 align="middle">Uttar Pradesh Health Management Information System</h2>&nbsp;
-        <div id="loginField" style="margin-top: 1px; margin-bottom: 1px; margin-right: 50px; margin-left: 50px;">
+        <div id="loginField" style="margin-top: 1px; margin-bottom: 1px; margin-right: 10.525em; margin-left: 10.525em;">
 
                 <div id="quick">
-            <table  align="left" style="background-color:white; padding-left:10px;padding-right:10px;padding-top:5px;padding-bottom:5px;">
+            <table  align="left" style="background-color:white; padding-left:0.625em;padding-right:0.625em;padding-top:5px;padding-bottom:5px;">
                 <tr align="center">
                     <td>
                         <h3><span style="color:#1D5288;"><u>Quick Links</u></span></h3>
@@ -101,13 +101,13 @@
     <br/>
     <div id="footerArea" align="middle">
         <div align="center" id="mid">
-            <img src="img/logo2new.png" />
+            <img src="img/logo2new.png"  style="max-width: 100%; max-height: 100%;"/>
         </div>
         <span id="poweredByLabel">Powered by</span>
         <a href="http://www.dhis2.org">DHIS 2</a>&nbsp;<a href="http://www.hispindia.org">(HISP India)</a>&nbsp;
         <span id="applicationFooter"></span>
 
-        <select id="localeSelect" onchange="login.localeChanged()" style="margin-left: 30px">
+     <!-- <select id="localeSelect" onchange="login.localeChanged()" style="margin-left: 30px">
         		<option value="">[ Change language ]</option>
         		        		<option value="ar">Arabic</option>
 		                		<option value="ar">Arabic (Iraq)</option>
@@ -133,7 +133,7 @@
 		                		<option value="tet">Tetum</option>
 		                		<option value="ur">Urdu</option>
 		                		<option value="vi">Vietnamese</option>
-		        	        </select>
+		        	        </select> -->
 
     </div>
 
