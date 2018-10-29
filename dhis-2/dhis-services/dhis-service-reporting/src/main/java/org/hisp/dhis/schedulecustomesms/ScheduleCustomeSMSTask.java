@@ -499,7 +499,7 @@ public class ScheduleCustomeSMSTask
         if ( currentDate.equalsIgnoreCase( "01" ) )
         {
             List<String> monthlyMessages = new ArrayList<String>();
-            monthlyMessages.add( "स्वस्थ जीवनको लागि नियमित स्वास्थ्य जांच तथा अन्य संक्रमणको पनि  जांच गराउनुहोला ।" );
+            monthlyMessages.add( "स्वस्थ जीवनको लागि नियमित स्वास्थ्य  जांच गराउनुहोला ।" );
             try
             {
                 scheduledCustomeSMS( mobileNumbers, monthlyMessages );
@@ -668,18 +668,26 @@ public class ScheduleCustomeSMSTask
 
                         if ( teaValue != null )
                         {
-                            System.out
-                                .println( tei.getId() + " -- " + teaValue.getValue() + " -- " + orgUnit.getName() );
+                            System.out.println( tei.getId() + " -- " + teaValue.getValue() + " -- " + orgUnit.getName() );
                             if ( teaValue.getValue() != null && teaValue.getValue().length() == 10 )
                             {
-                                String customMessagePillPick = "तपाइको औषधि लिने बेला भयो,तपाई  मिति  " + dueDate
-                                    + " मा  " + orgUnit.getName() + " को ए आर टि केन्द्रमा आउनुहोला  |";
-                                
-                                String customMessageTBScreening = "क्षयरोग (टि. बी) को जोखिमबाट बच्न मिति  " + dueDate
-                                    + " मा " + orgUnit.getName() + " मा क्षयरोग (टि. बी) को जांच गर्न आउनुहोला | ";
-
+                                String customMessagePillPick = "";
+                                String customMessageTBScreening = "";
+                                if( todayDate.equalsIgnoreCase( twoDayAfterDateString ) )
+                                {
+                                    customMessagePillPick = "तपाइको औषधि लिने बेला भयो,तपाई  " + orgUnit.getName() + "  को केन्द्रमा आउनुहोला |";
+                                    
+                                    customMessageTBScreening = "क्षयरोग (टि. बी) को जोखिमबाट बच्न   " + orgUnit.getName() + " मा क्षयरोग (टि. बी) को जांच गर्न आउनुहोला | ";
+                                }
+                                else
+                                {
+                                    customMessagePillPick = "तपाइको औषधि लिने बेला भयो,तपाई  मिति  " + dueDate  + " गते  " + orgUnit.getName() + " को केन्द्रमा आउनुहोला  |";
+                                    
+                                    customMessageTBScreening = "क्षयरोग (टि. बी) को जोखिमबाट बच्न मिति  " + dueDate  + " गते " + orgUnit.getName() + " मा क्षयरोग (टि. बी) को जांच गर्न आउनुहोला | ";
+                                }
                                 bulkSMSHTTPInterface.sendSMS( customMessagePillPick, teaValue.getValue() );
                                 bulkSMSHTTPInterface.sendSMS( customMessageTBScreening, teaValue.getValue() );
+                                
                                 System.out.println( teaValue.getValue() + " -------- > " + customMessagePillPick
                                     + " -------- >" + customMessageTBScreening );
                             }
@@ -753,12 +761,11 @@ public class ScheduleCustomeSMSTask
 
                         if ( teaValue != null )
                         {
-                            System.out
-                                .println( tei.getId() + " -- " + teaValue.getValue() + " -- " + orgUnit.getName() );
+                            System.out.println( tei.getId() + " -- " + teaValue.getValue() + " -- " + orgUnit.getName() );
                             if ( teaValue.getValue() != null && teaValue.getValue().length() == 10 )
                             {
                                 String customMessage = "६ महिना भयो, CD4 गर्न मिति    "
-                                    + simpleDateFormat.format( sixMonthAfterDate ) + " मा  " + orgUnit.getName() + " को ए आर टि केन्द्रमा आउनुहोला |";
+                                    + simpleDateFormat.format( sixMonthAfterDate ) + " मा  " + orgUnit.getName() + " को केन्द्रमा आउनुहोला |";
                                 bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
                                 System.out.println( teaValue.getValue() + " -------- > " + customMessage );
                             }
@@ -831,9 +838,18 @@ public class ScheduleCustomeSMSTask
                             if ( todayDate.equalsIgnoreCase( threeDayBeforeDateString )
                                 || todayDate.equalsIgnoreCase( twoDayAfterDateString ) )
                             {
-                                String customMessage = "भाइरल लोड जाचँ को लागि मिति   "
-                                    + simpleDateFormat.format( sixMonthAfterDate ) + " मा " + orgUnit.getName()
-                                    + " को ए आर टि केन्द्रमा आउनुहोला |";
+                                String customMessage = "";
+                                
+                                if( todayDate.equalsIgnoreCase( twoDayAfterDateString ))
+                                {
+                                    customMessage = "भाइरल लोड जाचँ को लागि  " + orgUnit.getName()  + " को  केन्द्रमा आउनुहोला |";
+                                }
+                                else
+                                {
+                                    customMessage = "भाइरल लोड जाचँ को लागि मिति   " + simpleDateFormat.format( sixMonthAfterDate ) + " गते " + orgUnit.getName()
+                                        + " को  केन्द्रमा आउनुहोला |";
+                                }
+                                
                                 bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
                                 System.out.println( teaValue.getValue() + " -------- > " + customMessage );
                             }
@@ -870,9 +886,18 @@ public class ScheduleCustomeSMSTask
                             if ( todayDate.equalsIgnoreCase( threeDayBeforeDateString )
                                 || todayDate.equalsIgnoreCase( twoDayAfterDateString ) )
                             {
-                                String customMessage = "भाइरल लोड जाचँ को लागि मिति   "
-                                    + simpleDateFormat.format( sixMonthAfterDate ) + " मा  " + orgUnit.getName()
-                                    + " को ए आर टि केन्द्रमा आउनुहोला |";
+                                String customMessage = "";
+                                
+                                if( todayDate.equalsIgnoreCase( twoDayAfterDateString ))
+                                {
+                                    customMessage = "भाइरल लोड जाचँ को लागि   " + orgUnit.getName() + " को  केन्द्रमा आउनुहोला |";
+                                }
+                                else
+                                {
+                                    customMessage = "भाइरल लोड जाचँ को लागि मिति "   + simpleDateFormat.format( sixMonthAfterDate ) + " गते  " + orgUnit.getName()
+                                        + " को  केन्द्रमा आउनुहोला |";
+                                }       
+                                
                                 bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
                                 System.out.println( teaValue.getValue() + " -------- > " + customMessage );
                             }
@@ -1250,9 +1275,17 @@ public class ScheduleCustomeSMSTask
                             if ( todayDate.equalsIgnoreCase( threeDayBeforeDateString )
                                 || todayDate.equalsIgnoreCase( twoDayAfterDateString ) )
                             {
-                                String customMessage = "तपाईको बच्चा जन्मेको ६ हफ्ता भित्रमा जाच  गराउन  "
-                                    + orgUnit.getName() + " मा " + simpleDateFormat.format( fourWeekAfterDate )
-                                    + " गते  ल्याउनु होला |";
+                                String customMessage = "";
+                                if( todayDate.equalsIgnoreCase( twoDayAfterDateString ) )
+                                {
+                                    customMessage = "तपाईको बच्चा जन्मेको ६ हफ्ता भित्रमा जाच  गराउन  "  + orgUnit.getName() + " मा   ल्याउनु होला |";
+                                }
+                                else
+                                {
+                                    customMessage = "तपाईको बच्चा जन्मेको ६ हफ्ता भित्रमा जाच  गराउन  " + orgUnit.getName() + " मा " + simpleDateFormat.format( fourWeekAfterDate )
+                                        + " गते  ल्याउनु होला |";
+                                }
+                                
                                 bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
                                 System.out.println( " inside schedule SMS " + teaValue.getValue() + " -------- > "
                                     + customMessage );
