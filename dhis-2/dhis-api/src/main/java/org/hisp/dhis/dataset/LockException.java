@@ -76,7 +76,8 @@ public class LockException
         }
 
         //return dataSet.getName() + " (" + organisationUnit.getName() + ", " + period.getName() + ")";
-        return dataSet.getName() + " (" + getHierarchyOrgunit( organisationUnit ) + organisationUnit.getName() + ", " + period.getName() + ")";
+        //return dataSet.getName() + " (" + getHierarchyOrgunit( organisationUnit ) + organisationUnit.getName() + ", " + period.getName() + ")";
+        return  getHierarchyOrgunit( organisationUnit );
     }
 
     public int getId()
