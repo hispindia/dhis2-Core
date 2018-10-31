@@ -31,7 +31,7 @@
     "pivot-app": "github:d2-ci/pivot-tables-app#v30",
     "scheduler-app": "github:d2-ci/scheduler-app#v30",
     "settings-app": "github:d2-ci/settings-app#v30",
-    "tracker-capture-app": "github:d2-ci/tracker-capture-app#v30",
+    "tracker-capture-app": "github:hispindia/dhis-tracker-capture-app-build#UPHMIS-v30",
     "translations-app": "github:d2-ci/translations-app#v30",
     "usage-analytics-app": "github:d2-ci/usage-analytics-app#v30",
     "user-app": "github:d2-ci/user-app#v30",
