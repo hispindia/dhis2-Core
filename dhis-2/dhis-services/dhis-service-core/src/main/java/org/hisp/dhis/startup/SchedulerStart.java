@@ -28,9 +28,25 @@ package org.hisp.dhis.startup;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import static org.hisp.dhis.scheduling.JobType.AUTO_APPROVE_TRACKER_DATA;
+import static org.hisp.dhis.scheduling.JobType.CREDENTIALS_EXPIRY_ALERT;
+import static org.hisp.dhis.scheduling.JobType.DATA_SET_NOTIFICATION;
+import static org.hisp.dhis.scheduling.JobType.DATA_STATISTICS;
+import static org.hisp.dhis.scheduling.JobType.FILE_RESOURCE_CLEANUP;
+import static org.hisp.dhis.scheduling.JobType.KAFKA_TRACKER;
+import static org.hisp.dhis.scheduling.JobType.LEADER_ELECTION;
+import static org.hisp.dhis.scheduling.JobType.REMOVE_EXPIRED_RESERVED_VALUES;
+import static org.hisp.dhis.scheduling.JobType.VALIDATION_RESULTS_NOTIFICATION;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hisp.dhis.message.MessageService;
+import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.scheduling.JobConfiguration;
 import org.hisp.dhis.scheduling.JobConfigurationService;
 import org.hisp.dhis.scheduling.JobStatus;
@@ -41,14 +57,11 @@ import org.hisp.dhis.system.SystemService;
 import org.hisp.dhis.system.startup.AbstractStartupRoutine;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
 import static org.hisp.dhis.scheduling.JobStatus.FAILED;
 import static org.hisp.dhis.scheduling.JobStatus.SCHEDULED;
+import static org.hisp.dhis.scheduling.JobStatus.COMPLETED;
 import static org.hisp.dhis.scheduling.JobType.*;
+
 
 /**
  * Reschedule old jobs and execute jobs which were scheduled when the server was
@@ -65,6 +78,8 @@ public class SchedulerStart extends AbstractStartupRoutine
     private final String CRON_DAILY_2AM = "0 0 2 ? * *";
 
     private final String CRON_DAILY_7AM = "0 0 7 ? * *";
+    
+    private final String CRON_DAILY_16PM = "0 0 16 * * ?";
 
     private final String LEADER_JOB_CRON_FORMAT = "0 0/%s * * * *";
 
@@ -83,6 +98,8 @@ public class SchedulerStart extends AbstractStartupRoutine
     private final String DEFAULT_KAFKA_TRACKER = "Kafka Tracker Consume";
 
     private final String DEFAULT_LEADER_ELECTION = "Leader election in cluster";
+    
+    private final String DEFAULT_AUTO_APPROVE_TRACKER_DATA = "Auto Approve Tracker Data";
 
     @Autowired
     private SystemSettingManager systemSettingManager;
@@ -243,6 +260,16 @@ public class SchedulerStart extends AbstractStartupRoutine
             leaderElectionJobConfiguration.setLeaderOnlyJob( false );
             addAndScheduleJob( leaderElectionJobConfiguration );
         }
+        
+        // for UPHMIS auto approve tracker data
+        if ( verifyNoJobExist( DEFAULT_AUTO_APPROVE_TRACKER_DATA, jobConfigurations ) )
+        {
+            JobConfiguration scheduleAutoApproveTrackerDataJob = new JobConfiguration( DEFAULT_AUTO_APPROVE_TRACKER_DATA,
+                AUTO_APPROVE_TRACKER_DATA, CRON_DAILY_16PM, null, true, true );
+            scheduleAutoApproveTrackerDataJob.setLeaderOnlyJob( true );
+            addAndScheduleJob( scheduleAutoApproveTrackerDataJob );
+        }
+        
         else
         {
             checkLeaderElectionJobConfiguration( jobConfigurations );

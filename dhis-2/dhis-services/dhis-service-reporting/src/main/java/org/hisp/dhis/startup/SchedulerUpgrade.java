@@ -28,10 +28,26 @@ package org.hisp.dhis.startup;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.google.api.client.util.Sets;
+import static org.hisp.dhis.scheduling.JobType.ANALYTICS_TABLE;
+import static org.hisp.dhis.scheduling.JobType.DATA_SYNC;
+import static org.hisp.dhis.scheduling.JobType.META_DATA_SYNC;
+import static org.hisp.dhis.scheduling.JobType.MONITORING;
+import static org.hisp.dhis.scheduling.JobType.PROGRAM_NOTIFICATIONS;
+import static org.hisp.dhis.scheduling.JobType.PUSH_ANALYSIS;
+import static org.hisp.dhis.scheduling.JobType.RESOURCE_TABLE;
+import static org.hisp.dhis.scheduling.JobType.SEND_SCHEDULED_MESSAGE;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hisp.dhis.common.ListMap;
+import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.pushanalysis.PushAnalysisService;
 import org.hisp.dhis.scheduling.JobConfiguration;
 import org.hisp.dhis.scheduling.JobConfigurationService;
@@ -41,11 +57,7 @@ import org.hisp.dhis.setting.SystemSettingManager;
 import org.hisp.dhis.system.startup.AbstractStartupRoutine;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.transaction.Transactional;
-import java.util.HashMap;
-import java.util.Map;
 
-import static org.hisp.dhis.scheduling.JobType.*;
 
 /**
  * Handles porting from the old scheduler to the new.
@@ -114,7 +126,7 @@ public class SchedulerUpgrade
             JobConfiguration scheduledProgramNotifications = new JobConfiguration( "Scheduled program notifications",
                 PROGRAM_NOTIFICATIONS, null, null, false, true );
             SchedulerStart.portJob( systemSettingManager, scheduledProgramNotifications, "keyLastSuccessfulScheduledProgramNotifications" );
-
+            
             HashMap<String, JobConfiguration> standardJobs = new HashMap<String, JobConfiguration>()
             {{
                 put( "resourceTable", resourceTable );

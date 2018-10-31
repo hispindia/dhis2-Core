@@ -31,7 +31,7 @@
     "pivot-app": "github:dhis2/pivot-tables-app-builds#v30",
     "scheduler-app": "github:dhis2/scheduler-app-builds#v30",
     "settings-app": "github:dhis2/settings-app-builds#v30",
-    "tracker-capture-app": "github:dhis2/tracker-capture-app-builds#v30",
+	"tracker-capture-app": "github:dhis2/tracker-capture-app-builds#v30",
     "translations-app": "github:dhis2/translations-app-builds#v30",
     "usage-analytics-app": "github:dhis2/usage-analytics-app-builds#v30",
     "user-app": "github:dhis2/user-app-builds#v30",

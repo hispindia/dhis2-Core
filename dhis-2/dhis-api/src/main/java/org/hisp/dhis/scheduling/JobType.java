@@ -76,6 +76,10 @@ public enum JobType
     REMOVE_EXPIRED_RESERVED_VALUES( "removeExpiredReservedValuesJob", false, null, null ),
     KAFKA_TRACKER( "kafkaTrackerJob", false, null, null ),
 
+    // for UPHMIS AUTO_APPROVE_TRACKER_DATA
+   
+    AUTO_APPROVE_TRACKER_DATA( "scheduleAutoApproveTrackerDataJob", true, null, null ),
+        
     // For tests
     MOCK( "mockJob", false, MockJobParameters.class, null ),
 
@@ -91,6 +95,9 @@ public enum JobType
     LEADER_ELECTION( "leaderElectionJob", false, null, null ),
     LEADER_RENEWAL( "leaderRenewalJob", false, null, null ),
     COMPLETE_DATA_SET_REGISTRATION_IMPORT( null, false, null, null );
+    
+    
+    
 
     private final String key;
 
