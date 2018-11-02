@@ -27,7 +27,7 @@
     "pivot-app": "github:d2-ci/pivot-tables-app#v29",
     "scheduler-app": "github:d2-ci/scheduler-app#2.29",
     "settings-app": "github:d2-ci/settings-app#v29",
-    "tracker-capture-app": "github:d2-ci/tracker-capture-app#v29",
+    "tracker-capture-app": "github:hispindia/dhis-tracker-capture-app-build#PLAN-v29",
     "translations-app": "github:d2-ci/translations-app#v29",
     "usage-analytics-app": "github:d2-ci/usage-analytics-app#v29",
     "user-profile-app": "github:d2-ci/user-profile-app#v29"
