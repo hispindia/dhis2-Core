@@ -1247,6 +1247,13 @@ public abstract class AbstractEventService
 
         if ( programStageInstance != null )
         {
+            List<String> errors = trackerAccessManager.canWrite( currentUserService.getCurrentUser(), programStageInstance );
+
+            if ( !errors.isEmpty() )
+            {
+                return new ImportSummary( ImportStatus.ERROR, errors.toString() );
+            }
+            
             programStageInstanceService.deleteProgramStageInstance( programStageInstance );
             return new ImportSummary( ImportStatus.SUCCESS, "Deletion of event " + uid + " was successful" )
                 .incrementDeleted();
@@ -1386,7 +1393,7 @@ public abstract class AbstractEventService
         }
         else
         {
-            aoc = (DataElementCategoryOptionCombo) defaultObjectsCache.get( DataElementCategoryOptionCombo.class );
+            aoc = ( DataElementCategoryOptionCombo ) getDefaultObject( DataElementCategoryOptionCombo.class );
         }
 
         if ( aoc != null && aoc.isDefault() && program.getCategoryCombo() != null && !program.getCategoryCombo().isDefault() )
@@ -1394,6 +1401,17 @@ public abstract class AbstractEventService
             importSummary.getConflicts().add( new ImportConflict( "attributeOptionCombo", "Default attribute option combo is not allowed since program has non-default category combo" ) );
             importSummary.setStatus( ImportStatus.ERROR );
             return importSummary.incrementIgnored();
+        }
+
+        List<String> errors = trackerAccessManager.canWrite( user, aoc );
+
+        if ( !errors.isEmpty() )
+        {
+            importSummary.setStatus( ImportStatus.ERROR );
+            importSummary.getConflicts().addAll( errors.stream().map( s -> new ImportConflict( "CategoryOptionCombo", s ) ).collect( Collectors.toList() ) );
+            importSummary.incrementIgnored();
+
+            return importSummary;
         }
 
         if ( !dryRun )
@@ -1714,6 +1732,11 @@ public abstract class AbstractEventService
         } );
     }
 
+    private IdentifiableObject getDefaultObject( Class<? extends IdentifiableObject> key )
+    {
+        return defaultObjectsCache.get( key, () -> manager.getByName( DataElementCategoryOptionCombo.class , "default" ) );
+    }
+
     @Override
     public void validate( EventSearchParams params )
         throws IllegalQueryException
@@ -1978,7 +2001,7 @@ public abstract class AbstractEventService
 
         if ( attrOptCombo == null )
         {
-            attrOptCombo = (DataElementCategoryOptionCombo) defaultObjectsCache.get( DataElementCategoryOptionCombo.class );
+            attrOptCombo = ( DataElementCategoryOptionCombo ) getDefaultObject( DataElementCategoryOptionCombo.class );
         }
 
         if ( attrOptCombo == null )
@@ -2011,7 +2034,5 @@ public abstract class AbstractEventService
             query.add( Restrictions.in( "id", dataElements ) );
             queryService.query( query ).forEach( de -> dataElementCache.put( de.getUid(), (DataElement) de ) );
         }
-
-        defaultObjectsCache.put( DataElementCategoryOptionCombo.class, manager.getByName( DataElementCategoryOptionCombo.class , "default" ) );
     }
 }

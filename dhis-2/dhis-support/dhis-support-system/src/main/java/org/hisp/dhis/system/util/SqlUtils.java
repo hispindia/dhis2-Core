@@ -1,4 +1,11 @@
-package org.hisp.dhis.analytics.partition;
+package org.hisp.dhis.system.util;
+
+import java.sql.Array;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Set;
+
+import com.google.common.collect.Sets;
 
 /*
  * Copyright (c) 2004-2018, University of Oslo
@@ -28,34 +35,43 @@ package org.hisp.dhis.analytics.partition;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import java.util.Set;
-
 /**
- * Manager for analytics table partitions.
+ * Utilities for SQL operations, compatible with PostgreSQL
+ * and H2 database platforms.
  *
  * @author Lars Helge Overland
  */
-public interface PartitionManager
+public class SqlUtils
 {
-    /**
-     * Returns a set of names of current data value analytics partitions.
-     */
-    Set<String> getDataValueAnalyticsPartitions();
+    public static final String QUOTE = "\"";
 
     /**
-     * Returns a set of names of current event analytics partitions.
-     */
-    Set<String> getEventAnalyticsPartitions();
-
-    /**
-     * Indicates whether the given analytics table exists.
+     * Quotes the given relation (typically a column). Quotes part of
+     * the given relation are encoded (replaced by double quotes that is).
      *
-     * @param table the analytics table name.
+     * @param relation the relation (typically a column).
+     * @return the quoted relation.
      */
-    boolean tableExists( String table );
+    public static String quote( String relation )
+    {
+        String rel = relation.replaceAll( QUOTE, ( QUOTE + QUOTE ) );
+
+        return QUOTE + rel + QUOTE;
+    }
 
     /**
-     * Clears the partition name caches.
+     * Returns a string set for the given result set and column. Assumes
+     * that the SQL type is an array of text values.
+     *
+     * @param rs the result set.
+     * @param columnLabel the column label.
+     * @return a string set.
      */
-    void clearCaches();
+    public static Set<String> getArrayAsSet( ResultSet rs, String columnLabel )
+        throws SQLException
+    {
+        Array sqlArray = rs.getArray( columnLabel );
+        String[] array = (String[]) sqlArray.getArray();
+        return Sets.newHashSet( array );
+    }
 }
