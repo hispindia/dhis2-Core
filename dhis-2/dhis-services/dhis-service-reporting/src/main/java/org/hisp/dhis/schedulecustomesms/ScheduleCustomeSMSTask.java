@@ -325,7 +325,7 @@ public class ScheduleCustomeSMSTask
             //Pregnant female clients
             if ( currentDate.equalsIgnoreCase( "13" ) )
             {
-                String trimesterMessage = "स्वास्थ्य संस्थामा सुत्केरी गराऔं, आमा र बच्चा दुवैको स्वास्थ्य पक्का गराऔं .";
+                String trimesterMessage = "स्वास्थ्य संस्थामा सुत्केरी गराऔं, आमा र बच्चा दुवैको स्वास्थ्य पक्का गराऔं |";
                 try
                 {
                     tempScheduledAwarenessEIDSMS( teiList, trimesterMessage );
@@ -360,7 +360,7 @@ public class ScheduleCustomeSMSTask
             //Married Male and Female clients
             if ( currentDate.equalsIgnoreCase( "09" ) )
             {
-                String quarterlyMessage = "स्वास्थ्य संस्थामा सुत्केरी गराऔ, आमा र बच्चा दुवैको स्वास्थ्य पक्का गराऔं.";
+                String quarterlyMessage = "स्वास्थ्य संस्थामा सुत्केरी गराऔ, आमा र बच्चा दुवैको स्वास्थ्य पक्का गराऔं |";
                 try
                 {
                     scheduledAwarenessCustomeSMS( teiList, quarterlyMessage );
@@ -389,7 +389,7 @@ public class ScheduleCustomeSMSTask
             //Female clients (20 years and above)
             if ( currentDate.equalsIgnoreCase( "11" ) )
             {
-                String quarterlyMessage = "नियमित पाठेघरको जांच गराऔ ,पछि हुन सक्ने समस्यालाई अहिले नै पत्ता लगाऔं .";
+                String quarterlyMessage = "नियमित पाठेघरको जांच गराऔ ,पछि हुन सक्ने समस्यालाई अहिले नै पत्ता लगाऔं |";
                 try
                 {
                     tempScheduledAwarenessCustomeSMS( teiList, quarterlyMessage );
@@ -443,7 +443,7 @@ public class ScheduleCustomeSMSTask
             if ( currentDate.equalsIgnoreCase( "02" ) )
             {
                 List<String> trimesterMessages = new ArrayList<String>();
-                trimesterMessages.add( "भाइरल लोड जाँच गराई शरिरमा भाइरसको अवस्था थाहा पाउनुहोस् ." );
+                trimesterMessages.add( "भाइरल लोड जाँच गराई शरिरमा भाइरसको अवस्था थाहा पाउनुहोस् |" );
                 try
                 {
                     scheduledCustomeSMS( mobileNumbers, trimesterMessages );
@@ -462,7 +462,7 @@ public class ScheduleCustomeSMSTask
             if ( currentDate.equalsIgnoreCase( "05" ) )
             {
                 List<String> biannualMessages = new ArrayList<String>();
-                biannualMessages.add( "भाइरल लोड जाँचले तपाईको अवस्था मात्र होइन तपाईको नजिकको साथीलाई पनि सुरक्षित राख्छ ." );
+                biannualMessages.add( "भाइरल लोड जाँचले तपाईको अवस्था मात्र होइन तपाईको नजिकको साथीलाई पनि सुरक्षित राख्छ |" );
                 try
                 {
                     scheduledCustomeSMS( mobileNumbers, biannualMessages );
@@ -549,7 +549,7 @@ public class ScheduleCustomeSMSTask
             if ( currentDate.equalsIgnoreCase( "08" ) )
             {
                 List<String> bimonthlyMessages = new ArrayList<String>();
-                bimonthlyMessages.add( "नियमित औषधिको सेवन, अवसरबादी समस्या रहित जीवन ." );
+                bimonthlyMessages.add( "नियमित औषधिको सेवन, अवसरबादी समस्या रहित जीवन |" );
                 try
                 {
                     scheduledCustomeSMS( mobileNumbers, bimonthlyMessages );
