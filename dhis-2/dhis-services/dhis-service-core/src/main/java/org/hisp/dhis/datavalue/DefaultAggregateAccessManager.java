@@ -32,21 +32,33 @@ package org.hisp.dhis.datavalue;
 
 import org.hisp.dhis.dataelement.DataElementCategoryOption;
 import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
+import org.hisp.dhis.commons.util.SystemUtils;
+
 import org.hisp.dhis.dataelement.DataElementOperand;
 import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.security.acl.AclService;
 import org.hisp.dhis.user.User;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Viet Nguyen <viet@dhis2.org>
  */
-public class DefaultAggregateAccessManager implements AggregateAccessManager
+public class DefaultAggregateAccessManager
+    implements AggregateAccessManager
 {
+    private static final Cache<String, List<String>> CAN_DATA_WRITE_COC_CACHE = Caffeine.newBuilder()
+        .expireAfterWrite( 3, TimeUnit.HOURS )
+        .initialCapacity( 1000 )
+        .maximumSize( SystemUtils.isTestRun() ? 0 : 10000 ).build();
+
     private final AclService aclService;
 
     public DefaultAggregateAccessManager( AclService aclService )
@@ -54,41 +66,9 @@ public class DefaultAggregateAccessManager implements AggregateAccessManager
         this.aclService = aclService;
     }
 
-    @Override
-    public List<String> canWrite( User user, DataValue dataValue )
-    {
-        List<String> errors = new ArrayList<>();
-
-        if ( user == null || user.isSuper() )
-        {
-            return errors;
-        }
-
-        Set<DataElementCategoryOption> options = new HashSet<>();
-
-        DataElementCategoryOptionCombo categoryOptionCombo = dataValue.getCategoryOptionCombo();
-
-        if ( categoryOptionCombo != null )
-        {
-            options.addAll( categoryOptionCombo.getCategoryOptions() );
-        }
-
-        DataElementCategoryOptionCombo attributeOptionCombo = dataValue.getAttributeOptionCombo();
-
-        if ( attributeOptionCombo != null )
-        {
-            options.addAll( attributeOptionCombo.getCategoryOptions() );
-        }
-
-        options.forEach( option -> {
-            if ( !aclService.canDataWrite( user, option ) )
-            {
-                errors.add( "User has no data write access for CategoryOption: " + option.getUid() );
-            }
-        } );
-
-        return errors;
-    }
+    // ---------------------------------------------------------------------
+    // AggregateAccessManager implementation
+    // ---------------------------------------------------------------------
 
     @Override
     public List<String> canRead( User user, DataValue dataValue )
@@ -183,6 +163,14 @@ public class DefaultAggregateAccessManager implements AggregateAccessManager
         } );
 
         return errors;
+    }
+
+    @Override
+    public List<String> canWriteCached( User user, DataElementCategoryOptionCombo optionCombo )
+    {
+        String cacheKey = user.getUid() + "-" + optionCombo.getUid();
+
+        return CAN_DATA_WRITE_COC_CACHE.get( cacheKey, key -> canWrite( user, optionCombo ) );
     }
 
     @Override
