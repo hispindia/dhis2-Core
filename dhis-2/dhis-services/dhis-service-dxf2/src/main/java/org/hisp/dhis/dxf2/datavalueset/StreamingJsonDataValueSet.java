@@ -29,6 +29,7 @@ package org.hisp.dhis.dxf2.datavalueset;
  */
 
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import org.apache.commons.io.IOUtils;
 import org.hisp.dhis.dxf2.datavalue.DataValue;
 import org.hisp.dhis.dxf2.datavalue.StreamingJsonDataValue;
@@ -112,6 +113,13 @@ public class StreamingJsonDataValueSet extends DataValueSet
         writeObjectField( FIELD_ATTRIBUTE_OPTION_COMBO, attributeOptionCombo );
     }
 
+    // add Properties for skip dataValue audit
+    @Override
+    public void setSkipDataValueAudit( String skipDataValueAudit )
+    {
+        writeObjectField( FIELD_SKIP_DATA_VALUE_AUDIT, skipDataValueAudit );
+    }    
+    
     @Override
     public DataValue getDataValueInstance()
     {

@@ -1225,5 +1225,27 @@
             <param name="onExceptionReturn">plainTextError</param>
         </action>
 
+        <!--Analysis Report -->
+        <action name="analysisReportAnalyser"
+            class="org.hisp.dhis.reports.analysis.action.GenerateAnalysisReportFormAction">
+            <result name="success" type="velocity">/main.vm</result>
+            <param name="page">/dhis-web-reports/analysisReportFront.vm</param>
+            <param name="menu">/dhis-web-reports/menuWithTreeForAnalysisReport.vm</param>
+            <param name="javascripts">../dhis-web-commons/ouwt/ouwt.js,javascript/reportManagement.js</param>
+            <param name="stylesheets">css/StylesForTags.css</param>
+            <param name="requiredAuthorities">F_REPORT_ANALYSIS</param>
+            <interceptor-ref name="organisationUnitTreeStack"/>
+        </action>
+        
+        <action name="generateAnalysisReport"
+            class="org.hisp.dhis.reports.analysis.action.GenerateAnalysisReportResultAction">
+            <result name="success" type="stream">
+                <param name="contentType">application/vnd.ms-excel</param>
+                <param name="inputName">inputStream</param>
+                <param name="contentDisposition">filename="${fileName}"</param>
+                <param name="bufferSize">1024</param>
+            </result>
+        </action>
+        
     </package>
 </struts>

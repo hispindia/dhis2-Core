@@ -654,20 +654,39 @@ excelUpload.controller('ImportFacilitywiseController',
 
                     var dataValue = {};
 					dataValue.period = $scope.confirmedUploads.periodVal;
-                    dataValue.dataElement = selectedTemp.DEMappings[x].metadata.split("-")[0];
                     dataValue.categoryOptionCombo = selectedTemp.DEMappings[x].metadata.split("-")[1];
-					/* org unit will be taken from input box
-					 var ouLabel = $scope.getImportData( selectedTemp.orgUnitCell.rn , selectedTemp.orgUnitCell.cn );
-					 dataValue.orgUnit = $scope.getOrgUnitByLabel( ouLabel );
-					 */
                     dataValue.orgUnit = orgUnit.id;
-                   // orgUnitUIDs.push(orgUnit.id );
-                   
-                    dataValue.value = $scope.getImportDataByAddress(cellAddress, orgUnit);
+                    dataValue.dataElement = selectedTemp.DEMappings[x].metadata.split("-")[0];
 
-                    /* *** */							//if( $scope.confirmedUploads.importEmptyVal == 2 )
-                    // dataValue.value = dataValue.value == "" ? "omit" : dataValue.value;
-                    // else
+                    $.get("../api/dataElements/"+dataValue.dataElement+".json?fields=valueType", function (data) {
+
+                        var deType = data.valueType;
+
+
+                        if(deType === "DATE")
+                        {
+                            var temp = $scope.getImportDataByAddress(cellAddress, orgUnit);
+                            var dd = temp.substring(0,2);
+                            var mm = temp.substring(2,4);
+                            var yy = temp.substring(4,8);
+    
+                            var date = yy+"-"+mm+"-"+dd;
+                            dataValue.value = date;
+                            console.log(dataValue.value);
+    
+                        
+                        }
+                        else
+                        {
+                            dataValue.value = $scope.getImportDataByAddress(cellAddress, orgUnit);
+    
+                        
+                        }
+                        
+                    });
+
+                   
+
                     dataValue.value = dataValue.value == "" ? "omit" : dataValue.value;
 
 
