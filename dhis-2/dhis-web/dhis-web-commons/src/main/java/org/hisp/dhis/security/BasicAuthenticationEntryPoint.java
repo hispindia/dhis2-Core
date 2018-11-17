@@ -1,4 +1,4 @@
-package org.hisp.dhis.resourcetable;
+package org.hisp.dhis.security;
 
 /*
  * Copyright (c) 2004-2018, University of Oslo
@@ -28,34 +28,44 @@ package org.hisp.dhis.resourcetable;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
-* @author Lars Helge Overland
-*/
-public enum ResourceTableType
-{
-    ORG_UNIT_STRUCTURE( "_orgunitstructure" ),
-    DATA_SET_ORG_UNIT_CATEGORY( "_datasetorganisationunitcategory" ),
-    CATEGORY_OPTION_COMBO_NAME( "_categoryoptioncomboname" ),
-    DATA_ELEMENT_GROUP_SET_STRUCTURE( "_dataelementgroupsetstructure" ),
-    INDICATOR_GROUP_SET_STRUCTURE( "_indicatorgroupsetstructure" ),
-    ORG_UNIT_GROUP_SET_STRUCTURE( "_organisationunitgroupsetstructure" ),
-    CATEGORY_STRUCTURE( "_categorystructure" ),
-    DATA_ELEMENT_STRUCTURE( "_dataelementstructure" ),
-    PERIOD_STRUCTURE( "_periodstructure" ),
-    DATE_PERIOD_STRUCTURE( "_dateperiodstructure" ),
-    DATA_ELEMENT_CATEGORY_OPTION_COMBO( "_dataelementcategoryoptioncombo" ),
-    DATA_APPROVAL_REMAP_LEVEL( "_dataapprovalremaplevel" ),
-    DATA_APPROVAL_MIN_LEVEL( "_dataapprovalminlevel" );
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.hisp.dhis.dxf2.webmessage.WebMessageUtils;
+import org.hisp.dhis.render.RenderService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
 
-    private String tableName;
-    
-    ResourceTableType( String tableName )
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+/**
+ * @author Viet Nguyen <viet@dhis2.org>
+ */
+public class BasicAuthenticationEntryPoint
+    implements AuthenticationEntryPoint
+{
+    @Autowired
+    private RenderService renderService;
+
+    @Override
+    public void commence( HttpServletRequest request, HttpServletResponse response, AuthenticationException authException ) throws IOException
     {
-        this.tableName = tableName;
-    }
-    
-    public String getTableName()
-    {
-        return tableName;
+        String message;
+
+        if ( ExceptionUtils.indexOfThrowable( authException, LockedException.class ) != -1 )
+        {
+            message = "Account locked" ;
+        }
+        else
+        {
+            message = "Unauthorized";
+        }
+
+        response.setStatus( HttpServletResponse.SC_UNAUTHORIZED );
+        response.setContentType( MediaType.APPLICATION_JSON_UTF8_VALUE );
+        renderService.toJson( response.getOutputStream(), WebMessageUtils.unathorized( message ) );
     }
 }
