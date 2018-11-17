@@ -1,4 +1,4 @@
-package org.hisp.dhis.resourcetable;
+package org.hisp.dhis.security.ldap.authentication;
 
 /*
  * Copyright (c) 2004-2018, University of Oslo
@@ -28,34 +28,39 @@ package org.hisp.dhis.resourcetable;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
-* @author Lars Helge Overland
-*/
-public enum ResourceTableType
-{
-    ORG_UNIT_STRUCTURE( "_orgunitstructure" ),
-    DATA_SET_ORG_UNIT_CATEGORY( "_datasetorganisationunitcategory" ),
-    CATEGORY_OPTION_COMBO_NAME( "_categoryoptioncomboname" ),
-    DATA_ELEMENT_GROUP_SET_STRUCTURE( "_dataelementgroupsetstructure" ),
-    INDICATOR_GROUP_SET_STRUCTURE( "_indicatorgroupsetstructure" ),
-    ORG_UNIT_GROUP_SET_STRUCTURE( "_organisationunitgroupsetstructure" ),
-    CATEGORY_STRUCTURE( "_categorystructure" ),
-    DATA_ELEMENT_STRUCTURE( "_dataelementstructure" ),
-    PERIOD_STRUCTURE( "_periodstructure" ),
-    DATE_PERIOD_STRUCTURE( "_dateperiodstructure" ),
-    DATA_ELEMENT_CATEGORY_OPTION_COMBO( "_dataelementcategoryoptioncombo" ),
-    DATA_APPROVAL_REMAP_LEVEL( "_dataapprovalremaplevel" ),
-    DATA_APPROVAL_MIN_LEVEL( "_dataapprovalminlevel" );
+import org.hisp.dhis.external.conf.DhisConfigurationProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
+import org.springframework.security.ldap.authentication.LdapAuthenticator;
+import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 
-    private String tableName;
-    
-    ResourceTableType( String tableName )
+/**
+ * @author Viet Nguyen <viet@dhis2.org>
+ */
+public class CustomLdapAuthenticationProvider
+    extends LdapAuthenticationProvider
+{
+    @Autowired
+    private DhisConfigurationProvider configurationProvider;
+
+    public CustomLdapAuthenticationProvider( LdapAuthenticator authenticator, LdapAuthoritiesPopulator authoritiesPopulator )
     {
-        this.tableName = tableName;
+        super( authenticator, authoritiesPopulator );
     }
-    
-    public String getTableName()
+
+    public CustomLdapAuthenticationProvider( LdapAuthenticator authenticator )
     {
-        return tableName;
+       super( authenticator );
+    }
+
+    @Override
+    public boolean supports( Class<?> authentication )
+    {
+        if ( !configurationProvider.isLdapConfigured() )
+        {
+            return false;
+        }
+
+        return super.supports( authentication );
     }
 }
