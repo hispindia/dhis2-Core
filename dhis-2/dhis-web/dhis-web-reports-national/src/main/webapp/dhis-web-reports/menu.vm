@@ -50,6 +50,10 @@
 			<li><a href = "metaDataReportAnalyser.action">Meta Data Reports</a></li>
 		#end		
 		
+		#if( $auth.hasAccess( "dhis-web-reports", "analysisReportAnalyser") )
+			<li><a href = "analysisReportAnalyser.action">Analysis Reports</a></li>
+		#end			
+		
 		<!--
 		#if( $auth.hasAccess( "dhis-web-reports", "linelistingWebPortalReportAnalyser") )
 			<li><a href = "linelistingWebPortalReportAnalyser.action">Linelisting WebPortal Reports</a></li>

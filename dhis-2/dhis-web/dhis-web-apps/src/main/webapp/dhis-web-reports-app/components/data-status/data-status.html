@@ -225,7 +225,7 @@ td {
 		</div>
 		
 		<div id="modal-footer"  class="col-md-10 col-md-offset-1">
-		  <button type="button" class="btn btn-success" id="dwnLoad" style="display:none">Download</button>
+		  <button type="button" class="btn btn-success" id="dwnLoad" ng-click="fnExcelReport();" style="display:none">Download</button>
 		  <button type="button" class="btn btn-default"  onclick="hideModel()">Close</button>
 		</div>
 	</div>
@@ -233,12 +233,12 @@ td {
   <script>
   
   //debugger;
-	$(document).ready(function(){
+/*()	$(document).ready(function(){
 		$("#dwnLoad").click(function(e) {
 			window.open('data:application/vnd.ms-excel,'+ encodeURIComponent($('#printContent').html()));
 			e.preventDefault();
 		});
-	});
+	});*/
 
 
 	
