@@ -28,6 +28,7 @@ reportsApp.controller('DataStatusController',
 		
 		$scope.basicUrl = "../api/sqlViews/";
 		//Sql Views ID
+
 		
 		
 		// savita modified//
@@ -105,8 +106,9 @@ reportsApp.controller('DataStatusController',
             if($scope.sqlViews[i].name=="getdataElementid")
             {
                 $scope.getdataElementid=$scope.sqlViews[i].id;
-            }
-
+			}
+			
+			
 		}
 			
 			
@@ -217,10 +219,7 @@ reportsApp.controller('DataStatusController',
 				
 				
 				});
-
-
-
-            }, 10);
+			}, 10);
 			
 			$scope.showHideButtons();
         };
@@ -525,16 +524,23 @@ reportsApp.controller('DataStatusController',
 
 			return EndDate;
 		}
+		$scope.newdelval=[]
+		$scope.delval=['nX9BZeOBNjF',	'b3V05IhZROZ',	'ahH8vdxbQnG',	'rDt4D3YaGqG',	'u6bYdNb5UZp',	'dTBGqWAKdXQ',	'P9wS8L7Uduz',	'PY2Ae9wfX49',	'qcYxuBcdB2b',	'tlkLslla04q',	'roLAMa43Qzh',	'yDjOGj6mHLU',	'bouEZfLbmUN',	'g6MmYxYfXas',	'sAByG7iC6dv',	'zkMz1SEmc7g',	'uIBTQW1NXRi',	'C8qUcy8BXBn',	'sTqvYNRJ27A',	'vDuczGd8wfv',	'Srq1goimPFO',	'nzrnEIXOI89',	'E35QNgvpgs7',	'oK7oSMHBKbs',	'i2WqPITU2Lt']
+		   
+		for(var i=0;i<$scope.delval.length;i++ )
+		$scope.newdelval[$scope.delval[i]]=true;
 
-
+	 checkdeletevale=function(val){
+			var delval=$scope.newdelval[val]
+			return delval
+		}
 		//*****************************************************************************
 		//Data Summary Result
 		//*****************************************************************************
 					
 		$scope.showDataSummary = function(){
 
-
-            Loader.showLoader();
+			 Loader.showLoader();
             $("#coverLoad").show();
 			$("#headTitle").html("Data Summary - Data Sets");
 			$("#tableContent").html("");
@@ -552,13 +558,13 @@ reportsApp.controller('DataStatusController',
 			var selEndPeriod = getEndPeriod($scope.currentSelection.endPeriodYear, $scope.currentSelection.endPeriodMonth);
 
 			var includeZero = $scope.currentSelection.includeZero;
-			$scope.organisationUnits_id=[];
 			
-
-
-
+			
+			$scope.organisationUnits_id=[];
 			//var url_1=;
-			$.get( "../api/dataSets/"+ selDataSetUid +".json",function(json){
+			$scope.dataEntryForm=[],$scope.NewcompulsoryDECount
+			$.get( "../api/dataSets/"+ selDataSetUid +".json?fields=*,dataEntryForm[htmlCode]",function(json){
+				$scope.dataEntryForm.push(json.dataEntryForm.htmlCode)
 						for(var i=0;i<json.organisationUnits.length;i++)
 						{
 							for(var j=0;j<$scope.allOrgUnitChildren.length;j++)
@@ -569,6 +575,40 @@ reportsApp.controller('DataStatusController',
 						}
 					});
 					
+					if($scope.dataEntryForm.length==0)
+					{
+						$scope.NewcompulsoryDECount=$scope.compulsoryDECount;
+					}else{
+						var el = document.createElement( 'html' );
+						el.innerHTML = "<html><body>"+$scope.dataEntryForm[0]+"</html>";
+						var value=el.getElementsByTagName( 'input' );
+						
+						$scope.newDECountvalue=[]
+						for(var i=0;i<value.length;i++)
+						{
+							var str=value[i].id.split("-");
+							$scope.newDECountvalue.push(str[0])
+							var returnval=checkdeletevale($scope.newDECountvalue[k])
+							if(returnval==true)
+							{
+								$scope.newDECountvalue.splice(k,1)
+							}
+						}
+	
+						for(var k=0;k<$scope.newDECountvalue.length;k++)
+						{
+							var returnval=checkdeletevale($scope.newDECountvalue[k])
+							if(returnval==true)
+							{
+								$scope.newDECountvalue.splice(k,1)
+							}
+						}
+	
+	
+						$scope.NewcompulsoryDECount=$scope.newDECountvalue.length;
+					}
+					
+
 			if( includeZero )
 				var url = $scope.basicUrl + $scope.dataSummarySV + "/data.json?";
 			else
@@ -604,27 +644,21 @@ reportsApp.controller('DataStatusController',
 				});
 				
 				htmlString += "</tr>";
-				var ParentName_1="",ParentName_2="",ParentName_3="",ParentName_4="",ParentName_5="",ParentName_6="",ParentName_7="",ParentName_8="";
 				var currentStatus= 0;
 				var currentColor = "#eeeeee";
 				var statusText = "";
 				
 				$scope.final_org=[];
 				$scope.Final_orgNameWithBreaks=[];
+				var ParentName_1="",ParentName_2="",ParentName_3="",ParentName_4="",ParentName_5="",ParentName_6="",ParentName_7="",ParentName_8="";
 				
 				$scope.allOrgUnitChildren.forEach(function(org){
 					
-					/**$scope.organisationUnits_id.forEach(function(id){
-					{
-						if($scope.organisationUnits_id[i]==org.uid)
-						$scope.final_org.push($scope.organisationUnits_id[i]);
-							
-					});**/
-					
 					var orgNameWithBreaks = "";
 					var totBreaks = org.level - $scope.grandParentLevel;
-					var grandParentName1=$scope.grandParentName;
 					
+					for( var x = 0 ; x < totBreaks ; x++ )
+						orgNameWithBreaks += "|-------------";
 					if(totBreaks==0)
 					{
 						ParentName_1=org.name;
@@ -650,7 +684,7 @@ reportsApp.controller('DataStatusController',
 					}
 					else if(totBreaks==4)
 					{
-						ParentName_5=org.name;
+						ParentName_4=org.name;
 						for( var x = 0 ; x < totBreaks ; x++ )
 						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5;
 					}
@@ -666,11 +700,8 @@ reportsApp.controller('DataStatusController',
 						for( var x = 0 ; x < totBreaks ; x++ )
 						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6+" / "+ParentName_7;
 					}
-				
-					$scope.compulsoryDECount = 1;
-		
-
 					
+
 					if($scope.GetUID($scope.organisationUnits_id,org.uid))
 					{
 
@@ -680,11 +711,11 @@ reportsApp.controller('DataStatusController',
 					//htmlString += "<tr><td style='padding:0 15px'>" + orgNameWithBreaks + "</td>";
 				
 					}
-					
 
 
 				});
-				$scope.Final_orgNameWithBreaks.sort();
+
+					$scope.Final_orgNameWithBreaks.sort();
 				for(var key in $scope.Final_orgNameWithBreaks)
 				{
 					htmlString += "<tr><td style='padding:0 15px'>" + key + "</td>";
@@ -701,14 +732,14 @@ reportsApp.controller('DataStatusController',
 												{
 												currentStatus = 0;
 												currentColor = "#FFCCCC";//pink
-												statusText = "0(" + $scope.compulsoryDECount + ")";
+												statusText = "0(" + $scope.NewcompulsoryDECount + ")";
 												
 												summaryData.forEach(function(sdata){
 													
 													if( sdata[3] == $scope.Final_orgNameWithBreaks[key] && sdata[1] == pr[0] )
 													{
-														currentStatus= sdata[4]/$scope.compulsoryDECount;
-														statusText = sdata[4] + "(" + $scope.compulsoryDECount + ")";
+														currentStatus= (sdata[4]/$scope.NewcompulsoryDECount)*100;
+														statusText = sdata[4] + "(" + $scope.NewcompulsoryDECount + ")";
 														//console.log("currentStatus"+currentStatus+" "+"statusText"+statusText)		
 														}
 														
@@ -775,18 +806,12 @@ reportsApp.controller('DataStatusController',
 
 
             });
-			var newurl=$scope.basicUrl+$scope.CategoryComboId+"/data.json?var=datasetelementid:"+$scope.dataSetID[0]+"";
-            $.get(newurl ,function(json) {
+		
 
-                $scope.compulsoryDECount=json.height;
-
-
-            });
-
-
-                $.get("../api/dataSets/"+ selDataSetUid +".json?fields=*,dataSetElements[id,categoryCombo]&skipPaging=true" ,function(json){
-
-
+			$scope.dataEntryForm=[],$scope.NewcompulsoryDECount
+			
+                $.get("../api/dataSets/"+ selDataSetUid +".json?fields=*,dataSetElements[id,categoryCombo],dataEntryForm[htmlCode]&skipPaging=true" ,function(json){
+					$scope.dataEntryForm.push(json.dataEntryForm.htmlCode)
 						for(var i=0;i<json.organisationUnits.length;i++)
 						{
 							for(var j=0;j<$scope.allOrgUnitChildren.length;j++)
@@ -797,13 +822,41 @@ reportsApp.controller('DataStatusController',
 						}
 					});
 
-				$scope.OrgUnit_uid	=$scope.filteredOrgUnitList.toString();
+					if($scope.dataEntryForm.length==0)
+					{
+						$scope.NewcompulsoryDECount=$scope.compulsoryDECount;
+					}else{
+					var el = document.createElement( 'html' );
+					el.innerHTML = "<html><body>"+$scope.dataEntryForm[0]+"</html>";
+					var value=el.getElementsByTagName( 'input' );
+					
+					$scope.newDECountvalue=[]
+					for(var i=0;i<value.length;i++)
+					{
+						var str=value[i].id.split("-");
+						$scope.newDECountvalue.push(str[0])
+					}
+
+					for(var k=0;k<$scope.newDECountvalue.length;k++)
+					{
+						var returnval=checkdeletevale($scope.newDECountvalue[k])
+						if(returnval==true)
+						{
+							$scope.newDECountvalue.splice(k,1)
+						}
+					}
+
+
+					$scope.NewcompulsoryDECount=$scope.newDECountvalue.length;
+				}
+
+			$scope.OrgUnit_uid	=$scope.filteredOrgUnitList.toString();
 			if( includeZero )
 				var url = $scope.basicUrl + $scope.dataStatusSV + "/data.json?";
 			else
 				var url = $scope.basicUrl + $scope.dataStatusExZeroSV + "/data.json?";
 			
-			url+= "var=compulsoryDECount:" + $scope.compulsoryDECount + ",dataSetUid:" + selDataSetUid + ",orgUnitUids:" +$scope.organisationunitid_1[0] + ",startDate:" + selStartPeriod + ",endDate:" + selEndPeriod;	;	
+			url+= "var=compulsoryDECount:" + $scope.NewcompulsoryDECount + ",dataSetUid:" + selDataSetUid + ",orgUnitUids:" +$scope.organisationunitid_1[0] + ",startDate:" + selStartPeriod + ",endDate:" + selEndPeriod;	;	
 			
 			console.log(url);
 			
@@ -926,7 +979,7 @@ reportsApp.controller('DataStatusController',
 										summaryData.forEach(function(sdata){
 											if( sdata[3] == $scope.Final_orgNameWithBreaks[key] && sdata[1] == pr[0] )
 											{
-												currentStatus= sdata[4]/$scope.compulsoryDECount*100;
+												currentStatus= sdata[4]/$scope.NewcompulsoryDECount*100;
 												statusText =  Math.ceil(currentStatus) ;//+ "(" + $scope.compulsoryDECount + ")";
 											}
 										});
@@ -956,6 +1009,21 @@ reportsApp.controller('DataStatusController',
 			});
 		};
 		
+
+		$scope.fnExcelReport = function () {
+
+
+			sa = true;
+			var myBlob =  new Blob( [document.getElementById('printContent').innerHTML] , {type:'text/html'});
+			var url = window.URL.createObjectURL(myBlob);
+			var a = document.createElement("a");
+			document.body.appendChild(a);
+			a.href = url;
+			a.download = "Report.xls";
+			a.click();
+			setTimeout(function() {window.URL.revokeObjectURL(url);},0);
+          
+        };
 		//*****************************************************************************
 		//Data Status - DEG Result
 		//*****************************************************************************
@@ -1414,8 +1482,7 @@ reportsApp.controller('DataStatusController',
 
 
 		};
-
-
+		
 		//*****************************************************************************
 		//Format Date
 		//*****************************************************************************

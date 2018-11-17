@@ -5,6 +5,7 @@
 <div id="userInfo" class="page"></div>
 
 <h3>$encoder.htmlEncode( $selectedOrgunit.name ) - $format.formatPeriod( $selectedPeriod )</h3>
+<input type="hidden" name="reportName" id="reportName" value="$encoder.htmlEncode( $selectedOrgunit.name ) - $format.formatPeriod( $selectedPeriod )"/>
 
 #if( $registration )<div style="margin-bottom:6px">$i18n.getString( "completed_by" ): <a href="javascript:dhis2.dsr.setUserInfo( '$!{registration.storedBy}' )">$!{registration.storedBy}</a></div>#end
 

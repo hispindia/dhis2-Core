@@ -272,6 +272,24 @@ dhis2.dsr.exportDataSetReport = function( type )
 	window.location.href = url;
 }
 
+/*
+function exportCustumDataSetReportToWorkBook()
+{
+	//alert("test" + " -- " + document.getElementById('reportName').value  );		    
+    
+	var tempReportName = document.getElementById('reportName').value;
+	document.getElementById('htmlCode').value = document.getElementById('formResult').innerHTML;
+	//var innerHTMLCode = document.getElementById('htmlCode').value;
+	var innerHTMLCode = document.getElementById('content').value;
+	alert("test" + " -- " + document.getElementById('reportName').value  + " -- " + innerHTMLCode);	
+	var xlsDownloadURL =    "exportToExcel.action?htmlCode=" + innerHTMLCode + "&reportName=" + tempReportName;
+	window.location.href =   xlsDownloadURL;
+	
+	//window.open(xlsDownloadURL,'_blank');
+	
+}
+*/
+
 dhis2.dsr.setUserInfo = function( username )
 {
 	$( "#userInfo" ).load( "../dhis-web-commons-ajax-html/getUser.action?username=" + username, function() {
