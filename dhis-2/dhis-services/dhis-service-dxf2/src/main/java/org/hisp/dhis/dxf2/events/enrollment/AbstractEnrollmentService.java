@@ -36,6 +36,7 @@ import com.google.common.collect.Maps;
 import org.hisp.dhis.common.IdSchemes;
 import org.hisp.dhis.common.IdentifiableObjectManager;
 import org.hisp.dhis.common.OrganisationUnitSelectionMode;
+import org.hisp.dhis.common.Pager;
 import org.hisp.dhis.common.exception.InvalidIdentifierReferenceException;
 import org.hisp.dhis.commons.collection.CachingMap;
 import org.hisp.dhis.dbms.DbmsManager;
@@ -82,6 +83,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -143,6 +145,38 @@ public abstract class AbstractEnrollmentService
     // -------------------------------------------------------------------------
     // READ
     // -------------------------------------------------------------------------
+
+    public Enrollments getEnrollments( ProgramInstanceQueryParams params )
+    {
+        Enrollments enrollments = new Enrollments();
+
+        if ( !params.isPaging() && !params.isSkipPaging() )
+        {
+            params.setDefaultPaging();
+        }
+
+        if ( params.isPaging() )
+        {
+            int count = 0;
+
+            if ( params.isTotalPages() )
+            {
+                count = programInstanceService.countProgramInstances( params );
+            }
+
+            Pager pager = new Pager( params.getPageWithDefault(), count, params.getPageSizeWithDefault() );
+
+            enrollments.setPager( pager );
+        }
+
+        List<ProgramInstance> programInstances = programInstanceService.getProgramInstances( params );
+
+        List listEnrollments = getEnrollments( programInstances );
+
+        enrollments.setEnrollments( listEnrollments );
+
+        return enrollments;
+    }
 
     @Override
     public List<Enrollment> getEnrollments( Iterable<ProgramInstance> programInstances )
@@ -493,6 +527,12 @@ public abstract class AbstractEnrollmentService
             programInstance.setEnrollmentDate( enrollment.getEnrollmentDate() );
         }
 
+        if ( enrollment.getOrgUnit() != null )
+        {
+            OrganisationUnit organisationUnit = getOrganisationUnit( importOptions.getIdSchemes(), enrollment.getOrgUnit() );
+            programInstance.setOrganisationUnit( organisationUnit );
+        }
+
         programInstance.setFollowup( enrollment.getFollowup() );
 
         if ( program.getDisplayIncidentDate() && programInstance.getIncidentDate() == null )
@@ -726,6 +766,24 @@ public abstract class AbstractEnrollmentService
         {
             importConflicts.add( new ImportConflict( "Attribute.attribute",
                 "Only program attributes is allowed for enrollment " + attributeValueMap ) );
+        }
+
+        if ( !program.getSelectEnrollmentDatesInFuture() )
+        {
+            if ( Objects.nonNull( enrollment.getEnrollmentDate() ) && enrollment.getEnrollmentDate().after( new Date() ) )
+            {
+                importConflicts.add( new ImportConflict( "Enrollment.date", "Enrollment Date can't be future date :" + enrollment
+                    .getEnrollmentDate() ) );
+            }
+        }
+
+        if ( !program.getSelectIncidentDatesInFuture() )
+        {
+            if ( Objects.nonNull( enrollment.getIncidentDate() ) && enrollment.getIncidentDate().after( new Date() ) )
+            {
+                importConflicts.add( new ImportConflict( "Enrollment.incidentDate", "Incident Date can't be future date :" + enrollment
+                    .getIncidentDate() ) );
+            }
         }
 
         return importConflicts;

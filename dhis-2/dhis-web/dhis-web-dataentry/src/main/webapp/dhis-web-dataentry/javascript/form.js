@@ -460,7 +460,7 @@ dhis2.de.uploadLocalData = function()
         $.ajax( {
             url: '../api/dataValues',
             data: value,
-            dataType: 'json',
+            dataType: 'text',
             type: 'post',
             success: function( data, textStatus, xhr )
             {
@@ -557,7 +557,7 @@ dhis2.de.addEventListeners = function()
                 }
             };
 
-            dhis2.period.picker.createInstance( '#' + id, false, {
+            dhis2.period.picker.createInstance( '#' + id, false, false, {
                 onSelect: function() {
                     saveVal( dataElementId, optionComboId, id, fakeEvent.target.id );
                 },
@@ -1794,7 +1794,7 @@ function insertDataValues( json )
         {
             if ( $( fieldId ).attr( 'name' ) == 'entrytrueonly' && 'true' == value.val ) 
             {
-                $( fieldId ).attr( 'checked', true );
+                $( fieldId ).prop( 'checked', true );
             }
             else if ( $( fieldId ).attr( 'name' ) == 'entryoptionset' || $( fieldId ).hasClass( "entryoptionset" ) )
             {
@@ -1830,6 +1830,15 @@ function insertDataValues( json )
                     'ou': split.organisationUnitId,
                     'pe': $( '#selectedPeriodId' ).val()
                 };
+
+                var cc = dhis2.de.getCurrentCategoryCombo();
+                var cp = dhis2.de.getCurrentCategoryOptionsQueryValue;
+
+                if( cc && cp )
+                {
+                    dvParams.cc = cc;
+                    dvParams.cp = cp;
+                }
 
                 var name = "", size = "";
 
@@ -3180,7 +3189,7 @@ dhis2.de.searchOptionSet = function( uid, query, success )
 dhis2.de.getOptions = function( uid, query, success ) 
 {
     return $.ajax( {
-        url: '../api/optionSets/' + uid + '.json?links=false&q=' + query,
+        url: '../api/optionSets/' + uid + '.json?fields=:all,options[:all]&links=false&q=' + query,
         dataType: "json",
         cache: false,
         type: 'GET',

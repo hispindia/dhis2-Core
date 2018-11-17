@@ -260,8 +260,16 @@ public class TableAlteror
         executeSql( "ALTER TABLE dataelementcategoryoption DROP CONSTRAINT fk_dataelement_categoryid" );
         executeSql( "ALTER TABLE dataelementcategoryoption DROP CONSTRAINT dataelementcategoryoption_shortname_key" );
 
-        // minmaxdataelement query index
-        executeSql( "CREATE INDEX index_minmaxdataelement ON minmaxdataelement( sourceid, dataelementid, categoryoptioncomboid )" );
+        // minmaxdataelement - If the old, non-unique index exists, drop it, make sure there are no duplicate values (delete the older ones), then create the unique index.
+        if ( executeSql( "DROP INDEX index_minmaxdataelement" ) == 0 )
+        {
+            executeSql( "delete from minmaxdataelement where minmaxdataelementid in (" +
+                "select a.minmaxdataelementid from minmaxdataelement a " +
+                "join minmaxdataelement b on a.sourceid = b.sourceid and a.dataelementid = b.dataelementid " +
+                "and a.categoryoptioncomboid = b.categoryoptioncomboid and a.minmaxdataelementid < b.minmaxdataelementid)" );
+
+            executeSql( "CREATE UNIQUE INDEX minmaxdataelement_unique_key ON minmaxdataelement USING btree (sourceid, dataelementid, categoryoptioncomboid)" );
+        }
 
         // update periodType field to ValidationRule
         executeSql( "UPDATE validationrule SET periodtypeid = (SELECT periodtypeid FROM periodtype WHERE name='Monthly') WHERE periodtypeid is null" );
@@ -441,6 +449,7 @@ public class TableAlteror
         executeSql( "update chart set userorganisationunit = false where userorganisationunit is null" );
         executeSql( "update chart set percentstackedvalues = false where percentstackedvalues is null" );
         executeSql( "update chart set cumulativevalues = false where cumulativevalues is null" );
+        executeSql( "update chart set nospacebetweencolumns = false where nospacebetweencolumns is null" );
         executeSql( "update indicator set annualized = false where annualized is null" );
         executeSql( "update indicatortype set indicatornumber = false where indicatornumber is null" );
         executeSql( "update dataset set mobile = false where mobile is null" );
@@ -459,6 +468,7 @@ public class TableAlteror
         executeSql( "update eventchart set hidenadata = false where hidenadata is null" );
         executeSql( "update eventchart set percentstackedvalues = false where percentstackedvalues is null" );
         executeSql( "update eventchart set cumulativevalues = false where cumulativevalues is null" );
+        executeSql( "update eventchart set nospacebetweencolumns = false where nospacebetweencolumns is null" );
         executeSql( "update reporttable set showdimensionlabels = false where showdimensionlabels is null" );
         executeSql( "update eventreport set showdimensionlabels = false where showdimensionlabels is null" );
         executeSql( "update reporttable set skiprounding = false where skiprounding is null" );
@@ -714,6 +724,7 @@ public class TableAlteror
         executeSql( "delete from systemsetting where name='keySmsConfig'" );
         executeSql( "delete from systemsetting where name='keySmsConfiguration'" );
         executeSql( "delete from systemsetting where name='keySmsConfigurations'" );
+        executeSql( "UPDATE incomingsms SET userid = 0 WHERE userid IS NULL" );
 
         // update denominator of indicator which has indicatortype as 'number'
         executeSql( "UPDATE indicator SET denominator = 1, denominatordescription = '' WHERE indicatortypeid IN (SELECT DISTINCT indicatortypeid FROM indicatortype WHERE indicatornumber = true) AND denominator IS NULL" );
@@ -1022,6 +1033,10 @@ public class TableAlteror
         //TODO: remove - not needed in release 2.26.
         executeSql( "update programindicator set analyticstype = programindicatoranalyticstype" );
         executeSql( "alter table programindicator drop programindicatoranalyticstype" );
+
+        executeSql( "DELETE FROM systemsetting where name = 'keyCorsWhitelist';" );
+
+        updateDimensionFilterToText();
 
         log.info( "Tables updated" );
     }
@@ -1487,20 +1502,20 @@ public class TableAlteror
 
         return idMap;
     }
-    
+
     private void updateHideEmptyRows()
     {
-        executeSql( 
+        executeSql(
             "update chart set hideemptyrowitems = 'NONE' where hideemptyrows is false or hideemptyrows is null; " +
             "update chart set hideemptyrowitems = 'ALL' where hideemptyrows is true; " +
             "alter table chart alter column hideemptyrowitems set not null; " +
             "alter table chart drop column hideemptyrows;" );
-        
+
         executeSql(
             "update eventchart set hideemptyrowitems = 'NONE' where hideemptyrows is false or hideemptyrows is null; " +
             "update eventchart set hideemptyrowitems = 'ALL' where hideemptyrows is true; " +
             "alter table eventchart alter column hideemptyrowitems set not null; " +
-            "alter table eventchart drop column hideemptyrows;" );        
+            "alter table eventchart drop column hideemptyrows;" );
     }
 
     private void updateSortOrder( String table, String col1, String col2 )
@@ -1596,10 +1611,10 @@ public class TableAlteror
             ") " +
             "where di.dataelementoperandid is not null; " +
             "alter table datadimensionitem drop column dataelementoperandid;";
-        
+
         executeSql( sql );
     }
-    
+
     /**
      * Upgrade data dimension items for legacy data sets to use REPORTING_RATE
      * as metric.
@@ -1613,9 +1628,9 @@ public class TableAlteror
 
         executeSql( sql );
     }
-    
+
     /**
-     * Upgrades data dimension items to use embedded 
+     * Upgrades data dimension items to use embedded
      * ProgramTrackedEntityAttributeDimensionItem class.
      */
     private void upgradeDataDimensionItemToEmbeddedProgramAttribute()
@@ -1627,12 +1642,12 @@ public class TableAlteror
             "where programattributeid is not null " +
             "and (programattribute_programid is null and programattribute_attributeid is null); " +
             "alter table datadimensionitem drop column programattributeid;";
-        
+
         executeSql( sql );
     }
 
     /**
-     * Upgrades data dimension items to use embedded 
+     * Upgrades data dimension items to use embedded
      * ProgramDataElementDimensionItem class.
      */
     private void upgradeDataDimensionItemToEmbeddedProgramDataElement()
@@ -1646,10 +1661,10 @@ public class TableAlteror
             "alter table datadimensionitem drop column programdataelementid; " +
             "drop table programdataelementtranslations; " +
             "drop table programdataelement;"; // Remove if program data element is to be reintroduced
-        
+
         executeSql( sql );
     }
-    
+
     private int executeSql( String sql )
     {
         try
@@ -1807,5 +1822,12 @@ public class TableAlteror
 
         sql = " drop table maplegendsetmaplegend";
         executeSql( sql );
+    }
+
+    private void updateDimensionFilterToText()
+    {
+        executeSql( "alter table trackedentityattributedimension alter column \"filter\" type text;" );
+        executeSql( "alter table trackedentitydataelementdimension alter column \"filter\" type text;" );
+        executeSql( "alter table trackedentityprogramindicatordimension alter column \"filter\" type text;" );
     }
 }

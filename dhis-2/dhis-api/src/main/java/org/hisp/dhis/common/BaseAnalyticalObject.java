@@ -56,7 +56,6 @@ import org.hisp.dhis.period.ConfigurablePeriod;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.RelativePeriodEnum;
 import org.hisp.dhis.period.RelativePeriods;
-import org.hisp.dhis.period.comparator.AscendingPeriodComparator;
 import org.hisp.dhis.schema.annotation.PropertyRange;
 import org.hisp.dhis.trackedentity.TrackedEntityAttributeDimension;
 import org.hisp.dhis.trackedentity.TrackedEntityDataElementDimension;
@@ -76,6 +75,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.hisp.dhis.analytics.AnalyticsFinancialYearStartKey.FINANCIAL_YEAR_OCTOBER;
 import static org.hisp.dhis.common.DimensionalObject.*;
 import static org.hisp.dhis.organisationunit.OrganisationUnit.*;
 
@@ -394,7 +394,7 @@ public abstract class BaseAnalyticalObject
 
             if ( hasRelativePeriods() )
             {
-                items.addAll( relatives.getRelativePeriods( date, format, dynamicNames ) );
+                items.addAll( relatives.getRelativePeriods( date, format, dynamicNames, FINANCIAL_YEAR_OCTOBER ) );
             }
 
             type = DimensionType.PERIOD;
@@ -543,8 +543,6 @@ public abstract class BaseAnalyticalObject
                     periodList.add( new ConfigurablePeriod( periodEnum.toString() ) );
                 }
             }
-
-            Collections.sort( periodList, new AscendingPeriodComparator() );
 
             return new BaseDimensionalObject( dimension, DimensionType.PERIOD, periodList );
         }

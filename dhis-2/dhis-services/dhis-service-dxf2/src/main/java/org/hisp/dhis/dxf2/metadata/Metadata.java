@@ -78,6 +78,7 @@ import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.organisationunit.OrganisationUnitGroup;
 import org.hisp.dhis.organisationunit.OrganisationUnitGroupSet;
 import org.hisp.dhis.organisationunit.OrganisationUnitLevel;
+import org.hisp.dhis.predictor.Predictor;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramIndicator;
 import org.hisp.dhis.program.ProgramStage;
@@ -98,6 +99,7 @@ import org.hisp.dhis.user.UserGroup;
 import org.hisp.dhis.validation.ValidationCriteria;
 import org.hisp.dhis.validation.ValidationRule;
 import org.hisp.dhis.validation.ValidationRuleGroup;
+import org.hisp.dhis.validation.notification.ValidationNotificationTemplate;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -240,6 +242,10 @@ public class Metadata
     private List<Color> colors = new ArrayList<>();
 
     private List<ColorSet> colorSets = new ArrayList<>();
+
+    private List<Predictor> predictors = new ArrayList<>();
+
+    private List<ValidationNotificationTemplate> validationNotificationTemplates = new ArrayList<>();
 
     public Metadata()
     {
@@ -1077,6 +1083,19 @@ public class Metadata
     }
 
     @JsonProperty
+    @JacksonXmlElementWrapper( localName = "colorSets", namespace = DxfNamespaces.DXF_2_0 )
+    @JacksonXmlProperty( localName = "colorSet", namespace = DxfNamespaces.DXF_2_0 )
+    public List<ColorSet> getColorSets()
+    {
+        return colorSets;
+    }
+
+    public void setColorSets( List<ColorSet> colorSets )
+    {
+        this.colorSets = colorSets;
+    }
+
+    @JsonProperty
     @JacksonXmlElementWrapper( localName = "colors", namespace = DxfNamespaces.DXF_2_0 )
     @JacksonXmlProperty( localName = "color", namespace = DxfNamespaces.DXF_2_0 )
     public List<Color> getColors()
@@ -1090,16 +1109,29 @@ public class Metadata
     }
 
     @JsonProperty
-    @JacksonXmlElementWrapper( localName = "colorSets", namespace = DxfNamespaces.DXF_2_0 )
-    @JacksonXmlProperty( localName = "colorSet", namespace = DxfNamespaces.DXF_2_0 )
-    public List<ColorSet> getColorSets()
+    @JacksonXmlElementWrapper( localName = "predictors", namespace = DxfNamespaces.DXF_2_0 )
+    @JacksonXmlProperty( localName = "predictor", namespace = DxfNamespaces.DXF_2_0 )
+    public List<Predictor> getPredictors()
     {
-        return colorSets;
+        return predictors;
     }
 
-    public void setColorSets( List<ColorSet> colorSets )
+    public void setPredictors( List<Predictor> predictors )
     {
-        this.colorSets = colorSets;
+        this.predictors = predictors;
+    }
+
+    @JsonProperty
+    @JacksonXmlElementWrapper( localName = "validationNotificationTemplates", namespace = DxfNamespaces.DXF_2_0 )
+    @JacksonXmlProperty( localName = "validationNotificationTemplate", namespace = DxfNamespaces.DXF_2_0 )
+    public List<ValidationNotificationTemplate> getValidationNotificationTemplates()
+    {
+        return this.validationNotificationTemplates;
+    }
+
+    public void setValidationNotificationTemplates( List<ValidationNotificationTemplate> validationNotificationTemplates )
+    {
+        this.validationNotificationTemplates = validationNotificationTemplates;
     }
 
     @Override
@@ -1157,6 +1189,7 @@ public class Metadata
             ", trackedEntityAttributes=" + trackedEntityAttributes +
             ", colors=" + colors +
             ", colorSets=" + colorSets +
+            ", validationNotificationTemplates=" + validationNotificationTemplates +
             '}';
     }
 }

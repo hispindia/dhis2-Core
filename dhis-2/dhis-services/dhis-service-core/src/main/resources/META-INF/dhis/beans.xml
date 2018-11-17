@@ -96,12 +96,6 @@
     <property name="cacheable" value="true" />
   </bean>
 
-  <bean id="org.hisp.dhis.document.DocumentStore" class="org.hisp.dhis.common.hibernate.HibernateIdentifiableObjectStore">
-    <property name="clazz" value="org.hisp.dhis.document.Document" />
-    <property name="sessionFactory" ref="sessionFactory" />
-    <property name="cacheable" value="true" />
-  </bean>
-
   <bean id="org.hisp.dhis.reporttable.ReportTableStore" class="org.hisp.dhis.common.hibernate.HibernateAnalyticalObjectStore">
     <property name="clazz" value="org.hisp.dhis.reporttable.ReportTable" />
     <property name="sessionFactory" ref="sessionFactory" />
@@ -752,12 +746,6 @@
     <property name="sessionFactory" ref="sessionFactory" />
   </bean>
 
-  <bean id="org.hisp.dhis.color.ColorStore" class="org.hisp.dhis.common.hibernate.HibernateIdentifiableObjectStore">
-    <property name="clazz" value="org.hisp.dhis.color.Color" />
-    <property name="sessionFactory" ref="sessionFactory" />
-    <property name="cacheable" value="true" />
-  </bean>
-
   <bean id="org.hisp.dhis.color.ColorSetStore" class="org.hisp.dhis.common.hibernate.HibernateIdentifiableObjectStore">
     <property name="clazz" value="org.hisp.dhis.color.ColorSet" />
     <property name="sessionFactory" ref="sessionFactory" />
@@ -852,7 +840,7 @@
     <property name="organisationUnitService" ref="org.hisp.dhis.organisationunit.OrganisationUnitService" />
     <property name="categoryService" ref="org.hisp.dhis.dataelement.DataElementCategoryService" />
     <property name="currentUserService" ref="org.hisp.dhis.user.CurrentUserService" />
-    <property name="securityService" ref="org.hisp.dhis.security.SecurityService" />
+    <property name="aclService" ref="org.hisp.dhis.security.acl.AclService" />
   </bean>
 
   <bean id="org.hisp.dhis.dataelement.DataElementService" class="org.hisp.dhis.dataelement.DefaultDataElementService">
@@ -1142,6 +1130,7 @@
         <value>honduras</value>
         <value>icap</value>
         <value>ippf</value>
+        <value>ima</value>
         <value>india</value>
         <value>indonesia</value>
         <value>irc</value>
@@ -1160,8 +1149,10 @@
         <value>mozambique</value>
         <value>myanmar</value>
         <value>mali</value>
+        <value>mhrp</value>
         <value>msf</value>
         <value>msh</value>
+        <value>msh_white</value>
         <value>msi</value>
         <value>namibia</value>
         <value>nicaragua</value>
@@ -1171,9 +1162,12 @@
         <value>norway</value>
         <value>pakistan</value>
         <value>palestine</value>
-        <value>paraguay</value>
-        <value>philippines</value>
+        <value>palladium</value>
         <value>pepfar</value>
+        <value>paraguay</value>
+        <value>pathfinder</value>
+        <value>philippines</value>
+        <value>planned_parenthood</value>
         <value>peru</value>
         <value>psi</value>
         <value>puntland</value>
@@ -1262,7 +1256,6 @@
   <bean id="org.hisp.dhis.system.SystemService" class="org.hisp.dhis.system.DefaultSystemService" />
 
   <bean id="org.hisp.dhis.color.ColorService" class="org.hisp.dhis.color.DefaultColorService">
-    <property name="colorStore" ref="org.hisp.dhis.color.ColorStore" />
     <property name="colorSetStore" ref="org.hisp.dhis.color.ColorSetStore" />
   </bean>
 
@@ -1867,12 +1860,6 @@
   <bean id="org.hisp.dhis.programrule.ProgramRuleVariableDeletionHandler"
     class="org.hisp.dhis.programrule.ProgramRuleVariableDeletionHandler">
     <property name="programRuleVariableService" ref="org.hisp.dhis.programrule.ProgramRuleVariableService" />
-  </bean>
-
-  <bean id="org.hisp.dhis.programrule.ProgramRuleActionDeletionHandler"
-    class="org.hisp.dhis.programrule.ProgramRuleActionDeletionHandler">
-    <property name="programRuleActionService" ref="org.hisp.dhis.programrule.ProgramRuleActionService" />
-    <property name="programRuleService" ref="org.hisp.dhis.programrule.ProgramRuleService" />
   </bean>
 
   <bean id="org.hisp.dhis.trackedentitydatavalue.TrackedEntityDataValueDeletionHandler"

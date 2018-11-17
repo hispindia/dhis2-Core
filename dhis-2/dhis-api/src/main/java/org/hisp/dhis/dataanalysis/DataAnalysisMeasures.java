@@ -1,7 +1,7 @@
-package org.hisp.dhis.programrule;
+package org.hisp.dhis.dataanalysis;
 
 /*
- * Copyright (c) 2004-2017, University of Oslo
+ * Copyright (c) 2004-2018, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,55 +28,57 @@ package org.hisp.dhis.programrule;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import java.util.Iterator;
-
-import org.hisp.dhis.system.deletion.DeletionHandler;
-
 /**
- * @author markusbekken
+ * DataAnalysisMeasures contains the average and standard deviation measures
+ * of data for a given combination of organisation unit and
+ * category option combo. (The data element is fixed.)
+ *
+ * @author Jim Grace
  */
-public class ProgramRuleActionDeletionHandler
-    extends DeletionHandler 
+public class DataAnalysisMeasures
 {
+    private int orgUnitId;
+
+    private int categoryOptionComboId;
+
+    private double average;
+
+    private double standardDeviation;
+
     // -------------------------------------------------------------------------
-    // Dependencies
+    // Constructor
     // -------------------------------------------------------------------------
 
-    private ProgramRuleActionService programRuleActionService;
+    public DataAnalysisMeasures( int orgUnitId, int categoryOptionComboId,
+        double average, double standardDeviation )
+    {
+        this.orgUnitId = orgUnitId;
+        this.categoryOptionComboId = categoryOptionComboId;
+        this.average = average;
+        this.standardDeviation = standardDeviation;
+    }
 
-    public void setProgramRuleActionService( ProgramRuleActionService programRuleActionService )
-    {
-        this.programRuleActionService = programRuleActionService;
-    }
-    
-    private ProgramRuleService programRuleService;
+    // -------------------------------------------------------------------------
+    // Getters
+    // -------------------------------------------------------------------------
 
-    public void setProgramRuleService( ProgramRuleService programRuleService )
+    public int getOrgUnitId()
     {
-        this.programRuleService = programRuleService;
+        return orgUnitId;
     }
-    
-    // -------------------------------------------------------------------------
-    // Implementation methods
-    // -------------------------------------------------------------------------
-    
-    @Override
-    protected String getClassName()
+
+    public int getCategoryOptionComboId()
     {
-        return ProgramRuleAction.class.getSimpleName();
+        return categoryOptionComboId;
     }
-    
-    @Override
-    public void deleteProgramRule( ProgramRule programRule )
+
+    public double getAverage()
     {
-        Iterator<ProgramRuleAction> actionIterator = programRuleActionService.getProgramRuleAction( programRule ).iterator();
-        
-        programRule.setProgramRuleActions( null );
-        programRuleService.updateProgramRule( programRule );
-        
-        while ( actionIterator.hasNext() )
-        {   
-            programRuleActionService.deleteProgramRuleAction( actionIterator.next() );
-        }
+        return average;
+    }
+
+    public double getStandardDeviation()
+    {
+        return standardDeviation;
     }
 }

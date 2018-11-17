@@ -28,6 +28,7 @@ package org.hisp.dhis.sms.listener;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.common.ValueType;
 import org.hisp.dhis.dataelement.DataElement;
@@ -55,6 +56,7 @@ import org.hisp.dhis.sms.incoming.SmsMessageStatus;
 import org.hisp.dhis.sms.parse.ParserType;
 import org.hisp.dhis.sms.parse.SMSParserException;
 import org.hisp.dhis.system.util.SmsUtils;
+import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserService;
 import org.jfree.util.Log;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +80,8 @@ public class DataValueSMSListener
     implements IncomingSmsListener
 {
     private static final String defaultPattern = "([a-zA-Z]+)\\s*(\\d+)";
+
+    private static final String DATASET_LOCKED = "Dataset: %s is locked for period: %s";
 
     // -------------------------------------------------------------------------
     // Dependencies
@@ -132,9 +136,7 @@ public class DataValueSMSListener
         Map<String, String> parsedMessage = this.parse( message, smsCommand );
 
         Date date = SmsUtils.lookForDate( message );
-        String senderPhoneNumber = StringUtils.replace( sms.getOriginator(), "+", "" );
-        Collection<OrganisationUnit> orgUnits = SmsUtils.getOrganisationUnitsByPhoneNumber( senderPhoneNumber,
-            userService.getUsersByPhoneNumber( senderPhoneNumber ) );
+        Collection<OrganisationUnit> orgUnits = getOrganisationUnits( sms );
 
         if ( orgUnits == null || orgUnits.size() == 0 )
         {
@@ -151,10 +153,13 @@ public class DataValueSMSListener
         OrganisationUnit orgUnit = SmsUtils.selectOrganisationUnit( orgUnits, parsedMessage, smsCommand );
         Period period = getPeriod( smsCommand, date );
 
-        if ( dataSetService.isLocked( smsCommand.getDataset(), period, orgUnit, null, null ) )
+        DataSet dataSet = smsCommand.getDataset();
+
+        if ( dataSetService.isLocked( dataSet, period, orgUnit, dataElementCategoryService.getDefaultDataElementCategoryOptionCombo(), null ) )
         {
-            throw new SMSParserException(
-                "Dataset is locked for the period " + period.getStartDate() + " - " + period.getEndDate() );
+            smsSender.sendMessage( null, String.format( DATASET_LOCKED, dataSet.getUid(), period.getName() ), sms.getOriginator() );
+
+            throw new SMSParserException( String.format( DATASET_LOCKED, dataSet.getUid(), period.getName() ) );
         }
 
         boolean valueStored = false;
@@ -163,7 +168,7 @@ public class DataValueSMSListener
         {
             if ( parsedMessage.containsKey( code.getCode() ) )
             {
-                valueStored = storeDataValue( senderPhoneNumber, orgUnit, parsedMessage, code, smsCommand, date,
+                valueStored = storeDataValue( sms, orgUnit, parsedMessage, code, smsCommand, date,
                     smsCommand.getDataset() );
             }
         }
@@ -191,12 +196,17 @@ public class DataValueSMSListener
             }
         }
 
-        markCompleteDataSet( senderPhoneNumber, orgUnit, parsedMessage, smsCommand, date );
-        sendSuccessFeedback( senderPhoneNumber, smsCommand, parsedMessage, date, orgUnit );
+        markCompleteDataSet( sms, orgUnit, parsedMessage, smsCommand, date );
+        sendSuccessFeedback( sms, smsCommand, parsedMessage, date, orgUnit );
 
         sms.setStatus( SmsMessageStatus.PROCESSED );
         sms.setParsed( true );
         incomingSmsService.update( sms );
+    }
+
+    private User getUser(IncomingSms sms )
+    {
+        return userService.getUser( sms.getUser().getUid() );
     }
 
     private Map<String, String> parse( String sms, SMSCommand smsCommand )
@@ -207,7 +217,7 @@ public class DataValueSMSListener
         if ( !StringUtils.isBlank( smsCommand.getSeparator() ) )
         {
             String x = "([^\\s|" + smsCommand.getSeparator().trim() + "]+)\\s*\\" + smsCommand.getSeparator().trim()
-                + "\\s*([-\\w\\s]+)\\s*(\\" + smsCommand.getSeparator().trim() + "|$)*\\s*";
+                + "\\s*([^|]+)\\s*(\\" + smsCommand.getSeparator().trim() + "|$)*\\s*";
             pattern = Pattern.compile( x );
         }
 
@@ -249,10 +259,11 @@ public class DataValueSMSListener
         return period;
     }
 
-    private boolean storeDataValue( String sender, OrganisationUnit orgunit, Map<String, String> parsedMessage,
+    private boolean storeDataValue( IncomingSms sms, OrganisationUnit orgunit, Map<String, String> parsedMessage,
         SMSCode code, SMSCommand command, Date date, DataSet dataSet )
     {
-        String storedBy = SmsUtils.getUser( sender, command, userService.getUsersByPhoneNumber( sender ) )
+        String sender = sms.getOriginator();
+        String storedBy = SmsUtils.getUser( sender, command, Collections.singletonList( getUser( sms ) ) )
             .getUsername();
 
         if ( StringUtils.isBlank( storedBy ) )
@@ -404,9 +415,11 @@ public class DataValueSMSListener
         return true;
     }
 
-    private void markCompleteDataSet( String sender, OrganisationUnit orgunit, Map<String, String> parsedMessage,
+    private void markCompleteDataSet( IncomingSms sms, OrganisationUnit orgunit, Map<String, String> parsedMessage,
         SMSCommand command, Date date )
     {
+        String sender = sms.getOriginator();
+
         Period period = null;
         int numberOfEmptyValue = 0;
         for ( SMSCode code : command.getCodes() )
@@ -446,7 +459,7 @@ public class DataValueSMSListener
         }
 
         // Go through the complete process
-        String storedBy = SmsUtils.getUser( sender, command, userService.getUsersByPhoneNumber( sender ) )
+        String storedBy = SmsUtils.getUser( sender, command, Collections.singletonList( getUser( sms ) ) )
             .getUsername();
 
         if ( StringUtils.isBlank( storedBy ) )
@@ -459,9 +472,10 @@ public class DataValueSMSListener
         registerCompleteDataSet( command.getDataset(), period, orgunit, storedBy );
     }
 
-    protected void sendSuccessFeedback( String sender, SMSCommand command, Map<String, String> parsedMessage, Date date,
+    protected void sendSuccessFeedback( IncomingSms sms, SMSCommand command, Map<String, String> parsedMessage, Date date,
         OrganisationUnit orgunit )
     {
+        String sender = sms.getOriginator();
         String reportBack = "Thank you! Values entered: ";
         String notInReport = "Missing values for: ";
 
@@ -516,8 +530,6 @@ public class DataValueSMSListener
             notInReport += key + ",";
         }
 
-        notInReport = notInReport.substring( 0, notInReport.length() - 1 );
-
         if ( smsSender.isConfigured() )
         {
             if ( command.getSuccessMessage() != null && !StringUtils.isEmpty( command.getSuccessMessage() ) )
@@ -568,5 +580,13 @@ public class DataValueSMSListener
         {
             registrationService.deleteCompleteDataSetRegistration( registration );
         }
+    }
+
+    private Set<OrganisationUnit> getOrganisationUnits( IncomingSms sms )
+    {
+        Collection<OrganisationUnit> orgUnits = SmsUtils.getOrganisationUnitsByPhoneNumber( sms.getOriginator(),
+            Collections.singleton( getUser( sms ) ) );
+
+        return Sets.newHashSet( orgUnits );
     }
 }

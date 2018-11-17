@@ -42,14 +42,13 @@ import org.hisp.dhis.dbms.DbmsManager;
 import org.hisp.dhis.deletedobject.DeletedObjectQuery;
 import org.hisp.dhis.deletedobject.DeletedObjectService;
 import org.hisp.dhis.dxf2.metadata.FlushMode;
-import org.hisp.dhis.schema.MergeParams;
-import org.hisp.dhis.schema.MergeService;
 import org.hisp.dhis.dxf2.metadata.objectbundle.feedback.ObjectBundleCommitReport;
 import org.hisp.dhis.feedback.ObjectReport;
 import org.hisp.dhis.feedback.TypeReport;
-import org.hisp.dhis.preheat.Preheat;
 import org.hisp.dhis.preheat.PreheatParams;
 import org.hisp.dhis.preheat.PreheatService;
+import org.hisp.dhis.schema.MergeParams;
+import org.hisp.dhis.schema.MergeService;
 import org.hisp.dhis.schema.SchemaService;
 import org.hisp.dhis.system.notification.Notifier;
 import org.hisp.dhis.user.CurrentUserService;
@@ -207,13 +206,15 @@ public class DefaultObjectBundleService implements ObjectBundleService
             notifier.notify( bundle.getTaskId(), message );
         }
 
-        objects.forEach( object -> objectBundleHooks.forEach( hook -> hook.preCreate( object, bundle ) ) );
+        objects.forEach( object -> objectBundleHooks.forEach( hook -> {
+            hook.preCreate( object, bundle );
+        } ) );
+
+        session.flush();
 
         for ( int idx = 0; idx < objects.size(); idx++ )
         {
             IdentifiableObject object = objects.get( idx );
-
-            if ( Preheat.isDefault( object ) ) continue;
 
             ObjectReport objectReport = new ObjectReport( klass, idx, object.getUid() );
             objectReport.setDisplayName( IdentifiableObjectUtils.getDisplayName( object ) );
@@ -222,11 +223,6 @@ public class DefaultObjectBundleService implements ObjectBundleService
             preheatService.connectReferences( object, bundle.getPreheat(), bundle.getPreheatIdentifier() );
 
             session.save( object );
-
-            if ( MetadataObject.class.isInstance( object ) )
-            {
-                deletedObjectService.deleteDeletedObjects( new DeletedObjectQuery( object ) );
-            }
 
             bundle.getPreheat().replace( bundle.getPreheatIdentifier(), object );
 
@@ -268,12 +264,12 @@ public class DefaultObjectBundleService implements ObjectBundleService
             objectBundleHooks.forEach( hook -> hook.preUpdate( object, persistedObject, bundle ) );
         } );
 
+        session.flush();
+
         for ( int idx = 0; idx < objects.size(); idx++ )
         {
             IdentifiableObject object = objects.get( idx );
             IdentifiableObject persistedObject = bundle.getPreheat().get( bundle.getPreheatIdentifier(), object );
-
-            if ( Preheat.isDefault( object ) ) continue;
 
             ObjectReport objectReport = new ObjectReport( klass, idx, object.getUid() );
             objectReport.setDisplayName( IdentifiableObjectUtils.getDisplayName( object ) );
@@ -289,11 +285,6 @@ public class DefaultObjectBundleService implements ObjectBundleService
             }
 
             session.update( persistedObject );
-
-            if ( MetadataObject.class.isInstance( object ) )
-            {
-                deletedObjectService.deleteDeletedObjects( new DeletedObjectQuery( object ) );
-            }
 
             objectBundleHooks.forEach( hook -> hook.postUpdate( persistedObject, bundle ) );
 
@@ -340,6 +331,11 @@ public class DefaultObjectBundleService implements ObjectBundleService
 
             objectBundleHooks.forEach( hook -> hook.preDelete( object, bundle ) );
             manager.delete( object, bundle.getUser() );
+
+            if ( MetadataObject.class.isInstance( object ) )
+            {
+                deletedObjectService.deleteDeletedObjects( new DeletedObjectQuery( object ) );
+            }
 
             bundle.getPreheat().remove( bundle.getPreheatIdentifier(), object );
 
