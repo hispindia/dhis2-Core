@@ -48,9 +48,20 @@
         <div id="loginField">
         <div id="loginArea">
             <div id="bannerArea">
-            <a href="http://www.dhis2.org"><img src="../../api/staticContent/logo_front" style="border:none"></a>
-            </div>
-            
+				<a href="http://www.dhis2.org"><img src="../../api/staticContent/logo_front" style="border:none;width:250px;height:250px"></a>
+			</div>
+			<!-- for hearing -->
+			<div>
+				<div id="applicationNameLabel" style='width:500px'>PREVALENCE AND ETIOLOGY OF HEARING IMPAIRMENT</div>
+				<div id="applicationNameLabel1" style='text-align:center'>National Taskforce Study</div>
+			</div>
+			
+			<!-- for epart -->
+			<!--
+			<div>
+				<div id="applicationNameLabel" style='text-align:center'><font size="4">E-Partograph Application</font></div>
+			</div>
+			-->
             <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">
                 <div>
                 	<div id="signInLabel">Sign in</div>
