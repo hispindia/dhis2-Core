@@ -46,7 +46,9 @@
                     <div><input type="text" id="j_username" name="j_username" placeholder="Username" style='width:300px'></div>
                     <div><input type="password" id="j_password" name="j_password" autocomplete="off" placeholder="Password" style='width:300px'></div>
 					<div>
-						<input type="text" id="txtCaptcha" style="text-align:center; border:none; background-image:url(./imgs/captcha_back_ground.png); color:red; font-weight:bold; font-family:Modern; width:100px" readonly/>
+						<!--<input type="text" id="txtCaptcha" style="text-align:center; border:none; background-image:url(./imgs/captcha_back_ground.png); color:red; font-weight:bold; font-family:Modern; width:100px" readonly/>-->
+						
+						<input type="text" id="txtCaptcha" style="text-align:center; border:none;color:red; font-weight:bold;font-size:25px; font-family:Modern; width:100px" readonly/>
 						<input type="text" id="txtCaptchaInput" name="txtCaptchaInput" placeholder="Enter Captcha" style='width:148px;padding-left:2px;'/>
 						<a href="javascript:drawComplexCaptcha();" title="$i18n.getString( "Regenerate Captcha" )"><img src="./imgs/refresh.png" alt="$i18n.getString( "Regenerate Captcha" )"></a>
 						
