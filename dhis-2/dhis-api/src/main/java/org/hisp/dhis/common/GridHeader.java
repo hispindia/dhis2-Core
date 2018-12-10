@@ -28,6 +28,11 @@ package org.hisp.dhis.common;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.hisp.dhis.organisationunit.OrganisationUnit;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
 
@@ -54,7 +59,7 @@ public class GridHeader
     private String optionSet;
 
     private String legendSet;
-
+    
     // -------------------------------------------------------------------------
     // Constructors
     // -------------------------------------------------------------------------
@@ -100,6 +105,22 @@ public class GridHeader
         this.meta = meta;
     }
 
+    /**
+     * @param name name
+     * @param column column
+     * @param type type
+     * @param hidden hidden
+     * @param meta meta
+     */
+    public GridHeader( String name, String column, String type, boolean hidden, boolean meta )
+    {
+        this.name = name;
+        this.column = column;
+        this.type = type;
+        this.hidden = hidden;
+        this.meta = meta;
+    }
+    
     /**
      * @param name name
      * @param column column

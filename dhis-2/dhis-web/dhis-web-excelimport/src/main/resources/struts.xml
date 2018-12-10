@@ -207,5 +207,29 @@
 			<!-- <param name="requiredAuthorities">F_IMPORT_DATA</param> -->
 		</action>
 
+		<!-- Dataset assignment Editor -->
+	    <action name="displayDataSetAssignEditorForm" class="org.hisp.dhis.excelimport.action.NoAction">
+	      <result name="success" type="velocity">/main.vm</result>
+	      <param name="page">/dhis-web-excelimport/viewDataSetAssignEditorForm.vm</param>
+	      <param name="menu">/dhis-web-excelimport/menu.vm</param>
+	      <param name="javascripts">../dhis-web-commons/oust/oust.js,javascript/dataSetAssignEditor.js</param>
+	      <param name="anyAuthorities">F_MULTIPLE_DATASET_ASSIGN_EDITOR</param>
+	    </action>
+	    
+	    <action name="showedAssociationsDataSetAssignEditor" class="org.hisp.dhis.excelimport.dataserassigneditor.action.ShowedAssociationsDataSetAssignEditorAction">
+	      <result name="success" type="velocity">/dhis-web-excelimport/dataSetAssignmentEditor.vm</result>
+	      <param name="anyAuthorities">F_MULTIPLE_DATASET_ASSIGN_EDITOR</param>
+	    </action>  
+	    
+	    <action name="definedAssociationDataSetAssignEditor" class="org.hisp.dhis.excelimport.dataserassigneditor.action.DefinedAssociationDataSetAssignEditorAction">
+	      <result name="success" type="velocity">/dhis-web-excelimport/loadIcon.vm</result>
+	      <param name="anyAuthorities">F_MULTIPLE_DATASET_ASSIGN_EDITOR</param>
+	    </action>	 
+	       
+	    <action name="definedMultiAssociationsDataSetAssignEditor" class="org.hisp.dhis.excelimport.dataserassigneditor.action.DefinedMultiAssociationsDataSetAssignEditorAction">
+	      <result name="success" type="velocity">/dhis-web-excelimport/loadIcons.vm</result>
+	      <param name="anyAuthorities">F_MULTIPLE_DATASET_ASSIGN_EDITOR</param>
+	    </action>	    
+	    
 	</package>
 </struts>

@@ -12,14 +12,19 @@
      <ul>   
 		<li>
             <a href = "../dhis-web-reporting/displayViewDocumentForm.action">$i18n.getString( "download_reporting_format" )</a>
-			
+			<!--
 			#if( $auth.hasAccess( "dhis-web-excelimport", "exportForm") )
 				<a href = "exportForm.action">$i18n.getString( "export_global_dhis2" )</a>
 			#end
-			
+			-->
 			#if( $auth.hasAccess( "dhis-web-excelimport", "importForm") )
 				<a href = "importForm.action">$i18n.getString( "import_ecmis" )</a>
+			#end
+			
+			#if( $auth.hasAccess( "dhis-web-excelimport", "displayDataSetAssignEditorForm") )
+				<a href = "displayDataSetAssignEditorForm.action">$i18n.getString( "DataSet Assign Editor" )</a>
 			#end			
+			
         </li>		
 
      </ul>   
