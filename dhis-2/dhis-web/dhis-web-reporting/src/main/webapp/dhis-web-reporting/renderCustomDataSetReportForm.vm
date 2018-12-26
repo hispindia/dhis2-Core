@@ -6,6 +6,13 @@
 	    document.getElementById('htmlCode').value = document.getElementById('formResult').innerHTML;			    			
 	    return true;
 	}
+
+
+(function(){
+    setTimeout(function(){ document.getElementById("excel").style.display="none";
+	document.getElementById("pdf").style.display="none"; }, 1000);
+})();
+
 </script>
 
 <form id="form" name="form" action="exportToExcel.action" method="post" onsubmit="exportCustumDataSetReportToWorkBook()" target="_newtab">
