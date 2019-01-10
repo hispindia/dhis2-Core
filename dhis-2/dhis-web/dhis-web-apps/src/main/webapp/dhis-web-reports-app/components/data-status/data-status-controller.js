@@ -114,7 +114,16 @@ reportsApp.controller('DataStatusController',
 			
             });
 			// end //
-		
+		$scope.ccid = "";
+		$scope.ccomboId = "";
+		$scope.categoryComboIds = [];
+		$scope.sqlViewCatCombo = [];
+		$scope.sqlViewCatComboIds = [];
+		$scope.countDS = 0;
+		$scope.countDS1 = 0;
+		$scope.categoryComboIds1 = [];
+		$scope.sqlViewCatCombo1 = [];
+		$scope.sqlViewCatComboIds1 = [];
 		
 		
 		
@@ -587,8 +596,9 @@ reportsApp.controller('DataStatusController',
 						for(var i=0;i<value.length;i++)
 						{
 							var str=value[i].id.split("-");
-							$scope.newDECountvalue.push(str[0])
-							var returnval=checkdeletevale($scope.newDECountvalue[k])
+							$scope.newDECountvalue.push(str[0]);
+							$scope.categoryComboIds1.push(str[0] + '-' + str[1]);
+							var returnval=checkdeletevale($scope.newDECountvalue[k]);
 							if(returnval==true)
 							{
 								$scope.newDECountvalue.splice(k,1)
@@ -733,16 +743,30 @@ reportsApp.controller('DataStatusController',
 												currentStatus = 0;
 												currentColor = "#FFCCCC";//pink
 												statusText = "0(" + $scope.NewcompulsoryDECount + ")";
+												for (var i = 0; i < data.rows.length; i++) {
+													$scope.sqlViewCatCombo1 = data.rows[i];
+													if ($scope.Final_orgNameWithBreaks[key] == $scope.sqlViewCatCombo1[3]) {
+														$scope.sqlViewCatComboIds1.push($scope.sqlViewCatCombo1[5] + '-' + $scope.sqlViewCatCombo1[6]);
+													}
+												}
+					
+												for (var i = 0; i < $scope.categoryComboIds1.length; i++) {
+													var categoryComboIdsValue1 = $scope.categoryComboIds1[i];
+													for (var j = 0; j < $scope.sqlViewCatComboIds1.length; j++) {
+					
+														if (categoryComboIdsValue1 == $scope.sqlViewCatComboIds1[j]) {
+															$scope.countDS1++;
+														}
+					
+													}
+												}
 												
 												summaryData.forEach(function(sdata){
-													
-													if( sdata[3] == $scope.Final_orgNameWithBreaks[key] && sdata[1] == pr[0] )
-													{
-														currentStatus= (sdata[4]/$scope.NewcompulsoryDECount)*100;
-														statusText = sdata[4] + "(" + $scope.NewcompulsoryDECount + ")";
+													if (sdata[3] == $scope.Final_orgNameWithBreaks[key] && sdata[1] == pr[0]) {
+														currentStatus =  ($scope.countDS1/ $scope.NewcompulsoryDECount) * 100;
+														statusText = $scope.countDS1 + "(" + $scope.NewcompulsoryDECount + ")";
 														//console.log("currentStatus"+currentStatus+" "+"statusText"+statusText)		
-														}
-														
+													}
 												
 											});
 											
@@ -759,12 +783,15 @@ reportsApp.controller('DataStatusController',
 								htmlString += "<td style='background:"+ currentColor +"'  style='padding:2px 15px;border-color: #0000ff;'></td>";
 							
 								})
-				
+								$scope.countDS1 = 0;
+								$scope.sqlViewCatComboIds1 = [];
 				
 								htmlString += "</tr>";		
 				
 				
 				}
+				$scope.sqlViewCatCombo1 = [];
+				$scope.categoryComboIds1 = [];
 					
                $("#tableContent").html(htmlString);
 				$("#dwnLoad").fadeIn();
@@ -788,7 +815,8 @@ reportsApp.controller('DataStatusController',
 			$("#resultModal").delay(900).fadeIn();
 			$("#dwnLoad").fadeOut();
 			
-			
+			$scope.countDS = 0;
+			$scope.sqlViewCatComboIds = [];
 			//passing variables to query
 			var selOrgUnit = selection.getSelected();
 			var selDataSetUid = $scope.currentSelection.dataSet;
@@ -834,7 +862,9 @@ reportsApp.controller('DataStatusController',
 					for(var i=0;i<value.length;i++)
 					{
 						var str=value[i].id.split("-");
-						$scope.newDECountvalue.push(str[0])
+						$scope.newDECountvalue.push(str[0]);
+						$scope.categoryComboIds.push(str[0] + '-' + str[1]);
+
 					}
 
 					for(var k=0;k<$scope.newDECountvalue.length;k++)
@@ -974,13 +1004,32 @@ reportsApp.controller('DataStatusController',
 									 
 									if( $scope.isOrgFound_1( $scope.Final_orgNameWithBreaks[key], summaryData ) )
 									{
+										for (var i = 0; i < data.rows.length; i++) {
+											$scope.sqlViewCatCombo = data.rows[i];
+											if ($scope.Final_orgNameWithBreaks[key] == $scope.sqlViewCatCombo[3]) {
+												$scope.sqlViewCatComboIds.push($scope.sqlViewCatCombo[5] + '-' + $scope.sqlViewCatCombo[6]);
+											}
+										}
+			
+										for (var i = 0; i < $scope.categoryComboIds.length; i++) {
+											var categoryComboIdsValue = $scope.categoryComboIds[i];
+											for (var j = 0; j < $scope.sqlViewCatComboIds.length; j++) {
+			
+												if (categoryComboIdsValue == $scope.sqlViewCatComboIds[j]) {
+													$scope.countDS++;
+												}
+			
+											}
+										}
+			
 										statusText = 0;//"0(" + $scope.compulsoryDECount + ")";
 										
 										summaryData.forEach(function(sdata){
 											if( sdata[3] == $scope.Final_orgNameWithBreaks[key] && sdata[1] == pr[0] )
 											{
-												currentStatus= sdata[4]/$scope.NewcompulsoryDECount*100;
-												statusText =  Math.ceil(currentStatus) ;//+ "(" + $scope.compulsoryDECount + ")";
+												currentStatus = $scope.countDS/$scope.NewcompulsoryDECount*100;
+									          // currentStatus= sdata[4]/$scope.NewcompulsoryDECount*100;
+								             	statusText = Math.ceil(currentStatus);//+ "(" + $scope.compulsoryDECount + ")";
 											}
 										});
 										
@@ -998,11 +1047,15 @@ reportsApp.controller('DataStatusController',
 								
 						htmlString += "<td style='background:"+ currentColor +";padding:0 15px'>"+statusText +"</td>";
 					});
+					$scope.countDS = 0;
+
+					$scope.sqlViewCatComboIds = [];
 					htmlString += "</tr>";
 				}			
 					
 				
-				
+				$scope.sqlViewCatCombo = [];
+				$scope.categoryComboIds = [];
 				$("#tableContent").html(htmlString);
 				$("#dwnLoad").fadeIn();
 				$("#coverLoad").hide();
