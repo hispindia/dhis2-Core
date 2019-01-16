@@ -32,7 +32,7 @@ public class ScheduleAutoApproveTrackerData extends AbstractJob
     private static final Log log = LogFactory.getLog( ScheduleAutoApproveTrackerData.class );
 
     private final static int  CURRENT_STATUS_DATAELEMENT_ID = 38576348;
-    private final static String PROGRAM_STAGE_IDS = "38565722,38565580,38565712,38565696";
+    private final static String PROGRAM_STAGE_IDS = "38565722,38565580,38565712,38565696,73397819,73397876,73397824,73337045,73337059,73337069,73397847,73397870,73397880,73397864,73397815,73397885,73397828,73397894,73397890,73337065";
     
     private static final String KEY_TASK = "scheduleAutoApproveTrackerDataTask";
 
