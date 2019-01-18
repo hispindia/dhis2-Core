@@ -38,6 +38,7 @@ import org.hisp.dhis.credentials.CredentialsExpiryAlertTask;
 import org.hisp.dhis.dataset.notifications.DataSetNotificationTask;
 import org.hisp.dhis.datastatistics.DataStatisticsTask;
 import org.hisp.dhis.fileresource.FileResourceCleanUpTask;
+import org.hisp.dhis.googlesheet.ScheduleGoogleSheetTask;
 import org.hisp.dhis.schedulecustomesms.ScheduleCustomeSMSTask;
 import org.hisp.dhis.setting.SettingKey;
 import org.hisp.dhis.setting.SystemSettingManager;
@@ -100,6 +101,9 @@ public class DefaultSchedulingManager
     @Autowired
     private ScheduleCustomeSMSTask scheduleCustomeSMSTask;
     
+    @Autowired
+    private ScheduleGoogleSheetTask scheduleGoogleSheetTask;
+    
     // TODO Avoid map, use bean identifier directly and get bean from context
 
     // -------------------------------------------------------------------------
@@ -141,8 +145,8 @@ public class DefaultSchedulingManager
         scheduler.scheduleTask( CredentialsExpiryAlertTask.KEY_TASK, credentialsExpiryAlertTask, Scheduler.CRON_DAILY_2AM );
         scheduler.scheduleTask( DataSetNotificationTask.KEY_TASK, dataSetNotificationTask, Scheduler.CRON_DAILY_2AM );
         //scheduler.scheduleTask( ScheduleCustomeSMSTask.KEY_TASK, scheduleCustomeSMSTask, Scheduler.CRON_DAILY_10AM );
-		scheduler.scheduleTask( ScheduleCustomeSMSTask.KEY_TASK, scheduleCustomeSMSTask, Scheduler.CRON_DAILY_12PM );
-        //scheduler.scheduleTask( ScheduleCustomeSMSTask.KEY_TASK, scheduleCustomeSMSTask, Scheduler.CRON_EVERY_MIN );
+	scheduler.scheduleTask( ScheduleCustomeSMSTask.KEY_TASK, scheduleCustomeSMSTask, Scheduler.CRON_DAILY_12PM );
+        scheduler.scheduleTask( ScheduleGoogleSheetTask.KEY_TASK, scheduleGoogleSheetTask, Scheduler.CRON_DAILY_12PM );
     }
     
     @Override

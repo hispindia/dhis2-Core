@@ -28,10 +28,19 @@
 
   <bean id="credentialsExpiryAlertTask" class="org.hisp.dhis.credentials.CredentialsExpiryAlertTask" scope="prototype"/>
 	
-	
   <!--  for sending custome SMS in schedule -->	
-  <bean id="scheduleCustomeSMSTask" class="org.hisp.dhis.schedulecustomesms.ScheduleCustomeSMSTask" scope="prototype"/>
-
+  <bean id="scheduleCustomeSMSTask" class="org.hisp.dhis.schedulecustomesms.ScheduleCustomeSMSTask" scope="prototype">
+  	<!--<property name="googleSheetConfig" ref="org.hisp.dhis.googlesheet.GoogleSheetConfig" />-->
+  </bean>
+  
+  <bean id="scheduleGoogleSheetTask" class="org.hisp.dhis.googlesheet.ScheduleGoogleSheetTask" scope="prototype"/>
+  
+  <!--
+  <bean id="org.hisp.dhis.googlesheet.GoogleSheetConfig" class="org.hisp.dhis.googlesheet.GoogleSheetConfig">
+  </bean>	
+  -->
+  
+  
   <!-- ReportTable -->
 
   <bean id="org.hisp.dhis.reporttable.ReportTableService" class="org.hisp.dhis.reporttable.impl.DefaultReportTableService">
@@ -196,6 +205,7 @@
         <entry key="credentialsExpiryAlertTask" value-ref="credentialsExpiryAlertTask" />
         <!--  for sending custome SMS in schedule -->	
         <entry key="scheduleCustomeSMSTask" value-ref="scheduleCustomeSMSTask" />
+        <entry key="scheduleGoogleSheetTask" value-ref="scheduleGoogleSheetTask" />
       </map>
     </property>
   </bean>

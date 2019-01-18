@@ -8,7 +8,7 @@
     <artifactId>dhis-services</artifactId>
     <version>2.28</version>
   </parent>
-  
+ 
   <artifactId>dhis-service-reporting</artifactId>
   <packaging>jar</packaging>
   <name>DHIS Reporting Service</name>
@@ -91,7 +91,123 @@
 	    <groupId>commons-httpclient</groupId>
 	    <artifactId>commons-httpclient</artifactId>
 	    <version>3.1</version>
-	</dependency>    
+	</dependency>
+	
+	<!-- 
+	<dependency>
+      <groupId>com.google.api-client</groupId>
+      <artifactId>google-api-client</artifactId>
+      <version>1.25.0</version>
+    </dependency>	
+	
+	<dependency>
+      <groupId>com.google.oauth-client</groupId>
+      <artifactId>google-oauth-client-jetty</artifactId>
+      <version>1.23.0</version>
+    </dependency>
+	
+	<dependency>
+      <groupId>com.google.apis</groupId>
+      <artifactId>google-api-services-sheets</artifactId>
+      <version>v4-rev516-1.23.0</version>
+    </dependency>
+	-->
+    <!-- 
+	<dependency>
+		<groupId>com.google.apis</groupId>
+		<artifactId>google-api-services-sheets</artifactId>
+		<version>v4-rev549-1.25.0</version>
+	</dependency>
+	-->
+   <!--     
+	<dependency>
+      <groupId>com.google.apis</groupId>
+      <artifactId>google-api-services-sheets</artifactId>
+      <version>v4-rev550-1.25.0</version>
+    </dependency>	
+	-->
+<!-- https://mvnrepository.com/artifact/com.googlecode.googleplus/google-plus-java-api -->
+	<dependency>
+	    <groupId>com.googlecode.googleplus</groupId>
+	    <artifactId>google-plus-java-api</artifactId>
+	    <version>0.0.3</version>
+	</dependency>
+	
+	<!--
+	<dependency>
+	    <groupId>com.google.http-client</groupId>
+	    <artifactId>google-http-client-jackson2</artifactId>
+	    <version>1.23.0</version>
+	</dependency>
+	-->
+	<dependency>
+	    <groupId>com.fasterxml.jackson.core</groupId>
+	    <artifactId>jackson-core</artifactId>
+	    <version>2.9.4</version>
+	</dependency>
+
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+      <version>4.2.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.2.5</version>
+    </dependency>
+
+	 <!--  new add -->	
+	
+        <!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->
+        
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>1.27.0</version>
+        </dependency>
+        
+        <!-- https://mvnrepository.com/artifact/com.google.oauth-client/google-oauth-client-jetty -->
+        <dependency>
+            <groupId>com.google.oauth-client</groupId>
+            <artifactId>google-oauth-client-jetty</artifactId>
+            <version>1.27.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.apis/google-api-services-sheets -->
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-sheets</artifactId>
+            <version>v4-rev553-1.25.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.9.7</version>
+        </dependency>	
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.8.1</version>
+        </dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.google.http-client/google-http-client-jackson2 -->
+		<dependency>
+		    <groupId>com.google.http-client</groupId>
+		    <artifactId>google-http-client-jackson2</artifactId>
+		    <version>1.27.0</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.google.oauth-client/google-oauth-client -->
+		<dependency>
+		    <groupId>com.google.oauth-client</groupId>
+		    <artifactId>google-oauth-client</artifactId>
+		    <version>1.27.0</version>
+		</dependency>
+
   </dependencies>
   <properties>
     <rootDir>../../</rootDir>
