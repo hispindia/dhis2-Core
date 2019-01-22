@@ -28,13 +28,14 @@ package org.hisp.dhis.scheduling;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.google.common.collect.ImmutableMap;
 import org.hisp.dhis.scheduling.parameters.AnalyticsJobParameters;
 import org.hisp.dhis.scheduling.parameters.MockJobParameters;
 import org.hisp.dhis.scheduling.parameters.MonitoringJobParameters;
 import org.hisp.dhis.scheduling.parameters.PredictorJobParameters;
 import org.hisp.dhis.scheduling.parameters.PushAnalysisJobParameters;
 import org.hisp.dhis.scheduling.parameters.SmsJobParameters;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Enum describing the different jobs in the system.
@@ -78,7 +79,11 @@ public enum JobType
 
     // For tests
     MOCK( "mockJob", false, MockJobParameters.class, null ),
-
+    
+    // for INTPART SCHEDULE_CUSTOM_SMS and SCHEDULE_PUSH_IN_GOOGLE_SHEET
+    SCHEDULE_PUSH_IN_GOOGLE_SHEET( "schedulePushInGoogleSheetJob", true, null, null ),
+    SCHEDULE_CUSTOM_SMS( "scheduleCustomSMSJob", true, null, null ),
+    
     // To satifisfy code that used the old enum TaskCategory
     DATAVALUE_IMPORT( null, false, null, null ),
     ANALYTICSTABLE_UPDATE( null, false, null, null ),
@@ -97,7 +102,7 @@ public enum JobType
     private final Class<? extends JobParameters> jobParameters;
 
     private final boolean configurable;
-
+    
     ImmutableMap<String, String> relativeApiElements;
 
     JobType( String key, boolean configurable, Class<? extends JobParameters> jobParameters,

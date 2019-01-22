@@ -158,6 +158,11 @@ public enum SettingKey
     DATA_VALUES_SYNC_PAGE_SIZE( "syncDataValuesPageSize", 10000, Integer.class ),
     MAX_REMOTE_SERVER_AVAILABILITY_CHECK_ATTEMPTS( "syncMaxRemoteServerAvailabilityCheckAttempts", 3, Integer.class ),
     MAX_SYNC_ATTEMPTS( "syncMaxAttempts", 3, Integer.class ),
+    
+    // for INTPART SCHEDULE_CUSTOM_SMS and SCHEDULE_PUSH_IN_GOOGLE_SHEET
+    SCHEDULE_PUSH_IN_GOOGLE_SHEET( "schedulePushInGoogleSheetJob", true, Boolean.class ),
+    SCHEDULE_CUSTOM_SMS( "scheduleCustomSMSJob", true, Boolean.class ),
+    
     DELAY_BETWEEN_REMOTE_SERVER_AVAILABILITY_CHECK_ATTEMPTS( "syncDelayBetweenRemoteServerAvailabilityCheckAttempts", 500, Integer.class );
 
     private final String name;

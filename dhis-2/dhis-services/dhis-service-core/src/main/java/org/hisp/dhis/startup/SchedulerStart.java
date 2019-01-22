@@ -65,6 +65,10 @@ public class SchedulerStart extends AbstractStartupRoutine
     private final String CRON_DAILY_2AM = "0 0 2 ? * *";
 
     private final String CRON_DAILY_7AM = "0 0 7 ? * *";
+    
+    private final String CRON_DAILY_11AM = "0 0 11 * * ?";
+    
+    private final String CRON_DAILY_12PM = "0 0 12 * * ?";
 
     private final String LEADER_JOB_CRON_FORMAT = "0 0/%s * * * *";
 
@@ -83,7 +87,11 @@ public class SchedulerStart extends AbstractStartupRoutine
     private final String DEFAULT_KAFKA_TRACKER = "Kafka Tracker Consume";
 
     private final String DEFAULT_LEADER_ELECTION = "Leader election in cluster";
+    
+    private final String DEFAULT_SCHEDULE_PUSH_IN_GOOGLE_SHEET = "Schedule Push in Google Sheet";
 
+    private final String DEFAULT_SCHEDULE_CUSTOM_SMS = "Schedule Custom Sms";
+    
     @Autowired
     private SystemSettingManager systemSettingManager;
 
@@ -243,6 +251,26 @@ public class SchedulerStart extends AbstractStartupRoutine
             leaderElectionJobConfiguration.setLeaderOnlyJob( false );
             addAndScheduleJob( leaderElectionJobConfiguration );
         }
+        
+        // for INTPART SCHEDULE_CUSTOM_SMS and SCHEDULE_PUSH_IN_GOOGLE_SHEET
+        
+        if ( verifyNoJobExist( DEFAULT_SCHEDULE_CUSTOM_SMS, jobConfigurations ) )
+        {
+            JobConfiguration scheduleCustomSMSJob = new JobConfiguration( DEFAULT_SCHEDULE_CUSTOM_SMS,
+                SCHEDULE_CUSTOM_SMS, CRON_DAILY_12PM, null, true, true );
+            scheduleCustomSMSJob.setLeaderOnlyJob( true );
+            addAndScheduleJob( scheduleCustomSMSJob );
+        }
+        
+        if ( verifyNoJobExist( DEFAULT_SCHEDULE_PUSH_IN_GOOGLE_SHEET, jobConfigurations ) )
+        {
+            JobConfiguration scheduleCustomSMSJob = new JobConfiguration( DEFAULT_SCHEDULE_PUSH_IN_GOOGLE_SHEET,
+                SCHEDULE_PUSH_IN_GOOGLE_SHEET, CRON_DAILY_11AM, null, true, true );
+            scheduleCustomSMSJob.setLeaderOnlyJob( true );
+            addAndScheduleJob( scheduleCustomSMSJob );
+        }
+        // end
+        
         else
         {
             checkLeaderElectionJobConfiguration( jobConfigurations );

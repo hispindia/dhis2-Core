@@ -95,7 +95,13 @@
       <artifactId>jsoup</artifactId>
       <version>1.11.3</version>
     </dependency>
-    
+    <!--  for send custom sms -->
+	<dependency>
+	    <groupId>commons-httpclient</groupId>
+	    <artifactId>commons-httpclient</artifactId>
+	    <version>3.1</version>
+	</dependency>
+	    
   </dependencies>
   <properties>
     <rootDir>../../</rootDir>
