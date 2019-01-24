@@ -3,6 +3,7 @@ package org.hisp.dhis.googlesheet;
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,11 +15,8 @@ import org.hisp.dhis.scheduling.JobConfiguration;
 import org.hisp.dhis.scheduling.JobType;
 import org.hisp.dhis.setting.SettingKey;
 import org.hisp.dhis.setting.SystemSettingManager;
-import org.hisp.dhis.trackedentity.TrackedEntityAttribute;
 import org.hisp.dhis.trackedentity.TrackedEntityAttributeService;
-import org.hisp.dhis.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceService;
-import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValue;
 import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -40,6 +38,7 @@ public class ScheduleGoogleSheetTask  extends AbstractJob
     public static final String KEY_TASK = "scheduleGoogleSheetTask";
 
     private static final String CREDENTIALS_FILE_PATH = "DHIS2 CHND PHC 21-461d051b611f.p12";
+    //private static final String CREDENTIALS_FILE_PATH = "DHIS2CHNDPHC21-461d051b611f.p12";
     
     private String APPLICATION_NAME = "DHIS2 CHND PHC 21" ;
 
@@ -48,6 +47,10 @@ public class ScheduleGoogleSheetTask  extends AbstractJob
     private String SPREAD_SHEET_ID = "1-qsHZjYJWxswKKbsTuiGTImYZSXR7eYzw_7XgzSkBvE";
     
     private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    
+    private final static int MOBILE_NUMBER_ATTRIBUTE_ID = 142;
+
+    private final static int NPCDCS_FOLLOW_UP_PROGRAM_STAGE_ID = 133470;
     
     // -------------------------------------------------------------------------
     // Dependencies
@@ -91,6 +94,8 @@ public class ScheduleGoogleSheetTask  extends AbstractJob
     GoogleSheetConfig googleSheetConfig;
     
     static String inputTemplatePath = "";
+    
+    private SimpleDateFormat simpleDateFormat;
     
     // -------------------------------------------------------------------------
     // Implementation
@@ -155,7 +160,7 @@ public class ScheduleGoogleSheetTask  extends AbstractJob
         System.out.println( "In Side pushTeiDataInGoogleSheet " );
         
         //String inputTemplatePath = System.getenv( "DHIS2_HOME" ) + File.separator + CREDENTIALS_FILE_PATH;
-        
+        simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
         googleSheetConfig = new GoogleSheetConfig();
         googleSheetConfig.setSPREAD_SHEET_ID( SPREAD_SHEET_ID );
         googleSheetConfig.setAPPLICATION_NAME(  APPLICATION_NAME );
@@ -163,7 +168,7 @@ public class ScheduleGoogleSheetTask  extends AbstractJob
         googleSheetConfig.setCREDENTIALS_FILE_PATH( inputTemplatePath);
         
         googleSheetConfig.clear();
-        System.out.println( "clear sheet  --  " );
+        System.out.println( "clear sheet  complete " );
         addDataInSheet();
        
     }
@@ -171,26 +176,21 @@ public class ScheduleGoogleSheetTask  extends AbstractJob
     public void addDataInSheet()
         throws IOException
     {
-        
-        TrackedEntityAttribute name = trackedEntityAttributeService.getTrackedEntityAttribute( 608 );
-        TrackedEntityAttribute gender = trackedEntityAttributeService.getTrackedEntityAttribute( 611 );
-        TrackedEntityAttribute age = trackedEntityAttributeService.getTrackedEntityAttribute( 610 );
-        List<String> mctsNumbers = new ArrayList<String>( getTrackedEntityInstanceAttributeValueByAttributeId( 5762 ) );
-        System.out.println( "List Size --  " + mctsNumbers.size() );
+        List<String> customString = new ArrayList<String>( getTrackedEntityInstanceAttributeValueByAttributeId( 5762 ) );
+        System.out.println( "List Size --  " + customString.size() );
         
         List<List<Object>> fullData = new ArrayList<>();
         
-        for( String mctsNumber : mctsNumbers )
+        for( String customStr : customString )
         {
             List<Object> data = new ArrayList<>();
-            TrackedEntityInstance tei = trackedEntityInstanceService.getTrackedEntityInstance( Integer.parseInt( mctsNumber.split( ":" )[0] ) );
-            TrackedEntityAttributeValue teiName = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( tei, name );
-            TrackedEntityAttributeValue teiSex = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( tei, gender );
-            TrackedEntityAttributeValue teiAge = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( tei, age );
             
-            data.add( mctsNumber.split( ":" )[1] );
-            data.add( mctsNumber.split( ":" )[0] );
+            data.add( customStr.split( ":" )[0] );
+            data.add( customStr.split( ":" )[1] );
+            data.add( customStr.split( ":" )[2] );
+            data.add( customStr.split( ":" )[3] );
             fullData.add( data );
+            
             /*
             if( teiName != null && teiSex != null && teiAge != null )
             {
@@ -218,7 +218,7 @@ public class ScheduleGoogleSheetTask  extends AbstractJob
         if ( service != null )
         {
             service.spreadsheets().values()
-                .update( getSPREAD_SHEET_ID(), "Sheet1!A3:L10000000", valueRange )
+                .update( getSPREAD_SHEET_ID(), "Sheet1!A2:L10000000", valueRange )
                 .setValueInputOption( "RAW" ).execute();
             
             /*
@@ -240,29 +240,38 @@ public class ScheduleGoogleSheetTask  extends AbstractJob
     
     public List<String> getTrackedEntityInstanceAttributeValueByAttributeId( Integer attributeId )
     {
-        List<String> mctsNumbers = new ArrayList<String>();
+        List<String> customeString = new ArrayList<String>();
         
         try
         {
-            String query = "SELECT trackedentityinstanceid, value FROM trackedentityattributevalue " + "WHERE trackedentityattributeid =  "
-                + attributeId + " AND trackedentityinstanceid > 90000";
+            String query = "SELECT pi.trackedentityinstanceid, psi.organisationunitid, psi.duedate::date,teav.value FROM programstageinstance psi "
+                + "INNER JOIN programinstance pi ON  pi.programinstanceid = psi.programinstanceid "
+                + "INNER JOIN trackedentityattributevalue teav ON teav.trackedentityinstanceid = pi.trackedentityinstanceid "
+                + "WHERE psi.programstageid = "  + NPCDCS_FOLLOW_UP_PROGRAM_STAGE_ID  + " AND psi.status = 'SCHEDULE' and  "
+                + "teav.trackedentityattributeid =  " + MOBILE_NUMBER_ATTRIBUTE_ID;
 
-            System.out.println( "query: " + query );
+            //System.out.println( "query: " + query );
             
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
             while ( rs.next() )
             {
-                String tei = rs.getString( 1 );
-                String mctsNo = rs.getString( 2 );
+                Integer teiID = rs.getInt( 1 );
+                Integer orgUnitID = rs.getInt( 2 );
+                String dueDate = rs.getString( 3 );
+                String mobileNo = rs.getString( 4 );
                 
-                if ( mctsNo != null )
+                if ( teiID != null && orgUnitID != null && dueDate != null && mobileNo != null
+                    && mobileNo.length() == 10 )
                 {
-                    mctsNumbers.add( tei + ":" + mctsNo );
+                    Date dueDateObject = simpleDateFormat.parse( dueDate );
+                    String dueDateString = simpleDateFormat.format( dueDateObject );
+
+                    customeString.add( mobileNo + ":" + teiID + ":" + dueDateString + ":" + orgUnitID );
                 }
             }
 
-            return mctsNumbers;
+            return customeString;
         }
         catch ( Exception e )
         {

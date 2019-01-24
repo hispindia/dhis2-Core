@@ -1,7 +1,9 @@
 package org.hisp.dhis.googlesheet;
 
-import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
@@ -98,18 +100,19 @@ public class GoogleSheetConfig
         // ServletContext context = null;
         // String absoluteDiskPath = context.getRealPath(CREDENTIALS_FILE_PATH);
 
-        File f = null;
-        f = new File( CREDENTIALS_FILE_PATH );
+        //File f = null;
+        //f = new File( CREDENTIALS_FILE_PATH );
 
-        /*
-         * InputStream in = null;
-         * 
-         * try { //in = new FileInputStream( CREDENTIALS_FILE_PATH );
-         * 
-         * //in = new FileInputStream( absoluteDiskPath );
-         * 
-         * } catch ( FileNotFoundException e ) { e.printStackTrace(); }
-         */
+        InputStream in = null;
+        try
+        {
+            in = new FileInputStream( CREDENTIALS_FILE_PATH );
+
+        }
+        catch ( FileNotFoundException e )
+        {
+            e.printStackTrace();
+        }
         try
         {
             httpTransport = GoogleNetHttpTransport.newTrustedTransport();
@@ -123,7 +126,7 @@ public class GoogleSheetConfig
             e.printStackTrace();
         }
 
-        System.out.println( "in " + f );
+        System.out.println( "in " + in );
 
         // Build a service account credential.
         GoogleCredential credential = null;
@@ -131,7 +134,7 @@ public class GoogleSheetConfig
         {
             credential = new GoogleCredential.Builder().setTransport( httpTransport ).setJsonFactory( JSON_FACTORY )
                 .setServiceAccountId( SERVICE_ACCOUNT ).setServiceAccountScopes( SCOPES )
-                .setServiceAccountPrivateKeyFromP12File( f ).build();
+                .setServiceAccountPrivateKeyFromP12File( in ).build();
         }
         catch ( GeneralSecurityException e )
         {
@@ -187,15 +190,18 @@ public class GoogleSheetConfig
     public void clear()
         throws IOException
     {
+        System.out.println( "In Side clear() "  );
         Sheets service = getService();
         if ( service != null )
         {
-            Spreadsheet spreadsheetResponse = service.spreadsheets().get( this.getSPREAD_SHEET_ID() )
-                .setIncludeGridData( false ).execute();
-
+            Spreadsheet spreadsheetResponse = service.spreadsheets().get( this.getSPREAD_SHEET_ID() ).setIncludeGridData( false ).execute();
+            
+            //System.out.println( "In Side clear() spreadsheetResponse -- " + spreadsheetResponse );
+            
             for ( Sheet s : spreadsheetResponse.getSheets() )
             {
                 String sheet = s.getProperties().getTitle();
+                System.out.println( "In Side clear sheet title -- " + sheet );
                 String range = sheet + "!A2:Z10000000";
                 ClearValuesRequest clearValuesRequest = new ClearValuesRequest();
                 service.spreadsheets().values().clear( this.getSPREAD_SHEET_ID(), range, clearValuesRequest ).execute();
