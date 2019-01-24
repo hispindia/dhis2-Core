@@ -66,6 +66,8 @@ public class SchedulerStart extends AbstractStartupRoutine
 
     private final String CRON_DAILY_7AM = "0 0 7 ? * *";
     
+    private final String CRON_DAILY_8AM = "0 0 8 ? * *";
+    
     private final String CRON_DAILY_11AM = "0 0 11 * * ?";
     
     private final String CRON_DAILY_12PM = "0 0 12 * * ?";
@@ -254,18 +256,18 @@ public class SchedulerStart extends AbstractStartupRoutine
         
         // for INTPART SCHEDULE_CUSTOM_SMS and SCHEDULE_PUSH_IN_GOOGLE_SHEET
         
-        if ( verifyNoJobExist( DEFAULT_SCHEDULE_CUSTOM_SMS, jobConfigurations ) )
+        if ( verifyNoJobExist( DEFAULT_SCHEDULE_PUSH_IN_GOOGLE_SHEET, jobConfigurations ) )
         {
-            JobConfiguration scheduleCustomSMSJob = new JobConfiguration( DEFAULT_SCHEDULE_CUSTOM_SMS,
-                SCHEDULE_CUSTOM_SMS, CRON_DAILY_12PM, null, true, true );
+            JobConfiguration scheduleCustomSMSJob = new JobConfiguration( DEFAULT_SCHEDULE_PUSH_IN_GOOGLE_SHEET,
+                SCHEDULE_PUSH_IN_GOOGLE_SHEET, CRON_DAILY_8AM, null, true, true );
             scheduleCustomSMSJob.setLeaderOnlyJob( true );
             addAndScheduleJob( scheduleCustomSMSJob );
         }
         
-        if ( verifyNoJobExist( DEFAULT_SCHEDULE_PUSH_IN_GOOGLE_SHEET, jobConfigurations ) )
+        if ( verifyNoJobExist( DEFAULT_SCHEDULE_CUSTOM_SMS, jobConfigurations ) )
         {
-            JobConfiguration scheduleCustomSMSJob = new JobConfiguration( DEFAULT_SCHEDULE_PUSH_IN_GOOGLE_SHEET,
-                SCHEDULE_PUSH_IN_GOOGLE_SHEET, CRON_DAILY_11AM, null, true, true );
+            JobConfiguration scheduleCustomSMSJob = new JobConfiguration( DEFAULT_SCHEDULE_CUSTOM_SMS,
+                SCHEDULE_CUSTOM_SMS, CRON_DAILY_12PM, null, true, true );
             scheduleCustomSMSJob.setLeaderOnlyJob( true );
             addAndScheduleJob( scheduleCustomSMSJob );
         }

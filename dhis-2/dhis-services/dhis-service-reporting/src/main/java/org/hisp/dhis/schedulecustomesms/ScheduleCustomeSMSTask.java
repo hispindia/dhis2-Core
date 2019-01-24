@@ -108,6 +108,18 @@ public class ScheduleCustomeSMSTask
     @Override
     public void execute( JobConfiguration jobConfiguration )
     {
+        simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
+        SimpleDateFormat timeFormat = new SimpleDateFormat( "HH:mm:ss" );
+        // get current date time with Date()
+        Date date = new Date();
+        System.out.println( timeFormat.format( date ) );
+
+        todayDate = simpleDateFormat.format( date );
+        currentDate = simpleDateFormat.format( date ).split( "-" )[2];
+        currentMonth = simpleDateFormat.format( date ).split( "-" )[1];
+        currentYear = simpleDateFormat.format( date ).split( "-" )[0];
+        //String currentHour = timeFormat.format( date ).split( ":" )[0];
+        
         System.out.println( "INFO: scheduler Custome SMS job has started at : " + new Date() + " -- "
             + JobType.SCHEDULE_CUSTOM_SMS );
         boolean isScheduleCustomeSMSJobEnabled = (Boolean) systemSettingManager
@@ -149,8 +161,7 @@ public class ScheduleCustomeSMSTask
     public void scheduledNPCDCSProgramCustomeSMS( Integer mobile_attribute_id, Integer program_stage_id )
         throws IOException
     {
-        System.out.println( " NPCDCS_FOLLOW_UP SMS Scheduler Started at : " + new Date() + " -- current date  -  "
-            + todayDate );
+        System.out.println( " NPCDCS_FOLLOW_UP SMS Scheduler Started at : " + new Date() + " -- current date  -  " +  currentDate );
 
         TrackedEntityAttribute teAttribute = trackedEntityAttributeService
             .getTrackedEntityAttribute( NAME_ATTRIBUTE_ID );

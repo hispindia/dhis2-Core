@@ -204,6 +204,7 @@
   <bean id="predictorJob" class="org.hisp.dhis.predictor.PredictorJob" />
   <!-- for INTPART SCHEDULE_CUSTOM_SMS and SCHEDULE_PUSH_IN_GOOGLE_SHEET -->
   <bean id="scheduleCustomSMSJob" class="org.hisp.dhis.schedulecustomesms.ScheduleCustomeSMSTask" />
+  <bean id="schedulePushInGoogleSheetJob" class="org.hisp.dhis.googlesheet.ScheduleGoogleSheetTask" />
 
   <!-- Startup routine definitions -->
 
