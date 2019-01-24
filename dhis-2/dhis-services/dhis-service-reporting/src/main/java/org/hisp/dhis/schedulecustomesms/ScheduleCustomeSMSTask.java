@@ -108,7 +108,7 @@ public class ScheduleCustomeSMSTask
     @Override
     public void execute( JobConfiguration jobConfiguration )
     {
-        System.out.println( "INFO: scheduler Auto Approve Tracker Data job has started at : " + new Date() + " -- "
+        System.out.println( "INFO: scheduler Custome SMS job has started at : " + new Date() + " -- "
             + JobType.SCHEDULE_CUSTOM_SMS );
         boolean isScheduleCustomeSMSJobEnabled = (Boolean) systemSettingManager
             .getSystemSetting( SettingKey.SCHEDULE_CUSTOM_SMS );
