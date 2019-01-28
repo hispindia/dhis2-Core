@@ -138,10 +138,15 @@ public class GoogleSheetController
         {
             for( String mobileNumber : mobileNumberList )
             {
-                List<Object> data = new ArrayList<>();
-                data.add( mobileNumber );
-                data.add( scriptId );
-                fullData.add( data );
+                if( !mobileNumber.equalsIgnoreCase( "NA" ) && mobileNumber.length() == 10 )
+                {
+                    mobileNumber = "91"+mobileNumber;
+                    List<Object> data = new ArrayList<>();
+                    data.add( mobileNumber );
+                    data.add( scriptId );
+                    fullData.add( data );
+                }
+                
             }
             
             ValueRange valueRange = new ValueRange();
