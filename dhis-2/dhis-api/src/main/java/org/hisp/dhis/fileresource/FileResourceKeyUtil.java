@@ -1,7 +1,7 @@
-package org.hisp.dhis.sms.config;
+package org.hisp.dhis.fileresource;
 
 /*
- * Copyright (c) 2004-2018, University of Oslo
+ * Copyright (c) 2004-2019, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,84 +28,27 @@ package org.hisp.dhis.sms.config;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
- * @author Zubair <rajazubair.asghar@gmail.com>
+ * @author Luciano Fiandesio
  */
-public class GenericGatewayParameter
-    implements Serializable
+public class FileResourceKeyUtil
 {
-    private static final long serialVersionUID = -863990758156009672L;
 
-    private boolean header;
-
-    private String key;
-
-    private String value;
-
-    private boolean classified;
-
-    public GenericGatewayParameter()
+    public static String makeKey( FileResourceDomain domain, Optional<String> key )
     {
+        if ( key.isPresent() )
+        {
+            return domain.getContainerName() + "/" + key.get();
+        }
+        return generateStorageKey( domain );
+
     }
 
-    public GenericGatewayParameter( String key, String value, boolean classified )
+    private static String generateStorageKey( FileResourceDomain domain )
     {
-        super();
-        this.key = key;
-        this.value = value;
-        this.classified = classified;
-    }
-
-    @JsonProperty( value = "key" )
-    public String getKey()
-    {
-        return key;
-    }
-
-    public void setKey( String key )
-    {
-        this.key = key;
-    }
-
-    @JsonProperty( value = "value" )
-    public String getValue()
-    {
-        return classified ? "" : value;
-    }
-
-    public String getValueForKey()
-    {
-        return value;
-    }
-
-    public void setValue( String value )
-    {
-        this.value = value;
-    }
-
-    @JsonProperty( value = "classified" )
-    public boolean isClassified()
-    {
-        return classified;
-    }
-
-    public void setClassified( boolean classified )
-    {
-        this.classified = classified;
-    }
-
-    @JsonProperty
-    public boolean isHeader()
-    {
-        return header;
-    }
-
-    public void setHeader( boolean header )
-    {
-        this.header = header;
+        return domain.getContainerName() + "/" + UUID.randomUUID().toString();
     }
 }
