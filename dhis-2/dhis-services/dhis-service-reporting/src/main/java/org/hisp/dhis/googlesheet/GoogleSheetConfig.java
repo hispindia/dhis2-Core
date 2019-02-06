@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.ClearValuesRequest;
 import com.google.api.services.sheets.v4.model.Sheet;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
+import com.google.api.services.sheets.v4.model.ValueRange;
 
 /**
  * @author Mithilesh Kumar Thakur
@@ -208,5 +210,30 @@ public class GoogleSheetConfig
             }
         }
     }
+    
+    // clear sheet data
+    public List<List<Object>> read()  throws IOException
+    {
+        System.out.println( "In Side read() "  );
+        List<List<Object>> fullData = new ArrayList<>();
+        Sheets service = getService();
+        if ( service != null )
+        {
+            Spreadsheet spreadsheetResponse = service.spreadsheets().get( this.getSPREAD_SHEET_ID() ).setIncludeGridData( false ).execute();
+            
+            for ( Sheet s : spreadsheetResponse.getSheets() )
+            {
+                String sheet = s.getProperties().getTitle();
+                System.out.println( "In Side read sheet title -- " + sheet );
+                String range = sheet + "!A2:Z10000000";
+                ValueRange response = service.spreadsheets().values().get(this.getSPREAD_SHEET_ID(), range).execute();
+
+                fullData = response.getValues();
+            }
+        }
+        
+        return fullData;
+    }   
+    
 
 }

@@ -5,18 +5,24 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hisp.dhis.organisationunit.OrganisationUnit;
+import org.hisp.dhis.schedulecustomesms.BulkSMSHttpInterface;
 import org.hisp.dhis.scheduling.AbstractJob;
 import org.hisp.dhis.scheduling.JobConfiguration;
 import org.hisp.dhis.scheduling.JobType;
 import org.hisp.dhis.setting.SettingKey;
 import org.hisp.dhis.setting.SystemSettingManager;
+import org.hisp.dhis.trackedentity.TrackedEntityAttribute;
 import org.hisp.dhis.trackedentity.TrackedEntityAttributeService;
+import org.hisp.dhis.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceService;
+import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValue;
 import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -51,6 +57,12 @@ public class ScheduleGoogleSheetTask  extends AbstractJob
     private final static int MOBILE_NUMBER_ATTRIBUTE_ID = 142;
 
     private final static int NPCDCS_FOLLOW_UP_PROGRAM_STAGE_ID = 133470;
+    
+    private final static int ANC_VISITS_2_4_PROGRAM_STAGE_ID = 1364;
+
+    private final static int CHILD_HEALTH_IMMUNIZATION_PROGRAM_STAGE_ID = 2125;
+
+    private final static int POST_NATAL_CARE_PROGRAM_STAGE_ID = 1477;
     
     // -------------------------------------------------------------------------
     // Dependencies
@@ -96,6 +108,14 @@ public class ScheduleGoogleSheetTask  extends AbstractJob
     static String inputTemplatePath = "";
     
     private SimpleDateFormat simpleDateFormat;
+    
+    String currentDate = "";
+
+    String currentMonth = "";
+
+    String currentYear = "";
+
+    String todayDate = "";
     
     // -------------------------------------------------------------------------
     // Implementation
@@ -159,6 +179,18 @@ public class ScheduleGoogleSheetTask  extends AbstractJob
     {
         System.out.println( "In Side pushTeiDataInGoogleSheet " );
         
+        simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
+        SimpleDateFormat timeFormat = new SimpleDateFormat( "HH:mm:ss" );
+        // get current date time with Date()
+        Date date = new Date();
+        System.out.println( timeFormat.format( date ) );
+
+        todayDate = simpleDateFormat.format( date );
+        currentDate = simpleDateFormat.format( date ).split( "-" )[2];
+        currentMonth = simpleDateFormat.format( date ).split( "-" )[1];
+        currentYear = simpleDateFormat.format( date ).split( "-" )[0];
+        //String currentHour = timeFormat.format( date ).split( ":" )[0];
+        
         //String inputTemplatePath = System.getenv( "DHIS2_HOME" ) + File.separator + CREDENTIALS_FILE_PATH;
         simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
         googleSheetConfig = new GoogleSheetConfig();
@@ -176,19 +208,31 @@ public class ScheduleGoogleSheetTask  extends AbstractJob
     public void addDataInSheet()
         throws IOException
     {
-        List<String> customString = new ArrayList<String>( getTrackedEntityInstanceAttributeValueByAttributeId( 5762 ) );
-        System.out.println( "List Size --  " + customString.size() );
+        List<String> completeList = new ArrayList<String>();
         
+        List<String> npcdcFollowUpList = new ArrayList<String>( scheduledNPCDCSProgramIVRSScript( MOBILE_NUMBER_ATTRIBUTE_ID, NPCDCS_FOLLOW_UP_PROGRAM_STAGE_ID ) );
+        List<String> ancVISITS24ProgramList = new ArrayList<String>( scheduledANCVISITS24ProgramIVRSScript( MOBILE_NUMBER_ATTRIBUTE_ID, ANC_VISITS_2_4_PROGRAM_STAGE_ID ) );
+        List<String> pnc4ProgramList = new ArrayList<String>( scheduledANCVISITS24ProgramIVRSScript( MOBILE_NUMBER_ATTRIBUTE_ID, POST_NATAL_CARE_PROGRAM_STAGE_ID ) );
+        List<String> childHealthProgramList = new ArrayList<String>( scheduledChildHealthProgrammeIVRSScript( MOBILE_NUMBER_ATTRIBUTE_ID, CHILD_HEALTH_IMMUNIZATION_PROGRAM_STAGE_ID ) );
+        
+        completeList.addAll( npcdcFollowUpList );
+        completeList.addAll( ancVISITS24ProgramList );
+        completeList.addAll( pnc4ProgramList );
+        completeList.addAll( childHealthProgramList );
+        
+        System.out.println( "List Size --  " + npcdcFollowUpList.size() + " -- " + ancVISITS24ProgramList.size() + " -- " + pnc4ProgramList.size() + " -- " + childHealthProgramList.size() );
+        
+        System.out.println( "List Size --  " + completeList.size() );       
         List<List<Object>> fullData = new ArrayList<>();
         
-        for( String customStr : customString )
+        for( String customStr : completeList )
         {
             List<Object> data = new ArrayList<>();
             
             data.add( customStr.split( ":" )[0] );
             data.add( customStr.split( ":" )[1] );
-            data.add( customStr.split( ":" )[2] );
-            data.add( customStr.split( ":" )[3] );
+            //data.add( customStr.split( ":" )[2] );
+            //data.add( customStr.split( ":" )[3] );
             fullData.add( data );
             
             /*
@@ -240,7 +284,7 @@ public class ScheduleGoogleSheetTask  extends AbstractJob
     
     public List<String> getTrackedEntityInstanceAttributeValueByAttributeId( Integer attributeId )
     {
-        List<String> customeString = new ArrayList<String>();
+        List<String> customeString = new ArrayList<>();
         
         try
         {
@@ -277,5 +321,217 @@ public class ScheduleGoogleSheetTask  extends AbstractJob
         {
             throw new RuntimeException( "Illegal Attribute id", e );
         }
-    }    
+    }
+    
+    public List<String> scheduledNPCDCSProgramIVRSScript( Integer mobile_attribute_id, Integer program_stage_id )
+        throws IOException
+    {
+        List<String> customeString = new ArrayList<>();
+        try
+        {
+            String query = "SELECT pi.trackedentityinstanceid, psi.organisationunitid, psi.duedate::date, teav.value, ps.description FROM programstageinstance psi "
+                + "INNER JOIN programinstance pi ON  pi.programinstanceid = psi.programinstanceid "
+                + "INNER JOIN trackedentityattributevalue teav ON teav.trackedentityinstanceid = pi.trackedentityinstanceid "
+                + "INNER JOIN programstage ps ON ps.programstageid = psi.programstageid " 
+                + "WHERE psi.programstageid = " + program_stage_id
+                + "AND psi.status = 'SCHEDULE' and  psi.duedate::date > '" + todayDate + "' " 
+                + " AND teav.trackedentityattributeid =  " + mobile_attribute_id;
+
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+            while ( rs.next() )
+            {
+                Integer teiID = rs.getInt( 1 );
+                Integer orgUnitID = rs.getInt( 2 );
+                String dueDate = rs.getString( 3 );
+                String mobileNo = rs.getString( 4 );
+                String ivrsScriptId = rs.getString( 5 );
+
+                if ( teiID != null && orgUnitID != null && dueDate != null && mobileNo != null
+                    && mobileNo.length() == 10 && ivrsScriptId != null )
+                {
+                    Date dueDateObject = simpleDateFormat.parse( dueDate );
+
+                    // one day before
+                    Calendar oneDayBefore = Calendar.getInstance();
+                    oneDayBefore.setTime( dueDateObject );
+                    oneDayBefore.add( Calendar.DATE, -1 );
+                    Date oneDayBeforeDate = oneDayBefore.getTime();
+
+                    String oneDayBeforeDateString = simpleDateFormat.format( oneDayBeforeDate );
+
+                    if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString ) )
+                    {
+                        customeString.add( mobileNo + ":" + ivrsScriptId );
+                    }
+                }
+            }
+            return customeString;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal Attribute id", e );
+        }
+
+       
+    }
+
+    public List<String> scheduledANCVISITS24ProgramIVRSScript( Integer mobile_attribute_id, Integer program_stage_id )
+        throws IOException
+    {
+        List<String> customeString = new ArrayList<>();
+        try
+        {
+            String query = "SELECT pi.trackedentityinstanceid, psi.organisationunitid, psi.duedate::date,teav.value, ps.description FROM programstageinstance psi "
+                + "INNER JOIN programinstance pi ON  pi.programinstanceid = psi.programinstanceid "
+                + "INNER JOIN trackedentityattributevalue teav ON teav.trackedentityinstanceid = pi.trackedentityinstanceid "
+                + "INNER JOIN programstage ps ON ps.programstageid = psi.programstageid " 
+                + "WHERE psi.programstageid = "  + program_stage_id
+                + "AND psi.status = 'SCHEDULE' and  psi.duedate::date > '" + todayDate + "' " 
+                + " AND teav.trackedentityattributeid =  " + mobile_attribute_id;
+            
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+            while ( rs.next() )
+            {
+                Integer teiID = rs.getInt( 1 );
+                Integer orgUnitID = rs.getInt( 2 );
+                String dueDate = rs.getString( 3 );
+                String mobileNo = rs.getString( 4 );
+                String ivrsScriptId = rs.getString( 5 );
+
+                if ( teiID != null && orgUnitID != null && dueDate != null && mobileNo != null
+                    && mobileNo.length() == 10 && ivrsScriptId != null )
+                {
+                    Date dueDateObject = simpleDateFormat.parse( dueDate );
+
+                    // one day before
+                    Calendar oneDayBefore = Calendar.getInstance();
+                    oneDayBefore.setTime( dueDateObject );
+                    oneDayBefore.add( Calendar.DATE, -1 );
+                    Date oneDayBeforeDate = oneDayBefore.getTime();
+
+                    String oneDayBeforeDateString = simpleDateFormat.format( oneDayBeforeDate );
+
+                    if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString ) )
+                    {
+                        customeString.add( mobileNo + ":" + ivrsScriptId );
+                    }
+                }
+            }
+            return customeString;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal Attribute id", e );
+        }
+
+       
+    }
+    
+    public List<String> scheduledPNCProgramIVRSScript( Integer mobile_attribute_id, Integer program_stage_id )
+        throws IOException
+    {
+        List<String> customeString = new ArrayList<>();
+        try
+        {
+            String query = "SELECT pi.trackedentityinstanceid, psi.organisationunitid, psi.duedate::date,teav.value, ps.description FROM programstageinstance psi "
+                + "INNER JOIN programinstance pi ON  pi.programinstanceid = psi.programinstanceid "
+                + "INNER JOIN trackedentityattributevalue teav ON teav.trackedentityinstanceid = pi.trackedentityinstanceid "
+                + "INNER JOIN programstage ps ON ps.programstageid = psi.programstageid " 
+                + "WHERE psi.programstageid = "  + program_stage_id
+                + "AND psi.status = 'SCHEDULE' and  psi.duedate::date > '" + todayDate + "' " 
+                + " AND teav.trackedentityattributeid =  " + mobile_attribute_id;
+            
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+            while ( rs.next() )
+            {
+                Integer teiID = rs.getInt( 1 );
+                Integer orgUnitID = rs.getInt( 2 );
+                String dueDate = rs.getString( 3 );
+                String mobileNo = rs.getString( 4 );
+                String ivrsScriptId = rs.getString( 5 );
+
+                if ( teiID != null && orgUnitID != null && dueDate != null && mobileNo != null
+                    && mobileNo.length() == 10 && ivrsScriptId != null )
+                {
+                    Date dueDateObject = simpleDateFormat.parse( dueDate );
+
+                    // one day before
+                    Calendar oneDayBefore = Calendar.getInstance();
+                    oneDayBefore.setTime( dueDateObject );
+                    oneDayBefore.add( Calendar.DATE, -1 );
+                    Date oneDayBeforeDate = oneDayBefore.getTime();
+
+                    String oneDayBeforeDateString = simpleDateFormat.format( oneDayBeforeDate );
+
+                    if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString ) )
+                    {
+                        customeString.add( mobileNo + ":" + ivrsScriptId );
+                    }
+                }
+            }
+            return customeString;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal Attribute id", e );
+        }
+
+       
+    }
+        
+    public List<String> scheduledChildHealthProgrammeIVRSScript( Integer mobile_attribute_id, Integer program_stage_id )
+        throws IOException
+    {
+        List<String> customeString = new ArrayList<>();
+        try
+        {
+            String query = "SELECT pi.trackedentityinstanceid, psi.organisationunitid, psi.duedate::date,teav.value, ps.description FROM programstageinstance psi "
+                + "INNER JOIN programinstance pi ON  pi.programinstanceid = psi.programinstanceid "
+                + "INNER JOIN trackedentityattributevalue teav ON teav.trackedentityinstanceid = pi.trackedentityinstanceid "
+                + "INNER JOIN programstage ps ON ps.programstageid = psi.programstageid " 
+                + "WHERE psi.programstageid = "  + program_stage_id
+                + "AND psi.status = 'SCHEDULE' and  psi.duedate::date > '" + todayDate + "' " 
+                + " AND teav.trackedentityattributeid =  " + mobile_attribute_id;
+            
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+            while ( rs.next() )
+            {
+                Integer teiID = rs.getInt( 1 );
+                Integer orgUnitID = rs.getInt( 2 );
+                String dueDate = rs.getString( 3 );
+                String mobileNo = rs.getString( 4 );
+                String ivrsScriptId = rs.getString( 5 );
+
+                if ( teiID != null && orgUnitID != null && dueDate != null && mobileNo != null
+                    && mobileNo.length() == 10 && ivrsScriptId != null )
+                {
+                    Date dueDateObject = simpleDateFormat.parse( dueDate );
+
+                    // one day before
+                    Calendar oneDayBefore = Calendar.getInstance();
+                    oneDayBefore.setTime( dueDateObject );
+                    oneDayBefore.add( Calendar.DATE, -1 );
+                    Date oneDayBeforeDate = oneDayBefore.getTime();
+
+                    String oneDayBeforeDateString = simpleDateFormat.format( oneDayBeforeDate );
+
+                    if ( todayDate.equalsIgnoreCase( oneDayBeforeDateString ) )
+                    {
+                        customeString.add( mobileNo + ":" + ivrsScriptId );
+                    }
+                }
+            }
+            return customeString;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal Attribute id", e );
+        }
+
+       
+    }
 }

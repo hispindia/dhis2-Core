@@ -130,10 +130,23 @@ public class GoogleSheetController
         googleSheetConfig.setCREDENTIALS_FILE_PATH( inputTemplatePath);
         
         googleSheetConfig.clear();
-        
         System.out.println( "clear sheet  --  " );
         
         List<List<Object>> fullData = new ArrayList<>();
+        
+        /*
+        fullData = new ArrayList<>( googleSheetConfig.read() );
+        System.out.println( "read sheet  --  " + fullData );
+        for( List<Object> test :  fullData )
+        {
+            System.out.println( "test  --  " + test );
+            for( int i = 0; i < test.size(); i++ )
+            {
+                System.out.println( "obj"+i+ " - " + test.get( i ) );
+            }
+        }
+        */
+        
         if( mobileNumberList != null && mobileNumberList.size() > 0 )
         {
             for( String mobileNumber : mobileNumberList )
