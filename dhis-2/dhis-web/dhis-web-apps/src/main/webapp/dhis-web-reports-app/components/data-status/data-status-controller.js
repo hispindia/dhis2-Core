@@ -1006,10 +1006,12 @@ reportsApp.controller('DataStatusController',
 									{
 										for (var i = 0; i < data.rows.length; i++) {
 											$scope.sqlViewCatCombo = data.rows[i];
+												if($scope.sqlViewCatCombo[1] == pr[0] ){
 											if ($scope.Final_orgNameWithBreaks[key] == $scope.sqlViewCatCombo[3]) {
 												$scope.sqlViewCatComboIds.push($scope.sqlViewCatCombo[5] + '-' + $scope.sqlViewCatCombo[6]);
 											}
 										}
+									}
 			
 										for (var i = 0; i < $scope.categoryComboIds.length; i++) {
 											var categoryComboIdsValue = $scope.categoryComboIds[i];
@@ -1024,14 +1026,14 @@ reportsApp.controller('DataStatusController',
 			
 										statusText = 0;//"0(" + $scope.compulsoryDECount + ")";
 										
-										summaryData.forEach(function(sdata){
-											if( sdata[3] == $scope.Final_orgNameWithBreaks[key] && sdata[1] == pr[0] )
-											{
+										
 												currentStatus = $scope.countDS/$scope.NewcompulsoryDECount*100;
 									          // currentStatus= sdata[4]/$scope.NewcompulsoryDECount*100;
 								             	statusText = Math.ceil(currentStatus);//+ "(" + $scope.compulsoryDECount + ")";
-											}
-										});
+											
+											
+											$scope.sqlViewCatComboIds = [];
+											$scope.countDS= 0;
 										
 										if( currentStatus >= 75 )
 											currentColor = "#66FF99";
@@ -1047,9 +1049,7 @@ reportsApp.controller('DataStatusController',
 								
 						htmlString += "<td style='background:"+ currentColor +";padding:0 15px'>"+statusText +"</td>";
 					});
-					$scope.countDS = 0;
-
-					$scope.sqlViewCatComboIds = [];
+					
 					htmlString += "</tr>";
 				}			
 					

@@ -409,6 +409,38 @@ excelUpload.controller('ImportFacilitywiseController',
 
             return ms + " " + pst.substring(0, 4);
         };
+        $scope.lastdate = function (pst) {
+            ldate = pst;
+             var ms = "";
+ 
+             if (ldate == "01")
+                 ms = "31";
+             else if (ldate == "02")
+                 ms = "28";
+             else if (ldate == "03")
+                 ms = "31";
+             else if (ldate == "04")
+                 ms = "30";
+             else if (ldate == "05")
+                 ms = "31";
+             else if (ldate == "06")
+                 ms = "30";
+             else if (ldate == "07")
+                 ms = "31";
+             else if (ldate == "08")
+                 ms = "31";
+             else if (ldate == "09")
+                 ms = "30";
+             else if (ldate == "10")
+                 ms = "31";
+             else if (ldate == "11")
+                 ms = "30";
+             else if (ldate == "12")
+                 ms = "31";
+ 
+             return ms;
+         };
+ 
 
         //*****************************************************************************************
 
@@ -581,8 +613,10 @@ excelUpload.controller('ImportFacilitywiseController',
 
         $scope.h = {};
         $scope.importData = function (orgUnit, index, callbackfunct) {
+            var ouid = orgUnit.id;
             var selectedTemp = $scope.getTemplate($scope.confirmedUploads.TempVal);
             var dataValues = [];
+            var dataSetid = $scope.confirmedUploads.dataSetVal;
             //var orgUnitUIDs = [];
             //				$("#loader").fadeIn();
             $("#templateProgress").html(orgUnit.name + " -> preparing data values to import");
@@ -646,7 +680,56 @@ excelUpload.controller('ImportFacilitywiseController',
 			 }
 			 */
             // SOU - MDE
+            $scope.newDataSetValue = [];
+            $scope.dataValNew = [];
             if (selectedTemp.typeId == 2) {
+
+
+                $scope.pee = $scope.confirmedUploads.periodVal;
+                var sd = $scope.pee.substr(0,4);
+                var sda = $scope.pee.substr(4,6);
+                var sdd = "";
+                var edd = "";
+                 sdd = sd + '-' + sda + '-' + '01';
+                 ld=$scope.lastdate(sda);
+                 edd = sd + '-' + sda+ "-" + ld;
+                
+
+                $.get("../api/dataValueSets.json?orgUnit="+ouid+"&startDate="+sdd+"&endDate="+edd+"&dataSet="+dataSetid, function (data1) {
+                    console.log(data1);
+
+                    if(data1.dataValues != undefined){
+                   
+                 
+                    for(var i= 0; i<data1.dataValues.length; i++){
+                        
+                        if(data1.dataValues[i].value != ""){
+                     value = data1.dataValues[i].value; 
+                    var  period = data1.dataValues[i].period;
+                    var cc = data1.dataValues[i].categoryOptionCombo;
+                    var org = data1.dataValues[i].orgUnit;
+                    var de = data1.dataValues[i].dataElement;
+                    var val = ' ';
+                    var sd = period.split(0,4);
+
+                     $scope.newDataSetValue =  {period: period, categoryOptionCombo: cc, orgUnit: org, dataElement: de, value: val};
+
+                     $scope.dataValNew.push($scope.newDataSetValue);
+
+                    
+                        }
+                        var dataValSet = {};
+                        dataValSet.dataValues = $scope.dataValNew;
+                    }
+
+                    $scope.importBlankData(dataValSet);
+
+
+                }
+
+                  
+
+                     })
                 //if( selectedTemp.columnMetaData == "o" )
                 //{
                 for (var x = 0; x < selectedTemp.DEMappings.length; x++) {
@@ -763,6 +846,7 @@ excelUpload.controller('ImportFacilitywiseController',
 
 
                 //saving data
+                setTimeout(function(){
                 ExcelMappingService.importData(dataValueSet).then(function (tem) {
                     //$("#loader").hide();
                     console.log("index : " + index);
@@ -838,14 +922,75 @@ excelUpload.controller('ImportFacilitywiseController',
                         callbackfunct();
                     }
                 });
-            });
-        };
+            },6000)
+        });
+    };
 
         //****************************************************************************************************************
         //****************************************************************************************************************
         //****************************************************************************************************************
         //****************************************************************************************************************
+        $scope.importBlankData = function (dataValSet){
+            //  ExcelMappingService.importData($scope.dataValNew)
+            ExcelMappingService.importData(dataValSet).then(function (tem){
+             console.log("index : " + index);
+             console.log("no of orgUnits : " + $scope.confirmedUploads.orgUnits.length);
+             console.log(tem.data.importCount.updated);
+             console.log(tem.data.importCount.imported);
+             console.log(tem.data.importCount.ignored);
+ 
+             // complete registration
+             if (tem.data.importCount.updated > 0 || tem.data.importCount.imported > 0) {
+                 for (var i = 0; i < $scope.confirmedUploads.orgUnits.length; i++) {
+                     var dataSetCompleteParams = {
+                         'ds': $scope.h.dataSet1,
+                         'pe': $scope.confirmedUploads.periodVal,
+                         'ou': $scope.confirmedUploads.orgUnits[i].id,
+                         'multiOu': false
+                     };
+ 
+                     $.ajax({
+                         url: '../api/25/completeDataSetRegistrations',
+                         data: dataSetCompleteParams,
+                         dataType: 'json',
+                         type: 'post',
+                         success: function (data, textStatus, xhr) {
+                             $("#dataSetRegistrationsComplete").html("SUCCESS");
+                             console.log("Registration Complete");
+                         },
+                         error: function (xhr, textStatus, errorThrown) {
+                             console.log("Error in Registration Complete");
+                             $("#dataSetRegistrationsComplete").html("IGNORED");
+                             if (409 == xhr.status || 500 == xhr.status) // Invalid value or locked
+                             {
+ 
+                             }
+                             else // Offline, keep local value
+                             {
+ 
+                             }
+                         }
+                     });
+ 
+                     console.log(dataSetCompleteParams);
+ 
+                    // console.log($scope.confirmedUploads.orgUnits[i].id + " --" + $("#imDataSetId").val() + "--" + $("#importPeriod").val());
+                 }
+ 
+             }
+         
+             else {
+                 $("#dataSetRegistrationsComplete").html("IGNORED");
+             }
+         
+         
+ 
+     
+ 
+     
+      })
 
+}
         $scope.getTemplate = function (id) {
             var t = "";
 
