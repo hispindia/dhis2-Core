@@ -101,7 +101,7 @@ excelUpload.controller('ImportFacilitywiseController',
                     //org unit group
                     $("#templateProgress").html("Fetching organisation unit groups...");
                     $.get('../api/organisationUnitGroups.json?paging=false', function (ou) {
-                      
+
                         console.log(ou);
                         $scope.orgUnitGroups = ou.organisationUnitGroups;
 
@@ -259,11 +259,11 @@ excelUpload.controller('ImportFacilitywiseController',
             var url1 = "../api/organisationUnits.json?paging=false&fields=id,name&filter=organisationUnitGroups.id:eq:" + orgUnitGroupID;
             $.get(url1, function (ous1) {
                 length2 = ous1.organisationUnits.length;
-                for ( j = 0; j < length2; j++) {
+                for (j = 0; j < length2; j++) {
                     parentvalues1[j] = ous1.organisationUnits[j].id;
                     parentnames1[j] = ous1.organisationUnits[j].name;
                 }
-               
+
                 return length2, parentvalues1, parentnames1;
             });
             for (var a = 0; a <= length1; a++) {
@@ -411,36 +411,36 @@ excelUpload.controller('ImportFacilitywiseController',
         };
         $scope.lastdate = function (pst) {
             ldate = pst;
-             var ms = "";
- 
-             if (ldate == "01")
-                 ms = "31";
-             else if (ldate == "02")
-                 ms = "28";
-             else if (ldate == "03")
-                 ms = "31";
-             else if (ldate == "04")
-                 ms = "30";
-             else if (ldate == "05")
-                 ms = "31";
-             else if (ldate == "06")
-                 ms = "30";
-             else if (ldate == "07")
-                 ms = "31";
-             else if (ldate == "08")
-                 ms = "31";
-             else if (ldate == "09")
-                 ms = "30";
-             else if (ldate == "10")
-                 ms = "31";
-             else if (ldate == "11")
-                 ms = "30";
-             else if (ldate == "12")
-                 ms = "31";
- 
-             return ms;
-         };
- 
+            var ms = "";
+
+            if (ldate == "01")
+                ms = "31";
+            else if (ldate == "02")
+                ms = "28";
+            else if (ldate == "03")
+                ms = "31";
+            else if (ldate == "04")
+                ms = "30";
+            else if (ldate == "05")
+                ms = "31";
+            else if (ldate == "06")
+                ms = "30";
+            else if (ldate == "07")
+                ms = "31";
+            else if (ldate == "08")
+                ms = "31";
+            else if (ldate == "09")
+                ms = "30";
+            else if (ldate == "10")
+                ms = "31";
+            else if (ldate == "11")
+                ms = "30";
+            else if (ldate == "12")
+                ms = "31";
+
+            return ms;
+        };
+
 
         //*****************************************************************************************
 
@@ -686,89 +686,87 @@ excelUpload.controller('ImportFacilitywiseController',
 
 
                 $scope.pee = $scope.confirmedUploads.periodVal;
-                var sd = $scope.pee.substr(0,4);
-                var sda = $scope.pee.substr(4,6);
+                var sd = $scope.pee.substr(0, 4);
+                var sda = $scope.pee.substr(4, 6);
                 var sdd = "";
                 var edd = "";
-                 sdd = sd + '-' + sda + '-' + '01';
-                 ld=$scope.lastdate(sda);
-                 edd = sd + '-' + sda+ "-" + ld;
-                
+                sdd = sd + '-' + sda + '-' + '01';
+                ld = $scope.lastdate(sda);
+                edd = sd + '-' + sda + "-" + ld;
 
-                $.get("../api/dataValueSets.json?orgUnit="+ouid+"&startDate="+sdd+"&endDate="+edd+"&dataSet="+dataSetid, function (data1) {
+
+                $.get("../api/dataValueSets.json?orgUnit=" + ouid + "&startDate=" + sdd + "&endDate=" + edd + "&dataSet=" + dataSetid, function (data1) {
                     console.log(data1);
 
-                    if(data1.dataValues != undefined){
-                   
-                 
-                    for(var i= 0; i<data1.dataValues.length; i++){
-                        
-                        if(data1.dataValues[i].value != ""){
-                     value = data1.dataValues[i].value; 
-                    var  period = data1.dataValues[i].period;
-                    var cc = data1.dataValues[i].categoryOptionCombo;
-                    var org = data1.dataValues[i].orgUnit;
-                    var de = data1.dataValues[i].dataElement;
-                    var val = ' ';
-                    var sd = period.split(0,4);
+                    if (data1.dataValues != undefined) {
 
-                     $scope.newDataSetValue =  {period: period, categoryOptionCombo: cc, orgUnit: org, dataElement: de, value: val};
 
-                     $scope.dataValNew.push($scope.newDataSetValue);
+                        for (var i = 0; i < data1.dataValues.length; i++) {
 
-                    
+                            if (data1.dataValues[i].value != "") {
+                                value = data1.dataValues[i].value;
+                                var period = data1.dataValues[i].period;
+                                var cc = data1.dataValues[i].categoryOptionCombo;
+                                var org = data1.dataValues[i].orgUnit;
+                                var de = data1.dataValues[i].dataElement;
+                                var val = ' ';
+                                var sd = period.split(0, 4);
+
+                                $scope.newDataSetValue = { period: period, categoryOptionCombo: cc, orgUnit: org, dataElement: de, value: val };
+
+                                $scope.dataValNew.push($scope.newDataSetValue);
+
+
+                            }
+                            var dataValSet = {};
+                            dataValSet.dataValues = $scope.dataValNew;
                         }
-                        var dataValSet = {};
-                        dataValSet.dataValues = $scope.dataValNew;
+
+                        $scope.importBlankData(dataValSet);
+
+
                     }
 
-                    $scope.importBlankData(dataValSet);
 
 
-                }
-
-                  
-
-                     })
+                })
                 //if( selectedTemp.columnMetaData == "o" )
                 //{
                 for (var x = 0; x < selectedTemp.DEMappings.length; x++) {
                     var cellAddress = selectedTemp.DEMappings[x].cellAddress;
 
                     var dataValue = {};
-					dataValue.period = $scope.confirmedUploads.periodVal;
+                    dataValue.period = $scope.confirmedUploads.periodVal;
                     dataValue.categoryOptionCombo = selectedTemp.DEMappings[x].metadata.split("-")[1];
                     dataValue.orgUnit = orgUnit.id;
                     dataValue.dataElement = selectedTemp.DEMappings[x].metadata.split("-")[0];
 
-                    $.get("../api/dataElements/"+dataValue.dataElement+".json?fields=valueType", function (data) {
+                    $.get("../api/dataElements/" + dataValue.dataElement + ".json?fields=valueType", function (data) {
 
                         var deType = data.valueType;
 
 
-                        if(deType === "DATE")
-                        {
+                        if (deType === "DATE") {
                             var temp = $scope.getImportDataByAddress(cellAddress, orgUnit);
-                            var dd = temp.substring(0,2);
-                            var mm = temp.substring(2,4);
-                            var yy = temp.substring(4,8);
-    
-                            var date = yy+"-"+mm+"-"+dd;
+                            var dd = temp.substring(0, 2);
+                            var mm = temp.substring(2, 4);
+                            var yy = temp.substring(4, 8);
+
+                            var date = yy + "-" + mm + "-" + dd;
                             dataValue.value = date;
                             console.log(dataValue.value);
-    
-                        
+
+
                         }
-                        else
-                        {
+                        else {
                             dataValue.value = $scope.getImportDataByAddress(cellAddress, orgUnit);
-    
-                        
+
+
                         }
-                        
+
                     });
 
-                   
+
 
                     dataValue.value = dataValue.value == "" ? "omit" : dataValue.value;
 
@@ -777,8 +775,8 @@ excelUpload.controller('ImportFacilitywiseController',
                         dataValues.push(dataValue);
                     }
                 }
-                
-                   
+
+
                 //}
 				/*else
 				 {
@@ -846,151 +844,103 @@ excelUpload.controller('ImportFacilitywiseController',
 
 
                 //saving data
-                setTimeout(function(){
-                ExcelMappingService.importData(dataValueSet).then(function (tem) {
-                    //$("#loader").hide();
-                    console.log("index : " + index);
-                    console.log("no of orgUnits : " + $scope.confirmedUploads.orgUnits.length);
-                    console.log(tem.data.importCount.updated);
-                    console.log(tem.data.importCount.imported);
-                    console.log(tem.data.importCount.ignored);
+                setTimeout(function () {
+                    ExcelMappingService.importData(dataValueSet).then(function (tem) {
+                        //$("#loader").hide();
+                        console.log("index : " + index);
+                        console.log("no of orgUnits : " + $scope.confirmedUploads.orgUnits.length);
+                        console.log(tem.data.importCount.updated);
+                        console.log(tem.data.importCount.imported);
+                        console.log(tem.data.importCount.ignored);
 
-                    // complete registration
-                    if (tem.data.importCount.updated > 0 || tem.data.importCount.imported > 0) {
-                        for (var i = 0; i < $scope.confirmedUploads.orgUnits.length; i++) {
-                            var dataSetCompleteParams = {
-                                'ds': $scope.h.dataSet1,
-                                'pe': $scope.confirmedUploads.periodVal,
-                                'ou': $scope.confirmedUploads.orgUnits[i].id,
-                                'multiOu': false
-                            };
+                        // complete registration
+                        if (tem.data.importCount.updated > 0 || tem.data.importCount.imported > 0) {
+                            for (var i = 0; i < $scope.confirmedUploads.orgUnits.length; i++) {
+                                var dataSetCompleteParams = {
+                                    'ds': $scope.h.dataSet1,
+                                    'pe': $scope.confirmedUploads.periodVal,
+                                    'ou': $scope.confirmedUploads.orgUnits[i].id,
+                                    'multiOu': false
+                                };
 
-                            $.ajax({
-                                url: '../api/25/completeDataSetRegistrations',
-                                data: dataSetCompleteParams,
-                                dataType: 'json',
-                                type: 'post',
-                                success: function (data, textStatus, xhr) {
-                                    $("#dataSetRegistrationsComplete").html("SUCCESS");
-                                    console.log("Registration Complete");
-                                },
-                                error: function (xhr, textStatus, errorThrown) {
-                                    console.log("Error in Registration Complete");
-                                    $("#dataSetRegistrationsComplete").html("IGNORED");
-                                    if (409 == xhr.status || 500 == xhr.status) // Invalid value or locked
-                                    {
+                                $.ajax({
+                                    url: '../api/25/completeDataSetRegistrations',
+                                    data: dataSetCompleteParams,
+                                    dataType: 'json',
+                                    type: 'post',
+                                    success: function (data, textStatus, xhr) {
+                                        $("#dataSetRegistrationsComplete").html("SUCCESS");
+                                        console.log("Registration Complete");
+                                    },
+                                    error: function (xhr, textStatus, errorThrown) {
+                                        console.log("Error in Registration Complete");
+                                        $("#dataSetRegistrationsComplete").html("IGNORED");
+                                        if (409 == xhr.status || 500 == xhr.status) // Invalid value or locked
+                                        {
 
+                                        }
+                                        else // Offline, keep local value
+                                        {
+
+                                        }
                                     }
-                                    else // Offline, keep local value
-                                    {
+                                });
 
-                                    }
-                                }
-                            });
+                                console.log(dataSetCompleteParams);
 
-                            console.log(dataSetCompleteParams);
+                                // console.log($scope.confirmedUploads.orgUnits[i].id + " --" + $("#imDataSetId").val() + "--" + $("#importPeriod").val());
+                            }
 
-                           // console.log($scope.confirmedUploads.orgUnits[i].id + " --" + $("#imDataSetId").val() + "--" + $("#importPeriod").val());
+                        }
+                        else {
+                            $("#dataSetRegistrationsComplete").html("IGNORED");
                         }
 
-                    }
-                    else {
-                        $("#dataSetRegistrationsComplete").html("IGNORED");
-                    }
+                        $scope.h.stats.upc += tem.data.importCount.updated;
+                        $scope.h.orgUnits[index].stats.upc = tem.data.importCount.updated;
+                        $scope.h.stats.imc += tem.data.importCount.imported;
+                        $scope.h.orgUnits[index].stats.imc = tem.data.importCount.imported;
+                        $scope.h.stats.igc += tem.data.importCount.ignored;
+                        $scope.h.orgUnits[index].stats.igc = tem.data.importCount.ignored;
+                        $scope.history.history.push($scope.h);
+                        $scope.storeHistory();
 
-                    $scope.h.stats.upc += tem.data.importCount.updated;
-                    $scope.h.orgUnits[index].stats.upc = tem.data.importCount.updated;
-                    $scope.h.stats.imc += tem.data.importCount.imported;
-                    $scope.h.orgUnits[index].stats.imc = tem.data.importCount.imported;
-                    $scope.h.stats.igc += tem.data.importCount.ignored;
-                    $scope.h.orgUnits[index].stats.igc = tem.data.importCount.ignored;
-                    $scope.history.history.push($scope.h);
-                    $scope.storeHistory();
+                        console.log("org upc : " + $scope.h.orgUnits[index].stats.upc);
+                        console.log("org imc : " + $scope.h.orgUnits[index].stats.imc);
+                        console.log("org igc : " + $scope.h.orgUnits[index].stats.igc);
+                        console.log("upc stat : " + $scope.h.stats.upc);
+                        console.log("imc stat : " + $scope.h.stats.imc);
+                        console.log("igc stat : " + $scope.h.stats.igc);
 
-                    console.log("org upc : " + $scope.h.orgUnits[index].stats.upc);
-                    console.log("org imc : " + $scope.h.orgUnits[index].stats.imc);
-                    console.log("org igc : " + $scope.h.orgUnits[index].stats.igc);
-                    console.log("upc stat : " + $scope.h.stats.upc);
-                    console.log("imc stat : " + $scope.h.stats.imc);
-                    console.log("igc stat : " + $scope.h.stats.igc);
-
-                    $("#upc").html(tem.data.importCount.updated);
-                    $("#imct").html(tem.data.importCount.imported);
-                    $("#igc").html(tem.data.importCount.ignored);
-                    $("#stModal").modal('show');
-                    if ($scope.confirmedUploads.orgUnits.length == (index + 1)) {
-                        callbackfunct();
-                    }
-                });
-            },6000)
-        });
-    };
+                        $("#upc").html(tem.data.importCount.updated);
+                        $("#imct").html(tem.data.importCount.imported);
+                        $("#igc").html(tem.data.importCount.ignored);
+                        $("#stModal").modal('show');
+                        if ($scope.confirmedUploads.orgUnits.length == (index + 1)) {
+                            callbackfunct();
+                        }
+                    });
+                }, 6000)
+            });
+        };
 
         //****************************************************************************************************************
         //****************************************************************************************************************
         //****************************************************************************************************************
         //****************************************************************************************************************
-        $scope.importBlankData = function (dataValSet){
+        $scope.importBlankData = function (dataValSet) {
             //  ExcelMappingService.importData($scope.dataValNew)
-            ExcelMappingService.importData(dataValSet).then(function (tem){
-             console.log("index : " + index);
-             console.log("no of orgUnits : " + $scope.confirmedUploads.orgUnits.length);
-             console.log(tem.data.importCount.updated);
-             console.log(tem.data.importCount.imported);
-             console.log(tem.data.importCount.ignored);
- 
-             // complete registration
-             if (tem.data.importCount.updated > 0 || tem.data.importCount.imported > 0) {
-                 for (var i = 0; i < $scope.confirmedUploads.orgUnits.length; i++) {
-                     var dataSetCompleteParams = {
-                         'ds': $scope.h.dataSet1,
-                         'pe': $scope.confirmedUploads.periodVal,
-                         'ou': $scope.confirmedUploads.orgUnits[i].id,
-                         'multiOu': false
-                     };
- 
-                     $.ajax({
-                         url: '../api/25/completeDataSetRegistrations',
-                         data: dataSetCompleteParams,
-                         dataType: 'json',
-                         type: 'post',
-                         success: function (data, textStatus, xhr) {
-                             $("#dataSetRegistrationsComplete").html("SUCCESS");
-                             console.log("Registration Complete");
-                         },
-                         error: function (xhr, textStatus, errorThrown) {
-                             console.log("Error in Registration Complete");
-                             $("#dataSetRegistrationsComplete").html("IGNORED");
-                             if (409 == xhr.status || 500 == xhr.status) // Invalid value or locked
-                             {
- 
-                             }
-                             else // Offline, keep local value
-                             {
- 
-                             }
-                         }
-                     });
- 
-                     console.log(dataSetCompleteParams);
- 
-                    // console.log($scope.confirmedUploads.orgUnits[i].id + " --" + $("#imDataSetId").val() + "--" + $("#importPeriod").val());
-                 }
- 
-             }
-         
-             else {
-                 $("#dataSetRegistrationsComplete").html("IGNORED");
-             }
-         
-         
- 
-     
- 
-     
-      })
+            ExcelMappingService.importData(dataValSet).then(function (tem) {
+                console.log("index : " + index);
+                console.log("no of orgUnits : " + $scope.confirmedUploads.orgUnits.length);
+                console.log(tem.data.importCount.updated);
+                console.log(tem.data.importCount.imported);
+                console.log(tem.data.importCount.ignored);
 
-}
+
+            })
+
+        }
         $scope.getTemplate = function (id) {
             var t = "";
 
