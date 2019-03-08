@@ -96,32 +96,37 @@ public class GetWeeklyPeriodsAction implements Action
             periods = new ArrayList<Period>( periodService.getPeriodsByPeriodType( periodType ) );
         }
         
-       Period pp = periods.get(1);
+       //Period pp = periods.get(1);
        //System.out.println("period pp is ------"+pp);
         
         
         // remove future period
-        Iterator<Period> periodIterator = periods.iterator();
-        while ( periodIterator.hasNext() )
-        {
-            Period p1 = periodIterator.next();
-            
-            //p1.getIsoDate();
-            
-            if ( p1.getStartDate().compareTo( new Date() ) > 0 )
-            {
-                periodIterator.remove();
-            }
-
-        }
-        Collections.sort( periods, new PeriodComparator() );
         
-        simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
-        for ( Period p1 : periods )
+        if( periods != null && periods.size() > 0 )
         {
-            String tempPeriodName = simpleDateFormat.format( p1.getStartDate() ) + " - " + simpleDateFormat.format( p1.getEndDate() );
-            periodNameList.add( tempPeriodName );
+            Iterator<Period> periodIterator = periods.iterator();
+            while ( periodIterator.hasNext() )
+            {
+                Period p1 = periodIterator.next();
+                
+                //p1.getIsoDate();
+                
+                if ( p1.getStartDate().compareTo( new Date() ) > 0 )
+                {
+                    periodIterator.remove();
+                }
+
+            }
+            Collections.sort( periods, new PeriodComparator() );
+            
+            simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
+            for ( Period p1 : periods )
+            {
+                String tempPeriodName = simpleDateFormat.format( p1.getStartDate() ) + " - " + simpleDateFormat.format( p1.getEndDate() );
+                periodNameList.add( tempPeriodName );
+            }
         }
+        
         
         return SUCCESS;
     }

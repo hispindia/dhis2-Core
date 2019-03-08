@@ -18,7 +18,10 @@ import org.hisp.dhis.excelimport.util.ExcelImportService;
 import org.hisp.dhis.organisationunit.OrganisationUnitGroup;
 import org.hisp.dhis.organisationunit.OrganisationUnitGroupSetStore;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
+import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodService;
+import org.hisp.dhis.period.PeriodType;
+import org.hisp.dhis.period.WeeklyPeriodType;
 import org.hisp.dhis.user.CurrentUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -58,6 +61,13 @@ public class ImportDataResultAction
 
     @Autowired
     private ExcelImportService excelImportService;
+    
+    private JdbcTemplate jdbcTemplate;
+
+    public void setJdbcTemplate( JdbcTemplate jdbcTemplate )
+    {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     // -------------------------------------------------------------------------
     // Input/Output
@@ -116,27 +126,30 @@ public class ImportDataResultAction
         return updatingCount;
     }
 
-    private JdbcTemplate jdbcTemplate;
+    private String selectedPeriodId;
 
-    public void setJdbcTemplate( JdbcTemplate jdbcTemplate )
+    public void setSelectedPeriodId( String selectedPeriodId )
     {
-        this.jdbcTemplate = jdbcTemplate;
+        this.selectedPeriodId = selectedPeriodId;
     }
 
-    OrganisationUnitGroup orgUnitGroup;
+    private OrganisationUnitGroup orgUnitGroup;
 
-    OrganisationUnitGroup orgUnitGroup1;
+    private OrganisationUnitGroup orgUnitGroup1;
 
-    String orgGroup, orgGroupUid;
+    //private String orgGroup, orgGroupUid;
 
     private String storedBy;
 
-    String splitBy = ",";
+    //private String splitBy = ",";
 
     private Map<String, Integer> dataElementIdCodeMap;
     private Map<String, Integer> cocIdUidMap;
     private Map<String, Integer> orgUnitIdUidMap;
     
+    private Period selectedPeriod;
+    
+    private Integer periodId = null;
     
     // -------------------------------------------------------------------------
     // Action implementation
@@ -152,7 +165,8 @@ public class ImportDataResultAction
         addingCount = "";
         updatingCount = "";
         int totrec = 0;
-        System.out.println( "Start Importing Time : " + new Date() );
+        
+        //System.out.println( "Start Importing Time : " + new Date() + "-- " + selectedPeriodId );
        
         dataElementIdCodeMap = new HashMap<String, Integer>( excelImportService.getDataElementsIdCodeMap() );
         cocIdUidMap = new HashMap<String, Integer>( excelImportService.getCOCIdUidMap() );
@@ -169,7 +183,23 @@ public class ImportDataResultAction
 
             return SUCCESS;
         }
+        
+        if( selectedPeriodId == null )
+        {
+            message = "Weekly period missing Please select Period";
 
+            return SUCCESS;
+        }
+        
+        else
+        {
+            Period period = periodService.reloadIsoPeriod( selectedPeriodId );
+            periodId = period.getId();
+            System.out.println( "Start Importing Time : " + new Date() + " -- " + selectedPeriodId + " Period-Id -- " + periodId );
+        }
+        
+        //selectedPeriod = periodService.getPeriod( availablePeriods );
+        
         List allRows = new ArrayList<String>();
         String[] row = null;
         int count = 0;
@@ -193,7 +223,7 @@ public class ImportDataResultAction
             Date date = new Date();
             java.sql.Timestamp lastUpdatedDate = new Timestamp(date.getTime());
             java.sql.Timestamp createdDate = new Timestamp(date.getTime());
-            
+            //Integer periodId;
             int insertFlag = 1;
             String insertQuery = "INSERT INTO datavalue ( dataelementid, periodid, sourceid, categoryoptioncomboid, attributeoptioncomboid, value, storedby, created, lastupdated, deleted, comment, followup ) VALUES ";
             try
@@ -207,7 +237,8 @@ public class ImportDataResultAction
                     Integer dataElementId = dataElementIdCodeMap.get( oneRow[0] );
                     Integer categoryOptionComboId = cocIdUidMap.get( oneRow[3] );
                     Integer attributeOptionComboId = cocIdUidMap.get( oneRow[4] );
-                    Integer periodId = excelImportService.getSecondWeekPeriodId( oneRow[1] );
+
+                    //Integer periodId = excelImportService.getSecondWeekPeriodId( oneRow[1] );
                     
                     if ( oneRow[5].equalsIgnoreCase( "" ) || oneRow[5] == null || oneRow[5].equalsIgnoreCase( " " ) )
                     {
@@ -215,7 +246,7 @@ public class ImportDataResultAction
 
                         continue;
                     }
-                   
+
                     if( dataElementId != null && periodId != null && organisationUnitId != null  && categoryOptionComboId != null && attributeOptionComboId != null )
                     {
                         String selectQuery = "SELECT value FROM datavalue WHERE dataelementid = " + dataElementId

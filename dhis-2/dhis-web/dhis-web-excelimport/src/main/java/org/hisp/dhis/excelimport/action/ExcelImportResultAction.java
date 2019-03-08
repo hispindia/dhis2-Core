@@ -700,7 +700,7 @@ public class ExcelImportResultAction
 
                 String deCodeString = (String) it1.next();
 
-		    String deType = (String) deCodeType.get( count1 );
+		 String deType = (String) deCodeType.get( count1 );
                 String sType = (String) serviceType.get( count1 );
                 int tempRowNo = rowList.get( count1 );
                 int tempColNo = colList.get( count1 );

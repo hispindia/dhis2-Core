@@ -1,6 +1,11 @@
 package org.hisp.dhis.excelimport.importexcel.action;
 
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.YearMonth;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -118,6 +123,24 @@ public class ImportFormAction  implements Action
             yearList.add( simpleDateFormat.format( p1.getStartDate() ) );
         }
 	
+        /*
+        //from YearMonth
+        YearMonth ym = YearMonth.of(2019, Month.JANUARY);
+        LocalDate d3 = ym.atDay(1).with(TemporalAdjusters.dayOfWeekInMonth( 2, DayOfWeek.MONDAY) );
+        System.out.println( "d3 Jan -- " +  d3);
+        
+        
+        //from YearMonth
+        YearMonth ym1 = YearMonth.of(2019, Month.FEBRUARY);
+        LocalDate d4 = ym1.atDay(1).with(TemporalAdjusters.dayOfWeekInMonth( 2, DayOfWeek.MONDAY) );
+        System.out.println( "d4 Feb -- " +  d4);
+        
+        //from YearMonth
+        YearMonth ym2 = YearMonth.of(2019, Month.of( 03 ));
+        LocalDate d5 = ym2.atDay(1).with(TemporalAdjusters.dayOfWeekInMonth( 2, DayOfWeek.MONDAY) );
+        System.out.println( "d5 march -- " +  d5);
+        */
+        
         return SUCCESS;
     }
 

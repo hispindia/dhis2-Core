@@ -35,6 +35,13 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.YearMonth;
+import java.time.temporal.TemporalAdjusters;
+
 public class ExcelImportService
 {
     // -------------------------------------------------------------------------
@@ -442,11 +449,37 @@ public class ExcelImportService
         PeriodType periodType = periodService.getPeriodTypeByName( weeklyPeriodTypeName );
         
         Period period = periodService.reloadIsoPeriod( isoPeriod );
-        List<Period> periods = new ArrayList<Period>( );
+        List<Period> periods = new ArrayList<Period>();
+        
+      //from LocalDate
+//        LocalDate d = LocalDate.of(2018, Month.JANUARY, 10);
+//        LocalDate d2 = d.with( TemporalAdjusters.dayOfWeekInMonth(2, DayOfWeek.MONDAY) );
+//        System.out.println( "d2-- " + d2);
+
+        /*
+        //from YearMonth
+        YearMonth ym = YearMonth.of(2018, Month.JANUARY);
+        LocalDate d3 = ym.atDay(1).with(TemporalAdjusters.dayOfWeekInMonth( 2, DayOfWeek.MONDAY) );
+        System.out.println( "d3 Jan -- " +  d3);
+        
+        
+        //from YearMonth
+        YearMonth ym1 = YearMonth.of(2018, Month.FEBRUARY);
+        LocalDate d4 = ym1.atDay(1).with(TemporalAdjusters.dayOfWeekInMonth( 2, DayOfWeek.MONDAY) );
+        System.out.println( "d4 Feb -- " +  d4);
+        
+        //from YearMonth
+        YearMonth ym2 = YearMonth.of(2018, Month.of( 03 ));
+        LocalDate d5 = ym2.atDay(1).with(TemporalAdjusters.dayOfWeekInMonth( 2, DayOfWeek.MONDAY) );
+        System.out.println( "d5 march -- " +  d5);
+        */
         
         if( period != null )
         {
             periods = new ArrayList<Period>( periodService.getPeriodsBetweenDates( periodType, period.getStartDate(), period.getEndDate() ) );
+         
+            //periods = new ArrayList<Period>( periodService.getIntersectingPeriodsByPeriodType( periodType, period.getStartDate(), period.getEndDate() ) );
+            //periods = new ArrayList<Period>( periodService.getPeriodsBetweenOrSpanningDates(period.getStartDate(), period.getEndDate() ) );
             
             if ( periods != null && periods.size() > 0 )
             {
@@ -455,6 +488,14 @@ public class ExcelImportService
                 periodId = periods.get( 1 ).getId();
 
             }
+            /*
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
+            for ( Period p1 : periods )
+            {
+                String tempPeriodName = p1.getIsoDate() + " - " +simpleDateFormat.format( p1.getStartDate() ) + " - " + simpleDateFormat.format( p1.getEndDate() );
+                System.out.println( "tempPeriodName -- " +  tempPeriodName );
+            }
+            */
         }
         
         return periodId;
