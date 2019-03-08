@@ -23,9 +23,7 @@
 			<td>&nbsp;</td>
             <td class="NormalB">
 				 <div id="weekly" style="display:none">
-				  <div class="selectionLabel">$i18n.getString( "Weekly Period" )<br/><br/></div>
-				  <select id="selectedPeriodId" name="selectedPeriodId" class="{validate:{required:true}}" style="width:200px" onchange="verifyPeriod()" style="display:none">
-				  </select>
+				 <div class="selectionLabel">$i18n.getString( "Weekly Period" )<br/><br/></div>
 				  <select id="selectMonths" name="selectMonths" style="width:100px" onchange="changeMonth()">
 					<option value='01'> January</option>
 					<option value='02'> February </option>
@@ -39,6 +37,8 @@
 					<option value='10'> October </option>
 					<option value='11'> November </option>
 					<option value='12'> December </option>
+				  </select>
+				  <select id="selectedPeriodId" name="selectedPeriodId" class="{validate:{required:true}}" style="width:200px" onchange="verifyPeriod()" style="display:none">
 				  </select>
 				  <div style="display:none" >
 					  <select id="selectedYear" name="selectedYear" style="width:150px" onchange="cpreviousYear()">
