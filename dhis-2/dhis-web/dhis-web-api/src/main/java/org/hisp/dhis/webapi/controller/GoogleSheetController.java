@@ -129,7 +129,7 @@ public class GoogleSheetController
         googleSheetConfig.setSERVICE_ACCOUNT( SERVICE_ACCOUNT );
         googleSheetConfig.setCREDENTIALS_FILE_PATH( inputTemplatePath);
         
-        googleSheetConfig.clear();
+        //googleSheetConfig.clear();
         System.out.println( "clear sheet  --  " );
         
         List<List<Object>> fullData = new ArrayList<>();

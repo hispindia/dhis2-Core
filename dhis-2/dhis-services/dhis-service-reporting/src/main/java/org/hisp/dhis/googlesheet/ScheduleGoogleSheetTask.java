@@ -208,7 +208,7 @@ public class ScheduleGoogleSheetTask  extends AbstractJob
     public void addDataInSheet()
         throws IOException
     {
-        List<String> completeList = new ArrayList<String>();
+        List<String> completeList = new ArrayList<>();
         
         List<String> npcdcFollowUpList = new ArrayList<String>( scheduledNPCDCSProgramIVRSScript( MOBILE_NUMBER_ATTRIBUTE_ID, NPCDCS_FOLLOW_UP_PROGRAM_STAGE_ID ) );
         List<String> ancVISITS24ProgramList = new ArrayList<String>( scheduledANCVISITS24ProgramIVRSScript( MOBILE_NUMBER_ATTRIBUTE_ID, ANC_VISITS_2_4_PROGRAM_STAGE_ID ) );
