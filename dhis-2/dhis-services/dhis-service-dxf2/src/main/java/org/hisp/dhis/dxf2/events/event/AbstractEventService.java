@@ -103,6 +103,7 @@ import org.hisp.dhis.dxf2.importsummary.ImportSummary;
 import org.hisp.dhis.dxf2.metadata.feedback.ImportReportMode;
 import org.hisp.dhis.event.EventStatus;
 import org.hisp.dhis.fileresource.FileResourceService;
+import org.hisp.dhis.i18n.I18nFormat;
 import org.hisp.dhis.i18n.I18nManager;
 import org.hisp.dhis.organisationunit.FeatureType;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
@@ -123,6 +124,7 @@ import org.hisp.dhis.program.ProgramStatus;
 import org.hisp.dhis.program.ProgramType;
 import org.hisp.dhis.program.notification.ProgramNotificationEventType;
 import org.hisp.dhis.program.notification.ProgramNotificationPublisher;
+import org.hisp.dhis.programrule.ProgramRuleVariableService;
 import org.hisp.dhis.programrule.engine.DataValueUpdatedEvent;
 import org.hisp.dhis.programrule.engine.ProgramRuleEnginePublisher;
 import org.hisp.dhis.programrule.engine.ProgramStageInstanceScheduledEvent;
@@ -256,6 +258,9 @@ public abstract class AbstractEventService
 
     @Autowired
     protected RelationshipService relationshipService;
+
+    @Autowired
+    protected ProgramRuleVariableService ruleVariableService;
 
     @Autowired
     protected UserService userService;
@@ -770,18 +775,16 @@ public abstract class AbstractEventService
     }
 
     @Override
-    public int getAnonymousEventReadyForSynchronizationCount()
+    public int getAnonymousEventReadyForSynchronizationCount( Date skipChangedBefore )
     {
         EventSearchParams params = new EventSearchParams();
         params.setProgramType( ProgramType.WITHOUT_REGISTRATION );
         params.setIncludeDeleted( true );
         params.setSynchronizationQuery( true );
+        params.setSkipChangedBefore( skipChangedBefore );
 
         return eventStore.getEventCount( params, null );
     }
-
-    //TODO: In next step, remove executeEventPush() from DefaultSynchronizationManager and therefore, remove also method below as it won't be used anymore
-    //TODO: Do changes from the comment above
 
     @Override
     public Events getAnonymousEventValuesLastUpdatedAfter( Date lastSuccessTime )
@@ -794,7 +797,7 @@ public abstract class AbstractEventService
     }
 
     @Override
-    public Events getAnonymousEventsForSync( int pageSize )
+    public Events getAnonymousEventsForSync( int pageSize, Date skipChangedBefore )
     {
         //A page is not specified here. The reason is, that after a page is synchronized, the items that were in that page
         // get lastSynchronized column updated. Therefore, they are not present in the results in the next query anymore.
@@ -806,6 +809,7 @@ public abstract class AbstractEventService
         params.setIncludeDeleted( true );
         params.setSynchronizationQuery( true );
         params.setPageSize( pageSize );
+        params.setSkipChangedBefore( skipChangedBefore );
 
         Events anonymousEvents = new Events();
         List<Event> events = eventStore.getEvents( params, null );
@@ -1248,7 +1252,7 @@ public abstract class AbstractEventService
             validateExpiryDays( event, program, programStageInstance );
         }
 
-        CategoryOptionCombo aoc = null;
+        CategoryOptionCombo aoc = programStageInstance.getAttributeOptionCombo();
 
         if ( (event.getAttributeCategoryOptions() != null && program.getCategoryCombo() != null)
             || event.getAttributeOptionCombo() != null )
@@ -1279,6 +1283,10 @@ public abstract class AbstractEventService
         {
             programStageInstance.setAttributeOptionCombo( aoc );
         }
+
+        Date eventDate = programStageInstance.getExecutionDate() != null ? programStageInstance.getExecutionDate() : programStageInstance.getDueDate();
+
+        validateAttributeOptionComboDate( aoc, eventDate );
 
         if ( event.getGeometry() != null )
         {
@@ -1358,7 +1366,7 @@ public abstract class AbstractEventService
                     dataValue.getProvidedElsewhere(), null, null );
             }
 
-            if ( !importOptions.isSkipNotifications() )
+            if ( !importOptions.isSkipNotifications() && ruleVariableService.isLinkedToProgramRuleVariable( program, dataElement ) )
             {
                 enginePublisher.publishProgramRuleEvent( new DataValueUpdatedEvent( this, programStageInstance ) );
             }
@@ -1419,6 +1427,10 @@ public abstract class AbstractEventService
         {
             executionDate = DateUtils.parseDate( event.getEventDate() );
         }
+
+        Date eventDate = executionDate != null ? executionDate : programStageInstance.getDueDate();
+
+        validateAttributeOptionComboDate( programStageInstance.getAttributeOptionCombo(), eventDate );
 
         if ( event.getStatus() == EventStatus.COMPLETED )
         {
@@ -1725,6 +1737,10 @@ public abstract class AbstractEventService
             return importSummary.incrementIgnored();
         }
 
+        Date eventDate = executionDate != null ? executionDate : dueDate;
+
+        validateAttributeOptionComboDate( aoc, eventDate );
+
         List<String> errors = trackerAccessManager.canWrite( importOptions.getUser(), aoc );
 
         if ( !errors.isEmpty() )
@@ -1802,7 +1818,15 @@ public abstract class AbstractEventService
 
         sendProgramNotification( programStageInstance, importOptions );
 
-        importSummary.setStatus( importSummary.getConflicts().isEmpty() ? ImportStatus.SUCCESS : ImportStatus.WARNING );
+        if ( importSummary.getConflicts().size() > 0 )
+        {
+            importSummary.setStatus( ImportStatus.ERROR );
+        }
+        else
+        {
+            importSummary.setStatus( ImportStatus.SUCCESS );
+            importSummary.incrementImported();
+        }
 
         return importSummary;
     }
@@ -2163,6 +2187,33 @@ public abstract class AbstractEventService
             log.warn( "Validation failed: " + violation );
 
             throw new IllegalQueryException( violation );
+        }
+    }
+
+    private void validateAttributeOptionComboDate( CategoryOptionCombo attributeOptionCombo, Date date )
+    {
+        I18nFormat i18nFormat = i18nManager.getI18nFormat();
+
+        if ( date == null )
+        {
+            throw new IllegalQueryException( "Event date can not be empty" );
+        }
+
+        for ( CategoryOption option : attributeOptionCombo.getCategoryOptions() )
+        {
+            if ( option.getStartDate() != null && date.compareTo( option.getStartDate() ) < 0 )
+            {
+                throw new IllegalQueryException( "Event date " + i18nFormat.formatDate( date )
+                    + " is before start date " + i18nFormat.formatDate( option.getStartDate() )
+                    + " for attributeOption '" + option.getName() + "'" );
+            }
+
+            if ( option.getEndDate() != null && date.compareTo( option.getEndDate() ) > 0 )
+            {
+                throw new IllegalQueryException( "Event date " + i18nFormat.formatDate( date )
+                    + " is after end date " + i18nFormat.formatDate( option.getEndDate() )
+                    + " for attributeOption '" + option.getName() + "'" );
+            }
         }
     }
 
