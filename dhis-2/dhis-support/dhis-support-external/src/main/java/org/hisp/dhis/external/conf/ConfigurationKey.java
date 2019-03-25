@@ -34,7 +34,8 @@ package org.hisp.dhis.external.conf;
 public enum ConfigurationKey
 {
     SYSTEM_READ_ONLY_MODE( "system.read_only_mode", "off", false ),
-    SYSTEM_SESSION_TIMEOUT( "system.session.timeout", "3600", false ),
+    //SYSTEM_SESSION_TIMEOUT( "system.session.timeout", "3600", false ),
+    SYSTEM_SESSION_TIMEOUT( "system.session.timeout", "900", false ),
     SYSTEM_INTERNAL_SERVICE_API( "system.internal_service_api", "off", false ),
     SYSTEM_MONITORING_URL( "system.monitoring.url" ),
     SYSTEM_MONITORING_USERNAME( "system.monitoring.username" ),
