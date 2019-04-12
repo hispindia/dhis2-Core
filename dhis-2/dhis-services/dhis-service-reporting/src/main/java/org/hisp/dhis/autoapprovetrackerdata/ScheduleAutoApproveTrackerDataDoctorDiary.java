@@ -27,15 +27,13 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 /**
  * @author Mithilesh Kumar Thakur
  */
-public class ScheduleAutoApproveTrackerData extends AbstractJob
+public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
 {
     private static final Log log = LogFactory.getLog( ScheduleAutoApproveTrackerData.class );
 
-    private final static int  CURRENT_STATUS_DATAELEMENT_ID = 38576348;
-    //private final static String PROGRAM_STAGE_IDS = "38565722,38565580,38565712,38565696,73397819,73397876,73397824,73337045,73337059,73337069,73397847,73397870,73397880,73397864,73397815,73397885,73397828,73397894,73397890,73337065,87350569,87354729";
-    
-    private final static String   PBR_MONITORING_PROGRAM_IDS = "38565572,38565588,38565704";
-    private static final String KEY_TASK = "scheduleAutoApproveTrackerDataTask";
+    private final static int   UPHMIS_DOCTORS_DIARY_PROGRAM_ID = 7333703;
+    private final static int   CURRENT_STATUS_DOC_DIARY_DATAELEMENT_ID = 88199674;
+    private static final String KEY_TASK = "scheduleAutoApproveTrackerDataTaskDoctorDiary";
 
     // -------------------------------------------------------------------------
     // Dependencies
@@ -69,70 +67,66 @@ public class ScheduleAutoApproveTrackerData extends AbstractJob
     @Override
     public JobType getJobType()
     {
-        return JobType.AUTO_APPROVE_TRACKER_DATA;
+        return JobType.AUTO_APPROVE_TRACKER_DATA_DOCTOR_DAIRY;
     }
 
     @Override
     public void execute( JobConfiguration jobConfiguration )
     {
-        System.out.println("INFO: scheduler Auto Approve Tracker Data job has started at : " + new Date() +" -- " + JobType.AUTO_APPROVE_TRACKER_DATA );
-        boolean isAutoApproveTrackerDataEnabled = (Boolean) systemSettingManager.getSystemSetting( SettingKey.AUTO_APPROVE_TRACKER_DATA );
+        System.out.println("INFO: scheduler Auto Approve Tracker Data Doctor Diary job has started at : " + new Date() +" -- " + JobType.AUTO_APPROVE_TRACKER_DATA_DOCTOR_DAIRY );
+        boolean isAutoApproveTrackerDataEnabled = (Boolean) systemSettingManager.getSystemSetting( SettingKey.AUTO_APPROVE_TRACKER_DATA_DOCTOR_DAIRY );
         System.out.println( "isAutoApproveTrackerDataEnabled -- " + isAutoApproveTrackerDataEnabled );
         
         if ( !isAutoApproveTrackerDataEnabled )
         {
-            log.info( String.format( "%s aborted. Auto Approve Job are disabled", KEY_TASK ) );
+            log.info( String.format( "%s aborted. Auto Approve Job Doctor Diary  are disabled", KEY_TASK ) );
 
             return;
         }
 
         log.info( String.format( "%s has started", KEY_TASK ) );
         
-        
-        
-        
-        List<Integer> programStageInstanceIds = new ArrayList<Integer>( getProgramStageInstanceIds() );
+        List<String> programStageInstanceIdsAndDataValue = new ArrayList<String>( programStageInstanceIdsAndDataValue() );
+        for( String psiIdDataValue : programStageInstanceIdsAndDataValue )
+        {
+            String psiId = psiIdDataValue.split( ":" )[0];
+            String value = psiIdDataValue.split( ":" )[1];
+            System.out.println( psiId + " -- " + value );
+        }
         
         String storedBy = "admin";
        
         String importStatus = "";
         Integer updateCount = 0;
         Integer insertCount = 0;
-        
-        /*
-        long t;
-        Date d = new Date();
-        t = d.getTime();
-        java.sql.Date lastUpdatedDate = new java.sql.Date( t );
-        java.sql.Date createdDate = new java.sql.Date( t );
-        */
+
         Date date = new Date();
-        java.sql.Timestamp lastUpdatedDate = new Timestamp(date.getTime());
-        java.sql.Timestamp createdDate = new Timestamp(date.getTime());
+        java.sql.Timestamp lastUpdatedDate = new Timestamp( date.getTime() );
+        java.sql.Timestamp createdDate = new Timestamp( date.getTime() );
         
         //System.out.println( new Timestamp(date.getTime() ) );
-        
-        
+
         String insertQuery = "INSERT INTO trackedentitydatavalue ( programstageinstanceid, dataelementid, value, providedelsewhere, storedby, created, lastupdated ) VALUES ";
         String updateQuery = "";
-        String value = "Auto-Approved";
+        //String value = "Auto-Approved";
         int insertFlag = 1;
         int count = 1;
         
-        if( programStageInstanceIds != null && programStageInstanceIds.size() > 0 )
+        if( programStageInstanceIdsAndDataValue != null && programStageInstanceIdsAndDataValue.size() > 0 )
         {
             try
             {
-                for( Integer psiId : programStageInstanceIds )
+                for( String psiIdDataValue : programStageInstanceIdsAndDataValue )
                 {
-               
-                    updateQuery = "SELECT value FROM trackedentitydatavalue WHERE dataelementid = " + CURRENT_STATUS_DATAELEMENT_ID + " AND programstageinstanceid = " + psiId;
+                    String psiId = psiIdDataValue.split( ":" )[0];
+                    String value = psiIdDataValue.split( ":" )[1];
+                    updateQuery = "SELECT value FROM trackedentitydatavalue WHERE dataelementid = " + CURRENT_STATUS_DOC_DIARY_DATAELEMENT_ID + " AND programstageinstanceid = " + psiId;
                     
                     SqlRowSet updateSqlResultSet = jdbcTemplate.queryForRowSet( updateQuery );
                     if ( updateSqlResultSet != null && updateSqlResultSet.next() )
                     {
                         String tempUpdateQuery = "UPDATE trackedentitydatavalue SET value = '" + value + "', storedby = '" + storedBy + "',lastupdated='" + lastUpdatedDate + 
-                                                  "' WHERE dataelementid = " + CURRENT_STATUS_DATAELEMENT_ID + " AND programstageinstanceid = " + psiId;
+                                                  "' WHERE dataelementid = " + CURRENT_STATUS_DOC_DIARY_DATAELEMENT_ID + " AND programstageinstanceid = " + psiId;
 
                         jdbcTemplate.update( tempUpdateQuery );
                         
@@ -140,7 +134,7 @@ public class ScheduleAutoApproveTrackerData extends AbstractJob
                     }
                     else
                     {
-                        insertQuery += "( " + psiId + ", " + CURRENT_STATUS_DATAELEMENT_ID + ", '" + value + "', false ,'" + storedBy + "', '" + createdDate + "', '" + lastUpdatedDate + "' ), ";
+                        insertQuery += "( " + psiId + ", " + CURRENT_STATUS_DOC_DIARY_DATAELEMENT_ID + ", '" + value + "', false ,'" + storedBy + "', '" + createdDate + "', '" + lastUpdatedDate + "' ), ";
                         insertFlag = 2;
                         insertCount++;
                     }
@@ -160,9 +154,7 @@ public class ScheduleAutoApproveTrackerData extends AbstractJob
 
                         insertQuery = "INSERT INTO trackedentitydatavalue ( programstageinstanceid, dataelementid, value, providedelsewhere, storedby, created, lastupdated ) VALUES ";
                     }
-
                     count++;
-                            
                 }
                 //System.out.println(" Count - "  + count + " -- Insert Count : " + insertCount + "  Update Count -- " + updateCount );
                 if ( insertFlag != 1 )
@@ -193,9 +185,10 @@ public class ScheduleAutoApproveTrackerData extends AbstractJob
     //--------------------------------------------------------------------------------
     // Get ProgramStageInstanceIds
     //--------------------------------------------------------------------------------
-    public List<Integer> getProgramStageInstanceIds()
+    // for doctor diary
+    public List<String> programStageInstanceIdsAndDataValue()
     {
-        List<Integer> programStageInstanceIds = new ArrayList<>();
+        List<String> programStageInstanceIdsAndDataValue = new ArrayList<>();
 
         //String current_date = "2018-06-06";
         //String endDateOfCurrentMonth1 = "2017-12-31";
@@ -203,9 +196,8 @@ public class ScheduleAutoApproveTrackerData extends AbstractJob
         try
         {
             String query = "SELECT psi.programstageinstanceid, psi.completeddate from programstageinstance psi  " +
-                            "WHERE psi.programstageid in ( SELECT programstageid from programstage where  programid in ( "+ PBR_MONITORING_PROGRAM_IDS +" ) ) AND " +
-                            "psi.completeddate <= CURRENT_DATE - interval '7 day' AND psi.status = 'COMPLETED' order by psi.completeddate desc; ";
-          
+                            "WHERE psi.programstageid in ( SELECT programstageid from programstage where  programid in ( "+ UPHMIS_DOCTORS_DIARY_PROGRAM_ID +" ) ) AND " +
+                            "psi.completeddate <= CURRENT_DATE - interval '30 day' AND psi.status = 'COMPLETED' order by psi.completeddate desc; ";
               
             //System.out.println( "query = " + query );
             
@@ -220,24 +212,30 @@ public class ScheduleAutoApproveTrackerData extends AbstractJob
                 if ( psiId != null )
                 {
                     ProgramStageInstance psi = programStageInstanceService.getProgramStageInstance( psiId );
-                    DataElement de = dataElementService.getDataElement( CURRENT_STATUS_DATAELEMENT_ID );
+                    DataElement de = dataElementService.getDataElement( CURRENT_STATUS_DOC_DIARY_DATAELEMENT_ID );
                     if( psi != null && de != null)
                     {
                         TrackedEntityDataValue teDataValue = trackedEntityDataValueService.getTrackedEntityDataValue( psi, de );
-                        if( teDataValue == null || teDataValue.getValue().equalsIgnoreCase( "Re-submitted" ))
+                        if( teDataValue != null && teDataValue.getValue().equalsIgnoreCase( "Pending1" ))
                         {
-                            programStageInstanceIds.add( psi.getId() );
+                            programStageInstanceIdsAndDataValue.add( psi.getId() + ":" + "Pending2" );
                         }
-                       
+                        else if( teDataValue != null && teDataValue.getValue().equalsIgnoreCase( "Pending2" ) )
+                        {
+                            programStageInstanceIdsAndDataValue.add( psi.getId() + ":" + "Auto-Approved" );
+                        }
                     }
                 }
             }
 
-            return programStageInstanceIds;
+            return programStageInstanceIdsAndDataValue;
         }
         catch ( Exception e )
         {
             throw new RuntimeException( "Illegal ProgramStage ids", e );
         }
-    }
+    }    
+    
+    
+
 }

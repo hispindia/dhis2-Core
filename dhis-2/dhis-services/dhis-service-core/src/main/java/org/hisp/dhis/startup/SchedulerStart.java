@@ -76,6 +76,7 @@ public class SchedulerStart extends AbstractStartupRoutine
     private final String CRON_HOURLY = "0 0 * ? * *";
     private final String CRON_DAILY_2AM = "0 0 2 ? * *";
     private final String CRON_DAILY_7AM = "0 0 7 ? * *";
+    private final String CRON_DAILY_15PM = "0 0 15 * * ?";
     private final String CRON_DAILY_16PM = "0 0 16 * * ?";
     private final String LEADER_JOB_CRON_FORMAT = "0 0/%s * * * *";
     private final String DEFAULT_FILE_RESOURCE_CLEANUP_UID = "pd6O228pqr0";
@@ -95,6 +96,7 @@ public class SchedulerStart extends AbstractStartupRoutine
     private final String DEFAULT_LEADER_ELECTION = "Leader election in cluster";
     
     private final String DEFAULT_AUTO_APPROVE_TRACKER_DATA = "Auto Approve Tracker Data";
+    private final String DEFAULT_AUTO_APPROVE_TRACKER_DATA_DOCTOR_DAIRY = "Auto Approve Tracker Data Doctor Diary";
 
     @Autowired
     private SystemSettingManager systemSettingManager;
@@ -272,6 +274,14 @@ public class SchedulerStart extends AbstractStartupRoutine
             addAndScheduleJob( scheduleAutoApproveTrackerDataJob );
         }
         
+        // for UPHMIS auto approve tracker data
+        if ( verifyNoJobExist( DEFAULT_AUTO_APPROVE_TRACKER_DATA_DOCTOR_DAIRY, jobConfigurations ) )
+        {
+            JobConfiguration scheduleAutoApproveTrackerDataJob = new JobConfiguration( DEFAULT_AUTO_APPROVE_TRACKER_DATA_DOCTOR_DAIRY,
+                AUTO_APPROVE_TRACKER_DATA_DOCTOR_DAIRY, CRON_DAILY_15PM, null, true, true );
+            scheduleAutoApproveTrackerDataJob.setLeaderOnlyJob( true );
+            addAndScheduleJob( scheduleAutoApproveTrackerDataJob );
+        }
         else
         {
             checkLeaderElectionJobConfiguration( jobConfigurations );

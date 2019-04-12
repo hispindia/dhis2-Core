@@ -77,8 +77,8 @@ public enum JobType
     KAFKA_TRACKER( "kafkaTrackerJob", false, null, null ),
 
     // for UPHMIS AUTO_APPROVE_TRACKER_DATA
-   
     AUTO_APPROVE_TRACKER_DATA( "scheduleAutoApproveTrackerDataJob", true, null, null ),
+    AUTO_APPROVE_TRACKER_DATA_DOCTOR_DAIRY( "scheduleAutoApproveTrackerDataDoctorDiaryJob", true, null, null ),
         
     // For tests
     MOCK( "mockJob", false, MockJobParameters.class, null ),
@@ -97,8 +97,6 @@ public enum JobType
     COMPLETE_DATA_SET_REGISTRATION_IMPORT( null, false, null, null );
     
     
-    
-
     private final String key;
 
     private final Class<? extends JobParameters> jobParameters;
