@@ -279,10 +279,10 @@ public class SchedulerStart extends AbstractStartupRoutine
         // for UPHMIS auto approve tracker data
         if ( verifyNoJobExist( DEFAULT_AUTO_APPROVE_TRACKER_DATA_DOCTOR_DAIRY, jobConfigurations ) )
         {
-            JobConfiguration scheduleAutoApproveTrackerDataJob = new JobConfiguration( DEFAULT_AUTO_APPROVE_TRACKER_DATA_DOCTOR_DAIRY,
+            JobConfiguration scheduleAutoApproveTrackerDataDoctorDiaryJob = new JobConfiguration( DEFAULT_AUTO_APPROVE_TRACKER_DATA_DOCTOR_DAIRY,
                 AUTO_APPROVE_TRACKER_DATA_DOCTOR_DAIRY, CRON_DAILY_15PM, null, true, true );
-            scheduleAutoApproveTrackerDataJob.setLeaderOnlyJob( true );
-            addAndScheduleJob( scheduleAutoApproveTrackerDataJob );
+            scheduleAutoApproveTrackerDataDoctorDiaryJob.setLeaderOnlyJob( true );
+            addAndScheduleJob( scheduleAutoApproveTrackerDataDoctorDiaryJob );
         }
         else
         {

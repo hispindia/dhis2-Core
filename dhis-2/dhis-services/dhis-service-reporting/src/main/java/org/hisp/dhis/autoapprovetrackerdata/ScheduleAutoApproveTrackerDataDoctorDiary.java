@@ -31,7 +31,7 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
 {
     private static final Log log = LogFactory.getLog( ScheduleAutoApproveTrackerData.class );
 
-    private final static int   UPHMIS_DOCTORS_DIARY_PROGRAM_ID = 7333703;
+    private final static int   UPHMIS_DOCTORS_DIARY_PROGRAM_ID = 73337033;
     private final static int   CURRENT_STATUS_DOC_DIARY_DATAELEMENT_ID = 88199674;
     private static final String KEY_TASK = "scheduleAutoApproveTrackerDataTaskDoctorDiary";
 

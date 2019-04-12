@@ -204,6 +204,7 @@
   <bean id="predictorJob" class="org.hisp.dhis.predictor.PredictorJob" />
   <!-- for UPHMIS auto approve tracker data -->
   <bean id="scheduleAutoApproveTrackerDataJob" class="org.hisp.dhis.autoapprovetrackerdata.ScheduleAutoApproveTrackerData" />
+  <bean id="scheduleAutoApproveTrackerDataDoctorDiaryJob" class="org.hisp.dhis.autoapprovetrackerdata.ScheduleAutoApproveTrackerDataDoctorDiary" />
 
   <!-- Startup routine definitions -->
 
