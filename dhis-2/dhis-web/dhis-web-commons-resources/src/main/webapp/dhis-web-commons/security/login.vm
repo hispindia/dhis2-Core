@@ -3,29 +3,223 @@
    <head>
 
     <title>UPHMIS</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="DHIS 2">
     <meta name="keywords" content="DHIS 2">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <script type="text/javascript" src="../javascripts/jQuery/jquery.min.js"></script>
     <script type="text/javascript" src="login.js"></script>
     <link type="text/css" rel="stylesheet" href="../css/widgets.css">
-    <link type="text/css" rel="stylesheet" href="./css/login.css">
+	
     <link type="text/css" rel="stylesheet" href="../../api/files/style/external" />
+	
+	<link rel="stylesheet" href="./css/bootstraptheme.css">
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<link rel="stylesheet" href="./css/custom.css">
+	<link rel="stylesheet" href="./css/login/login.css">
+	
+	
 
 </head>
 
+<body class="w3-container background-gradient" style="height:auto%;overflow:hidden;" onload="generateCaptcha()">
 
-    <body class="loginPage" scroll="no" style="overflow: hidden">
+<script>
+var captcha;
+ 
+function generateCaptcha() {
+    var a = Math.floor((Math.random() * 10));
+    var b = Math.floor((Math.random() * 10));
+    var c = Math.floor((Math.random() * 10));
+    var d = Math.floor((Math.random() * 10));
+ 
+	captcha=a.toString()+b.toString()+c.toString()+d.toString();
+	
+    document.getElementById("captcha").value = captcha;
+}
+ 
+function check(){
+	var input=document.getElementById("inputText").value;
+ 
+	if(input==captcha){
+		alert("Equal");
+	}
+	else{
+		alert("Not Equal");
+	}
+}
+</script>
 
-       <h1 style="display:none">UPHMIS</h1>
-    <div style="display:none">DHIS 2</div>
-    <div align="center" id="mid" >
-        <img src="./img/logo1new.png" style="max-width: 100%; max-height: 100%;"/>
+<div class="w3-container main in vh-100 w-80 mx-auto">
+<div class="container-fluid vh-100 py-3 px-5 p-md-5 position-relative">
+<div class="login-input h-100">
+<div class="admin-names">
+<div class="d-flex " style="width:97%;margin:auto;">
+	
+		<div class="col-12 bg-shadow-black text-white p-3 " >
+		<div class="w3-container">
+		<div class="w3-third" style="width:20%">
+			<img src="./img/uplogo3.png" alt="uttar-pradesh-government"  class=" text-center " style="width:55%;height:auto;">
+		</div>
+		<div class="w3-third text-center" style="width:55%">
+			<h2>UPHMIS </h2>
+			<h6>(Uttar Pradesh Health Management Information System) </h6>
+		</div>
+		<div class="w3-third" style="width:20%">
+			<img src="./img/logo3.png" alt="uttar-pradesh-government"  class=" text-center" style="width:60%;height:auto;margin-left:70%;">
+		</div>
+</div>
+</div></div>
+	
+<div class="w3-container col-12 d-lg-flex row mx-0 pt-2 h-100">
+
+<div class="w3-quarter col-12 col-sm-12 col-md-12 col-lg-4 px-md-0 ">
+
+<div style="background-color:#DCDCDC; background-image: linear-gradient(to left, #C0C0C0, #F0F8FF); " class="card text-center  h-100 p-4 border-0 rounded-0">
+<div class="d-flex pl-0 mb-0 justify-content-between pt-3">
+
+</div>
+<br/>
+<div class="card-body text-white p-0" id="loginArea">
+<form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">
+<div class="row">
+
+<div class="col-12 text-left">
+
+<button type="submit" class="bg-transparent font-weight-bold text-uppercase text-dark h5 mb-0 border-0">log in</button>
+
+</div>
+</div>
+
+<div class="card-login pt-3" >
+
+<div class="input-group" id="loginField">
+
+<input type="text" id="j_username" name="j_username" class="username form-control border py-3 px-2 rounded-0 border-top-0 border-left-0 border-right-0" placeholder="Username" aria-label="Username"> 
+</div>
+<div class="input-group mt-3">
+
+<input type="password" id="j_password" name="j_password" class="password form-control border py-3 px-2 border-top-0 border-left-0 border-right-0 rounded-0" autocomplete="off" placeholder="Password" aria-label="Password"> 
+</div>
+<div >
+
+
+</div>
+</div>
+<div class="footer">
+<div class="d-flex justify-content-between">
+</div>
+<div >
+<br/>
+<div id="submitDiv" class="w3-container col-12">
+<button id="submit" type="submit" class="bg-shadow-black button4">SIGN IN</button>
+<button id="reset" type="reset" class="bg-shadow-black button4">CANCEL</button>
+</div>
+<br/><br/><br/>
+
+</div>
+
+
+</div>
+</div></form>
+</div>
+</div>
+<div class="w3-threequarter col-12 col-sm-12 col-md-12 col-lg-8 px-md-0 " >
+<div class="card text-center p-4 border-0 rounded-0 bg-image h-100 position-relative" id="bg_slide" >
+<div class="" >
+<div class="w3-content" style="">
+  <img class="mySlides w3-animate-fading " src="./img/s1_2.png" style="width:89%">
+  <img class="mySlides w3-animate-fading" src="./img/s2.png" style="width:100%">
+  <img class="mySlides w3-animate-fading" src="./img/s3.png" style="width:100%">
+  <img class="mySlides w3-animate-fading" src="./img/s4.png" style="width:100%">
+  <img class="mySlides w3-animate-fading" src="./img/s5.png" style="width:100%">
+  <img class="mySlides w3-animate-fading" src="./img/s6.png" style="width:100%">
+
+  <div class="w3-center w3-container w3-section w3-large w3-text-blue w3-display-bottommiddle" style="width:100%">
+    <div class="w3-left w3-hover-text-black" onclick="plusDivs(-1)">&#10094;</div>
+    <div class="w3-right w3-hover-text-black" onclick="plusDivs(1)">&#10095;</div>
+	
+  </div>
+  
+  </div>
+
+</div>
+</div>
+
+
+</div>
+</div>
+</div>
+</div>
+<footer class="w3-container">
+	<div class="w3-quarter p-1" style="background-color:#276696;width:15%;height:45px;">
+		<button type="button" class="btn text-white" data-toggle="modal" data-target="#myModal">Quick Links</button>
+	</div>
+	<div class="w3-threequarter p-1" style="background-color:#4a5768;width:85%;height:45px;">
+		<pre class="btn text-white">  Email id : uphmis.up@gmail.com  		Contact Number : 0522-4922366</pre>
+	</div>
+</footer>
+</div>
+</div>
+<script src="./scripts/login.js"></script>
+<script src="./scripts/bootstrap.min.js"></script>
+<script src="./scripts/jquery.min.js"></script>
+
+
+<div class="modal fade w3-card-4" id="myModal" role="dialog" >
+    <div class="modal_links modal-dialog modal-sb" id="loginField">
+      <div class="w3-grayscale modal-content" style="background-color:white;">
+        <div class="modal-header w3-container w3-blue">
+			<h2>Quick Links</h2>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          
+        </div>
+        <div class="text-black p-0 modal-body" style="font-size:11px;">
+          <div id="quick">
+            <table align="left" style="">
+                <tbody>
+                <tr>
+                    <td><a href="./Documents/G.O.-UPHMIS-25.05.2016.pdf"><span ><strong>- Go</strong></span></a></td><td>&nbsp;</td></tr>
+		
+		<tr><td><a href="./Documents/SOP-UPHMIS_80_Sets.pdf"><span ><strong>- SOP</strong></span></a></td><td>&nbsp;</td></tr>
+	
+		<tr><td><a href="./Documents/USER_ID__75_dist_and_block_.pdf"><span ><strong>- User Name List</strong></span></a></td><td>&nbsp;</td></tr>
+                  <tr><td><a href="./Documents/UPHMIS_Formats_80_Sets_-_Hindi.pdf"><span ><strong>- UPHMIS Formats</strong></span></a></td><td>&nbsp;</td></tr>
+		<tr><td>
+			            <a href="./Documents/CHC_UPHMIS_New_Format.xlsx" target="_blank" style="display:block;margin:5px; padding-left:15px;"><b>1. CHC Formats(Excel Import)</b></a>
+                        <a href="./Documents/PHC_UPHMIS_New_Format.xlsx" target="_blank" style="display:block;margin:5px; padding-left:15px;"><b>2. PHC Formats(Excel Import)</b></a>
+                        <a href="./Documents/SC_UPHMIS_New_Format.xlsx" target="_blank" style="display:block;margin:5px; padding-left:15px;"><b>3. SC Formats(Excel Import)</b></a>
+                        <a href="./Documents/CMO_UPHMIS_New_Format.xlsx" target="_blank" style="display:block;margin:5px; padding-left:15px;"><b>4. CMO Formats(Excel Import)</b></a>
+                        <a href="./Documents/DH_UPHMIS_New_Format.xlsx" target="_blank" style="display:block;margin:5px; padding-left:15px;"><b>5. DH Formats(Excel Import)</b></a>
+                        <a href="./Documents/DHQ.zip" target="_blank" style="display:block;margin:5px; padding-left:15px;"><b>6. DHQ Formats</b></a>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td><a href="./Documents/Campaign material final.zip"><span ><strong>- Campaign Material</strong></span></a></td>
+                </tr>        
+                <tr>
+                    <td><a href="./Documents/Data_defination_SOP_English.pdf"><span ><strong>- Data defination/SOP(English)</strong></span></a></td><td>&nbsp;</td></tr>
+				<tr><td><a href="./Documents/Data_defination_SOP_Hindi.pdf"><span ><strong>- Data defination/SOP(Hindi)</strong></span></a></td><td>&nbsp;</td></tr>
+				<tr><td><a href="https://ihatin-my.sharepoint.com/:u:/g/personal/shariqul_islam_ihat_in/Eb6N9b3kg8BHt8pjAnR9lpkBpJNrEMRuDMvFvpyjlBYoTg?e=4%3aLoW0tW&amp;at=9"><span ><strong>- Data Use Campaign-Training Material <span ><strong>-New</strong><span></span></span></strong></span></a></td><td>&nbsp;</td></tr>
+                <tr>
+                    </tr><tr>
+                        <td><a href="./Documents/uphmis_support_.pdf"><span ><strong>- Support</strong></span></a></td><td>&nbsp;</td>
+                    </tr>
+					<br/>
+					
+		</tbody></table>
+		
+		</div>
+        </div>
+        <div class="modal-footer w3-container w3-blue">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
     </div>
-    <br/>
-    <br/>
-       <h2 align="middle">Uttar Pradesh Health Management Information System</h2>&nbsp;
-        <div id="loginField" style="margin-top: 1px; margin-bottom: 1px; margin-right: 10.525em; margin-left: 10.525em;">
+  
+</div></div>
+      <!--  <div id="loginField" style="margin-top: 1px; margin-bottom: 1px; margin-right: 10.525em; margin-left: 10.525em;">
 
                 <div id="quick">
             <table  align="left" style="background-color:white; padding-left:0.625em;padding-right:0.625em;padding-top:5px;padding-bottom:5px;">
@@ -71,13 +265,13 @@
 		</table>
 		
 		</div>
-        <div id="loginArea" style="text-align: center;">
+        <!--<div id="loginArea" style="text-align: center;">
             <!--
 			<div id="bannerArea">
                                     <a href="http://www.dhis2.org"><img src="logo_front.png" style="border:none"></a>
         </div>
         -->
-
+<!--
         <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">
             <div>
                 <div id="signInLabel">Sign in</div>
@@ -92,7 +286,7 @@
         <!--[if lte IE 8]>
             <div id="notificationArea" style="color: white; background-color: red;">Please upgrade your browser. Internet Explorer version 8 and earlier is not supported.</div>
             <![endif]-->
-    </div>
+ <!--   </div>
 
     </div>
 
