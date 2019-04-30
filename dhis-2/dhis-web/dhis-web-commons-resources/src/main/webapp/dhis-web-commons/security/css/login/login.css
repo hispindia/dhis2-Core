@@ -47,9 +47,18 @@ h6,
 }
 
 .bg-shadow-black {
-  
-  width: auto%;  
+ 
+  font-size: 16px;
+  padding: 12px;
+  width: auto;  
   background-image: linear-gradient(to left, #A1CBEB, #276696);
+}
+@media screen and (max-width: 650px) {
+  .bg-shadow-black {
+	font-size: 10px;
+  padding: 6px;
+  width: auto; 
+  }
 }
 @media screen and (max-width: 650px) {
   h2 {
@@ -60,6 +69,7 @@ h6,
 	font-size: 12px;
     margin-top: 0;
   }
+  
 }
 .bg-shadow-black:hover {
   background-color: #276698;
@@ -146,4 +156,14 @@ h6,
 	z-index: -1;
 	
 }
-
+.loginArea2
+{
+	background-color:#DCDCDC; 
+	background-image: linear-gradient(to left, #C0C0C0, #F0F8FF); 
+}
+@media screen and (max-width: 650px) {
+	.loginArea2
+	{
+		width: 100%;
+	}
+}

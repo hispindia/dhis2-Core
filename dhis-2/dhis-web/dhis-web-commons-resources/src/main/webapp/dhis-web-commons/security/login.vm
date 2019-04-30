@@ -22,33 +22,8 @@
 
 </head>
 
-<body class="w3-container background-gradient" style="height:auto%;overflow:hidden;" onload="generateCaptcha()">
+<body class="w3-container background-gradient" style="height:auto%;overflow:hidden;" >
 
-<script>
-var captcha;
- 
-function generateCaptcha() {
-    var a = Math.floor((Math.random() * 10));
-    var b = Math.floor((Math.random() * 10));
-    var c = Math.floor((Math.random() * 10));
-    var d = Math.floor((Math.random() * 10));
- 
-	captcha=a.toString()+b.toString()+c.toString()+d.toString();
-	
-    document.getElementById("captcha").value = captcha;
-}
- 
-function check(){
-	var input=document.getElementById("inputText").value;
- 
-	if(input==captcha){
-		alert("Equal");
-	}
-	else{
-		alert("Not Equal");
-	}
-}
-</script>
 
 <div class="w3-container main in vh-100 w-80 mx-auto">
 <div class="container-fluid vh-100 py-3 px-5 p-md-5 position-relative">
@@ -75,7 +50,7 @@ function check(){
 
 <div class="w3-quarter col-12 col-sm-12 col-md-12 col-lg-4 px-md-0 ">
 
-<div style="background-color:#DCDCDC; background-image: linear-gradient(to left, #C0C0C0, #F0F8FF); " class="card text-center  h-100 p-4 border-0 rounded-0">
+<div class="card text-center  h-100 p-4 border-0 rounded-0 loginArea2">
 <div class="d-flex pl-0 mb-0 justify-content-between pt-3">
 
 </div>
