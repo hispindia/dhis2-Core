@@ -18,6 +18,12 @@
 
     <many-to-one name="dataSet" class="org.hisp.dhis.dataset.DataSet"
         foreign-key="fk_lockexception_datasetid" column="datasetid" />
+	
+	<property name="createdDate" column="created_date" type="timestamp"/>
+	
+	<property name="lastUpdated" column="lastupdated" type="timestamp"/>
+	
+	<property name="status" column="status" />
 
   </class>
 </hibernate-mapping>

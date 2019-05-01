@@ -40,6 +40,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import java.util.Date;
 
 /**
  * @author Morten Olav Hansen <mortenoh@gmail.com>
@@ -54,6 +55,12 @@ public class LockException
     private OrganisationUnit organisationUnit;
 
     private DataSet dataSet;
+	
+	private Date createdDate;
+	
+	private Date lastUpdated;
+	
+	private String status;
 
     public LockException()
     {
@@ -122,11 +129,39 @@ public class LockException
     {
         return dataSet;
     }
-
     public void setDataSet( DataSet dataSet )
     {
         this.dataSet = dataSet;
     }
+	
+	public Date getCreatedDate()
+	{	
+		return createdDate;
+	}
+	public void setCreatedDate(Date createdDate)
+	{
+		this.createdDate = createdDate;
+	}
+	
+	
+	public Date getLastUpdated()
+	{	
+		return lastUpdated;
+	}
+	public void setLastUpdated(Date lastUpdated)
+	{
+		this.lastUpdated = lastUpdated;
+	}
+	
+	public String getStatus()
+	{	
+		return status;
+	}
+	public void setStatus(String status)
+	{
+		this.status = status;
+	}
+	
 
     @Override
     public String toString()
@@ -142,7 +177,7 @@ public class LockException
     // supportive methods
     private String getHierarchyOrgunit( OrganisationUnit orgunit )
     {
-        List<String> mobileNumbers = new ArrayList<>();
+        //List<String> mobileNumbers = new ArrayList<>();
         //String hierarchyOrgunit = orgunit.getName();
         String hierarchyOrgunit = "";
        
