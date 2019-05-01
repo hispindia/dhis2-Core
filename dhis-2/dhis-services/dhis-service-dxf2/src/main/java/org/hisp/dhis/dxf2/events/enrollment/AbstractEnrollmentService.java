@@ -188,6 +188,7 @@ public abstract class AbstractEnrollmentService
     // -------------------------------------------------------------------------
     // READ
     // -------------------------------------------------------------------------
+
     @Override
     @Transactional(readOnly = true)
     public Enrollments getEnrollments( ProgramInstanceQueryParams params )
@@ -487,6 +488,12 @@ public abstract class AbstractEnrollmentService
         ProgramInstance programInstance = programInstanceService.prepareProgramInstance( daoTrackedEntityInstance, program, programStatus,
             enrollment.getEnrollmentDate(), enrollment.getIncidentDate(), organisationUnit, enrollment.getEnrollment() );
 
+        updateCoordinates( program, enrollment, programInstance );
+        updateAttributeValues( enrollment, importOptions );
+        updateDateFields( enrollment, programInstance );
+        programInstance.setFollowup( enrollment.getFollowup() );
+        programInstance.setStoredBy( storedBy );
+
         programInstanceService.addProgramInstance( programInstance );
 
         importSummary = validateProgramInstance( program, programInstance, enrollment );
@@ -495,14 +502,6 @@ public abstract class AbstractEnrollmentService
         {
             return importSummary;
         }
-
-        updateCoordinates( program, enrollment, programInstance );
-        updateAttributeValues( enrollment, importOptions );
-        updateDateFields( enrollment, programInstance );
-        programInstance.setFollowup( enrollment.getFollowup() );
-        programInstance.setStoredBy( storedBy );
-
-        programInstanceService.updateProgramInstance( programInstance );
 
         trackerOwnershipAccessManager.assignOwnership( daoTrackedEntityInstance, program, organisationUnit, true, true );
 
@@ -623,6 +622,7 @@ public abstract class AbstractEnrollmentService
     @Transactional
     public ImportSummaries updateEnrollments( List<Enrollment> enrollments, ImportOptions importOptions, boolean clearSession )
     {
+        sortEnrollmentUpdates( enrollments );
         List<List<Enrollment>> partitions = Lists.partition( enrollments, FLUSH_FREQUENCY );
         importOptions = updateImportOptions( importOptions );
         ImportSummaries importSummaries = new ImportSummaries();
@@ -1229,6 +1229,16 @@ public abstract class AbstractEnrollmentService
         }
 
         return importOptions;
+    }
+
+    /**
+     * Sorts enrollments according to enrollment identifier.
+     *
+     * @param events the list of events.
+     */
+    private void sortEnrollmentUpdates( List<Enrollment> enrollments )
+    {
+        enrollments.sort( ( a, b ) -> a.getEnrollment().compareTo( b.getEnrollment() ) );
     }
 
     private void reloadUser(ImportOptions importOptions)
