@@ -4,7 +4,7 @@
     "https://github.com/d2-ci/charts-app#v30",
     "https://github.com/d2-ci/core-resource-app#master",
     "https://github.com/d2-ci/dashboards-app#v30",	
-	"https://github.com/hispindia/dhis-data-administration-app-builds#UPHMIS-v30",
+    "https://github.com/hispindia/dhis-data-administration-app-builds#UPHMIS-v30",
     "https://github.com/hispindia/data-quality-app-build#uphmis30",
     "https://github.com/d2-ci/datastore-app#v30",
     "https://github.com/d2-ci/event-capture-app#v30",
@@ -20,9 +20,9 @@
     "https://github.com/d2-ci/pivot-tables-app#v30",
     "https://github.com/d2-ci/scheduler-app#v30",
     "https://github.com/d2-ci/settings-app#v30",
-	"https://github.com/hispindia/dhis-tracker-capture-app-build#UPHMIS-v30",
+    "https://github.com/hispindia/dhis-tracker-capture-app-build#UPHMIS-v30",
     "https://github.com/d2-ci/translations-app#v30",
     "https://github.com/d2-ci/usage-analytics-app#v30",
     "https://github.com/d2-ci/user-app#v30",
-    "https://github.com/d2-ci/user-profile-app#v30"
+    "https://github.com/hispindia/user-profile-app-build#uphmisv30"
 ]
