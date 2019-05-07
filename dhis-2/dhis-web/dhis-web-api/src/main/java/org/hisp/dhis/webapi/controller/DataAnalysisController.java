@@ -618,7 +618,7 @@ public class DataAnalysisController
                 Period period = validationResult.getPeriod();
 
                 grid.addRow();
-                grid.addValue( unit.getName() );
+                grid.addValue( unit.getAncestorNames() + unit.getDisplayName() );
                 grid.addValue( format.formatPeriod( period ) );
                 grid.addValue( validationResult.getValidationRule().getName() );
                 grid.addValue(
@@ -680,7 +680,7 @@ public class DataAnalysisController
             if ( organisationUnit != null )
             {
                 validationResultView.setOrganisationUnitId( organisationUnit.getUid() );
-                validationResultView.setOrganisationUnitDisplayName( organisationUnit.getDisplayName() );
+                validationResultView.setOrganisationUnitDisplayName( organisationUnit.getAncestorNames() + organisationUnit.getDisplayName());
             }
 
             Period period = validationResult.getPeriod();
