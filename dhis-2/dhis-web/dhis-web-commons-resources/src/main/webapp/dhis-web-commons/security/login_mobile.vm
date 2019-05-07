@@ -3,36 +3,19 @@
 <head>
 <title>DHIS 2</title>
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="./css/bootstraptheme.css">
-	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-	<link rel="stylesheet" href="./css/custom.css">
-	<link rel="stylesheet" href="./css/login/login.css">
+<meta name="viewport" content="width=device-width, user-scalable=no" />
+<link rel="stylesheet" href="../css/login_mobile.css" />
 
 </head>
 
-<body class="w3-container background-gradient" style="height:auto%;overflow:hidden;">
+<body>
 
-<div class="w3-container main in vh-100 w-80 mx-auto">
-<div class="container-fluid vh-100 py-3 px-5 p-md-5 position-relative">
-<div class="login-input h-100">
-<div class="admin-names">
-<div class="d-flex " style="width:97%;margin:auto;">
-	
-		<div class="col-12 bg-shadow-black text-white p-3 " >
-		<div class="w3-container">
-		<div class="w3-third" style="width:20%">
-			<img src="./img/uplogo3.png" alt="uttar-pradesh-government"  class=" text-center " style="width:55%;height:auto;">
-		</div>
-		<div class="w3-third text-center" style="width:55%">
-			<h2>UPHMIS </h2>
-			<h6>(Uttar Pradesh Health Management Information System) </h6>
-		</div>
-		<div class="w3-third" style="width:20%">
-			<img src="./img/logo3.png" alt="uttar-pradesh-government"  class=" text-center" style="width:60%;height:auto;margin-left:70%;">
-		</div>
+<div id="wrap">
+
+<div id="header">
+	<a href="login.action" tabindex="-1"><img src="logo_mobile.png" width="88" height="24" alt="DHIS 2"></a>
 </div>
-</div></div>
+
 <div id="content" align="center" style="text-align: left;">
 
 #if( $failed == true )
@@ -41,42 +24,21 @@
 </div>
 #end
 
-<form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">
-<div class="row">
+<form id='loginForm' action="../../dhis-web-commons-security/login.action" method="POST">
 
-<div class="col-12 text-left">
-
-<button type="submit" class="bg-transparent font-weight-bold text-uppercase text-dark h5 mb-0 border-0">log in</button>
-
-</div>
-</div>
-
-<div class="card-login pt-3" >
-
-<div class="input-group" id="loginField">
-
-<input type="text" id="j_username" name="j_username" class="username form-control border py-3 px-2 rounded-0 border-top-0 border-left-0 border-right-0" placeholder="Username" aria-label="Username"> 
-</div>
-<div class="input-group mt-3">
-
-<input type="password" id="j_password" name="j_password" class="password form-control border py-3 px-2 border-top-0 border-left-0 border-right-0 rounded-0" autocomplete="off" placeholder="Password" aria-label="Password"> 
-</div>
-</div>
-<div class="footer">
-<div class="d-flex justify-content-between">
-</div>
-<div >
-<br/>
-<div id="submitDiv">
-<button id="submit" type="submit" class="bg-shadow-black button4">SIGN IN</button>
-<button id="reset" type="reset" class="bg-shadow-black button4">CANCEL</button>
-</div>
-<br/><br/><br/>
-
+<div class="header-box" align="center">
+	<h3 style="text-align: left;">Login</h3>
+	<p style="text-align: left;">
+		<label for="j_username">Username</label> <input type="text" id="j_username" name="j_username" size="24"> <br />
+		<label for="j_password">Password</label> <input type="password" id="j_password" name="j_password" size="24"> <br /> <br />
+	</p>
 </div>
 
-
-</div>
+<div class="header-box" align="center">
+	<p>
+		<input type="submit" style="width: 48%;" value="Login"/>
+		<input type="reset" style="width: 48%;" value="Reset"/>
+	</p>
 </div>
 
 #if ( $keyConfig.selfRegistrationAllowed() )
@@ -86,7 +48,7 @@
 </form>
 </div>
 </div>
-</div>
+
 #* Seems we can't access macros.vm from login.vm/login_mobile.vm so we include the full script here *#
 #if( $googleAnalyticsUA && $googleAnalyticsUA != '' )
 <script type="text/javascript">
@@ -101,6 +63,6 @@
   })();
 </script>
 #end
-</div>
+
 </body>
 </html>
