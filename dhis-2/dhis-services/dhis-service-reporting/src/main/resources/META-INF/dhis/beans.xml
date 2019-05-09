@@ -205,6 +205,8 @@
   <!-- for UPHMIS auto approve tracker data -->
   <bean id="scheduleAutoApproveTrackerDataJob" class="org.hisp.dhis.autoapprovetrackerdata.ScheduleAutoApproveTrackerData" />
   <bean id="scheduleAutoApproveTrackerDataDoctorDiaryJob" class="org.hisp.dhis.autoapprovetrackerdata.ScheduleAutoApproveTrackerDataDoctorDiary" />
+  <!-- for UPHMIS delete lock-exception job -->
+  <bean id="deleteExpiredLockExceptionJob" class="org.hisp.dhis.deletelockexception.DeleteExpiredLockExceptionJob" />
 
   <!-- Startup routine definitions -->
 

@@ -96,6 +96,8 @@ public enum SettingKey
     // for UPHMIS AUTO_APPROVE_TRACKER_DATA
     AUTO_APPROVE_TRACKER_DATA( "scheduleAutoApproveTrackerDataJob", true, Boolean.class ),
     AUTO_APPROVE_TRACKER_DATA_DOCTOR_DAIRY( "scheduleAutoApproveTrackerDataDoctorDiaryJob", true, Boolean.class ),
+    // for UPHMIS DELETE_LOCK_EXCEPTION
+    DELETE_EXPIRED_LOCK_EXCEPTION( "deleteExpiredLockExceptionJob", true, Boolean.class ),
     
     SELF_REGISTRATION_NO_RECAPTCHA( "keySelfRegistrationNoRecaptcha", Boolean.FALSE, Boolean.class ),
     RECAPTCHA_SECRET( "recaptchaSecret", "6LcVwT0UAAAAAAtMWnPoerWwLx_DSwrcEncHCiWu", String.class ),

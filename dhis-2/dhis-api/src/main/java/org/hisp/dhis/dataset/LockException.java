@@ -55,12 +55,8 @@ public class LockException
     private OrganisationUnit organisationUnit;
 
     private DataSet dataSet;
-	
-	private Date createdDate;
-	
-	private Date lastUpdated;
-	
-	private String status;
+    
+    private Date expireDate;
 
     public LockException()
     {
@@ -73,6 +69,14 @@ public class LockException
         this.dataSet = dataSet;
     }
 
+    public LockException( Period period, OrganisationUnit organisationUnit, DataSet dataSet, Date expireDate )
+    {
+        this.period = period;
+        this.organisationUnit = organisationUnit;
+        this.dataSet = dataSet;
+        this.expireDate = expireDate;
+    }
+    
     @JsonProperty
     @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
     public String getName()
@@ -133,36 +137,19 @@ public class LockException
     {
         this.dataSet = dataSet;
     }
-	
-	public Date getCreatedDate()
-	{	
-		return createdDate;
-	}
-	public void setCreatedDate(Date createdDate)
-	{
-		this.createdDate = createdDate;
-	}
-	
-	
-	public Date getLastUpdated()
-	{	
-		return lastUpdated;
-	}
-	public void setLastUpdated(Date lastUpdated)
-	{
-		this.lastUpdated = lastUpdated;
-	}
-	
-	public String getStatus()
-	{	
-		return status;
-	}
-	public void setStatus(String status)
-	{
-		this.status = status;
-	}
-	
 
+    @JsonProperty
+    @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
+    public Date getExpireDate()
+    {
+        return expireDate;
+    }
+
+    public void setExpireDate( Date expireDate )
+    {
+        this.expireDate = expireDate;
+    }
+    
     @Override
     public String toString()
     {
@@ -171,6 +158,7 @@ public class LockException
             ", period=" + period +
             ", organisationUnit=" + organisationUnit +
             ", dataSet=" + dataSet +
+            ", expireDate=" + expireDate +
             '}';
     }
     
@@ -191,6 +179,5 @@ public class LockException
         hierarchyOrgunit = hierarchyOrgunit.substring( hierarchyOrgunit.indexOf( "/" ) + 1 );
         
         return hierarchyOrgunit;
-    }
-    
+    }    
 }

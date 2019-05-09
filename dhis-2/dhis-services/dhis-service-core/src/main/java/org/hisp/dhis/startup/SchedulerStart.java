@@ -76,6 +76,7 @@ public class SchedulerStart extends AbstractStartupRoutine
     private final String CRON_HOURLY = "0 0 * ? * *";
     private final String CRON_DAILY_2AM = "0 0 2 ? * *";
     private final String CRON_DAILY_7AM = "0 0 7 ? * *";
+    private final String CRON_DAILY_14PM = "0 0 14 * * ?";
     private final String CRON_DAILY_15PM = "0 0 15 * * ?";
     private final String CRON_DAILY_16PM = "0 0 16 * * ?";
     private final String LEADER_JOB_CRON_FORMAT = "0 0/%s * * * *";
@@ -98,6 +99,7 @@ public class SchedulerStart extends AbstractStartupRoutine
     
     private final String DEFAULT_AUTO_APPROVE_TRACKER_DATA = "Auto Approve Tracker Data";
     private final String DEFAULT_AUTO_APPROVE_TRACKER_DATA_DOCTOR_DAIRY = "Auto Approve Tracker Data Doctor Diary";
+    private final String DEFAULT_DELETE_EXPIRED_LOCK_EXCEPTION = "Delete Expired Lock Exception";
 
     @Autowired
     private SystemSettingManager systemSettingManager;
@@ -266,6 +268,17 @@ public class SchedulerStart extends AbstractStartupRoutine
             leaderElectionJobConfiguration.setUid( DEFAULT_LEADER_ELECTION_UID );
             addAndScheduleJob( leaderElectionJobConfiguration );
         }
+        
+        
+        // for UPHMIS DELETE_LOCK_EXCEPTION
+        if ( verifyNoJobExist( DEFAULT_DELETE_EXPIRED_LOCK_EXCEPTION, jobConfigurations ) )
+        {
+            JobConfiguration deleteExpiredLockExceptionJob = new JobConfiguration( DEFAULT_DELETE_EXPIRED_LOCK_EXCEPTION,
+                DELETE_EXPIRED_LOCK_EXCEPTION, CRON_DAILY_14PM, null, true, true );
+            deleteExpiredLockExceptionJob.setLeaderOnlyJob( true );
+            addAndScheduleJob( deleteExpiredLockExceptionJob );
+        }
+        
         
         // for UPHMIS auto approve tracker data
         if ( verifyNoJobExist( DEFAULT_AUTO_APPROVE_TRACKER_DATA, jobConfigurations ) )
