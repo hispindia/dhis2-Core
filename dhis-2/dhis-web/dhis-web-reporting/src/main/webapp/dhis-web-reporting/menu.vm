@@ -12,4 +12,8 @@
 	#if( $auth.hasAccess( "dhis-web-reporting", "metaDataReportAnalyser") )
 		<li><a href = "metaDataReportAnalyser.action">Meta Data Reports</a></li>
 	#end
+	#if( $auth.hasAccess( "dhis-web-reporting", "advanceLockException") )
+		<li><a href = "advanceLockException.action">$i18n.getString( "advance_lock_exception" )</a></li>
+	#end	
+	
 </ul>
