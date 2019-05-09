@@ -14,6 +14,36 @@
     <param-value>databaseAdmin</param-value>
   </context-param>
 
+	<session-config>
+	  <cookie-config>
+		<!--<secure>true</secure>-->
+		<http-only>true</http-only>
+		<tracking-mode>COOKIE</tracking-mode>
+	  </cookie-config>
+	</session-config>
+
+<!--  add for security audit custom error page start -->
+  <!-- Prior to Servlet 3.0 define either an error-code or an exception-type but not both -->
+
+	<error-page>
+		<exception-type>java.lang.Throwable</exception-type>
+		<location>/WEB-INF/error-pages/error.html</location>
+	</error-page>
+
+	<error-page>
+		<error-code>404</error-code>
+		<location>/WEB-INF/error-pages/error.html</location>
+	</error-page>
+
+	<!-- With Servlet 3.0 and above general error page is possible -->
+	<error-page>
+		<location>/WEB-INF/error-pages/error.html</location>
+	</error-page>  
+<!--  add for security audit custom error page end -->
+
+
+
+
   <!-- Filters -->
 
   <filter>
