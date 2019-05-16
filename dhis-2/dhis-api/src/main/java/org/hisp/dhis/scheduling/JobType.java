@@ -81,6 +81,10 @@ public enum JobType
     AUTO_APPROVE_TRACKER_DATA_DOCTOR_DAIRY( "scheduleAutoApproveTrackerDataDoctorDiaryJob", true, null, null ),
     // for UPHMIS DELETE_LOCK_EXCEPTION
     DELETE_EXPIRED_LOCK_EXCEPTION( "deleteExpiredLockExceptionJob", true, null, null ),
+    
+  //for UPHMIS AUTO_EMAIL/SMS_DATA
+    AUTO_EMAIL_MESSAGE( "scheduleAutoEmailJob", true, null, null ),
+    AUTO_SMS_MESSAGE( "scheduleAutoSMSJob", true, null, null ),
         
     // For tests
     MOCK( "mockJob", false, MockJobParameters.class, null ),

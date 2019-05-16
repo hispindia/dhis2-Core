@@ -75,6 +75,7 @@ public class SchedulerStart extends AbstractStartupRoutine
 
     private final String CRON_HOURLY = "0 0 * ? * *";
     private final String CRON_DAILY_2AM = "0 0 2 ? * *";
+    private final String CRON_MONTH_30 = "0 0 16 30 1/1 ? *";
     private final String CRON_DAILY_7AM = "0 0 7 ? * *";
     private final String CRON_DAILY_14PM = "0 0 14 * * ?";
     private final String CRON_DAILY_15PM = "0 0 15 * * ?";
@@ -100,6 +101,9 @@ public class SchedulerStart extends AbstractStartupRoutine
     private final String DEFAULT_AUTO_APPROVE_TRACKER_DATA = "Auto Approve Tracker Data";
     private final String DEFAULT_AUTO_APPROVE_TRACKER_DATA_DOCTOR_DAIRY = "Auto Approve Tracker Data Doctor Diary";
     private final String DEFAULT_DELETE_EXPIRED_LOCK_EXCEPTION = "Delete Expired Lock Exception";
+    
+    private final String DEFAULT_AUTO_EMAIL_MESSAGE = "Auto Email Message";
+    private final String DEFAULT_AUTO_SMS_MESSAGE = "Auto SMS Message";
 
     @Autowired
     private SystemSettingManager systemSettingManager;
@@ -297,6 +301,24 @@ public class SchedulerStart extends AbstractStartupRoutine
             scheduleAutoApproveTrackerDataDoctorDiaryJob.setLeaderOnlyJob( true );
             addAndScheduleJob( scheduleAutoApproveTrackerDataDoctorDiaryJob );
         }
+        
+        if ( verifyNoJobExist( DEFAULT_AUTO_EMAIL_MESSAGE, jobConfigurations ) )
+        {
+            JobConfiguration scheduleAutoEmailJob = new JobConfiguration( DEFAULT_AUTO_EMAIL_MESSAGE,
+                AUTO_EMAIL_MESSAGE, CRON_DAILY_16PM, null, true, true );
+            scheduleAutoEmailJob.setLeaderOnlyJob( true );
+            addAndScheduleJob( scheduleAutoEmailJob );
+        }
+        
+        if ( verifyNoJobExist( DEFAULT_AUTO_SMS_MESSAGE, jobConfigurations ) )
+        {
+            JobConfiguration scheduleAutoSMSJob = new JobConfiguration( DEFAULT_AUTO_SMS_MESSAGE,
+                AUTO_SMS_MESSAGE, CRON_DAILY_16PM, null, true, true );
+            scheduleAutoSMSJob.setLeaderOnlyJob( true );
+            addAndScheduleJob( scheduleAutoSMSJob );
+        }
+        
+        
         else
         {
             checkLeaderElectionJobConfiguration( jobConfigurations );
