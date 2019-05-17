@@ -81,18 +81,10 @@
         <form id="loginForm" autocomplete="off" action="../../dhis-web-commons-security/login.action" method="post">
             <div>
                 <div id="signInLabel">Sign in</div>
-                <div><input type="text" autocomplete="off" id="j_username" name="j_username" placeholder="Username" 
-       onblur="this.setAttribute('readonly', 'readonly');" 
-       onfocus="this.removeAttribute('readonly');" readonly/></div>
-                <div><input type="text" class="secure" id="j_password" name="j_password" autocomplete="new-password" autocomplete="off" placeholder="Password" onblur="this.setAttribute('readonly', 'readonly');" 
-       onfocus="this.removeAttribute('readonly');" readonly/></div>
+                <div><input type="text" autocomplete="off" id="j_username" name="j_username" placeholder="Username"/></div>
+                <div><input type="text" id="j_password" name="j_password" autocomplete="off" placeholder="Password" /></div>
             </div>
-			<style>
-					input.secure {
-					text-security: disc;
-					-webkit-text-security: disc;
-				}
-			</style>
+			
 			
             <div id="submitDiv">
                 <input id="submit" class="button" type="submit" value="Sign in">
