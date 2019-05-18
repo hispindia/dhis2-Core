@@ -305,7 +305,7 @@ public class SchedulerStart extends AbstractStartupRoutine
         if ( verifyNoJobExist( DEFAULT_AUTO_EMAIL_MESSAGE, jobConfigurations ) )
         {
             JobConfiguration scheduleAutoEmailJob = new JobConfiguration( DEFAULT_AUTO_EMAIL_MESSAGE,
-                AUTO_EMAIL_MESSAGE, CRON_DAILY_16PM, null, true, true );
+                AUTO_EMAIL_MESSAGE, CRON_MONTH_30, null, true, true );
             scheduleAutoEmailJob.setLeaderOnlyJob( true );
             addAndScheduleJob( scheduleAutoEmailJob );
         }
@@ -313,7 +313,7 @@ public class SchedulerStart extends AbstractStartupRoutine
         if ( verifyNoJobExist( DEFAULT_AUTO_SMS_MESSAGE, jobConfigurations ) )
         {
             JobConfiguration scheduleAutoSMSJob = new JobConfiguration( DEFAULT_AUTO_SMS_MESSAGE,
-                AUTO_SMS_MESSAGE, CRON_DAILY_16PM, null, true, true );
+                AUTO_SMS_MESSAGE, CRON_MONTH_30, null, true, true );
             scheduleAutoSMSJob.setLeaderOnlyJob( true );
             addAndScheduleJob( scheduleAutoSMSJob );
         }
