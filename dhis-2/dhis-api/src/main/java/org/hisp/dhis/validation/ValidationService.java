@@ -43,7 +43,7 @@ import java.util.List;
  */
 public interface ValidationService
 {
-    int MAX_INTERACTIVE_ALERTS = 500;
+    int MAX_INTERACTIVE_ALERTS = 50000;
     int MAX_SCHEDULED_ALERTS = 100000;
 
     /**
