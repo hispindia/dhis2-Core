@@ -7,4 +7,7 @@
     <li><a href="displayViewDocumentForm.action">$i18n.getString( "resource" )&nbsp;</a></li>
     <li><a href="displayOrgUnitDistribution.action">$i18n.getString( "organisation_unit_report" )&nbsp;</a></li>
     <li><a href="showDataApprovalForm.action">$i18n.getString( "data_approval" )&nbsp;</a></li>
+	#if( $auth.hasAccess( "dhis-web-reporting", "metaDataReportAnalyser") )
+		<li><a href = "metaDataReportAnalyser.action">Meta Data Reports</a></li>
+	#end
 </ul>
