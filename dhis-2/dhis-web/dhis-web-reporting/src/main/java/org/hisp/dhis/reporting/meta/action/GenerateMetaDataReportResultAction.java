@@ -2904,6 +2904,12 @@ public class GenerateMetaDataReportResultAction
             //System.out.println( "Meta Data Report Constant 2 : " + attributeid );
             
             String query = "";
+            
+            query = "SELECT orgAttrValue.organisationunitid, attrValue.attributeid, attrValue.value from organisationunitattributevalues orgAttrValue "
+                    + " INNER JOIN attributevalue attrValue ON attrValue.attributevalueid = orgAttrValue.attributevalueid "
+                    + " WHERE attrValue.attributeid = " + attributeid +" ";
+            
+            /*
             if ( dataBaseInfo.getUser().equalsIgnoreCase( "postgres" ) )
             {
                 query = "SELECT orgAttrValue.organisationunitid, attrValue.attributeid, attrValue.value from organisationunitattributevalues orgAttrValue "
@@ -2918,6 +2924,7 @@ public class GenerateMetaDataReportResultAction
                     + " WHERE attrValue.attributeid = " + attributeid +" ";
 
             }
+            */
             
             //System.out.println( "query : " + query );
             
