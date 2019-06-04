@@ -1,5 +1,3 @@
-package org.hisp.dhis.dxf2.events.event;
-
 /*
  * Copyright (c) 2004-2018, University of Oslo
  * All rights reserved.
@@ -28,37 +26,26 @@ package org.hisp.dhis.dxf2.events.event;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import org.hisp.dhis.dxf2.common.ImportOptions;
-import org.hisp.dhis.scheduling.JobConfiguration;
-import org.hisp.dhis.security.SecurityContextRunnable;
+package org.hisp.dhis;
 
-import java.util.List;
+import org.hisp.dhis.helpers.TestCleanUp;
+import org.hisp.dhis.helpers.extensions.ConfigurationExtension;
+import org.hisp.dhis.helpers.extensions.MetadataSetupExtension;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * @author Morten Olav Hansen <mortenoh@gmail.com>
+ * @author Gintare Vilkelyte <vilkelyte.gintare@gmail.com>
  */
-public class ImportEventTask
-    extends SecurityContextRunnable
+@TestInstance( TestInstance.Lifecycle.PER_CLASS )
+@ExtendWith( ConfigurationExtension.class )
+@ExtendWith( MetadataSetupExtension.class )
+public abstract class ApiTest
 {
-    private final List<Event> events;
-
-    private final EventService eventService;
-
-    private final ImportOptions importOptions;
-
-    private final JobConfiguration jobId;
-
-    public ImportEventTask( List<Event> events, EventService eventService, ImportOptions importOptions, JobConfiguration jobId )
+    @AfterAll
+    public void afterAll()
     {
-        this.events = events;
-        this.eventService = eventService;
-        this.importOptions = importOptions;
-        this.jobId = jobId;
-    }
-
-    @Override
-    public void call()
-    {
-        eventService.addEvents( events, importOptions, jobId );
+        new TestCleanUp().deleteCreatedEntities();
     }
 }
