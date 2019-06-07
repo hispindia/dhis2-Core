@@ -3,8 +3,17 @@
 package org.hisp.dhis.excelimport.util;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.YearMonth;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +32,6 @@ import org.hisp.dhis.period.PeriodService;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.period.WeeklyPeriodType;
 import org.hisp.dhis.period.comparator.PeriodComparator;
-import org.hisp.dhis.reports.Report_inDesign;
 import org.hisp.dhis.system.util.MathUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -34,13 +42,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-
-import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.YearMonth;
-import java.time.temporal.TemporalAdjusters;
 
 public class ExcelImportService
 {
@@ -441,6 +442,7 @@ public class ExcelImportService
         }
     }    
  
+  // for selection of weekly period 2nd week of month // for other than SriLanka not required
     public Integer getSecondWeekPeriodId( String isoPeriod )
     {
         Integer periodId = null;
@@ -501,6 +503,45 @@ public class ExcelImportService
         return periodId;
     }    
     
+    // for selection of weekly period 2nd week of month // for SriLanka not required
+    public Integer getWeekPeriodId( String isoPeriod ) throws Exception
+    {
+        //System.out.println( isoPeriod + " --  Inside period -- "  );
+        Integer periodId = null;
+        if( !isoPeriod.equalsIgnoreCase( "period" ))
+        {
+            int year = Integer.parseInt( isoPeriod.substring(0, 4 ) );
+            int month = Integer.parseInt( isoPeriod.substring( isoPeriod.length() - 2 ) );
+
+            //from YearMonth
+            
+            //System.out.println( "Year -- " + year + " Month -- " +  month );
+            
+            YearMonth ym2 = YearMonth.of(year, Month.of( month ));
+            LocalDate tempWeekDateOfMonth = ym2.atDay(1).with(TemporalAdjusters.dayOfWeekInMonth( 2, DayOfWeek.MONDAY) );
+            String secondWeekDateOfMonth = ""+ tempWeekDateOfMonth;
+            
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
+            Date weeklyDateObject = simpleDateFormat.parse( secondWeekDateOfMonth );
+            Calendar cal = Calendar.getInstance();
+            cal.setTime( weeklyDateObject );
+            int weekNoOfYear = cal.get( Calendar.WEEK_OF_YEAR );
+            
+            String isoWeeklyPeriod = year+"W"+weekNoOfYear;
+            //System.out.println( isoWeeklyPeriod + " Week No -- " +  weekNoOfYear );
+            
+            Period period = periodService.reloadIsoPeriod( isoWeeklyPeriod );
+            
+            if( period != null )
+            {
+                periodId = period.getId();
+                //System.out.println( isoPeriod + " Week No -- " +  weekNoOfYear );
+            }
+            
+        }
+        
+        return periodId;
+    }
     //
     @SuppressWarnings( "unused" )
     private String getAggVal( String expression, Map<String, String> aggDeMap )

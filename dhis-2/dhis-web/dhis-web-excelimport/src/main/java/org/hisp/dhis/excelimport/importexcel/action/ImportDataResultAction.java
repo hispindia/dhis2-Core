@@ -184,6 +184,8 @@ public class ImportDataResultAction
             return SUCCESS;
         }
         
+        // for selection of weekly period 2nd week of month // for SriLanka not required
+        /*
         if( selectedPeriodId == null )
         {
             message = "Weekly period missing Please select Period";
@@ -197,6 +199,7 @@ public class ImportDataResultAction
             periodId = period.getId();
             System.out.println( "Start Importing Time : " + new Date() + " -- " + selectedPeriodId + " Period-Id -- " + periodId );
         }
+        */
         
         //selectedPeriod = periodService.getPeriod( availablePeriods );
         
@@ -237,8 +240,14 @@ public class ImportDataResultAction
                     Integer dataElementId = dataElementIdCodeMap.get( oneRow[0] );
                     Integer categoryOptionComboId = cocIdUidMap.get( oneRow[3] );
                     Integer attributeOptionComboId = cocIdUidMap.get( oneRow[4] );
-
+                    
+                    // for nepal
                     //Integer periodId = excelImportService.getSecondWeekPeriodId( oneRow[1] );
+                    
+                    // for SriLanka
+                    //System.out.println( " -- before Inside period -- " + oneRow[1] );
+                    Integer periodId = excelImportService.getWeekPeriodId( oneRow[1] );
+                    //System.out.println( " -- after Inside period -- " + periodId );
                     
                     if ( oneRow[5].equalsIgnoreCase( "" ) || oneRow[5] == null || oneRow[5].equalsIgnoreCase( " " ) )
                     {
@@ -249,6 +258,7 @@ public class ImportDataResultAction
 
                     if( dataElementId != null && periodId != null && organisationUnitId != null  && categoryOptionComboId != null && attributeOptionComboId != null )
                     {
+                        System.out.println( " Inside import" );
                         String selectQuery = "SELECT value FROM datavalue WHERE dataelementid = " + dataElementId
                             + " AND  periodid = " + periodId + " AND sourceid = " + organisationUnitId
                             + " AND categoryoptioncomboid = " + categoryOptionComboId + " AND attributeoptioncomboid = " + attributeOptionComboId + " ";
@@ -281,6 +291,7 @@ public class ImportDataResultAction
                             if ( insertFlag != 1 )
                             {
                                 insertQuery = insertQuery.substring( 0, insertQuery.length() - 2 );
+                                //System.out.println(  " --  insertQuery 1 -- "  + insertQuery );
                                 jdbcTemplate.update( insertQuery );
                             }
 
@@ -291,12 +302,13 @@ public class ImportDataResultAction
 
                         count++;
                     }
-                   
                 }
                 
                 if ( insertFlag != 1 )
                 {
                     insertQuery = insertQuery.substring( 0, insertQuery.length() - 2 );
+                    
+                    //System.out.println(  " --  insertQuery 2 -- "  + insertQuery );
                     
                     jdbcTemplate.update( insertQuery );
                 }
@@ -323,6 +335,7 @@ public class ImportDataResultAction
             
         }
         
+       
         try
         {
         }
@@ -336,7 +349,7 @@ public class ImportDataResultAction
                 inputStream.close();
             }
         }
-
+        
         System.out.println( "End Importing Time : " + new Date() );
 
         return SUCCESS;
