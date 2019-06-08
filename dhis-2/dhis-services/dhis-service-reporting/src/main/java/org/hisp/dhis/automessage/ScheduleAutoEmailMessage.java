@@ -3,6 +3,7 @@ package org.hisp.dhis.automessage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,13 +58,14 @@ public class ScheduleAutoEmailMessage extends AbstractJob
 
     private static final String KEY_TASK = "scheduleAutoEmailData";
     
-    private String[] ccEmail = {"sourabh.bhardwaj@hispindia.org ","yogesh.chand@hispindia.org","harsh.atal@gmail.com "};
-    
     private List<String> emailList = new ArrayList<String>();
     
-    private final static int   DATASET_ID = 1657803;
+    //private final static int   DATASET_ID = 1657803;
     
-    private Map<String,Integer> emailMap = new HashMap<String,Integer>();
+    private Map<String,String> emailMap = new HashMap<String,String>();
+    
+ // Recipient's email ID needs to be mentioned.
+    String toEmail = "";
 	
 	private Set<OrganisationUnit> sources = new HashSet<OrganisationUnit>();
 	
@@ -126,14 +128,13 @@ public class ScheduleAutoEmailMessage extends AbstractJob
         log.info( String.format( "%s has started", KEY_TASK ) );
         String importStatus = "";
         
-     // Recipient's email ID needs to be mentioned.
-        String to = "samta.pandey@hispindia.org";
+     
         
         String all= "";
 
         // Sender's email ID needs to be mentioned
         String from = "samta.bajpayee@gmail.com";
-        String password = "**************";
+        String password = "pzrkwgfrcnpdhdaj";
 
         // Assuming you are sending email from localhost
         String host = "smtp.gmail.com";
@@ -166,21 +167,14 @@ public class ScheduleAutoEmailMessage extends AbstractJob
         try {
         
         	// Create a default MimeMessage object.
-       	 	Transport transport = session.getTransport("smtp");
-            transport.connect("smtp.gmail.com" , 465 , from, password);
-            //transport.send(msg); 
-       	   	InternetAddress addressFrom = new InternetAddress(from); 
-	       	InternetAddress[] ccAddress = new InternetAddress[ccEmail.length];
-	        MimeMessage message = new MimeMessage(session);  
-	       	message.setSender(addressFrom);
-	        message.setSubject("Email Notification");  
-	       	
-	        // To get the array of ccaddresses
-	        for( int i = 0; i < ccEmail.length; i++ ) {
-	            ccAddress[i] = new InternetAddress(ccEmail[i]);
-	        }
+       	 	
 	        
-	      Map<String,Integer> emailMap = getDataValueMessage();
+	        // To get the array of ccaddresses
+	       /* for( int i = 0; i < ccEmail.length; i++ ) {
+	            ccAddress[i] = new InternetAddress(ccEmail[i]);
+	        }*/
+	        
+	    /* Map<String,Integer> emailMap = getDataValueMessage();
 	      if(emailList != null)
 	      {
 	    	  String content = "\n Hello User";
@@ -200,18 +194,44 @@ public class ScheduleAutoEmailMessage extends AbstractJob
 	      {
 	    	  message.setContent("Data Not Found","text/plain");
 	      }
-
-       	  message.addRecipient(Message.RecipientType.TO, new InternetAddress(to)); 
-       	   
-       	// Set cc: header field of the header.
-	        for( int i = 0; i < ccAddress.length; i++) {
-	            message.addRecipient(Message.RecipientType.CC, ccAddress[i]);
-	        }
-
-       	   //transport.connect();  
-       	   Transport.send(message)  ;
-       	   transport.close();
-       	   
+	     */
+	        getUserEmailId();
+	      // Set static message
+	        
+	        String content = "";
+	        
+	       for(String email: emailList) 
+	       {
+	    	   
+	    	   Transport transport = session.getTransport("smtp");
+	            transport.connect("smtp.gmail.com" , 465 , from, password);
+	            
+	       	   	InternetAddress addressFrom = new InternetAddress(from); 
+		       	//InternetAddress[] ccAddress = new InternetAddress[ccEmail.length];
+		       	
+		       	MimeMessage message = new MimeMessage(session);  
+		       	
+	    	   
+	    	   		message.setSubject("no-reply -- notification for dataentry(Test Mail)");  
+	    	   		message.setSender(addressFrom);
+			    	Calendar now = Calendar.getInstance();
+			    	
+			    	String dataEntryDate = "16/"+(now.get(Calendar.MONTH)+1)+"/"+now.get(Calendar.YEAR);
+			    	
+			    	message.setSender(addressFrom);
+			    	content = "Dear UPHMIS User,"+ ",\n"+"\n Please fill your data till "+dataEntryDate+" , if you already fill please ignore this\n\n Thanks "+addressFrom;
+			    	
+			    	String toMail = email;
+		       	  	message.addRecipient(Message.RecipientType.TO, new InternetAddress(toMail)); 
+		       	   
+		       	  	message.setContent(content,"text/plain");
+		          
+		       	   
+		       	 Transport.send(message) ; 
+		       	transport.close();
+	       }
+	       
+	       
            System.out.println("Sent message successfully....");
         
                 
@@ -226,6 +246,44 @@ public class ScheduleAutoEmailMessage extends AbstractJob
              
     }
     
+   
+    
+    public String getUserEmailId()
+    {
+    	String userEmailId = "";
+    	
+    	List<OrganisationUnit> orgUnits= new ArrayList<OrganisationUnit>();
+    	orgUnits =	organisationUnitService.getOrganisationUnitsAtLevel(6);
+    	
+    	System.out.println("facility Level size: "+orgUnits.size());
+    	
+    	emailList.add("uday.bhanu@ihat.in");
+		emailMap.put("uday.bhanu@ihat.in", "Uday Bhanu Kumar");
+    	
+    /*	for(OrganisationUnit ou: orgUnits)
+    	{
+    		String userInfo = "SELECT * FROM usermembership WHERE organisationunitid = "+ou.getId();
+        	
+   	 		SqlRowSet sql2ResultSet = jdbcTemplate.queryForRowSet( userInfo );
+   	 		while ( sql2ResultSet != null && sql2ResultSet.next() )
+   	 		{
+            	String uid = sql2ResultSet.getString("userinfoid");
+            	User user = userService.getUser(Integer.parseInt(uid));
+            	//System.out.println("1: user.getEmail(): "+ user.getEmail());
+            	if(user.getEmail() != null)
+	        	{
+            		//System.out.println("2: user.getName(): "+ user.getName());
+            		emailList.add(user.getEmail());
+            		emailMap.put(user.getEmail(), user.getName());
+            		userEmailId = userEmailId+";"+user.getEmail();
+	        	}
+   	 		}
+   	 		
+    	}*/
+    	
+    	return userEmailId;
+    }
+    /*
     public Map<String,Integer> getDataValueMessage()
     {
     	DataSet d = new DataSet();
@@ -330,6 +388,6 @@ public class ScheduleAutoEmailMessage extends AbstractJob
 	    	}
     	
 	    	return emailMap;
-    }
+    }*/
     	
 }

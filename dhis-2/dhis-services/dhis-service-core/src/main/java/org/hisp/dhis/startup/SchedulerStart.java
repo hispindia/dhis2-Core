@@ -75,11 +75,12 @@ public class SchedulerStart extends AbstractStartupRoutine
 
     private final String CRON_HOURLY = "0 0 * ? * *";
     private final String CRON_DAILY_2AM = "0 0 2 ? * *";
-    private final String CRON_MONTH_30 = "0 0 16 30 1/1 ? *";
+    private final String CRON_MONTH_15 = "0 0 16 8 1/1 ? *";
+    private final String CRON_MONTH_14 = "0 0 16 14 1/1 ? *";
     private final String CRON_DAILY_7AM = "0 0 7 ? * *";
     private final String CRON_DAILY_14PM = "0 0 14 * * ?";
     private final String CRON_DAILY_15PM = "0 0 15 * * ?";
-    private final String CRON_DAILY_16PM = "0 0 16 * * ?";
+    private final String CRON_DAILY_16PM = "0 0 17 * * ?";
     private final String LEADER_JOB_CRON_FORMAT = "0 0/%s * * * *";
     private final String DEFAULT_FILE_RESOURCE_CLEANUP_UID = "pd6O228pqr0";
     private final String DEFAULT_FILE_RESOURCE_CLEANUP = "File resource clean up";
@@ -301,21 +302,31 @@ public class SchedulerStart extends AbstractStartupRoutine
             scheduleAutoApproveTrackerDataDoctorDiaryJob.setLeaderOnlyJob( true );
             addAndScheduleJob( scheduleAutoApproveTrackerDataDoctorDiaryJob );
         }
-        
+        // for UPHMIS auto email
         if ( verifyNoJobExist( DEFAULT_AUTO_EMAIL_MESSAGE, jobConfigurations ) )
         {
             JobConfiguration scheduleAutoEmailJob = new JobConfiguration( DEFAULT_AUTO_EMAIL_MESSAGE,
-                AUTO_EMAIL_MESSAGE, CRON_MONTH_30, null, true, true );
+                AUTO_EMAIL_MESSAGE, CRON_DAILY_16PM, null, true, true );
             scheduleAutoEmailJob.setLeaderOnlyJob( true );
+            /*JobConfiguration scheduleAutoEmailJob2 = new JobConfiguration( DEFAULT_AUTO_EMAIL_MESSAGE,
+                    AUTO_EMAIL_MESSAGE, CRON_MONTH_15, null, true, true );
+                scheduleAutoEmailJob.setLeaderOnlyJob( true );
+            addAndScheduleJob( scheduleAutoEmailJob2 );*/
             addAndScheduleJob( scheduleAutoEmailJob );
         }
-        
+     // for UPHMIS auto sms
         if ( verifyNoJobExist( DEFAULT_AUTO_SMS_MESSAGE, jobConfigurations ) )
         {
             JobConfiguration scheduleAutoSMSJob = new JobConfiguration( DEFAULT_AUTO_SMS_MESSAGE,
-                AUTO_SMS_MESSAGE, CRON_MONTH_30, null, true, true );
+                AUTO_SMS_MESSAGE, CRON_DAILY_16PM, null, true, true );
             scheduleAutoSMSJob.setLeaderOnlyJob( true );
             addAndScheduleJob( scheduleAutoSMSJob );
+            
+           /* JobConfiguration scheduleAutoSMSJob2 = new JobConfiguration( DEFAULT_AUTO_SMS_MESSAGE,
+                    AUTO_SMS_MESSAGE, CRON_MONTH_15, null, true, true );
+                scheduleAutoSMSJob.setLeaderOnlyJob( true );
+                addAndScheduleJob( scheduleAutoSMSJob2 );
+                */
         }
         
         
