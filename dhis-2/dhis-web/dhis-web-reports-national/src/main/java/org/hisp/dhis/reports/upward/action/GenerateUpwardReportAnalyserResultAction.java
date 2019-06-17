@@ -336,19 +336,47 @@ public class GenerateUpwardReportAnalyserResultAction
                 }
                 else if ( deCodeString.equalsIgnoreCase( "FACILITYP" ) )
                 {
-                    tempStr = currentOrgUnit.getParent().getName();
+                    if( currentOrgUnit.getParent() != null )
+                    {
+                        tempStr = currentOrgUnit.getParent().getName();
+                    }
+                    else
+                    {
+                        tempStr = "";
+                    }
                 }
                 else if ( deCodeString.equalsIgnoreCase( "FACILITYPP" ) )
                 {
-                    tempStr = currentOrgUnit.getParent().getParent().getName();
+                    if( currentOrgUnit.getParent().getParent() != null )
+                    {
+                        tempStr = currentOrgUnit.getParent().getParent().getName();
+                    }
+                    else
+                    {
+                        tempStr = "";
+                    }
                 }
                 else if ( deCodeString.equalsIgnoreCase( "FACILITYPPP" ) )
                 {
-                    tempStr = currentOrgUnit.getParent().getParent().getParent().getName();
+                    if( currentOrgUnit.getParent().getParent().getParent() != null )
+                    {
+                        tempStr = currentOrgUnit.getParent().getParent().getParent().getName();
+                    }
+                    else
+                    {
+                        tempStr = "";
+                    }
                 }
                 else if ( deCodeString.equalsIgnoreCase( "FACILITYPPPP" ) )
                 {
-                    tempStr = currentOrgUnit.getParent().getParent().getParent().getParent().getName();
+                    if( currentOrgUnit.getParent().getParent().getParent().getParent() != null )
+                    {
+                        tempStr = currentOrgUnit.getParent().getParent().getParent().getParent().getName();
+                    }
+                    else
+                    {
+                        tempStr = "";
+                    }
                 }
                 else if ( deCodeString.equalsIgnoreCase( "PERIOD" )
                     || deCodeString.equalsIgnoreCase( "PERIOD-NOREPEAT" ) )
@@ -379,6 +407,31 @@ public class GenerateUpwardReportAnalyserResultAction
                 {
                     tempStr = monthFormat.format( eDate );
                 }
+                else if ( deCodeString.equalsIgnoreCase( "PERIOD-QUARTER" ) )
+                {
+                    String startMonth = "";
+                    String tempYear = yearFormat.format( sDate );
+                    startMonth = monthFormat.format( sDate );
+
+                    if ( startMonth.equalsIgnoreCase( "April" ) )
+                    {
+                        tempStr = "April - June" + " " + tempYear;
+                    }
+                    else if ( startMonth.equalsIgnoreCase( "July" ) )
+                    {
+                        tempStr = "July - September" + " " + tempYear;
+                    }
+                    else if ( startMonth.equalsIgnoreCase( "October" ) )
+                    {
+                        tempStr = "October - December" + " " + tempYear;
+                    }
+                    else
+                    {
+                        tempStr = "January - March" + " " + Integer.parseInt( tempYear ) + 1;
+                    }
+                }
+                
+                
                 else if ( deCodeString.equalsIgnoreCase( "SLNO" ) )
                 {
                     tempStr = "" + (orgUnitCount + 1);
