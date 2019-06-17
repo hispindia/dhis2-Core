@@ -53,6 +53,10 @@
 		#if( $auth.hasAccess( "dhis-web-reports", "analysisReportAnalyser") )
 			<li><a href = "analysisReportAnalyser.action">Analysis Reports</a></li>
 		#end			
+
+		#if( $auth.hasAccess( "dhis-web-reports", "advancAanalysisReportAnalyser") )
+			<li><a href = "advancAanalysisReportAnalyser.action">Advance Analysis Reports</a></li>
+		#end		
 		
 		<!--
 		#if( $auth.hasAccess( "dhis-web-reports", "linelistingWebPortalReportAnalyser") )
