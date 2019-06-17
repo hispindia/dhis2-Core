@@ -51,7 +51,7 @@ excelUpload.controller('HomeController',function($scope,userService) {
 	};
 
 	$scope.facilitywiseAction =  function(){
-		javascript:window.location.reload(true);
 		window.location.assign("#facilitywise");
+		javascript:window.location.reload(true);
 	};
 });
