@@ -249,7 +249,7 @@ public class DefaultValidationService
         addPeriodsToContext( periodTypeXMap, parameters.getPeriods() );
         addRulesToContext( periodTypeXMap, parameters.getRules() );
         removeAnyUnneededPeriodTypes( periodTypeXMap );
-
+        /*
         ValidationRunContext.Builder builder = ValidationRunContext.newBuilder()
             .withOrgUnits( orgUnits )
             .withPeriodTypeXs( new ArrayList<>( periodTypeXMap.values() ) )
@@ -257,6 +257,16 @@ public class DefaultValidationService
             .withInitialResults( validationResultService
                 .getValidationResults( parameterOrgUnit,
                     parameters.isIncludeOrgUnitDescendants(), parameters.getRules(), parameters.getPeriods()) )
+            .withSendNotifications( parameters.isSendNotifications() )
+            .withPersistResults( parameters.isPersistResults() )
+            .withAttributeCombo( parameters.getAttributeOptionCombo() )
+            .withDefaultAttributeCombo( categoryService.getDefaultCategoryOptionCombo() )
+            .withMaxResults( parameters.getMaxResults() );
+        */
+        ValidationRunContext.Builder builder = ValidationRunContext.newBuilder()
+            .withOrgUnits( orgUnits )
+            .withPeriodTypeXs( new ArrayList<>( periodTypeXMap.values() ) )
+            .withConstantMap( constantService.getConstantMap() )
             .withSendNotifications( parameters.isSendNotifications() )
             .withPersistResults( parameters.isPersistResults() )
             .withAttributeCombo( parameters.getAttributeOptionCombo() )

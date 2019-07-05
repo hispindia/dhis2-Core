@@ -475,20 +475,33 @@ public class DefaultAclService implements AclService
         BaseIdentifiableObject baseIdentifiableObject = (BaseIdentifiableObject) object;
         baseIdentifiableObject.setPublicAccess( AccessStringHelper.DEFAULT );
         baseIdentifiableObject.setExternalAccess( false );
-
         if ( object.getUser() == null )
         {
             baseIdentifiableObject.setUser( user );
         }
-
-        if ( canMakePublic( user, object.getClass() ) )
+        
+        if( object.getClass().getSimpleName().equalsIgnoreCase( "ReportTable" ) 
+            || object.getClass().getSimpleName().equalsIgnoreCase( "Chart" ))
         {
-            if ( defaultPublic( object.getClass() ) )
+            if ( canMakePublic( user, object.getClass() ) )
             {
-                baseIdentifiableObject.setPublicAccess( AccessStringHelper.READ_WRITE );
+                if ( defaultPublic( object.getClass() ) )
+                {
+                    baseIdentifiableObject.setPublicAccess( AccessStringHelper.DEFAULT );
+                }
             }
         }
-
+        else
+        {
+            if ( canMakePublic( user, object.getClass() ) )
+            {
+                if ( defaultPublic( object.getClass() ) )
+                {
+                    baseIdentifiableObject.setPublicAccess( AccessStringHelper.READ_WRITE );
+                }
+            }
+        }
+       
         object.getUserAccesses().clear();
         object.getUserGroupAccesses().clear();
     }
