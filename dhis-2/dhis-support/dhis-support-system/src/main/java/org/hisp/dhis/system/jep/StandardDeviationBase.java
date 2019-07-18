@@ -1,4 +1,4 @@
-package org.hisp.dhis.appmanager;
+package org.hisp.dhis.system.jep;
 
 /*
  * Copyright (c) 2004-2018, University of Oslo
@@ -28,35 +28,65 @@ package org.hisp.dhis.appmanager;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-public enum AppStatus
+import org.nfunk.jep.ParseException;
+import org.nfunk.jep.function.PostfixMathCommand;
+import org.nfunk.jep.function.PostfixMathCommandI;
+
+import java.util.List;
+import java.util.Stack;
+
+public abstract class StandardDeviationBase
+    extends PostfixMathCommand
+    implements PostfixMathCommandI
 {
-    OK( "ok" ), 
-    NAMESPACE_TAKEN( "namespace_defined_in_manifest_is_in_use" ), 
-    INVALID_ZIP_FORMAT( "zip_file_could_not_be_read" ),
-    MISSING_MANIFEST( "missing_manifest"),
-    INVALID_MANIFEST_JSON( "invalid_json_in_app_manifest_file" ), 
-    INSTALLATION_FAILED( "app_could_not_be_installed_on_file_system" ),
-    NOT_FOUND( "app_could_not_be_found" ),
-    MISSING_SYSTEM_BASE_URL( "system_base_url_is_not_defined" ),
-    APPROVED( "approved" ),
-    PENDING( "pending" ),
-    NOT_APPROVED( "not_approved" ),
-    DELETION_IN_PROGRESS("deletion_in_progress");
-    
-    private String message;
-    
-    AppStatus( String message )
+    public StandardDeviationBase()
     {
-        this.message = message;
+        numberOfParameters = 1;
     }
 
-    public boolean ok()
+    /**
+     * Each subclass defines its variance computation.
+     *
+     * @param sum2 Sum of the squares of distance from the mean
+     * @param n Total number of samples
+     * @return the variances
+     */
+    protected abstract double getVariance( double sum2, double n );
+
+    // nFunk's JEP run() method uses the raw Stack type
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    public void run( Stack inStack )
+        throws ParseException
     {
-        return this == OK;
-    }
-    
-    public String getMessage()
-    {
-        return message;
+        checkStack( inStack );
+
+        Object param = inStack.pop();
+        List<Double> vals = CustomFunctions.checkVector( param );
+        int n = vals.size();
+
+        if ( n == 0 )
+        {
+            throw new NoValueException();
+        }
+        else
+        {
+            double sum = 0, sum2 = 0, mean, variance;
+
+            for ( Double v : vals )
+            {
+                sum = sum + v;
+            }
+
+            mean = sum / n;
+
+            for ( Double v : vals )
+            {
+                sum2 = sum2 + ((v - mean) * (v - mean));
+            }
+
+            variance = getVariance( sum2, n );
+
+            inStack.push( new Double( Math.sqrt( variance ) ) );
+        }
     }
 }

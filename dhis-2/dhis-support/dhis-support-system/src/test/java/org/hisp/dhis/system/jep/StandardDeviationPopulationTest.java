@@ -1,7 +1,7 @@
-package org.hisp.dhis.appmanager;
+package org.hisp.dhis.system.jep;
 
 /*
- * Copyright (c) 2004-2018, University of Oslo
+ * Copyright (c) 2004-2019, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,35 +28,45 @@ package org.hisp.dhis.appmanager;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-public enum AppStatus
+import org.junit.Assert;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+/**
+ * @author Jim Grace
+ */
+
+public class StandardDeviationPopulationTest
+    extends StandardDeviationTest
 {
-    OK( "ok" ), 
-    NAMESPACE_TAKEN( "namespace_defined_in_manifest_is_in_use" ), 
-    INVALID_ZIP_FORMAT( "zip_file_could_not_be_read" ),
-    MISSING_MANIFEST( "missing_manifest"),
-    INVALID_MANIFEST_JSON( "invalid_json_in_app_manifest_file" ), 
-    INSTALLATION_FAILED( "app_could_not_be_installed_on_file_system" ),
-    NOT_FOUND( "app_could_not_be_found" ),
-    MISSING_SYSTEM_BASE_URL( "system_base_url_is_not_defined" ),
-    APPROVED( "approved" ),
-    PENDING( "pending" ),
-    NOT_APPROVED( "not_approved" ),
-    DELETION_IN_PROGRESS("deletion_in_progress");
-    
-    private String message;
-    
-    AppStatus( String message )
+    @Override
+    protected StandardDeviationBase getStandardDeviationToTest()
     {
-        this.message = message;
+        return new StandardDeviationPopulation();
     }
 
-    public boolean ok()
+    @Test
+    public void testGetNumberOfParameters()
     {
-        return this == OK;
+        assertEquals( 1, getStandardDeviationToTest().getNumberOfParameters() );
     }
-    
-    public String getMessage()
+
+    @Test
+    public void testRun()
+        throws org.nfunk.jep.ParseException
     {
-        return message;
+        Assert.assertEquals( 0.0, eval( 1d ), StandardDeviationTest.DELTA );
+        Assert.assertEquals( 0.5, eval( 1d, 2d ), StandardDeviationTest.DELTA );
+        Assert.assertEquals( 0.8164965809277260, eval( 1d, 2d, 3d ), StandardDeviationTest.DELTA );
+        Assert.assertEquals( 1.1180339887498948, eval( 1d, 2d, 3d, 4d ), StandardDeviationTest.DELTA );
+        Assert.assertEquals( 1.4142135623730950, eval( 1d, 2d, 3d, 4d, 5d ), StandardDeviationTest.DELTA );
+    }
+
+    @Test( expected = NoValueException.class )
+    public void testRunNoData()
+        throws org.nfunk.jep.ParseException
+    {
+        eval();
     }
 }

@@ -1,4 +1,4 @@
-package org.hisp.dhis.appmanager;
+package org.hisp.dhis.system.jep;
 
 /*
  * Copyright (c) 2004-2018, University of Oslo
@@ -28,35 +28,26 @@ package org.hisp.dhis.appmanager;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-public enum AppStatus
+/**
+ * Sample standard defiation, where the variance is the sum of the
+ * squares of the distance from the mean to the sample divided by
+ * the number of samples minus 1.
+ * <p/>
+ * If the number of samples is 1, returns 0.
+ *
+ * @author Jim Grace
+ */
+public class StandardDeviationSample
+    extends StandardDeviationBase
 {
-    OK( "ok" ), 
-    NAMESPACE_TAKEN( "namespace_defined_in_manifest_is_in_use" ), 
-    INVALID_ZIP_FORMAT( "zip_file_could_not_be_read" ),
-    MISSING_MANIFEST( "missing_manifest"),
-    INVALID_MANIFEST_JSON( "invalid_json_in_app_manifest_file" ), 
-    INSTALLATION_FAILED( "app_could_not_be_installed_on_file_system" ),
-    NOT_FOUND( "app_could_not_be_found" ),
-    MISSING_SYSTEM_BASE_URL( "system_base_url_is_not_defined" ),
-    APPROVED( "approved" ),
-    PENDING( "pending" ),
-    NOT_APPROVED( "not_approved" ),
-    DELETION_IN_PROGRESS("deletion_in_progress");
-    
-    private String message;
-    
-    AppStatus( String message )
+    @Override
+    protected double getVariance( double sum2, double n )
     {
-        this.message = message;
-    }
+        if ( n == 1 )
+        {
+            throw new NoValueException();
+        }
 
-    public boolean ok()
-    {
-        return this == OK;
-    }
-    
-    public String getMessage()
-    {
-        return message;
+        return sum2 / ( n - 1 );
     }
 }
