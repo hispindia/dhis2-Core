@@ -1,7 +1,7 @@
-package org.hisp.dhis.appmanager;
+package org.hisp.dhis.system.jep;
 
 /*
- * Copyright (c) 2004-2018, University of Oslo
+ * Copyright (c) 2004-2019, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,35 +28,53 @@ package org.hisp.dhis.appmanager;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-public enum AppStatus
-{
-    OK( "ok" ), 
-    NAMESPACE_TAKEN( "namespace_defined_in_manifest_is_in_use" ), 
-    INVALID_ZIP_FORMAT( "zip_file_could_not_be_read" ),
-    MISSING_MANIFEST( "missing_manifest"),
-    INVALID_MANIFEST_JSON( "invalid_json_in_app_manifest_file" ), 
-    INSTALLATION_FAILED( "app_could_not_be_installed_on_file_system" ),
-    NOT_FOUND( "app_could_not_be_found" ),
-    MISSING_SYSTEM_BASE_URL( "system_base_url_is_not_defined" ),
-    APPROVED( "approved" ),
-    PENDING( "pending" ),
-    NOT_APPROVED( "not_approved" ),
-    DELETION_IN_PROGRESS("deletion_in_progress");
-    
-    private String message;
-    
-    AppStatus( String message )
-    {
-        this.message = message;
-    }
+import java.util.Arrays;
+import java.util.Stack;
 
-    public boolean ok()
+/**
+ * Base abstract class for percentile tests.
+ *
+ * @author Jim Grace
+ */
+
+public abstract class PercentileTest
+{
+    private final PercentileBase percentileToTest = getPercentileToTest();
+
+    protected final static double DELTA = 1e-15;
+
+    /**
+     * Each test subclass defines its percentile function to test.
+     *
+     * @return the percentile function to test.
+     */
+    protected abstract PercentileBase getPercentileToTest();
+
+    /**
+     * Evaluates the percentile function to test
+     *
+     * @param fraction the percentile fraction
+     * @param values the set of values
+     * @return the percentile value
+     * @throws org.nfunk.jep.ParseException
+     */
+    protected Double eval( double fraction, Double ... values )
+        throws org.nfunk.jep.ParseException
     {
-        return this == OK;
-    }
-    
-    public String getMessage()
-    {
-        return message;
+        Stack inStack = new Stack();
+        inStack.push( fraction );
+
+        if ( values != null )
+        {
+            inStack.push( Arrays.asList( values ) );
+        }
+        else
+        {
+            inStack.push( Double.valueOf( 0d ) );
+        }
+
+        percentileToTest.run( inStack );
+
+        return (Double) inStack.pop();
     }
 }
