@@ -31,6 +31,7 @@ package org.hisp.dhis.validation;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,6 +47,7 @@ import org.hisp.dhis.datavalue.DataValue;
 import org.hisp.dhis.datavalue.DataValueService;
 import org.hisp.dhis.expression.ExpressionService;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
+import org.hisp.dhis.organisationunit.OrganisationUnitGroup;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodService;
@@ -214,7 +216,7 @@ public class DefaultValidationService
 
         return new ValidationAnalysisParams.Builder( validationRules, organisationUnit, periods);
     }
-
+    
     // -------------------------------------------------------------------------
     // Supportive methods
     // -------------------------------------------------------------------------
@@ -228,7 +230,7 @@ public class DefaultValidationService
     private ValidationRunContext getValidationContext( ValidationAnalysisParams parameters )
     {
         User currentUser = currentUserService.getCurrentUser();
-
+        //System.out.println( "Inside getValidationContext -- " + parameters ); 
         OrganisationUnit parameterOrgUnit = parameters.getOrgUnit();
         List<OrganisationUnit> orgUnits;
         if ( parameterOrgUnit == null )
@@ -243,7 +245,18 @@ public class DefaultValidationService
         {
             orgUnits = Lists.newArrayList( parameterOrgUnit );
         }
-
+        
+        //System.out.println( "Inside orgUnitList before filter -- " + orgUnits.size() ); 
+        // add for filter with orgUnitGroup for UPHMIS
+        OrganisationUnitGroup parameterOrgUnitGroup = parameters.getOrgUnitGroup();
+        if ( parameterOrgUnitGroup != null )
+        {
+            //System.out.println( "Inside orgUnitList after filter 1 -- " + parameterOrgUnitGroup.getName() + " -- " + parameterOrgUnitGroup.getMembers().size() ); 
+            orgUnits.retainAll( parameterOrgUnitGroup.getMembers() );
+        }
+        
+        //System.out.println( "Inside orgUnitList after filter 2 -- " + orgUnits.size() ); 
+        
         Map<PeriodType, PeriodTypeExtended> periodTypeXMap = new HashMap<>();
 
         addPeriodsToContext( periodTypeXMap, parameters.getPeriods() );

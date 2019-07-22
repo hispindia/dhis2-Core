@@ -28,7 +28,19 @@ package org.hisp.dhis.webapi.controller;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.google.common.collect.Sets;
+import static org.hisp.dhis.system.util.CodecUtils.filenameEncode;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hisp.dhis.category.CategoryOptionCombo;
@@ -60,6 +72,8 @@ import org.hisp.dhis.i18n.I18n;
 import org.hisp.dhis.i18n.I18nFormat;
 import org.hisp.dhis.i18n.I18nManager;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
+import org.hisp.dhis.organisationunit.OrganisationUnitGroup;
+import org.hisp.dhis.organisationunit.OrganisationUnitGroupService;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodService;
@@ -88,17 +102,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static org.hisp.dhis.system.util.CodecUtils.filenameEncode;
+import com.google.common.collect.Sets;
 
 /**
  * @author Joao Antunes
@@ -133,6 +137,9 @@ public class DataAnalysisController
 
     @Autowired
     private OrganisationUnitService organisationUnitService;
+    
+    @Autowired
+    private OrganisationUnitGroupService organisationUnitGroupService;
 
     @Autowired
     private PeriodService periodService;
@@ -179,6 +186,12 @@ public class DataAnalysisController
                 .getValidationRuleGroup( validationRulesAnalysisParams.getVrg() );
         }
 
+        OrganisationUnitGroup orgUnitGroup = null;
+        if ( validationRulesAnalysisParams.getOrgUnitGroup() != null )
+        {
+            orgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( validationRulesAnalysisParams.getOrgUnitGroup() );
+        }
+        
         OrganisationUnit organisationUnit = organisationUnitService
             .getOrganisationUnit( validationRulesAnalysisParams.getOu() );
         if ( organisationUnit == null )
@@ -193,6 +206,7 @@ public class DataAnalysisController
             .withPersistResults( validationRulesAnalysisParams.isPersist() )
             .withSendNotifications( validationRulesAnalysisParams.isNotification() )
             .withMaxResults( ValidationService.MAX_INTERACTIVE_ALERTS )
+            .withIncludeOrgUnitGroup( orgUnitGroup )
             .build();
 
         List<ValidationResult> validationResults = new ArrayList<>( validationService.validationAnalysis( params ) );

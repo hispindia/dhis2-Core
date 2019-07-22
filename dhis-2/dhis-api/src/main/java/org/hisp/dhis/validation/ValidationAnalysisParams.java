@@ -27,13 +27,15 @@ package org.hisp.dhis.validation;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableSet;
+import java.util.Collection;
+
 import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
+import org.hisp.dhis.organisationunit.OrganisationUnitGroup;
 import org.hisp.dhis.period.Period;
 
-import java.util.Collection;
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * This class represents the most fundamental parameters to run a validation rule analysis.
@@ -72,6 +74,9 @@ public final class ValidationAnalysisParams
     private boolean persistResults = false;
 
     private int dayInPeriod = -1;
+    
+    // add orgUnitGroup filter for UPHMIS
+    private OrganisationUnitGroup orgUnitGroup;
 
     /**
      * Gets the rules selected for analysis
@@ -168,6 +173,17 @@ public final class ValidationAnalysisParams
         return maxResults;
     }
 
+    // add orgUnitGroup filter for UPHMIS
+    /**
+     * Gets the organisation group unit selected for analysis
+     *
+     * @return the organisation group unit to be analysed
+     */
+    public OrganisationUnitGroup getOrgUnitGroup()
+    {
+        return orgUnitGroup;
+    }
+
     public static class Builder
     {
         private ValidationAnalysisParams params;
@@ -255,6 +271,19 @@ public final class ValidationAnalysisParams
             return this;
         }
 
+        /**
+         * If set to orgUnitGroup, will be included
+         *
+         * @param orgUnitGroup.
+         * @return the updated builder object
+         */
+        public Builder withIncludeOrgUnitGroup( OrganisationUnitGroup orgUnitGroup )
+        {
+            this.params.orgUnitGroup = orgUnitGroup;
+            return this;
+        }
+        
+        
         /**
          * Returns the params object
          * @return the final ValidationAnalysisParams object.

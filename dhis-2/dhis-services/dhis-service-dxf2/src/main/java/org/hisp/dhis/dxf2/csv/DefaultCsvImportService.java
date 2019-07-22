@@ -407,8 +407,8 @@ public class DefaultCsvImportService
                 setIdentifiableObject( object, values );
                 object.setDescription( getSafe( values, 3, null, 255 ) );
                 object.setInstruction( getSafe( values, 4, null, 255 ) );
-                object
-                    .setImportance( Importance.valueOf( getSafe( values, 5, Importance.MEDIUM.toString(), 255 ) ) );
+                //object.setImportance( Importance.valueOf( getSafe( values, 5, Importance.MEDIUM.toString(), 255 ) ) );
+                object.setImportance( Importance.valueOf( getSafe( values, 5, Importance.NEEDCHECK.toString(), 255 ) ) );
                 // Left here so nobody wonders what field 6 is for
                 // object.setRuleType( RuleType.valueOf( getSafe( values, 6, RuleType.VALIDATION.toString(), 255 ) ) );
                 object

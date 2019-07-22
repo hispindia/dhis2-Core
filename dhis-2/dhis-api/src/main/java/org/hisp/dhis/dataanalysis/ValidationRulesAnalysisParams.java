@@ -43,11 +43,14 @@ public class ValidationRulesAnalysisParams
     private boolean persist;
 
     private boolean notification;
-
+    
+    // add orgUnitGroup filter for UPHMIS
+    private String orgUnitGroup;
+    
     public ValidationRulesAnalysisParams()
     {
     }
-
+    
     public ValidationRulesAnalysisParams( String validationRuleGroupId, String organisationUnitId, String startDate,
         String endDate, boolean persist, boolean notification )
     {
@@ -58,7 +61,7 @@ public class ValidationRulesAnalysisParams
         this.persist = persist;
         this.notification = notification;
     }
-
+ 
     @JsonProperty
     public String getVrg()
     {
@@ -124,7 +127,19 @@ public class ValidationRulesAnalysisParams
     {
         this.notification = notification;
     }
+    
+    // add orgUnitGroup filter for UPHMIS
+    @JsonProperty
+    public String getOrgUnitGroup()
+    {
+        return orgUnitGroup;
+    }
 
+    public void setOrgUnitGroup( String orgUnitGroup )
+    {
+        this.orgUnitGroup = orgUnitGroup;
+    }
+    
     @Override
     public String toString()
     {
@@ -135,6 +150,7 @@ public class ValidationRulesAnalysisParams
             ", endDate='" + endDate + '\'' +
             ", persist=" + persist +
             ", notification=" + notification +
+            ", organisationUnitGroupId='" + orgUnitGroup + '\'' +
             '}';
     }
 }
