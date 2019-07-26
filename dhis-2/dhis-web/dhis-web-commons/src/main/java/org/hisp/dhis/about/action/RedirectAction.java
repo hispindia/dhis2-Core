@@ -33,12 +33,15 @@ import com.opensymphony.xwork2.Action;
 import org.apache.struts2.ServletActionContext;
 import org.hisp.dhis.appmanager.App;
 import org.hisp.dhis.appmanager.AppManager;
+import org.hisp.dhis.cache.HibernateCacheManager;
 import org.hisp.dhis.setting.SettingKey;
 import org.hisp.dhis.setting.SystemSettingManager;
 import org.hisp.dhis.webapi.utils.ContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author Lars Helge Overland
@@ -51,6 +54,9 @@ public class RedirectAction
 
     @Autowired
     private AppManager appManager;
+    
+    @Autowired
+    private HibernateCacheManager cacheManager;
 
     private String redirectUrl;
 
@@ -58,7 +64,8 @@ public class RedirectAction
     {
         return redirectUrl;
     }
-
+    
+    HttpServletResponse response;
     @Override
     public String execute()
         throws Exception
@@ -88,7 +95,13 @@ public class RedirectAction
                 return SUCCESS;
             }
         }
-
+        
+        cacheManager.clearCache();
+        response.setHeader("Cache-Control","no-cache"); //Forces caches to obtain a new copy of the page from the origin server
+        response.setHeader("Cache-Control","no-store"); //Directs caches not to store the page under any circumstance
+        response.setDateHeader("Expires", 0); //Causes the proxy cache to see the page as "stale"
+        response.setHeader("Pragma","no-cache"); //HTTP 1.0 backward compatibility
+        
         redirectUrl = "../dhis-web-dashboard/";
         return SUCCESS;
     }

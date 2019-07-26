@@ -62,11 +62,11 @@ import java.util.stream.Collectors;
 import static org.hisp.dhis.commons.util.TextUtils.LN;
 import static org.hisp.dhis.validation.Importance.NEEDCHECK;
 import static org.hisp.dhis.validation.Importance.NEEDCORRECTION;
-/*
+
 import static org.hisp.dhis.validation.Importance.HIGH;
 import static org.hisp.dhis.validation.Importance.LOW;
 import static org.hisp.dhis.validation.Importance.MEDIUM;
-*/
+
 /**
  * @author Halvdan Hoem Grelland
  */
@@ -258,20 +258,13 @@ public class DefaultValidationNotificationService
             DateUtils.getLongDateString( validationDate )
         );
         
-        /*
+        
         String message = String.format(
             "Violations: High %d, medium %d, low %d",
             counts.getOrDefault( HIGH, 0L ),
             counts.getOrDefault( Importance.MEDIUM, 0L ),
             counts.getOrDefault( LOW, 0L ) );
-        */
-        
-        String message = String.format(
-            "Violations: High %d, medium %d, low %d",
-            counts.getOrDefault( NEEDCORRECTION, 0L ),
-            counts.getOrDefault( Importance.NEEDCHECK, 0L ),
-            counts.getOrDefault( NEEDCHECK, 0L ) );
-
+    
         // Concatenate the notifications in sorted order, divide by double linebreak
 
         message = message + pairs.stream().sorted()
@@ -280,9 +273,9 @@ public class DefaultValidationNotificationService
             .reduce( "", ( initStr, newStr ) -> String.format( "%s%s%s", initStr, LN + LN, newStr ) );
 
         NotificationMessage notificationMessage = new NotificationMessage( subject, message );
-        //notificationMessage.setPriority( getPriority( counts.getOrDefault( HIGH, 0L ) > 0 ? HIGH : counts.getOrDefault( MEDIUM, 0L ) > 0 ? MEDIUM : LOW ) );
+        notificationMessage.setPriority( getPriority( counts.getOrDefault( HIGH, 0L ) > 0 ? HIGH : counts.getOrDefault( MEDIUM, 0L ) > 0 ? MEDIUM : LOW ) );
         
-        notificationMessage.setPriority( getPriority( counts.getOrDefault( NEEDCORRECTION, 0L ) > 0 ? NEEDCORRECTION : counts.getOrDefault( NEEDCHECK, 0L ) > 0 ? NEEDCHECK : NEEDCHECK ) );
+        //notificationMessage.setPriority( getPriority( counts.getOrDefault( NEEDCORRECTION, 0L ) > 0 ? NEEDCORRECTION : counts.getOrDefault( NEEDCHECK, 0L ) > 0 ? NEEDCHECK : NEEDCHECK ) );
         return notificationMessage;
     }
 

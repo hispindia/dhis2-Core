@@ -146,7 +146,16 @@ public class DefaultValidationService
         {
             validationResultService.saveValidationResults( context.getValidationResults() );
         }
-
+        else
+        {
+            for( ValidationResult  vResult : context.getValidationResults() )
+            {
+                validationResultService.deleteValidationResult( vResult );
+            }
+            
+            validationResultService.saveValidationResults( results );
+        }
+        
         clock.logTime( "Finished validation analysis, " +  context.getValidationResults().size() + " results").stop();
 
         if ( context.isSendNotifications() )
@@ -230,8 +239,11 @@ public class DefaultValidationService
     private ValidationRunContext getValidationContext( ValidationAnalysisParams parameters )
     {
         User currentUser = currentUserService.getCurrentUser();
-        //System.out.println( "Inside getValidationContext -- " + parameters ); 
-        OrganisationUnit parameterOrgUnit = parameters.getOrgUnit();
+        //System.out.println( "Inside getValidationContext -- " + parameters );
+        
+        //OrganisationUnit parameterOrgUnit = parameters.getOrgUnit();
+        OrganisationUnit parameterOrgUnit = currentUser.getOrganisationUnit();
+        //System.out.println( "Inside getValidationContext -- " + parameterOrgUnit.getName() );
         List<OrganisationUnit> orgUnits;
         if ( parameterOrgUnit == null )
         {

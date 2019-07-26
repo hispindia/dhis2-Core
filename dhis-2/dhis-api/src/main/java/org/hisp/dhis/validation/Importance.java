@@ -33,6 +33,9 @@ package org.hisp.dhis.validation;
  */
 public enum Importance
 {
+    HIGH,
+    MEDIUM,
+    LOW,
     NEEDCHECK,
     NEEDCORRECTION
 }
