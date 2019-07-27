@@ -39,6 +39,7 @@ import org.hisp.dhis.analytics.AnalyticsService;
 import org.hisp.dhis.common.*;
 import org.hisp.dhis.constant.ConstantService;
 import org.hisp.dhis.dataelement.DataElement;
+import org.hisp.dhis.cache.HibernateCacheManager;
 import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.category.CategoryService;
 import org.hisp.dhis.dataelement.DataElementOperand;
@@ -57,6 +58,7 @@ import org.hisp.dhis.program.ProgramIndicator;
 import org.hisp.dhis.system.util.Clock;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
+import org.hisp.dhis.validation.comparator.ValidationResultQuery;
 import org.hisp.dhis.validation.notification.ValidationNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -120,6 +122,9 @@ public class DefaultValidationService
     }
 
     private CurrentUserService currentUserService;
+    
+    @Autowired
+    private HibernateCacheManager cacheManager;
 
     // -------------------------------------------------------------------------
     // ValidationRule business logic
@@ -146,15 +151,37 @@ public class DefaultValidationService
         {
             validationResultService.saveValidationResults( context.getValidationResults() );
         }
+        /*
         else
         {
-            for( ValidationResult  vResult : context.getValidationResults() )
+            List<ValidationResult> allValidationResult = new ArrayList<ValidationResult>( validationResultService.getAllValidationResults() );
+            for( ValidationResult  vResult : allValidationResult )
             {
+                System.out.println( "Inside getValidation Context 1 for delete -- " + vResult.getId() );
                 validationResultService.deleteValidationResult( vResult );
             }
             
+            cacheManager.clearCache();
+            
             validationResultService.saveValidationResults( results );
+           
+            Collection<ValidationResult> selectedVR =  validationResultService.getValidationResults( parameters.getOrgUnit(), parameters.isIncludeOrgUnitDescendants(), vr, parameters.getPeriods() );
+            
+            for( ValidationResult  vResult : selectedVR )
+            {
+                System.out.println( "Inside getValidation Context 1 for delete -- " + vResult.getValidationRule().getId() );
+                validationResultService.deleteValidationResult( vResult );
+            }
+            
+            validationResultService.saveValidationResults( context.getValidationResults() );
+            
+            for( ValidationResult  vResult : context.getValidationResults() )
+            {
+                System.out.println( "Inside getValidation Context 2 for save -- " + vResult.getValidationRule().getId() );
+            }
+            
         }
+        */
         
         clock.logTime( "Finished validation analysis, " +  context.getValidationResults().size() + " results").stop();
 
