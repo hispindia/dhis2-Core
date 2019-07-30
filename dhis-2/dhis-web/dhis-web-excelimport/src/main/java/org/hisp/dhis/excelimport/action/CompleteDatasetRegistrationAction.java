@@ -1,6 +1,8 @@
 package org.hisp.dhis.excelimport.action;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -123,7 +125,7 @@ public class CompleteDatasetRegistrationAction implements Action
         // Register as completed data set
         // ---------------------------------------------------------------------
         
-        System.out.println(organisationUnitUid +  " : " + startDate +  " : " + endDate );
+        System.out.println( organisationUnitUid +  " : " + startDate +  " : " + endDate );
         
         System.out.println(   " dataSetCompleteRegistration : " + dataSetCompleteRegistration );
         
@@ -132,7 +134,7 @@ public class CompleteDatasetRegistrationAction implements Action
         sDate = format.parseDate( startDate );
         eDate = format.parseDate( endDate );
         
-        List<Period> periodList = new ArrayList<Period>();
+        List<Period> periodList = new ArrayList<>();
         
         weeklyPeriodTypeName = WeeklyPeriodType.NAME;
         PeriodType periodType = periodService.getPeriodTypeByName( weeklyPeriodTypeName );
@@ -143,9 +145,13 @@ public class CompleteDatasetRegistrationAction implements Action
         // OrganisationUnit Info
         OrganisationUnit selectedOrgUnit = organisationUnitService.getOrganisationUnit( organisationUnitUid );
         
-        Set<OrganisationUnit> children = selectedOrgUnit.getChildren();
-
+        //Set<OrganisationUnit> children = selectedOrgUnit.getChildren();
+        
+        List<OrganisationUnit> children = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( selectedOrgUnit.getId() ) );
+        System.out.println( " OrganisationUnit Size -- " + children.size() );
+        
         String storedBy = currentUserService.getCurrentUsername();
+        System.out.println( "Total No of OrgUnit : " + children.size() + " : DataSet Complete/Incomplete Registration Start Time is : " + new Date() );
         
         if( dataSetCompleteRegistration )
         {
@@ -165,7 +171,7 @@ public class CompleteDatasetRegistrationAction implements Action
                                 {
                                     for ( Period period : periodList )
                                     {
-                                        System.out.println( "Complete Registration for Children -- " + ds.getId() +  " : " + unit.getId() +  " : " + period.getId() );
+                                        //System.out.println( "Complete Registration for Children -- dataSetID" + ds.getId() +  " orgUnitId : " + unit.getId() +  " periodID : " + period.getId() );
                                         registerCompleteDataSet( ds, period, unit, storedBy );
                                     }
                                 }
@@ -185,7 +191,7 @@ public class CompleteDatasetRegistrationAction implements Action
                             {
                                 for ( Period period : periodList )
                                 {
-                                    System.out.println( "Complete Registration for selected OrgUnit -- " + ds.getId() +  " : " + selectedOrgUnit.getId() +  " : " + period.getId() );
+                                    //System.out.println( "Complete Registration for Children -- dataSetID" + ds.getId() +  " orgUnitId : " + selectedOrgUnit.getId() +  " periodID : " + period.getId() );
                                     registerCompleteDataSet( ds, period, selectedOrgUnit, storedBy );
                                 }
                             }
@@ -214,7 +220,7 @@ public class CompleteDatasetRegistrationAction implements Action
                                 {
                                     for ( Period period : periodList )
                                     {
-                                        System.out.println( "InComplete Registration for Children -- " + ds.getId() +  " : " + unit.getId() +  " : " + period.getId() );
+                                        //System.out.println( "InComplete Registration for Children -- dataSetId " + ds.getId() +  " orgUnit ID : " + unit.getId() +  " periodID : " + period.getId() );
                                         unRegisterCompleteDataSet( ds, period, unit );
                                     }
                                 }
@@ -234,7 +240,7 @@ public class CompleteDatasetRegistrationAction implements Action
                             {
                                 for ( Period period : periodList )
                                 {
-                                    System.out.println( "InComplete Registration for selected OrgUnit -- " + ds.getId() +  " : " + selectedOrgUnit.getId() +  " : " + period.getId() );
+                                    //System.out.println( "InComplete Registration for selected OrgUnit dataSet Id-- " + ds.getId() +  " orgUnitId : " + selectedOrgUnit.getId() +  " period ID: " + period.getId() );
                                     unRegisterCompleteDataSet( ds, period, selectedOrgUnit );
                                 }
                             }
@@ -244,6 +250,8 @@ public class CompleteDatasetRegistrationAction implements Action
                 message = "Dataset incomplete Successfully";
             }
         }
+        
+        System.out.println( "Total No of OrgUnit : " + children.size() + " : DataSet Complete/Incomplete Registration End Time is : " + new Date() );
         
         return SUCCESS;
     }
@@ -279,6 +287,55 @@ public class CompleteDatasetRegistrationAction implements Action
             registrationService.deleteCompleteDataSetRegistration( registration );
         }
     }
+    
+
+    /**
+     * Support method for getOrganisationUnitWithChildren(). Adds all
+     * OrganisationUnit children to a result collection.
+     */
+    public Collection<OrganisationUnit> getOrganisationUnitWithChildren( int id )
+    {
+        OrganisationUnit organisationUnit = organisationUnitService.getOrganisationUnit( id );
+
+        if ( organisationUnit == null )
+        {
+            return Collections.emptySet();
+        }
+
+        List<OrganisationUnit> result = new ArrayList<OrganisationUnit>();
+
+        int rootLevel = 1;
+
+        organisationUnit.setHierarchyLevel( rootLevel );
+
+        result.add( organisationUnit );
+
+        addOrganisationUnitChildren( organisationUnit, result, rootLevel );
+
+        return result;
+    }
+
+
+    private void addOrganisationUnitChildren( OrganisationUnit parent, List<OrganisationUnit> result, int level )
+    {
+        if ( parent.getChildren() != null && parent.getChildren().size() > 0 )
+        {
+            level++;
+        }
+
+        List<OrganisationUnit> childList = parent.getSortedChildren();
+
+        for ( OrganisationUnit child : childList )
+        {
+            child.setHierarchyLevel( level );
+
+            result.add( child );
+
+            addOrganisationUnitChildren( child, result, level );
+        }
+
+        level--;
+    }    
     
     
 }
