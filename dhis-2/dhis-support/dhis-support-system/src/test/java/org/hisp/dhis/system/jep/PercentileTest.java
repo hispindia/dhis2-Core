@@ -1,7 +1,7 @@
-package org.hisp.dhis.fileresource;
+package org.hisp.dhis.system.jep;
 
 /*
- * Copyright (c) 2004-2018, University of Oslo
+ * Copyright (c) 2004-2019, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,43 +28,53 @@ package org.hisp.dhis.fileresource;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.google.common.io.ByteSource;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Arrays;
+import java.util.Stack;
 
 /**
- * @author Halvdan Hoem Grelland
+ * Base abstract class for percentile tests.
+ *
+ * @author Jim Grace
  */
-public interface FileResourceService
+
+public abstract class PercentileTest
 {
-    FileResource getFileResource( String uid );
+    private final PercentileBase percentileToTest = getPercentileToTest();
 
-    List<FileResource> getFileResources( List<String> uids );
+    protected final static double DELTA = 1e-15;
 
-    List<FileResource> getOrphanedFileResources();
+    /**
+     * Each test subclass defines its percentile function to test.
+     *
+     * @return the percentile function to test.
+     */
+    protected abstract PercentileBase getPercentileToTest();
 
-    String saveFileResource( FileResource fileResource, File file );
+    /**
+     * Evaluates the percentile function to test
+     *
+     * @param fraction the percentile fraction
+     * @param values the set of values
+     * @return the percentile value
+     * @throws org.nfunk.jep.ParseException
+     */
+    protected Double eval( double fraction, Double ... values )
+        throws org.nfunk.jep.ParseException
+    {
+        Stack inStack = new Stack();
+        inStack.push( fraction );
 
-    String saveFileResource( FileResource fileResource, byte[] bytes );
+        if ( values != null )
+        {
+            inStack.push( Arrays.asList( values ) );
+        }
+        else
+        {
+            inStack.push( Double.valueOf( 0d ) );
+        }
 
-    void deleteFileResource( String uid );
+        percentileToTest.run( inStack );
 
-    void deleteFileResource( FileResource fileResource );
-
-    InputStream getFileResourceContent( FileResource fileResource );
-
-    void copyFileResourceContent( FileResource fileResource, OutputStream outputStream )
-        throws IOException, NoSuchElementException;
-    
-    boolean fileResourceExists( String uid );
-    
-    void updateFileResource( FileResource fileResource );
-
-    URI getSignedGetFileResourceContentUri( String uid );
+        return (Double) inStack.pop();
+    }
 }

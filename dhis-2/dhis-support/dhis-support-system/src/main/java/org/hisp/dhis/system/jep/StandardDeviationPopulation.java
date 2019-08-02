@@ -1,4 +1,4 @@
-package org.hisp.dhis.fileresource;
+package org.hisp.dhis.system.jep;
 
 /*
  * Copyright (c) 2004-2018, University of Oslo
@@ -28,43 +28,19 @@ package org.hisp.dhis.fileresource;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.google.common.io.ByteSource;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.util.List;
-import java.util.NoSuchElementException;
-
 /**
- * @author Halvdan Hoem Grelland
+ * Population standard deviation, where the variance is the sum of the
+ * squares of the distance from the mean to the sample divided by
+ * the number of samples
+ *
+ * @author Jim Grace
  */
-public interface FileResourceService
+public class StandardDeviationPopulation
+    extends StandardDeviationBase
 {
-    FileResource getFileResource( String uid );
-
-    List<FileResource> getFileResources( List<String> uids );
-
-    List<FileResource> getOrphanedFileResources();
-
-    String saveFileResource( FileResource fileResource, File file );
-
-    String saveFileResource( FileResource fileResource, byte[] bytes );
-
-    void deleteFileResource( String uid );
-
-    void deleteFileResource( FileResource fileResource );
-
-    InputStream getFileResourceContent( FileResource fileResource );
-
-    void copyFileResourceContent( FileResource fileResource, OutputStream outputStream )
-        throws IOException, NoSuchElementException;
-    
-    boolean fileResourceExists( String uid );
-    
-    void updateFileResource( FileResource fileResource );
-
-    URI getSignedGetFileResourceContentUri( String uid );
+    @Override
+    protected double getVariance( double sum2, double n )
+    {
+        return sum2 / n;
+    }
 }

@@ -1,4 +1,4 @@
-package org.hisp.dhis.fileresource;
+package org.hisp.dhis.system.jep;
 
 /*
  * Copyright (c) 2004-2018, University of Oslo
@@ -28,43 +28,65 @@ package org.hisp.dhis.fileresource;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.google.common.io.ByteSource;
+import org.nfunk.jep.ParseException;
+import org.nfunk.jep.function.PostfixMathCommand;
+import org.nfunk.jep.function.PostfixMathCommandI;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Stack;
 
-/**
- * @author Halvdan Hoem Grelland
- */
-public interface FileResourceService
+public abstract class StandardDeviationBase
+    extends PostfixMathCommand
+    implements PostfixMathCommandI
 {
-    FileResource getFileResource( String uid );
+    public StandardDeviationBase()
+    {
+        numberOfParameters = 1;
+    }
 
-    List<FileResource> getFileResources( List<String> uids );
+    /**
+     * Each subclass defines its variance computation.
+     *
+     * @param sum2 Sum of the squares of distance from the mean
+     * @param n Total number of samples
+     * @return the variances
+     */
+    protected abstract double getVariance( double sum2, double n );
 
-    List<FileResource> getOrphanedFileResources();
+    // nFunk's JEP run() method uses the raw Stack type
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    public void run( Stack inStack )
+        throws ParseException
+    {
+        checkStack( inStack );
 
-    String saveFileResource( FileResource fileResource, File file );
+        Object param = inStack.pop();
+        List<Double> vals = CustomFunctions.checkVector( param );
+        int n = vals.size();
 
-    String saveFileResource( FileResource fileResource, byte[] bytes );
+        if ( n == 0 )
+        {
+            throw new NoValueException();
+        }
+        else
+        {
+            double sum = 0, sum2 = 0, mean, variance;
 
-    void deleteFileResource( String uid );
+            for ( Double v : vals )
+            {
+                sum = sum + v;
+            }
 
-    void deleteFileResource( FileResource fileResource );
+            mean = sum / n;
 
-    InputStream getFileResourceContent( FileResource fileResource );
+            for ( Double v : vals )
+            {
+                sum2 = sum2 + ((v - mean) * (v - mean));
+            }
 
-    void copyFileResourceContent( FileResource fileResource, OutputStream outputStream )
-        throws IOException, NoSuchElementException;
-    
-    boolean fileResourceExists( String uid );
-    
-    void updateFileResource( FileResource fileResource );
+            variance = getVariance( sum2, n );
 
-    URI getSignedGetFileResourceContentUri( String uid );
+            inStack.push( new Double( Math.sqrt( variance ) ) );
+        }
+    }
 }

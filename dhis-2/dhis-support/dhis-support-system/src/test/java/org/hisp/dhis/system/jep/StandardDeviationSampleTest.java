@@ -1,7 +1,7 @@
-package org.hisp.dhis.fileresource;
+package org.hisp.dhis.system.jep;
 
 /*
- * Copyright (c) 2004-2018, University of Oslo
+ * Copyright (c) 2004-2019, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,43 +28,50 @@ package org.hisp.dhis.fileresource;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.google.common.io.ByteSource;
+import org.junit.Test;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.util.List;
-import java.util.NoSuchElementException;
+import static org.junit.Assert.assertEquals;
 
 /**
- * @author Halvdan Hoem Grelland
+ * @author Jim Grace
  */
-public interface FileResourceService
+
+public class StandardDeviationSampleTest
+    extends StandardDeviationTest
 {
-    FileResource getFileResource( String uid );
+    @Override
+    protected StandardDeviationBase getStandardDeviationToTest()
+    {
+        return new StandardDeviationSample();
+    }
 
-    List<FileResource> getFileResources( List<String> uids );
+    @Test
+    public void testGetNumberOfParameters()
+    {
+        assertEquals( 1, getStandardDeviationToTest().getNumberOfParameters() );
+    }
 
-    List<FileResource> getOrphanedFileResources();
+    @Test
+    public void testRun()
+        throws org.nfunk.jep.ParseException
+    {
+        assertEquals( 0.70710678118654752440, eval( 1d, 2d ), DELTA );
+        assertEquals( 1.0, eval( 1d, 2d, 3d ), DELTA );
+        assertEquals( 1.2909944487358056, eval( 1d, 2d, 3d, 4d ), DELTA );
+        assertEquals( 1.5811388300841897, eval( 1d, 2d, 3d, 4d, 5d ), DELTA );
+    }
 
-    String saveFileResource( FileResource fileResource, File file );
+    @Test( expected = NoValueException.class )
+    public void testRunNoData()
+        throws org.nfunk.jep.ParseException
+    {
+        eval();
+    }
 
-    String saveFileResource( FileResource fileResource, byte[] bytes );
-
-    void deleteFileResource( String uid );
-
-    void deleteFileResource( FileResource fileResource );
-
-    InputStream getFileResourceContent( FileResource fileResource );
-
-    void copyFileResourceContent( FileResource fileResource, OutputStream outputStream )
-        throws IOException, NoSuchElementException;
-    
-    boolean fileResourceExists( String uid );
-    
-    void updateFileResource( FileResource fileResource );
-
-    URI getSignedGetFileResourceContentUri( String uid );
+    @Test( expected = NoValueException.class )
+    public void testRunOneValue()
+        throws org.nfunk.jep.ParseException
+    {
+        eval( 1d );
+    }
 }
