@@ -615,6 +615,7 @@
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="jdbcTemplate" ref="jdbcTemplate" />
     <property name="statementBuilder" ref="statementBuilder" />
+    <property name="organisationUnitStore" ref="org.hisp.dhis.organisationunit.OrganisationUnitStore"/>
   </bean>
 
   <bean id="org.hisp.dhis.trackedentity.TrackedEntityProgramOwnerStore"
@@ -1244,6 +1245,7 @@
     <property name="identifiableObjectManager" ref="org.hisp.dhis.common.IdentifiableObjectManager" />
     <property name="programNotificationRenderer" ref="programNotificationMessageRenderer" />
     <property name="programStageNotificationRenderer" ref="programStageNotificationMessageRenderer" />
+    <property name="programNotificationStore" ref="org.hisp.dhis.program.notification.ProgramNotificationTemplateStore" />
   </bean>
 
   <bean id="org.hisp.dhis.program.notification.ProgramNotificationPublisher"

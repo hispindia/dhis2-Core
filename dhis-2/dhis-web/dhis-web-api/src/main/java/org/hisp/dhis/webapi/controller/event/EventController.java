@@ -30,10 +30,7 @@ package org.hisp.dhis.webapi.controller.event;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.common.io.ByteSource;
 import com.vividsolutions.jts.io.ParseException;
-
-import org.apache.commons.io.IOUtils;
 import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.common.DhisApiVersion;
 import org.hisp.dhis.common.Grid;
@@ -107,11 +104,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -262,10 +257,11 @@ public class EventController
 
         skipPaging = PagerUtils.isSkipPaging( skipPaging, paging );
 
-        EventSearchParams params = eventService.getFromUrl( program, programStage, programStatus, followUp,
-            orgUnit, ouMode, trackedEntityInstance, startDate, endDate, dueDateStart, dueDateEnd, lastUpdatedStartDate, lastUpdatedEndDate, status, attributeOptionCombo,
-            idSchemes, page, pageSize, totalPages, skipPaging, null, getGridOrderParams( order ), false, eventIds, filter,
-            dataElement, includeAllDataElements, includeDeleted );
+        EventSearchParams params = eventService.getFromUrl( program, programStage, programStatus, followUp, orgUnit,
+            ouMode, trackedEntityInstance, startDate, endDate, dueDateStart, dueDateEnd, lastUpdatedStartDate,
+            lastUpdatedEndDate, null, status, attributeOptionCombo, idSchemes, page,
+            pageSize, totalPages, skipPaging, null, getGridOrderParams( order ), false, eventIds,
+            filter, dataElement, includeAllDataElements, includeDeleted );
 
         contextUtils.configureResponse( response, ContextUtils.CONTENT_TYPE_JSON, CacheStrategy.NO_CACHE );
 
@@ -328,9 +324,10 @@ public class EventController
 
         skipPaging = PagerUtils.isSkipPaging( skipPaging, paging );
 
-        EventSearchParams params = eventService.getFromUrl( program, programStage, programStatus, followUp,
-            orgUnit, ouMode, trackedEntityInstance, startDate, endDate, dueDateStart, dueDateEnd, lastUpdatedStartDate, lastUpdatedEndDate, status, attributeOptionCombo,
-            idSchemes, page, pageSize, totalPages, skipPaging, null, getGridOrderParams( order ), false, eventIds, filter,
+        EventSearchParams params = eventService.getFromUrl( program, programStage, programStatus, followUp, orgUnit,
+            ouMode, trackedEntityInstance, startDate, endDate, dueDateStart, dueDateEnd, lastUpdatedStartDate,
+            lastUpdatedEndDate, null, status, attributeOptionCombo, idSchemes, page, pageSize,
+            totalPages, skipPaging, null, getGridOrderParams( order ), false, eventIds, filter,
             dataElement, includeAllDataElements, includeDeleted );
 
         contextUtils.configureResponse( response, ContextUtils.CONTENT_TYPE_XML, CacheStrategy.NO_CACHE );
@@ -393,9 +390,10 @@ public class EventController
 
         skipPaging = PagerUtils.isSkipPaging( skipPaging, paging );
 
-        EventSearchParams params = eventService.getFromUrl( program, programStage, programStatus, followUp,
-            orgUnit, ouMode, trackedEntityInstance, startDate, endDate, dueDateStart, dueDateEnd, lastUpdatedStartDate, lastUpdatedEndDate, status, attributeOptionCombo,
-            idSchemes, page, pageSize, totalPages, skipPaging, null, getGridOrderParams( order ), false, eventIds, filter,
+        EventSearchParams params = eventService.getFromUrl( program, programStage, programStatus, followUp, orgUnit,
+            ouMode, trackedEntityInstance, startDate, endDate, dueDateStart, dueDateEnd, lastUpdatedStartDate,
+            lastUpdatedEndDate, null, status, attributeOptionCombo, idSchemes, page, pageSize,
+            totalPages, skipPaging, null, getGridOrderParams( order ), false, eventIds, filter,
             dataElement, includeAllDataElements, includeDeleted );
 
         contextUtils.configureResponse( response, ContextUtils.CONTENT_TYPE_EXCEL, CacheStrategy.NO_CACHE );
@@ -459,9 +457,10 @@ public class EventController
 
         skipPaging = PagerUtils.isSkipPaging( skipPaging, paging );
 
-        EventSearchParams params = eventService.getFromUrl( program, programStage, programStatus, followUp,
-            orgUnit, ouMode, trackedEntityInstance, startDate, endDate, dueDateStart, dueDateEnd, lastUpdatedStartDate, lastUpdatedEndDate, status, attributeOptionCombo,
-            idSchemes, page, pageSize, totalPages, skipPaging, null, getGridOrderParams( order ), false, eventIds, filter,
+        EventSearchParams params = eventService.getFromUrl( program, programStage, programStatus, followUp, orgUnit,
+            ouMode, trackedEntityInstance, startDate, endDate, dueDateStart, dueDateEnd, lastUpdatedStartDate,
+            lastUpdatedEndDate, null, status, attributeOptionCombo, idSchemes, page, pageSize,
+            totalPages, skipPaging, null, getGridOrderParams( order ), false, eventIds, filter,
             dataElement, includeAllDataElements, includeDeleted );
 
         contextUtils.configureResponse( response, ContextUtils.CONTENT_TYPE_CSV, CacheStrategy.NO_CACHE );
@@ -486,6 +485,7 @@ public class EventController
         @RequestParam( required = false ) Date lastUpdated,
         @RequestParam( required = false ) Date lastUpdatedStartDate,
         @RequestParam( required = false ) Date lastUpdatedEndDate,
+        @RequestParam( required = false ) String lastUpdatedDuration,
         @RequestParam( required = false ) EventStatus status,
         @RequestParam( required = false ) String attributeCc,
         @RequestParam( required = false ) String attributeCos,
@@ -522,10 +522,11 @@ public class EventController
 
         skipPaging = PagerUtils.isSkipPaging( skipPaging, paging );
 
-        EventSearchParams params = eventService.getFromUrl( program, programStage, programStatus, followUp,
-            orgUnit, ouMode, trackedEntityInstance, startDate, endDate, dueDateStart, dueDateEnd, lastUpdatedStartDate, lastUpdatedEndDate, status, attributeOptionCombo,
-            idSchemes, page, pageSize, totalPages, skipPaging, getOrderParams( order ), getGridOrderParams( order, dataElementOrders ), false, eventIds, filter, dataElementOrders.keySet(), false,
-            includeDeleted );
+        EventSearchParams params = eventService.getFromUrl( program, programStage, programStatus, followUp, orgUnit,
+            ouMode, trackedEntityInstance, startDate, endDate, dueDateStart, dueDateEnd, lastUpdatedStartDate,
+            lastUpdatedEndDate, lastUpdatedDuration, status, attributeOptionCombo, idSchemes, page, pageSize,
+            totalPages, skipPaging, getOrderParams( order ), getGridOrderParams( order, dataElementOrders ),
+            false, eventIds, filter, dataElementOrders.keySet(), false, includeDeleted );
 
         Events events = eventService.getEvents( params );
 
@@ -577,6 +578,7 @@ public class EventController
         @RequestParam( required = false ) Date lastUpdated,
         @RequestParam( required = false ) Date lastUpdatedStartDate,
         @RequestParam( required = false ) Date lastUpdatedEndDate,
+        @RequestParam( required = false ) String lastUpdatedDuration,
         @RequestParam( required = false ) EventStatus status,
         @RequestParam( required = false ) String attributeCc,
         @RequestParam( required = false ) String attributeCos,
@@ -606,10 +608,11 @@ public class EventController
 
         skipPaging = PagerUtils.isSkipPaging( skipPaging, paging );
 
-        EventSearchParams params = eventService.getFromUrl( program, programStage, programStatus, followUp,
-            orgUnit, ouMode, trackedEntityInstance, startDate, endDate, dueDateStart, dueDateEnd, lastUpdatedStartDate, lastUpdatedEndDate, status, attributeOptionCombo,
-            idSchemes, page, pageSize, totalPages, skipPaging, schemaOrders, getGridOrderParams( order, dataElementOrders ), false, eventIds, filter, dataElementOrders.keySet(), false,
-            includeDeleted );
+        EventSearchParams params = eventService.getFromUrl( program, programStage, programStatus, followUp, orgUnit,
+            ouMode, trackedEntityInstance, startDate, endDate, dueDateStart, dueDateEnd, lastUpdatedStartDate,
+            lastUpdatedEndDate, lastUpdatedDuration, status, attributeOptionCombo, idSchemes, page, pageSize,
+            totalPages, skipPaging, schemaOrders, getGridOrderParams( order, dataElementOrders ), false,
+            eventIds, filter, dataElementOrders.keySet(), false, includeDeleted );
 
         Events events = eventService.getEvents( params );
 
@@ -655,7 +658,7 @@ public class EventController
         skipPaging = PagerUtils.isSkipPaging( skipPaging, paging );
 
         EventSearchParams params = eventService.getFromUrl( program, null, programStatus, null,
-            orgUnit, ouMode, null, startDate, endDate, null, null, null, null, eventStatus, attributeOptionCombo,
+            orgUnit, ouMode, null, startDate, endDate, null, null, null, null, null, eventStatus, attributeOptionCombo,
             null, null, null, totalPages, skipPaging, getOrderParams( order ), null, true, null, null, null, false,
             includeDeleted );
 
@@ -744,48 +747,18 @@ public class EventController
             throw new WebMessageException( webMessage );
         }
 
-        ByteSource content = fileResourceService.getFileResourceContent( fileResource );
-
-        if ( content == null )
-        {
-            throw new WebMessageException( WebMessageUtils.notFound( "The referenced file could not be found" ) );
-        }
-
-        // ---------------------------------------------------------------------
-        // Attempt to build signed URL request for content and redirect
-        // ---------------------------------------------------------------------
-
-        URI signedGetUri = fileResourceService.getSignedGetFileResourceContentUri( uid );
-
-        if ( signedGetUri != null )
-        {
-            response.setStatus( HttpServletResponse.SC_TEMPORARY_REDIRECT );
-            response.setHeader( HttpHeaders.LOCATION, signedGetUri.toASCIIString() );
-
-            return;
-        }
-
-        // ---------------------------------------------------------------------
-        // Build response and return
-        // ---------------------------------------------------------------------
-
         response.setContentType( fileResource.getContentType() );
         response.setContentLength( new Long( fileResource.getContentLength() ).intValue() );
         response.setHeader( HttpHeaders.CONTENT_DISPOSITION, "filename=" + fileResource.getName() );
 
-        // ---------------------------------------------------------------------
-        // Request signing is not available, stream content back to client
-        // ---------------------------------------------------------------------
-
-        try ( InputStream inputStream = content.openStream() )
+        try
         {
-            IOUtils.copy( inputStream, response.getOutputStream() );
+            fileResourceService.copyFileResourceContent( fileResource, response.getOutputStream() );
         }
         catch ( IOException e )
         {
             throw new WebMessageException( WebMessageUtils.error( "Failed fetching the file from storage",
-                "There was an exception when trying to fetch the file from the storage backend. " +
-                    "Depending on the provider the root cause could be network or file system related." ) );
+                "There was an exception when trying to fetch the file from the storage backend, could be network or filesystem related" ) );
         }
     }
 
