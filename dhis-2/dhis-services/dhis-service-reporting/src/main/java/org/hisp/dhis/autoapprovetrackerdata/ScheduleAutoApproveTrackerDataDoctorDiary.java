@@ -218,7 +218,7 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
                         TrackedEntityDataValue teDataValue = trackedEntityDataValueService.getTrackedEntityDataValue( psi, de );
                         if( teDataValue != null && teDataValue.getValue().equalsIgnoreCase( "Pending1" ))
                         {
-                            programStageInstanceIdsAndDataValue.add( psi.getId() + ":" + "Pending2" );
+                            programStageInstanceIdsAndDataValue.add( psi.getId() + ":" + "Auto-Approved" );
                         }
                         else if( teDataValue != null && teDataValue.getValue().equalsIgnoreCase( "Pending2" ) )
                         {
