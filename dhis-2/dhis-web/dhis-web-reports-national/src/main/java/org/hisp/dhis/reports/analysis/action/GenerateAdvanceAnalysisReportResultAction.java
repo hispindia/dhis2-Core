@@ -192,9 +192,11 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
     private Map<String, String> dataSetReportingRateMap = new HashMap<String, String>();
     private Map<String, String> facilityTypDataValuMap = new HashMap<String, String>();
     private Map<String, String> allChildOrgUnitWiseAggDeMap =  new HashMap<String, String>();
+    /*
     private Map<Integer, Map<String, String>> orgUnitWiseAggDeMap = new HashMap<Integer, Map<String, String>>();
     private Map<String, Map<String, String>> orgUnitAndOrgGroupWiseAggDeMap = new HashMap<String, Map<String, String>>();
     private Map<String, Map<String, String>> orgUnitAndOrgGroupMemberWiseAggDeMap = new HashMap<String, Map<String, String>>();
+    */
     
     // -------------------------------------------------------------------------
     // Action implementation
@@ -332,6 +334,8 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
         OrganisationUnitGroupSet organisationUnitGroupSet = organisationUnitGroupService.getOrganisationUnitGroupSet( "tunEPeJmZ4o" );
         if( organisationUnitGroupSet != null && districtOrgUnitList != null && districtOrgUnitList.size() > 0 )
         {
+            orgUnitGroupList = new ArrayList<OrganisationUnitGroup>( organisationUnitGroupSet.getOrganisationUnitGroups() );
+            /*
             for ( OrganisationUnit organisationUnit : districtOrgUnitList )
             {
                 List<OrganisationUnit> childOrgUnitTree = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( organisationUnit.getId() ) );
@@ -341,7 +345,6 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                 districtOrgUnitWiseAggDeMap.putAll( reportService.getAggDataFromDataValueTable( districtOrgUnitIdsByComma, dataElmentIdsByComma, periodIdsByComma ) );
                 orgUnitWiseAggDeMap.put( organisationUnit.getId() , districtOrgUnitWiseAggDeMap );
                 
-                orgUnitGroupList = new ArrayList<OrganisationUnitGroup>( organisationUnitGroupSet.getOrganisationUnitGroups() );
                 if( orgUnitGroupList != null && orgUnitGroupList.size() > 0 )
                 {
                     for ( OrganisationUnitGroup ouGroup : orgUnitGroupList )
@@ -373,6 +376,8 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                     }
                 }
             }
+            */
+            
         }
 
         FileInputStream tempFile = new FileInputStream( new File( inputTemplatePath ) );
@@ -426,7 +431,10 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
             {
                 endYear = tempEndDate.get( Calendar.YEAR );
                 startYear = tempStartDate.get( Calendar.YEAR );
-                
+                if( endYear == startYear )
+                {
+                    endYear = endYear + 1;
+                }
                 tempStr = startYear +"-" + endYear;
             }
             else if( deCodeString.equalsIgnoreCase( "REPORT-DATE" ) )
@@ -562,8 +570,13 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
         while ( orgIt.hasNext() )
         {
             OrganisationUnit currentOrgUnit = (OrganisationUnit) orgIt.next();
-            Map<String, String> districtWiseAggDeMap = new HashMap<String, String>();
-            districtWiseAggDeMap.putAll( orgUnitWiseAggDeMap.get( currentOrgUnit.getId() ));
+            //Map<String, String> districtWiseAggDeMap = new HashMap<String, String>();
+            //districtWiseAggDeMap.putAll( orgUnitWiseAggDeMap.get( currentOrgUnit.getId() ));
+            List<OrganisationUnit> childOrgUnitTree = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( currentOrgUnit.getId() ) );
+            List<Integer> districtOrgUnitIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, childOrgUnitTree ) );
+            String districtOrgUnitIdsByComma = getCommaDelimitedString( districtOrgUnitIds );
+            Map<String, String> districtOrgUnitWiseAggDeMap =  new HashMap<String, String>();
+            districtOrgUnitWiseAggDeMap.putAll( reportService.getAggDataFromDataValueTable( districtOrgUnitIdsByComma, dataElmentIdsByComma, periodIdsByComma ) );
             
             //int orgUnitGroupCount = 0;
             Iterator<OrganisationUnitGroup> orgGroupIt = orgUnitGroupList.iterator();
@@ -571,7 +584,17 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
             {
                 OrganisationUnitGroup currentOrgUnitGroup = (OrganisationUnitGroup) orgGroupIt.next();
                 Map<String, String> aggDeMap = new HashMap<String, String>();
-                aggDeMap.putAll( orgUnitAndOrgGroupWiseAggDeMap.get( currentOrgUnit.getId()+":" + currentOrgUnitGroup.getUid() ));
+                //Map<String, String> orgUnitWiseAggDeMap =  new HashMap<String, String>();
+                List<OrganisationUnit> orgUnitGrpMember = new ArrayList<OrganisationUnit>( currentOrgUnitGroup.getMembers() );
+                orgUnitGrpMember.retainAll( childOrgUnitTree );
+                //System.out.println( currentOrgUnit.getName()+ " after filter : " + currentOrgUnitGroup.getName()+ " - -- " + currentOrgUnitGroup.getMembers().size()  + " - -- " + orgUnitGrpMember.size() );
+                String childOrgUnitsByComma = "-1";
+                if( orgUnitGrpMember.size() > 0 )
+                {
+                    List<Integer> childOrgUnitTreeIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, orgUnitGrpMember ) );
+                    childOrgUnitsByComma = getCommaDelimitedString( childOrgUnitTreeIds );
+                }
+                aggDeMap.putAll( reportService.getAggDataFromDataValueTable( childOrgUnitsByComma, dataElmentIdsByComma, periodIdsByComma ) );
                 
                 //int count1 = 0;
                 Iterator<Report_inDesign> reportDesignIterator = reportDesignListDataElement.iterator();
@@ -594,7 +617,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                         if ( sType.equalsIgnoreCase( "dataelement" ) )
                         {
                             tempStr = getAggVal( deCodeString, aggDeMap );
-                            districtTotalStr = getAggVal( deCodeString, districtWiseAggDeMap );
+                            districtTotalStr = getAggVal( deCodeString, districtOrgUnitWiseAggDeMap );
                             //System.out.println( aggData + " 1 SType : " + sType + " DECode : " + deCodeString + "   TempStr : " + tempStr + " -- " + tempaGrpStr );
                         }
                     }
@@ -660,7 +683,6 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                                 cell.setCellValue( districtTotalStr );
                                 
                             }
-                            
                             if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "xYvEtLYNPKx" )  )
                             {
                                 try
@@ -678,7 +700,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                                     
                                 }
                             }
-                            if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "wR42WpA0VHp" )  )
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "wR42WpA0VHp" )  )
                             {
                                 try
                                 {
@@ -695,7 +717,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                                     
                                 }
                             }
-                            if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "NP6zRkPiA4S" )  )
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "NP6zRkPiA4S" )  )
                             {
                                 try
                                 {
@@ -712,7 +734,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                                     
                                 }
                             }
-                            if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "K3UhUR7OIm0" )  )
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "K3UhUR7OIm0" )  )
                             {
                                 try
                                 {
@@ -729,7 +751,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                                     
                                 }
                             }
-                            if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "R9BqNOdb28Q" )  )
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "R9BqNOdb28Q" )  )
                             {
                                 try
                                 {
@@ -746,8 +768,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                                     
                                 }
                             }
-                            
-                            if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "LzDGwjcCNbD" )  )
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "LzDGwjcCNbD" )  )
                             {
                                 try
                                 {
@@ -763,7 +784,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                                     cell.setCellValue( tempStr );
                                 }
                             }
-                            if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "bYeMmLxh8Xs" )  )
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "bYeMmLxh8Xs" )  )
                             {
                                 try
                                 {
@@ -801,8 +822,11 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
         while ( orgGroupIt.hasNext() )
         {
             OrganisationUnitGroup currentOrgUnitGroup = (OrganisationUnitGroup) orgGroupIt.next();
+            
+            List<Integer> orgGroupMemberIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, currentOrgUnitGroup.getMembers() ) );
+            String orgGroupMemberIdsByComma = getCommaDelimitedString( orgGroupMemberIds );
             Map<String, String> aggDeMap = new HashMap<String, String>();
-            aggDeMap.putAll( orgUnitAndOrgGroupMemberWiseAggDeMap.get( currentOrgUnitGroup.getUid() ) );
+            aggDeMap.putAll( reportService.getAggDataFromDataValueTable( orgGroupMemberIdsByComma, dataElmentIdsByComma, oneYearBeforePeriodIdsByComma ) );
             
             //int count1 = 0;
             Iterator<Report_inDesign> reportDesignIterator = reportDesignListDataElement.iterator();
@@ -876,7 +900,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                                     cell.setCellValue( tempStr );
                                 }
                             }
-                            if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "wR42WpA0VHp" )  )
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "wR42WpA0VHp" )  )
                             {
                                 try
                                 {
@@ -893,7 +917,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                                     
                                 }
                             }
-                            if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "NP6zRkPiA4S" )  )
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "NP6zRkPiA4S" )  )
                             {
                                 try
                                 {
@@ -910,7 +934,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                                     
                                 }
                             }
-                            if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "K3UhUR7OIm0" )  )
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "K3UhUR7OIm0" )  )
                             {
                                 try
                                 {
@@ -927,7 +951,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                                     
                                 }
                             }
-                            if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "R9BqNOdb28Q" )  )
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "R9BqNOdb28Q" )  )
                             {
                                 try
                                 {
@@ -944,8 +968,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                                     
                                 }
                             }
-                            
-                            if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "LzDGwjcCNbD" )  )
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "LzDGwjcCNbD" )  )
                             {
                                 try
                                 {
@@ -962,7 +985,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                                     
                                 }
                             }
-                            if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "bYeMmLxh8Xs" )  )
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "bYeMmLxh8Xs" )  )
                             {
                                 try
                                 {
