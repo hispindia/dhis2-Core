@@ -299,11 +299,11 @@ public abstract class AbstractEventService
 
             if ( importOptions.getImportStrategy().isCreate() )
             {
-                create.addAll( events );
+                create.addAll( _events );
             }
             else if ( importOptions.getImportStrategy().isCreateAndUpdate() )
             {
-                for ( Event event : events )
+                for ( Event event : _events )
                 {
                     if ( StringUtils.isEmpty( event.getEvent() ) )
                     {
@@ -337,7 +337,7 @@ public abstract class AbstractEventService
             }
             else if ( importOptions.getImportStrategy().isDelete() )
             {
-                delete.addAll( events.stream().map( Event::getEvent ).collect( Collectors.toList() ) );
+                delete.addAll( _events.stream().map( Event::getEvent ).collect( Collectors.toList() ) );
             }
 
             importSummaries.addImportSummaries( addEvents( create, importOptions, true ) );
@@ -1356,8 +1356,10 @@ public abstract class AbstractEventService
             }
 
             programStageInstanceService.deleteProgramStageInstance( programStageInstance );
-            return new ImportSummary( ImportStatus.SUCCESS, "Deletion of event " + uid + " was successful" )
+            ImportSummary importSummary = new ImportSummary( ImportStatus.SUCCESS, "Deletion of event " + uid + " was successful" )
                 .incrementDeleted();
+            importSummary.setReference( uid );
+            return importSummary;
         }
 
         return new ImportSummary( ImportStatus.SUCCESS, "Event " + uid + " cannot be deleted as it is not present in the system" )
