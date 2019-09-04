@@ -64,7 +64,7 @@ public abstract class PeriodType
 {
     // Cache for period lookup, uses calendar.name() + periodType.getName() + date.getTime() as key
     private static Cache<String, Period> PERIOD_CACHE = Caffeine.newBuilder()
-        .expireAfterAccess( 1, TimeUnit.SECONDS )
+        .expireAfterAccess( 12, TimeUnit.HOURS )
         .initialCapacity( 10000 )
         .maximumSize( 30000 )
         .build();
@@ -77,6 +77,17 @@ public abstract class PeriodType
     private String getCacheKey( org.hisp.dhis.calendar.Calendar calendar, Date date )
     {
         return calendar.name() + getName() + date.getTime();
+    }
+
+    /**
+     * Invalidates the period cache.
+     * <p/>
+     * Used in testing when there are multiple database loads
+     * and the same periods may be assigned different database ids.
+     */
+    public static void invalidatePeriodCache()
+    {
+        PERIOD_CACHE.invalidateAll();
     }
 
     /**
