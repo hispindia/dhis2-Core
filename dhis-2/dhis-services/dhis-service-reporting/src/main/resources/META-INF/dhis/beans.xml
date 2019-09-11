@@ -28,6 +28,9 @@
   <bean id="dataStatisticsTask" class="org.hisp.dhis.datastatistics.DataStatisticsTask" scope="prototype" />
 
   <bean id="credentialsExpiryAlertTask" class="org.hisp.dhis.credentials.CredentialsExpiryAlertTask" scope="prototype"/>
+  
+  <!-- API Integration -->
+  <bean id="scheduleAPIIntegrationTask" class="org.hisp.dhis.scheduleapiintegration.APIIntegration" scope="prototype"/>
 
   <!-- ReportTable -->
 

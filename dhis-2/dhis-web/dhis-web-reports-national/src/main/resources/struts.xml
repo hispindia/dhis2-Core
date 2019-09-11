@@ -1257,6 +1257,18 @@
                 <param name="bufferSize">1024</param>
             </result>
         </action>        
+
+        <action name="apiRead"
+            class="org.hisp.dhis.reports.analysis.action.APIReadAction">
+            <result name="success" type="velocity">/main.vm</result>
+            <param name="page">/dhis-web-reports/welcome.vm</param>
+            <param name="menu">/dhis-web-reports/menuWithTreeForAdvanceAnalysisReport.vm</param>
+            <param name="javascripts">../dhis-web-commons/ouwt/ouwt.js,javascript/reportManagement.js</param>
+            <param name="stylesheets">css/StylesForTags.css</param>
+            <param name="requiredAuthorities">F_REPORT_ANALYSIS</param>
+            <interceptor-ref name="organisationUnitTreeStack"/>
+        </action>
+
         
     </package>
 </struts>

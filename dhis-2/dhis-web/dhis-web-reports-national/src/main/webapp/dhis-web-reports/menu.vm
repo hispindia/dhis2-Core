@@ -58,6 +58,8 @@
 			<li><a href = "advancAanalysisReportAnalyser.action">Advance Analysis Reports</a></li>
 		#end		
 		
+		<li><a href = "apiRead.action">API Integration</a></li>
+		
 		<!--
 		#if( $auth.hasAccess( "dhis-web-reports", "linelistingWebPortalReportAnalyser") )
 			<li><a href = "linelistingWebPortalReportAnalyser.action">Linelisting WebPortal Reports</a></li>
