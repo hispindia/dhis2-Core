@@ -124,6 +124,20 @@ public class EmailController
         emailResponseHandler( emailResponse, request, response );
     }
 
+    @PreAuthorize( "hasRole('ALL') or hasRole('F_SEND_EMAIL')" )
+    @RequestMapping( value = "/ddNotification", method = RequestMethod.POST, produces = "application/json" )
+    public void sendEmailDoctorDiaryNotification( @RequestParam Set<String> recipients, @RequestParam String message,
+        @RequestParam ( defaultValue = "DHIS 2" ) String subject,
+        HttpServletResponse response, HttpServletRequest request ) throws WebMessageException
+    {
+        checkEmailSettings();
+
+        OutboundMessageResponse emailResponse = emailService.sendEmail( subject, message, recipients );
+
+        emailResponseHandler( emailResponse, request, response );
+    }    
+    
+    
     // ---------------------------------------------------------------------
     // Supportive methods
     // ---------------------------------------------------------------------

@@ -947,7 +947,7 @@ public class DefaultDataValueSetService
 
             if ( dataValue.isNullValue() && !dataValue.isDeletedValue() )
             {
-                summary.getConflicts().add( new ImportConflict( "Value", "Data value or comment not specified for data element: " + dataElement.getUid() ) );
+                summary.getConflicts().add( new ImportConflict( "Value", "Data value or comment not specified for data element: " + dataElement.getUid() + " , " + dataElement.getName() ) );
                 continue;
             }
 
@@ -958,7 +958,7 @@ public class DefaultDataValueSetService
 
             if ( valueValid != null )
             {
-                summary.getConflicts().add( new ImportConflict( dataValue.getValue(), i18n.getString( valueValid ) + ", must match data element type: " + dataElement.getUid() ) );
+                summary.getConflicts().add( new ImportConflict( dataValue.getValue(), i18n.getString( valueValid ) + ", must match data element type: " + dataElement.getUid() + " , " + dataElement.getName() ) );
                 continue;
             }
 
@@ -975,7 +975,7 @@ public class DefaultDataValueSetService
 
             if ( optionCodes.isPresent() && !optionCodes.get().contains( dataValue.getValue() ) )
             {
-                summary.getConflicts().add( new ImportConflict( dataValue.getValue(), "Data value is not a valid option of the data element option set: " + dataElement.getUid() ) );
+                summary.getConflicts().add( new ImportConflict( dataValue.getValue(), "Data value is not a valid option of the data element option set: " + dataElement.getUid() + " , " + dataElement.getName() ) );
                 continue;
             }
 
@@ -1013,7 +1013,7 @@ public class DefaultDataValueSetService
                 () -> dataElement.getPeriodTypes() ).contains( period.getPeriodType() ) )
             {
                 summary.getConflicts().add( new ImportConflict( dataValue.getPeriod(),
-                    "Period type of period: " + period.getIsoDate() + " not valid for data element: " + dataElement.getUid() ) );
+                    "Period type of period: " + period.getIsoDate() + " not valid for data element: " + dataElement.getUid() + " , " + dataElement.getName() ) );
                 continue;
             }
 
@@ -1021,7 +1021,7 @@ public class DefaultDataValueSetService
                 () -> dataElement.getCategoryOptionCombos() ).contains( categoryOptionCombo ) )
             {
                 summary.getConflicts().add( new ImportConflict( categoryOptionCombo.getUid(),
-                    "Category option combo: " + categoryOptionCombo.getUid() + " must be part of category combo of data element: " + dataElement.getUid() ) );
+                    "Category option combo: " + categoryOptionCombo.getUid() + " must be part of category combo of data element: " + dataElement.getUid() + " , " + dataElement.getName() ) );
                 continue;
             }
 
@@ -1029,7 +1029,7 @@ public class DefaultDataValueSetService
                 () -> dataElement.getDataSetCategoryOptionCombos() ).contains( attrOptionCombo ) )
             {
                 summary.getConflicts().add( new ImportConflict( attrOptionCombo.getUid(),
-                    "Attribute option combo: " + attrOptionCombo.getUid() + " must be part of category combo of data sets of data element: " + dataElement.getUid() ) );
+                    "Attribute option combo: " + attrOptionCombo.getUid() + " must be part of category combo of data sets of data element: " + dataElement.getUid() + " , " + dataElement.getName() ) );
                 continue;
             }
 
@@ -1037,7 +1037,7 @@ public class DefaultDataValueSetService
                 () -> orgUnit.hasDataElement( dataElement ) ) ) )
             {
                 summary.getConflicts().add( new ImportConflict( orgUnit.getUid(),
-                    "Data element: " + dataElement.getUid() + " must be assigned through data sets to organisation unit: " + orgUnit.getUid() ) );
+                    "Data element: " + dataElement.getUid() + " , " + dataElement.getName() + " must be assigned through data sets to organisation unit: " + orgUnit.getUid() + " , " + orgUnit.getName() ) );
                 continue;
             }
 
@@ -1099,7 +1099,7 @@ public class DefaultDataValueSetService
                 if ( period.isAfter( latestFuturePeriod ) && isIso8601 )
                 {
                     summary.getConflicts().add( new ImportConflict( period.getIsoDate(), "Period: " +
-                        period.getIsoDate() + " is after latest open future period: " + latestFuturePeriod.getIsoDate() + " for data element: " + dataElement.getUid() ) );
+                        period.getIsoDate() + " is after latest open future period: " + latestFuturePeriod.getIsoDate() + " for data element: " + dataElement.getUid() + " , " + dataElement.getName() ) );
                     continue;
                 }
 

@@ -1,9 +1,6 @@
 package org.hisp.dhis.autoapprovetrackerdata;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -11,13 +8,13 @@ import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
@@ -25,7 +22,6 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.logging.Log;
@@ -92,6 +88,7 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
     private List<String> userMobileNumberList = new ArrayList<String>();
     private List<String> approvalEMailList = new ArrayList<String>();
     private List<String> approvalMobileNumberList = new ArrayList<String>();
+    
     private SimpleDateFormat simpleDateFormat;
 
     private String complateDate = "";
@@ -136,136 +133,17 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
 
         log.info( String.format( "%s has started", KEY_TASK ) );
           
-        List<String> programStageInstanceIdsAndDataValue = new ArrayList<String>( programStageInstanceIdsAndDataValue() );
-        for( String psiIdDataValue : programStageInstanceIdsAndDataValue )
-        {
-            String psiId = psiIdDataValue.split( ":" )[0];
-            String value = psiIdDataValue.split( ":" )[1];
-            //System.out.println( psiId + " -- " + value );
-        }
-        
-        String storedBy = "admin";
-       
-        String importStatus = "";
-        Integer updateCount = 0;
-        Integer insertCount = 0;
-
-        Date date = new Date();
-        java.sql.Timestamp lastUpdatedDate = new Timestamp( date.getTime() );
-        java.sql.Timestamp createdDate = new Timestamp( date.getTime() );
-        
-        //System.out.println( new Timestamp(date.getTime() ) );
-
-        String insertQuery = "INSERT INTO trackedentitydatavalue ( programstageinstanceid, dataelementid, value, providedelsewhere, storedby, created, lastupdated ) VALUES ";
-        String updateQuery = "";
-        //String value = "Auto-Approved";
-        int insertFlag = 1;
-        int count = 1;
-        
-        if( programStageInstanceIdsAndDataValue != null && programStageInstanceIdsAndDataValue.size() > 0 )
-        {
-            try
-            {
-                for( String psiIdDataValue : programStageInstanceIdsAndDataValue )
-                {
-                    String psiId = psiIdDataValue.split( ":" )[0];
-                    String value = psiIdDataValue.split( ":" )[1];
-                    updateQuery = "SELECT value FROM trackedentitydatavalue WHERE dataelementid = " + CURRENT_STATUS_DOC_DIARY_DATAELEMENT_ID + " AND programstageinstanceid = " + psiId;
-                    
-                    SqlRowSet updateSqlResultSet = jdbcTemplate.queryForRowSet( updateQuery );
-                    if ( updateSqlResultSet != null && updateSqlResultSet.next() )
-                    {
-                        String tempUpdateQuery = "UPDATE trackedentitydatavalue SET value = '" + value + "', storedby = '" + storedBy + "',lastupdated='" + lastUpdatedDate + 
-                                                  "' WHERE dataelementid = " + CURRENT_STATUS_DOC_DIARY_DATAELEMENT_ID + " AND programstageinstanceid = " + psiId;
-
-                        jdbcTemplate.update( tempUpdateQuery );
-                        
-                        updateCount++;
-                    }
-                    else
-                    {
-                        insertQuery += "( " + psiId + ", " + CURRENT_STATUS_DOC_DIARY_DATAELEMENT_ID + ", '" + value + "', false ,'" + storedBy + "', '" + createdDate + "', '" + lastUpdatedDate + "' ), ";
-                        insertFlag = 2;
-                        insertCount++;
-                    }
-                    
-                    if ( count == 1000 )
-                    {
-                        count = 1;
-
-                        if ( insertFlag != 1 )
-                        {
-                            insertQuery = insertQuery.substring( 0, insertQuery.length() - 2 );
-                            //System.out.println( " insert Query 2 -  " );
-                            jdbcTemplate.update( insertQuery );
-                        }
-
-                        insertFlag = 1;
-
-                        insertQuery = "INSERT INTO trackedentitydatavalue ( programstageinstanceid, dataelementid, value, providedelsewhere, storedby, created, lastupdated ) VALUES ";
-                    }
-                    count++;
-                }
-                //System.out.println(" Count - "  + count + " -- Insert Count : " + insertCount + "  Update Count -- " + updateCount );
-                if ( insertFlag != 1 )
-                {
-                    insertQuery = insertQuery.substring( 0, insertQuery.length() - 2 );
-                    //System.out.println(" insert Query 1 -  ");
-                    jdbcTemplate.update( insertQuery );
-                }
-                
-                importStatus = "Successfully populated tracker data : "; 
-                importStatus += "<br/> Total new records : " + insertCount;
-                importStatus += "<br/> Total updated records : " + updateCount;
-                
-                //System.out.println( importStatus );     
-                
-            }
-            catch ( Exception e )
-            {
-                importStatus = "Exception occured while import, please check log for more details" + e.getMessage();
-            }
-        }
-        
         simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
+        
+        Date date = new Date();
+        
         todayDate = simpleDateFormat.format( date );
         currentDate = simpleDateFormat.format( date ).split( "-" )[2];
         currentMonth = simpleDateFormat.format( date ).split( "-" )[1];
         currentYear = simpleDateFormat.format( date ).split( "-" )[0];
-        
-        /*
-        userEMailList.add( "sumit.poudel@hispindia.org" );
-        userEMailList.add( "gyan.tamang@hispindia.org" );
-        userEMailList.add( "mithilesh.hisp@gmail.com" );
-        userEMailList.add( "harsh.atal@hispindia.org" );
-        userEMailList.add( "yogesh.chand@hispindia.org" );
-        
-        approvalEMailList.add( "sumit.poudel@hispindia.org" );
-        approvalEMailList.add( "gyan.tamang@hispindia.org" );
-        approvalEMailList.add( "mithilesh.hisp@gmail.com" );
-        approvalEMailList.add( "harsh.atal@hispindia.org" );
-        approvalEMailList.add( "yogesh.chand@hispindia.org" );
-        
-        userMobileNumberList.add("8699848185");
-        userMobileNumberList.add("9560163563");
-        userMobileNumberList.add("9654232779");
-        userMobileNumberList.add("8285561428");
-        
-        approvalMobileNumberList.add("8699848185");
-        approvalMobileNumberList.add("9560163563");
-        approvalMobileNumberList.add("9654232779");
-        approvalMobileNumberList.add("8285561428");
-        
-        sendSMS( "Previous month will get disabled for data entry on 10th.", userMobileNumberList );
-        sendSMS( "Previous month will be frozen and auto approved on 21st of the month", approvalMobileNumberList );
-        
-        sendEmailOneByOne( "Doctor Diary Reminder", userEMailList, "Previous month will get disabled for data entry on 10th." );
-        sendEmailOneByOne( "Doctor Diary Reminder", approvalEMailList, "Previous month will be frozen and auto approved on 21st of the month" );
-        */
-        
-       
-        //if ( currentDate.equalsIgnoreCase( "02" ) || currentDate.equalsIgnoreCase( "08" ))
-        //{
+ 
+        if ( currentDate.equalsIgnoreCase( "02" ) || currentDate.equalsIgnoreCase( "08" ))
+        {
             String subject = "Doctor Diary Reminder";
             String dataEntryUserMessage = "Previous month will get disabled for data entry on 10th.";
             String approvalUserMessage = "Previous month will be frozen and auto approved on 21st of the month";
@@ -280,9 +158,8 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
             
             sendSMS( dataEntryUserMessage, userMobileNumberList );
             sendSMS( approvalUserMessage, approvalMobileNumberList );
-        //}
+        }
         
-        /*
         if( currentDate.equalsIgnoreCase( "15" ) || currentDate.equalsIgnoreCase( "18" ) )
         {
             String subject = "Doctor Diary Reminder";
@@ -294,9 +171,12 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
             sendEmailOneByOne( subject, approvalEMailList, approvalUserMessage );
             sendSMS( approvalUserMessage, approvalMobileNumberList );
         }
-        */
         
-        System.out.println("ImportStatus : " + importStatus );
+        if( currentDate.equalsIgnoreCase( "21" ) )
+        {
+            autoApproveTrackedEntityDataValue();
+        }
+        
         System.out.println("INFO: Scheduler job has ended at : " + new Date() );
              
     }
@@ -309,16 +189,36 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
     {
         List<String> programStageInstanceIdsAndDataValue = new ArrayList<>();
 
-        //String current_date = "2018-06-06";
-        //String endDateOfCurrentMonth1 = "2017-12-31";
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime( new Date() );
+        calendar.set( Calendar.MONTH, (calendar.get( Calendar.MONTH ) - 1 ) );
+        Date perivousMonth = calendar.getTime();
+        
+        Calendar lastDatePreviousMonth = Calendar.getInstance();
+        lastDatePreviousMonth.setTime( perivousMonth );
+        lastDatePreviousMonth.set( Calendar.DAY_OF_MONTH, calendar.getActualMaximum( Calendar.DAY_OF_MONTH ) );
+        Date lastDatePreviousMonthDate = lastDatePreviousMonth.getTime();
+        
+        String endDatePreviousMonth = simpleDateFormat.format( lastDatePreviousMonthDate );
+        
+        String startDatePreviousMonth = simpleDateFormat.format( lastDatePreviousMonthDate ).split( "-" )[0] + "-" + simpleDateFormat.format( lastDatePreviousMonthDate ).split( "-" )[1] + "-01";
+
+        System.out.println(startDatePreviousMonth +  "  = " + endDatePreviousMonth );
+        
         //SELECT trackedentityinstanceid, value FROM trackedentityattributevalue WHERE CURRENT_DATE > value::date and trackedentityattributeid = 1085;
         try
         {
             String query = "SELECT psi.programstageinstanceid, psi.completeddate from programstageinstance psi  " +
                             "WHERE psi.programstageid in ( SELECT programstageid from programstage where  programid in ( "+ UPHMIS_DOCTORS_DIARY_PROGRAM_ID +" ) ) AND " +
-                            "psi.completeddate <= CURRENT_DATE - interval '30 day' AND psi.status = 'COMPLETED' order by psi.completeddate desc; ";
+                            "psi.completeddate::date BETWEEN '" + startDatePreviousMonth + "' AND '" + endDatePreviousMonth + "'  AND psi.status = 'COMPLETED' order by psi.completeddate desc; ";
               
-            //System.out.println( "query = " + query );
+            /*
+            String query = "SELECT psi.programstageinstanceid, psi.completeddate from programstageinstance psi  " +
+                "WHERE psi.programstageid in ( SELECT programstageid from programstage where  programid in ( "+ UPHMIS_DOCTORS_DIARY_PROGRAM_ID +" ) ) AND " +
+                "psi.completeddate <= CURRENT_DATE - interval '30 day' AND psi.status = 'COMPLETED' order by psi.completeddate desc; ";
+            */
+            
+            System.out.println( "query = " + query );
             
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
             
@@ -712,5 +612,105 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
             System.out.println( "No Mobile No Found" );
         }
 
-    }   
+    }
+    
+    public void autoApproveTrackedEntityDataValue() 
+    { 
+        
+        List<String> programStageInstanceIdsAndDataValue = new ArrayList<String>( programStageInstanceIdsAndDataValue() );
+        /*
+        System.out.println( " PSI Size -- " + programStageInstanceIdsAndDataValue.size());
+        for( String psiIdDataValue : programStageInstanceIdsAndDataValue )
+        {
+            String psiId = psiIdDataValue.split( ":" )[0];
+            String value = psiIdDataValue.split( ":" )[1];
+            System.out.println( psiId + " -- " + value );
+        }
+        */
+        
+        String storedBy = "admin";
+       
+        String importStatus = "";
+        Integer updateCount = 0;
+        Integer insertCount = 0;
+       
+        Date sqldate = new Date();
+        java.sql.Timestamp lastUpdatedDate = new Timestamp( sqldate.getTime() );
+        java.sql.Timestamp createdDate = new Timestamp( sqldate.getTime() );
+        //System.out.println( new Timestamp(date.getTime() ) );
+
+        String insertQuery = "INSERT INTO trackedentitydatavalue ( programstageinstanceid, dataelementid, value, providedelsewhere, storedby, created, lastupdated ) VALUES ";
+        String updateQuery = "";
+        //String value = "Auto-Approved";
+        int insertFlag = 1;
+        int count = 1;
+        
+        if( programStageInstanceIdsAndDataValue != null && programStageInstanceIdsAndDataValue.size() > 0 )
+        {
+            try
+            {
+                for( String psiIdDataValue : programStageInstanceIdsAndDataValue )
+                {
+                    String psiId = psiIdDataValue.split( ":" )[0];
+                    String value = psiIdDataValue.split( ":" )[1];
+                    updateQuery = "SELECT value FROM trackedentitydatavalue WHERE dataelementid = " + CURRENT_STATUS_DOC_DIARY_DATAELEMENT_ID + " AND programstageinstanceid = " + psiId;
+                    
+                    SqlRowSet updateSqlResultSet = jdbcTemplate.queryForRowSet( updateQuery );
+                    if ( updateSqlResultSet != null && updateSqlResultSet.next() )
+                    {
+                        String tempUpdateQuery = "UPDATE trackedentitydatavalue SET value = '" + value + "', storedby = '" + storedBy + "',lastupdated='" + lastUpdatedDate + 
+                                                  "' WHERE dataelementid = " + CURRENT_STATUS_DOC_DIARY_DATAELEMENT_ID + " AND programstageinstanceid = " + psiId;
+
+                        jdbcTemplate.update( tempUpdateQuery );
+                        
+                        updateCount++;
+                    }
+                    else
+                    {
+                        insertQuery += "( " + psiId + ", " + CURRENT_STATUS_DOC_DIARY_DATAELEMENT_ID + ", '" + value + "', false ,'" + storedBy + "', '" + createdDate + "', '" + lastUpdatedDate + "' ), ";
+                        insertFlag = 2;
+                        insertCount++;
+                    }
+                    
+                    if ( count == 1000 )
+                    {
+                        count = 1;
+
+                        if ( insertFlag != 1 )
+                        {
+                            insertQuery = insertQuery.substring( 0, insertQuery.length() - 2 );
+                            //System.out.println( " insert Query 2 -  " );
+                            jdbcTemplate.update( insertQuery );
+                        }
+
+                        insertFlag = 1;
+
+                        insertQuery = "INSERT INTO trackedentitydatavalue ( programstageinstanceid, dataelementid, value, providedelsewhere, storedby, created, lastupdated ) VALUES ";
+                    }
+                    count++;
+                }
+                //System.out.println(" Count - "  + count + " -- Insert Count : " + insertCount + "  Update Count -- " + updateCount );
+                if ( insertFlag != 1 )
+                {
+                    insertQuery = insertQuery.substring( 0, insertQuery.length() - 2 );
+                    //System.out.println(" insert Query 1 -  ");
+                    jdbcTemplate.update( insertQuery );
+                }
+                
+                importStatus = "Successfully populated tracker data : "; 
+                importStatus += "<br/> Total new records : " + insertCount;
+                importStatus += "<br/> Total updated records : " + updateCount;
+                
+                //System.out.println( importStatus );     
+                
+            }
+            catch ( Exception e )
+            {
+                importStatus = "Exception occured while import, please check log for more details" + e.getMessage();
+            }
+        }
+        
+        System.out.println("ImportStatus : " + importStatus + " PSI Size -- " + programStageInstanceIdsAndDataValue.size() );
+       
+    }    
 }
