@@ -1,7 +1,7 @@
-package org.hisp.dhis.feedback;
+package org.hisp.dhis.system.callable;
 
 /*
- * Copyright (c) 2004-2018, University of Oslo
+ * Copyright (c) 2004-2019, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,44 +28,40 @@ package org.hisp.dhis.feedback;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import java.text.MessageFormat;
+import java.util.concurrent.ExecutionException;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hisp.dhis.category.CategoryOptionCombo;
+import org.hisp.dhis.category.CategoryService;
+import org.hisp.dhis.common.IdScheme;
 
 /**
- * @author Morten Olav Hansen <mortenoh@gmail.com>
+ * Retrieves the category option combination with the given identifier and
+ * id scheme. Checks that the current user has {@code data write} access.
+ *
+ * @author Lars Helge Overland
  */
-public class ErrorMessage
+public class CategoryOptionComboCallable
+    extends IdentifiableObjectCallable<CategoryOptionCombo>
 {
-    private final ErrorCode errorCode;
+    private CategoryService categoryService;
 
-    private final Object[] args;
-    
-    private final String message;
-
-    public ErrorMessage( ErrorCode errorCode, Object... args )
+    public CategoryOptionComboCallable(CategoryService categoryService, IdScheme idScheme, String id )
     {
-        this.errorCode = errorCode;
-        this.args = args;
-        this.message = MessageFormat.format( errorCode.getMessage(), this.args );
+        super( null, CategoryOptionCombo.class, idScheme, id );
+        this.categoryService = categoryService;
     }
 
-    @JsonCreator
-    public ErrorMessage( @JsonProperty( "message" ) String message, @JsonProperty( "errorCode" ) ErrorCode errorCode )
+    @Override
+    public CategoryOptionCombo call()
+        throws ExecutionException
     {
-        this.errorCode = errorCode;
-        this.args = null;
-        this.message = message;
+        return categoryService.getCategoryOptionCombo( id );
     }
 
-    public ErrorCode getErrorCode()
+    @Override
+    public CategoryOptionComboCallable setId(String id )
     {
-        return errorCode;
-    }
-
-    public String getMessage()
-    {
-        return message;
+        this.id = id;
+        return this;
     }
 }
