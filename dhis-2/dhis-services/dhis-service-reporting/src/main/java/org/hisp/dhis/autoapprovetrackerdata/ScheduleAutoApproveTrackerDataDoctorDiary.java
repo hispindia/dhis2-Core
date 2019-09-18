@@ -10,9 +10,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.mail.Message;
@@ -28,13 +30,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementService;
+import org.hisp.dhis.email.EmailService;
+import org.hisp.dhis.message.EmailMessageSender;
+import org.hisp.dhis.outboundmessage.OutboundMessageResponse;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.program.ProgramStageInstance;
 import org.hisp.dhis.program.ProgramStageInstanceService;
 import org.hisp.dhis.scheduling.AbstractJob;
 import org.hisp.dhis.scheduling.JobConfiguration;
 import org.hisp.dhis.scheduling.JobType;
-import org.hisp.dhis.setting.SettingKey;
 import org.hisp.dhis.setting.SystemSettingManager;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceService;
 import org.hisp.dhis.trackedentitydatavalue.TrackedEntityDataValue;
@@ -52,8 +56,12 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
     private static final Log log = LogFactory.getLog( ScheduleAutoApproveTrackerData.class );
 
     private final static int   UPHMIS_DOCTORS_DIARY_PROGRAM_ID = 73337033;
-    private final static int   CURRENT_STATUS_DOC_DIARY_DATAELEMENT_ID = 88199674;
-    private final static String   UPHMIS_DOCTORS_DIARY_USER_GROUP_ID = "110948738";
+    private final static int   TEIA_USER_NAME_ID = 76755184;
+    
+    private final static int    CURRENT_STATUS_DOC_DIARY_DATAELEMENT_ID = 88199674;
+    private final static String UPHMIS_DOCTORS_DIARY_USER_GROUP_ID = "110948738";
+    private final static String DOC_DIARY_PROGRAM_STAGE_IDS = "112222859,92415804,73337065,73397870,73397885,73397824,73397828,73397815,96982961,96983540,112223312,73397880,73337059,73397847,73397890,73397819,73397876,73337069,73397894,73337045,73397864";
+    
     private final static String   UPHMIS_DOCTORS_DIARY_APPROVAL_USER_GROUP_ID = "110948739";
     
     
@@ -84,10 +92,19 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
     @Autowired
     private JdbcTemplate jdbcTemplate;
     
-    private List<String> userEMailList = new ArrayList<String>();
+    @Autowired
+    private EmailService emailService;
+    
+    @Autowired
+    private EmailMessageSender emailMessageSender;
+    
+    private Set<String> userEMailList = new HashSet<String>();
     private List<String> userMobileNumberList = new ArrayList<String>();
-    private List<String> approvalEMailList = new ArrayList<String>();
+    
+    private Set<String> approvalEMailList = new HashSet<String>();
     private List<String> approvalMobileNumberList = new ArrayList<String>();
+    
+    private List<String> autoApprovedEMailList = new ArrayList<String>();
     
     private SimpleDateFormat simpleDateFormat;
 
@@ -104,6 +121,8 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
     String currentYear = "";
 
     String todayDate = "";
+    
+    private String psiIdsByCommas = "-1";
     
     // -------------------------------------------------------------------------
     // Implementation
@@ -147,14 +166,24 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
             String subject = "Doctor Diary Reminder";
             String dataEntryUserMessage = "Previous month will get disabled for data entry on 10th.";
             String approvalUserMessage = "Previous month will be frozen and auto approved on 21st of the month";
-            userEMailList = new ArrayList<String>( getUserEmailList( UPHMIS_DOCTORS_DIARY_USER_GROUP_ID ) );
-            approvalEMailList = new ArrayList<String>( getUserEmailList( UPHMIS_DOCTORS_DIARY_APPROVAL_USER_GROUP_ID ) );
+            userEMailList = new HashSet<String>( getUserEmailList( UPHMIS_DOCTORS_DIARY_USER_GROUP_ID ) );
+            approvalEMailList = new HashSet<String>( getUserEmailList( UPHMIS_DOCTORS_DIARY_APPROVAL_USER_GROUP_ID ) );
             
             userMobileNumberList = new ArrayList<String>( getUserMobleNoList( UPHMIS_DOCTORS_DIARY_USER_GROUP_ID ) );
             approvalMobileNumberList = new ArrayList<String>( getUserMobleNoList( UPHMIS_DOCTORS_DIARY_APPROVAL_USER_GROUP_ID )  );
             
-            sendEmailOneByOne( subject, userEMailList, dataEntryUserMessage );
-            sendEmailOneByOne( subject, approvalEMailList, approvalUserMessage );
+           
+            dataEntryUserMessage  += "\n\n Thanks & Regards, ";
+            dataEntryUserMessage  += "\n UPHMIS Doctor Dairy Team ";
+            
+            approvalUserMessage  += "\n\n Thanks & Regards, ";
+            approvalUserMessage  += "\n UPHMIS Doctor Dairy Team ";
+            
+            OutboundMessageResponse emailResponsedataEntryUser = emailService.sendEmail( subject, dataEntryUserMessage, userEMailList );
+            OutboundMessageResponse emailResponseapprovalUser = emailService.sendEmail( subject, approvalUserMessage, approvalEMailList );
+            
+            //sendEmailOneByOne( subject, userEMailList, dataEntryUserMessage );
+            //sendEmailOneByOne( subject, approvalEMailList, approvalUserMessage );
             
             sendSMS( dataEntryUserMessage, userMobileNumberList );
             sendSMS( approvalUserMessage, approvalMobileNumberList );
@@ -164,21 +193,68 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
         {
             String subject = "Doctor Diary Reminder";
             String approvalUserMessage = "Previous month will be frozen and auto approved on 21st of the month";
-            approvalEMailList = new ArrayList<String>( getUserEmailList( UPHMIS_DOCTORS_DIARY_APPROVAL_USER_GROUP_ID ) );
+            approvalEMailList = new HashSet<String>( getUserEmailList( UPHMIS_DOCTORS_DIARY_APPROVAL_USER_GROUP_ID ) );
             
             approvalMobileNumberList = new ArrayList<String>( getUserMobleNoList( UPHMIS_DOCTORS_DIARY_APPROVAL_USER_GROUP_ID )  );
+            approvalUserMessage  += "\n\n Thanks & Regards, ";
+            approvalUserMessage  += "\n UPHMIS Doctor Dairy Team ";
             
-            sendEmailOneByOne( subject, approvalEMailList, approvalUserMessage );
+            OutboundMessageResponse emailResponseapprovalUser = emailService.sendEmail( subject, approvalUserMessage, approvalEMailList );
+            
+            //sendEmailOneByOne( subject, approvalEMailList, approvalUserMessage );
             sendSMS( approvalUserMessage, approvalMobileNumberList );
         }
+        
+        /*
+        Set<String> recipients = new HashSet<>();
+        recipients.add( "mithilesh.hisp@gmail.com" );
+        recipients.add( "mithilesh.thakur@hispindia.org" );
+        recipients.add( "harsh.atal@hispindia.org" );
+         
+        String finalMessage = "";
+        finalMessage = "Dear User,";
+        finalMessage  += "\n\n Your data has been Auto-Approved for " + "2019-01-01" + ".";
+        finalMessage  += "\n Thank you for using UPHMIS Doctor Dairy application." ;
+        finalMessage  += "\n\n Thanks & Regards, ";
+        finalMessage  += "\n UPHMIS Doctor Dairy Team ";
+        
+        OutboundMessageResponse emailResponse = emailService.sendEmail( "Doctor Dairy Data Approval Status", finalMessage, recipients );
+        */
         
         if( currentDate.equalsIgnoreCase( "21" ) )
         {
             autoApproveTrackedEntityDataValue();
+            
+            //System.out.println( "psiIdsByCommas -- " + psiIdsByCommas );
+            
+            //System.out.println( "autoApprovedEMailList -- " + autoApprovedEMailList.size() );
+            if( autoApprovedEMailList != null && autoApprovedEMailList.size() > 0 )
+            {
+                for( String eventDateAndEmail : autoApprovedEMailList )
+                {
+                    String eventDate = eventDateAndEmail.split( ":" )[0];
+                    String email = eventDateAndEmail.split( ":" )[1];
+                    String subject = "Doctor Dairy Data Approval Status";
+                    
+                    //System.out.println( " 1 eventDate -- " + eventDate + " email " + email );
+                    if( email != null && !email.equalsIgnoreCase( "" ) && isValidEmail( email ) )
+                    {
+                        //System.out.println( " 2 eventDate -- " + eventDate + " email " + email );
+                        //sendEmailAutoApprove( subject, email, eventDate );
+                        String finalMessage = "";
+                        finalMessage = "Dear User,";
+                        finalMessage  += "\n\n Your data has been Auto-Approved for " + eventDate + ".";
+                        finalMessage  += "\n Thank you for using UPHMIS Doctor Dairy application." ;
+                        finalMessage  += "\n\n Thanks & Regards, ";
+                        finalMessage  += "\n UPHMIS Doctor Dairy Team ";
+                        
+                        OutboundMessageResponse emailResponse = emailMessageSender.sendMessage( "Doctor Dairy Data Approval Status", finalMessage, email );
+                    }
+                }
+            }
         }
         
         System.out.println("INFO: Scheduler job has ended at : " + new Date() );
-             
     }
 
     //--------------------------------------------------------------------------------
@@ -208,14 +284,33 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
         //SELECT trackedentityinstanceid, value FROM trackedentityattributevalue WHERE CURRENT_DATE > value::date and trackedentityattributeid = 1085;
         try
         {
-            String query = "SELECT psi.programstageinstanceid, psi.completeddate from programstageinstance psi  " +
-                            "WHERE psi.programstageid in ( SELECT programstageid from programstage where  programid in ( "+ UPHMIS_DOCTORS_DIARY_PROGRAM_ID +" ) ) AND " +
-                            "psi.completeddate::date BETWEEN '" + startDatePreviousMonth + "' AND '" + endDatePreviousMonth + "'  AND psi.status = 'COMPLETED' order by psi.completeddate desc; ";
-              
+            String query = "SELECT psi.programstageinstanceid, psi.executiondate::date, pi.trackedentityinstanceid, " +
+                           "teav.value,us.username,usinfo.email from programstageinstance psi  " +
+                           "INNER JOIN programinstance pi ON pi.programinstanceid = psi.programinstanceid " +
+                           "LEFT JOIN trackedentityattributevalue teav ON teav.trackedentityinstanceid = pi.trackedentityinstanceid " +
+                           "LEFT JOIN users us ON teav.value = us.username " +
+                           "LEFT JOIN userinfo usinfo ON usinfo.userinfoid = us.userid " +
+                           "WHERE psi.programstageid in (  "+ DOC_DIARY_PROGRAM_STAGE_IDS +" )  AND " +
+                           "psi.executiondate::date BETWEEN '" + startDatePreviousMonth + "' AND '" + endDatePreviousMonth + "'  AND psi.status = 'COMPLETED' " +
+                           "and teav.trackedentityattributeid  = " + TEIA_USER_NAME_ID + " order by psi.completeddate desc; ";
+             
+            
             /*
+            SELECT psi.programstageinstanceid, psi.executiondate::date, pi.trackedentityinstanceid, teav.value from programstageinstance psi
+            INNER JOIN programinstance pi ON pi.programinstanceid = psi.programinstanceid
+            INNER JOIN trackedentityattributevalue teav ON teav.trackedentityinstanceid = pi.trackedentityinstanceid
+            WHERE psi.programstageid in 
+            ( SELECT programstageid from programstage where  programid in ( 73337033 ) ) 
+            AND psi.executiondate::date BETWEEN '2019-08-01' AND '2019-08-31'  
+            AND psi.status = 'COMPLETED' and teav.trackedentityattributeid  = 76755184 order by psi.completeddate desc
+                        
             String query = "SELECT psi.programstageinstanceid, psi.completeddate from programstageinstance psi  " +
                 "WHERE psi.programstageid in ( SELECT programstageid from programstage where  programid in ( "+ UPHMIS_DOCTORS_DIARY_PROGRAM_ID +" ) ) AND " +
                 "psi.completeddate <= CURRENT_DATE - interval '30 day' AND psi.status = 'COMPLETED' order by psi.completeddate desc; ";
+            
+            String query = "SELECT psi.programstageinstanceid, psi.completeddate from programstageinstance psi  " +
+                            "WHERE psi.programstageid in ( SELECT programstageid from programstage where  programid in ( "+ UPHMIS_DOCTORS_DIARY_PROGRAM_ID +" ) ) AND " +
+                            "psi.completeddate::date BETWEEN '" + startDatePreviousMonth + "' AND '" + endDatePreviousMonth + "'  AND psi.status = 'COMPLETED' order by psi.completeddate desc; ";
             */
             
             System.out.println( "query = " + query );
@@ -227,6 +322,11 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
             while ( rs.next() )
             {
                 Integer psiId = rs.getInt( 1 );
+                String eventDate = rs.getString( 2 );
+                Integer teiId = rs.getInt( 3 );
+                String teav = rs.getString( 4 );
+                String userName = rs.getString( 5 );
+                String userEmail = rs.getString( 6 );
                 //System.out.println( i + " -- psi Id added " + psiId ) ;
                 if ( psiId != null )
                 {
@@ -237,11 +337,11 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
                         TrackedEntityDataValue teDataValue = trackedEntityDataValueService.getTrackedEntityDataValue( psi, de );
                         if( teDataValue != null && teDataValue.getValue().equalsIgnoreCase( "Pending1" ))
                         {
-                            programStageInstanceIdsAndDataValue.add( psi.getId() + ":" + "Auto-Approved" );
+                            programStageInstanceIdsAndDataValue.add( psi.getId() + ":" + "Auto-Approved" + ":" + eventDate + ":" + userEmail );
                         }
                         else if( teDataValue != null && teDataValue.getValue().equalsIgnoreCase( "Pending2" ) )
                         {
-                            programStageInstanceIdsAndDataValue.add( psi.getId() + ":" + "Auto-Approved" );
+                            programStageInstanceIdsAndDataValue.add( psi.getId() + ":" + "Auto-Approved" + ":" + eventDate + ":" + userEmail  );
                         }
                     }
                 }
@@ -341,210 +441,6 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
         return pat.matcher(email).matches(); 
     }
     
-    // Send E-mail
-    public static void sendEmail( String subject, List<String> toEmailList, String message )
-        throws AddressException, MessagingException
-    {
-        // sets SMTP server properties
-        System.out.println( "inside method" );
-        
-        /*
-        String host = "smtp.gmail.com";
-        String port = "587";
-        final String mailFrom = "dhis.devs.india@gmail.com";
-        final String password = "hispindia";
-        
-        Properties properties = new Properties();
-        properties.put( "mail.smtp.host", host );
-        properties.put( "mail.smtp.port", port );
-        properties.put( "mail.smtp.auth", "true" );
-        properties.put( "mail.smtp.starttls.enable", "true" );
-        properties.put( "mail.user", mailFrom );
-        properties.put( "mail.password", password );
-        */
-        
-        // Sender's email ID needs to be mentioned
-        final String mailFrom = "dhis.devs.india@gmail.com";
-        final String password = "hispindia";
-
-        // Assuming you are sending email from localhost
-        String host = "smtp.gmail.com";
-        
-        // Get system properties
-        Properties properties = new Properties();
-        properties.setProperty("mail.transport.protocol", "smtp");     
-        properties.setProperty("mail.host", host);  
-        properties.put("mail.smtp.auth", "true");
-        properties.put("mail.smtp.port", "465");  
-        properties.put("mail.smtp.user", mailFrom);
-        properties.put("mail.debug", "true");  
-        properties.put("mail.smtp.socketFactory.port", "465");  
-        properties.put("mail.smtp.socketFactory.class","javax.net.ssl.SSLSocketFactory");  
-        properties.put("mail.smtp.socketFactory.fallback", "false");  
-        properties.put("mail.smtp.starttls.enable", "true");
-        
-        // creates a new session with an authenticator
-        Session session = Session.getDefaultInstance( properties, new javax.mail.Authenticator()
-        {
-          protected PasswordAuthentication getPasswordAuthentication()
-          {
-            return new PasswordAuthentication( mailFrom, password );
-          }
-        });
-        
-        
-        // creates a new session with an authenticator
-        /*
-        Authenticator auth = new Authenticator()
-        {
-            public PasswordAuthentication getPasswordAuthentication()
-            {
-                return new PasswordAuthentication( mailFrom, password );
-            }
-        };
-        
-        Session session = Session.getInstance( properties, auth );
-        */
-        
-        // creates a new e-mail message
-        
-        Transport transport = session.getTransport("smtp");
-        transport.connect("smtp.gmail.com" , 465 , mailFrom, password);
-        
-        //Message msg = new MimeMessage( session );
-        //msg.setFrom( new InternetAddress( mailFrom ) );
-        
-        MimeMessage msg = new MimeMessage(session);
-        msg.setFrom( new InternetAddress( mailFrom ) );
-        msg.setSender( new InternetAddress( mailFrom ) );
-        
-        // can put multiple receivers in the array
-        // for set multiple TO address seperated by semi-colon
-        if( toEmailList != null && toEmailList.size() > 0)
-        {
-            //String[] mailAddressTo = (String[]) toEmailList.toArray();
-            String[] mailAddressTo = toEmailList.toArray(new String[toEmailList.size()]);  
-            InternetAddress[] mailAddress_TO = new InternetAddress[mailAddressTo.length];
-            for ( int i = 0; i < mailAddressTo.length; i++ )
-            {
-                mailAddress_TO[i] = new InternetAddress( mailAddressTo[i] );
-                System.out.println( mailAddress_TO[i] );
-            }
-            System.out.println( mailAddress_TO );
-            
-            msg.addRecipients( Message.RecipientType.TO, mailAddress_TO );
-        }
-        
-        /*    
-        if( toAddressCC != null && toAddressCC.length() > 0)
-        {
-            String[] mailAddressCC = toAddressCC.split( ";" );
-            InternetAddress[] mailAddress_CC = new InternetAddress[mailAddressCC.length];
-            for ( int i = 0; i < mailAddressCC.length; i++ )
-            {
-                mailAddress_CC[i] = new InternetAddress( mailAddressCC[i] );
-                System.out.println( mailAddress_CC[i] );
-            }
-            System.out.println( mailAddress_CC );
-            
-            msg.addRecipients( Message.RecipientType.CC, mailAddress_CC );
-        }
-        */
-        
-        //InternetAddress[] toAddressesCC = { new InternetAddress( toAddressCC ) };
-        //msg.setRecipients( Message.RecipientType.CC, toAddressesCC );
-
-        msg.setSubject( subject );
-        msg.setSentDate( new Date() );
-        
-        //msg.setSender( mailFrom );
-
-        // creates message part
-        
-        //MimeBodyPart messageBodyPart = new MimeBodyPart();
-        //messageBodyPart.setContent( message, "text/html" );
-        
-        String finalMessage = "";
-        finalMessage = message;
-        finalMessage  += "\n\n Thanks and Regards ";
-        finalMessage  += "\n\n" + new InternetAddress( mailFrom ) ;
-        finalMessage  += "\n\n HISP-INDIA-DEVELOPER ";
-        
-        msg.setContent( finalMessage, "text/plain");
-        
-        // sends the e-mail
-        Transport.send( msg );
-        System.out.println( "e-mail send " );
-        transport.close();
-    }
-
-    public static void sendEmailOneByOne( String subject, List<String> toEmailList, String message )  throws AddressException, MessagingException
-    {
-        // Sender's email ID needs to be mentioned
-        if ( toEmailList != null && toEmailList.size() > 0 )
-        {
-            final String mailFrom = "dhis.devs.india@gmail.com";
-            final String password = "hispindia";
-
-            // Assuming you are sending email from localhost
-            String host = "smtp.gmail.com";
-            
-            // Get system properties
-            Properties properties = new Properties();
-            properties.setProperty("mail.transport.protocol", "smtp");     
-            properties.setProperty("mail.host", host);  
-            properties.put("mail.smtp.auth", "true");
-            properties.put("mail.smtp.port", "465");  
-            properties.put("mail.smtp.user", mailFrom);
-            properties.put("mail.debug", "true");  
-            properties.put("mail.smtp.socketFactory.port", "465");  
-            properties.put("mail.smtp.socketFactory.class","javax.net.ssl.SSLSocketFactory");  
-            properties.put("mail.smtp.socketFactory.fallback", "false");  
-            properties.put("mail.smtp.starttls.enable", "true");
-            
-            // creates a new session with an authenticator
-            Session session = Session.getDefaultInstance( properties, new javax.mail.Authenticator()
-            {
-              protected PasswordAuthentication getPasswordAuthentication()
-              {
-                return new PasswordAuthentication( mailFrom, password );
-              }
-            });
-            
-            if( toEmailList != null && toEmailList.size() > 0)
-            {
-                for( String eachEmail : toEmailList )
-                {
-                    Transport transport = session.getTransport("smtp");
-                    transport.connect("smtp.gmail.com" , 465 , mailFrom , password);
-                    
-                    String finalMessage = "";
-                    finalMessage = message;
-                    finalMessage  += "\n\n Thanks and Regards ";
-                    finalMessage  += "\n" + new InternetAddress( mailFrom ) ;
-                    finalMessage  += "\n HISP-INDIA-DEVELOPER ";
-                    
-                    MimeMessage msg = new MimeMessage(session);
-                    msg.setFrom( new InternetAddress( mailFrom ) );
-                    msg.setSender( new InternetAddress( mailFrom ) );
-                    msg.setContent( finalMessage, "text/plain");
-                    msg.setSubject( subject );
-                    msg.setSentDate( new Date() );
-                    
-                    msg.addRecipient(Message.RecipientType.TO, new InternetAddress( eachEmail ));
-                    Transport.send (msg ) ; 
-                    transport.close();
-                }
-            }
-        }
-        else
-        {
-            System.out.println( "No Email Found" );
-        }
-        
-        
-    }
-    
     // sending message to multiple mobile no
     public void sendSMS( String message, List<String> phonenos ) throws MalformedURLException, IOException
     {
@@ -614,10 +510,12 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
 
     }
     
+    // autoApproveTrackedEntityDataValue
     public void autoApproveTrackedEntityDataValue() 
     { 
         
         List<String> programStageInstanceIdsAndDataValue = new ArrayList<String>( programStageInstanceIdsAndDataValue() );
+        
         /*
         System.out.println( " PSI Size -- " + programStageInstanceIdsAndDataValue.size());
         for( String psiIdDataValue : programStageInstanceIdsAndDataValue )
@@ -644,7 +542,7 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
         //String value = "Auto-Approved";
         int insertFlag = 1;
         int count = 1;
-        
+        autoApprovedEMailList = new ArrayList<String>();
         if( programStageInstanceIdsAndDataValue != null && programStageInstanceIdsAndDataValue.size() > 0 )
         {
             try
@@ -653,6 +551,15 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
                 {
                     String psiId = psiIdDataValue.split( ":" )[0];
                     String value = psiIdDataValue.split( ":" )[1];
+                    
+                    String email = psiIdDataValue.split( ":" )[3];
+                    
+                    if( email != null && !email.equalsIgnoreCase( "" ) && isValidEmail( email ) )
+                    {
+                        String eventDateEmail = psiIdDataValue.split( ":" )[2] + ":" + psiIdDataValue.split( ":" )[3];
+                        autoApprovedEMailList.add( eventDateEmail );
+                    }
+                    
                     updateQuery = "SELECT value FROM trackedentitydatavalue WHERE dataelementid = " + CURRENT_STATUS_DOC_DIARY_DATAELEMENT_ID + " AND programstageinstanceid = " + psiId;
                     
                     SqlRowSet updateSqlResultSet = jdbcTemplate.queryForRowSet( updateQuery );
@@ -712,5 +619,5 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
         
         System.out.println("ImportStatus : " + importStatus + " PSI Size -- " + programStageInstanceIdsAndDataValue.size() );
        
-    }    
+    }
 }
