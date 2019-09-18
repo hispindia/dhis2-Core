@@ -39,6 +39,7 @@ import org.hisp.dhis.program.ProgramStageInstanceService;
 import org.hisp.dhis.scheduling.AbstractJob;
 import org.hisp.dhis.scheduling.JobConfiguration;
 import org.hisp.dhis.scheduling.JobType;
+import org.hisp.dhis.setting.SettingKey;
 import org.hisp.dhis.setting.SystemSettingManager;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceService;
 import org.hisp.dhis.trackedentitydatavalue.TrackedEntityDataValue;
@@ -53,7 +54,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
  */
 public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
 {
-    private static final Log log = LogFactory.getLog( ScheduleAutoApproveTrackerData.class );
+    private static final Log log = LogFactory.getLog( ScheduleAutoApproveTrackerDataDoctorDiary.class );
 
     private final static int   UPHMIS_DOCTORS_DIARY_PROGRAM_ID = 73337033;
     private final static int   TEIA_USER_NAME_ID = 76755184;
