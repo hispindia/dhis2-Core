@@ -13,25 +13,19 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementService;
+import org.hisp.dhis.dxf2.webmessage.WebMessageUtils;
 import org.hisp.dhis.email.EmailService;
-import org.hisp.dhis.message.EmailMessageSender;
+import org.hisp.dhis.message.MessageSender;
 import org.hisp.dhis.outboundmessage.OutboundMessageResponse;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.program.ProgramStageInstance;
@@ -97,7 +91,7 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
     private EmailService emailService;
     
     @Autowired
-    private EmailMessageSender emailMessageSender;
+    private MessageSender emailMessageSender;
     
     private Set<String> userEMailList = new HashSet<String>();
     private List<String> userMobileNumberList = new ArrayList<String>();
@@ -181,7 +175,9 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
             approvalUserMessage  += "\n UPHMIS Doctor Dairy Team ";
             
             OutboundMessageResponse emailResponsedataEntryUser = emailService.sendEmail( subject, dataEntryUserMessage, userEMailList );
+            emailResponseHandler( emailResponsedataEntryUser );
             OutboundMessageResponse emailResponseapprovalUser = emailService.sendEmail( subject, approvalUserMessage, approvalEMailList );
+            emailResponseHandler( emailResponseapprovalUser );
             
             //sendEmailOneByOne( subject, userEMailList, dataEntryUserMessage );
             //sendEmailOneByOne( subject, approvalEMailList, approvalUserMessage );
@@ -202,7 +198,7 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
             
             OutboundMessageResponse emailResponseapprovalUser = emailService.sendEmail( subject, approvalUserMessage, approvalEMailList );
             
-            //sendEmailOneByOne( subject, approvalEMailList, approvalUserMessage );
+            emailResponseHandler( emailResponseapprovalUser );
             sendSMS( approvalUserMessage, approvalMobileNumberList );
         }
         
@@ -227,7 +223,6 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
             autoApproveTrackedEntityDataValue();
             
             //System.out.println( "psiIdsByCommas -- " + psiIdsByCommas );
-            
             //System.out.println( "autoApprovedEMailList -- " + autoApprovedEMailList.size() );
             if( autoApprovedEMailList != null && autoApprovedEMailList.size() > 0 )
             {
@@ -249,7 +244,8 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
                         finalMessage  += "\n\n Thanks & Regards, ";
                         finalMessage  += "\n UPHMIS Doctor Dairy Team ";
                         
-                        OutboundMessageResponse emailResponse = emailMessageSender.sendMessage( "Doctor Dairy Data Approval Status", finalMessage, email );
+                        OutboundMessageResponse emailResponse = emailMessageSender.sendMessage( subject, finalMessage, email );
+                        emailResponseHandler( emailResponse );
                     }
                 }
             }
@@ -619,6 +615,24 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
         }
         
         System.out.println("ImportStatus : " + importStatus + " PSI Size -- " + programStageInstanceIdsAndDataValue.size() );
-       
     }
+    
+    // ---------------------------------------------------------------------
+    // Supportive methods
+    // ---------------------------------------------------------------------
+
+    private void emailResponseHandler( OutboundMessageResponse emailResponse )
+    {
+        if ( emailResponse.isOk() )
+        {
+            log.info( WebMessageUtils.ok( "Email sent" ) );
+        }
+        else
+        {
+            log.info( WebMessageUtils.ok( "Email sending failed" ) );
+        }
+    }
+    
+    
+    
 }
