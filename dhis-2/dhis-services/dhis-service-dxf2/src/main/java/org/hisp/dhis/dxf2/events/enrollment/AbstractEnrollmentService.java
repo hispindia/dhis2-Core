@@ -32,6 +32,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hisp.dhis.common.CodeGenerator;
@@ -82,6 +83,7 @@ import org.hisp.dhis.system.callable.IdentifiableObjectCallable;
 import org.hisp.dhis.system.notification.NotificationLevel;
 import org.hisp.dhis.system.notification.Notifier;
 import org.hisp.dhis.system.util.DateUtils;
+import org.hisp.dhis.system.util.ValidationUtils;
 import org.hisp.dhis.trackedentity.TrackedEntityAttribute;
 import org.hisp.dhis.trackedentity.TrackedEntityAttributeService;
 import org.hisp.dhis.trackedentity.TrackerOwnershipManager;
@@ -107,6 +109,15 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+
+import java.text.SimpleDateFormat;
+
+import org.hisp.dhis.message.MessageSender;
+import org.hisp.dhis.outboundmessage.OutboundMessageResponse;
+import org.hisp.dhis.dxf2.webmessage.WebMessageUtils;
+
 import static org.hisp.dhis.system.notification.NotificationLevel.ERROR;
 
 /**
@@ -117,6 +128,12 @@ public abstract class AbstractEnrollmentService
 {
     private static final Log log = LogFactory.getLog( AbstractEnrollmentService.class );
 
+    // for UPHMIS sending e-mail when registration done on tracker-capture
+    private final static String   TEIA_USER_NAME_UID = "fXG73s6W4ER";
+    private final static String   TEIA_APPROVED_AUTHORITY_UID = "aXIlrWGyIfL";
+    private final static String   ADMIN_DD_USER_NAME = "admin_dd";
+    private final static String   UPHMIS_DOCTOR_DIARY_PROGRAM_UID = "Bv3DaiOd5Ai";
+    
     @Autowired
     protected ProgramInstanceService programInstanceService;
 
@@ -176,6 +193,12 @@ public abstract class AbstractEnrollmentService
 
     @Autowired
     protected Notifier notifier;
+    
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    
+    @Autowired
+    private MessageSender emailMessageSender;
 
     private CachingMap<String, OrganisationUnit> organisationUnitCache = new CachingMap<>();
 
@@ -495,7 +518,8 @@ public abstract class AbstractEnrollmentService
         programInstance.setStoredBy( storedBy );
 
         programInstanceService.addProgramInstance( programInstance );
-
+        
+        
         importSummary = validateProgramInstance( program, programInstance, enrollment );
 
         if ( importSummary.getStatus() != ImportStatus.SUCCESS )
@@ -511,7 +535,95 @@ public abstract class AbstractEnrollmentService
         importSummary.getImportCount().incrementImported();
 
         importSummary.setEvents( handleEvents( enrollment, programInstance, importOptions ) );
-
+        
+        
+        if( programInstance.getProgram().getUid().equalsIgnoreCase( UPHMIS_DOCTOR_DIARY_PROGRAM_UID ))
+        {
+         // change done for UPHMIS send-email to TEI and approval and Admin when TEI registered
+            String userEmail = null;
+            String userApprovalEmail = null;
+            String adminDDEmail = null;
+            
+            //System.out.println( " inside DXF2 service -- " + programInstance.getProgram().getName() );
+            
+            TrackedEntityAttribute userNameAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( TEIA_USER_NAME_UID );
+            TrackedEntityAttributeValue userName = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( programInstance.getEntityInstance(), userNameAttribute );
+            if ( userName != null && userName.getValue() != null )
+            {
+                if( userName.getValue() != null && !userName.getValue().equalsIgnoreCase( "" ) )
+                {
+                    userEmail = getUserEmail( userName.getValue() );
+                    
+                    // change done for UPHMIS send-email to TEI when TEI registered
+                    if( userEmail != null && !userEmail.equalsIgnoreCase( "" ) && isValidEmail( userEmail ) )
+                    {
+                        String subject = "Successfully Registered in UPHMIS Doctor Diary";
+                        String finalMessage = "";
+                        finalMessage = "Dear Doctor Diary User,";
+                        finalMessage  += "\n\n Thank you for using UPHMIS Doctor Dairy application, your registration is successfully completed";
+                        finalMessage  += "\n in our Doctor Diary System. To fill your doctor dairy data, click on the below link:";
+                        
+                        finalMessage  += "\n\n https://uphmis.in/dd/";
+                        finalMessage  += "\n Username - " + userName.getValue() ;
+                        finalMessage  += "\n Password - Uphmis@123";
+                        
+                        finalMessage  += "\n\n Thanks & Regards, ";
+                        finalMessage  += "\n UPHMIS Doctor Dairy Team ";
+                        
+                        OutboundMessageResponse emailResponse = emailMessageSender.sendMessage( subject, finalMessage, userEmail );
+                        emailResponseHandler( emailResponse );
+                    }
+                }
+            }
+            
+            TrackedEntityAttribute approvalUserNameAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( TEIA_APPROVED_AUTHORITY_UID );
+            TrackedEntityAttributeValue approvalUserName = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( programInstance.getEntityInstance(), approvalUserNameAttribute );
+            if ( approvalUserName != null && approvalUserName.getValue() != null )
+            {
+                if( approvalUserName.getValue() != null && !approvalUserName.getValue().equalsIgnoreCase( "" ) )
+                {
+                    userApprovalEmail = getUserEmail( approvalUserName.getValue() );
+                    // change done for UPHMIS send-email to approval when TEI registered
+                    if( userApprovalEmail != null && !userApprovalEmail.equalsIgnoreCase( "" ) && isValidEmail( userApprovalEmail ) )
+                    {
+                        String subject = "Successfully Registered in UPHMIS Doctor Diary (EHRMS Code: " + userName.getValue() + ")";
+                        String finalMessage = "";
+                        finalMessage = "Dear <" + approvalUserName.getValue() + " >,";
+                        finalMessage  += "\n\n Thank you for using UPHMIS Doctor Dairy application, user( EHRMS Code: " + userName.getValue() + ", username: ";
+                        finalMessage  += "\n " + userName.getValue() + " ,Facility: " + programInstance.getOrganisationUnit().getName() + " ) under your supervision registered successfully in our Doctor Diary System. ";
+                        
+                        finalMessage  += "\n\n Kindly Approved this user data.";
+                        
+                        finalMessage  += "\n\n Thanks & Regards, ";
+                        finalMessage  += "\n UPHMIS Doctor Dairy Team ";
+                        
+                        OutboundMessageResponse emailResponse = emailMessageSender.sendMessage( subject, finalMessage, userApprovalEmail );
+                        emailResponseHandler( emailResponse );
+                    }
+                }
+            }
+            // change done for UPHMIS send-email to admin_dd when TEI registered
+            adminDDEmail = getUserEmail( ADMIN_DD_USER_NAME );
+            if( userApprovalEmail != null && !userApprovalEmail.equalsIgnoreCase( "" ) && isValidEmail( userApprovalEmail ) )
+            {
+                String subject = "Successfully Registered in UPHMIS Doctor Diary (EHRMS Code: " + userName.getValue() + ")";
+                String finalMessage = "";
+                finalMessage = "Dear <" + ADMIN_DD_USER_NAME + " >,";
+                finalMessage  += "\n\n Thank you for using UPHMIS Doctor Dairy application, user( EHRMS Code: " + userName.getValue() + ", username: ";
+                finalMessage  += "\n " + userName.getValue() + " ,Facility: " + programInstance.getOrganisationUnit().getName() + " ) under your supervision registered successfully in our Doctor Diary System. ";
+                
+                finalMessage  += "\n\n Kindly Approved this user data.";
+                
+                finalMessage  += "\n\n Thanks & Regards, ";
+                finalMessage  += "\n UPHMIS Doctor Dairy Team ";
+                
+                OutboundMessageResponse emailResponse = emailMessageSender.sendMessage( subject, finalMessage, adminDDEmail );
+                emailResponseHandler( emailResponse );
+            }
+            // end change
+        }
+        
+        
         return importSummary;
     }
 
@@ -1274,4 +1386,54 @@ public abstract class AbstractEnrollmentService
 
         return importConflicts;
     }
+    
+    // get user E-mail
+    public String getUserEmail( String userName )
+    {
+        String uesrEmail = null;
+        try
+        {
+            String query = "SELECT us.username,usinfo.surname, usinfo.firstname, usinfo.email, usinfo.phonenumber from users us  " +
+                            "INNER JOIN userinfo usinfo ON usinfo.userinfoid = us.userid " +
+                            "WHERE us.username = '" + userName + "'; ";
+              
+            System.out.println( "query = " + query );
+            
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+            
+            while ( rs.next() )
+            {
+                String userEMail = rs.getString( 4 );
+                if( userEMail != null && isValidEmail( userEMail ) )
+                {
+                    uesrEmail = userEMail;
+                }
+            }
+            return uesrEmail;
+        }
+        
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal user-name", e );
+        }
+    }        
+        
+    private boolean isValidEmail( String email )
+    {
+        return ValidationUtils.emailIsValid( email );
+    }
+    
+    private void emailResponseHandler( OutboundMessageResponse emailResponse )
+    {
+        if ( emailResponse.isOk() )
+        {
+            log.info( WebMessageUtils.ok( "Email sent" ) );
+        }
+        else
+        {
+            log.info( WebMessageUtils.ok( "Email sending failed" ) );
+        }
+    }    
+    
+    
 }

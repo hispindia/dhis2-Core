@@ -65,6 +65,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
+import org.hisp.dhis.attribute.AttributeValue;
 import org.hisp.dhis.category.CategoryCombo;
 import org.hisp.dhis.category.CategoryOption;
 import org.hisp.dhis.category.CategoryOptionCombo;
@@ -144,6 +145,8 @@ import org.hisp.dhis.system.util.Clock;
 import org.hisp.dhis.system.util.DateUtils;
 import org.hisp.dhis.system.util.GeoUtils;
 import org.hisp.dhis.system.util.ValidationUtils;
+import org.hisp.dhis.trackedentity.TrackedEntityAttribute;
+import org.hisp.dhis.trackedentity.TrackedEntityAttributeService;
 import org.hisp.dhis.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceService;
 import org.hisp.dhis.trackedentity.TrackerOwnershipManager;
@@ -160,9 +163,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValue;
+import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValueService;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+
+import java.text.SimpleDateFormat;
+
+import org.hisp.dhis.message.MessageSender;
+import org.hisp.dhis.outboundmessage.OutboundMessageResponse;
+import org.hisp.dhis.dxf2.webmessage.WebMessageUtils;
 
 /**
  * @author Morten Olav Hansen <mortenoh@gmail.com>
@@ -178,6 +193,12 @@ public abstract class AbstractEventService
         EVENT_EXECUTION_DATE_ID, EVENT_DUE_DATE_ID, EVENT_ORG_UNIT_ID, EVENT_ORG_UNIT_NAME, EVENT_STATUS_ID,
         EVENT_PROGRAM_STAGE_ID, EVENT_PROGRAM_ID,
         EVENT_ATTRIBUTE_OPTION_COMBO_ID, EVENT_DELETED, EVENT_GEOMETRY );
+    
+    // for UPHMIS sending e-mail when dataElement value change
+    //private final static int   TEIA_USER_NAME_ID = 76755184;
+    private final static String   TEIA_USER_NAME_UID = "fXG73s6W4ER";
+    private final static String   UPHMIS_DOCTOR_DIARY_PROGRAM_UID = "Bv3DaiOd5Ai";
+    
 
     // -------------------------------------------------------------------------
     // Dependencies
@@ -271,6 +292,18 @@ public abstract class AbstractEventService
     protected EventSyncService eventSyncService;
 
     protected static final int FLUSH_FREQUENCY = 100;
+    
+    
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private MessageSender emailMessageSender;
+    
+    @Autowired
+    protected TrackedEntityAttributeService trackedEntityAttributeService;
+
+    @Autowired
+    protected TrackedEntityAttributeValueService trackedEntityAttributeValueService;
 
     // -------------------------------------------------------------------------
     // Caches
@@ -1346,7 +1379,40 @@ public abstract class AbstractEventService
         {
             return validationResult;
         }
-
+        
+        // change done for UPHMIS send-email when dataElement value updated
+        
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
+        //String userName = null;
+        String userEmail = null;
+        /*
+        for( TrackedEntityAttributeValue trackedEntityAttributeValue : programStageInstance.getProgramInstance().getEntityInstance().getTrackedEntityAttributeValues() )
+        {
+            if ( trackedEntityAttributeValue.getAttribute().getId() == TEIA_USER_NAME_ID )
+            {
+                userName = trackedEntityAttributeValue.getValue();
+                if( userName != null && !userName.equalsIgnoreCase( "" ) )
+                {
+                    userEmail = getUserEmail( userName );
+                }
+            }
+        }
+        */
+        
+        if( programStageInstance.getProgramInstance().getProgram().getUid().equalsIgnoreCase( UPHMIS_DOCTOR_DIARY_PROGRAM_UID ))
+        {
+            TrackedEntityAttribute userNameAttribute = trackedEntityAttributeService.getTrackedEntityAttribute( TEIA_USER_NAME_UID );
+            TrackedEntityAttributeValue userName = trackedEntityAttributeValueService.getTrackedEntityAttributeValue( programStageInstance.getProgramInstance().getEntityInstance(), userNameAttribute );
+            if ( userName != null && userName.getValue() != null )
+            {
+                if( userName.getValue() != null && !userName.getValue().equalsIgnoreCase( "" ) )
+                {
+                    userEmail = getUserEmail( userName.getValue() );
+                }
+            }
+        }
+        
+        
         List<DataValue> eventDataValues = event.getDataValues().stream().filter(  ObjectUtils.distinctByKey( dv -> dv.getDataElement() ) ).collect( Collectors.toList() );
 
         for ( DataValue dataValue : eventDataValues )
@@ -1369,7 +1435,26 @@ public abstract class AbstractEventService
                 teiDataValue.setValue( dataValue.getValue() );
                 teiDataValue.setProvidedElsewhere( dataValue.getProvidedElsewhere() );
                 dataValueService.updateTrackedEntityDataValue( teiDataValue );
-
+                
+                // change done for UPHMIS send-email when dataElement value updated
+                //System.out.println( " inside DXF2 service event dataValue update -- " + userName + " " + dataElement.getName() + " -- " + dataValue.getValue() + " -- " + programStageInstance.getExecutionDate().toString() );
+                if( programStageInstance.getProgramInstance().getProgram().getUid().equalsIgnoreCase( UPHMIS_DOCTOR_DIARY_PROGRAM_UID ))
+                {
+                    if( userEmail != null && !userEmail.equalsIgnoreCase( "" ) && isValidEmail( userEmail ) )
+                    {
+                        String subject = "Doctor Dairy Data Approval Status";
+                        String finalMessage = "";
+                        finalMessage = "Dear User,";
+                        finalMessage  += "\n\n Your data has been " + dataValue.getValue() + " for " + simpleDateFormat.format( programStageInstance.getExecutionDate() ) + ".";
+                        finalMessage  += "\n Thank you for using UPHMIS Doctor Dairy application." ;
+                        finalMessage  += "\n\n Thanks & Regards, ";
+                        finalMessage  += "\n UPHMIS Doctor Dairy Team ";
+                        
+                        OutboundMessageResponse emailResponse = emailMessageSender.sendMessage( subject, finalMessage, userEmail );
+                        emailResponseHandler( emailResponse );
+                    }
+                }
+                
                 // Marking that this data value was a part of an update so it should not be removed
                 dataValues.remove( teiDataValue );
             }
@@ -1380,6 +1465,25 @@ public abstract class AbstractEventService
 
                 saveDataValue( programStageInstance, event.getStoredBy(), dataElement, dataValue.getValue(),
                     dataValue.getProvidedElsewhere(), null, null );
+                
+                // change done for UPHMIS send-email when dataElement value updated
+                //System.out.println( " inside DXF2 service event dataValue new -- " + userName + " " + dataElement.getName() + " -- " + dataValue.getValue() + " -- " + programStageInstance.getExecutionDate().toString() );
+                if( programStageInstance.getProgramInstance().getProgram().getUid().equalsIgnoreCase( UPHMIS_DOCTOR_DIARY_PROGRAM_UID ))
+                {
+                    if( userEmail != null && !userEmail.equalsIgnoreCase( "" ) && isValidEmail( userEmail ) )
+                    {
+                        String subject = "Doctor Dairy Data Approval Status";
+                        String finalMessage = "";
+                        finalMessage = "Dear User,";
+                        finalMessage  += "\n\n Your data has been " + dataValue.getValue() + " for " + simpleDateFormat.format( programStageInstance.getExecutionDate() ) + ".";
+                        finalMessage  += "\n Thank you for using UPHMIS Doctor Dairy application." ;
+                        finalMessage  += "\n\n Thanks & Regards, ";
+                        finalMessage  += "\n UPHMIS Doctor Dairy Team ";
+                        
+                        OutboundMessageResponse emailResponse = emailMessageSender.sendMessage( subject, finalMessage, userEmail );
+                        emailResponseHandler( emailResponse );
+                    }
+                }
             }
 
             if ( !importOptions.isSkipNotifications() && ruleVariableService.isLinkedToProgramRuleVariable( program, dataElement ) )
@@ -1938,6 +2042,7 @@ public abstract class AbstractEventService
                 importSummary.getImportCount().incrementDeleted();
             }
         }
+        
     }
 
     private ProgramStageInstance createProgramStageInstance( Event event, ProgramStage programStage,
@@ -2607,5 +2712,53 @@ public abstract class AbstractEventService
         }
 
         importOptions.setUser( userService.getUser( importOptions.getUser().getId() ) );
+    }
+    
+    // get user E-mail
+    public String getUserEmail( String userName )
+    {
+        String uesrEmail = null;
+        try
+        {
+            String query = "SELECT us.username,usinfo.surname, usinfo.firstname, usinfo.email, usinfo.phonenumber from users us  " +
+                            "INNER JOIN userinfo usinfo ON usinfo.userinfoid = us.userid " +
+                            "WHERE us.username = '" + userName + "'; ";
+              
+            System.out.println( "query = " + query );
+            
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+            
+            while ( rs.next() )
+            {
+                String userEMail = rs.getString( 4 );
+                if( userEMail != null && isValidEmail( userEMail ) )
+                {
+                    uesrEmail = userEMail;
+                }
+            }
+            return uesrEmail;
+        }
+        
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal user-name", e );
+        }
+    }        
+    
+    private boolean isValidEmail( String email )
+    {
+        return ValidationUtils.emailIsValid( email );
+    }
+    
+    private void emailResponseHandler( OutboundMessageResponse emailResponse )
+    {
+        if ( emailResponse.isOk() )
+        {
+            log.info( WebMessageUtils.ok( "Email sent" ) );
+        }
+        else
+        {
+            log.info( WebMessageUtils.ok( "Email sending failed" ) );
+        }
     }
 }
