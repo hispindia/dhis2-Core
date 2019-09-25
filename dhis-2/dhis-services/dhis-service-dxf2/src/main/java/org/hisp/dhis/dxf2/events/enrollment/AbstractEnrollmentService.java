@@ -560,8 +560,8 @@ public abstract class AbstractEnrollmentService
                         String subject = "Successfully Registered in UPHMIS Doctor Diary";
                         String finalMessage = "";
                         finalMessage = "Dear Doctor Diary User,";
-                        finalMessage  += "\n\n Thank you for using UPHMIS Doctor Dairy application, your registration is successfully completed";
-                        finalMessage  += "\n in our Doctor Diary System. To fill your doctor dairy data, click on the below link:";
+                        finalMessage  += "\n\n Thank you for using UPHMIS Doctor Dairy application, your registration is successfully completed ";
+                        finalMessage  += "\n in our Doctor Diary Application. To fill your doctor dairy data, please use the below details:";
                         
                         finalMessage  += "\n\n https://uphmis.in/dd/";
                         finalMessage  += "\n Username - " + userName.getValue() ;
@@ -588,11 +588,11 @@ public abstract class AbstractEnrollmentService
                     {
                         String subject = "Successfully Registered in UPHMIS Doctor Diary (EHRMS Code: " + userName.getValue() + ")";
                         String finalMessage = "";
-                        finalMessage = "Dear <" + approvalUserName.getValue() + " >,";
-                        finalMessage  += "\n\n Thank you for using UPHMIS Doctor Dairy application, user( EHRMS Code: " + userName.getValue() + ", username: ";
-                        finalMessage  += "\n " + userName.getValue() + " ,Facility: " + programInstance.getOrganisationUnit().getName() + " ) under your supervision registered successfully in our Doctor Diary System. ";
+                        finalMessage = "Dear " + approvalUserName.getValue() + ", ";
+                        finalMessage  += "\n\n Thank you for using UPHMIS Doctor Dairy application, user (EHRMS Code:  " + userName.getValue() + ", username: ";
+                        finalMessage  += "\n " + userName.getValue() + " ,Facility: " + programInstance.getOrganisationUnit().getName() + " ) under your supervision has been registered in our Doctor Diary application. ";
                         
-                        finalMessage  += "\n\n Kindly Approved this user data.";
+                        finalMessage  += "\n\n We kindly request you to please start approving this user data.";
                         
                         finalMessage  += "\n\n Thanks & Regards, ";
                         finalMessage  += "\n UPHMIS Doctor Dairy Team ";
