@@ -50,15 +50,14 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
 {
     private static final Log log = LogFactory.getLog( ScheduleAutoApproveTrackerDataDoctorDiary.class );
 
-    private final static int   UPHMIS_DOCTORS_DIARY_PROGRAM_ID = 73337033;
+    //private final static int   UPHMIS_DOCTORS_DIARY_PROGRAM_ID = 73337033;
     private final static int   TEIA_USER_NAME_ID = 76755184;
     
     private final static int    CURRENT_STATUS_DOC_DIARY_DATAELEMENT_ID = 88199674;
-    private final static String UPHMIS_DOCTORS_DIARY_USER_GROUP_ID = "110948738";
     private final static String DOC_DIARY_PROGRAM_STAGE_IDS = "112222859,92415804,73337065,73397870,73397885,73397824,73397828,73397815,96982961,96983540,112223312,73397880,73337059,73397847,73397890,73397819,73397876,73337069,73397894,73337045,73397864";
     
-    private final static String   UPHMIS_DOCTORS_DIARY_APPROVAL_USER_GROUP_ID = "110948739";
-    
+    private final static String UPHMIS_DOCTORS_DIARY_USER_GROUP_ID = "116439552";
+    private final static String   UPHMIS_DOCTORS_DIARY_APPROVAL_USER_GROUP_ID = "88254522,88254528";
     
     private static final String KEY_TASK = "scheduleAutoApproveTrackerDataTaskDoctorDiary";
 
@@ -221,9 +220,7 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
         if( currentDate.equalsIgnoreCase( "21" ) )
         {
             autoApproveTrackedEntityDataValue();
-            
-            //System.out.println( "psiIdsByCommas -- " + psiIdsByCommas );
-            //System.out.println( "autoApprovedEMailList -- " + autoApprovedEMailList.size() );
+            // sending e-mail one by one
             if( autoApprovedEMailList != null && autoApprovedEMailList.size() > 0 )
             {
                 for( String eventDateAndEmail : autoApprovedEMailList )
@@ -232,11 +229,8 @@ public class ScheduleAutoApproveTrackerDataDoctorDiary extends AbstractJob
                     String email = eventDateAndEmail.split( ":" )[1];
                     String subject = "Doctor Dairy Data Approval Status";
                     
-                    //System.out.println( " 1 eventDate -- " + eventDate + " email " + email );
                     if( email != null && !email.equalsIgnoreCase( "" ) && isValidEmail( email ) )
                     {
-                        //System.out.println( " 2 eventDate -- " + eventDate + " email " + email );
-                        //sendEmailAutoApprove( subject, email, eventDate );
                         String finalMessage = "";
                         finalMessage = "Dear User,";
                         finalMessage  += "\n\n Your data has been Auto-Approved for " + eventDate + ".";
