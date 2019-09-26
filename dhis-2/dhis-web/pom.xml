@@ -22,6 +22,12 @@
     <module>dhis-web-dataentry</module>
     <module>dhis-web-reporting</module>
     <module>dhis-web-apps</module>
+	
+	<!-- India Module -->
+	<module>dhis-web-maintenance-in</module>
+	<module>dhis-web-excelimport</module>
+	<!-- India Module -->
+	
     <module>dhis-web-portal</module>
   </modules>
 

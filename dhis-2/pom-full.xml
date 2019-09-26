@@ -17,8 +17,10 @@
 
 	<modules>
 		<module>dhis-api</module>
+		<module>dhis-in-api</module><!-- local-in-api -->
 		<module>dhis-services</module>
 		<module>dhis-support</module>
+		<module>dhis-in-services</module><!-- local-in-services -->
 		<module>dhis-web</module>
 	</modules>
 

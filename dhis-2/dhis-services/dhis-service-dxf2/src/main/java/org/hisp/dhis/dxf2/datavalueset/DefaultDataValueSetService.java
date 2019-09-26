@@ -1086,6 +1086,7 @@ public class DefaultDataValueSetService
 
             if ( approvalDataSet != null && !forceDataInput ) // Data element is assigned to at least one data set
             {
+                //if( approvalDataSet.getSources().contains( orgUnit ) )
                 if ( dataSetLockedMap.get( approvalDataSet.getUid() + period.getUid() + orgUnit.getUid(),
                     () -> isLocked( currentUser, approvalDataSet, period, orgUnit, skipLockExceptionCheck ) ) )
                 {
