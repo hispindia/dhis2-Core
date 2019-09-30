@@ -1,0 +1,17 @@
+<h2>Report Analyser</h2>
+
+#if( $auth.hasAccess( "dhis-web-reports", "reportManagement") )
+    <ul>
+        <li>Report Management</li>
+        <ul>
+            <li><a href = "reportManagement.action">Report Management</a></li>
+        </ul>
+    </ul>
+#end
+
+<ul>
+	<li>Report Analysis</li>
+	<ul>
+		
+	</ul>
+</ul>

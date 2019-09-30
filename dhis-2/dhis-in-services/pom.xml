@@ -15,6 +15,7 @@
   
   <modules>
  	<module>dhis-in-service-configuration</module>
+	<module>dhis-in-service-reports</module>
   </modules>
   
   <dependencies>
