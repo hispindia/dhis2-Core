@@ -32,6 +32,7 @@ import java.util.List;
 
 public class ReportType
 {
+    /*
     public final static String RT_ROUTINE = "Routine";
 
     public final static String RT_LINELIST = "Linelisting";
@@ -73,11 +74,17 @@ public class ReportType
     public final static String RT_PERIOD_ORGUNIT_SERVICE_PROGRESS_REPORT = "Period OrgUnit Progress Reports";
     
     public final static String RT_BIRT = "Birt Report";
+    */
+    
+    public final static String RT_HMIS = "HMIS Report";
+    public final static String RT_BULK_HMIS_REPORT = "BULK HMIS Report";
+    
 
     public static List<String> getReportTypes()
     {
         List<String> reportTypes = new ArrayList<String>();
-
+        
+        /*
         reportTypes.add( RT_AGGREGATION );
         
         reportTypes.add( RT_FEEDBACK );
@@ -119,6 +126,9 @@ public class ReportType
         reportTypes.add(RT_PERIOD_ORGUNIT_SERVICE_PROGRESS_REPORT);
         
         reportTypes.add(RT_BIRT);
+        */
+        reportTypes.add( RT_HMIS );
+        reportTypes.add( RT_BULK_HMIS_REPORT );
         
         return reportTypes;
     }

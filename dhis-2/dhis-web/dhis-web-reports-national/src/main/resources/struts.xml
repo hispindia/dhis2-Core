@@ -65,7 +65,7 @@
         <action name="getReports"
             class="org.hisp.dhis.reports.action.GetReportsAction">
             <result name="success" type="velocity-xml">/dhis-web-reports/responseReport.vm</result>
-            <param name="javascripts">../dhis-web-commons/ouwt/ouwt.js,../dhis-web-commons/javascripts/lists.js,javascript/reportManagement.js,javascript/hashtable.js</param>
+            <param name="javascripts">../dhis-web-commons/ouwt/ouwt.js,javascript/reportManagement.js,javascript/hashtable.js</param>
             <param name="onExceptionReturn">plainTextError</param>
         </action>
 		
@@ -166,6 +166,53 @@
             <result name="success" type="redirect">reportManagement.action</result>
         </action>
 
+
+        <!-- HMIS Reports -->
+        <action name="hmisReportAnalyser"
+            class="org.hisp.dhis.reports.hmis.action.GenerateHMISReportAnalyserFormAction">
+            <result name="success" type="velocity">/main.vm</result>
+            <param name="page">/dhis-web-reports/hmisReportAnalysisFront.vm</param>
+            <param name="menu">/dhis-web-reports/menuWithTreeForHMISReports.vm</param>
+            <param name="javascripts">../dhis-web-commons/ouwt/ouwt.js,javascript/reportManagement.js,javascript/hashtable.js</param>
+            <param name="stylesheets">css/StylesForTags.css</param>
+            <param name="requiredAuthorities">F_REPORT_HMIS</param>
+            <interceptor-ref name="organisationUnitTreeStack"/>
+        </action>
+        <action name="generateHMISReport"
+            class="org.hisp.dhis.reports.hmis.action.GenerateHMISReportAnalyserResultAction">
+            <result name="success" type="stream">
+                <param name="contentType">application/vnd.ms-excel</param>
+                <param name="inputName">inputStream</param>
+                <param name="contentDisposition">filename="${fileName}"</param>
+                <param name="bufferSize">1024</param>
+            </result>
+        </action>
+
+
+        <!-- HMIS Bulk Reports -->
+        <action name="bulkHMISReportAnalyser"
+            class="org.hisp.dhis.reports.bulkhmis.action.GenerateBulkHMISReportAnalyserFormAction">
+            <result name="success" type="velocity">/main.vm</result>
+            <param name="page">/dhis-web-reports/bulkHMISReportAnalysisFront.vm</param>
+            <param name="menu">/dhis-web-reports/menuWithTreeForBulkHMISReport.vm</param>
+            <param name="javascripts">../dhis-web-commons/ouwt/ouwt.js,javascript/reportManagement.js,javascript/hashtable.js</param>
+            <param name="stylesheets">css/StylesForTags.css</param>
+            <param name="requiredAuthorities">F_REPORT_BULK_HMIS</param>
+            <interceptor-ref name="organisationUnitTreeStack"/>
+        </action>		
+
+        <action name="generateBulkHMISReport"
+            class="org.hisp.dhis.reports.bulkhmis.action.GenerateBulkHMISReportAnalyserResultAction">
+            <result name="success" type="stream">
+                <param name="contentType">application/zip</param>
+                <param name="inputName">inputStream</param>
+                <param name="contentDisposition">filename="${fileName}"</param>
+                <param name="bufferSize">1024</param>
+            </result>
+            <result name="input" type="velocity">/main.vm</result>
+            <param name="page">/dhis-web-reports/bulkHMISReportSucess.vm</param>
+            <param name="menu">/dhis-web-reports/menu.vm</param>            
+        </action>
 
        
 	

@@ -12,6 +12,12 @@
 <ul>
 	<li>Report Analysis</li>
 	<ul>
+		#if( $auth.hasAccess( "dhis-web-reports", "hmisReportAnalyser") )
+			<li><a href = "hmisReportAnalyser.action">$i18n.getString( "hmis_report" )</a></li>
+		#end
 		
+		#if( $auth.hasAccess( "dhis-web-reports", "bulkHMISReportAnalyser") )
+			<li><a href = "bulkHMISReportAnalyser.action">$i18n.getString( "bulk_report" )</a></li>
+		#end			
 	</ul>
 </ul>
