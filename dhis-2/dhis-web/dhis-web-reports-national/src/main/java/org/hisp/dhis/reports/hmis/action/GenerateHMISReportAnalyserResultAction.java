@@ -26,6 +26,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.hisp.dhis.config.Configuration_IN;
+import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementService;
 import org.hisp.dhis.i18n.I18nFormat;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
@@ -154,7 +155,7 @@ public class GenerateHMISReportAnalyserResultAction implements Action
 
     private SimpleDateFormat yearFormat;
     private SimpleDateFormat simpleDateMonthYearFormat;
-    private SimpleDateFormat simpleMonthYearFormat;
+    //private SimpleDateFormat simpleMonthYearFormat;
     private  String deCodesXMLFileName = "";
     
     // -------------------------------------------------------------------------
@@ -168,7 +169,8 @@ public class GenerateHMISReportAnalyserResultAction implements Action
         raFolderName = reportService.getRAFolderName();
        
         simpleDateFormat = new SimpleDateFormat( "MMM-yyyy" );
-        simpleMonthYearFormat = new SimpleDateFormat( "MMM-yyyy" );
+        //simpleMonthYearFormat = new SimpleDateFormat( "MMM-yyyy" );
+        simpleDateMonthYearFormat = new SimpleDateFormat( "dd/MM/yyyy" );
         monthFormat = new SimpleDateFormat( "MMMM" );
         yearFormat = new SimpleDateFormat( "yyyy" );
         
@@ -218,7 +220,8 @@ public class GenerateHMISReportAnalyserResultAction implements Action
         // collect dataElementIDs by commaSepareted
         List<Report_inDesign> reportDesignList = reportService.getReportDesign( deCodesXMLFileName );
         
-        String dataElmentIdsByComma = reportService.getDataelementIds( reportDesignList );
+        //String dataElmentIdsByComma = reportService.getDataelementIds( reportDesignList );
+        String dataElmentIdsByComma = getDataelementIdsByComma( reportDesignList );
         
         FileInputStream tempFile = new FileInputStream( new File( inputTemplatePath ) );
         HSSFWorkbook apachePOIWorkbook = new HSSFWorkbook( tempFile );
@@ -530,6 +533,7 @@ public class GenerateHMISReportAnalyserResultAction implements Action
     }
     
     // getting data value using Map
+
     private String getAggVal( String expression, Map<String, String> aggDeMap )
     {
         //System.out.println( " expression -- " + expression + " aggDeMap " + aggDeMap );
@@ -599,7 +603,7 @@ public class GenerateHMISReportAnalyserResultAction implements Action
             throw new RuntimeException( "Illegal DataElement id", ex );
         }
     }
-       
+
     // get capture data for which dataType String or date
     public String getStringDataFromDataValue( String formula, Integer periodId, Integer organisationUnitId )
     {
@@ -653,6 +657,46 @@ public class GenerateHMISReportAnalyserResultAction implements Action
         
         return resultValue;
     }
+    //getDataelementIdsByComma
+    public String getDataelementIdsByComma( List<Report_inDesign> reportDesignList )
+    {
+        String dataElmentIdsByComma = "-1";
+        for ( Report_inDesign report_inDesign : reportDesignList )
+        {
+            String formula = report_inDesign.getExpression();
+            try
+            {
+                Pattern pattern = Pattern.compile( "(\\[\\d+\\.\\d+\\])" );
 
+                Matcher matcher = pattern.matcher( formula );
+                StringBuffer buffer = new StringBuffer();
+
+                while ( matcher.find() )
+                {
+                    String replaceString = matcher.group();
+
+                    replaceString = replaceString.replaceAll( "[\\[\\]]", "" );
+                    replaceString = replaceString.substring( 0, replaceString.indexOf( '.' ) );
+
+                    int dataElementId = Integer.parseInt( replaceString );
+                    
+                    DataElement dataElement = dataElementService.getDataElement( dataElementId );
+                    if( dataElement.getValueType().isInteger() || dataElement.getValueType().isNumeric() )
+                    {
+                        dataElmentIdsByComma += "," + dataElementId;
+                        //System.out.println( " dataElmentIdsByComma - " + dataElmentIdsByComma );
+                        replaceString = "";
+                        matcher.appendReplacement( buffer, replaceString );
+                    }
+                }
+            }
+            catch ( Exception e )
+            {
+
+            }
+        }
+
+        return dataElmentIdsByComma;
+    }
 
 }
