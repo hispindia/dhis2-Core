@@ -77,6 +77,9 @@ public enum JobType
 
     // For tests
     MOCK( "mockJob", false, MockJobParameters.class, null ),
+    
+    // custom change for schedule SMS tracker-data for save-child HIV tracker
+    CUSTOM_SMS_TASK( "customSMSJob", true, null, null ),
 
     // To satifisfy code that used the old enum TaskCategory
     DATAVALUE_IMPORT( null, false, null, null ),

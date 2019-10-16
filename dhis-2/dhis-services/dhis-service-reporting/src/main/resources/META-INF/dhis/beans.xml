@@ -194,6 +194,10 @@
   <bean id="pushAnalysisJob" class="org.hisp.dhis.pushanalysis.scheduling.PushAnalysisJob" />
   <bean id="predictorJob" class="org.hisp.dhis.predictor.PredictorJob" />
 
+  <!--  custom change for schedule SMS tracker-data for save-child HIV tracker  -->
+  <bean id="customSMSJob" class="org.hisp.dhis.schedulecustomesms.ScheduleCustomeSMSTask" />
+  <!-- end -->
+  
   <!-- DeletionHandler -->
 
   <bean id="org.hisp.dhis.report.ReportDeletionHandler" class="org.hisp.dhis.report.ReportDeletionHandler">

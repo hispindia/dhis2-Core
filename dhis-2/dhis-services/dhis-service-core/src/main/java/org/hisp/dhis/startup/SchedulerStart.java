@@ -77,6 +77,10 @@ public class SchedulerStart extends AbstractStartupRoutine
     private final String DEFAULT_REMOVE_EXPIRED_RESERVED_VALUES = "Remove expired reserved values";
     private final String DEFAULT_LEADER_ELECTION_UID = "MoUd5BTQ3lY";
     private final String DEFAULT_LEADER_ELECTION = "Leader election in cluster";
+    
+    // custom change for schedule SMS tracker-data for save-child HIV tracker
+    private final String CRON_DAILY_10AM = "0 0 10 * * ?";
+    private final String DEFAULT_CUSTOM_SMS_TASK = "Custom SMS Task";
 
     @Autowired
     private SystemSettingManager systemSettingManager;
@@ -227,6 +231,15 @@ public class SchedulerStart extends AbstractStartupRoutine
             leaderElectionJobConfiguration.setUid( DEFAULT_LEADER_ELECTION_UID );
             addAndScheduleJob( leaderElectionJobConfiguration );
         }
+        
+        // custom change for schedule SMS tracker-data for save-child HIV tracker
+        if ( verifyNoJobExist( DEFAULT_CUSTOM_SMS_TASK, jobConfigurations ) )
+        {
+            JobConfiguration customSendSMSJob = new JobConfiguration( DEFAULT_CUSTOM_SMS_TASK, CUSTOM_SMS_TASK, CRON_DAILY_10AM, null, true, true );
+            customSendSMSJob.setLeaderOnlyJob( true );
+            addAndScheduleJob( customSendSMSJob );
+        }
+        
         else
         {
             checkLeaderElectionJobConfiguration( jobConfigurations );
