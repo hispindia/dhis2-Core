@@ -2533,8 +2533,5 @@ public abstract class AbstractEventService
         }
         
         return longitudeLatitude;
-    }    
-    
-    
-    
+    }
 }
