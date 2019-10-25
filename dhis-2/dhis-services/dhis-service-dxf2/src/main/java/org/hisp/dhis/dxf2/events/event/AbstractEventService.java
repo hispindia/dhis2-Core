@@ -127,7 +127,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
+import com.vividsolutions.jts.geom.Geometry;
+import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -153,7 +154,10 @@ public abstract class AbstractEventService
     implements EventService
 {
     private static final Log log = LogFactory.getLog( AbstractEventService.class );
-
+    
+    // custom change for save-child-2.32
+    private final static int TE_ATTRIBUTE_ID = 11522;
+    
     public static final List<String> STATIC_EVENT_COLUMNS = Arrays.asList( EVENT_ID, EVENT_ENROLLMENT_ID, EVENT_CREATED_ID,
         EVENT_LAST_UPDATED_ID, EVENT_STORED_BY_ID, EVENT_COMPLETED_BY_ID, EVENT_COMPLETED_DATE_ID,
         EVENT_EXECUTION_DATE_ID, EVENT_DUE_DATE_ID, EVENT_ORG_UNIT_ID, EVENT_ORG_UNIT_NAME, EVENT_STATUS_ID,
@@ -881,7 +885,7 @@ public abstract class AbstractEventService
             com.vividsolutions.jts.geom.Coordinate geometryCoordinate = event.getGeometry().getCoordinate();
             event.setCoordinate( new Coordinate( geometryCoordinate.x, geometryCoordinate.y ) );
         }
-
+        
         if ( programStageInstance.getAssignedUser() != null )
         {
             event.setAssignedUser( programStageInstance.getAssignedUser().getUid() );
@@ -1315,9 +1319,12 @@ public abstract class AbstractEventService
 
         if ( event.getGeometry() != null )
         {
+            
+            System.out.println( " Inside Event 1 "  );
             if ( programStageInstance.getProgramStage().getFeatureType().equals( FeatureType.NONE ) ||
                 !programStageInstance.getProgramStage().getFeatureType().value().equals( event.getGeometry().getGeometryType() ) )
             {
+                System.out.println( " Inside Event 2 "  );
                 return new ImportSummary( ImportStatus.ERROR, String.format(
                     "Geometry '%s' does not conform to the feature type '%s' specified for the program stage: '%s'",
                     programStageInstance.getProgramStage().getUid(), event.getGeometry().getGeometryType(), programStageInstance.getProgramStage().getFeatureType().value() ) )
@@ -1327,7 +1334,6 @@ public abstract class AbstractEventService
         else if ( event.getCoordinate() != null && event.getCoordinate().hasLatitudeLongitude() )
         {
             Coordinate coordinate = event.getCoordinate();
-
             try
             {
                 event.setGeometry( GeoUtils.getGeoJsonPoint( coordinate.getLongitude(), coordinate.getLatitude() ) );
@@ -1339,8 +1345,33 @@ public abstract class AbstractEventService
             }
         }
 
+        // for update Longitude and Latitude while creating Event in HIV-Tracker
+                
         programStageInstance.setGeometry( event.getGeometry() );
-
+        
+        //System.out.println( " Inside event "  );
+        
+        String longitudeLatitude = getLongitudeAndLatitude( programStageInstance );
+        if( longitudeLatitude != null )
+        {
+            try
+            {
+                Geometry teaGeometry = GeoUtils.getGeoJsonPoint( Double.parseDouble( longitudeLatitude.split( "," )[0]), Double.parseDouble( longitudeLatitude.split( "," )[1]) );
+                if( teaGeometry != null )
+                {
+                    event.setGeometry( teaGeometry );
+                    programStageInstance.setGeometry( teaGeometry );
+                }
+            }
+            catch ( IOException e )
+            {
+                System.out.println( "Invalid longitude or latitude for property 'coordinates'. of TEA"   );
+            }
+        }
+        
+        System.out.println( " event Co-ordinate 1 -- " + programStageInstance.getGeometry()  );
+        
+        
         if ( programStageInstance.getProgramStage().isEnableUserAssignment() )
         {
             programStageInstance.setAssignedUser( getUser( event.getAssignedUser() ) );
@@ -1842,6 +1873,27 @@ public abstract class AbstractEventService
         programStageInstance.setAttributeOptionCombo( aoc );
         programStageInstance.setGeometry( event.getGeometry() );
 
+        //System.out.println( " Inside programstageinstance "  );
+        
+        String longitudeLatitude = getLongitudeAndLatitude( programStageInstance );
+        if( longitudeLatitude != null )
+        {
+            try
+            {
+                Geometry teaGeometry = GeoUtils.getGeoJsonPoint( Double.parseDouble( longitudeLatitude.split( "," )[0]), Double.parseDouble( longitudeLatitude.split( "," )[1]) );
+                if( teaGeometry != null )
+                {
+                    programStageInstance.setGeometry( teaGeometry );
+                }
+            }
+            catch ( IOException e )
+            {
+                System.out.println( "Invalid longitude or latitude for property 'coordinates'. of TEA"   );
+            }
+        }
+        
+        //System.out.println( " psi Co-ordinate 1 -- " + programStageInstance.getGeometry()  );
+        
         if ( programStageInstance.getProgramStage().isEnableUserAssignment() )
         {
             programStageInstance.setAssignedUser( assignedUser );
@@ -2458,4 +2510,31 @@ public abstract class AbstractEventService
 
         importOptions.setUser( userService.getUser( importOptions.getUser().getId() ) );
     }
+    
+    // get Longitude and Latitude from TrackedEntityAttribute attribute
+    // get Longitude and Latitude from TrackedEntityAttribute attribute
+    public String getLongitudeAndLatitude( ProgramStageInstance programStageInstance )
+    {
+        String longitudeLatitude = null;
+        
+        for( TrackedEntityAttributeValue trackedEntityAttributeValue : programStageInstance.getProgramInstance().getEntityInstance().getTrackedEntityAttributeValues() )
+        {
+            if ( trackedEntityAttributeValue.getAttribute().getId() == TE_ATTRIBUTE_ID )
+            {
+                String coordinates = trackedEntityAttributeValue.getValue();
+                
+                if( coordinates != null && !coordinates.equals(""))
+                {
+                        longitudeLatitude = coordinates.substring( 1, coordinates.length()-1);
+                        //System.out.println( coordinates + " --  Longitude -- " + longitudeLatitude.split( "," )[0] );
+                        //System.out.println( coordinates + " --  Latitude -- " + longitudeLatitude.split( "," )[1] );
+                }
+            }
+        }
+        
+        return longitudeLatitude;
+    }    
+    
+    
+    
 }
