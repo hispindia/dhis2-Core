@@ -1,4 +1,5 @@
-package org.hisp.dhis.cache;
+package org.hisp.dhis.common;
+
 /*
  * Copyright (c) 2004-2019, University of Oslo
  * All rights reserved.
@@ -27,40 +28,10 @@ package org.hisp.dhis.cache;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import org.hisp.dhis.external.conf.DhisConfigurationProvider;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
-
 /**
- * Provides cache builder to build instances.
- *
- * @author Ameen Mohamed
- *
+ * @author Enrico Colasante
  */
-@Component( "cacheProvider" )
-public class DefaultCacheProvider implements CacheProvider
+public interface MergeableObject
 {
-    private DhisConfigurationProvider configurationProvider;
-
-    private RedisTemplate<String, ?> redisTemplate;
-
-    @Override
-    public <V> ExtendedCacheBuilder<V> newCacheBuilder( Class<V> valueType )
-    {
-        return new ExtendedCacheBuilder<V>( redisTemplate, configurationProvider );
-    }
-
-    @Autowired
-    public void setConfigurationProvider( DhisConfigurationProvider configurationProvider )
-    {
-        this.configurationProvider = configurationProvider;
-    }
-
-    @Autowired( required = false )
-    public void setRedisTemplate( RedisTemplate<String, ?> redisTemplate )
-    {
-        this.redisTemplate = redisTemplate;
-    }
-
+    boolean mergeableEquals( Object object );
 }
