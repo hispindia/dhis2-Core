@@ -265,11 +265,15 @@ public class DefaultValidationService
      */
     private ValidationRunContext getValidationContext( ValidationAnalysisParams parameters )
     {
+        /*
         User currentUser = currentUserService.getCurrentUser();
+        OrganisationUnit parameterOrgUnit = currentUser.getOrganisationUnit();
+        */
+        
         //System.out.println( "Inside getValidationContext -- " + parameters );
         
-        //OrganisationUnit parameterOrgUnit = parameters.getOrgUnit();
-        OrganisationUnit parameterOrgUnit = currentUser.getOrganisationUnit();
+        OrganisationUnit parameterOrgUnit = parameters.getOrgUnit();
+        
         //System.out.println( "Inside getValidationContext -- " + parameterOrgUnit.getName() );
         List<OrganisationUnit> orgUnits;
         if ( parameterOrgUnit == null )
