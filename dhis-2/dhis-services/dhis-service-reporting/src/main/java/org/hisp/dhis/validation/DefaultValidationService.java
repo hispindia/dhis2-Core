@@ -265,8 +265,9 @@ public class DefaultValidationService
      */
     private ValidationRunContext getValidationContext( ValidationAnalysisParams parameters )
     {
-        /*
+        
         User currentUser = currentUserService.getCurrentUser();
+        /*
         OrganisationUnit parameterOrgUnit = currentUser.getOrganisationUnit();
         */
         
