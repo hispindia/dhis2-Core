@@ -1041,7 +1041,7 @@ public abstract class AbstractEnrollmentService
 
         if ( !program.getSelectEnrollmentDatesInFuture() )
         {
-            if ( Objects.nonNull( enrollment.getEnrollmentDate() ) && enrollment.getEnrollmentDate().after( new Date() ) )
+            if ( Objects.nonNull( enrollment.getEnrollmentDate() ) && enrollment.getEnrollmentDate().after( DateUtils.getCalendarToday() ) )
             {
                 importConflicts.add( new ImportConflict( "Enrollment.date", "Enrollment Date can't be future date :" + enrollment
                     .getEnrollmentDate() ) );
@@ -1050,7 +1050,7 @@ public abstract class AbstractEnrollmentService
 
         if ( !program.getSelectIncidentDatesInFuture() )
         {
-            if ( Objects.nonNull( enrollment.getIncidentDate() ) && enrollment.getIncidentDate().after( new Date() ) )
+            if ( Objects.nonNull( enrollment.getIncidentDate() ) && enrollment.getIncidentDate().after( DateUtils.getCalendarToday() ) )
             {
                 importConflicts.add( new ImportConflict( "Enrollment.incidentDate", "Incident Date can't be future date :" + enrollment
                     .getIncidentDate() ) );

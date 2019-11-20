@@ -31,6 +31,7 @@ package org.hisp.dhis.system.util;
 import com.google.common.collect.ImmutableMap;
 import org.hisp.dhis.calendar.DateTimeUnit;
 import org.hisp.dhis.i18n.I18nFormat;
+import org.hisp.dhis.indicator.Indicator;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodType;
 import org.joda.time.DateTime;
@@ -43,10 +44,11 @@ import org.joda.time.format.DateTimeFormatterBuilder;
 import org.joda.time.format.DateTimeParser;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
-import org.joda.time.IllegalInstantException;
 import org.springframework.util.StringUtils;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -69,6 +71,8 @@ public class DateUtils
     private static DateTimeFormatter ISO8601 = DateTimeFormat.forPattern( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" );
 
     private static DateTimeFormatter ISO8601_NO_TZ = DateTimeFormat.forPattern( "yyyy-MM-dd'T'HH:mm:ss.SSS" );
+
+    private static DateTimeFormatter ISO8601_SIMPLE = DateTimeFormat.forPattern( "yyyy-MM-dd" );
 
     private static final DateTimeParser[] SUPPORTED_DATE_FORMAT_PARSERS = {
         DateTimeFormat.forPattern( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" ).getParser(),
@@ -110,8 +114,7 @@ public class DateUtils
     private static final DateTimeFormatter HTTP_DATE_FORMAT = DateTimeFormat.forPattern( "EEE, dd MMM yyyy HH:mm:ss 'GMT'" ).withLocale( Locale.ENGLISH );
     private static final DateTimeFormatter TIMESTAMP_UTC_TZ_FORMAT = DateTimeFormat.forPattern( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" ).withZoneUTC();
 
-    public static final double DAYS_IN_YEAR = 365.0;
-
+    private static final double DAYS_IN_YEAR = 365.0;
     private static final long MS_PER_DAY = 86400000;
     private static final long MS_PER_S = 1000;
 
@@ -280,7 +283,7 @@ public class DateUtils
      */
     public static Date getMediumDate( String string )
     {
-        return safeParseDateTime( string, MEDIUM_DATE_FORMAT );
+        return string != null ? MEDIUM_DATE_FORMAT.parseDateTime( string ).toDate() : null;
     }
 
     /**
@@ -526,7 +529,7 @@ public class DateUtils
     {
         try
         {
-            safeParseDateTime( dateTimeString, DATE_TIME_FORMAT );
+            DATE_TIME_FORMAT.parseDateTime( dateTimeString );
             return true;
         }
         catch ( IllegalArgumentException ex )
@@ -575,6 +578,23 @@ public class DateUtils
         cal.add( Calendar.DATE, days );
 
         return cal.getTime();
+    }
+
+    /**
+     * Returns the annualization factor for the given indicator and start-end date interval.
+     */
+    public static double getAnnualizationFactor( Indicator indicator, Date startDate, Date endDate )
+    {
+        double factor = 1.0;
+
+        if ( indicator.isAnnualized() )
+        {
+            final int daysInPeriod = DateUtils.daysBetween( startDate, endDate ) + 1;
+
+            factor = DAYS_IN_YEAR / daysInPeriod;
+        }
+
+        return factor;
     }
 
     /**
@@ -634,7 +654,12 @@ public class DateUtils
      */
     public static Date parseDate( final String dateString )
     {
-        return safeParseDateTime( dateString, DATE_FORMATTER );
+        if ( StringUtils.isEmpty( dateString ) )
+        {
+            return null;
+        }
+
+        return DATE_FORMATTER.parseDateTime( dateString ).toDate();
     }
 
     /**
@@ -726,35 +751,102 @@ public class DateUtils
     
     public static Date getCalendarToday()
     {        
-        Calendar today = Calendar.getInstance();
-        PeriodType.clearTimeOfDay( today );
-        return today.getTime();
+        org.hisp.dhis.calendar.Calendar calendar = PeriodType.getCalendar(); //Calendar.getInstance();
+        return calendar.today().toJdkDate();
     }
-    
+
     /**
-     * Parses the given string into a Date object. In case the date parsed falls in a
-     * daylight savings transition, the date is parsed via a local date and converted to the
-     * first valid time after the DST gap. When the fallback is used, any timezone offset in the given
-     * format would be ignored.
-     * 
-     * @param dateString The string to parse
-     * @param formatter The formatter to use for parsing
-     * @return Parsed Date object. Null if the supplied dateString is empty.
+     * Converts ISO 8601 date to Calendar date formatted as yyyy-MM-dd
      */
-    private static Date safeParseDateTime( final String dateString, final DateTimeFormatter formatter )
+    public static String getCalendarDate( org.hisp.dhis.calendar.Calendar calendar, Date date )
     {
-        if ( StringUtils.isEmpty( dateString ) )
+        if ( date == null || calendar == null )
         {
             return null;
         }
 
+        DateTimeUnit dateTimeUnit = calendar.fromIso( date );
+
+        SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM-dd" );
+
+        String dateInString = dateTimeUnit.getYear() + "-" + dateTimeUnit.getMonth() + "-" + dateTimeUnit.getDay();
+
+        Date parsedDate = null;
+
         try
         {
-            return formatter.parseDateTime( dateString ).toDate();
+            parsedDate = formatter.parse( dateInString );
         }
-        catch( IllegalInstantException e )
+        catch ( ParseException e )
         {
-            return formatter.parseLocalDateTime( dateString ).toDate();
+            throw new IllegalArgumentException( "Invalid DateTimeUnit:  " + dateTimeUnit );
         }
+
+        return parsedDate != null ? ISO8601_SIMPLE.print( new DateTime( parsedDate ) ) : null;
+    }
+
+    /**
+     * Converts ISO 8601 date to Calendar date formatted as yyyy-MM-dd
+     */
+    public static Date getDate( org.hisp.dhis.calendar.Calendar calendar, Date date )
+    {
+        if ( date == null || calendar == null )
+        {
+            return null;
+        }
+
+        DateTimeUnit dateTimeUnit = calendar.fromIso( date );
+
+        SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM-dd" );
+
+        String dateInString = dateTimeUnit.getYear() + "-" + dateTimeUnit.getMonth() + "-" + dateTimeUnit.getDay();
+
+        Date parsedDate = null;
+
+        try
+        {
+            parsedDate = formatter.parse( dateInString );
+        }
+        catch ( ParseException e )
+        {
+            throw new IllegalArgumentException( "Invalid DateTimeUnit:  " + dateTimeUnit );
+        }
+
+        return parsedDate;
+    }
+
+    /**
+     * Converts Calendar date to ISO 8601 date formatted as yyyy-MM-dd
+     */
+    public static Date getIsoDate( org.hisp.dhis.calendar.Calendar calendar, String date )
+    {
+        if ( date == null || calendar == null )
+        {
+            return null;
+        }
+
+        if ( calendar.isIso8601() )
+        {
+            return parseDate( date );
+        }
+
+        DateTimeUnit dateTimeUnit = calendar.toIso( date );
+
+        SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM-dd" );
+
+        String dateInString = dateTimeUnit.getYear() + "-" + dateTimeUnit.getMonth() + "-" + dateTimeUnit.getDay();
+
+        Date parsedDate = null;
+
+        try
+        {
+            parsedDate = formatter.parse( dateInString );
+        }
+        catch ( ParseException e )
+        {
+            throw new IllegalArgumentException( "Invalid DateTimeUnit:  " + dateTimeUnit );
+        }
+
+        return parsedDate;
     }
 }

@@ -1185,7 +1185,7 @@ public abstract class AbstractEventService
             organisationUnit = programStageInstance.getOrganisationUnit();
         }
 
-        Date executionDate = new Date();
+        Date executionDate = DateUtils.getCalendarToday();
 
         if ( event.getEventDate() != null )
         {
@@ -1193,7 +1193,7 @@ public abstract class AbstractEventService
             programStageInstance.setExecutionDate( executionDate );
         }
 
-        Date dueDate = new Date();
+        Date dueDate = DateUtils.getCalendarToday();
 
         if ( event.getDueDate() != null )
         {
@@ -1437,7 +1437,7 @@ public abstract class AbstractEventService
             return;
         }
 
-        Date executionDate = new Date();
+        Date executionDate = DateUtils.getCalendarToday();
 
         if ( event.getEventDate() != null )
         {
@@ -1734,7 +1734,7 @@ public abstract class AbstractEventService
             executionDate = DateUtils.parseDate( event.getEventDate() );
         }
 
-        Date dueDate = new Date();
+        Date dueDate = DateUtils.getCalendarToday();
 
         if ( event.getDueDate() != null )
         {
