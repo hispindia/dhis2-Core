@@ -202,11 +202,17 @@
   <bean id="monitoringJob" class="org.hisp.dhis.validation.scheduling.MonitoringJob" />
   <bean id="pushAnalysisJob" class="org.hisp.dhis.pushanalysis.scheduling.PushAnalysisJob" />
   <bean id="predictorJob" class="org.hisp.dhis.predictor.PredictorJob" />
+  
   <!-- for UPHMIS auto approve tracker data -->
   <bean id="scheduleAutoApproveTrackerDataJob" class="org.hisp.dhis.autoapprovetrackerdata.ScheduleAutoApproveTrackerData" />
   <bean id="scheduleAutoApproveTrackerDataDoctorDiaryJob" class="org.hisp.dhis.autoapprovetrackerdata.ScheduleAutoApproveTrackerDataDoctorDiary" />
+  
   <!-- for UPHMIS delete lock-exception job -->
   <bean id="deleteExpiredLockExceptionJob" class="org.hisp.dhis.deletelockexception.DeleteExpiredLockExceptionJob" />
+  
+   <!-- for UPHMIS Email/SMS job -->
+   <bean id="scheduleAutoEmailJob" class="org.hisp.dhis.automessage.ScheduleAutoEmailMessage" />
+   <bean id="scheduleAutoSMSJob" class="org.hisp.dhis.automessage.ScheduleAutoSMS" />
 
   <!-- Startup routine definitions -->
 
