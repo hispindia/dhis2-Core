@@ -419,7 +419,15 @@ public class GenerateHMISReportAnalyserResultAction implements Action
                             tempadeInAdeStr = getStringDataFromDataValue( deCodeString, selectedPeriod.getId(),currentOrgUnit.getId() );
                             //System.out.println( " USECAPTUREDDATA  SType : " + sType + " DECode : " + deCodeString + "   TempStr : " + tempadeInAdeStr );
                         }
-                    }                    
+                    }
+                    else if ( sType.equalsIgnoreCase( "dataelement-text" ) )
+                    {
+                        if( aggData.equalsIgnoreCase( USECAPTUREDDATA ) ) 
+                        {
+                            tempStr = getStringDataFromDataValue( deCodeString, selectedPeriod.getId(),currentOrgUnit.getId() );
+                            //System.out.println( " USECAPTUREDDATA  SType : " + sType + " DECode : " + deCodeString + "   TempStr : " + tempadeInAdeStr );
+                        }
+                    }    
                     else
                     {
                     }
@@ -454,6 +462,23 @@ public class GenerateHMISReportAnalyserResultAction implements Action
                         }
                     }   
                     else if ( sType.equalsIgnoreCase( "dataelement-date" ) )
+                    {
+                        try
+                        {
+                            Row row = sheet0.getRow( tempRowNo );
+                            Cell cell = row.getCell( tempColNo );
+                            cell.setCellValue( tempStr );
+                            
+                        }
+                        catch ( Exception e )
+                        {
+                                //System.out.println( " Exception : " + e.getMessage() );
+                                Row row = sheet0.getRow( tempRowNo );
+                                Cell cell = row.getCell( tempColNo );
+                                cell.setCellValue( tempStr );
+                        }
+                    }
+                    else if ( sType.equalsIgnoreCase( "dataelement-text" ) )
                     {
                         try
                         {
@@ -517,6 +542,7 @@ public class GenerateHMISReportAnalyserResultAction implements Action
         
         FileOutputStream output_file = new FileOutputStream( new File(  outputReportPath ) );  //Open FileOutputStream to write updates
         
+        //apachePOIWorkbook.setForceFormulaRecalculation(true);
         apachePOIWorkbook.write( output_file ); //write changes
           
         output_file.close();  //close the stream   

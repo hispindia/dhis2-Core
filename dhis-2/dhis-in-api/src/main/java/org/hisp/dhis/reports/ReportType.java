@@ -76,8 +76,8 @@ public class ReportType
     public final static String RT_BIRT = "Birt Report";
     */
     
-    public final static String RT_HMIS = "HMIS Report";
-    public final static String RT_BULK_HMIS_REPORT = "BULK HMIS Report";
+    public final static String RT_HMIS = "HMIS/UPHMIS Report";
+    public final static String RT_BULK_HMIS_REPORT = "BULK HMIS/UPHMIS Report";
     
 
     public static List<String> getReportTypes()
