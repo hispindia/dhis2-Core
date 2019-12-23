@@ -550,253 +550,260 @@ reportsApp.controller('DataStatusController',
 		$scope.showDataSummary = function(){
 
 			 Loader.showLoader();
-            $("#coverLoad").show();
-			$("#headTitle").html("Data Summary - Data Sets");
-			$("#tableContent").html("");
-			$("#modal-header").fadeIn();
-			$("#modal-body").delay(300).fadeIn();
-			$("#modal-footer").delay(600).fadeIn();
-			$("#resultModal").delay(900).fadeIn();
-			$("#dwnLoad").fadeOut();
-			
-			//passing variables to query
-			var selOrgUnit = selection.getSelected();
-			var selDataSetUid = $scope.currentSelection.dataSet;
-			var selStartPeriod = $scope.currentSelection.startPeriodYear + "" + $scope.currentSelection.startPeriodMonth + "01";
+             
+            $timeout(function () {
+                $("#coverLoad").show();
+                $("#headTitle").html("Data Summary - Data Sets");
+                $("#tableContent").html("");
+                $("#modal-header").fadeIn();
+                $("#modal-body").delay(300).fadeIn();
+                $("#modal-footer").delay(600).fadeIn();
+                $("#resultModal").delay(900).fadeIn();
+                $("#dwnLoad").fadeOut();
+                
+                //passing variables to query
+                var selOrgUnit = selection.getSelected();
+                var selDataSetUid = $scope.currentSelection.dataSet;
+                var selStartPeriod = $scope.currentSelection.startPeriodYear + "" + $scope.currentSelection.startPeriodMonth + "01";
 
-			var selEndPeriod = getEndPeriod($scope.currentSelection.endPeriodYear, $scope.currentSelection.endPeriodMonth);
+                var selEndPeriod = getEndPeriod($scope.currentSelection.endPeriodYear, $scope.currentSelection.endPeriodMonth);
 
-			var includeZero = $scope.currentSelection.includeZero;
-			
-			
-			$scope.organisationUnits_id=[];
-			//var url_1=;
-			$scope.dataEntryForm=[],$scope.NewcompulsoryDECount
-			$.get( "../api/dataSets/"+ selDataSetUid +".json?fields=*,dataEntryForm[htmlCode]",function(json){
-				$scope.dataEntryForm.push(json.dataEntryForm.htmlCode)
-						for(var i=0;i<json.organisationUnits.length;i++)
-						{
-							for(var j=0;j<$scope.allOrgUnitChildren.length;j++)
-							{
-								if(json.organisationUnits[i].id==$scope.allOrgUnitChildren[j].uid)
-								$scope.organisationUnits_id.push(json.organisationUnits[i].id);
-							}
-						}
-					});
-					
-					if($scope.dataEntryForm.length==0)
-					{
-						$scope.NewcompulsoryDECount=$scope.compulsoryDECount;
-					}else{
-						var el = document.createElement( 'html' );
-						el.innerHTML = "<html><body>"+$scope.dataEntryForm[0]+"</html>";
-						var value=el.getElementsByTagName( 'input' );
-						
-						$scope.newDECountvalue=[]
-						for(var i=0;i<value.length;i++)
-						{
-							var str=value[i].id.split("-");
-							$scope.newDECountvalue.push(str[0]);
-							$scope.categoryComboIds1.push(str[0] + '-' + str[1]);
-							var returnval=checkdeletevale($scope.newDECountvalue[k]);
-							if(returnval==true)
-							{
-								$scope.newDECountvalue.splice(k,1)
-							}
-						}
-	
-						for(var k=0;k<$scope.newDECountvalue.length;k++)
-						{
-							var returnval=checkdeletevale($scope.newDECountvalue[k])
-							if(returnval==true)
-							{
-								$scope.newDECountvalue.splice(k,1)
-							}
-						}
-	
-	
-						$scope.NewcompulsoryDECount=$scope.newDECountvalue.length;
-					}
-					
+                var includeZero = $scope.currentSelection.includeZero;
 
-			if( includeZero )
-				var url = $scope.basicUrl + $scope.dataSummarySV + "/data.json?";
-			else
-				var url = $scope.basicUrl + $scope.dataSummaryExZeroSV + "/data.json?";
+                //To get the entered or not entered value
+                var valueSqlViewCatComboIds = [];
+                
+                
+                $scope.organisationUnits_id=[];
+                //var url_1=;
+                $scope.dataEntryForm=[],$scope.NewcompulsoryDECount
+                $.get( "../api/dataSets/"+ selDataSetUid +".json?fields=*,dataEntryForm[htmlCode]",function(json){
+                    $scope.dataEntryForm.push(json.dataEntryForm.htmlCode)
+                            for(var i=0;i<json.organisationUnits.length;i++)
+                            {
+                                for(var j=0;j<$scope.allOrgUnitChildren.length;j++)
+                                {
+                                    if(json.organisationUnits[i].id==$scope.allOrgUnitChildren[j].uid)
+                                    $scope.organisationUnits_id.push(json.organisationUnits[i].id);
+                                }
+                            }
+                        });
+                        
+                        if($scope.dataEntryForm.length==0)
+                        {
+                            $scope.NewcompulsoryDECount=$scope.compulsoryDECount;
+                        }else{
+                            var el = document.createElement( 'html' );
+                            el.innerHTML = "<html><body>"+$scope.dataEntryForm[0]+"</html>";
+                            var value=el.getElementsByTagName( 'input' );
+                            
+                            $scope.newDECountvalue=[]
+                            for(var i=0;i<value.length;i++)
+                            {
+                                var str=value[i].id.split("-");
+                                $scope.newDECountvalue.push(str[0]);
+                                $scope.categoryComboIds1.push(str[0] + '-' + str[1]);
+                                var returnval=checkdeletevale($scope.newDECountvalue[k]);
+                                if(returnval==true)
+                                {
+                                    $scope.newDECountvalue.splice(k,1)
+                                }
+                            }
+        
+                            for(var k=0;k<$scope.newDECountvalue.length;k++)
+                            {
+                                var returnval=checkdeletevale($scope.newDECountvalue[k])
+                                if(returnval==true)
+                                {
+                                    $scope.newDECountvalue.splice(k,1)
+                                }
+                            }
+        
+        
+                            $scope.NewcompulsoryDECount=$scope.newDECountvalue.length;
+                        }
+                        
 
-            url+= "var=compulsoryDECount:" + $scope.compulsoryDECount + ",dataSetUid:" + selDataSetUid + ",orgUnitUid:" + selOrgUnit + ",startDate:" + selStartPeriod + ",endDate:" + selEndPeriod + ",orgUnitUids:" +$scope.organisationunitid_1[0] ;
-			console.log(url);
-			
-			$.get(url, function(data){
-			//$.get("summary.json", function(data){
-				var summaryData = data.rows;
-				
-				var totPeriods = $scope.allPeriods.length + 2 ;
-				
-				var htmlString = "";
-				htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Root Organisation Unit : </b>" + $scope.currentSelection.orgUnitName +"</td></tr>";
-				htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Data Set : </b>" + $("#dataSetId option:selected").text() +"</td></tr>";
-				var durationString = $scope.monthString($scope.currentSelection.startPeriodYear + "-" + $scope.currentSelection.startPeriodMonth ) + " to " + $scope.monthString($scope.currentSelection.endPeriodYear + "-" + $scope.currentSelection.endPeriodMonth );	
-				htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Duration : </b>" + durationString +"</td></tr>";
-				htmlString += "<tr style = 'background:#fff'><td colspan = '"+ totPeriods +"' ></td></tr>";
-				
-				htmlString += "<tr><td  style = 'background:#99FF99;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Entered </td></tr>";
-				htmlString += "<tr><td  style = 'background:#FFCCCC;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Not Entered </td></tr>";
-				
-				htmlString += "<tr style = 'background:#fff'><td colspan = '"+ totPeriods +"' ></td></tr>";
-				
-				htmlString += "<tr style = 'background:#fff'><td colspan = '"+ totPeriods +"' ></td></tr>";
-				
-				htmlString += "<tr style = 'background:#ddd'><th style='min-width:150px'>Organisation Units</th>";
-				
-				$scope.allPeriods.forEach(function(p){
-					htmlString += "<th style='min-width:100px;max-width:100px;'>" + $scope.monthString( p[0])  + "</th>";					
-				});
-				
-				htmlString += "</tr>";
-				var currentStatus= 0;
-				var currentColor = "#eeeeee";
-				var statusText = "";
-				
-				$scope.final_org=[];
-				$scope.Final_orgNameWithBreaks=[];
-				var ParentName_1="",ParentName_2="",ParentName_3="",ParentName_4="",ParentName_5="",ParentName_6="",ParentName_7="",ParentName_8="";
-				
-				$scope.allOrgUnitChildren.forEach(function(org){
-					
-					var orgNameWithBreaks = "";
-					var totBreaks = org.level - $scope.grandParentLevel;
-					
-					for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks += "|-------------";
-					if(totBreaks==0)
-					{
-						ParentName_1=org.name;
-						orgNameWithBreaks=ParentName_1;
-					}
-					else if(totBreaks==1)
-					{
-						ParentName_2=org.name;
-						for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks = ParentName_1+" / "+ParentName_2;
-					}
-					else if(totBreaks==2)
-					{
-						ParentName_3=org.name;
-						for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3;
-					}
-					else if(totBreaks==3)
-					{
-						ParentName_4=org.name;
-						for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4;
-					}
-					else if(totBreaks==4)
-					{
-						ParentName_4=org.name;
-						for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5;
-					}
-					else if(totBreaks==5)
-					{
-						ParentName_6=org.name;
-						for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6;
-					}
-					else if(totBreaks==6)
-					{
-						ParentName_7=org.name;
-						for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6+" / "+ParentName_7;
-					}
-					
+                if( includeZero )
+                    var url = $scope.basicUrl + $scope.dataSummarySV + "/data.json?";
+                else
+                    var url = $scope.basicUrl + $scope.dataSummaryExZeroSV + "/data.json?";
 
-					if($scope.GetUID($scope.organisationUnits_id,org.uid))
-					{
+                url+= "var=compulsoryDECount:" + $scope.compulsoryDECount + ",dataSetUid:" + selDataSetUid + ",orgUnitUid:" + selOrgUnit + ",startDate:" + selStartPeriod + ",endDate:" + selEndPeriod + ",orgUnitUids:" + $scope.organisationunitid_1[0] + "&skipPaging=true";
+                console.log(url);
+                
+                $.get(url, function(data){
+                //$.get("summary.json", function(data){
+                    var summaryData = data.rows;
+                    
+                    var totPeriods = $scope.allPeriods.length + 2 ;
+                    
+                    var htmlString = "";
+                    htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Root Organisation Unit : </b>" + $scope.currentSelection.orgUnitName +"</td></tr>";
+                    htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Data Set : </b>" + $("#dataSetId option:selected").text() +"</td></tr>";
+                    var durationString = $scope.monthString($scope.currentSelection.startPeriodYear + "-" + $scope.currentSelection.startPeriodMonth ) + " to " + $scope.monthString($scope.currentSelection.endPeriodYear + "-" + $scope.currentSelection.endPeriodMonth );	
+                    htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Duration : </b>" + durationString +"</td></tr>";
+                    htmlString += "<tr style = 'background:#fff'><td colspan = '"+ totPeriods +"' ></td></tr>";
+                    
+                    htmlString += "<tr><td  style = 'background:#99FF99;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Entered </td></tr>";
+                    htmlString += "<tr><td  style = 'background:#FFCCCC;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Not Entered </td></tr>";
+                    
+                    htmlString += "<tr style = 'background:#fff'><td colspan = '"+ totPeriods +"' ></td></tr>";
+                    
+                    htmlString += "<tr style = 'background:#fff'><td colspan = '"+ totPeriods +"' ></td></tr>";
+                    
+                    htmlString += "<tr style = 'background:#ddd'><th style='min-width:150px'>Organisation Units</th>";
+                    
+                    $scope.allPeriods.forEach(function(p){
+                        htmlString += "<th style='min-width:100px;max-width:100px;'>" + $scope.monthString( p[0])  + "</th>";					
+                    });
+                    
+                    htmlString += "</tr>";
+                    var currentStatus= 0;
+                    var currentColor = "#eeeeee";
+                    var statusText = "";
+                    
+                    $scope.final_org=[];
+                    $scope.Final_orgNameWithBreaks=[];
+                    var ParentName_1="",ParentName_2="",ParentName_3="",ParentName_4="",ParentName_5="",ParentName_6="",ParentName_7="",ParentName_8="";
+                    
+                    $scope.allOrgUnitChildren.forEach(function(org){
+                        
+                        var orgNameWithBreaks = "";
+                        var totBreaks = org.level - $scope.grandParentLevel;
+                        
+                        for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks += "|-------------";
+                        if(totBreaks==0)
+                        {
+                            ParentName_1=org.name;
+                            orgNameWithBreaks=ParentName_1;
+                        }
+                        else if(totBreaks==1)
+                        {
+                            ParentName_2=org.name;
+                            for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks = ParentName_1+" / "+ParentName_2;
+                        }
+                        else if(totBreaks==2)
+                        {
+                            ParentName_3=org.name;
+                            for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3;
+                        }
+                        else if(totBreaks==3)
+                        {
+                            ParentName_4=org.name;
+                            for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4;
+                        }
+                        else if(totBreaks==4)
+                        {
+                            ParentName_4=org.name;
+                            for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5;
+                        }
+                        else if(totBreaks==5)
+                        {
+                            ParentName_6=org.name;
+                            for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6;
+                        }
+                        else if(totBreaks==6)
+                        {
+                            ParentName_7=org.name;
+                            for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6+" / "+ParentName_7;
+                        }
+                        
 
-						$scope.Final_orgNameWithBreaks[orgNameWithBreaks]=org.uid;
-						//$scope.Final_orgNameWithBreaks.push({orgNameWithBreaks});
+                        if($scope.GetUID($scope.organisationUnits_id,org.uid))
+                        {
 
-					//htmlString += "<tr><td style='padding:0 15px'>" + orgNameWithBreaks + "</td>";
-				
-					}
+                            $scope.Final_orgNameWithBreaks[orgNameWithBreaks]=org.uid;
+                            //$scope.Final_orgNameWithBreaks.push({orgNameWithBreaks});
+
+                        //htmlString += "<tr><td style='padding:0 15px'>" + orgNameWithBreaks + "</td>";
+                    
+                        }
 
 
-				});
+                    });
 
-					$scope.Final_orgNameWithBreaks.sort();
-				for(var key in $scope.Final_orgNameWithBreaks)
-				{
-					htmlString += "<tr><td style='padding:0 15px'>" + key + "</td>";
-				
-					$scope.allPeriods.forEach(function(pr){
-						
-							
-												currentStatus = 0;
-												statusText = "";
-												currentColor = "#FFCCCC";//light purple
-										
-											var val= $scope.isOrgFound_1( $scope.Final_orgNameWithBreaks[key], summaryData ) ;
-												if( val)
-												{
-												currentStatus = 0;
-												currentColor = "#FFCCCC";//pink
-												statusText = "0(" + $scope.NewcompulsoryDECount + ")";
-												for (var i = 0; i < data.rows.length; i++) {
-													$scope.sqlViewCatCombo1 = data.rows[i];
-													if ($scope.Final_orgNameWithBreaks[key] == $scope.sqlViewCatCombo1[3]) {
-														$scope.sqlViewCatComboIds1.push($scope.sqlViewCatCombo1[5] + '-' + $scope.sqlViewCatCombo1[6]);
-													}
-												}
-					
-												for (var i = 0; i < $scope.categoryComboIds1.length; i++) {
-													var categoryComboIdsValue1 = $scope.categoryComboIds1[i];
-													for (var j = 0; j < $scope.sqlViewCatComboIds1.length; j++) {
-					
-														if (categoryComboIdsValue1 == $scope.sqlViewCatComboIds1[j]) {
-															$scope.countDS1++;
-														}
-					
-													}
-												}
-												
-												summaryData.forEach(function(sdata){
-													if (sdata[3] == $scope.Final_orgNameWithBreaks[key] && sdata[1] == pr[0]) {
-														currentStatus =  ($scope.countDS1/ $scope.NewcompulsoryDECount) * 100;
-														statusText = $scope.countDS1 + "(" + $scope.NewcompulsoryDECount + ")";
-														//console.log("currentStatus"+currentStatus+" "+"statusText"+statusText)		
-													}
-												
-											});
-											
-											if( currentStatus >= 1 )
-												currentColor = "#99FF99";//green	
-										}
-										//var index=i;
-	
-										//$scope.organisationUnits_id.splice(index, 1);
-										
-									
-									
-									
-								htmlString += "<td style='background:"+ currentColor +"'  style='padding:2px 15px;border-color: #0000ff;'></td>";
-							
-								})
-								$scope.countDS1 = 0;
-								$scope.sqlViewCatComboIds1 = [];
-				
-								htmlString += "</tr>";		
-				
-				
-				}
-				$scope.sqlViewCatCombo1 = [];
-				$scope.categoryComboIds1 = [];
-					
-               $("#tableContent").html(htmlString);
-				$("#dwnLoad").fadeIn();
-				$("#coverLoad").hide();
-			});
+                        $scope.Final_orgNameWithBreaks.sort();
+                    for(var key in $scope.Final_orgNameWithBreaks)
+                    {
+                        htmlString += "<tr><td style='padding:0 15px'>" + key + "</td>";
+                    
+                        $scope.allPeriods.forEach(function(pr){
+                            
+                                
+                                                    currentStatus = 0;
+                                                    statusText = "";
+                                                    currentColor = "#FFCCCC";//light purple
+                                            
+                                                var val= $scope.isOrgFound_1( $scope.Final_orgNameWithBreaks[key], summaryData ) ;
+                                                    if( val)
+                                                    {
+                                                    currentStatus = 0;
+                                                    currentColor = "#FFCCCC";//pink
+                                                    statusText = "0(" + $scope.NewcompulsoryDECount + ")";
+                                                    for (var i = 0; i < data.rows.length; i++) {
+                                                        $scope.sqlViewCatCombo1 = data.rows[i];
+                                                        if ($scope.Final_orgNameWithBreaks[key] == $scope.sqlViewCatCombo1[3]) {
+                                                            $scope.sqlViewCatComboIds1.push($scope.sqlViewCatCombo1[5] + '-' + $scope.sqlViewCatCombo1[6]);
+                                                            valueSqlViewCatComboIds[$scope.sqlViewCatCombo1[5] + '-' + $scope.sqlViewCatCombo1[6]] = Number($scope.sqlViewCatCombo1["4"]); 
+                                                        }
+                                                    }
+                        
+                                                    for (var i = 0; i < $scope.categoryComboIds1.length; i++) {
+                                                        var categoryComboIdsValue1 = $scope.categoryComboIds1[i];
+                                                        for (var j = 0; j < $scope.sqlViewCatComboIds1.length; j++) {
+                        
+                                                            if (categoryComboIdsValue1 == $scope.sqlViewCatComboIds1[j]) {
+                                                                 if(valueSqlViewCatComboIds[categoryComboIdsValue1]) $scope.countDS1++;
+                                                            }
+                        
+                                                        }
+                                                    }
+                                                    
+                                                    summaryData.forEach(function(sdata){
+                                                        if (sdata[3] == $scope.Final_orgNameWithBreaks[key] && sdata[1] == pr[0]) {
+                                                            currentStatus =  ($scope.countDS1/ $scope.NewcompulsoryDECount) * 100;
+                                                            statusText = $scope.countDS1 + "(" + $scope.NewcompulsoryDECount + ")";
+                                                            //console.log("currentStatus"+currentStatus+" "+"statusText"+statusText)		
+                                                        }
+                                                    
+                                                });
+                                                
+                                                if( currentStatus >= 1 )
+                                                    currentColor = "#99FF99";//green	
+                                            }
+                                            //var index=i;
+        
+                                            //$scope.organisationUnits_id.splice(index, 1);
+                                            
+                                        
+                                        
+                                        
+                                    htmlString += "<td style='background:"+ currentColor +"'  style='padding:2px 15px;border-color: #0000ff;'></td>";
+                                
+                                    })
+                                    $scope.countDS1 = 0;
+                                    $scope.sqlViewCatComboIds1 = [];
+                    
+                                    htmlString += "</tr>";		
+                    
+                    
+                    }
+                    $scope.sqlViewCatCombo1 = [];
+                    $scope.categoryComboIds1 = [];
+                        
+                $("#tableContent").html(htmlString);
+                    $("#dwnLoad").fadeIn();
+                    $("#coverLoad").hide();
+                });
+            },1000);
 		};
 	
 		//*****************************************************************************
@@ -805,261 +812,265 @@ reportsApp.controller('DataStatusController',
 		
 		
 		$scope.showDataStatus = function(){
-            Loader.showLoader();
-			$("#tableContent").html("");
-			$("#coverLoad").show();
-			$("#headTitle").html("Data Status -  Data Sets");
-			$("#modal-header").fadeIn();
-			$("#modal-body").delay(300).fadeIn();
-			$("#modal-footer").delay(600).fadeIn();
-			$("#resultModal").delay(900).fadeIn();
-			$("#dwnLoad").fadeOut();
-			
-			$scope.countDS = 0;
-			$scope.sqlViewCatComboIds = [];
-			//passing variables to query
-			var selOrgUnit = selection.getSelected();
-			var selDataSetUid = $scope.currentSelection.dataSet;
-			var selStartPeriod = $scope.currentSelection.startPeriodYear + "" + $scope.currentSelection.startPeriodMonth + "01";
-            var selEndPeriod = getEndPeriod($scope.currentSelection.endPeriodYear, $scope.currentSelection.endPeriodMonth);
-            var includeZero = $scope.currentSelection.includeZero;
-			$scope.organisationUnits_id=[];
-			$scope.catcombo=[];$scope.dataSetElement_len="";
+            Loader.showLoader(); 
+            $timeout(function () {
+                $("#tableContent").html("");
+                $("#coverLoad").show();
+                $("#headTitle").html("Data Status -  Data Sets");
+                $("#modal-header").fadeIn();
+                $("#modal-body").delay(300).fadeIn();
+                $("#modal-footer").delay(600).fadeIn();
+                $("#resultModal").delay(900).fadeIn();
+                $("#dwnLoad").fadeOut();
+                
+                $scope.countDS = 0;
+                $scope.sqlViewCatComboIds = [];
+                var valueSqlViewCatComboIds = [];
+                //passing variables to query
+                var selOrgUnit = selection.getSelected();
+                var selDataSetUid = $scope.currentSelection.dataSet;
+                var selStartPeriod = $scope.currentSelection.startPeriodYear + "" + $scope.currentSelection.startPeriodMonth + "01";
+                var selEndPeriod = getEndPeriod($scope.currentSelection.endPeriodYear, $scope.currentSelection.endPeriodMonth);
+                var includeZero = $scope.currentSelection.includeZero;
+                $scope.organisationUnits_id=[];
+                $scope.catcombo=[];$scope.dataSetElement_len="";
 
-            newurl1=$scope.basicUrl + $scope.getdataElementid + "/data.json?var=dataSetID:"+selDataSetUid+"";
+                newurl1=$scope.basicUrl + $scope.getdataElementid + "/data.json?var=dataSetID:"+selDataSetUid+"";
 
-            $.get(newurl1, function(data){
+                $.get(newurl1, function(data){
 
-                $scope.dataSetID=data.rows[0];
-
-
-            });
-		
-
-			$scope.dataEntryForm=[],$scope.NewcompulsoryDECount
-			
-                $.get("../api/dataSets/"+ selDataSetUid +".json?fields=*,dataSetElements[id,categoryCombo],dataEntryForm[htmlCode]&skipPaging=true" ,function(json){
-					$scope.dataEntryForm.push(json.dataEntryForm.htmlCode)
-						for(var i=0;i<json.organisationUnits.length;i++)
-						{
-							for(var j=0;j<$scope.allOrgUnitChildren.length;j++)
-							{
-								if(json.organisationUnits[i].id==$scope.allOrgUnitChildren[j].uid)
-								$scope.organisationUnits_id.push(json.organisationUnits[i].id);
-							}
-						}
-					});
-
-					if($scope.dataEntryForm.length==0)
-					{
-						$scope.NewcompulsoryDECount=$scope.compulsoryDECount;
-					}else{
-					var el = document.createElement( 'html' );
-					el.innerHTML = "<html><body>"+$scope.dataEntryForm[0]+"</html>";
-					var value=el.getElementsByTagName( 'input' );
-					
-					$scope.newDECountvalue=[]
-					for(var i=0;i<value.length;i++)
-					{
-						var str=value[i].id.split("-");
-						$scope.newDECountvalue.push(str[0]);
-						$scope.categoryComboIds.push(str[0] + '-' + str[1]);
-
-					}
-
-					for(var k=0;k<$scope.newDECountvalue.length;k++)
-					{
-						var returnval=checkdeletevale($scope.newDECountvalue[k])
-						if(returnval==true)
-						{
-							$scope.newDECountvalue.splice(k,1)
-						}
-					}
+                    $scope.dataSetID=data.rows[0];
 
 
-					$scope.NewcompulsoryDECount=$scope.newDECountvalue.length;
-				}
+                });
+            
 
-			$scope.OrgUnit_uid	=$scope.filteredOrgUnitList.toString();
-			if( includeZero )
-				var url = $scope.basicUrl + $scope.dataStatusSV + "/data.json?";
-			else
-				var url = $scope.basicUrl + $scope.dataStatusExZeroSV + "/data.json?";
-			
-			url+= "var=compulsoryDECount:" + $scope.NewcompulsoryDECount + ",dataSetUid:" + selDataSetUid + ",orgUnitUids:" +$scope.organisationunitid_1[0] + ",startDate:" + selStartPeriod + ",endDate:" + selEndPeriod;	;	
-			
-			console.log(url);
-			
-			$.get(url, function(data){
-			//$.get("status.json", function(data){
-				var summaryData = data.rows;
-				
-				var totPeriods = $scope.allPeriods.length + 2 ;
-				
-				var htmlString = "";
-				htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Root Organisation Unit : </b>" + $scope.currentSelection.orgUnitName +"</td></tr>";
-				htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Data Set : </b>" + $("#dataSetId option:selected").text() +"</td></tr>";
-				htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Total Data Elements : </b>" + $scope.compulsoryDECount  +"</td></tr>";
-				var durationString = $scope.monthString($scope.currentSelection.startPeriodYear + "-" + $scope.currentSelection.startPeriodMonth ) + " to " + $scope.monthString($scope.currentSelection.endPeriodYear + "-" + $scope.currentSelection.endPeriodMonth );	
-				htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Duration : </b>" + durationString +"</td></tr>";
-				htmlString += "<tr style = 'background:#fff'><td colspan = '"+ totPeriods +"' ></td></tr>";
-				
-				htmlString += "<tr><td  style = 'background:#66FF99;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Completed (75+)% </td></tr>";
-				htmlString += "<tr><td  style = 'background:#FF99FF;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Partially Completed (41-75)% </td></tr>";
-				htmlString += "<tr><td  style = 'background:#FFFF99;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Not Completed(1-40)% </td></tr>";
-				htmlString += "<tr><td  style = 'background:#FF9999;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Not Entered (0)% </td></tr>";
-				
-				
-				htmlString += "<tr style = 'background:#fff'><td colspan = '"+ totPeriods +"' ></td></tr>";
-				
-				htmlString += "<tr style = 'background:#ddd'><th style='min-width:150px'>Organisation Units</th>";
-				
-				$scope.allPeriods.forEach(function(p){
-					htmlString += "<th style='min-width:100px;max-width:100px;'>" + $scope.monthString( p[0])  + "</th>";					
-				});
-				
-				htmlString += "</tr>";
-				var ParentName_1="",ParentName_2="",ParentName_3="",ParentName_4="",ParentName_5="",ParentName_6="",ParentName_7="",ParentName_8="";
-				var currentStatus= 0;
-				var currentColor = "#eeeeee";
-				var statusText = "";
-				$scope.Final_orgNameWithBreaks=[];
-				
-				
-				$scope.allOrgUnitChildren.forEach(function(org){
-					
-					var orgNameWithBreaks = "";
-					var totBreaks = org.level - $scope.grandParentLevel;
-					
-					for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks += "|-------------";
-					if(totBreaks==0)
-					{
-						ParentName_1=org.name;
-						orgNameWithBreaks=ParentName_1;
-					}
-					else if(totBreaks==1)
-					{
-						ParentName_2=org.name;
-						for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks = ParentName_1+" / "+ParentName_2;
-					}
-					else if(totBreaks==2)
-					{
-						ParentName_3=org.name;
-						for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3;
-					}
-					else if(totBreaks==3)
-					{
-						ParentName_4=org.name;
-						for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4;
-					}
-					else if(totBreaks==4)
-					{
-						ParentName_4=org.name;
-						for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5;
-					}
-					else if(totBreaks==5)
-					{
-						ParentName_6=org.name;
-						for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6;
-					}
-					else if(totBreaks==6)
-					{
-						ParentName_7=org.name;
-						for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6+" / "+ParentName_7;
-					}
-					
+                $scope.dataEntryForm=[],$scope.NewcompulsoryDECount
+                
+                    $.get("../api/dataSets/"+ selDataSetUid +".json?fields=*,dataSetElements[id,categoryCombo],dataEntryForm[htmlCode]&skipPaging=true" ,function(json){
+                        $scope.dataEntryForm.push(json.dataEntryForm.htmlCode)
+                            for(var i=0;i<json.organisationUnits.length;i++)
+                            {
+                                for(var j=0;j<$scope.allOrgUnitChildren.length;j++)
+                                {
+                                    if(json.organisationUnits[i].id==$scope.allOrgUnitChildren[j].uid)
+                                    $scope.organisationUnits_id.push(json.organisationUnits[i].id);
+                                }
+                            }
+                        });
 
-					if($scope.GetUID($scope.organisationUnits_id,org.uid))
-					{
+                        if($scope.dataEntryForm.length==0)
+                        {
+                            $scope.NewcompulsoryDECount=$scope.compulsoryDECount;
+                        }else{
+                        var el = document.createElement( 'html' );
+                        el.innerHTML = "<html><body>"+$scope.dataEntryForm[0]+"</html>";
+                        var value=el.getElementsByTagName( 'input' );
+                        
+                        $scope.newDECountvalue=[]
+                        for(var i=0;i<value.length;i++)
+                        {
+                            var str=value[i].id.split("-");
+                            $scope.newDECountvalue.push(str[0]);
+                            $scope.categoryComboIds.push(str[0] + '-' + str[1]);
 
-						$scope.Final_orgNameWithBreaks[orgNameWithBreaks]=org.uid;
-						//$scope.Final_orgNameWithBreaks.push({orgNameWithBreaks});
+                        }
 
-					//htmlString += "<tr><td style='padding:0 15px'>" + orgNameWithBreaks + "</td>";
-				
-					}
+                        for(var k=0;k<$scope.newDECountvalue.length;k++)
+                        {
+                            var returnval=checkdeletevale($scope.newDECountvalue[k])
+                            if(returnval==true)
+                            {
+                                $scope.newDECountvalue.splice(k,1)
+                            }
+                        }
 
 
-				});
-		
-					
-				
-					for(var key in $scope.Final_orgNameWithBreaks)
-					{
-						htmlString += "<tr><td style='padding:0 15px'>" + key + "</td>";
-						
-					$scope.allPeriods.forEach(function(pr){
-						
-											currentStatus = 0;
-											statusText = "";
-											currentColor = "#FF9999";//light purple
-									
-									 
-									if( $scope.isOrgFound_1( $scope.Final_orgNameWithBreaks[key], summaryData ) )
-									{
-										for (var i = 0; i < data.rows.length; i++) {
-											$scope.sqlViewCatCombo = data.rows[i];
-												if($scope.sqlViewCatCombo[1] == pr[0] ){
-											if ($scope.Final_orgNameWithBreaks[key] == $scope.sqlViewCatCombo[3]) {
-												$scope.sqlViewCatComboIds.push($scope.sqlViewCatCombo[5] + '-' + $scope.sqlViewCatCombo[6]);
-											}
-										}
-									}
-			
-										for (var i = 0; i < $scope.categoryComboIds.length; i++) {
-											var categoryComboIdsValue = $scope.categoryComboIds[i];
-											for (var j = 0; j < $scope.sqlViewCatComboIds.length; j++) {
-			
-												if (categoryComboIdsValue == $scope.sqlViewCatComboIds[j]) {
-													$scope.countDS++;
-												}
-			
-											}
-										}
-			
-										statusText = 0;//"0(" + $scope.compulsoryDECount + ")";
-										
-										
-												currentStatus = $scope.countDS/$scope.NewcompulsoryDECount*100;
-									          // currentStatus= sdata[4]/$scope.NewcompulsoryDECount*100;
-								             	statusText = Math.ceil(currentStatus);//+ "(" + $scope.compulsoryDECount + ")";
-											
-											
-											$scope.sqlViewCatComboIds = [];
-											$scope.countDS= 0;
-										
-										if( currentStatus >= 75 )
-											currentColor = "#66FF99";
-										else if( currentStatus >= 41 )
-											currentColor = "#FF99FF";
-										else if( currentStatus >= 1 )
-											currentColor = "#FFFF99";
-										else
-											currentColor = "#FF9999";	
-									}
-								
-								
-								
-						htmlString += "<td style='background:"+ currentColor +";padding:0 15px'>"+statusText +"</td>";
-					});
-					
-					htmlString += "</tr>";
-				}			
-					
-				
-				$scope.sqlViewCatCombo = [];
-				$scope.categoryComboIds = [];
-				$("#tableContent").html(htmlString);
-				$("#dwnLoad").fadeIn();
-				$("#coverLoad").hide();
-			});
+                        $scope.NewcompulsoryDECount=$scope.newDECountvalue.length;
+                    }
+
+                $scope.OrgUnit_uid	=$scope.filteredOrgUnitList.toString();
+                if( includeZero )
+                    var url = $scope.basicUrl + $scope.dataStatusSV + "/data.json?";
+                else
+                    var url = $scope.basicUrl + $scope.dataStatusExZeroSV + "/data.json?";
+                
+                url+= "var=compulsoryDECount:" + $scope.NewcompulsoryDECount + ",dataSetUid:" + selDataSetUid + ",orgUnitUids:" +$scope.organisationunitid_1[0] + ",startDate:" + selStartPeriod + ",endDate:" + selEndPeriod + "&skipPaging=true";	
+                
+                console.log(url);
+                
+                $.get(url, function(data){
+                //$.get("status.json", function(data){
+                    var summaryData = data.rows;
+                    
+                    var totPeriods = $scope.allPeriods.length + 2 ;
+                    
+                    var htmlString = "";
+                    htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Root Organisation Unit : </b>" + $scope.currentSelection.orgUnitName +"</td></tr>";
+                    htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Data Set : </b>" + $("#dataSetId option:selected").text() +"</td></tr>";
+                    htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Total Data Elements : </b>" + $scope.compulsoryDECount  +"</td></tr>";
+                    var durationString = $scope.monthString($scope.currentSelection.startPeriodYear + "-" + $scope.currentSelection.startPeriodMonth ) + " to " + $scope.monthString($scope.currentSelection.endPeriodYear + "-" + $scope.currentSelection.endPeriodMonth );	
+                    htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Duration : </b>" + durationString +"</td></tr>";
+                    htmlString += "<tr style = 'background:#fff'><td colspan = '"+ totPeriods +"' ></td></tr>";
+                    
+                    htmlString += "<tr><td  style = 'background:#66FF99;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Completed (75+)% </td></tr>";
+                    htmlString += "<tr><td  style = 'background:#FF99FF;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Partially Completed (41-75)% </td></tr>";
+                    htmlString += "<tr><td  style = 'background:#FFFF99;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Not Completed(1-40)% </td></tr>";
+                    htmlString += "<tr><td  style = 'background:#FF9999;padding:0'></td><td colspan='"+ (totPeriods-1) +"'  style='padding:0 15px'> Not Entered (0)% </td></tr>";
+                    
+                    
+                    htmlString += "<tr style = 'background:#fff'><td colspan = '"+ totPeriods +"' ></td></tr>";
+                    
+                    htmlString += "<tr style = 'background:#ddd'><th style='min-width:150px'>Organisation Units</th>";
+                    
+                    $scope.allPeriods.forEach(function(p){
+                        htmlString += "<th style='min-width:100px;max-width:100px;'>" + $scope.monthString( p[0])  + "</th>";					
+                    });
+                    
+                    htmlString += "</tr>";
+                    var ParentName_1="",ParentName_2="",ParentName_3="",ParentName_4="",ParentName_5="",ParentName_6="",ParentName_7="",ParentName_8="";
+                    var currentStatus= 0;
+                    var currentColor = "#eeeeee";
+                    var statusText = "";
+                    $scope.Final_orgNameWithBreaks=[];
+                    
+                    
+                    $scope.allOrgUnitChildren.forEach(function(org){
+                        
+                        var orgNameWithBreaks = "";
+                        var totBreaks = org.level - $scope.grandParentLevel;
+                        
+                        for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks += "|-------------";
+                        if(totBreaks==0)
+                        {
+                            ParentName_1=org.name;
+                            orgNameWithBreaks=ParentName_1;
+                        }
+                        else if(totBreaks==1)
+                        {
+                            ParentName_2=org.name;
+                            for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks = ParentName_1+" / "+ParentName_2;
+                        }
+                        else if(totBreaks==2)
+                        {
+                            ParentName_3=org.name;
+                            for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3;
+                        }
+                        else if(totBreaks==3)
+                        {
+                            ParentName_4=org.name;
+                            for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4;
+                        }
+                        else if(totBreaks==4)
+                        {
+                            ParentName_4=org.name;
+                            for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5;
+                        }
+                        else if(totBreaks==5)
+                        {
+                            ParentName_6=org.name;
+                            for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6;
+                        }
+                        else if(totBreaks==6)
+                        {
+                            ParentName_7=org.name;
+                            for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6+" / "+ParentName_7;
+                        }
+                        
+
+                        if($scope.GetUID($scope.organisationUnits_id,org.uid))
+                        {
+
+                            $scope.Final_orgNameWithBreaks[orgNameWithBreaks]=org.uid;
+                            //$scope.Final_orgNameWithBreaks.push({orgNameWithBreaks});
+
+                        //htmlString += "<tr><td style='padding:0 15px'>" + orgNameWithBreaks + "</td>";
+                    
+                        }
+
+
+                    });
+            
+                        
+                    
+                        for(var key in $scope.Final_orgNameWithBreaks)
+                        {
+                            htmlString += "<tr><td style='padding:0 15px'>" + key + "</td>";
+                            
+                        $scope.allPeriods.forEach(function(pr){
+                            
+                                                currentStatus = 0;
+                                                statusText = "";
+                                                currentColor = "#FF9999";//light purple
+                                        
+                                        
+                                        if( $scope.isOrgFound_1( $scope.Final_orgNameWithBreaks[key], summaryData ) )
+                                        {
+                                            for (var i = 0; i < data.rows.length; i++) {
+                                                $scope.sqlViewCatCombo = data.rows[i];
+                                                    if($scope.sqlViewCatCombo[1] == pr[0] ){
+                                                if ($scope.Final_orgNameWithBreaks[key] == $scope.sqlViewCatCombo[3]) {
+                                                    $scope.sqlViewCatComboIds.push($scope.sqlViewCatCombo[5] + '-' + $scope.sqlViewCatCombo[6]);
+                                                    valueSqlViewCatComboIds[$scope.sqlViewCatCombo[5] + '-' + $scope.sqlViewCatCombo[6]] = Number($scope.sqlViewCatCombo["4"]);
+                                                }
+                                            }
+                                        }
+                
+                                            for (var i = 0; i < $scope.categoryComboIds.length; i++) {
+                                                var categoryComboIdsValue = $scope.categoryComboIds[i];
+                                                for (var j = 0; j < $scope.sqlViewCatComboIds.length; j++) {
+                
+                                                    if (categoryComboIdsValue == $scope.sqlViewCatComboIds[j]) {
+                                                        if(valueSqlViewCatComboIds[categoryComboIdsValue]) $scope.countDS++;
+                                                    }
+                
+                                                }
+                                            }
+                
+                                            statusText = 0;//"0(" + $scope.compulsoryDECount + ")";
+                                            
+                                            
+                                                    currentStatus = $scope.countDS/$scope.NewcompulsoryDECount*100;
+                                                // currentStatus= sdata[4]/$scope.NewcompulsoryDECount*100;
+                                                    statusText = Math.ceil(currentStatus);//+ "(" + $scope.compulsoryDECount + ")";
+                                                
+                                                
+                                                $scope.sqlViewCatComboIds = [];
+                                                $scope.countDS= 0;
+                                            
+                                            if( currentStatus >= 75 )
+                                                currentColor = "#66FF99";
+                                            else if( currentStatus >= 41 )
+                                                currentColor = "#FF99FF";
+                                            else if( currentStatus >= 1 )
+                                                currentColor = "#FFFF99";
+                                            else
+                                                currentColor = "#FF9999";	
+                                        }
+                                    
+                                    
+                                    
+                            htmlString += "<td style='background:"+ currentColor +";padding:0 15px'>"+statusText +"</td>";
+                        });
+                        
+                        htmlString += "</tr>";
+                    }			
+                        
+                    
+                    $scope.sqlViewCatCombo = [];
+                    $scope.categoryComboIds = [];
+                    $("#tableContent").html(htmlString);
+                    $("#dwnLoad").fadeIn();
+                    $("#coverLoad").hide();
+                });
+            }, 1000);
 		};
 		
 
@@ -1092,150 +1103,154 @@ reportsApp.controller('DataStatusController',
 		//*****************************************************************************
 		$scope.showUserDetails = function(){
             Loader.showLoader();
-			$("#tableContent").html("");
-			$("#coverLoad").show();
-			$("#headTitle").html("User Details - Latest");
-			$("#modal-header").fadeIn();
-			$("#modal-body").delay(300).fadeIn();
-			$("#modal-footer").delay(600).fadeIn();
-			$("#resultModal").delay(900).fadeIn();
-			$("#dwnLoad").fadeOut();
-			
-			//passing variables to query
-			var selOrgUnit = selection.getSelected();
-			var selDataSetUid = $scope.currentSelection.dataSet;
-			var selStartPeriod = $scope.currentSelection.startPeriodYear + "" + $scope.currentSelection.startPeriodMonth + "01";
-			var selEndPeriod = $scope.currentSelection.endPeriodYear + "" + $scope.currentSelection.endPeriodMonth + "01";	
-			var includeZero = $scope.currentSelection.includeZero;
-			
-			if( includeZero )
-				var url = $scope.basicUrl + $scope.userDetailsSV + "/data.json?";
-			else
-				var url = $scope.basicUrl + $scope.userDetailsExZeroSV + "/data.json?";
-			
-			url+= "var=dataSetUid:" + selDataSetUid + ",orgUnitUid:" + selOrgUnit  + ",startDate:" + selStartPeriod + ",endDate:" + selEndPeriod;	;	
-			
-			console.log(url);
-			
-			$.get(url, function(data){
-			//$.get("views.json", function(data){				
-				var summaryData = data.rows;
-				
-				var currentPeriodId = -1;
-				var currentPeriodStartDate = -1;
-				var currentUser = "";
-				
-				
-				var summaryData = data.rows;
-				
-				var totPeriods = $scope.allPeriods.length + 2 ;
-				
-				var htmlString = "";
-				htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Root Organisation Unit : </b>" + $scope.currentSelection.orgUnitName +"</td></tr>";
-				htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Data Set : </b>" + $("#dataSetId option:selected").text() +"</td></tr>";
-				var durationString = $scope.monthString($scope.currentSelection.startPeriodYear + "-" + $scope.currentSelection.startPeriodMonth ) + " to " + $scope.monthString($scope.currentSelection.endPeriodYear + "-" + $scope.currentSelection.endPeriodMonth );	
-				htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Duration : </b>" + durationString +"</td></tr>";
-				htmlString += "<tr style = 'background:#fff'><td colspan = '"+ totPeriods +"' ></td></tr>";
-				
-				
-				htmlString += "<tr style = 'background:#fff'><td colspan = '3' ></td></tr>";
-				
-				htmlString += "<tr style = 'background:#ddd'><th style='min-width:150px'>Organisation Units</th>";
-				
-				$scope.allPeriods.forEach(function(p){
-					htmlString += "<th style='min-width:100px;max-width:100px;'>" + $scope.monthString( p[0])  + "</th>";					
-				});
-				
-				htmlString += "</tr>";
-				
-				var currentUser= "";
-				var currentColor = "#fff";
-				var ParentName_1="",ParentName_2="",ParentName_3="",ParentName_4="",ParentName_5="",ParentName_6="",ParentName_7="",ParentName_8="";
-				
-				$scope.allOrgUnitChildren.forEach(function(org){
-					
-					var orgNameWithBreaks = "";
-					
-					var orgNameWithBreaks = "";
-					var totBreaks = org.level - $scope.grandParentLevel;
-					
-					for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks += "|-------------";
-					if(totBreaks==0)
-					{
-						ParentName_1=org.name;
-						orgNameWithBreaks=ParentName_1;
-					}
-					else if(totBreaks==1)
-					{
-						ParentName_2=org.name;
-						for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks = ParentName_1+" / "+ParentName_2;
-					}
-					else if(totBreaks==2)
-					{
-						ParentName_3=org.name;
-						for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3;
-					}
-					else if(totBreaks==3)
-					{
-						ParentName_4=org.name;
-						for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4;
-					}
-					else if(totBreaks==4)
-					{
-						ParentName_4=org.name;
-						for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5;
-					}
-					else if(totBreaks==5)
-					{
-						ParentName_6=org.name;
-						for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6;
-					}
-					else if(totBreaks==6)
-					{
-						ParentName_7=org.name;
-						for( var x = 0 ; x < totBreaks ; x++ )
-						orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6+" / "+ParentName_7;
-					}
-					
-					//var totBreaks = org.level - $scope.grandParentLevel;
-					
-					//for( var x = 0 ; x < totBreaks ; x++ )
-						//orgNameWithBreaks += "|-------------";
-					
-					//orgNameWithBreaks += org.name;
-					
-					htmlString += "<tr><td style='padding:0 15px'>" + orgNameWithBreaks + "</td>";
-					$scope.allPeriods.forEach(function(pr){
-						currentUser = "";
-						currentColor = "#eee";
-						
-						if( $scope.isOrgFound( org.uid, summaryData ) )
-						{
-							currentUser = "-";
-							currentColor = "#fff";
-							
-							summaryData.forEach(function(sdata){
-								if( sdata[0] == org.uid && sdata[1] == pr[0] )
-								{
-									currentUser= sdata[2];
-								}
-							});
-						}
-						htmlString += "<td style='background:"+ currentColor +";padding:0 15px'>" + currentUser + "</td>";
-					});
-					htmlString += "</tr>";
-				});
-				
-				$("#tableContent").html(htmlString);
-				$("#dwnLoad").fadeIn();
-				$("#coverLoad").hide();
-			});
+            
+            $timeout(function () {
+
+                $("#tableContent").html("");
+                $("#coverLoad").show();
+                $("#headTitle").html("User Details - Latest");
+                $("#modal-header").fadeIn();
+                $("#modal-body").delay(300).fadeIn();
+                $("#modal-footer").delay(600).fadeIn();
+                $("#resultModal").delay(900).fadeIn();
+                $("#dwnLoad").fadeOut();
+                
+                //passing variables to query
+                var selOrgUnit = selection.getSelected();
+                var selDataSetUid = $scope.currentSelection.dataSet;
+                var selStartPeriod = $scope.currentSelection.startPeriodYear + "" + $scope.currentSelection.startPeriodMonth + "01";
+                var selEndPeriod = $scope.currentSelection.endPeriodYear + "" + $scope.currentSelection.endPeriodMonth + "01";	
+                var includeZero = $scope.currentSelection.includeZero;
+                
+                if( includeZero )
+                    var url = $scope.basicUrl + $scope.userDetailsSV + "/data.json?";
+                else
+                    var url = $scope.basicUrl + $scope.userDetailsExZeroSV + "/data.json?";
+                
+                url+= "var=dataSetUid:" + selDataSetUid + ",orgUnitUid:" + selOrgUnit  + ",startDate:" + selStartPeriod + ",endDate:" + selEndPeriod;	;	
+                
+                console.log(url);
+                
+                $.get(url, function(data){
+                //$.get("views.json", function(data){				
+                    var summaryData = data.rows;
+                    
+                    var currentPeriodId = -1;
+                    var currentPeriodStartDate = -1;
+                    var currentUser = "";
+                    
+                    
+                    var summaryData = data.rows;
+                    
+                    var totPeriods = $scope.allPeriods.length + 2 ;
+                    
+                    var htmlString = "";
+                    htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Root Organisation Unit : </b>" + $scope.currentSelection.orgUnitName +"</td></tr>";
+                    htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Data Set : </b>" + $("#dataSetId option:selected").text() +"</td></tr>";
+                    var durationString = $scope.monthString($scope.currentSelection.startPeriodYear + "-" + $scope.currentSelection.startPeriodMonth ) + " to " + $scope.monthString($scope.currentSelection.endPeriodYear + "-" + $scope.currentSelection.endPeriodMonth );	
+                    htmlString += "<tr style = 'background:#eee'><td colspan = '"+ totPeriods +"'  style='padding:2px 15px'> <b>Duration : </b>" + durationString +"</td></tr>";
+                    htmlString += "<tr style = 'background:#fff'><td colspan = '"+ totPeriods +"' ></td></tr>";
+                    
+                    
+                    htmlString += "<tr style = 'background:#fff'><td colspan = '3' ></td></tr>";
+                    
+                    htmlString += "<tr style = 'background:#ddd'><th style='min-width:150px'>Organisation Units</th>";
+                    
+                    $scope.allPeriods.forEach(function(p){
+                        htmlString += "<th style='min-width:100px;max-width:100px;'>" + $scope.monthString( p[0])  + "</th>";					
+                    });
+                    
+                    htmlString += "</tr>";
+                    
+                    var currentUser= "";
+                    var currentColor = "#fff";
+                    var ParentName_1="",ParentName_2="",ParentName_3="",ParentName_4="",ParentName_5="",ParentName_6="",ParentName_7="",ParentName_8="";
+                    
+                    $scope.allOrgUnitChildren.forEach(function(org){
+                        
+                        var orgNameWithBreaks = "";
+                        
+                        var orgNameWithBreaks = "";
+                        var totBreaks = org.level - $scope.grandParentLevel;
+                        
+                        for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks += "|-------------";
+                        if(totBreaks==0)
+                        {
+                            ParentName_1=org.name;
+                            orgNameWithBreaks=ParentName_1;
+                        }
+                        else if(totBreaks==1)
+                        {
+                            ParentName_2=org.name;
+                            for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks = ParentName_1+" / "+ParentName_2;
+                        }
+                        else if(totBreaks==2)
+                        {
+                            ParentName_3=org.name;
+                            for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3;
+                        }
+                        else if(totBreaks==3)
+                        {
+                            ParentName_4=org.name;
+                            for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4;
+                        }
+                        else if(totBreaks==4)
+                        {
+                            ParentName_4=org.name;
+                            for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5;
+                        }
+                        else if(totBreaks==5)
+                        {
+                            ParentName_6=org.name;
+                            for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6;
+                        }
+                        else if(totBreaks==6)
+                        {
+                            ParentName_7=org.name;
+                            for( var x = 0 ; x < totBreaks ; x++ )
+                            orgNameWithBreaks =  ParentName_1+" / "+ParentName_2+" / "+ParentName_3+" / "+ParentName_4+" / "+ParentName_5+" / "+ParentName_6+" / "+ParentName_7;
+                        }
+                        
+                        //var totBreaks = org.level - $scope.grandParentLevel;
+                        
+                        //for( var x = 0 ; x < totBreaks ; x++ )
+                            //orgNameWithBreaks += "|-------------";
+                        
+                        //orgNameWithBreaks += org.name;
+                        
+                        htmlString += "<tr><td style='padding:0 15px'>" + orgNameWithBreaks + "</td>";
+                        $scope.allPeriods.forEach(function(pr){
+                            currentUser = "";
+                            currentColor = "#eee";
+                            
+                            if( $scope.isOrgFound( org.uid, summaryData ) )
+                            {
+                                currentUser = "-";
+                                currentColor = "#fff";
+                                
+                                summaryData.forEach(function(sdata){
+                                    if( sdata[0] == org.uid && sdata[1] == pr[0] )
+                                    {
+                                        currentUser= sdata[2];
+                                    }
+                                });
+                            }
+                            htmlString += "<td style='background:"+ currentColor +";padding:0 15px'>" + currentUser + "</td>";
+                        });
+                        htmlString += "</tr>";
+                    });
+                    
+                    $("#tableContent").html(htmlString);
+                    $("#dwnLoad").fadeIn();
+                    $("#coverLoad").hide();
+                });
+                },1000);
 		};
 		
 		//*****************************************************************************
