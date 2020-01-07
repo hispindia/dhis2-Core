@@ -1,7 +1,7 @@
-package org.hisp.dhis.system.deletion;
+package org.hisp.dhis.security.basic;
 
 /*
- * Copyright (c) 2004-2018, University of Oslo
+ * Copyright (c) 2004-2019, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,38 +28,22 @@ package org.hisp.dhis.system.deletion;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import org.aspectj.lang.JoinPoint;
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.stereotype.Component;
 
 /**
- * @author Lars Helge Overland
- * @version $Id$
+ * @author Morten Svanæs <msvanaes@dhis2.org>
  */
-public class DeletionInterceptor
+@Component
+public class HttpBasicWebAuthenticationDetailsSource
+    implements AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails>
 {
-    // -------------------------------------------------------------------------
-    // Dependencies
-    // -------------------------------------------------------------------------
-
-    private DeletionManager deletionManager;
-
-    public void setDeletionManager( DeletionManager deletionManager )
+    @Override
+    public WebAuthenticationDetails buildDetails( HttpServletRequest request )
     {
-        this.deletionManager = deletionManager;
-    }
-
-    public void intercept( JoinPoint joinPoint )
-    {
-        if ( joinPoint.getArgs() != null && joinPoint.getArgs().length > 0 )
-        {
-            if ( joinPoint.getSignature().getName().matches( "^.*NoRollback" ) )
-            {
-                deletionManager.executeNoRollback( joinPoint.getArgs()[0] );
-            }
-            else
-            {
-                deletionManager.execute( joinPoint.getArgs()[0] );
-
-            }
-        }
+        return new HttpBasicWebAuthenticationDetails( request );
     }
 }
+
