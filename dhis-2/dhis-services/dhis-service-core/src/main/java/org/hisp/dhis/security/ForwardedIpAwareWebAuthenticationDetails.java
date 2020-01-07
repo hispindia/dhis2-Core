@@ -1,7 +1,7 @@
-package org.hisp.dhis.system.deletion;
+package org.hisp.dhis.security;
 
 /*
- * Copyright (c) 2004-2018, University of Oslo
+ * Copyright (c) 2004-2019, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,38 +28,33 @@ package org.hisp.dhis.system.deletion;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import org.aspectj.lang.JoinPoint;
+import javax.servlet.http.HttpServletRequest;
+import org.hisp.dhis.util.ObjectUtils;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 /**
- * @author Lars Helge Overland
- * @version $Id$
+ * @author Morten Svanæs <msvanaes@dhis2.org>
  */
-public class DeletionInterceptor
+public class ForwardedIpAwareWebAuthenticationDetails
+    extends WebAuthenticationDetails
 {
-    // -------------------------------------------------------------------------
-    // Dependencies
-    // -------------------------------------------------------------------------
+    private static final String HEADER_FORWARDED_FOR = "X-Forwarded-For";
 
-    private DeletionManager deletionManager;
+    private String ip;
 
-    public void setDeletionManager( DeletionManager deletionManager )
+    public ForwardedIpAwareWebAuthenticationDetails( HttpServletRequest request )
     {
-        this.deletionManager = deletionManager;
+        super( request );
+        this.ip = ObjectUtils.firstNonNull( request.getHeader( HEADER_FORWARDED_FOR ), request.getRemoteAddr() );
     }
 
-    public void intercept( JoinPoint joinPoint )
+    public String getIp()
     {
-        if ( joinPoint.getArgs() != null && joinPoint.getArgs().length > 0 )
-        {
-            if ( joinPoint.getSignature().getName().matches( "^.*NoRollback" ) )
-            {
-                deletionManager.executeNoRollback( joinPoint.getArgs()[0] );
-            }
-            else
-            {
-                deletionManager.execute( joinPoint.getArgs()[0] );
+        return ip;
+    }
 
-            }
-        }
+    public void setIp( String ip )
+    {
+        this.ip = ip;
     }
 }
