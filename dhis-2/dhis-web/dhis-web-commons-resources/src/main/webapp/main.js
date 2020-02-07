@@ -3,6 +3,20 @@
 // Page init
 // -----------------------------------------------------------------------------
 
+var resetTime_int;
+function resetTimer(){
+    if(resetTime_int) window.clearTimeout(resetTime_int)
+    resetTime_int=window.setTimeout(function (){
+        alert('Session Expired login again');
+        window.location.href = '../dhis-web-commons-security/logout.action';
+    }, 5*60*1000);
+}
+
+resetTimer()
+document.onmousemove=resetTimer;
+document.onkeyup=resetTimer;
+
+
 $( document ).ready( function() { pageInit(); } );
 
 function pageInit()
