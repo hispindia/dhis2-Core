@@ -9,7 +9,7 @@ function resetTimer(){
     resetTime_int=window.setTimeout(function (){
         alert('Session Expired login again');
         window.location.href = '../dhis-web-commons-security/logout.action';
-    }, 5*60*1000);
+    }, 15*60*1000);
 }
 
 resetTimer()
