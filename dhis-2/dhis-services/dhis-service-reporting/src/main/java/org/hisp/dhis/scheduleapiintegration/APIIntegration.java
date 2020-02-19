@@ -50,14 +50,16 @@ public class APIIntegration implements Runnable
 
     private List<Period> selectedPeriodList = new ArrayList<>();
     private Map<String, String> dataElementsMappingMap = new HashMap<String, String>();
-    private Map<String, String> dataElementsMappingLabMap = new HashMap<String, String>();
+    private Map<String, String> dataElementsMappingHLLMap = new HashMap<String, String>();
     private Map<String, String> orgUnitMappingMap = new HashMap<String, String>();
-    private Map<String, String> orgUnitMappingLabMap = new HashMap<String, String>();
+    private Map<String, String> orgUnitMappingHLLMap = new HashMap<String, String>();
     
+    private List<String> dataValueBioList = new ArrayList<String>();
     private List<String> dataValueList = new ArrayList<String>();
-    private List<String> dataValueListLab = new ArrayList<String>();
+    private List<String> dataValueListHLL = new ArrayList<String>();
     
-    private int metaAttributeId = 64992555;
+    private int metaAttributeBioId = 64992555;
+    private int metaAttributeHLLId = 79186714;
     private int categoryOptionComboId = 15;
     private int attributeoptioncomboid = 15;
     
@@ -78,7 +80,10 @@ public class APIIntegration implements Runnable
         
         initializeDataElementMap();
         initializeOrgUnitMap();
+        initializeOrgUnitHLLMap();
         dataValueList = new ArrayList<String>( );
+        dataValueBioList = new ArrayList<String>();
+        dataValueListHLL = new ArrayList<String>();
         
         simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
         Date date = new Date();
@@ -91,13 +96,13 @@ public class APIIntegration implements Runnable
         try
         {
             // for bioMedical
-            dataValueList = new ArrayList<String>( readJsonFromUrl("http://182.156.208.43:85/faber_maharashtra/services/service_phd2") );
-            insertUpdateDataValue( dataValueList );
+            dataValueBioList = new ArrayList<String>( readJsonFromUrl("http://182.156.208.43:85/faber_maharashtra/services/service_phd2") );
+            //insertUpdateDataValue( dataValueBioList );
             
-            System.out.println( " API Integration Done for bioMedical -- " + dataValueList.size());
+            //System.out.println( " API Integration Done for bioMedical -- " + dataValueList.size());
             
             // for lab
-            String apiUrlForLab = "https://mahahindlabs.com/api/data_districtwise_patientdetails.php?month=" + currentMonth + "&year=" + currentYear;
+            String apiUrlForHLL = "https://mahahindlabs.com/api/data_districtwise_patientdetails.php?month=" + currentMonth + "&year=" + currentYear;
             
             String isoPeriod = currentYear+currentMonth;
             Integer periodId = null;
@@ -108,9 +113,18 @@ public class APIIntegration implements Runnable
                 periodId = period.getId();
             }
             
-            dataValueListLab = new ArrayList<String>( readJsonFromUrlLab( apiUrlForLab, periodId ) );
-            insertUpdateDataValue( dataValueListLab );
-            System.out.println( " API Integration Done for lab -- " + dataValueListLab.size() );
+            System.out.println( " period id for HLL -- " + periodId );
+            dataValueListHLL = new ArrayList<String>( readJsonFromUrlHLL( apiUrlForHLL, periodId ) );
+            
+            //dataValueList.addAll( dataValueListHLL );
+            //dataValueList.addAll( dataValueBioList );
+            
+            System.out.println( " API Integration dataValueList Bio -- " + dataValueBioList.size() );
+            dataValueBioList.addAll( dataValueListHLL );
+            
+            System.out.println( " API Integration dataValueList size for HLL and Bio -- " + dataValueBioList.size() + " -- " + dataValueListHLL.size() );
+            insertUpdateDataValue( dataValueBioList );
+            System.out.println( " API Integration Done for HLL and Bio -- " + dataValueBioList.size() );
             
         }
         catch ( JSONException | IOException | ParseException e1 )
@@ -126,7 +140,7 @@ public class APIIntegration implements Runnable
     // read JsonFrom URL
     public List<String> readJsonFromUrl(String url) throws IOException, JSONException, ParseException 
     {
-        dataValueList = new ArrayList<String>();
+        dataValueBioList = new ArrayList<String>();
         InputStream is = new URL(url).openStream();
         try 
         {
@@ -165,7 +179,7 @@ public class APIIntegration implements Runnable
                   //System.out.println("month - " + mon );
                   
                   int periodId = getPeriodId( year, mon );
-                  String orgUnitId = orgUnitMappingMap.get( district );
+                  String orgUnitId = orgUnitMappingMap.get( district.toUpperCase() );
                   
                   for ( Map.Entry<String,String> de : dataElementsMappingMap.entrySet() ) 
                   {
@@ -174,7 +188,7 @@ public class APIIntegration implements Runnable
                           String deId = de.getValue();
                           String openCalls = (String) jobject.get("Open_Calls");   
                           //System.out.println("Open_Calls - " + openCalls );
-                          dataValueList.add( deId + ":" + periodId + ":" + orgUnitId + ":" + openCalls );
+                          dataValueBioList.add( deId + ":" + periodId + ":" + orgUnitId + ":" + openCalls );
                       }
                       
                       if( de.getKey().equalsIgnoreCase( "Closed_Calls" ))
@@ -182,7 +196,7 @@ public class APIIntegration implements Runnable
                           String deId = de.getValue();
                           String closedCalls = (String) jobject.get("Closed_Calls");   
                           //System.out.println("Closed_Calls - " + closedCalls );
-                          dataValueList.add( deId + ":" + periodId + ":" + orgUnitId + ":" + closedCalls );
+                          dataValueBioList.add( deId + ":" + periodId + ":" + orgUnitId + ":" + closedCalls );
                       }
                       
                       if( de.getKey().equalsIgnoreCase( "Total_Calls" ))
@@ -190,7 +204,7 @@ public class APIIntegration implements Runnable
                           String deId = de.getValue();
                           String totalCalls = (String) jobject.get("Total_Calls");   
                           //System.out.println("Total_Calls - " + totalCalls );
-                          dataValueList.add( deId + ":" + periodId + ":" + orgUnitId + ":" + totalCalls );
+                          dataValueBioList.add( deId + ":" + periodId + ":" + orgUnitId + ":" + totalCalls );
                       }
                       //System.out.println("Key = " + de.getKey() +  ", Value = " + de.getValue()); 
                   }
@@ -210,7 +224,7 @@ public class APIIntegration implements Runnable
           e.printStackTrace();
       }
         
-        return dataValueList;
+        return dataValueBioList;
        
     }
     
@@ -319,11 +333,11 @@ public class APIIntegration implements Runnable
         dataElementsMappingMap.put( "Closed_Calls", "64915059" );
         dataElementsMappingMap.put( "Total_Calls", "64915030" );
         
-        dataElementsMappingLabMap = new HashMap<String, String>();
+        dataElementsMappingHLLMap = new HashMap<String, String>();
         
-        dataElementsMappingLabMap.put( "TotalPatients", "-1" );
-        dataElementsMappingLabMap.put( "TATMET", "-2" );
-        dataElementsMappingLabMap.put( "TATFAIL", "-3" );
+        dataElementsMappingHLLMap.put( "TotalPatients", "77800486" );
+        dataElementsMappingHLLMap.put( "TATMET", "77800488" );
+        dataElementsMappingHLLMap.put( "TATFAIL", "77800491" );
         
     }
     
@@ -334,7 +348,7 @@ public class APIIntegration implements Runnable
         {
             String query = " SELECT attrValue.value, orgUnitAttrValue.organisationunitid from attributevalue attrValue " +
                             " INNER JOIN organisationunitattributevalues orgUnitAttrValue ON orgUnitAttrValue.attributevalueid = attrValue.attributevalueid " +
-                            " WHERE attrValue.attributeid = " + metaAttributeId +" ORDER BY attrValue.value ";
+                            " WHERE attrValue.attributeid = " + metaAttributeBioId +" ORDER BY attrValue.value ";
            
            
             //System.out.println( "query = " + query );
@@ -356,14 +370,14 @@ public class APIIntegration implements Runnable
         }
     }
 
-    public void initializeOrgUnitLabMap()
+    public void initializeOrgUnitHLLMap()
     {
-        orgUnitMappingLabMap = new HashMap<String, String>();
+        orgUnitMappingHLLMap = new HashMap<String, String>();
         try
         {
             String query = " SELECT attrValue.value, orgUnitAttrValue.organisationunitid from attributevalue attrValue " +
                             " INNER JOIN organisationunitattributevalues orgUnitAttrValue ON orgUnitAttrValue.attributevalueid = attrValue.attributevalueid " +
-                            " WHERE attrValue.attributeid = " + metaAttributeId +" ORDER BY attrValue.value ";
+                            " WHERE attrValue.attributeid = " + metaAttributeHLLId +" ORDER BY attrValue.value ";
            
            
             //System.out.println( "query = " + query );
@@ -375,7 +389,7 @@ public class APIIntegration implements Runnable
                 String orgUnitId = rs.getString( 2 );
                 if( orgUnitName != null && orgUnitId != null  )
                 {
-                    orgUnitMappingLabMap.put( orgUnitName, orgUnitId );
+                    orgUnitMappingHLLMap.put( orgUnitName, orgUnitId );
                 }
             }
         }
@@ -386,10 +400,10 @@ public class APIIntegration implements Runnable
     }
     
     // read JSON form lab URL
-    public List<String> readJsonFromUrlLab( String url, Integer periodId ) throws IOException, JSONException, ParseException 
+    public List<String> readJsonFromUrlHLL( String url, Integer periodId ) throws IOException, JSONException, ParseException 
     {
         //System.out.println("API for patient -- " + url );
-        dataValueListLab = new ArrayList<String>();
+        dataValueListHLL = new ArrayList<String>();
         InputStream is = new URL(url).openStream();
         if( periodId != null )
         {
@@ -411,16 +425,18 @@ public class APIIntegration implements Runnable
                                
                   String districtName = (String) jobject.get("DISTNAME"); 
                   
-                  String orgUnitId = orgUnitMappingLabMap.get( districtName );
+                  String orgUnitId = orgUnitMappingHLLMap.get( districtName.toUpperCase() );
                   
-                  for ( Map.Entry<String,String> de : dataElementsMappingLabMap.entrySet() ) 
+                  //System.out.println(  districtName + " -- " +  districtName.toUpperCase() + " orgUnitId - " + orgUnitId );
+                  
+                  for ( Map.Entry<String,String> de : dataElementsMappingHLLMap.entrySet() ) 
                   {
                       if( de.getKey().equalsIgnoreCase( "TotalPatients" ))
                       {
                           String deId = de.getValue();
                           String totalPatients = (String) jobject.get("TotalPatients");   
                           //System.out.println("Open_Calls - " + openCalls );
-                          dataValueListLab.add( deId + ":" + periodId + ":" + orgUnitId + ":" + totalPatients );
+                          dataValueListHLL.add( deId + ":" + periodId + ":" + orgUnitId + ":" + totalPatients );
                       }
                       
                       if( de.getKey().equalsIgnoreCase( "TATMET" ))
@@ -428,7 +444,7 @@ public class APIIntegration implements Runnable
                           String deId = de.getValue();
                           String tATMET = (String) jobject.get("TATMET");   
                           //System.out.println("Closed_Calls - " + closedCalls );
-                          dataValueListLab.add( deId + ":" + periodId + ":" + orgUnitId + ":" + tATMET );
+                          dataValueListHLL.add( deId + ":" + periodId + ":" + orgUnitId + ":" + tATMET );
                       }
                       
                       if( de.getKey().equalsIgnoreCase( "TATFAIL" ))
@@ -436,7 +452,7 @@ public class APIIntegration implements Runnable
                           String deId = de.getValue();
                           String tATFAIL = (String) jobject.get("TATFAIL");   
                           //System.out.println("Total_Calls - " + totalCalls );
-                          dataValueListLab.add( deId + ":" + periodId + ":" + orgUnitId + ":" + tATFAIL );
+                          dataValueListHLL.add( deId + ":" + periodId + ":" + orgUnitId + ":" + tATFAIL );
                       }
                       //System.out.println("Key = " + de.getKey() +  ", Value = " + de.getValue()); 
                   }
@@ -456,7 +472,7 @@ public class APIIntegration implements Runnable
           }
         }
         
-        return dataValueListLab;
+        return dataValueListHLL;
     }
 
     
@@ -486,6 +502,8 @@ public class APIIntegration implements Runnable
             {
                 for( String combinedString : dataValueList )
                 {
+                    //System.out.println( slNo + " ---  " + combinedString );
+                    
                     String dataElementId = combinedString.split( ":" )[0];
                     String periodId = combinedString.split( ":" )[1];
                     String sourceId = combinedString.split( ":" )[2];

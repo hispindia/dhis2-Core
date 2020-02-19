@@ -100,16 +100,48 @@ excelUpload.controller('ImportFacilitywiseController',
 
                     //org unit group
                     $("#templateProgress").html("Fetching organisation unit groups...");
-                    $.get('../api/organisationUnitGroups.json?paging=false', function (ou) {
+                    $.get('../api/organisationUnitGroups.json?fields=id,displayName,attributeValues[value,attribute[id,name,code]]&paging=false', function (orgGroup) {
+                        console.log(orgGroup);
+                        var orgUnitGrps =[];
+                        for(var j=0;j<orgGroup.organisationUnitGroups.length;j++){
+                            var val=orgGroup.organisationUnitGroups[j].attributeValues.length;
+                            for (var i=0;i<val;i++)
+                            {  var val1=orgGroup.organisationUnitGroups[j].attributeValues[i].attribute.code;
+                                if( orgGroup.organisationUnitGroups[j].attributeValues.length!=0)
+                                {
+                                    if (orgGroup.organisationUnitGroups[j].attributeValues[i].attribute.code == 'Excel_Import_OrgUnitGrp_Filter' && orgGroup.organisationUnitGroups[j].attributeValues[i].value == "true")
+                                    {
+                                        orgUnitGrps.push(orgGroup.organisationUnitGroups[j]);
+                                    }
+                                }
+                            }
+                        }
 
-                        console.log(ou);
-                        $scope.orgUnitGroups = ou.organisationUnitGroups;
+                        //$scope.orgUnitGroups = orgGroup.organisationUnitGroups;
+                        $scope.orgUnitGroups = orgUnitGrps;
+
+                        //$scope.orgUnitGroups = ou.organisationUnitGroups;
 
                         //datasets
                         $("#templateProgress").html("Fetching all the data sets...");
-                        $.get('../api/dataSets.json?paging=false', function (ds) {
+                        var datets =[];
+                        $.get('../api/dataSets.json?fields=id,displayName,attributeValues[value,attribute[id,name,code]]&paging=false', function (ds) {
                             console.log(ds);
-                            $scope.dataSets = ds.dataSets;
+                            //$scope.dataSets = ds.dataSets;
+                            for(var j=0;j<ds.dataSets.length;j++){
+                                var val=ds.dataSets[j].attributeValues.length;
+                                for (var i=0;i<val;i++) {
+                                    var val1=ds.dataSets[j].attributeValues[i].attribute.code;
+                                    if( ds.dataSets[j].attributeValues.length!=0){
+                                        if (ds.dataSets[j].attributeValues[i].attribute.code == 'Excel_Import_DataSet_Filter' && ds.dataSets[j].attributeValues[i].value == "true")
+                                        {
+                                            datets.push(ds.dataSets[j]);
+                                        }
+                                    }
+                                }
+                            }
+                            var test=datets;
+                            $scope.dataSets = datets;
 
                             //dataelements
                             $("#templateProgress").html("Fetching all the data elements...");
