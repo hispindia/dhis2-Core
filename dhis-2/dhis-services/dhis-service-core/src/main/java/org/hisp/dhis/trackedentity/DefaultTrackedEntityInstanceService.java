@@ -934,7 +934,8 @@ public class DefaultTrackedEntityInstanceService
         }
         else
         {
-            searchOrgUnits.addAll( user.getTeiSearchOrganisationUnitsWithFallback() );
+            //searchOrgUnits.addAll( user.getTeiSearchOrganisationUnitsWithFallback() );
+            searchOrgUnits.addAll( user.getOrganisationUnits() );
         }
 
         for ( OrganisationUnit ou : searchOrgUnits )

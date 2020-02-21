@@ -110,7 +110,9 @@ public class SimplisticHttpGetGateWay
     public OutboundMessageResponse send( String subject, String text, Set<String> recipients, SmsGatewayConfig config )
     {
         GenericHttpGatewayConfig genericConfig = (GenericHttpGatewayConfig) config;
-
+      
+        //System.out.println(  " genericConfig " + genericConfig + " setUseGet " + genericConfig.isUseGet() + " -- default " + genericConfig.isDefault() );
+        
         UriComponentsBuilder uriBuilder = buildUrl( genericConfig );
         uriBuilder.queryParam( genericConfig.getMessageParameter(), text );
         uriBuilder.queryParam( genericConfig.getRecipientParameter(), StringUtils.join( recipients, "," ) );
@@ -120,8 +122,9 @@ public class SimplisticHttpGetGateWay
         try
         {
             URI url = uriBuilder.build().encode().toUri();
-
-            responseEntity = restTemplate.exchange( url, genericConfig.isUseGet() ? HttpMethod.GET : HttpMethod.POST, null, String.class );
+            //System.out.println(  " URI " + url );    
+            //responseEntity = restTemplate.exchange( url, genericConfig.isUseGet() ? HttpMethod.GET : HttpMethod.POST, null, String.class );
+            responseEntity = restTemplate.exchange( url, HttpMethod.GET, null, String.class );
         }
         catch ( HttpClientErrorException ex )
         {
@@ -136,6 +139,7 @@ public class SimplisticHttpGetGateWay
             log.error( "Error " + ex.getMessage() );
         }
 
+        System.out.println(  " SMS Response Entity " + responseEntity );
         return getResponse( responseEntity );
     }
 
