@@ -28,18 +28,19 @@ package org.hisp.dhis.dxf2.synch;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hisp.dhis.common.IdSchemes;
 import org.hisp.dhis.datavalue.DataValueService;
-import org.hisp.dhis.dxf2.common.ImportSummariesResponseExtractor;
 import org.hisp.dhis.dxf2.common.ImportSummaryResponseExtractor;
 import org.hisp.dhis.dxf2.datavalueset.DataValueSetService;
-import org.hisp.dhis.dxf2.events.event.EventService;
-import org.hisp.dhis.dxf2.events.event.Events;
 import org.hisp.dhis.dxf2.importsummary.ImportCount;
 import org.hisp.dhis.dxf2.importsummary.ImportStatus;
-import org.hisp.dhis.dxf2.importsummary.ImportSummaries;
 import org.hisp.dhis.dxf2.importsummary.ImportSummary;
 import org.hisp.dhis.dxf2.metadata.AtomicMode;
 import org.hisp.dhis.dxf2.metadata.Metadata;
@@ -51,7 +52,6 @@ import org.hisp.dhis.dxf2.sync.SyncUtils;
 import org.hisp.dhis.dxf2.webmessage.WebMessageParseException;
 import org.hisp.dhis.dxf2.webmessage.utils.WebMessageParseUtils;
 import org.hisp.dhis.render.DefaultRenderService;
-import org.hisp.dhis.render.RenderService;
 import org.hisp.dhis.schema.Schema;
 import org.hisp.dhis.schema.SchemaService;
 import org.hisp.dhis.schema.descriptors.MessageConversationSchemaDescriptor;
@@ -64,18 +64,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.ClientHttpRequest;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RequestCallback;
-import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.ResponseExtractor;
-import org.springframework.web.client.RestTemplate;
-
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.web.client.*;
 
 /**
  * @author Lars Helge Overland
@@ -107,12 +96,6 @@ public class DefaultSynchronizationManager
 
     @Autowired
     private RestTemplate restTemplate;
-
-    @Autowired
-    private EventService eventService;
-
-    @Autowired
-    private RenderService renderService;
 
     // -------------------------------------------------------------------------
     // SynchronizatonManager implementation
@@ -227,6 +210,7 @@ public class DefaultSynchronizationManager
     }
 
     @Override
+<<<<<<< HEAD
     public ImportSummaries executeEventPush() throws WebMessageParseException
     {
         AvailabilityStatus availability = isRemoteServerAvailable();
@@ -345,6 +329,8 @@ public class DefaultSynchronizationManager
     }
 
     @Override
+=======
+>>>>>>> origin/2.30
     public ImportReport executeMetadataPull( String url )
     {
         User user = currentUserService.getCurrentUser();
@@ -355,7 +341,7 @@ public class DefaultSynchronizationManager
 
         String json = restTemplate.getForObject( url, String.class );
 
-        Metadata metadata = null;
+        Metadata metadata;
 
         try
         {
@@ -396,29 +382,10 @@ public class DefaultSynchronizationManager
     }
 
     /**
-     * Gets the time of the last successful event synchronization operation. If not set,
-     * the current date subtracted by three days is returned.
-     */
-    private Date getLastEventSynchSuccessFallback()
-    {
-        Date fallback = new DateTime().minusDays( 3 ).toDate();
-
-        return (Date) systemSettingManager.getSystemSetting( SettingKey.LAST_SUCCESSFUL_EVENT_DATA_SYNC, fallback );
-    }
-
-    /**
      * Sets the time of the last successful data synchronization operation.
      */
     private void setLastDataSynchSuccess( Date time )
     {
         systemSettingManager.saveSystemSetting( SettingKey.LAST_SUCCESSFUL_DATA_SYNC, time );
-    }
-
-    /**
-     * Sets the time of the last successful event synchronization operation.
-     */
-    private void setLastEventSynchSuccess( Date time )
-    {
-        systemSettingManager.saveSystemSetting( SettingKey.LAST_SUCCESSFUL_EVENT_DATA_SYNC, time );
     }
 }
