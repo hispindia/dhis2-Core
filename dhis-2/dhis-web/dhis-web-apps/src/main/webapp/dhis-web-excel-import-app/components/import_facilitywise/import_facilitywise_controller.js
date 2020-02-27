@@ -734,33 +734,33 @@ excelUpload.controller('ImportFacilitywiseController',
 
 
                         for (var i = 0; i < data1.dataValues.length; i++) {
+                        	
+                        	for (var x = 0; x < selectedTemp.DEMappings.length; x++) {
+                        		if (data1.dataValues[i].value != "" && data1.dataValues[i].dataElement === selectedTemp.DEMappings[x].metadata.split("-")[0]
+                        			&& data1.dataValues[i].categoryOptionCombo === selectedTemp.DEMappings[x].metadata.split("-")[1] ) {
+                                    
+                        			value = data1.dataValues[i].value;
+                                    var period = data1.dataValues[i].period;
+                                    var cc = data1.dataValues[i].categoryOptionCombo;
+                                    var org = data1.dataValues[i].orgUnit;
+                                    var de = data1.dataValues[i].dataElement;
+                                    var val = ' ';
+                                    var sd = period.split(0, 4);
 
-                            if (data1.dataValues[i].value != "") {
-                                value = data1.dataValues[i].value;
-                                var period = data1.dataValues[i].period;
-                                var cc = data1.dataValues[i].categoryOptionCombo;
-                                var org = data1.dataValues[i].orgUnit;
-                                var de = data1.dataValues[i].dataElement;
-                                var val = ' ';
-                                var sd = period.split(0, 4);
+                                    $scope.newDataSetValue = { period: period, categoryOptionCombo: cc, orgUnit: org, dataElement: de, value: val };
 
-                                $scope.newDataSetValue = { period: period, categoryOptionCombo: cc, orgUnit: org, dataElement: de, value: val };
-
-                                $scope.dataValNew.push($scope.newDataSetValue);
+                                    $scope.dataValNew.push($scope.newDataSetValue);
 
 
-                            }
-                            var dataValSet = {};
-                            dataValSet.dataValues = $scope.dataValNew;
+                                }
+                        	}
+                            
+                            var dataValSetForDelete = {};
+                            dataValSetForDelete.dataValues = $scope.dataValNew;
                         }
-
-                        $scope.importBlankData(dataValSet);
-
-
+						console.log("dataValSetForDelete for Delete : " + JSON.stringify(dataValSetForDelete) + " -- " + dataValSetForDelete.dataValues.length );
+                        $scope.importBlankData(dataValSetForDelete);
                     }
-
-
-
                 })
                 //if( selectedTemp.columnMetaData == "o" )
                 //{
