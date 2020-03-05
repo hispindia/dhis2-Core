@@ -4,18 +4,17 @@
 // -----------------------------------------------------------------------------
 
 var resetTime_int;
+var message = "Timed Out\n\n We noticed you have been inactive for a while.\n Please check on Login to start your work";
 function resetTimer(){
     if(resetTime_int) window.clearTimeout(resetTime_int)
     resetTime_int=window.setTimeout(function (){
-        alert('Session Expired login again');
+        alert(message);
         window.location.href = '../dhis-web-commons-security/logout.action';
     }, 15*60*1000);
 }
-
 resetTimer()
 document.onmousemove=resetTimer;
 document.onkeyup=resetTimer;
-
 
 $( document ).ready( function() { pageInit(); } );
 
