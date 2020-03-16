@@ -514,7 +514,7 @@ reportsApp.controller('DataStatusController',
 			}
 			else if(startPeriodMonth=="02")
 			{
-				if(startPeriodYear/4==0)
+				if( startPeriodYear%4 == 0 || startPeriodYear%400 == 0 )
 				{
 					date=29;
 				}
