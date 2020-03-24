@@ -1,7 +1,7 @@
-package org.hisp.dhis.dxf2.synch;
+package org.hisp.dhis.dxf2.metadata.objectbundle.hooks;
 
 /*
- * Copyright (c) 2004-2018, University of Oslo
+ * Copyright (c) 2004-2020, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,42 +28,47 @@ package org.hisp.dhis.dxf2.synch;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import org.hisp.dhis.dxf2.importsummary.ImportSummary;
-import org.hisp.dhis.dxf2.metadata.feedback.ImportReport;
-import org.hisp.dhis.dxf2.webmessage.WebMessageParseException;
+import org.hisp.dhis.common.IdentifiableObject;
+import org.hisp.dhis.dxf2.metadata.objectbundle.ObjectBundle;
+import org.hisp.dhis.option.OptionSet;
+import org.springframework.stereotype.Component;
 
-/**
- * @author Lars Helge Overland
- */
-public interface SynchronizationManager
+@Component
+public class OptionSetObjectBundleHook
+    extends AbstractObjectBundleHook
 {
-    /**
-     * Executes data value push to remote server.
-     *
-     * @return an {@link ImportSummary}.
-     */
-    ImportSummary executeDataValuePush() throws WebMessageParseException;
+    @Override
+    public <T extends IdentifiableObject> void postCreate( T persistedObject, ObjectBundle bundle )
+    {
+        if ( !OptionSet.class.isInstance( persistedObject ) )
+        {
+            return;
+        }
 
-    /**
-     * Executes CompleteDataSetRegistration data push to remote server.
-     *
-     * @return an {@link ImportSummary}
-     * @throws WebMessageParseException
-     */
-    ImportSummary executeCompleteDataSetRegistrationPush() throws WebMessageParseException;
+        updateOption( (OptionSet) persistedObject );
+    }
 
-    /**
-     * Executes a meta data pull operation from remote server.
-     *
-     * @param url the URL to the remote server.
-     * @return an {@link ImportReport}.
-     */
-    ImportReport executeMetadataPull( String url );
+    @Override
+    public <T extends IdentifiableObject> void postUpdate( T persistedObject, ObjectBundle bundle )
+    {
+        if ( !OptionSet.class.isInstance( persistedObject ) )
+        {
+            return;
+        }
 
-    /**
-     * Indicates the availability status of the remote server.
-     *
-     * @return the {@link AvailabilityStatus} of the remote server.
-     */
-    AvailabilityStatus isRemoteServerAvailable();
+        updateOption( (OptionSet) persistedObject );
+    }
+
+    private void updateOption( OptionSet optionSet )
+    {
+        optionSet.getOptions().forEach( option -> {
+
+            if ( option.getOptionSet() == null )
+            {
+                option.setOptionSet( optionSet );
+            }
+        } );
+
+        sessionFactory.getCurrentSession().refresh( optionSet );
+    }
 }
