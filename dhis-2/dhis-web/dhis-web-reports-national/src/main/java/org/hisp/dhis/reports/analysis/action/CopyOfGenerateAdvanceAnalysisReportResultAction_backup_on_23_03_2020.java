@@ -66,7 +66,7 @@ import com.opensymphony.xwork2.Action;
 /**
  * @author Mithilesh Kumar Thakur
  */
-public class GenerateAdvanceAnalysisReportResultAction implements Action
+public class CopyOfGenerateAdvanceAnalysisReportResultAction_backup_on_23_03_2020 implements Action
 {
    
     //private final String GENERATEAGGDATA = "generateaggdata";
@@ -192,12 +192,11 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
     private Map<String, String> dataSetReportingRateMap = new HashMap<String, String>();
     private Map<String, String> facilityTypDataValuMap = new HashMap<String, String>();
     private Map<String, String> allChildOrgUnitWiseAggDeMap =  new HashMap<String, String>();
-    
-    private Map<String, String> dhAggDeMap = new HashMap<String, String>();
-    private Map<String, String> sdhAggDeMap = new HashMap<String, String>();
-    private Map<String, String> chcAggDeMap = new HashMap<String, String>();
-    private Map<String, String> phcAggDeMap = new HashMap<String, String>();
-    private Map<String, String> scAggDeMap = new HashMap<String, String>();
+    /*
+    private Map<Integer, Map<String, String>> orgUnitWiseAggDeMap = new HashMap<Integer, Map<String, String>>();
+    private Map<String, Map<String, String>> orgUnitAndOrgGroupWiseAggDeMap = new HashMap<String, Map<String, String>>();
+    private Map<String, Map<String, String>> orgUnitAndOrgGroupMemberWiseAggDeMap = new HashMap<String, Map<String, String>>();
+    */
     
     // -------------------------------------------------------------------------
     // Action implementation
@@ -273,6 +272,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
         Collection<Integer> selectedPeriodIds = new ArrayList<Integer>( getIdentifiers(Period.class, selectedPeriodList ) );
         String selectedPeriodIdsByComma = getCommaDelimitedString( selectedPeriodIds );
         
+        
         List<Period> interSectingPeriodList = new ArrayList<Period>();
         interSectingPeriodList = new ArrayList<Period>( periodService.getIntersectingPeriods( sDate, eDate ) );
         Collection<Integer> periodIds = new ArrayList<Integer>( getIdentifiers(Period.class, interSectingPeriodList ) );
@@ -335,6 +335,49 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
         if( organisationUnitGroupSet != null && districtOrgUnitList != null && districtOrgUnitList.size() > 0 )
         {
             orgUnitGroupList = new ArrayList<OrganisationUnitGroup>( organisationUnitGroupSet.getOrganisationUnitGroups() );
+            /*
+            for ( OrganisationUnit organisationUnit : districtOrgUnitList )
+            {
+                List<OrganisationUnit> childOrgUnitTree = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( organisationUnit.getId() ) );
+                List<Integer> districtOrgUnitIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, childOrgUnitTree ) );
+                String districtOrgUnitIdsByComma = getCommaDelimitedString( districtOrgUnitIds );
+                Map<String, String> districtOrgUnitWiseAggDeMap =  new HashMap<String, String>();
+                districtOrgUnitWiseAggDeMap.putAll( reportService.getAggDataFromDataValueTable( districtOrgUnitIdsByComma, dataElmentIdsByComma, periodIdsByComma ) );
+                orgUnitWiseAggDeMap.put( organisationUnit.getId() , districtOrgUnitWiseAggDeMap );
+                
+                if( orgUnitGroupList != null && orgUnitGroupList.size() > 0 )
+                {
+                    for ( OrganisationUnitGroup ouGroup : orgUnitGroupList )
+                    {
+                        //List<OrganisationUnit> childOrgUnitTree = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( organisationUnit.getId() ) );
+                        if( ouGroup != null && ouGroup.getMembers().size() > 0 )
+                        {
+                            List<Integer> orgGroupMemberIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, ouGroup.getMembers() ) );
+                            String orgGroupMemberIdsByComma = getCommaDelimitedString( orgGroupMemberIds );
+                            Map<String, String> orgUnitGroupMemberWiseAggDeMap =  new HashMap<String, String>();
+                            orgUnitGroupMemberWiseAggDeMap.putAll( reportService.getAggDataFromDataValueTable( orgGroupMemberIdsByComma, dataElmentIdsByComma, oneYearBeforePeriodIdsByComma ) );
+                            orgUnitAndOrgGroupMemberWiseAggDeMap.put( ouGroup.getUid() , orgUnitGroupMemberWiseAggDeMap );
+                            
+                            //System.out.println( organisationUnit.getName()+ " before filter  : " + ouGroup.getName() + " - -- " + ouGroup.getMembers().size()  + " - -- " + childOrgUnitTree.size() );
+                            childOrgUnitTree.retainAll( ouGroup.getMembers() );
+                            //System.out.println( organisationUnit.getName()+ " after filter : " + ouGroup.getName()+ " - -- " + ouGroup.getMembers().size()  + " - -- " + childOrgUnitTree.size() );
+                            String childOrgUnitsByComma = "-1";
+                            if( childOrgUnitTree.size() > 0 )
+                            {
+                                List<Integer> childOrgUnitTreeIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, childOrgUnitTree ) );
+                                childOrgUnitsByComma = getCommaDelimitedString( childOrgUnitTreeIds );
+                            }
+                            //System.out.println( organisationUnit.getName()+ " final org leanth : " + ouGroup.getName()+ " - -- " + childOrgUnitsByComma.length() );
+                            Map<String, String> orgUnitWiseAggDeMap =  new HashMap<String, String>();
+                            orgUnitWiseAggDeMap.putAll( reportService.getAggDataFromDataValueTable( childOrgUnitsByComma, dataElmentIdsByComma, periodIdsByComma ) );
+                            orgUnitAndOrgGroupWiseAggDeMap.put( organisationUnit.getId()+":" + ouGroup.getUid() , orgUnitWiseAggDeMap );
+                            //System.out.println( organisationUnit.getName()+ " Final Map : " + ouGroup.getName()+ " - -- " + orgUnitWiseAggDeMap.size() );
+                        }
+                    }
+                }
+            }
+            */
+            
         }
 
         FileInputStream tempFile = new FileInputStream( new File( inputTemplatePath ) );
@@ -352,6 +395,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
             System.out.println("Sheet name: " + apachePOIWorkbook.getSheetName(i));
         }
         */
+        
         
         // for printing facilityType and fixed column value
         //int facilityTypeCount = 0;
@@ -518,7 +562,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
            
         }// outer while loop end
         
-        // dataElement data-value printing
+        // dataElement value printing
         int orgUnitCount = 0;
         int mregeColCount = 0;
         int tempColCount = 0;
@@ -534,97 +578,257 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
             Map<String, String> districtOrgUnitWiseAggDeMap =  new HashMap<String, String>();
             districtOrgUnitWiseAggDeMap.putAll( reportService.getAggDataFromDataValueTable( districtOrgUnitIdsByComma, dataElmentIdsByComma, periodIdsByComma ) );
             
-            // dh
-            
-            OrganisationUnitGroup dhOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( "NP6zRkPiA4S" );
-            
-            if( dhOrgUnitGroup != null )
+            //int orgUnitGroupCount = 0;
+            Iterator<OrganisationUnitGroup> orgGroupIt = orgUnitGroupList.iterator();
+            while ( orgGroupIt.hasNext() )
             {
-                dhAggDeMap = new HashMap<String, String>();
-                List<OrganisationUnit> dhOrgUnitGrpMember = new ArrayList<OrganisationUnit>( dhOrgUnitGroup.getMembers() );
-                dhOrgUnitGrpMember.retainAll( childOrgUnitTree );
+                OrganisationUnitGroup currentOrgUnitGroup = (OrganisationUnitGroup) orgGroupIt.next();
+                Map<String, String> aggDeMap = new HashMap<String, String>();
+                //Map<String, String> orgUnitWiseAggDeMap =  new HashMap<String, String>();
+                List<OrganisationUnit> orgUnitGrpMember = new ArrayList<OrganisationUnit>( currentOrgUnitGroup.getMembers() );
+                orgUnitGrpMember.retainAll( childOrgUnitTree );
+                //System.out.println( currentOrgUnit.getName()+ " after filter : " + currentOrgUnitGroup.getName()+ " - -- " + currentOrgUnitGroup.getMembers().size()  + " - -- " + orgUnitGrpMember.size() );
                 String childOrgUnitsByComma = "-1";
-                if( dhOrgUnitGrpMember.size() > 0 )
+                if( orgUnitGrpMember.size() > 0 )
                 {
-                    List<Integer> childOrgUnitTreeIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, dhOrgUnitGrpMember ) );
+                    List<Integer> childOrgUnitTreeIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, orgUnitGrpMember ) );
                     childOrgUnitsByComma = getCommaDelimitedString( childOrgUnitTreeIds );
                 }
+                aggDeMap.putAll( reportService.getAggDataFromDataValueTable( childOrgUnitsByComma, dataElmentIdsByComma, periodIdsByComma ) );
                 
-                dhAggDeMap.putAll( reportService.getAggDataFromDataValueTable( childOrgUnitsByComma, dataElmentIdsByComma, periodIdsByComma ) );
+                //int count1 = 0;
+                Iterator<Report_inDesign> reportDesignIterator = reportDesignListDataElement.iterator();
+                while ( reportDesignIterator.hasNext() )
+                {
+                    Report_inDesign report_inDesign = (Report_inDesign) reportDesignIterator.next();
+
+                    //String deType = report_inDesign.getPtype();
+                    String sType = report_inDesign.getStype();
+                    String deCodeString = report_inDesign.getExpression();
+                    String tempStr = "";
+                    String districtTotalStr = "";
+
+                    if ( deCodeString.equalsIgnoreCase( "PROGRESSIVE-ORGUNIT" ) )
+                    {
+                        tempStr = currentOrgUnit.getName();
+                    }
+                    else
+                    {
+                        if ( sType.equalsIgnoreCase( "dataelement" ) )
+                        {
+                            tempStr = getAggVal( deCodeString, aggDeMap );
+                            districtTotalStr = getAggVal( deCodeString, districtOrgUnitWiseAggDeMap );
+                            //System.out.println( aggData + " 1 SType : " + sType + " DECode : " + deCodeString + "   TempStr : " + tempStr + " -- " + tempaGrpStr );
+                        }
+                    }
+                    int tempRowNo = report_inDesign.getRowno();
+                    int tempColNo = report_inDesign.getColno();
+                    int sheetNo = report_inDesign.getSheetno();
+                    
+                    Sheet sheet0 = apachePOIWorkbook.getSheetAt( sheetNo );
+                    
+                    
+                    if ( sType.equalsIgnoreCase( "dataelement" ) )
+                    {
+                        if( deCodeString.equalsIgnoreCase( "PROGRESSIVE-ORGUNIT" ) )
+                        {
+                            //tempRowNo += orgUnitCount + orgUnitGroupMemberCount;
+                            //tempRowNo = tempRowNo + orgUnitGroupMemberCount;
+                            tempColNo = tempColNo + orgUnitCount + mregeColCount;
+                            
+                            //System.out.println( " DECode : " + deCodeString + "   TempStr : " + tempStr + " -- " + tempaGrpStr + " rowNo : " + tempRowNo + " colNo : " + tempColNo );
+                            try
+                            {
+                                Row row = sheet0.getRow( tempRowNo );
+                                Cell cell = row.getCell( tempColNo );
+                                cell.setCellValue( tempStr );
+                                
+                                //sheet0.addMergedRegion( new CellRangeAddress( tempRowNo, tempRowNo, tempColNo, tempColNo + 7 ) );
+                                //cell.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                                
+                            }
+                            catch ( Exception e )
+                            {
+                                Row row = sheet0.getRow( tempRowNo );
+                                Cell cell = row.getCell( tempColNo );
+                                cell.setCellValue( tempStr );
+                                
+                                //sheet0.addMergedRegion( new CellRangeAddress( tempRowNo, tempRowNo, tempColNo, tempColNo + 7 ) );
+                                //cell.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                            }
+                            
+                        }
+                        else
+                        {
+                            //tempRowNo += orgUnitCount + orgUnitGroupMemberCount;
+                            //tempRowNo = tempRowNo + orgUnitGroupMemberCount;
+                            //tempRowNo = tempRowNo + orgUnitCount + orgUnitGroupMemberCount;
+                            
+                            tempColNo = tempColNo + tempColCount;
+                            //System.out.println( " DECode : " + deCodeString + " deType : " + deType + "   TempStr : " + tempStr + " rowNo : " + tempRowNo + " colNo : " + tempColNo );
+                            //tempRowNo = reportDesign.getRowno();
+                            
+                            // for printing total
+                            try
+                            {
+                                Row row = sheet0.getRow( tempRowNo );
+                                Cell cell = row.getCell( tempColNo - 1 );
+                                cell.setCellValue( Double.parseDouble( districtTotalStr ) );
+                                
+                            }
+                            catch ( Exception e )
+                            {
+                                Row row = sheet0.getRow( tempRowNo );
+                                Cell cell = row.getCell( tempColNo - 1 );
+                                cell.setCellValue( districtTotalStr );
+                                
+                            }
+                            if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "xYvEtLYNPKx" )  )
+                            {
+                                try
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo );
+                                    cell.setCellValue( Double.parseDouble( tempStr ) );
+                                    
+                                }
+                                catch ( Exception e )
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo );
+                                    cell.setCellValue( tempStr );
+                                    
+                                }
+                            }
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "wR42WpA0VHp" )  )
+                            {
+                                try
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 1 );
+                                    cell.setCellValue( Double.parseDouble( tempStr ) );
+                                    
+                                }
+                                catch ( Exception e )
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 1 );
+                                    cell.setCellValue( tempStr );
+                                    
+                                }
+                            }
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "NP6zRkPiA4S" )  )
+                            {
+                                try
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 2 );
+                                    cell.setCellValue( Double.parseDouble( tempStr ) );
+                                    
+                                }
+                                catch ( Exception e )
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 2 );
+                                    cell.setCellValue( tempStr );
+                                    
+                                }
+                            }
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "K3UhUR7OIm0" )  )
+                            {
+                                try
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 3 );
+                                    cell.setCellValue( Double.parseDouble( tempStr ) );
+                                    
+                                }
+                                catch ( Exception e )
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 3 );
+                                    cell.setCellValue( tempStr );
+                                    
+                                }
+                            }
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "R9BqNOdb28Q" )  )
+                            {
+                                try
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 4 );
+                                    cell.setCellValue( Double.parseDouble( tempStr ) );
+                                    
+                                }
+                                catch ( Exception e )
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 4 );
+                                    cell.setCellValue( tempStr );
+                                    
+                                }
+                            }
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "LzDGwjcCNbD" )  )
+                            {
+                                try
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 5 );
+                                    cell.setCellValue( Double.parseDouble( tempStr ) );
+                                    
+                                }
+                                catch ( Exception e )
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 5 );
+                                    cell.setCellValue( tempStr );
+                                }
+                            }
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "bYeMmLxh8Xs" )  )
+                            {
+                                try
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 6 );
+                                    cell.setCellValue( Double.parseDouble( tempStr ) );
+                                    
+                                }
+                                catch ( Exception e )
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 6 );
+                                    cell.setCellValue( tempStr );
+                                }
+                            }
+                        }
+                    }
+                    
+                    //count1++;
+                }
+                //orgUnitGroupCount++;
             }
+            mregeColCount+=7;
+            tempColCount+=8;
+            orgUnitCount++;
+        }
             
-            // sdh
-            OrganisationUnitGroup sdhOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( "K3UhUR7OIm0" );
+        //System.out.println( " col Count before total : " + tempColCount );
+        
+        // for previous period dataElement value printing    
+        
+        //int orgUnitGroupCount = 0;
+        tempColCount = tempColCount + 8;
+        Iterator<OrganisationUnitGroup> orgGroupIt = orgUnitGroupList.iterator();
+        while ( orgGroupIt.hasNext() )
+        {
+            OrganisationUnitGroup currentOrgUnitGroup = (OrganisationUnitGroup) orgGroupIt.next();
             
-            if( sdhOrgUnitGroup != null )
-            {
-                sdhAggDeMap = new HashMap<String, String>();
-                List<OrganisationUnit> sdhOrgUnitGrpMember = new ArrayList<OrganisationUnit>( sdhOrgUnitGroup.getMembers() );
-                sdhOrgUnitGrpMember.retainAll( childOrgUnitTree );
-                String childOrgUnitsByComma = "-1";
-                if( sdhOrgUnitGrpMember.size() > 0 )
-                {
-                    List<Integer> childOrgUnitTreeIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, sdhOrgUnitGrpMember ) );
-                    childOrgUnitsByComma = getCommaDelimitedString( childOrgUnitTreeIds );
-                }
-                
-                sdhAggDeMap.putAll( reportService.getAggDataFromDataValueTable( childOrgUnitsByComma, dataElmentIdsByComma, periodIdsByComma ) );
-            }
+            List<Integer> orgGroupMemberIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, currentOrgUnitGroup.getMembers() ) );
+            String orgGroupMemberIdsByComma = getCommaDelimitedString( orgGroupMemberIds );
+            Map<String, String> aggDeMap = new HashMap<String, String>();
+            aggDeMap.putAll( reportService.getAggDataFromDataValueTable( orgGroupMemberIdsByComma, dataElmentIdsByComma, oneYearBeforePeriodIdsByComma ) );
             
-            // chc
-            OrganisationUnitGroup chcOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( "R9BqNOdb28Q" );
-            
-            if( chcOrgUnitGroup != null )
-            {
-                chcAggDeMap = new HashMap<String, String>();
-                List<OrganisationUnit> chcOrgUnitGrpMember = new ArrayList<OrganisationUnit>( chcOrgUnitGroup.getMembers() );
-                chcOrgUnitGrpMember.retainAll( childOrgUnitTree );
-                String childOrgUnitsByComma = "-1";
-                if( chcOrgUnitGrpMember.size() > 0 )
-                {
-                    List<Integer> childOrgUnitTreeIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, chcOrgUnitGrpMember ) );
-                    childOrgUnitsByComma = getCommaDelimitedString( childOrgUnitTreeIds );
-                }
-                
-                chcAggDeMap.putAll( reportService.getAggDataFromDataValueTable( childOrgUnitsByComma, dataElmentIdsByComma, periodIdsByComma ) );
-            }            
-            
-            // phc
-            OrganisationUnitGroup phcOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( "LzDGwjcCNbD" );
-            
-            if( phcOrgUnitGroup != null )
-            {
-                phcAggDeMap = new HashMap<String, String>();
-                List<OrganisationUnit> phcOrgUnitGrpMember = new ArrayList<OrganisationUnit>( phcOrgUnitGroup.getMembers() );
-                phcOrgUnitGrpMember.retainAll( childOrgUnitTree );
-                String childOrgUnitsByComma = "-1";
-                if( phcOrgUnitGrpMember.size() > 0 )
-                {
-                    List<Integer> childOrgUnitTreeIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, phcOrgUnitGrpMember ) );
-                    childOrgUnitsByComma = getCommaDelimitedString( childOrgUnitTreeIds );
-                }
-                
-                phcAggDeMap.putAll( reportService.getAggDataFromDataValueTable( childOrgUnitsByComma, dataElmentIdsByComma, periodIdsByComma ) );
-            }            
-            
-            // sc
-            OrganisationUnitGroup scOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( "LzDGwjcCNbD" );
-            
-            if( scOrgUnitGroup != null )
-            {
-                scAggDeMap = new HashMap<String, String>();
-                List<OrganisationUnit> scOrgUnitGrpMember = new ArrayList<OrganisationUnit>( scOrgUnitGroup.getMembers() );
-                scOrgUnitGrpMember.retainAll( childOrgUnitTree );
-                String childOrgUnitsByComma = "-1";
-                if( scOrgUnitGrpMember.size() > 0 )
-                {
-                    List<Integer> childOrgUnitTreeIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, scOrgUnitGrpMember ) );
-                    childOrgUnitsByComma = getCommaDelimitedString( childOrgUnitTreeIds );
-                }
-                
-                scAggDeMap.putAll( reportService.getAggDataFromDataValueTable( childOrgUnitsByComma, dataElmentIdsByComma, periodIdsByComma ) );
-            }            
-            
+            //int count1 = 0;
             Iterator<Report_inDesign> reportDesignIterator = reportDesignListDataElement.iterator();
             while ( reportDesignIterator.hasNext() )
             {
@@ -632,35 +836,10 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
 
                 //String deType = report_inDesign.getPtype();
                 String sType = report_inDesign.getStype();
-                String type = report_inDesign.getPtype();
                 String deCodeString = report_inDesign.getExpression();
                 String tempStr = "";
-                String dhTotalStr = "";
-                String sdhTotalStr = "";
-                String chcTotalStr = "";
-                String phcTotalStr = "";
-                String scTotalStr = "";
-                String districtTotalStr = "";
+                String previousYearAllTotalTempStr = "";
 
-                if ( deCodeString.equalsIgnoreCase( "PROGRESSIVE-ORGUNIT" ) )
-                {
-                    tempStr = currentOrgUnit.getName();
-                }
-                else
-                {
-                    if ( sType.equalsIgnoreCase( "dataelement" ) )
-                    {
-                        dhTotalStr = getAggVal( deCodeString, dhAggDeMap );
-                        sdhTotalStr = getAggVal( deCodeString, sdhAggDeMap );
-                        chcTotalStr = getAggVal( deCodeString, chcAggDeMap );
-                        phcTotalStr = getAggVal( deCodeString, phcAggDeMap );
-                        scTotalStr = getAggVal( deCodeString, scAggDeMap );
-                        
-                        districtTotalStr = getAggVal( deCodeString, districtOrgUnitWiseAggDeMap );
-                        
-                        //System.out.println( aggData + " 1 SType : " + sType + " DECode : " + deCodeString + "   TempStr : " + tempStr + " -- " + tempaGrpStr );
-                    }
-                }
                 int tempRowNo = report_inDesign.getRowno();
                 int tempColNo = report_inDesign.getColno();
                 int sheetNo = report_inDesign.getSheetno();
@@ -669,375 +848,168 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                 
                 if ( sType.equalsIgnoreCase( "dataelement" ) )
                 {
-                    if( deCodeString.equalsIgnoreCase( "PROGRESSIVE-ORGUNIT" ) )
-                    {
-                        //tempRowNo += orgUnitCount + orgUnitGroupMemberCount;
-                        //tempRowNo = tempRowNo + orgUnitGroupMemberCount;
-                        tempColNo = tempColNo + orgUnitCount + mregeColCount;
-                        
-                        //System.out.println( " DECode : " + deCodeString + "   TempStr : " + tempStr + " -- " + tempaGrpStr + " rowNo : " + tempRowNo + " colNo : " + tempColNo );
-                        try
-                        {
-                            Row row = sheet0.getRow( tempRowNo );
-                            Cell cell = row.getCell( tempColNo );
-                            cell.setCellValue( tempStr );
-                            
-                            //sheet0.addMergedRegion( new CellRangeAddress( tempRowNo, tempRowNo, tempColNo, tempColNo + 7 ) );
-                            //cell.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
-                            
-                        }
-                        catch ( Exception e )
-                        {
-                            Row row = sheet0.getRow( tempRowNo );
-                            Cell cell = row.getCell( tempColNo );
-                            cell.setCellValue( tempStr );
-                            
-                            //sheet0.addMergedRegion( new CellRangeAddress( tempRowNo, tempRowNo, tempColNo, tempColNo + 7 ) );
-                            //cell.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
-                        }
-                        
-                    }
-                    else
-                    {
-                        tempColNo = tempColNo + tempColCount;
-                        //System.out.println( " DECode : " + deCodeString + " deType : " + deType + "   TempStr : " + tempStr + " rowNo : " + tempRowNo + " colNo : " + tempColNo );
-                        //tempRowNo = reportDesign.getRowno();
-                        
-                        // for printing total
-                        if (  type.equalsIgnoreCase( "total" ) || type.equalsIgnoreCase( "public" ) || type.equalsIgnoreCase( "private" ) )
-                        {
-                            try
-                            {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( Double.parseDouble( districtTotalStr ) );
-                                
-                            }
-                            catch ( Exception e )
-                            {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( districtTotalStr );
-                                
-                            }
-                        }
-                        
-                        else if ( type.equalsIgnoreCase( "dh" )  )
-                        {
-                            try
-                            {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( Double.parseDouble( dhTotalStr ) );
-                                
-                            }
-                            catch ( Exception e )
-                            {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( dhTotalStr );
-                                
-                            }
-                        }
-                        else if ( type.equalsIgnoreCase( "sdh" )  )
-                        {
-                            try
-                            {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo  );
-                                cell.setCellValue( Double.parseDouble( sdhTotalStr ) );
-                                
-                            }
-                            catch ( Exception e )
-                            {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( sdhTotalStr );
-                                
-                            }
-                        }
-                        else if ( type.equalsIgnoreCase( "chc" )  )
-                        {
-                            try
-                            {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( Double.parseDouble( chcTotalStr ) );
-                                
-                            }
-                            catch ( Exception e )
-                            {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( chcTotalStr );
-                                
-                            }
-                        }
-                        else if (  type.equalsIgnoreCase( "phc" ) )
-                        {
-                            try
-                            {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( Double.parseDouble( phcTotalStr ) );
-                                
-                            }
-                            catch ( Exception e )
-                            {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( phcTotalStr );
-                                
-                            }
-                        }
-                        else if (  type.equalsIgnoreCase( "sc" ) )
-                        {
-                            try
-                            {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( Double.parseDouble( scTotalStr ) );
-                                
-                            }
-                            catch ( Exception e )
-                            {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( scTotalStr );
-                                
-                            }
-                        }
-                    }
-                }
-                
-                //count1++;
-            }
-            //orgUnitGroupCount++;
-            mregeColCount+=7;
-            tempColCount+=8;
-            orgUnitCount++;
-        }
-            
-        //System.out.println( " col Count before total : " + tempColCount );
-
-        // dh
-        
-        OrganisationUnitGroup dhOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( "NP6zRkPiA4S" );
-        
-        if( dhOrgUnitGroup != null )
-        {
-            List<Integer> orgGroupMemberIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, dhOrgUnitGroup.getMembers() ) );
-            String orgGroupMemberIdsByComma = getCommaDelimitedString( orgGroupMemberIds );
-            dhAggDeMap = new HashMap<String, String>();
-            dhAggDeMap.putAll( reportService.getAggDataFromDataValueTable( orgGroupMemberIdsByComma, dataElmentIdsByComma, oneYearBeforePeriodIdsByComma ) );
-        }
-        
-        // sdh
-        OrganisationUnitGroup sdhOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( "K3UhUR7OIm0" );
-        
-        if( sdhOrgUnitGroup != null )
-        {
-            List<Integer> orgGroupMemberIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, sdhOrgUnitGroup.getMembers() ) );
-            String orgGroupMemberIdsByComma = getCommaDelimitedString( orgGroupMemberIds );
-            sdhAggDeMap = new HashMap<String, String>();
-            sdhAggDeMap.putAll( reportService.getAggDataFromDataValueTable( orgGroupMemberIdsByComma, dataElmentIdsByComma, oneYearBeforePeriodIdsByComma ) );
-        }
-        
-        // chc
-        OrganisationUnitGroup chcOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( "R9BqNOdb28Q" );
-        
-        if( chcOrgUnitGroup != null )
-        {
-            List<Integer> orgGroupMemberIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, chcOrgUnitGroup.getMembers() ) );
-            String orgGroupMemberIdsByComma = getCommaDelimitedString( orgGroupMemberIds );
-            chcAggDeMap = new HashMap<String, String>();
-            chcAggDeMap.putAll( reportService.getAggDataFromDataValueTable( orgGroupMemberIdsByComma, dataElmentIdsByComma, oneYearBeforePeriodIdsByComma ) );
-        }
-        
-        // phc
-        OrganisationUnitGroup phcOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( "LzDGwjcCNbD" );
-        
-        if( phcOrgUnitGroup != null )
-        {
-            List<Integer> orgGroupMemberIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, phcOrgUnitGroup.getMembers() ) );
-            String orgGroupMemberIdsByComma = getCommaDelimitedString( orgGroupMemberIds );
-            phcAggDeMap = new HashMap<String, String>();
-            phcAggDeMap.putAll( reportService.getAggDataFromDataValueTable( orgGroupMemberIdsByComma, dataElmentIdsByComma, oneYearBeforePeriodIdsByComma ) );
-        }
-        
-        // sc
-        OrganisationUnitGroup scOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( "LzDGwjcCNbD" );
-        
-        if( scOrgUnitGroup != null )
-        {
-            List<Integer> orgGroupMemberIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, scOrgUnitGroup.getMembers() ) );
-            String orgGroupMemberIdsByComma = getCommaDelimitedString( orgGroupMemberIds );
-            scAggDeMap = new HashMap<String, String>();
-            scAggDeMap.putAll( reportService.getAggDataFromDataValueTable( orgGroupMemberIdsByComma, dataElmentIdsByComma, oneYearBeforePeriodIdsByComma ) );
-        }
-        
-        tempColCount = tempColCount + 8;
-        
-        Iterator<Report_inDesign> reportDesignIterator = reportDesignListDataElement.iterator();
-        while ( reportDesignIterator.hasNext() )
-        {
-            Report_inDesign report_inDesign = (Report_inDesign) reportDesignIterator.next();
-
-            //String deType = report_inDesign.getPtype();
-            String sType = report_inDesign.getStype();
-            String type = report_inDesign.getPtype();
-            String deCodeString = report_inDesign.getExpression();
-            //String tempStr = "";
-            String dhTotalStr = "";
-            String sdhTotalStr = "";
-            String chcTotalStr = "";
-            String phcTotalStr = "";
-            String scTotalStr = "";
-            
-            String previousYearAllTotalTempStr = "";
-
-            int tempRowNo = report_inDesign.getRowno();
-            int tempColNo = report_inDesign.getColno();
-            int sheetNo = report_inDesign.getSheetno();
-            
-            Sheet sheet0 = apachePOIWorkbook.getSheetAt( sheetNo );
-            
-            if ( sType.equalsIgnoreCase( "dataelement" ) )
-            {
-                //tempStr = getAggVal( deCodeString, aggDeMap );
-                dhTotalStr = getAggVal( deCodeString, dhAggDeMap );
-                sdhTotalStr = getAggVal( deCodeString, sdhAggDeMap );
-                chcTotalStr = getAggVal( deCodeString, chcAggDeMap );
-                phcTotalStr = getAggVal( deCodeString, phcAggDeMap );
-                scTotalStr = getAggVal( deCodeString, scAggDeMap );
-                previousYearAllTotalTempStr = getAggVal( deCodeString, allChildOrgUnitWiseAggDeMap );
-                
-                if( deCodeString.equalsIgnoreCase( "FACILITY" ) || deCodeString.equalsIgnoreCase( "FACILITYPP" ) )
-                {
-                    continue;
-                    //tempRowNo = reportDesign.getRowno();
-                    //tempColNo = reportDesign.getColno();
-                }
-                else
-                {
-                    if( deCodeString.equalsIgnoreCase( "PROGRESSIVE-ORGUNIT" ) )
+                    tempStr = getAggVal( deCodeString, aggDeMap );
+                    previousYearAllTotalTempStr = getAggVal( deCodeString, allChildOrgUnitWiseAggDeMap );
+                    
+                    
+                    if( deCodeString.equalsIgnoreCase( "FACILITY" ) || deCodeString.equalsIgnoreCase( "FACILITYPP" ) )
                     {
                         continue;
+                        //tempRowNo = reportDesign.getRowno();
+                        //tempColNo = reportDesign.getColno();
                     }
                     else
                     {
-                        tempColNo = tempColNo + tempColCount;
-                        //System.out.println( " DECode : " + deCodeString + " deType : " + deType + "   TempStr : " + tempStr +  " rowNo : " + tempRowNo + " colNo : " + tempColNo );
-                        //tempRowNo = reportDesign.getRowno();
-                        if (  type.equalsIgnoreCase( "total" ) || type.equalsIgnoreCase( "public" ) || type.equalsIgnoreCase( "private" ) )
+                        if( deCodeString.equalsIgnoreCase( "PROGRESSIVE-ORGUNIT" ) )
                         {
+                            continue;
+                        }
+                        else
+                        {
+                            tempColNo = tempColNo + tempColCount;
+                            //System.out.println( " DECode : " + deCodeString + " deType : " + deType + "   TempStr : " + tempStr +  " rowNo : " + tempRowNo + " colNo : " + tempColNo );
+                            //tempRowNo = reportDesign.getRowno();
                             try
                             {
                                 Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
+                                Cell cell = row.getCell( tempColNo - 1 );
                                 cell.setCellValue( Double.parseDouble( previousYearAllTotalTempStr ) );
                                 
                             }
                             catch ( Exception e )
                             {
                                 Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
+                                Cell cell = row.getCell( tempColNo - 1  );
                                 cell.setCellValue( previousYearAllTotalTempStr );
                                 
                             }
-                        }
-                        
-                        else if ( type.equalsIgnoreCase( "dh" )  )
-                        {
-                            try
+                            
+                            if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "xYvEtLYNPKx" )  )
                             {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( Double.parseDouble( dhTotalStr ) );
-                                
+                                try
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo );
+                                    cell.setCellValue( Double.parseDouble( tempStr ) );
+                                    
+                                }
+                                catch ( Exception e )
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo );
+                                    cell.setCellValue( tempStr );
+                                }
                             }
-                            catch ( Exception e )
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "wR42WpA0VHp" )  )
                             {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( dhTotalStr );
-                                
+                                try
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 1 );
+                                    cell.setCellValue( Double.parseDouble( tempStr ) );
+                                    
+                                }
+                                catch ( Exception e )
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 1 );
+                                    cell.setCellValue( tempStr );
+                                    
+                                }
                             }
-                        }
-                        else if ( type.equalsIgnoreCase( "sdh" )  )
-                        {
-                            try
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "NP6zRkPiA4S" )  )
                             {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo  );
-                                cell.setCellValue( Double.parseDouble( sdhTotalStr ) );
-                                
+                                try
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 2 );
+                                    cell.setCellValue( Double.parseDouble( tempStr ) );
+                                    
+                                }
+                                catch ( Exception e )
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 2 );
+                                    cell.setCellValue( tempStr );
+                                    
+                                }
                             }
-                            catch ( Exception e )
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "K3UhUR7OIm0" )  )
                             {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( sdhTotalStr );
-                                
+                                try
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 3 );
+                                    cell.setCellValue( Double.parseDouble( tempStr ) );
+                                    
+                                }
+                                catch ( Exception e )
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 3 );
+                                    cell.setCellValue( tempStr );
+                                    
+                                }
                             }
-                        }
-                        else if ( type.equalsIgnoreCase( "chc" )  )
-                        {
-                            try
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "R9BqNOdb28Q" )  )
                             {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( Double.parseDouble( chcTotalStr ) );
-                                
+                                try
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 4 );
+                                    cell.setCellValue( Double.parseDouble( tempStr ) );
+                                    
+                                }
+                                catch ( Exception e )
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 4 );
+                                    cell.setCellValue( tempStr );
+                                    
+                                }
                             }
-                            catch ( Exception e )
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "LzDGwjcCNbD" )  )
                             {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( chcTotalStr );
-                                
+                                try
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 5 );
+                                    cell.setCellValue( Double.parseDouble( tempStr ) );
+                                    
+                                }
+                                catch ( Exception e )
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 5 );
+                                    cell.setCellValue( tempStr );
+                                    
+                                }
                             }
-                        }
-                        else if (  type.equalsIgnoreCase( "phc" ) )
-                        {
-                            try
+                            else if ( currentOrgUnitGroup.getUid().equalsIgnoreCase( "bYeMmLxh8Xs" )  )
                             {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( Double.parseDouble( phcTotalStr ) );
-                                
-                            }
-                            catch ( Exception e )
-                            {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( phcTotalStr );
-                                
-                            }
-                        }
-                        else if (  type.equalsIgnoreCase( "sc" ) )
-                        {
-                            try
-                            {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( Double.parseDouble( scTotalStr ) );
-                                
-                            }
-                            catch ( Exception e )
-                            {
-                                Row row = sheet0.getRow( tempRowNo );
-                                Cell cell = row.getCell( tempColNo );
-                                cell.setCellValue( scTotalStr );
-                                
+                                try
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 6 );
+                                    cell.setCellValue( Double.parseDouble( tempStr ) );
+                                    
+                                }
+                                catch ( Exception e )
+                                {
+                                    Row row = sheet0.getRow( tempRowNo );
+                                    Cell cell = row.getCell( tempColNo + 6 );
+                                    cell.setCellValue( tempStr );
+                                }
                             }
                         }
                     }
                 }
+                //count1++;
             }
-            //count1++;
+            //orgUnitGroupCount++;
+            //tempColCount++;
         }
-
+        
         //System.out.println( " col Count after total : " + tempColCount );
         
         // code for apachePOI Workbook
