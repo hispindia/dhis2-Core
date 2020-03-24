@@ -1,7 +1,5 @@
-package org.hisp.dhis.dxf2.synch;
-
 /*
- * Copyright (c) 2004-2018, University of Oslo
+ * Copyright (c) 2004-2020, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,42 +26,49 @@ package org.hisp.dhis.dxf2.synch;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import org.hisp.dhis.dxf2.importsummary.ImportSummary;
-import org.hisp.dhis.dxf2.metadata.feedback.ImportReport;
-import org.hisp.dhis.dxf2.webmessage.WebMessageParseException;
+package org.hisp.dhis.query;
 
 /**
- * @author Lars Helge Overland
+ * Simple POJO containing the pagination directive from the HTTP Request
+ * 
+ * @author Luciano Fiandesio
  */
-public interface SynchronizationManager
+public class Pagination
 {
-    /**
-     * Executes data value push to remote server.
-     *
-     * @return an {@link ImportSummary}.
-     */
-    ImportSummary executeDataValuePush() throws WebMessageParseException;
+    private int firstResult;
+
+    private int size;
+
+    private boolean hasPagination = false;
+
+    public Pagination(int firstResult, int size )
+    {
+        assert (size > 0);
+        this.firstResult = firstResult;
+        this.size = size;
+        this.hasPagination = true;
+    }
 
     /**
-     * Executes CompleteDataSetRegistration data push to remote server.
-     *
-     * @return an {@link ImportSummary}
-     * @throws WebMessageParseException
+     * This constructor can be used to signal that there is no pagination data
      */
-    ImportSummary executeCompleteDataSetRegistrationPush() throws WebMessageParseException;
+    public Pagination()
+    {
+        // empty constructor
+    }
 
-    /**
-     * Executes a meta data pull operation from remote server.
-     *
-     * @param url the URL to the remote server.
-     * @return an {@link ImportReport}.
-     */
-    ImportReport executeMetadataPull( String url );
+    public int getFirstResult()
+    {
+        return firstResult;
+    }
 
-    /**
-     * Indicates the availability status of the remote server.
-     *
-     * @return the {@link AvailabilityStatus} of the remote server.
-     */
-    AvailabilityStatus isRemoteServerAvailable();
+    public int getSize()
+    {
+        return size;
+    }
+
+    public boolean hasPagination()
+    {
+        return hasPagination;
+    }
 }

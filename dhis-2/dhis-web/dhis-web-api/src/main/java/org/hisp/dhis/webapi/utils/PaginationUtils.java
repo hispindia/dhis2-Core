@@ -1,7 +1,5 @@
-package org.hisp.dhis.dxf2.synch;
-
 /*
- * Copyright (c) 2004-2018, University of Oslo
+ * Copyright (c) 2004-2020, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,42 +26,37 @@ package org.hisp.dhis.dxf2.synch;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import org.hisp.dhis.dxf2.importsummary.ImportSummary;
-import org.hisp.dhis.dxf2.metadata.feedback.ImportReport;
-import org.hisp.dhis.dxf2.webmessage.WebMessageParseException;
+package org.hisp.dhis.webapi.utils;
+
+import org.hisp.dhis.query.Pagination;
+import org.hisp.dhis.webapi.webdomain.WebOptions;
 
 /**
- * @author Lars Helge Overland
+ * @author Luciano Fiandesio
  */
-public interface SynchronizationManager
+public class PaginationUtils
 {
-    /**
-     * Executes data value push to remote server.
-     *
-     * @return an {@link ImportSummary}.
-     */
-    ImportSummary executeDataValuePush() throws WebMessageParseException;
+    private final static Pagination NO_PAGINATION = new Pagination();
 
     /**
-     * Executes CompleteDataSetRegistration data push to remote server.
-     *
-     * @return an {@link ImportSummary}
-     * @throws WebMessageParseException
+     * Calculates the paging first result based on pagination data from
+     * {@see WebOptions} if the WebOptions have pagination information
+     * 
+     * The first result is simply calculated by multiplying page -1 * page size
+     * 
+     * @param options a {@see WebOptions} object
+     * @return a {@see PaginationData} object either empty or containing pagination
+     *         data
      */
-    ImportSummary executeCompleteDataSetRegistrationPush() throws WebMessageParseException;
+    public static Pagination getPaginationData( WebOptions options )
+    {
+        if ( options.hasPaging() )
+        {
+            // ignore if page < 0
+            int page = Math.max( options.getPage(), 1 );
+            return new Pagination( (page - 1) * options.getPageSize(), options.getPageSize() );
+        }
 
-    /**
-     * Executes a meta data pull operation from remote server.
-     *
-     * @param url the URL to the remote server.
-     * @return an {@link ImportReport}.
-     */
-    ImportReport executeMetadataPull( String url );
-
-    /**
-     * Indicates the availability status of the remote server.
-     *
-     * @return the {@link AvailabilityStatus} of the remote server.
-     */
-    AvailabilityStatus isRemoteServerAvailable();
+        return NO_PAGINATION;
+    }
 }
