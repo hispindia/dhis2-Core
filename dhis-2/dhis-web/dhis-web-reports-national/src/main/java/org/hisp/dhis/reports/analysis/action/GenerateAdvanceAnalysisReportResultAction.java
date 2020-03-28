@@ -199,6 +199,9 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
     private Map<String, String> phcAggDeMap = new HashMap<String, String>();
     private Map<String, String> scAggDeMap = new HashMap<String, String>();
     
+    private List<OrganisationUnit> level7OrgList = new ArrayList<OrganisationUnit>();
+    private List<OrganisationUnit> level8OrgList = new ArrayList<OrganisationUnit>();
+    
     // -------------------------------------------------------------------------
     // Action implementation
     // -------------------------------------------------------------------------
@@ -337,6 +340,10 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
             orgUnitGroupList = new ArrayList<OrganisationUnitGroup>( organisationUnitGroupSet.getOrganisationUnitGroups() );
         }
 
+        
+        level7OrgList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitsAtLevel( 7 ) );
+        level8OrgList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitsAtLevel( 8 ) );
+        
         FileInputStream tempFile = new FileInputStream( new File( inputTemplatePath ) );
         XSSFWorkbook apachePOIWorkbook = new XSSFWorkbook( tempFile );
         
@@ -541,8 +548,9 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
             if( dhOrgUnitGroup != null )
             {
                 dhAggDeMap = new HashMap<String, String>();
+                List<OrganisationUnit> childOrgUnitTreeForDH = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( currentOrgUnit.getId() ) );
                 List<OrganisationUnit> dhOrgUnitGrpMember = new ArrayList<OrganisationUnit>( dhOrgUnitGroup.getMembers() );
-                dhOrgUnitGrpMember.retainAll( childOrgUnitTree );
+                dhOrgUnitGrpMember.retainAll( childOrgUnitTreeForDH );
                 String childOrgUnitsByComma = "-1";
                 if( dhOrgUnitGrpMember.size() > 0 )
                 {
@@ -559,8 +567,9 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
             if( sdhOrgUnitGroup != null )
             {
                 sdhAggDeMap = new HashMap<String, String>();
+                List<OrganisationUnit> childOrgUnitTreeForSDH = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( currentOrgUnit.getId() ) );
                 List<OrganisationUnit> sdhOrgUnitGrpMember = new ArrayList<OrganisationUnit>( sdhOrgUnitGroup.getMembers() );
-                sdhOrgUnitGrpMember.retainAll( childOrgUnitTree );
+                sdhOrgUnitGrpMember.retainAll( childOrgUnitTreeForSDH );
                 String childOrgUnitsByComma = "-1";
                 if( sdhOrgUnitGrpMember.size() > 0 )
                 {
@@ -577,8 +586,9 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
             if( chcOrgUnitGroup != null )
             {
                 chcAggDeMap = new HashMap<String, String>();
+                List<OrganisationUnit> childOrgUnitTreeForCHC = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( currentOrgUnit.getId() ) );
                 List<OrganisationUnit> chcOrgUnitGrpMember = new ArrayList<OrganisationUnit>( chcOrgUnitGroup.getMembers() );
-                chcOrgUnitGrpMember.retainAll( childOrgUnitTree );
+                chcOrgUnitGrpMember.retainAll( childOrgUnitTreeForCHC );
                 String childOrgUnitsByComma = "-1";
                 if( chcOrgUnitGrpMember.size() > 0 )
                 {
@@ -594,9 +604,23 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
             
             if( phcOrgUnitGroup != null )
             {
+                //System.out.println( currentOrgUnit.getName() +  " Inside phc -- " + phcOrgUnitGroup.getName() );
+                
                 phcAggDeMap = new HashMap<String, String>();
+                List<OrganisationUnit> childOrgUnitTreeForPHC = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( currentOrgUnit.getId() ) );
+                //System.out.println( " 1 childOrgUnitTree size -- " + childOrgUnitTreeForPHC.size() );
+                //System.out.println( " 1 Level 7 size -- " + level7OrgList.size() );
+                childOrgUnitTreeForPHC.retainAll( level7OrgList );
+                
+                //System.out.println( " 2 childOrgUnitTree -- " + childOrgUnitTreeForPHC.size() );
+                
                 List<OrganisationUnit> phcOrgUnitGrpMember = new ArrayList<OrganisationUnit>( phcOrgUnitGroup.getMembers() );
-                phcOrgUnitGrpMember.retainAll( childOrgUnitTree );
+                //System.out.println( " 1 phcOrgUnitGrpMember -- " + phcOrgUnitGrpMember.size() );
+                
+                phcOrgUnitGrpMember.retainAll( childOrgUnitTreeForPHC );
+                
+                //System.out.println( " 2 phcOrgUnitGrpMember -- " + phcOrgUnitGrpMember.size() );
+                
                 String childOrgUnitsByComma = "-1";
                 if( phcOrgUnitGrpMember.size() > 0 )
                 {
@@ -608,13 +632,28 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
             }            
             
             // sc
-            OrganisationUnitGroup scOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( "LzDGwjcCNbD" );
+            OrganisationUnitGroup scOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( "bYeMmLxh8Xs" );
             
             if( scOrgUnitGroup != null )
             {
+                //System.out.println( currentOrgUnit.getName() +  " Inside sc -- " + scOrgUnitGroup.getName() );
                 scAggDeMap = new HashMap<String, String>();
+                List<OrganisationUnit> childOrgUnitTreeForSC = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( currentOrgUnit.getId() ) );
+                //System.out.println( " 1 childOrgUnitTree size -- " + childOrgUnitTreeForSC.size() );
+                //System.out.println( " 1 Level 8 size -- " + level8OrgList.size() );
+                
+                childOrgUnitTreeForSC.retainAll( level8OrgList );
+                //level8OrgList.retainAll( childOrgUnitTree );
+                //System.out.println( " 2 childOrgUnitTree -- " + childOrgUnitTreeForSC.size() );
+                
                 List<OrganisationUnit> scOrgUnitGrpMember = new ArrayList<OrganisationUnit>( scOrgUnitGroup.getMembers() );
-                scOrgUnitGrpMember.retainAll( childOrgUnitTree );
+                //System.out.println( " 1 scOrgUnitGrpMember -- " + scOrgUnitGrpMember.size() );
+                
+                scOrgUnitGrpMember.retainAll( childOrgUnitTreeForSC );
+                //scOrgUnitGrpMember.retainAll( level8OrgList );
+                
+                //System.out.println( " 2 scOrgUnitGrpMember -- " + scOrgUnitGrpMember.size() );
+                
                 String childOrgUnitsByComma = "-1";
                 if( scOrgUnitGrpMember.size() > 0 )
                 {
@@ -641,6 +680,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                 String phcTotalStr = "";
                 String scTotalStr = "";
                 String districtTotalStr = "";
+                String excludeSCTotalStr = "";
 
                 if ( deCodeString.equalsIgnoreCase( "PROGRESSIVE-ORGUNIT" ) )
                 {
@@ -657,6 +697,20 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                         scTotalStr = getAggVal( deCodeString, scAggDeMap );
                         
                         districtTotalStr = getAggVal( deCodeString, districtOrgUnitWiseAggDeMap );
+                        double distTotal = 0.0;
+                        double scTotal = 0.0;
+                        if( !districtTotalStr.equalsIgnoreCase( "" ) )
+                        {
+                            distTotal = Double.parseDouble( districtTotalStr );
+                        }
+                        
+                        if( !scTotalStr.equalsIgnoreCase( "" ) )
+                        {
+                            scTotal = Double.parseDouble( scTotalStr );
+                        }
+                        
+                        
+                        excludeSCTotalStr = ""+( distTotal - scTotal );
                         
                         //System.out.println( aggData + " 1 SType : " + sType + " DECode : " + deCodeString + "   TempStr : " + tempStr + " -- " + tempaGrpStr );
                     }
@@ -704,6 +758,8 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                         //tempRowNo = reportDesign.getRowno();
                         
                         // for printing total
+                        
+                        
                         if (  type.equalsIgnoreCase( "total" ) || type.equalsIgnoreCase( "public" ) || type.equalsIgnoreCase( "private" ) )
                         {
                             try
@@ -722,6 +778,40 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                             }
                         }
                         
+                        else if (  type.equalsIgnoreCase( "total-only-sc" ) || type.equalsIgnoreCase( "public-only-sc" ) || type.equalsIgnoreCase( "private-only-sc" ) )
+                        {
+                            try
+                            {
+                                Row row = sheet0.getRow( tempRowNo );
+                                Cell cell = row.getCell( tempColNo );
+                                cell.setCellValue( Double.parseDouble( scTotalStr ) );
+                                
+                            }
+                            catch ( Exception e )
+                            {
+                                Row row = sheet0.getRow( tempRowNo );
+                                Cell cell = row.getCell( tempColNo );
+                                cell.setCellValue( scTotalStr );
+                                
+                            }
+                        }
+                        else if (  type.equalsIgnoreCase( "total-exclude-sc" ) || type.equalsIgnoreCase( "public-exclude-sc" ) || type.equalsIgnoreCase( "private-exclude-sc" ) )
+                        {
+                            try
+                            {
+                                Row row = sheet0.getRow( tempRowNo );
+                                Cell cell = row.getCell( tempColNo );
+                                cell.setCellValue( Double.parseDouble( excludeSCTotalStr ) );
+                                
+                            }
+                            catch ( Exception e )
+                            {
+                                Row row = sheet0.getRow( tempRowNo );
+                                Cell cell = row.getCell( tempColNo );
+                                cell.setCellValue( excludeSCTotalStr );
+                                
+                            }
+                        }
                         else if ( type.equalsIgnoreCase( "dh" )  )
                         {
                             try
@@ -820,6 +910,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
             
         //System.out.println( " col Count before total : " + tempColCount );
 
+        // for previous year data populate
         // dh
         
         OrganisationUnitGroup dhOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( "NP6zRkPiA4S" );
@@ -866,7 +957,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
         }
         
         // sc
-        OrganisationUnitGroup scOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( "LzDGwjcCNbD" );
+        OrganisationUnitGroup scOrgUnitGroup = organisationUnitGroupService.getOrganisationUnitGroup( "bYeMmLxh8Xs" );
         
         if( scOrgUnitGroup != null )
         {
@@ -893,6 +984,7 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
             String chcTotalStr = "";
             String phcTotalStr = "";
             String scTotalStr = "";
+            String excludeSCTotalStr = "";
             
             String previousYearAllTotalTempStr = "";
 
@@ -911,6 +1003,21 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                 phcTotalStr = getAggVal( deCodeString, phcAggDeMap );
                 scTotalStr = getAggVal( deCodeString, scAggDeMap );
                 previousYearAllTotalTempStr = getAggVal( deCodeString, allChildOrgUnitWiseAggDeMap );
+                
+                double distTotal = 0.0;
+                double scTotal = 0.0;
+                if( !previousYearAllTotalTempStr.equalsIgnoreCase( "" ) )
+                {
+                    distTotal = Double.parseDouble( previousYearAllTotalTempStr );
+                }
+                
+                if( !scTotalStr.equalsIgnoreCase( "" ) )
+                {
+                    scTotal = Double.parseDouble( scTotalStr );
+                }
+                
+                
+                excludeSCTotalStr = ""+( distTotal - scTotal );
                 
                 if( deCodeString.equalsIgnoreCase( "FACILITY" ) || deCodeString.equalsIgnoreCase( "FACILITYPP" ) )
                 {
@@ -946,7 +1053,40 @@ public class GenerateAdvanceAnalysisReportResultAction implements Action
                                 
                             }
                         }
-                        
+                        else if (  type.equalsIgnoreCase( "total-only-sc" ) || type.equalsIgnoreCase( "public-only-sc" ) || type.equalsIgnoreCase( "private-only-sc" ) )
+                        {
+                            try
+                            {
+                                Row row = sheet0.getRow( tempRowNo );
+                                Cell cell = row.getCell( tempColNo );
+                                cell.setCellValue( Double.parseDouble( scTotalStr ) );
+                                
+                            }
+                            catch ( Exception e )
+                            {
+                                Row row = sheet0.getRow( tempRowNo );
+                                Cell cell = row.getCell( tempColNo );
+                                cell.setCellValue( scTotalStr );
+                                
+                            }
+                        }
+                        else if (  type.equalsIgnoreCase( "total-exclude-sc" ) || type.equalsIgnoreCase( "public-exclude-sc" ) || type.equalsIgnoreCase( "private-exclude-sc" ) )
+                        {
+                            try
+                            {
+                                Row row = sheet0.getRow( tempRowNo );
+                                Cell cell = row.getCell( tempColNo );
+                                cell.setCellValue( Double.parseDouble( excludeSCTotalStr ) );
+                                
+                            }
+                            catch ( Exception e )
+                            {
+                                Row row = sheet0.getRow( tempRowNo );
+                                Cell cell = row.getCell( tempColNo );
+                                cell.setCellValue( excludeSCTotalStr );
+                                
+                            }
+                        }                        
                         else if ( type.equalsIgnoreCase( "dh" )  )
                         {
                             try
