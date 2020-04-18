@@ -1,5 +1,3 @@
-package org.hisp.dhis.dxf2.metadata.objectbundle.hooks;
-
 /*
  * Copyright (c) 2004-2020, University of Oslo
  * All rights reserved.
@@ -27,53 +25,48 @@ package org.hisp.dhis.dxf2.metadata.objectbundle.hooks;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.hisp.dhis.relationship;
 
-import org.hisp.dhis.common.IdentifiableObject;
-import org.hisp.dhis.dxf2.metadata.objectbundle.ObjectBundle;
-import org.hisp.dhis.option.OptionSet;
+import java.util.Objects;
+
+import org.hisp.dhis.program.Program;
+import org.hisp.dhis.system.deletion.DeletionHandler;
 import org.springframework.stereotype.Component;
 
-@Component
-public class OptionSetObjectBundleHook
-    extends AbstractObjectBundleHook
+/**
+ * @author Enrico Colasante
+ */
+public class RelationshipTypeDeletionHandler
+    extends
+    DeletionHandler
 {
-    @Override
-    public <T extends IdentifiableObject> void postCreate( T persistedObject, ObjectBundle bundle )
-    {
-        if ( !OptionSet.class.isInstance( persistedObject ) )
-        {
-            return;
-        }
+    // -------------------------------------------------------------------------
+    // Dependencies
+    // -------------------------------------------------------------------------
 
-        updateOption( (OptionSet) persistedObject );
+    private final RelationshipTypeService relationshipTypeService;
+
+    public RelationshipTypeDeletionHandler( RelationshipTypeService relationshipTypeService )
+    {
+        this.relationshipTypeService = relationshipTypeService;
+    }
+
+    // -------------------------------------------------------------------------
+    // DeletionHandler implementation
+    // -------------------------------------------------------------------------
+
+    @Override
+    public String getClassName()
+    {
+        return RelationshipType.class.getSimpleName();
     }
 
     @Override
-    public <T extends IdentifiableObject> void postUpdate( T persistedObject, ObjectBundle bundle )
+    public void deleteProgram( Program program )
     {
-        if ( !OptionSet.class.isInstance( persistedObject ) )
-        {
-            return;
-        }
-
-        updateOption( (OptionSet) persistedObject );
-    }
-
-    private void updateOption( OptionSet optionSet )
-    {
-        if ( optionSet.getOptions() != null && !optionSet.getOptions().isEmpty() )
-        {
-            return;
-        }
-
-        optionSet.getOptions().forEach( option -> {
-
-            if ( option.getOptionSet() == null )
-            {
-                option.setOptionSet( optionSet );
-            }
-        } );
-
-        sessionFactory.getCurrentSession().refresh( optionSet );
+        relationshipTypeService.getAllRelationshipTypes().stream()
+            .filter( type -> Objects.equals( type.getFromConstraint().getProgram(), program )
+                || Objects.equals( type.getToConstraint().getProgram(), program ) )
+            .forEach( relationshipTypeService::deleteRelationshipType );
     }
 }
