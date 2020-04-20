@@ -17,8 +17,10 @@
 
 	<modules>
 		<module>dhis-api</module>
+		<module>dhis-in-api</module><!-- India api -->
 		<module>dhis-services</module>
 		<module>dhis-support</module>
+		<module>dhis-in-services</module><!-- India Service -->
 		<module>dhis-web</module>
 	</modules>
 
