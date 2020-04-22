@@ -34,10 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
-
+import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.dataelement.DataElement;
-import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
 import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.datavalue.DataValue;
 import org.hisp.dhis.indicator.Indicator;
@@ -234,7 +232,8 @@ public interface ReportService
     
     // Get Data value for Latest Period
     
-    DataValue getLatestDataValue( DataElement dataElement, DataElementCategoryOptionCombo optionCombo, OrganisationUnit organisationUnit );
+    //DataValue getLatestDataValue( DataElement dataElement, DataElementCategoryOptionCombo optionCombo, OrganisationUnit organisationUnit );
+    DataValue getLatestDataValue( DataElement dataElement, CategoryOptionCombo categoryOptionCombo, OrganisationUnit organisationUnit );
     
     // Methods for Lock Exception
     void deleteLockException( String orgUnitIdsByComma, String periodIdsByComma, String dataSetIdsByComma );

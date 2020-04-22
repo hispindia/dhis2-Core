@@ -29,8 +29,8 @@ package org.hisp.dhis.reports;
 
 import java.util.Collection;
 
+import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.dataelement.DataElement;
-import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
 import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.datavalue.DataValue;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
@@ -75,8 +75,8 @@ public interface ReportStore
 
 	// Get Data value for Latest Period
 	    
-	DataValue getLatestDataValue( DataElement dataElement, DataElementCategoryOptionCombo optionCombo, OrganisationUnit organisationUnit );
-	
+	//DataValue getLatestDataValue( DataElement dataElement, DataElementCategoryOptionCombo optionCombo, OrganisationUnit organisationUnit );
+	DataValue getLatestDataValue( DataElement dataElement, CategoryOptionCombo categoryOptionCombo, OrganisationUnit organisationUnit );
 	// Methods for delete Lock Exception
 	void deleteLockException( DataSet dataSet, Period period, OrganisationUnit organisationUnit );
 
