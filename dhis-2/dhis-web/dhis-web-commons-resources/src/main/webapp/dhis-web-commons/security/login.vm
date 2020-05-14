@@ -48,7 +48,7 @@
 					<div>
 						<!--<input type="text" id="txtCaptcha" style="text-align:center; border:none; background-image:url(./imgs/captcha_back_ground.png); color:red; font-weight:bold; font-family:Modern; width:100px" readonly/>-->
 						
-						<input type="text" id="txtCaptcha" style="text-align:center; border:none;color:red; font-weight:bold;font-size:25px; font-family:Modern; width:100px" readonly/>
+						<input type="text" id="txtCaptcha" style="text-align:center; border:none;color:red; font-weight:bold;font-size:25px; font-family:Modern; width:145px; background-image:url(./imgs/captcha_back_ground.png);" readonly/>
 						<input type="text" id="txtCaptchaInput" name="txtCaptchaInput" placeholder="Enter Captcha" style='width:148px;padding-left:2px;'/>
 						<a href="javascript:drawComplexCaptcha();" title="$i18n.getString( "Regenerate Captcha" )"><img src="./imgs/refresh.png" alt="$i18n.getString( "Regenerate Captcha" )"></a>
 						

@@ -4,8 +4,19 @@ login.localeKey = "dhis2.locale.ui";
 
 $( document ).ready( function() 
 {
-    $( '#j_username' ).focus();
 	drawComplexCaptcha();
+	//Disable cut copy paste
+    $('body').bind('cut copy paste', function (e) {
+        e.preventDefault();
+    });
+    
+    //Disable mouse right click
+    $("body").on("contextmenu",function(e){
+        return false;
+    });
+	
+    $( '#j_username' ).focus();
+	
     $( '#loginForm').bind( 'submit', function() 
     {
 		if ( window.location.hash )
