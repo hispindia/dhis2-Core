@@ -2181,6 +2181,8 @@ function registerCompleteDataSet()
                 {
                     $( document ).trigger( dhis2.de.event.completed, [ dhis2.de.currentDataSetId, params ] );
                     disableCompleteButton();
+                    //@Sou show completed by div on success 
+                    $( '#infoDiv' ).show();
                 }
                 else if( data && data.status == 'ERROR' )
                 {
