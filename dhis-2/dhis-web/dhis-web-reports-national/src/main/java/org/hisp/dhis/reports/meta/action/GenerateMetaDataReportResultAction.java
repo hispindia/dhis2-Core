@@ -1108,67 +1108,71 @@ public class GenerateMetaDataReportResultAction
             }
             else if ( incID.equalsIgnoreCase( PRINT ) )
             {
-                Cell row1col1 = row1.createCell( colStart );
-                row1col1.setCellValue( "OrganisationUnitID" );
-                row1col1.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                Cell col0 = row1.createCell( colStart );
+                col0.setCellValue( "OrganisationUnitID" );
+                col0.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col2 = row1.createCell( colStart + 1 );
-                row1col2.setCellValue( "OrganisationUnitUID" );
-                row1col2.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                Cell col1 = row1.createCell( colStart + 1 );
+                col1.setCellValue( "OrganisationUnitUID" );
+                col1.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col3 = row1.createCell( colStart + 2 );
-                row1col3.setCellValue( "OrganisationUnitName" );
-                row1col3.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                Cell col2 = row1.createCell( colStart + 2 );
+                col2.setCellValue( "OrganisationUnitName" );
+                col2.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col4 = row1.createCell( colStart + 3 );
-                row1col4.setCellValue( "organisationUnitHierarchy" );
-                row1col4.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                Cell col3 = row1.createCell( colStart + 3 );
+                col3.setCellValue( "organisationUnitHierarchy" );
+                col3.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col5 = row1.createCell( colStart + 4 );
-                row1col5.setCellValue( "organisationUnitShortName" );
-                row1col5.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                Cell col4 = row1.createCell( colStart + 4 );
+                col4.setCellValue( "organisationUnitShortName" );
+                col4.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
 
-                Cell row1col6 = row1.createCell( colStart + 5 );
-                row1col6.setCellValue( "organisationUnitCode" );
-                row1col6.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                Cell col5 = row1.createCell( colStart + 5 );
+                col5.setCellValue( "organisationUnitCode" );
+                col5.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col7 = row1.createCell( colStart + 6 );
-                row1col7.setCellValue( "organisationUnitOpeningDate" );
-                row1col7.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                Cell col6 = row1.createCell( colStart + 6 );
+                col6.setCellValue( "organisationUnitOpeningDate" );
+                col6.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col8 = row1.createCell( colStart + 7 );
-                row1col8.setCellValue( "organisationUnitClosedDate" );
-                row1col8.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                Cell col7 = row1.createCell( colStart + 7 );
+                col7.setCellValue( "organisationUnitClosedDate" );
+                col7.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                
-                Cell row1col9 = row1.createCell( colStart + 8 );
-                row1col9.setCellValue( "organisationUnitUrl" );
+                Cell row1col8 = row1.createCell( colStart + 8 );
+                row1col8.setCellValue( "organisationUnitUrl" );
+                row1col8.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                
+                Cell row1col9 = row1.createCell( colStart + 9 );
+                row1col9.setCellValue( "created" );
                 row1col9.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col10 = row1.createCell( colStart + 9 );
+                Cell row1col10 = row1.createCell( colStart + 10 );
                 row1col10.setCellValue( "Last Updated" );
                 row1col10.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col11 = row1.createCell( colStart + 10 );
+                Cell row1col11 = row1.createCell( colStart + 11 );
                 row1col11.setCellValue( "Contact Person" );
                 row1col11.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col12 = row1.createCell( colStart + 11 );
+                Cell row1col12 = row1.createCell( colStart + 12 );
                 row1col12.setCellValue( "Phone Number" );
                 row1col12.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col13 = row1.createCell( colStart + 12 );
+                Cell row1col13 = row1.createCell( colStart + 13 );
                 row1col13.setCellValue( "Email" );
                 row1col13.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col14 = row1.createCell( colStart + 13 );
+                Cell row1col14 = row1.createCell( colStart + 14 );
                 row1col14.setCellValue( "Comment" );
                 row1col14.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col15 = row1.createCell( colStart + 14 );
+                Cell row1col15 = row1.createCell( colStart + 15 );
                 row1col15.setCellValue( "Coordinates" );
                 row1col15.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col16 = row1.createCell( colStart + 15 );
+                Cell row1col16 = row1.createCell( colStart + 16 );
                 row1col16.setCellValue( "HMIS Name" );
                 row1col16.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                             
@@ -1216,7 +1220,7 @@ public class GenerateMetaDataReportResultAction
                     
                     Cell tempColGrpName = tempRow.createCell( colStart + 2 );
                     tempColGrpName.setCellValue( organisationUnitGroup.getName() );
-                    sheet0.addMergedRegion( new CellRangeAddress( rowStart, rowStart, colStart + 2, colStart + 15 ) );
+                    sheet0.addMergedRegion( new CellRangeAddress( rowStart, rowStart, colStart + 2, colStart + 16 ) );
                     tempColGrpName.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 }
                 else
@@ -1253,23 +1257,23 @@ public class GenerateMetaDataReportResultAction
                     else if ( incID.equalsIgnoreCase( PRINT ) )
                     {
                         
-                        Cell tempCol1 = tempRow1.createCell( colStart );
-                        tempCol1.setCellValue( organisationUnit.getId() );
+                        Cell tempCol0 = tempRow1.createCell( colStart );
+                        tempCol0.setCellValue( organisationUnit.getId() );
                         
-                        Cell tempCol2 = tempRow1.createCell( colStart + 1 );
-                        tempCol2.setCellValue( organisationUnit.getUid() );
+                        Cell tempCol1 = tempRow1.createCell( colStart + 1 );
+                        tempCol1.setCellValue( organisationUnit.getUid() );
                         
-                        Cell tempCol3 = tempRow1.createCell( colStart + 2 );
-                        tempCol3.setCellValue( organisationUnit.getName() );
+                        Cell tempCol2 = tempRow1.createCell( colStart + 2 );
+                        tempCol2.setCellValue( organisationUnit.getName() );
                         
-                        Cell tempCol4 = tempRow1.createCell( colStart + 3 );
-                        tempCol4.setCellValue( getHierarchyOrgunit( organisationUnit ) );
+                        Cell tempCol3 = tempRow1.createCell( colStart + 3 );
+                        tempCol3.setCellValue( getHierarchyOrgunit( organisationUnit ) );
                         
-                        Cell tempCo5 = tempRow1.createCell( colStart + 4 );
-                        tempCo5.setCellValue( organisationUnit.getShortName() );
+                        Cell tempCo4 = tempRow1.createCell( colStart + 4 );
+                        tempCo4.setCellValue( organisationUnit.getShortName() );
 
-                        Cell tempCo6 = tempRow1.createCell( colStart + 5 );
-                        tempCo6.setCellValue( organisationUnit.getCode() );
+                        Cell tempCo5 = tempRow1.createCell( colStart + 5 );
+                        tempCo5.setCellValue( organisationUnit.getCode() );
                         
                         String opendate = new String();
                         if ( organisationUnit.getOpeningDate() != null )
@@ -1281,8 +1285,8 @@ public class GenerateMetaDataReportResultAction
                             opendate = "";
                         }
                         
-                        Cell tempCo7 = tempRow1.createCell( colStart + 6 );
-                        tempCo7.setCellValue( opendate );
+                        Cell tempCo6 = tempRow1.createCell( colStart + 6 );
+                        tempCo6.setCellValue( opendate );
                         
                         String closedate = new String();
                         if ( organisationUnit.getClosedDate() != null )
@@ -1294,13 +1298,25 @@ public class GenerateMetaDataReportResultAction
                             closedate = "";
                         }
 
-                        Cell tempCol8 = tempRow1.createCell( colStart + 7 );
-                        tempCol8.setCellValue( closedate );
+                        Cell tempCol7 = tempRow1.createCell( colStart + 7 );
+                        tempCol7.setCellValue( closedate );
                         
-                       
+                        Cell tempCol8 = tempRow1.createCell( colStart + 8 );
+                        tempCol8.setCellValue( organisationUnit.getUrl() );
                         
-                        Cell tempCol9 = tempRow1.createCell( colStart + 8 );
-                        tempCol9.setCellValue( organisationUnit.getUrl() );
+                        String createDate = new String();
+                        if ( organisationUnit.getCreated() != null )
+                        {
+                            createDate = organisationUnit.getCreated().toString();
+                        }
+                        else
+                        {
+                            createDate = "";
+                        }
+
+                        Cell tempCol9 = tempRow1.createCell( colStart + 9 );
+                        tempCol9.setCellValue( createDate );
+                        
                         
                         String lastUpdate = new String();
                         if ( organisationUnit.getLastUpdated() != null )
@@ -1312,7 +1328,7 @@ public class GenerateMetaDataReportResultAction
                             lastUpdate = "";
                         }
 
-                        Cell tempCol10 = tempRow1.createCell( colStart + 9 );
+                        Cell tempCol10 = tempRow1.createCell( colStart + 10 );
                         tempCol10.setCellValue( lastUpdate );
 
                         String contactPerson = new String();
@@ -1325,7 +1341,7 @@ public class GenerateMetaDataReportResultAction
                             contactPerson = "";
                         }
                         
-                        Cell tempCol11 = tempRow1.createCell( colStart + 10 );
+                        Cell tempCol11 = tempRow1.createCell( colStart + 11 );
                         tempCol11.setCellValue( contactPerson );
                         
                         String phoneNumber = new String();
@@ -1338,7 +1354,7 @@ public class GenerateMetaDataReportResultAction
                             phoneNumber = "";
                         }
                         
-                        Cell tempCol12 = tempRow1.createCell( colStart + 11 );
+                        Cell tempCol12 = tempRow1.createCell( colStart + 12 );
                         tempCol12.setCellValue( phoneNumber );
                         
                         String email = new String();
@@ -1351,7 +1367,7 @@ public class GenerateMetaDataReportResultAction
                             email = "";
                         }
 
-                        Cell tempCol13 = tempRow1.createCell( colStart + 12 );
+                        Cell tempCol13 = tempRow1.createCell( colStart + 13 );
                         tempCol13.setCellValue( email );
                         
 
@@ -1365,7 +1381,7 @@ public class GenerateMetaDataReportResultAction
                             comment = "";
                         }
 
-                        Cell tempCol14 = tempRow1.createCell( colStart + 13 );
+                        Cell tempCol14 = tempRow1.createCell( colStart + 14 );
                         tempCol14.setCellValue( comment );
                         
                         String coordinates = new String();
@@ -1378,7 +1394,7 @@ public class GenerateMetaDataReportResultAction
                             coordinates = "";
                         }
 
-                        Cell tempCol15 = tempRow1.createCell( colStart + 14 );
+                        Cell tempCol15 = tempRow1.createCell( colStart + 15 );
                         tempCol15.setCellValue( coordinates );
                         
                         String attributeValue = new String();
@@ -1391,7 +1407,7 @@ public class GenerateMetaDataReportResultAction
                             attributeValue = "";
                         }
 
-                        Cell tempCol16 = tempRow1.createCell( colStart + 15 );
+                        Cell tempCol16 = tempRow1.createCell( colStart + 16 );
                         tempCol16.setCellValue( attributeValue );
                     }
                     else
@@ -1590,13 +1606,14 @@ public class GenerateMetaDataReportResultAction
                 sheet0.addCell( new Label( colStart + 5, rowStart, "organisationUnitHierarchy", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 6, rowStart, "OrganisationUnitCode", getCellFormat1() ) );
                 sheet0.addCell( new Label( colStart + 7, rowStart, "OrganisationUnitUrl", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 8, rowStart, "Last Updated", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 9, rowStart, "Contact Person", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 10, rowStart, "Phone Number", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 11, rowStart, "Email", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 12, rowStart, "Comment", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 13, rowStart, "Coordinates", getCellFormat1() ) );
-                sheet0.addCell( new Label( colStart + 14, rowStart, "HMIS Name", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 8, rowStart, "Created", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 9, rowStart, "Last Updated", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 10, rowStart, "Contact Person", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 11, rowStart, "Phone Number", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 12, rowStart, "Email", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 13, rowStart, "Comment", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 14, rowStart, "Coordinates", getCellFormat1() ) );
+                sheet0.addCell( new Label( colStart + 15, rowStart, "HMIS Name", getCellFormat1() ) );
             }
             else if ( incID.equalsIgnoreCase( SOURCE ) )
             {
@@ -1680,6 +1697,19 @@ public class GenerateMetaDataReportResultAction
                     }
                     sheet0.addCell( new Label( colStart + 8, rowStart, lastUpdate, wCellformat ) );
 
+                    
+                    String createDate = new String();
+                    if ( ou.getCreated() != null )
+                    {
+                        createDate = ou.getCreated().toString();
+                    }
+                    else
+                    {
+                        createDate = "";
+                    }
+                    sheet0.addCell( new Label( colStart + 9, rowStart, createDate, wCellformat ) );
+                    
+                    
                     String contactPerson = new String();
                     if ( ou.getContactPerson() != null )
                     {
@@ -1689,7 +1719,7 @@ public class GenerateMetaDataReportResultAction
                     {
                         contactPerson = "";
                     }
-                    sheet0.addCell( new Label( colStart + 9, rowStart, contactPerson, wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 10, rowStart, contactPerson, wCellformat ) );
 
                     String phoneNumber = new String();
                     if ( ou.getPhoneNumber() != null )
@@ -1700,7 +1730,7 @@ public class GenerateMetaDataReportResultAction
                     {
                         phoneNumber = "";
                     }
-                    sheet0.addCell( new Label( colStart + 10, rowStart, phoneNumber, wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 11, rowStart, phoneNumber, wCellformat ) );
 
                     String email = new String();
                     if ( ou.getEmail() != null )
@@ -1711,7 +1741,7 @@ public class GenerateMetaDataReportResultAction
                     {
                         email = "";
                     }
-                    sheet0.addCell( new Label( colStart + 11, rowStart, email, wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 12, rowStart, email, wCellformat ) );
 
                     String comment = new String();
                     if ( ou.getComment() != null )
@@ -1722,7 +1752,7 @@ public class GenerateMetaDataReportResultAction
                     {
                         comment = "";
                     }
-                    sheet0.addCell( new Label( colStart + 12, rowStart, comment, wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 13, rowStart, comment, wCellformat ) );
 
                     String coordinates = new String();
                     if ( ou.getCoordinates() != null )
@@ -1733,7 +1763,7 @@ public class GenerateMetaDataReportResultAction
                     {
                         coordinates = "";
                     }
-                    sheet0.addCell( new Label( colStart + 13, rowStart, coordinates, wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 14, rowStart, coordinates, wCellformat ) );
                     
                     String attributeValue = new String();
                     if ( orgUnitAttributeValueMap.get(ou.getId() ) != null )
@@ -1745,7 +1775,7 @@ public class GenerateMetaDataReportResultAction
                         attributeValue = "";
                     }
 
-                    sheet0.addCell( new Label( colStart + 14, rowStart, attributeValue, wCellformat ) );
+                    sheet0.addCell( new Label( colStart + 15, rowStart, attributeValue, wCellformat ) );
                     
                 }
                 else if ( incID.equalsIgnoreCase( SOURCE ) )
