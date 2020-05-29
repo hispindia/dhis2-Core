@@ -28,17 +28,22 @@ package org.hisp.dhis.about.action;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.opensymphony.xwork2.Action;
+import java.util.List;
 
 import org.apache.struts2.ServletActionContext;
 import org.hisp.dhis.appmanager.App;
 import org.hisp.dhis.appmanager.AppManager;
+import org.hisp.dhis.constant.Constant;
+import org.hisp.dhis.constant.ConstantService;
 import org.hisp.dhis.setting.SettingKey;
 import org.hisp.dhis.setting.SystemSettingManager;
+import org.hisp.dhis.user.CurrentUserService;
+import org.hisp.dhis.user.UserGroup;
+import org.hisp.dhis.user.UserGroupService;
 import org.hisp.dhis.webapi.utils.ContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
+import com.opensymphony.xwork2.Action;
 
 /**
  * @author Lars Helge Overland
@@ -46,12 +51,23 @@ import java.util.List;
 public class RedirectAction
     implements Action
 {
+    private final String  USER_GROUP_ID = "USER_GROUP_ID";
+    
     @Autowired
     private SystemSettingManager systemSettingManager;
 
     @Autowired
     private AppManager appManager;
 
+    @Autowired
+    protected ConstantService constantService;
+    
+    @Autowired
+    private UserGroupService userGroupService;
+    
+    @Autowired
+    private CurrentUserService currentUserService;
+    
     private String redirectUrl;
 
     public String getRedirectUrl()
@@ -66,26 +82,81 @@ public class RedirectAction
         String startModule = (String) systemSettingManager.getSystemSetting( SettingKey.START_MODULE );
 
         String contextPath = (String) ContextUtils.getContextPath( ServletActionContext.getRequest() );
-        
+        Constant userGroupId = constantService.getConstantByName( USER_GROUP_ID );
         if ( startModule != null && !startModule.trim().isEmpty() )
         {
             if ( startModule.startsWith( "app:" ) )
             {
                 List<App> apps = appManager.getApps( contextPath );
-
                 for ( App app : apps )
                 {
                     if ( app.getName().equals( startModule.substring( "app:".length() ) ) )
                     {
-                        redirectUrl = app.getLaunchUrl();
-                        return SUCCESS;
+                        // add for maharashtra HMIS integrated dashboard 
+                        if( userGroupId != null )
+                        {
+                            UserGroup userGroup = (UserGroup) userGroupService.getUserGroup( (int)userGroupId.getValue() );
+                            
+                            if( userGroup != null )
+                            {
+                                if( currentUserService.getCurrentUser().getGroups().contains( userGroup ) )
+                                {
+                                    redirectUrl = "../api/apps/static/index.html";
+                                    //http://127.0.0.1:8090/mh/api/apps/static/index.html
+                                    return SUCCESS;
+                                }
+                                else
+                                {
+                                    redirectUrl = app.getLaunchUrl();
+                                    return SUCCESS;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            redirectUrl = app.getLaunchUrl();
+                            return SUCCESS;
+                        }
+                        
+                        System.out.println( "startModule -- " + startModule + " apps name -- " + app.getName() + " -- " + app.getLaunchUrl() );
+                        // end
+                        
+                        //redirectUrl = app.getLaunchUrl();
+                        //return SUCCESS;
                     }
                 }
+                
             }
             else
             {
-                redirectUrl = "../" + startModule + "/index.action";
-                return SUCCESS;
+                // add for maharashtra HMIS integrated dashboard 
+                if( userGroupId != null )
+                {
+                    UserGroup userGroup = (UserGroup) userGroupService.getUserGroup( (int)userGroupId.getValue() );
+                    
+                    if( userGroup != null )
+                    {
+                        if( currentUserService.getCurrentUser().getGroups().contains( userGroup ) )
+                        {
+                            redirectUrl = "../api/apps/static/index.html";
+                            return SUCCESS;
+                        }
+                        else
+                        {
+                            redirectUrl = "../" + startModule + "/index.action";
+                            return SUCCESS;
+                        }
+                    }
+                }
+                else
+                {
+                    redirectUrl = "../" + startModule + "/index.action";
+                    return SUCCESS;
+                }
+                // end
+                
+                //redirectUrl = "../" + startModule + "/index.action";
+                //return SUCCESS;
             }
         }
 
