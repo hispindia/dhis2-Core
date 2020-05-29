@@ -1140,41 +1140,41 @@ public class GenerateMetaDataReportResultAction
                 col7.setCellValue( "organisationUnitClosedDate" );
                 col7.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                
-                Cell row1col8 = row1.createCell( colStart + 8 );
-                row1col8.setCellValue( "organisationUnitUrl" );
-                row1col8.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                Cell col8 = row1.createCell( colStart + 8 );
+                col8.setCellValue( "organisationUnitUrl" );
+                col8.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col9 = row1.createCell( colStart + 9 );
-                row1col9.setCellValue( "created" );
-                row1col9.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                Cell col9 = row1.createCell( colStart + 9 );
+                col9.setCellValue( "created" );
+                col9.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col10 = row1.createCell( colStart + 10 );
-                row1col10.setCellValue( "Last Updated" );
-                row1col10.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                Cell col10 = row1.createCell( colStart + 10 );
+                col10.setCellValue( "Last Updated" );
+                col10.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col11 = row1.createCell( colStart + 11 );
-                row1col11.setCellValue( "Contact Person" );
-                row1col11.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                Cell col11 = row1.createCell( colStart + 11 );
+                col11.setCellValue( "Contact Person" );
+                col11.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col12 = row1.createCell( colStart + 12 );
-                row1col12.setCellValue( "Phone Number" );
-                row1col12.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                Cell col12 = row1.createCell( colStart + 12 );
+                col12.setCellValue( "Phone Number" );
+                col12.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col13 = row1.createCell( colStart + 13 );
-                row1col13.setCellValue( "Email" );
-                row1col13.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                Cell col13 = row1.createCell( colStart + 13 );
+                col13.setCellValue( "Email" );
+                col13.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col14 = row1.createCell( colStart + 14 );
-                row1col14.setCellValue( "Comment" );
-                row1col14.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                Cell col14 = row1.createCell( colStart + 14 );
+                col14.setCellValue( "Comment" );
+                col14.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col15 = row1.createCell( colStart + 15 );
-                row1col15.setCellValue( "Coordinates" );
-                row1col15.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                Cell col15 = row1.createCell( colStart + 15 );
+                col15.setCellValue( "Coordinates" );
+                col15.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                 
-                Cell row1col16 = row1.createCell( colStart + 16 );
-                row1col16.setCellValue( "HMIS Name" );
-                row1col16.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
+                Cell col16 = row1.createCell( colStart + 16 );
+                col16.setCellValue( "HMIS Name" );
+                col16.setCellStyle( getCellFormatPOIExtended( apachePOIWorkbook ) );
                             
             }
             else
