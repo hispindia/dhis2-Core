@@ -35,12 +35,17 @@ alter table config_in
 add constraint config_in_pkey primary key (configid),
 add constraint uk_config_in_ckey unique (ckey);
 
+--Droping existing constraints in reportsource
+alter table reportsource 
+drop constraint if exists reportsource_pkey,
+drop constraint if exists fk_reportsource_reportid,
+drop constraint if exists fk_reportsource_sourceid;
 
 --Droping existing constraints in reportin
 alter table reportin 
 drop constraint if exists reportin_pkey,
-drop constraint if exists uk_reportin_name;
-drop constraint if exists fk_reportin_orgunitgroupid;
+drop constraint if exists uk_reportin_name,
+drop constraint if exists fk_reportin_orgunitgroupid,
 drop constraint if exists fk_reportin_periodtypeid;
 
 --Adding constraints for reportin
@@ -49,13 +54,6 @@ add constraint reportin_pkey primary key (reportid),
 add constraint uk_reportin_name unique (name),
 add constraint fk_reportin_orgunitgroupid foreign key (orgunitgroupid) references orgunitgroup(orgunitgroupid),
 add constraint fk_reportin_periodtypeid foreign key (periodtypeid) references periodtype(periodtypeid);
-
---Droping existing constraints in reportsource
-alter table reportsource 
-drop constraint if exists reportsource_pkey,
-drop constraint if exists fk_reportsource_reportid;
-drop constraint if exists fk_reportsource_sourceid;
-
 
 --Adding constraints for reportsource
 alter table reportsource
