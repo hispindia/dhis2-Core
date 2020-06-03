@@ -57,13 +57,14 @@ public class ConversionUtils
         try
         {
             Collection<Integer> identifiers = new ArrayList<>();
-
             Method method = clazz.getMethod( "getId", new Class[0] );
 
             for ( Object object : objects )
             {
-                Integer identifier = (Integer) method.invoke( object, new Object[0] );
-
+                Integer identifier = Integer.parseInt( method.invoke( object, new Object[0] ).toString() );
+                
+                //Integer identifier = (Integer) method.invoke( object, new Object[0] );
+                
                 identifiers.add( identifier );
             }
 

@@ -1,5 +1,15 @@
 package org.hisp.dhis.config;
 
+import java.io.Serializable;
+
+import org.hisp.dhis.common.DxfNamespaces;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.google.common.base.MoreObjects;
+
+
 /*
  * Copyright (c) 2004-2009, University of Oslo
  * All rights reserved.
@@ -26,9 +36,13 @@ package org.hisp.dhis.config;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-public class Configuration_IN
+@JacksonXmlRootElement( localName = "metadataAudit", namespace = DxfNamespaces.DXF_2_0 )
+public class Configuration_IN implements Serializable
 {
+    /**
+     * Determines if a de-serialized file is compatible with this class.
+     */
+    private static final long serialVersionUID = -6551567526188061690L;
 
     public static final String KEY_MYSQLPATH = "mysqlpath";
     public static final String KEY_BACKUPDATAPATH = "backupdatapath";
@@ -61,10 +75,53 @@ public class Configuration_IN
         this.value = value;
     }
     
+    
+    // -------------------------------------------------------------------------
+    // hashCode and equals
+    // -------------------------------------------------------------------------
+
+    @Override
+    public int hashCode()
+    {
+        return key.hashCode();
+    }
+
+    @Override
+    public boolean equals( Object o )
+    {
+        if ( this == o )
+        {
+            return true;
+        }
+
+        if ( o == null )
+        {
+            return false;
+        }
+
+        if ( !(o instanceof Configuration_IN) )
+        {
+            return false;
+        }
+        
+        final Configuration_IN other = (Configuration_IN) o;
+        
+        return key.equals( other.getKey() );
+    }
+
+    /*
+    @Override
+    public String toString()
+    {
+        return "[" + key + "]";
+    }
+    */
+    
     //---------------------------------------------------------------
     // Getters and Setters
     //---------------------------------------------------------------
-
+    @JsonProperty
+    @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
     public int getId()
     {
         return id;
@@ -75,6 +132,8 @@ public class Configuration_IN
         this.id = id;
     }
 
+    @JsonProperty
+    @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
     public String getKey()
     {
         return key;
@@ -85,6 +144,8 @@ public class Configuration_IN
         this.key = key;
     }
 
+    @JsonProperty
+    @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
     public String getValue()
     {
         return value;
@@ -93,6 +154,15 @@ public class Configuration_IN
     public void setValue( String value )
     {
         this.value = value;
+    }
+    
+    @Override
+    public String toString()
+    {
+        return MoreObjects.toStringHelper( this )
+            .add( "key", key )
+            .add( "value", value )
+            .toString();
     }
     
 }

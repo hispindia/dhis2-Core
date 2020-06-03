@@ -6,17 +6,23 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   
   <!-- Store definitions -->
 
-  <bean id="org.hisp.dhis.config.ConfigurationStore"
-    class="org.hisp.dhis.config.hibernate.HibernateConfigurationStore">
-    <property name="sessionFactory" ref="sessionFactory"/>
-  </bean>
+  <bean id="org.hisp.dhis.config.ConfigurationStore_IN" class="org.hisp.dhis.config.hibernate.HibernateConfigurationStore_IN" />
 	
+<!-- 
+  <bean id="org.hisp.dhis.config.ConfigurationStore_IN"
+    class="org.hisp.dhis.config.hibernate.HibernateConfigurationStore_IN">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="clazz" value="org.hisp.dhis.config.Configuration_IN" />
+    <property name="cacheable" value="true" />
+  </bean>
+-->
+
   <!-- Service definitions -->
 
-  <bean id="org.hisp.dhis.config.ConfigurationService"
-    class="org.hisp.dhis.config.DefaultConfigurationService">
-    <property name="configurationStore"
-      ref="org.hisp.dhis.config.ConfigurationStore"/>
+  <bean id="org.hisp.dhis.config.ConfigurationService_IN"
+    class="org.hisp.dhis.config.DefaultConfigurationService_IN">
+    <property name="configurationStore_IN"
+      ref="org.hisp.dhis.config.ConfigurationStore_IN"/>
   </bean>
   
 </beans>

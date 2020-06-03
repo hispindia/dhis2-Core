@@ -1,0 +1,22 @@
+
+<h2>$i18n.getString( "dataanalyser" )&nbsp;</h2>
+	<ul>
+		<!--
+		<li>$i18n.getString( "ga" )&nbsp;</li>
+			<ul>
+		        <li><a href="graphicalAnalyserDataElement.action">$i18n.getString( "dataelements_wise" )&nbsp;</a></li>
+		        <li><a href="graphicalAnalyserIndicator.action">$i18n.getString( "indicator_wise" )&nbsp;</a></li>
+		   	</ul>
+		-->	
+		<li><a href="tabularAnalysisForm.action">$i18n.getString( "ta" )&nbsp;</a></li>
+		<!--<li><a href="validationRuleForm.action">Validation Rule</a></li>-->
+		<!--<li><a href="viewCommentForm.action">$i18n.getString( "vc" )</a></li>-->
+		
+		<!--
+		<li>$i18n.getString( "ds_datastatus" )&nbsp;</li>
+			<ul>				
+		   		<li><a href="dataStatusForm.action">$i18n.getString( "ds_regular" )&nbsp;</a></li>
+				<li><a href="NullReporter.action">$i18n.getString( "nr_null_reporter" )&nbsp;</a></li>
+		   	</ul>
+		-->			
+	</ul>
