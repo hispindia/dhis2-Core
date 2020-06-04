@@ -560,7 +560,8 @@ public class GenerateValidationRuleResultAction
 
                     Integer level = orgunitLevelMap.get( orgU.getId() );
                     if ( level == null )
-                        level = organisationUnitService.getOrganisationUnitLevel( orgU.getId() ).getLevel();
+                        //level = organisationUnitService.getOrganisationUnitLevel( orgU.getId() ).getLevel();
+                        level = organisationUnitService.getOrganisationUnit( orgU.getId() ).getLevel();
                     if ( level > orgUnitLevelCB )
                     {
                         ouIterator.remove();
@@ -585,7 +586,8 @@ public class GenerateValidationRuleResultAction
 
                     Integer level = orgunitLevelMap.get( orgU.getId() );
                     if ( level == null )
-                        level = organisationUnitService.getOrganisationUnitLevel( orgU.getId() ).getLevel();
+                        //level = organisationUnitService.getOrganisationUnitLevel( orgU.getId() ).getLevel();
+                        level = organisationUnitService.getOrganisationUnit( orgU.getId() ).getLevel();
                     if ( level > orgUnitLevelCB )
                     {
                         ouIterator.remove();
@@ -609,7 +611,8 @@ public class GenerateValidationRuleResultAction
 
                     Integer level = orgunitLevelMap.get( orgU.getId() );
                     if ( level == null )
-                        level = organisationUnitService.getOrganisationUnitLevel( orgU.getId() ).getLevel();
+                        //level = organisationUnitService.getOrganisationUnitLevel( orgU.getId() ).getLevel();
+                        level = organisationUnitService.getOrganisationUnit( orgU.getId() ).getLevel();
                     if ( level > orgUnitLevelCB )
                     {
                         ouIterator.remove();
@@ -1064,7 +1067,7 @@ public class GenerateValidationRuleResultAction
         Map<String, String> dataValueCountMap = new HashMap<String, String>();
         try
         {
-            String query = "SELECT dataelementid, categoryoptioncomboid, SUM( value ) FROM datavalue " + " WHERE "
+            String query = "SELECT dataelementid, categoryoptioncomboid, SUM( cast( value as numeric ) ) FROM datavalue " + " WHERE "
                 + " dataelementid IN (" + dataElementIdsByComma + ") AND " + " sourceid IN ( " + orgUnitIdsBycomma
                 + " ) AND" + " periodid IN (" + periodIdsBycomma + ")"
                 + "GROUP BY dataelementid, categoryoptioncomboid";
