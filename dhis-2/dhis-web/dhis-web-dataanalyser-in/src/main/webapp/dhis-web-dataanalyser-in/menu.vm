@@ -9,7 +9,7 @@
 		   	</ul>
 		-->	
 		<li><a href="tabularAnalysisForm.action">$i18n.getString( "ta" )&nbsp;</a></li>
-		<li><a href="validationRuleForm.action">Validation Rule</a></li>
+		<!--<li><a href="validationRuleForm.action">Validation Rule</a></li>-->
 		<!--<li><a href="viewCommentForm.action">$i18n.getString( "vc" )</a></li>-->
 		
 		<!--
