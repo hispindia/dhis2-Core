@@ -3305,8 +3305,12 @@ GROUP BY sag.parent, sag1.dataelementid,sag1.categoryoptioncomboid ORDER BY sag.
                         + " ORDER BY sag.level,sag.parent";                
             //}
             
+                    
+            //System.out.println("SQL query --  : " + query );          
+                    
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
-
+            
+            
             while ( rs.next() )
             {
                 Integer ouId = rs.getInt( 2 );

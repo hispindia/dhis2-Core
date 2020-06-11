@@ -1,5 +1,7 @@
 package org.hisp.dhis.reports.meta.action;
 
+import static org.hisp.dhis.system.util.GeoUtils.getCoordinatesFromGeometry;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,8 +29,6 @@ import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -1021,9 +1021,11 @@ public class GenerateMetaDataReportResultAction
                         sheet0.addCell( new Label( colStart + 12, rowStart, comment, wCellformat ) );
 
                         String coordinates = new String();
-                        if ( organisationUnit.getCoordinates() != null )
+                        if ( organisationUnit.hasCoordinates() )
                         {
-                            coordinates = organisationUnit.getCoordinates();
+                            //coordinates = ou.getCoordinates();
+                            
+                            coordinates = getCoordinatesFromGeometry( organisationUnit.getGeometry() );
                         }
                         else
                         {
@@ -1369,9 +1371,11 @@ public class GenerateMetaDataReportResultAction
                         tempCol14.setCellValue( comment );
                         
                         String coordinates = new String();
-                        if ( organisationUnit.getCoordinates() != null )
+                        if ( organisationUnit.hasCoordinates() )
                         {
-                            coordinates = organisationUnit.getCoordinates();
+                            //coordinates = ou.getCoordinates();
+                            
+                            coordinates = getCoordinatesFromGeometry( organisationUnit.getGeometry() );
                         }
                         else
                         {
@@ -1725,9 +1729,11 @@ public class GenerateMetaDataReportResultAction
                     sheet0.addCell( new Label( colStart + 12, rowStart, comment, wCellformat ) );
 
                     String coordinates = new String();
-                    if ( ou.getCoordinates() != null )
+                    if ( ou.hasCoordinates() )
                     {
-                        coordinates = ou.getCoordinates();
+                        //coordinates = ou.getCoordinates();
+                        
+                        coordinates = getCoordinatesFromGeometry( ou.getGeometry() );
                     }
                     else
                     {
