@@ -116,7 +116,15 @@ public class MinMaxOutlierAnalysisService
 
         //Set<Integer> orgUnitIds = new HashSet<>( IdentifiableObjectUtils.getIdentifiers( organisationUnits ) );
 
-        Date from = new DateTime( 1, 1, 1, 1, 1 ).toDate();
+        //Date from = new DateTime( 1, 1, 1, 1, 1 ).toDate();
+		
+		int year = Calendar.getInstance().get(Calendar.YEAR)-1;
+		
+		int month = Calendar.getInstance().get(Calendar.MONTH)+1;
+		
+		int date = Calendar.getInstance().get(Calendar.DATE);
+		
+		Date from = new DateTime(year,month,date,1,1).toDate();		
 
         minMaxDataElementService.removeMinMaxDataElements( dataElements, parent );
 
@@ -137,6 +145,7 @@ public class MinMaxOutlierAnalysisService
                 for ( DataAnalysisMeasures measures : measuresList )
                 {
                     int min = (int) Math.round( MathUtils.getLowBound( measures.getStandardDeviation(), stdDevFactor, measures.getAverage() ) );
+					
                     int max = (int) Math.round( MathUtils.getHighBound( measures.getStandardDeviation(), stdDevFactor, measures.getAverage() ) );
 
                     switch ( dataElement.getValueType() )
@@ -155,7 +164,7 @@ public class MinMaxOutlierAnalysisService
 
                     CategoryOptionCombo categoryOptionCombo = new CategoryOptionCombo();
                     categoryOptionCombo.setId( measures.getCategoryOptionComboId() );
-
+					log.info("min: "+min);
                     batchHandler.addObject( new MinMaxDataElement( orgUnit, dataElement, categoryOptionCombo, min, max, true ) );
                 }
             }

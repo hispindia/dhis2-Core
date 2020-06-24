@@ -95,6 +95,7 @@ public class JdbcDataAnalysisStore
         Collection<String> parentPaths, Date from )
     {
         List<DataAnalysisMeasures> measures = new ArrayList<>();
+		
 
         if ( categoryOptionCombos.isEmpty() || parentPaths.isEmpty() )
         {
@@ -109,7 +110,7 @@ public class JdbcDataAnalysisStore
             matchPaths += "ou.path like '" + path + "%' or ";
         }
         matchPaths = TextUtils.removeLastOr( matchPaths ) + ") ";
-
+//System.out.println("matchPaths: "+matchPaths);
         String sql =
             "select dv.sourceid, dv.categoryoptioncomboid, " +
                 "avg( cast( dv.value as " + statementBuilder.getDoubleColumnType() + " ) ) as average, " +
@@ -140,7 +141,7 @@ public class JdbcDataAnalysisStore
                     .add( new DataAnalysisMeasures( orgUnitId, categoryOptionComboId, average, standardDeviation ) );
             }
         }
-
+		log.info("DateUtils.getMediumDateString( from ):  "+DateUtils.getMediumDateString( from ));
         return measures;
     }
 
