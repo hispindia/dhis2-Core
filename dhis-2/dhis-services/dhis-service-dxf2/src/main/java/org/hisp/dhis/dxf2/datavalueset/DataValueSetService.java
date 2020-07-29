@@ -28,6 +28,13 @@ package org.hisp.dhis.dxf2.datavalueset;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
 import org.hisp.dhis.common.IdSchemes;
 import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.datavalue.DataExportParams;
@@ -36,13 +43,6 @@ import org.hisp.dhis.dxf2.importsummary.ImportSummary;
 import org.hisp.dhis.node.types.RootNode;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.scheduling.JobConfiguration;
-
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Writer;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 /**
  * @author Lars Helge Overland
@@ -126,4 +126,9 @@ public interface DataValueSetService
     ImportSummary saveDataValueSetCsv( InputStream in, ImportOptions importOptions, JobConfiguration id );
 
     ImportSummary saveDataValueSetPdf( InputStream in, ImportOptions importOptions, JobConfiguration id );
+    
+    // for excel-import
+    ImportSummary saveDataValueSetExcelImport( DataValueSet dataValueSet );
+    
+    ImportSummary saveDataValueSetExcelImport( DataValueSet dataValueSet, ImportOptions importOptions, JobConfiguration id );
 }
