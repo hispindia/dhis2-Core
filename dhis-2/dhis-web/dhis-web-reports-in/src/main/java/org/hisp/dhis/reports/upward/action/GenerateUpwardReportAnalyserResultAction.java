@@ -689,7 +689,7 @@ public class GenerateUpwardReportAnalyserResultAction
                             tempRowNo += orgUnitCount;
                         }
                     }
-                	if ( sType.equalsIgnoreCase( "dataelement" ) )
+                    if ( sType.equalsIgnoreCase( "dataelement" ) )
                     {
                         try
                         {
@@ -706,7 +706,7 @@ public class GenerateUpwardReportAnalyserResultAction
                             
                         }
                     }   
-                	else if ( sType.equalsIgnoreCase( "dataelement-date" ) )
+                    else if ( sType.equalsIgnoreCase( "dataelement-date" ) )
                     {
                         try
                         {
@@ -911,7 +911,7 @@ public class GenerateUpwardReportAnalyserResultAction
                 
                 while ( sqlResultSet.next() )
                 {
-                	String stringDataValue = sqlResultSet.getString( 1 );
+                    String stringDataValue = sqlResultSet.getString( 1 );
                     if ( stringDataValue != null )
                     {
                     	resultValue = stringDataValue;
