@@ -1,7 +1,7 @@
-package org.hisp.dhis.system.objectmapper;
+package org.hisp.dhis.resourcetable.table;
 
 /*
- * Copyright (c) 2004-2019, University of Oslo
+ * Copyright (c) 2004-2020, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,29 +28,51 @@ package org.hisp.dhis.system.objectmapper;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import org.hisp.dhis.common.BaseDimensionalObject;
 
-import org.hisp.quick.mapper.RowMapper;
-import org.hisp.dhis.organisationunit.OrganisationUnitRelationship;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hisp.dhis.system.util.SqlUtils.quote;
 
 /**
- * @author Lars Helge Overland
+ * @author Luciano Fiandesio
  */
-public class OrganisationUnitRelationshipRowMapper
-    implements RowMapper<OrganisationUnitRelationship>, org.springframework.jdbc.core.RowMapper<OrganisationUnitRelationship>
-{    
-    @Override
-    public OrganisationUnitRelationship mapRow( ResultSet resultSet )
-        throws SQLException
+public class UniqueNameVerifier {
+
+    protected List<String> columnNames = new ArrayList<>();
+
+    /**
+     * Returns the short name in quotes for the given {@see BaseDimensionalObject}, ensuring
+     * that the short name is unique across the list of BaseDimensionalObject this
+     * class operates on
+     *
+     * @param baseDimensionalObject a {@see BaseDimensionalObject}
+     * @return a unique, quoted short name
+     */
+    protected String ensureUniqueShortName( BaseDimensionalObject baseDimensionalObject )
     {
-        return new OrganisationUnitRelationship( resultSet.getLong( "parentid" ), resultSet.getLong( "organisationunitid" ) );
+        String columnName = quote( baseDimensionalObject.getShortName()
+                + (columnNames.contains( baseDimensionalObject.getShortName() ) ? columnNames.size() : "") );
+
+        this.columnNames.add( baseDimensionalObject.getShortName() );
+
+        return columnName;
     }
-    
-    @Override
-    public OrganisationUnitRelationship mapRow( ResultSet resultSet, int rowNum )
-        throws SQLException
+
+    /**
+     * Returns the name in quotes, ensuring
+     * that the name is unique across the list of objects this class operates on
+     *
+     * @param name a String
+     * @return a unique, quoted name
+     */
+    protected String ensureUniqueName( String name )
     {
-        return mapRow( resultSet );
+        String columnName = quote( name + (columnNames.contains( name ) ? columnNames.size() : "") );
+
+        this.columnNames.add( name );
+
+        return columnName;
     }
 }
