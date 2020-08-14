@@ -1,4 +1,4 @@
-package org.hisp.dhis.reservedvalue.hibernate;
+package org.hisp.dhis.resourcetable.table;
 
 /*
  * Copyright (c) 2004-2020, University of Oslo
@@ -28,51 +28,51 @@ package org.hisp.dhis.reservedvalue.hibernate;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hisp.dhis.reservedvalue.SequentialNumberCounter;
-import org.hisp.dhis.reservedvalue.SequentialNumberCounterStore;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import org.hisp.dhis.common.BaseDimensionalObject;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+
+import static org.hisp.dhis.system.util.SqlUtils.quote;
 
 /**
- * @author Stian Sandvold
+ * @author Luciano Fiandesio
  */
-@Repository( "org.hisp.dhis.reservedvalue.SequentialNumberCounterStore" )
-public class HibernateSequentialNumberCounterStore
-    implements
-    SequentialNumberCounterStore
-{
-    protected SessionFactory sessionFactory;
+public class UniqueNameVerifier {
 
-    public HibernateSequentialNumberCounterStore( SessionFactory sessionFactory )
+    protected List<String> columnNames = new ArrayList<>();
+
+    /**
+     * Returns the short name in quotes for the given {@see BaseDimensionalObject}, ensuring
+     * that the short name is unique across the list of BaseDimensionalObject this
+     * class operates on
+     *
+     * @param baseDimensionalObject a {@see BaseDimensionalObject}
+     * @return a unique, quoted short name
+     */
+    protected String ensureUniqueShortName( BaseDimensionalObject baseDimensionalObject )
     {
-        this.sessionFactory = sessionFactory;
+        String columnName = quote( baseDimensionalObject.getShortName()
+                + (columnNames.contains( baseDimensionalObject.getShortName() ) ? columnNames.size() : "") );
+
+        this.columnNames.add( baseDimensionalObject.getShortName() );
+
+        return columnName;
     }
 
-    @Override
-    public List<Integer> getNextValues( String uid, String key, int length )
+    /**
+     * Returns the name in quotes, ensuring
+     * that the name is unique across the list of objects this class operates on
+     *
+     * @param name a String
+     * @return a unique, quoted name
+     */
+    protected String ensureUniqueName( String name )
     {
-        Session session = sessionFactory.getCurrentSession();
+        String columnName = quote( name + (columnNames.contains( name ) ? columnNames.size() : "") );
 
-        int count = (int) session.createNativeQuery( "SELECT * FROM incrementSequentialCounter(?0, ?1, ?2)" )
-            .setParameter( 0, uid )
-            .setParameter( 1, key )
-            .setParameter( 2, length )
-            .uniqueResult();
+        this.columnNames.add( name );
 
-        return IntStream.range( count - length, length + (count - length) ).boxed().collect( Collectors.toList() );
-    }
-
-    @Override
-    @Transactional
-    public void deleteCounter( String uid )
-    {
-        sessionFactory.getCurrentSession().createQuery( "DELETE SequentialNumberCounter WHERE owneruid = :uid" )
-            .setParameter( "uid", uid ).executeUpdate();
+        return columnName;
     }
 }
