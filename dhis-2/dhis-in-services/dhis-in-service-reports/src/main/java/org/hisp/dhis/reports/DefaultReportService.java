@@ -1186,8 +1186,7 @@ public class DefaultReportService
     // Get Aggregated Result for dataelement expression
     // -------------------------------------------------------------------------
     @SuppressWarnings("unused")
-	public String getResultDataValue( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit,
-        String reportModelTB )
+	public String getResultDataValue( String formula, Date startDate, Date endDate, OrganisationUnit organisationUnit, String reportModelTB )
     {
         int deFlag1 = 0;
         int isAggregated = 0;
@@ -2793,8 +2792,7 @@ GROUP BY sag.parent, sag1.dataelementid,sag1.categoryoptioncomboid ORDER BY sag.
         }
     }
 
-    public Map<String, String> getResultDataValueFromAggregateTable( String orgUnitIdsByComma,
-        String dataElmentIdsByComma, String periodIdsByComma )
+    public Map<String, String> getResultDataValueFromAggregateTable( String orgUnitIdsByComma, String dataElmentIdsByComma, String periodIdsByComma )
     {
         Map<String, String> aggDataMap = new HashMap<String, String>();
         try

@@ -52,9 +52,6 @@
 			<li><a href = "periodOrgUnitServiceProgressReportAnalyser.action">Period OrgUnit Progress Reports</a></li>
 		#end	
 		-->
-
-		
-		
 		#if( $auth.hasAccess( "dhis-web-reports-in", "metaDataReportAnalyser") )
 			<li><a href = "metaDataReportAnalyser.action">Meta Data Reports</a></li>
 		#end		
@@ -63,6 +60,13 @@
 			<li><a href = "analysisReportAnalyser.action">Analysis Reports</a></li>
 		#end			
 
+		#if( $auth.hasAccess( "dhis-web-reports-in", "kayakalpReportAnalyser") )
+			<li><a href = "kayakalpReportAnalyser.action">Kayakalp Reports</a></li>
+		#end
+		#if( $auth.hasAccess( "dhis-web-reports-in", "kayakalpBaselineReportAnalyser") )
+			<li><a href = "kayakalpBaselineReportAnalyser.action">Kayakalp Baseline Reports</a></li>
+		#end		
+		
 		<!--
 		#if( $auth.hasAccess( "dhis-web-reports-in", "advancAanalysisReportAnalyser") )
 			<li><a href = "advancAanalysisReportAnalyser.action">Advance Analysis Reports</a></li>

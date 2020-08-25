@@ -73,6 +73,8 @@ public class ReportType
     public final static String RT_PERIOD_ORGUNIT_SERVICE_PROGRESS_REPORT = "Period OrgUnit Progress Reports";
     
     public final static String RT_BIRT = "Birt Report";
+    
+    public final static String RT_KAYAKALP_REPORT = "Kayakalp Report";
 
     public static List<String> getReportTypes()
     {
@@ -119,6 +121,8 @@ public class ReportType
         reportTypes.add(RT_PERIOD_ORGUNIT_SERVICE_PROGRESS_REPORT);
         
         reportTypes.add(RT_BIRT);
+        
+        reportTypes.add(RT_KAYAKALP_REPORT);
         
         return reportTypes;
     }

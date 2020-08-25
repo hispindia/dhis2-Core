@@ -1257,6 +1257,50 @@
                 <param name="bufferSize">1024</param>
             </result>
         </action>        
+
+        <!--Kayakalp Report -->
+        <action name="kayakalpReportAnalyser"
+            class="org.hisp.dhis.reports.kayakalp.action.GenerateKayakalpReportAnalyserFormAction">
+            <result name="success" type="velocity">/main.vm</result>
+            <param name="page">/dhis-web-reports-in/kayakalpReportFront.vm</param>
+            <param name="menu">/dhis-web-reports-in/menuWithTreeForKayakalpReport.vm</param>
+            <param name="javascripts">../dhis-web-commons/ouwt/ouwt.js,javascript/reportManagement.js</param>
+            <param name="stylesheets">css/StylesForTags.css</param>
+            <param name="requiredAuthorities">F_REPORT_KAYAKALP</param>
+            <interceptor-ref name="organisationUnitTreeStack"/>
+        </action>
+        
+        <action name="generateKayakalpReport"
+            class="org.hisp.dhis.reports.kayakalp.action.GenerateKayakalpReportAnalyserResultAction">
+            <result name="success" type="stream">
+                <param name="contentType">application/vnd.ms-excel</param>
+                <param name="inputName">inputStream</param>
+                <param name="contentDisposition">filename="${fileName}"</param>
+                <param name="bufferSize">1024</param>
+            </result>
+        </action>			
+
+        <!--Kayakalp BaseLine Report -->
+        <action name="kayakalpBaselineReportAnalyser"
+            class="org.hisp.dhis.reports.kayakalp.action.GenerateKayakalpBaselineReportAnalyserFormAction">
+            <result name="success" type="velocity">/main.vm</result>
+            <param name="page">/dhis-web-reports-in/kayakalpBaselineReportFront.vm</param>
+            <param name="menu">/dhis-web-reports-in/menuWithTreeForKayakalpReport.vm</param>
+            <param name="javascripts">../dhis-web-commons/ouwt/ouwt.js,javascript/reportManagement.js</param>
+            <param name="stylesheets">css/StylesForTags.css</param>
+            <param name="requiredAuthorities">F_REPORT_KAYAKALP</param>
+            <interceptor-ref name="organisationUnitTreeStack"/>
+        </action>
+        
+        <action name="generateKayakalpBaselineReport"
+            class="org.hisp.dhis.reports.kayakalp.action.GenerateKayakalpBaseLineReportAnalyserResultAction">
+            <result name="success" type="stream">
+                <param name="contentType">application/vnd.ms-excel</param>
+                <param name="inputName">inputStream</param>
+                <param name="contentDisposition">filename="${fileName}"</param>
+                <param name="bufferSize">1024</param>
+            </result>
+        </action>
         
     </package>
 </struts>
