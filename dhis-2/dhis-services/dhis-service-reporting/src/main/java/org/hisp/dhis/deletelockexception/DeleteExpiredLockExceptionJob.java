@@ -1,21 +1,21 @@
 package org.hisp.dhis.deletelockexception;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hisp.dhis.cache.HibernateCacheManager;
-import org.hisp.dhis.dataelement.DataElementService;
-import org.hisp.dhis.program.ProgramStageInstanceService;
+
+import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.scheduling.AbstractJob;
 import org.hisp.dhis.scheduling.JobConfiguration;
 import org.hisp.dhis.scheduling.JobType;
 import org.hisp.dhis.setting.SettingKey;
 import org.hisp.dhis.setting.SystemSettingManager;
-import org.hisp.dhis.trackedentity.TrackedEntityInstanceService;
-import org.hisp.dhis.trackedentitydatavalue.TrackedEntityDataValueService;
-import org.hisp.dhis.user.CurrentUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -68,6 +68,17 @@ public class DeleteExpiredLockExceptionJob extends AbstractJob
         log.info( String.format( "%s has started", KEY_TASK ) );
         
         deleteExpiredLockException();
+        //List <OrganisationUnit> orgUnitList = new ArrayList<>( );
+        String deleteFolderPath = System.getenv( "DHIS2_HOME" ) + File.separator + "ra_uphmis" + File.separator + "temp";
+        
+        //Creating the File object
+        File fileForDelete = new File( deleteFolderPath );
+        if( fileForDelete.exists() )
+        {
+            deleteTempFolder( fileForDelete );
+            System.out.println( "temp Folder/ Files deleted ........" );
+        }
+        
 
         System.out.println("INFO: Delete LOCK-EXCEPTION job ended at : " + new Date() );
              
@@ -96,7 +107,23 @@ public class DeleteExpiredLockExceptionJob extends AbstractJob
         }
         
         cacheManager.clearCache();
-    }     
+    }   
     
+    //deleteTempFolder
+    public void deleteTempFolder( File file )
+    {
+        for ( File subFile : file.listFiles() ) 
+        {
+            if( subFile.isDirectory() ) 
+            {
+                deleteTempFolder( subFile );
+            } 
+            else 
+            {
+               subFile.delete();
+            }
+         }
+         file.delete();
+      }     
     
 }

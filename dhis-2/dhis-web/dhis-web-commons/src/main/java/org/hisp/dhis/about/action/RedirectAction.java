@@ -41,7 +41,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  * @author Lars Helge Overland
@@ -66,6 +68,8 @@ public class RedirectAction
     }
     
     HttpServletResponse response;
+    HttpServletRequest request;
+    HttpSession session;
     @Override
     public String execute()
         throws Exception
@@ -73,9 +77,12 @@ public class RedirectAction
         String startModule = (String) systemSettingManager.getSystemSetting( SettingKey.START_MODULE );
 
         String contextPath = (String) ContextUtils.getContextPath( ServletActionContext.getRequest() );
+        
+        String setHeader = ""+ServletActionContext.getRequest().getSession().getMaxInactiveInterval() + "; URL=/dhis-web-commons/security/sessionExpired.action";
 
         if ( startModule != null && !startModule.trim().isEmpty() )
         {
+            
             if ( startModule.startsWith( "app:" ) )
             {
                 List<App> apps = appManager.getApps( contextPath );
@@ -84,6 +91,9 @@ public class RedirectAction
                 {
                     if ( app.getName().equals( startModule.substring( "app:".length() ) ) )
                     {
+                        ServletActionContext.getResponse().setHeader("Refresh", ServletActionContext.getRequest().getSession().getMaxInactiveInterval() + "; URL=/dhis-web-commons/security/sessionExpired.action");
+                        System.out.println( " 1 Session time out redirect page -- " + ServletActionContext.getRequest().getSession().getMaxInactiveInterval() + " -- " + setHeader );
+                        
                         redirectUrl = app.getLaunchUrl();
                         return SUCCESS;
                     }
@@ -91,6 +101,9 @@ public class RedirectAction
             }
             else
             {
+                ServletActionContext.getResponse().setHeader("Refresh", ServletActionContext.getRequest().getSession().getMaxInactiveInterval() + "; URL=/dhis-web-commons/security/sessionExpired.action");
+                System.out.println( " 2 Session time out redirect page -- " + ServletActionContext.getRequest().getSession().getMaxInactiveInterval() + " -- " + setHeader );
+                
                 redirectUrl = "../" + startModule + "/";
                 return SUCCESS;
             }
@@ -101,8 +114,13 @@ public class RedirectAction
         response.setHeader("Cache-Control","no-store"); //Directs caches not to store the page under any circumstance
         response.setDateHeader("Expires", 0); //Causes the proxy cache to see the page as "stale"
         response.setHeader("Pragma","no-cache"); //HTTP 1.0 backward compatibility
-        
         redirectUrl = "../dhis-web-dashboard/";
+        
+        //response.setHeader("Refresh", setHeader);
+        //response.setHeader("Refresh", "10; URL=login.jsp");
+        
+        ServletActionContext.getResponse().setHeader("Refresh", ServletActionContext.getRequest().getSession().getMaxInactiveInterval() + "; URL=/dhis-web-commons/security/sessionExpired.action");
+        System.out.println( " 3 Session time out redirect page -- " + ServletActionContext.getRequest().getSession().getMaxInactiveInterval() + " -- " + setHeader );
         return SUCCESS;
     }
 }

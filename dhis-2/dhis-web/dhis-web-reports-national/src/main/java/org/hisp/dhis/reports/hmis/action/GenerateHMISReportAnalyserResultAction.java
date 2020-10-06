@@ -183,7 +183,7 @@ public class GenerateHMISReportAnalyserResultAction implements Action
         String inputTemplatePath = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + "template" + File.separator + reportFileNameTB;
         //String outputReportPath = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + "output" + File.separator + UUID.randomUUID().toString() + ".xls";
         
-        String outputReportPath = System.getenv( "DHIS2_HOME" ) + File.separator +  Configuration_IN.DEFAULT_TEMPFOLDER;
+        String outputReportPath = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + Configuration_IN.DEFAULT_TEMPFOLDER;
         File newdir = new File( outputReportPath );
         if( !newdir.exists() )
         {
@@ -551,7 +551,40 @@ public class GenerateHMISReportAnalyserResultAction implements Action
         inputStream = new BufferedInputStream( new FileInputStream( outputReportFile ) );
         
         outputReportFile.deleteOnExit();
+        String deleteFolderPath = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + Configuration_IN.DEFAULT_TEMPFOLDER;
         
+        //Creating the File object
+        File fileForDelete = new File( deleteFolderPath );
+        if( fileForDelete.exists() )
+        {
+            deleteFolder( fileForDelete );
+            System.out.println( "temp Folder/ Files deleted ........" );
+        }
+        /*
+	try  
+	{         
+	    //File f = new File(deleteFolderPath);       //file to be delete
+            File dir = new File( deleteFolderPath );
+            String[] files = dir.list();        
+            for ( String file : files )
+            {
+                file = deleteFolderPath + File.separator + file;
+                File deleteFile = new File(file);
+                System.out.println(  " --  delete file -- " + deleteFile.getName() );
+                deleteFile.delete();
+            }
+            
+            System.out.println(  " -- inside service delete "   );
+	}  
+	catch(Exception e)  
+	{  
+	    e.printStackTrace();
+	    //log.error(e);
+	    System.out.println(  " -- inside catch delete "  + e );
+	}  
+	*/
+        
+		
         System.out.println( orgUnitList.get( 0 ).getName()+ " : " + selReportObj.getName()+" Report Generation End Time is : " + new Date() );
         
         
@@ -724,5 +757,20 @@ public class GenerateHMISReportAnalyserResultAction implements Action
 
         return dataElmentIdsByComma;
     }
-
+    //deleteTempFolder
+    public void deleteFolder( File file )
+    {
+        for ( File subFile : file.listFiles() ) 
+        {
+            if( subFile.isDirectory() ) 
+            {
+               deleteFolder( subFile );
+            } 
+            else 
+            {
+               subFile.delete();
+            }
+         }
+         file.delete();
+      } 
 }

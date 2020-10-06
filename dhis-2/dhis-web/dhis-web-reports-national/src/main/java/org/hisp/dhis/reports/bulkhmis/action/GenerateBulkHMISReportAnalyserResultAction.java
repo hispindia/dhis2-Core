@@ -185,7 +185,7 @@ public class GenerateBulkHMISReportAnalyserResultAction implements Action
         String inputTemplatePath = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + "template" + File.separator + reportFileNameTB;
         //String outputReportPath = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + "output" + File.separator + UUID.randomUUID().toString() + ".xls";
         
-        String outputReportFolderPath = System.getenv( "DHIS2_HOME" ) + File.separator +  Configuration_IN.DEFAULT_TEMPFOLDER + File.separator + UUID.randomUUID().toString();
+        String outputReportFolderPath = System.getenv( "DHIS2_HOME" ) + File.separator +  raFolderName + File.separator + Configuration_IN.DEFAULT_TEMPFOLDER + File.separator + UUID.randomUUID().toString();
         
         File newdir = new File( outputReportFolderPath );
         if( !newdir.exists() )
@@ -562,6 +562,42 @@ public class GenerateBulkHMISReportAnalyserResultAction implements Action
 
             File outputReportFile = new File( outputReportFolderPath+".zip" );
             inputStream = new BufferedInputStream( new FileInputStream( outputReportFile ) );
+			
+            String deleteFolderPath = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + Configuration_IN.DEFAULT_TEMPFOLDER;
+           
+            //Creating the File object
+            File fileForDelete = new File( deleteFolderPath );
+            if( fileForDelete.exists() )
+            {
+                deleteFolder( fileForDelete );
+                System.out.println( "temp Folder/ Files deleted ........" );
+            }
+            
+            /*
+            try  
+            {         
+                //File f = new File(deleteFolderPath);       //file to be delete
+                File dir = new File( deleteFolderPath );
+                String[] files = dir.list();        
+                for ( String file : files )
+                {
+                    file = deleteFolderPath + File.separator + file;
+                    File tempFile = new File(file);
+                    System.out.println(  " --  delete file -- " + tempFile.getName() );
+                    tempFile.delete();
+                    
+                }
+                
+                System.out.println(  " -- inside service delete "   );
+               
+            }  
+            catch(Exception e)  
+            {  
+                e.printStackTrace();
+                //log.error(e);
+                System.out.println(  " -- inside catch delete "  + e );
+            }  
+             */			
 
             return SUCCESS;
         }
@@ -795,5 +831,22 @@ public class GenerateBulkHMISReportAnalyserResultAction implements Action
         return dataElmentIdsByComma;
     }    
     
+ 
     
+    //deleteTempFolder
+    public void deleteFolder( File file )
+    {
+        for ( File subFile : file.listFiles() ) 
+        {
+            if( subFile.isDirectory() ) 
+            {
+               deleteFolder( subFile );
+            } 
+            else 
+            {
+               subFile.delete();
+            }
+         }
+         file.delete();
+      } 
 }    

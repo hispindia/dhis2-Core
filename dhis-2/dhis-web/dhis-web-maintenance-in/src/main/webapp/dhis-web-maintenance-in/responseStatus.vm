@@ -1,2 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<message>$encoder.xmlEncode( $statusMessage )</message>
+<!--<message>$!encoder.xmlEncode( $statusMessage )</message>-->
+
+<message>
+	<statusMessage>$encoder.xmlEncode( $statusMessage )</statusMessage>
+</message>

@@ -81,6 +81,25 @@ public class ClearFolderAction implements Action
                 statusMessage = "Problem while clearing OUTPUT folder, please see the log";
             }
         }
+        else if( selectedButton.equalsIgnoreCase( "cleartemp" ) )
+        {
+            String raFolderName = configurationService.getConfigurationByKey( Configuration_IN.KEY_REPORTFOLDER ).getValue();
+            String deleteFolderPath = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + Configuration_IN.DEFAULT_TEMPFOLDER;
+            
+            //Creating the File object
+            File file = new File( deleteFolderPath );
+            if( file.exists() )
+            {
+                deleteTempFolder(file);
+                statusMessage = "Successfully Cleared the Folder : " + Configuration_IN.DEFAULT_TEMPFOLDER;
+                System.out.println( "temp Folder/ Files deleted ........" );
+            }
+            else
+            {
+                statusMessage = "temp Folder/ Files not Exist";
+            }
+            
+        }
         else if( selectedButton.equalsIgnoreCase( "clearbounced" ) )
         {
             clearFolderPath = System.getenv( "DHIS2_HOME" ) + File.separator + "mi" + File.separator + "bounced";
@@ -233,5 +252,20 @@ public class ClearFolderAction implements Action
 
         return SUCCESS;
     }
-    
+    //deleteTempFolder
+    public void deleteTempFolder( File file )
+    {
+        for ( File subFile : file.listFiles() ) 
+        {
+            if( subFile.isDirectory() ) 
+            {
+                deleteTempFolder( subFile );
+            } 
+            else 
+            {
+               subFile.delete();
+            }
+         }
+         file.delete();
+      }    
 }

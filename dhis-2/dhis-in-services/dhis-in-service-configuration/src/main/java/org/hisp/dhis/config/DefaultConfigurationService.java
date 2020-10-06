@@ -78,12 +78,13 @@ public class DefaultConfigurationService
                 File tempFile = new File(file);
                 tempFile.delete();
             }
-            
+            System.out.println(  " -- inside service delete "   );
             return true;
         }
         catch(Exception e)
         {
             log.error(e);
+            System.out.println(  " -- inside service delete "  + e );
             return false;
         }        
     }
