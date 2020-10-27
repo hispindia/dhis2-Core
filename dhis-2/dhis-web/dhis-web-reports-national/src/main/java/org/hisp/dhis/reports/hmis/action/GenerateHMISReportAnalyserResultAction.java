@@ -553,13 +553,16 @@ public class GenerateHMISReportAnalyserResultAction implements Action
         outputReportFile.deleteOnExit();
         String deleteFolderPath = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + Configuration_IN.DEFAULT_TEMPFOLDER;
         
-        //Creating the File object
+        //Creating the File object // delete temp folder
+        /*
         File fileForDelete = new File( deleteFolderPath );
         if( fileForDelete.exists() )
         {
             deleteFolder( fileForDelete );
             System.out.println( "temp Folder/ Files deleted ........" );
         }
+        */
+        
         /*
 	try  
 	{         

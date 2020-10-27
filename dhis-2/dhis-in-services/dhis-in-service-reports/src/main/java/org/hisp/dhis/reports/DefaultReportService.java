@@ -2952,7 +2952,7 @@ GROUP BY sag.parent, sag1.dataelementid,sag1.categoryoptioncomboid ORDER BY sag.
             
             //System.out.println( " query : " + query  );
             query = "SELECT dataelementid,categoryoptioncomboid, SUM( cast( value as numeric) ) FROM datavalue "
-                + " WHERE dataelementid IN (" + dataElmentIdsByComma + " ) AND " + " sourceid IN ("
+                + " WHERE deleted is false AND dataelementid IN (" + dataElmentIdsByComma + " ) AND " + " sourceid IN ("
                 + orgUnitIdsByComma + " ) AND " + " periodid IN (" + periodIdsByComma
                 + ") GROUP BY dataelementid,categoryoptioncomboid";
             
@@ -3609,7 +3609,7 @@ GROUP BY sag.parent, sag1.dataelementid,sag1.categoryoptioncomboid ORDER BY sag.
             }
             */
             query = "SELECT sourceid,dataelementid,categoryoptioncomboid, SUM( cast( value as numeric) ) FROM datavalue "
-                + " WHERE dataelementid IN ("
+                + "  WHERE deleted is false AND dataelementid IN ("
                 + dataElmentIdsByComma
                 + " ) AND "
                 + " sourceid IN ("
@@ -3627,7 +3627,7 @@ GROUP BY sag.parent, sag1.dataelementid,sag1.categoryoptioncomboid ORDER BY sag.
                 Integer deId = rs.getInt( 2 );
                 Integer optionComId = rs.getInt( 3 );
                 Double aggregatedValue = rs.getDouble( 4 );
-                if ( aggregatedValue != null )
+                if ( aggregatedValue != null  )
                 {
                     aggDataMap.put( orgUnitId + ":" + deId + ":" + optionComId, "" + aggregatedValue );
                 }
