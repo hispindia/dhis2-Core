@@ -26,12 +26,16 @@
         <td style="width:100px"><label id="labelUsername" for="username">$i18n.getString( "user_name" )</label></td>
         <td><input type="text" id="username" name="username" autocomplete="off"></td>
     </tr>
-    <tr>
-        <td></td>
-        <td><input id="recoveryButton" type="button" value="$i18n.getString( 'recover' )" style="width:10em" onclick="recoverAccount()"></td>
-    </tr>
 </table>
-
+<div>
+						<!--<input type="text" id="txtCaptcha" style="text-align:center; border:none; background-image:url(./img/captcha_back_ground.png); color:red; font-weight:bold; font-family:Modern; width:100px" readonly/>-->
+							<input type="text" id="txtCaptcha" style="text-align:center; border:none;color:red; font-weight:bold;font-size:25px; font-family:Modern; width:145px; background-image:url(./img/captcha_back_ground.png);" readonly/>
+							<input type="text" id="txtCaptchaInput" name="txtCaptchaInput" placeholder="Enter Captcha" style='width:148px;padding-left:2px;' required/>
+							<a href="javascript:drawComplexCaptcha();" title="$i18n.getString( "Regenerate Captcha" )"><img src="./img/refresh.png" alt="$i18n.getString( "Regenerate Captcha" )"></a>
+						</div>
+						    <div>
+                                                       <input id="recoveryButton" type="button" value="$i18n.getString( 'recover' )" style="width:10em" onclick="recoverAccount()">
+                                                    </div>
 </form>
 
 <div id="recoverySuccessMessage" style="display:none">$i18n.getString( 'recover_success_message' )</div>
