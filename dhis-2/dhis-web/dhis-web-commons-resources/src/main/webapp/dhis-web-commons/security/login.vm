@@ -78,13 +78,18 @@
     </div>
     -->
 
-        <form id="loginForm" autocomplete="off" action="../../dhis-web-commons-security/login.action" method="post">
+        <form id="loginForm" autocomplete="off" action="../../dhis-web-commons-security/login.action" method="post" onsubmit="return captchaValidations()">
             <div>
                 <div id="signInLabel">Sign in</div>
                 <div><input type="text" autocomplete="off" id="j_username" name="j_username" placeholder="Username"/></div>
                 <div><input type="password" id="j_password" name="j_password" autocomplete="off" placeholder="Password" /></div>
             </div>
-
+<div>
+						<!--<input type="text" id="txtCaptcha" style="text-align:center; border:none; background-image:url(./img/captcha_back_ground.png); color:red; font-weight:bold; font-family:Modern; width:100px" readonly/>-->
+							<input type="text" id="txtCaptcha" style="text-align:center; border:none;color:red; font-weight:bold;font-size:25px; font-family:Modern; width:145px; background-image:url(./img/captcha_back_ground.png);" readonly/>
+							<input type="text" id="txtCaptchaInput" name="txtCaptchaInput" placeholder="Enter Captcha" style='width:148px;padding-left:2px;' required/>
+							<a href="javascript:drawComplexCaptcha();" title="$i18n.getString( "Regenerate Captcha" )"><img src="./img/refresh.png" alt="$i18n.getString( "Regenerate Captcha" )"></a>
+						</div>
 
             <div id="submitDiv">
                 <input id="submit" class="button" type="submit" value="Sign in">

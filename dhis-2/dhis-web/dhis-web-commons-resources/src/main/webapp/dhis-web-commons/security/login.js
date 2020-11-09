@@ -4,6 +4,18 @@ login.localeKey = "dhis2.locale.ui";
 
 $( document ).ready( function() 
 {
+
+	drawComplexCaptcha();
+	//Disable cut copy paste
+	$('body').bind('cut copy paste', function (e) {
+		e.preventDefault();
+	});
+
+	//Disable mouse right click
+	$("body").on("contextmenu",function(e){
+		return false;
+	});
+
     $( '#j_username' ).focus();
 
     var checked = document.getElementById( '2fa' ).checked;
@@ -74,5 +86,105 @@ login.changeLocale = function( locale )
 		$( '#applicationFooter' ).html( json.keyApplicationFooter );
 		$( '#applicationRightFooter' ).html( json.keyApplicationRightFooter );
 	} );
+}
+
+
+function drawCaptcha()
+{
+	var a = Math.ceil(Math.random() * 10)+ '';
+	var b = Math.ceil(Math.random() * 10)+ '';
+	var c = Math.ceil(Math.random() * 10)+ '';
+	var d = Math.ceil(Math.random() * 10)+ '';
+	var e = Math.ceil(Math.random() * 10)+ '';
+	var f = Math.ceil(Math.random() * 10)+ '';
+	var g = Math.ceil(Math.random() * 10)+ '';
+	var code = a + ' ' + b + ' ' + ' ' + c + ' ' + d + ' ' + e + ' '+ f + ' ' + g;
+	document.getElementById("txtCaptcha").value = code;
+	document.getElementById("txtCaptchaInput").value = "";
+}
+
+function drawComplexCaptcha()
+{
+	var alpha = [ 'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+		'0','1','2','3','4','5','6','7','8','9',
+		'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+
+
+	var a = alpha[Math.floor(Math.random()*62)];
+	var b = alpha[Math.floor(Math.random()*62)];
+	var c = alpha[Math.floor(Math.random()*62)];
+	var d = alpha[Math.floor(Math.random()*62)];
+	var e = alpha[Math.floor(Math.random()*62)];
+	var f = alpha[Math.floor(Math.random()*62)];
+
+	var code = a + b  + c + d + e + f;
+	document.getElementById("txtCaptcha").value = code;
+	document.getElementById("txtCaptchaInput").value = "";
+}
+
+
+
+
+// Validate the Entered input aganist the generated security code function
+
+/*
+function validCaptcha()
+{
+	var str1 = removeSpaces(document.getElementById('txtCaptcha').value);
+	var str2 = removeSpaces(document.getElementById('txtCaptchaInput').value);
+	if (str1 == str2)
+	{
+		return true;
+	}
+	return false;
+}
+*/
+
+// Remove the spaces from the entered and generated code
+function removeSpaces(string)
+{
+	return string.split(' ').join('');
+}
+
+function captchaValidations()
+{
+	//alert( "inside captch validation");
+	var tempUserName = document.getElementById("j_username").value;
+	var tempUserPassword = document.getElementById("j_password").value;
+	var enteredCaptcha = document.getElementById("txtCaptchaInput").value;
+	var str1 = removeSpaces(document.getElementById('txtCaptcha').value);
+	var str2 = removeSpaces(document.getElementById('txtCaptchaInput').value);
+
+	if( tempUserName == null || tempUserName == "" || tempUserName == " " )
+	{
+		alert("Please Enter Username");
+		//document.getElementById("submit").disabled = false;
+		return false;
+	}
+	else if( tempUserPassword == null || tempUserPassword == "" || tempUserPassword == " " )
+	{
+		alert("Please Enter Password");
+		//document.getElementById("submit").disabled = false;
+		return false;
+	}
+	else if( enteredCaptcha == null || enteredCaptcha == "" || enteredCaptcha == " " )
+	{
+		alert("Please Enter Captcha");
+		//document.getElementById("submit").disabled = false;
+		return false;
+	}
+	else if( str1 != str2 )
+	{
+		alert("Invalid Captcha");
+		document.getElementById("txtCaptchaInput").value = "";
+		//document.getElementById("submit").disabled = false;
+		location.reload();
+		return false;
+	}
+	else if( str1 == str2 )
+	{
+		return true;
+	}
+	return true;
 }
 
