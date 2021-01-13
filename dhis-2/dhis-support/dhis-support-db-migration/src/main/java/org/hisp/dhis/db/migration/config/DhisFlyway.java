@@ -1,4 +1,4 @@
-package org.hisp.dhis.dxf2.metadata.objectbundle.hooks;
+package org.hisp.dhis.db.migration.config;
 
 /*
  * Copyright (c) 2004-2020, University of Oslo
@@ -28,54 +28,37 @@ package org.hisp.dhis.dxf2.metadata.objectbundle.hooks;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import org.hisp.dhis.common.IdentifiableObject;
-import org.hisp.dhis.dxf2.metadata.objectbundle.ObjectBundle;
-import org.hisp.dhis.option.OptionSet;
-import org.springframework.stereotype.Component;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.output.MigrateResult;
 
-import java.util.Objects;
-
-@Component
-public class OptionSetObjectBundleHook
-    extends AbstractObjectBundleHook
+/**
+ * Customised Flyway to optionally run repair before migrate based on a flag.
+ * 
+ * @author Ameen Mohamed
+ *
+ */
+public class DhisFlyway
+    extends
+    Flyway
 {
-    @Override
-    public <T extends IdentifiableObject> void postCreate( T persistedObject, ObjectBundle bundle )
-    {
-        if ( !OptionSet.class.isInstance( persistedObject ) )
-        {
-            return;
-        }
+    private boolean repairBeforeMigrate = false;
 
-        updateOption( (OptionSet) persistedObject );
+    public DhisFlyway( Configuration configuration, boolean repairBeforeMigrate )
+    {
+        super( configuration );
+        this.repairBeforeMigrate = repairBeforeMigrate;
     }
 
     @Override
-    public <T extends IdentifiableObject> void postUpdate( T persistedObject, ObjectBundle bundle )
+    public MigrateResult migrate()
+        throws FlywayException
     {
-        if ( !OptionSet.class.isInstance( persistedObject ) )
+        if ( repairBeforeMigrate )
         {
-            return;
+            super.repair();
         }
-
-        updateOption( (OptionSet) persistedObject );
-    }
-
-    private void updateOption( OptionSet optionSet )
-    {
-        if ( optionSet.getOptions() == null || optionSet.getOptions().isEmpty() )
-        {
-            return;
-        }
-
-        optionSet.getOptions().stream().filter( Objects::nonNull ).forEach( option ->
-        {
-            if ( option.getOptionSet() == null )
-            {
-                option.setOptionSet( optionSet );
-            }
-        } );
-
-        sessionFactory.getCurrentSession().refresh( optionSet );
+        return super.migrate();
     }
 }
