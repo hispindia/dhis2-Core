@@ -1,0 +1,109 @@
+
+
+<h1>Upload Data</h1>
+<hr /><br />
+    
+<form id="reportForm" name="reportForm" method="post" enctype="multipart/form-data" action="importDataResult.action">
+    <input type="hidden" id="curLocaleCode" value="$locale.getLanguage()_$locale.getCountry()"/>
+    <table style=" border-collapse: collapse; margin-top: 0;" cellpadding="0" cellspacing="0" width="730" border=0>
+        <tr>
+            <td class="NormalB">
+                 Upload Data : <br/><br/>
+                <input type="file" id="upload" name="upload" size="31" class="{validate:{required:true}}">
+            </td>			
+			<td>&nbsp;</td>
+            <td class="NormalB">
+				 <div class="selectionLabel">$i18n.getString( "Periods" )<br/><br/></div>
+                   <select id="periodTypeId" name="periodTypeId" style="width:175px" onchange="getPeriods()">
+                        <option value="NA">[ Select PeriodType ]</option>
+                        #foreach ( $type in $periodTypes )
+                            <option value="$type.name">$type.name</option>
+                        #end
+                    </select>
+                    <select id="availablePeriods" name="availablePeriods" style="width:150px" class="{validate:{required:true}}">
+                        <option value="EMPTY_PLACEHOLDER_VALUE"></option>
+                    </select>
+				 </div> 
+            </td>
+			<td>&nbsp;</td>
+ 
+			<td>&nbsp;</td>
+
+       	</tr>
+       	</tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr> 	
+		
+        <tr>
+           
+			<td class="NormalB">
+                <input type="submit" name="importReport" value='Import Data' style="width:180px">
+            </td>
+        </tr>                 
+       
+       
+    </table>
+</form>
+
+<script type="text/javascript">
+//-----------------------------------------------------------------------
+//init jQuery validation for reportForm
+//-----------------------------------------------------------------------
+jQuery(document).ready(
+	//changeMonth();	
+	function()
+	{	
+		jQuery("#reportForm").validate({
+			 meta:"validate"
+			,errorElement:"td"
+			,submitHandler: function(form)
+			{
+				//alert( formValidations() );					
+				if( formValidations() )
+				{
+					submitImportForm();
+				}
+			}
+		});
+		jQuery("#name").focus();
+	}
+);
+
+function formValidations()
+{
+	var weeklyPeriodObject = document.getElementById('selectedPeriodId');
+    var weeklyPeriodValue = weeklyPeriodObject.options[weeklyPeriodObject.selectedIndex].value;
+	
+	var monthPeriodObject = document.getElementById('selectMonths');
+    var monthPeriodValue = monthPeriodObject.options[monthPeriodObject.selectedIndex].value;
+	
+	if( weeklyPeriodValue == "-1" || weeklyPeriodValue == null || weeklyPeriodValue == "" ) 
+	{
+		alert("Please Select Weekly Period"); 
+		return false;
+	}
+	
+	if( monthPeriodValue == "" || monthPeriodValue == "" ) 
+	{
+		alert("Please Select Month"); 
+		return false;
+	}
+	
+	return true;
+}
+
+</script>

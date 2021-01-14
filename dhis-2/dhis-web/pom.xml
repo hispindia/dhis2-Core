@@ -22,6 +22,8 @@
     <module>dhis-web-dataentry</module>
     <module>dhis-web-approval</module>
     <module>dhis-web-apps</module>
+	<!-- India Module -->
+	<module>dhis-web-excelimport</module>	
     <module>dhis-web-portal</module>
   </modules>
 
