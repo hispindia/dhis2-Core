@@ -148,43 +148,16 @@ function removeSpaces(string)
 
 function captchaValidations()
 {
-	//alert( "inside captch validation");
-	var tempUserName = document.getElementById("j_username").value;
-	var tempUserPassword = document.getElementById("j_password").value;
-	var enteredCaptcha = document.getElementById("txtCaptchaInput").value;
-	var str1 = removeSpaces(document.getElementById('txtCaptcha').value);
-	var str2 = removeSpaces(document.getElementById('txtCaptchaInput').value);
-
-	if( tempUserName == null || tempUserName == "" || tempUserName == " " )
+	if(grecaptcha && grecaptcha.getResponse().length > 0)
 	{
-		alert("Please Enter Username");
-		//document.getElementById("submit").disabled = false;
-		return false;
-	}
-	else if( tempUserPassword == null || tempUserPassword == "" || tempUserPassword == " " )
-	{
-		alert("Please Enter Password");
-		//document.getElementById("submit").disabled = false;
-		return false;
-	}
-	else if( enteredCaptcha == null || enteredCaptcha == "" || enteredCaptcha == " " )
-	{
-		alert("Please Enter Captcha");
-		//document.getElementById("submit").disabled = false;
-		return false;
-	}
-	else if( str1 != str2 )
-	{
-		alert("Invalid Captcha");
-		document.getElementById("txtCaptchaInput").value = "";
-		//document.getElementById("submit").disabled = false;
-		location.reload();
-		return false;
-	}
-	else if( str1 == str2 )
-	{
+		//the recaptcha is checked
 		return true;
 	}
-	return true;
+	else
+	{
+		//The recaptcha is not cheched
+		alert('You have to check the recaptcha !');
+		return false;
+	}
 }
 
