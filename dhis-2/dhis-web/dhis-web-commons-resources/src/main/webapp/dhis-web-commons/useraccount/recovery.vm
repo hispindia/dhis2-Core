@@ -3,6 +3,7 @@
 <head>
     <title>$encoder.htmlEncode( $applicationTitle )</title>
     <meta name="referrer" content="no-referrer">
+       <script src="https://www.google.com/recaptcha/api.js"></script>
     <script type="text/javascript" src="../javascripts/jQuery/jquery.min.js"></script>
     <script type="text/javascript" src="../javascripts/useraccount/recovery.js"></script>
     <link type="text/css" rel="stylesheet" href="../css/account.css">
@@ -27,12 +28,7 @@
         <td><input type="text" id="username" name="username" autocomplete="off"></td>
     </tr>
 </table>
-<div>
-						<!--<input type="text" id="txtCaptcha" style="text-align:center; border:none; background-image:url(./img/captcha_back_ground.png); color:red; font-weight:bold; font-family:Modern; width:100px" readonly/>-->
-							<input type="text" id="txtCaptcha" style="text-align:center; border:none;color:red; font-weight:bold;font-size:25px; font-family:Modern; width:145px; background-image:url(./img/captcha_back_ground.png);" readonly/>
-							<input type="text" id="txtCaptchaInput" name="txtCaptchaInput" placeholder="Enter Captcha" style='width:148px;padding-left:2px;' required/>
-							<a href="javascript:drawComplexCaptcha();" title="$i18n.getString( "Regenerate Captcha" )"><img src="./img/refresh.png" alt="$i18n.getString( "Regenerate Captcha" )"></a>
-						</div>
+<div style="display: inline-block;" class="g-recaptcha" data-sitekey="6LcGMioaAAAAAFwhpDS4sFZViwtj-eUBoaDynJiD" ></div>
 						    <div>
                                                        <input id="recoveryButton" type="button" value="$i18n.getString( 'recover' )" style="width:10em" onclick="recoverAccount()">
                                                     </div>

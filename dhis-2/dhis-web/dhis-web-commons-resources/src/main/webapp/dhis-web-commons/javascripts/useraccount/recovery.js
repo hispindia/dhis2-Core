@@ -24,26 +24,10 @@ $(document).ready(function() {
 function recoverAccount() {
   //alert( "inside captch validation");
   var username = $.trim($("#username").val());
-  var enteredCaptcha = document.getElementById("txtCaptchaInput").value;
-  var str1 = removeSpaces(document.getElementById('txtCaptcha').value);
-  var str2 = removeSpaces(document.getElementById('txtCaptchaInput').value);
 
-  if( enteredCaptcha == null || enteredCaptcha == "" || enteredCaptcha == " " )
+  if(grecaptcha && grecaptcha.getResponse().length > 0)
   {
-    alert("Please Enter Captcha");
-    //document.getElementById("submit").disabled = false;
-    return false;
-  }
-  else if( str1 != str2 )
-  {
-    alert("Invalid Captcha");
-    document.getElementById("txtCaptchaInput").value = "";
-    //document.getElementById("submit").disabled = false;
-    location.reload();
-    return false;
-  }
-  else if( str1 == str2 )
-  {
+    //the recaptcha is checked
     if( username.length == 0 ) {
       return false;
     }
@@ -64,6 +48,12 @@ function recoverAccount() {
       }
     });
     return true;
+  }
+  else
+  {
+    //The recaptcha is not cheched
+    alert('You have to check the recaptcha !');
+    return false;
   }
 
 }
