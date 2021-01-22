@@ -37,6 +37,16 @@
 			<interceptor-ref name="fileUploadStack" />
 		</action>
 
+
+		<action name="excelDataValueSetResult"
+			class="org.hisp.dhis.excelimport.action.ExcelImportDataValueSetAction">
+			<result name="success" type="velocity">/main.vm</result>
+			<param name="page">/dhis-web-excelimport/responseImportStatus.vm</param>
+			<param name="menu">/dhis-web-excelimport/menu.vm</param>
+			<interceptor-ref name="fileUploadStack" />
+		</action>
+
+
 		<action name="validateExcelImportUpdateData"
 			class="org.hisp.dhis.excelimport.action.ValidateExcelImportUpdateData">
 			<result name="success" type="velocity-xml">/dhis-web-excelimport/validateStatus.vm
