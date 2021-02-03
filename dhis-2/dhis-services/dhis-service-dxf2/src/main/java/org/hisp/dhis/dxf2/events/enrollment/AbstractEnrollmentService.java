@@ -1202,24 +1202,30 @@ public abstract class AbstractEnrollmentService
                     + trackedEntityAttribute.getUid() ) );
                 continue;
             }
-            
-            /*
-            if ( attributeValueMap.get( trackedEntityAttribute.getUid() ).length() > TEA_VALUE_MAX_LENGTH )
-            {
-                // We shorten the value to first 25 characters, since we dont want to post a 1200+ string back.
-                
-                System.out.println( "childOrgUnitTree  : " + trackedEntityAttribute.getUid() + "---- value  : " + attributeValueMap.get( trackedEntityAttribute.getUid() ) + "---- value  : " + attributeValueMap.get( trackedEntityAttribute.getUid() ).length() );
-                importConflicts.add( new ImportConflict( "Attribute.value", String.format( "Value exceeds the character limit of %s characters: '%s...'", TEA_VALUE_MAX_LENGTH, attributeValueMap.get( trackedEntityAttribute.getUid() ).substring( 0, 25 ) ) ) );
-            }
-            */
-            
-            if ( trackedEntityAttribute.isUnique() )
-            {
-                checkAttributeUniquenessWithinScope( trackedEntityInstance, trackedEntityAttribute,
-                    attributeValueMap.get( trackedEntityAttribute.getUid() ), trackedEntityInstance.getOrganisationUnit(), importConflicts );
-            }
 
-            attributeValueMap.remove( trackedEntityAttribute.getUid() );
+            // If value is not mandatory, it could be not present
+            if ( attributeValueMap.containsKey( trackedEntityAttribute.getUid() ) )
+            {
+                // comment for HIV-Tracker to skip length validation of finger-print-string attribute
+                /*
+                if ( attributeValueMap.get( trackedEntityAttribute.getUid() ).length() > TEA_VALUE_MAX_LENGTH )
+                {
+                    // We shorten the value to first 25 characters, since we dont want to post a 1200+ string back.
+                    importConflicts.add( new ImportConflict( "Attribute.value", String
+                        .format( "Value exceeds the character limit of %s characters: '%s...'", TEA_VALUE_MAX_LENGTH,
+                            attributeValueMap.get( trackedEntityAttribute.getUid() ).substring( 0, 25 ) ) ) );
+                }
+                */
+                
+                if ( trackedEntityAttribute.isUnique() )
+                {
+                    checkAttributeUniquenessWithinScope( trackedEntityInstance, trackedEntityAttribute,
+                        attributeValueMap.get( trackedEntityAttribute.getUid() ),
+                        trackedEntityInstance.getOrganisationUnit(), importConflicts );
+                }
+
+                attributeValueMap.remove( trackedEntityAttribute.getUid() );
+            }
         }
 
         if ( !attributeValueMap.isEmpty() )
