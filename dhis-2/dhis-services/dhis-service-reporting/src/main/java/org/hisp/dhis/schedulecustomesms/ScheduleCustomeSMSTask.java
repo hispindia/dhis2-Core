@@ -212,7 +212,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
             if ( currentDate.equalsIgnoreCase( "03" ) )
             {
                 List<String> trimesterMessages = new ArrayList<String>();
-                trimesterMessages.add( "à¤”à¤·à¤§à¥€ à¤¶à¥�à¤°à¥� à¤—à¤°à¥‡à¤•à¥‹ à¤° CD4 à¤œà¤¾à¤�à¤š à¤—à¤°à¥‡à¤•à¥‹ à¥¬ à¤®à¤¹à¤¿à¤¨à¤¾ à¤­à¤� , à¤ªà¥�à¤¨à¤ƒ CD4 à¤œà¤¾à¤�à¤š à¤—à¤°à¥�à¤¨à¥‡ à¤¹à¥‹à¤‡à¤¨ à¤¤ ?" );
+                trimesterMessages.add( "औषधी शुरु गरेको र CD4 जाँच गरेको ६ महिना भए , पुनः CD4 जाँच गर्ने होइन त ?" );
                 try
                 {
                     scheduledCustomeSMS( mobileNumbers, trimesterMessages );
@@ -227,7 +227,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
             //Pregnant female clients
             if ( currentDate.equalsIgnoreCase( "13" ) )
             {
-                String trimesterMessage = "à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯ à¤¸à¤‚à¤¸à¥�à¤¥à¤¾à¤®à¤¾ à¤¸à¥�à¤¤à¥�à¤•à¥‡à¤°à¥€ à¤—à¤°à¤¾à¤”à¤‚, à¤†à¤®à¤¾ à¤° à¤¬à¤šà¥�à¤šà¤¾ à¤¦à¥�à¤µà¥ˆà¤•à¥‹ à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯ à¤ªà¤•à¥�à¤•à¤¾ à¤—à¤°à¤¾à¤”à¤‚ |";
+                String trimesterMessage = "स्वास्थ्य संस्थामा सुत्केरी गराऔं, आमा र बच्चा दुवैको स्वास्थ्य पक्का गराऔं |";
                 try
                 {
                     tempScheduledAwarenessEIDSMS( teiList, trimesterMessage );
@@ -242,7 +242,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
             //Female client who delivered live birth
             if ( currentDate.equalsIgnoreCase( "14" ) )
             {
-                String trimesterMessage = "à¤¤à¤ªà¤¾à¤ˆà¤•à¥‹ à¤¬à¤šà¥�à¤šà¤¾ à¥§à¥®Â à¤®à¤¹à¤¿à¤¨à¤¾ à¤ªà¥�à¤—à¥‡à¤ªà¤›à¤¿ ,à¥© à¤®à¤¹à¤¿à¤¨à¤¾ à¤¸à¥�à¤¤à¤¨à¤ªà¤¾à¤¨ à¤—à¤°à¤¾à¤‰à¤¨ à¤›à¥�à¤Ÿà¤¾à¤ˆ ,à¤¬à¤šà¥�à¤šà¤¾à¤•à¥‹ à¤œà¤¾à¤�à¤šà¤•à¥‹ à¤²à¤¾à¤—à¤¿ à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯ à¤¸à¤‚à¤¸à¥�à¤¥à¤¾à¤®à¤¾ à¤²à¥�à¤¯à¤¾à¤‰à¤¨à¥�Â  à¤¹à¥‹à¤²à¤¾.";
+                String trimesterMessage = "तपाईको बच्चा १८ महिना पुगेपछि ,३ महिना स्तनपान गराउन छुटाई ,बच्चाको जाँचको लागि स्वास्थ्य संस्थामा ल्याउनु  होला.";
                 try
                 {
                     tempScheduledAwarenessChildComplete18MonthSMS( teiList, trimesterMessage );
@@ -262,7 +262,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
             //Married Male and Female clients
             if ( currentDate.equalsIgnoreCase( "09" ) )
             {
-                String quarterlyMessage = "à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯ à¤¸à¤‚à¤¸à¥�à¤¥à¤¾à¤®à¤¾ à¤¸à¥�à¤¤à¥�à¤•à¥‡à¤°à¥€ à¤—à¤°à¤¾à¤”, à¤†à¤®à¤¾ à¤° à¤¬à¤šà¥�à¤šà¤¾ à¤¦à¥�à¤µà¥ˆà¤•à¥‹ à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯ à¤ªà¤•à¥�à¤•à¤¾ à¤—à¤°à¤¾à¤”à¤‚ |";
+                String quarterlyMessage = "स्वास्थ्य संस्थामा सुत्केरी गराऔ, आमा र बच्चा दुवैको स्वास्थ्य पक्का गराऔं |";
                 try
                 {
                     scheduledAwarenessCustomeSMS( teiList, quarterlyMessage );
@@ -276,7 +276,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
             
             if ( currentDate.equalsIgnoreCase( "10" ) )
             {
-                String quarterlyMessage = "à¤†à¤«à¥�à¤¨à¥‹  à¤¸à¤¾à¤¥à¥€à¤•à¥‹ à¤ªà¤¨à¤¿ à¤œà¤¾à¤‚à¤š à¤—à¤°à¤¾à¤”, à¤¸à¤®à¥�à¤¬à¤¨à¥�à¤§ à¤…à¤�à¥ˆ à¤¬à¤²à¤¿à¤¯à¥‹ à¤¬à¤¨à¤¾à¤”à¤‚ à¥¤";
+                String quarterlyMessage = "आफ्नो  साथीको पनि जांच गराऔ, सम्बन्ध अझै बलियो बनाऔं ।";
                 try
                 {
                     scheduledAwarenessCustomeSMS( teiList, quarterlyMessage );
@@ -291,7 +291,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
             //Female clients (20 years and above)
             if ( currentDate.equalsIgnoreCase( "11" ) )
             {
-                String quarterlyMessage = "à¤¨à¤¿à¤¯à¤®à¤¿à¤¤ à¤ªà¤¾à¤ à¥‡à¤˜à¤°à¤•à¥‹ à¤œà¤¾à¤‚à¤š à¤—à¤°à¤¾à¤” ,à¤ªà¤›à¤¿ à¤¹à¥�à¤¨ à¤¸à¤•à¥�à¤¨à¥‡ à¤¸à¤®à¤¸à¥�à¤¯à¤¾à¤²à¤¾à¤ˆ à¤…à¤¹à¤¿à¤²à¥‡ à¤¨à¥ˆ à¤ªà¤¤à¥�à¤¤à¤¾ à¤²à¤—à¤¾à¤”à¤‚ |";
+                String quarterlyMessage = "नियमित पाठेघरको जांच गराऔ ,पछि हुन सक्ने समस्यालाई अहिले नै पत्ता लगाऔं |";
                 try
                 {
                     tempScheduledAwarenessCustomeSMS( teiList, quarterlyMessage );
@@ -306,7 +306,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
             //Married Male and Female clients
             if ( currentDate.equalsIgnoreCase( "12" ) )
             {
-                String quarterlyMessage = "à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯à¤•à¤°à¥�à¤®à¥€à¤¸à¤‚à¤— à¤¸à¤²à¥�à¤²à¤¾à¤¹ à¤²à¤¿à¤ˆ à¤¸à¥�à¤µà¤¸à¥�à¤¥ à¤¬à¤šà¥�à¤šà¤¾ à¤œà¤¨à¥�à¤®à¤¾à¤”à¤‚ .";
+                String quarterlyMessage = "स्वास्थ्यकर्मीसंग सल्लाह लिई स्वस्थ बच्चा जन्माऔं .";
                 try
                 {
                     scheduledAwarenessCustomeSMS( teiList, quarterlyMessage );
@@ -325,7 +325,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
             if ( currentDate.equalsIgnoreCase( "04" ) )
             {
                 List<String> biannualMessages = new ArrayList<String>();
-                biannualMessages.add( "CD4 à¤œà¤¾à¤�à¤š à¤—à¤°à¤¾à¤” à¤°à¥‹à¤—à¤¸à¤�à¤— à¤²à¤¡à¤¨à¥‡ à¤•à¥�à¤·à¤®à¤¤à¤¾ à¤•à¤¤à¤¿ à¤› à¤­à¤¨à¥‡à¤° à¤¬à¥�à¤�à¥Œ." );
+                biannualMessages.add( "CD4 जाँच गराऔ रोगसँग लडने क्षमता कति छ भनेर बुझौ." );
                 try
                 {
                     scheduledCustomeSMS( mobileNumbers, biannualMessages );
@@ -345,7 +345,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
             if ( currentDate.equalsIgnoreCase( "02" ) )
             {
                 List<String> trimesterMessages = new ArrayList<String>();
-                trimesterMessages.add( "à¤­à¤¾à¤‡à¤°à¤² à¤²à¥‹à¤¡ à¤œà¤¾à¤�à¤š à¤—à¤°à¤¾à¤ˆ à¤¶à¤°à¤¿à¤°à¤®à¤¾ à¤­à¤¾à¤‡à¤°à¤¸à¤•à¥‹ à¤…à¤µà¤¸à¥�à¤¥à¤¾ à¤¥à¤¾à¤¹à¤¾ à¤ªà¤¾à¤‰à¤¨à¥�à¤¹à¥‹à¤¸à¥� |" );
+                trimesterMessages.add( "भाइरल लोड जाँच गराई शरिरमा भाइरसको अवस्था थाहा पाउनुहोस् |" );
                 try
                 {
                     scheduledCustomeSMS( mobileNumbers, trimesterMessages );
@@ -364,7 +364,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
             if ( currentDate.equalsIgnoreCase( "05" ) )
             {
                 List<String> biannualMessages = new ArrayList<String>();
-                biannualMessages.add( "à¤­à¤¾à¤‡à¤°à¤² à¤²à¥‹à¤¡ à¤œà¤¾à¤�à¤šà¤²à¥‡ à¤¤à¤ªà¤¾à¤ˆà¤•à¥‹ à¤…à¤µà¤¸à¥�à¤¥à¤¾ à¤®à¤¾à¤¤à¥�à¤° à¤¹à¥‹à¤‡à¤¨ à¤¤à¤ªà¤¾à¤ˆà¤•à¥‹ à¤¨à¤œà¤¿à¤•à¤•à¥‹ à¤¸à¤¾à¤¥à¥€à¤²à¤¾à¤ˆ à¤ªà¤¨à¤¿ à¤¸à¥�à¤°à¤•à¥�à¤·à¤¿à¤¤ à¤°à¤¾à¤–à¥�à¤› |" );
+                biannualMessages.add( "भाइरल लोड जाँचले तपाईको अवस्था मात्र होइन तपाईको नजिकको साथीलाई पनि सुरक्षित राख्छ |" );
                 try
                 {
                     scheduledCustomeSMS( mobileNumbers, biannualMessages );
@@ -383,7 +383,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
             if ( currentDate.equalsIgnoreCase( "06" ) )
             {
                 List<String> biannualMessages = new ArrayList<String>();
-                biannualMessages.add( "à¤”à¤·à¤§à¤¿ à¤¶à¥�à¤°à¥� à¤—à¤°à¥‡à¤•à¥‹ à¤ªà¤¹à¤¿à¤²à¥‹ à¤µà¤°à¥�à¤· à¥¨ à¤ªà¤Ÿà¤• (à¥¬/à¥¬ à¤®à¤¹à¤¿à¤¨à¤¾à¤®à¤¾) à¤° à¤¤à¥�à¤¯à¤¸à¤ªà¤›à¤¿à¤•à¥‹ à¤¹à¤°à¥‡à¤• à¤¬à¤°à¥�à¤·à¤®à¤¾ à¤�à¤• à¤ªà¤Ÿà¤• à¤®à¤¾à¤¤à¥�à¤° à¤­à¤¾à¤‡à¤°à¤² à¤²à¥‹à¤¡à¤•à¥‹ à¤œà¤¾à¤�à¤š à¤—à¤°à¤¾à¤‰à¤¨à¥�à¤¹à¥‹à¤²à¤¾ à¥¤" );
+                biannualMessages.add( "औषधि शुरु गरेको पहिलो वर्ष २ पटक (६/६ महिनामा) र त्यसपछिको हरेक बर्षमा एक पटक मात्र भाइरल लोडको जाँच गराउनुहोला ।" );
                 try
                 {
                     scheduledCustomeSMS( mobileNumbers, biannualMessages );
@@ -401,7 +401,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
         if ( currentDate.equalsIgnoreCase( "01" ) )
         {
             List<String> monthlyMessages = new ArrayList<String>();
-            monthlyMessages.add( "à¤¸à¥�à¤µà¤¸à¥�à¤¥ à¤œà¥€à¤µà¤¨à¤•à¥‹ à¤²à¤¾à¤—à¤¿ à¤¨à¤¿à¤¯à¤®à¤¿à¤¤ à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯  à¤œà¤¾à¤‚à¤š à¤—à¤°à¤¾à¤‰à¤¨à¥�à¤¹à¥‹à¤²à¤¾ à¥¤" );
+            monthlyMessages.add( "स्वस्थ जीवनको लागि नियमित स्वास्थ्य  जांच गराउनुहोला ।" );
             try
             {
                 scheduledCustomeSMS( mobileNumbers, monthlyMessages );
@@ -417,7 +417,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
         if ( currentDate.equalsIgnoreCase( "07" ) )
         {
             List<String> monthlyMessages = new ArrayList<String>();
-            monthlyMessages.add( "à¤¸à¤®à¤¯à¤•à¥‹ à¤–à¥�à¤¯à¤¾à¤² à¤°à¤¾à¤–à¥�à¤¨à¥�à¤¹à¥‹à¤¸ à¤¨à¤¿à¤¯à¤®à¤¿à¤¤ à¤”à¤·à¤§à¥€ à¤²à¤¿à¤¨ à¤†à¤‰à¤¨à¥�à¤¹à¥‹à¤¸à¥� à¥¤" );
+            monthlyMessages.add( "समयको ख्याल राख्नुहोस नियमित औषधी लिन आउनुहोस् ।" );
             try
             {
                 scheduledCustomeSMS( mobileNumbers, monthlyMessages );
@@ -433,7 +433,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
         if ( currentDate.equalsIgnoreCase( "15" ) )
         {
             List<String> monthlyMessages = new ArrayList<String>();
-            monthlyMessages.add( "à¤¹à¤°à¥‡à¤• à¤¦à¤¿à¤¨ à¤”à¤·à¤§à¥€ à¤¸à¥‡à¤µà¤¨ ,à¤°à¤¾à¤–à¥�à¤› à¤¸à¥�à¤µà¤¸à¥�à¤¥ à¤œà¥€à¤µà¤¨ à¥¤" );
+            monthlyMessages.add( "हरेक दिन औषधी सेवन ,राख्छ स्वस्थ जीवन ।" );
             try
             {
                 scheduledCustomeSMS( mobileNumbers, monthlyMessages );
@@ -451,7 +451,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
             if ( currentDate.equalsIgnoreCase( "08" ) )
             {
                 List<String> bimonthlyMessages = new ArrayList<String>();
-                bimonthlyMessages.add( "à¤¨à¤¿à¤¯à¤®à¤¿à¤¤ à¤”à¤·à¤§à¤¿à¤•à¥‹ à¤¸à¥‡à¤µà¤¨, à¤…à¤µà¤¸à¤°à¤¬à¤¾à¤¦à¥€ à¤¸à¤®à¤¸à¥�à¤¯à¤¾ à¤°à¤¹à¤¿à¤¤ à¤œà¥€à¤µà¤¨ |" );
+                bimonthlyMessages.add( "नियमित औषधिको सेवन, अवसरबादी समस्या रहित जीवन |" );
                 try
                 {
                     scheduledCustomeSMS( mobileNumbers, bimonthlyMessages );
@@ -468,7 +468,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
         if( dayOfWeek.toString().equalsIgnoreCase( "FRIDAY") )
         {
             List<String> fridayMessages = new ArrayList<String>();
-            fridayMessages.add( "à¤°à¤¾à¤–à¥€ à¤°à¤¾à¤–à¥�à¤¨à¥�à¤¹à¥‹à¤¸  à¤¸à¤®à¥�à¤�à¤¨à¤¾, à¤¹à¤°à¥‡à¤• à¤¦à¤¿à¤¨ à¤”à¤·à¤§à¥€ à¤¸à¥‡à¤µà¤¨ à¤°  à¤—à¤£à¤¨à¤¾ à¥¤" );
+            fridayMessages.add( "राखी राख्नुहोस  सम्झना, हरेक दिन औषधी सेवन र  गणना ।" );
             try
             {
                 scheduledCustomeSMS( mobileNumbers, fridayMessages );
@@ -579,15 +579,15 @@ public class ScheduleCustomeSMSTask extends AbstractJob
                                 String customMessageTBScreening = "";
                                 if( todayDate.equalsIgnoreCase( twoDayAfterDateString ) )
                                 {
-                                    customMessagePillPick = "à¤¤à¤ªà¤¾à¤‡à¤•à¥‹ à¤”à¤·à¤§à¤¿ à¤²à¤¿à¤¨à¥‡ à¤¬à¥‡à¤²à¤¾ à¤­à¤¯à¥‹,à¤¤à¤ªà¤¾à¤ˆ  " + orgUnit.getName() + "  à¤•à¥‹ à¤•à¥‡à¤¨à¥�à¤¦à¥�à¤°à¤®à¤¾ à¤†à¤‰à¤¨à¥�à¤¹à¥‹à¤²à¤¾ |";
+                                    customMessagePillPick = "तपाइको औषधि लिने बेला भयो,तपाई  " + orgUnit.getName() + "  को केन्द्रमा आउनुहोला |";
                                     
-                                    customMessageTBScreening = "à¤•à¥�à¤·à¤¯à¤°à¥‹à¤— (à¤Ÿà¤¿. à¤¬à¥€) à¤•à¥‹ à¤œà¥‹à¤–à¤¿à¤®à¤¬à¤¾à¤Ÿ à¤¬à¤šà¥�à¤¨   " + orgUnit.getName() + " à¤®à¤¾ à¤•à¥�à¤·à¤¯à¤°à¥‹à¤— (à¤Ÿà¤¿. à¤¬à¥€) à¤•à¥‹ à¤œà¤¾à¤‚à¤š à¤—à¤°à¥�à¤¨ à¤†à¤‰à¤¨à¥�à¤¹à¥‹à¤²à¤¾ | ";
+                                    customMessageTBScreening = "क्षयरोग (टि. बी) को जोखिमबाट बच्न   " + orgUnit.getName() + " मा क्षयरोग (टि. बी) को जांच गर्न आउनुहोला | ";
                                 }
                                 else
                                 {
-                                    customMessagePillPick = "à¤¤à¤ªà¤¾à¤‡à¤•à¥‹ à¤”à¤·à¤§à¤¿ à¤²à¤¿à¤¨à¥‡ à¤¬à¥‡à¤²à¤¾ à¤­à¤¯à¥‹,à¤¤à¤ªà¤¾à¤ˆ  à¤®à¤¿à¤¤à¤¿  " + dueDate  + " à¤—à¤¤à¥‡  " + orgUnit.getName() + " à¤•à¥‹ à¤•à¥‡à¤¨à¥�à¤¦à¥�à¤°à¤®à¤¾ à¤†à¤‰à¤¨à¥�à¤¹à¥‹à¤²à¤¾  |";
+                                    customMessagePillPick = "तपाइको औषधि लिने बेला भयो,तपाई  मिति  " + dueDate  + " गते  " + orgUnit.getName() + " को केन्द्रमा आउनुहोला  |";
                                     
-                                    customMessageTBScreening = "à¤•à¥�à¤·à¤¯à¤°à¥‹à¤— (à¤Ÿà¤¿. à¤¬à¥€) à¤•à¥‹ à¤œà¥‹à¤–à¤¿à¤®à¤¬à¤¾à¤Ÿ à¤¬à¤šà¥�à¤¨ à¤®à¤¿à¤¤à¤¿  " + dueDate  + " à¤—à¤¤à¥‡ " + orgUnit.getName() + " à¤®à¤¾ à¤•à¥�à¤·à¤¯à¤°à¥‹à¤— (à¤Ÿà¤¿. à¤¬à¥€) à¤•à¥‹ à¤œà¤¾à¤‚à¤š à¤—à¤°à¥�à¤¨ à¤†à¤‰à¤¨à¥�à¤¹à¥‹à¤²à¤¾ | ";
+                                    customMessageTBScreening = "क्षयरोग (टि. बी) को जोखिमबाट बच्न मिति  " + dueDate  + " गते " + orgUnit.getName() + " मा क्षयरोग (टि. बी) को जांच गर्न आउनुहोला | ";
                                 }
                                 bulkSMSHTTPInterface.sendSMS( customMessagePillPick, teaValue.getValue() );
                                 bulkSMSHTTPInterface.sendSMS( customMessageTBScreening, teaValue.getValue() );
@@ -668,8 +668,8 @@ public class ScheduleCustomeSMSTask extends AbstractJob
                             System.out.println( tei.getId() + " -- " + teaValue.getValue() + " -- " + orgUnit.getName() );
                             if ( teaValue.getValue() != null && teaValue.getValue().length() == 10 )
                             {
-                                String customMessage = "à¥¬ à¤®à¤¹à¤¿à¤¨à¤¾ à¤­à¤¯à¥‹, CD4 à¤—à¤°à¥�à¤¨ à¤®à¤¿à¤¤à¤¿    "
-                                    + simpleDateFormat.format( sixMonthAfterDate ) + " à¤®à¤¾  " + orgUnit.getName() + " à¤•à¥‹ à¤•à¥‡à¤¨à¥�à¤¦à¥�à¤°à¤®à¤¾ à¤†à¤‰à¤¨à¥�à¤¹à¥‹à¤²à¤¾ |";
+                                String customMessage = "६ महिना भयो, CD4 गर्न मिति    "
+                                    + simpleDateFormat.format( sixMonthAfterDate ) + " मा  " + orgUnit.getName() + " को केन्द्रमा आउनुहोला |";
                                 bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
                                 System.out.println( teaValue.getValue() + " -------- > " + customMessage );
                             }
@@ -746,12 +746,12 @@ public class ScheduleCustomeSMSTask extends AbstractJob
                                 
                                 if( todayDate.equalsIgnoreCase( twoDayAfterDateString ))
                                 {
-                                    customMessage = "à¤­à¤¾à¤‡à¤°à¤² à¤²à¥‹à¤¡ à¤œà¤¾à¤šà¤� à¤•à¥‹ à¤²à¤¾à¤—à¤¿  " + orgUnit.getName()  + " à¤•à¥‹  à¤•à¥‡à¤¨à¥�à¤¦à¥�à¤°à¤®à¤¾ à¤†à¤‰à¤¨à¥�à¤¹à¥‹à¤²à¤¾ |";
+                                    customMessage = "भाइरल लोड जाचँ को लागि  " + orgUnit.getName()  + " को  केन्द्रमा आउनुहोला |";
                                 }
                                 else
                                 {
-                                    customMessage = "à¤­à¤¾à¤‡à¤°à¤² à¤²à¥‹à¤¡ à¤œà¤¾à¤šà¤� à¤•à¥‹ à¤²à¤¾à¤—à¤¿ à¤®à¤¿à¤¤à¤¿   " + simpleDateFormat.format( sixMonthAfterDate ) + " à¤—à¤¤à¥‡ " + orgUnit.getName()
-                                        + " à¤•à¥‹  à¤•à¥‡à¤¨à¥�à¤¦à¥�à¤°à¤®à¤¾ à¤†à¤‰à¤¨à¥�à¤¹à¥‹à¤²à¤¾ |";
+                                    customMessage = "भाइरल लोड जाचँ को लागि मिति   " + simpleDateFormat.format( sixMonthAfterDate ) + " गते " + orgUnit.getName()
+                                        + " को  केन्द्रमा आउनुहोला |";
                                 }
                                 
                                 bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
@@ -794,12 +794,12 @@ public class ScheduleCustomeSMSTask extends AbstractJob
                                 
                                 if( todayDate.equalsIgnoreCase( twoDayAfterDateString ))
                                 {
-                                    customMessage = "à¤­à¤¾à¤‡à¤°à¤² à¤²à¥‹à¤¡ à¤œà¤¾à¤šà¤� à¤•à¥‹ à¤²à¤¾à¤—à¤¿   " + orgUnit.getName() + " à¤•à¥‹  à¤•à¥‡à¤¨à¥�à¤¦à¥�à¤°à¤®à¤¾ à¤†à¤‰à¤¨à¥�à¤¹à¥‹à¤²à¤¾ |";
+                                    customMessage = "भाइरल लोड जाचँ को लागि   " + orgUnit.getName() + " को  केन्द्रमा आउनुहोला |";
                                 }
                                 else
                                 {
-                                    customMessage = "à¤­à¤¾à¤‡à¤°à¤² à¤²à¥‹à¤¡ à¤œà¤¾à¤šà¤� à¤•à¥‹ à¤²à¤¾à¤—à¤¿ à¤®à¤¿à¤¤à¤¿ "   + simpleDateFormat.format( sixMonthAfterDate ) + " à¤—à¤¤à¥‡  " + orgUnit.getName()
-                                        + " à¤•à¥‹  à¤•à¥‡à¤¨à¥�à¤¦à¥�à¤°à¤®à¤¾ à¤†à¤‰à¤¨à¥�à¤¹à¥‹à¤²à¤¾ |";
+                                    customMessage = "भाइरल लोड जाचँ को लागि मिति "   + simpleDateFormat.format( sixMonthAfterDate ) + " गते  " + orgUnit.getName()
+                                        + " को  केन्द्रमा आउनुहोला |";
                                 }       
                                 
                                 bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
@@ -874,7 +874,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
                             if ( todayDate.equalsIgnoreCase( threeDayBeforeDateString )
                                 || todayDate.equalsIgnoreCase( twoDayAfterDateString ) )
                             {
-                                String customMessage = "à¤¤à¤ªà¤¾à¤ˆà¤•à¥‹ à¤¬à¤šà¥�à¤šà¤¾ à¥§à¥®  à¤®à¤¹à¤¿à¤¨à¤¾ à¤ªà¥�à¤—à¥‡à¤ªà¤›à¤¿ ,à¥© à¤®à¤¹à¤¿à¤¨à¤¾ à¤¸à¥�à¤¤à¤¨à¤ªà¤¾à¤¨ à¤—à¤°à¤¾à¤‰à¤¨ à¤›à¥�à¤Ÿà¤¾à¤ˆ ,à¤¬à¤šà¥�à¤šà¤¾à¤•à¥‹ à¤œà¤¾à¤�à¤šà¤•à¥‹ à¤²à¤¾à¤—à¤¿ à¤¸à¥�à¤µà¤¾à¤¸à¥�à¤¥à¥�à¤¯ à¤¸à¤‚à¤¸à¥�à¤¥à¤¾à¤®à¤¾ à¤²à¥�à¤¯à¤¾à¤‰à¤¨à¥�  à¤¹à¥‹à¤²à¤¾ |";
+                                String customMessage = "तपाईको बच्चा १८  महिना पुगेपछि ,३ महिना स्तनपान गराउन छुटाई ,बच्चाको जाँचको लागि स्वास्थ्य संस्थामा ल्याउनु  होला |";
                                 bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
                                 System.out.println( " inside schedule SMS " + teaValue.getValue() + " -------- > " + customMessage );
                             }
@@ -951,12 +951,12 @@ public class ScheduleCustomeSMSTask extends AbstractJob
                                 String customMessage = "";
                                 if( todayDate.equalsIgnoreCase( twoDayAfterDateString ) )
                                 {
-                                    customMessage = "à¤¤à¤ªà¤¾à¤ˆà¤•à¥‹ à¤¬à¤šà¥�à¤šà¤¾ à¤œà¤¨à¥�à¤®à¥‡à¤•à¥‹ à¥¬ à¤¹à¤«à¥�à¤¤à¤¾ à¤­à¤¿à¤¤à¥�à¤°à¤®à¤¾ à¤œà¤¾à¤š  à¤—à¤°à¤¾à¤‰à¤¨  "  + orgUnit.getName() + " à¤®à¤¾   à¤²à¥�à¤¯à¤¾à¤‰à¤¨à¥� à¤¹à¥‹à¤²à¤¾ |";
+                                    customMessage = "तपाईको बच्चा जन्मेको ६ हफ्ता भित्रमा जाच  गराउन  "  + orgUnit.getName() + " मा   ल्याउनु होला |";
                                 }
                                 else
                                 {
-                                    customMessage = "à¤¤à¤ªà¤¾à¤ˆà¤•à¥‹ à¤¬à¤šà¥�à¤šà¤¾ à¤œà¤¨à¥�à¤®à¥‡à¤•à¥‹ à¥¬ à¤¹à¤«à¥�à¤¤à¤¾ à¤­à¤¿à¤¤à¥�à¤°à¤®à¤¾ à¤œà¤¾à¤š  à¤—à¤°à¤¾à¤‰à¤¨  " + orgUnit.getName() + " à¤®à¤¾ " + simpleDateFormat.format( fourWeekAfterDate )
-                                        + " à¤—à¤¤à¥‡  à¤²à¥�à¤¯à¤¾à¤‰à¤¨à¥� à¤¹à¥‹à¤²à¤¾ |";
+                                    customMessage = "तपाईको बच्चा जन्मेको ६ हफ्ता भित्रमा जाच  गराउन  " + orgUnit.getName() + " मा " + simpleDateFormat.format( fourWeekAfterDate )
+                                        + " गते  ल्याउनु होला |";
                                 }
                                 
                                 bulkSMSHTTPInterface.sendSMS( customMessage, teaValue.getValue() );
@@ -1017,7 +1017,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
                                         OrganisationUnit orgUnit = organisationUnitService.getOrganisationUnit( Integer.parseInt( orgUnitAndAgeAtVisit.split( ":" )[0] ) );
                                         if ( Integer.parseInt( ageAtVisit ) >= 15 && Integer.parseInt( ageAtVisit ) <= 49 )
                                         {
-                                            String mesage = "à¤œà¤¨à¥�à¤®à¤¨à¥‡ à¤¬à¤¿à¤¤à¥�à¤¤à¤¿à¤•à¥ˆ " +  orgUnit.getName() + " à¤®à¤¾ à¤¬à¤šà¥�à¤šà¤¾à¤•à¥‹ à¤°à¤—à¤¤ à¤œà¤¾à¤‚à¤š à¤—à¤°à¤¾à¤”à¤‚  ,à¤¬à¤šà¥�à¤šà¤¾à¤²à¤¾à¤ˆ à¤¸à¥�à¤µà¤¸à¥�à¤¥ à¤¬à¤¨à¤¾à¤”à¤‚ |";
+                                            String mesage = "जन्मने बित्तिकै " +  orgUnit.getName() + " मा बच्चाको रगत जांच गराऔं  ,बच्चालाई स्वस्थ बनाऔं |";
                                             bulkSMSHTTPInterface.sendSMS( mesage, teaValueMobileNo.getValue() );
                                         }
                                     }
