@@ -8,6 +8,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <script type="text/javascript" src="../javascripts/jQuery/jquery.min.js"></script>
     <script type="text/javascript" src="login.js"></script>
+     <script src="https://www.google.com/recaptcha/api.js"></script>
     <link type="text/css" rel="stylesheet" href="../css/widgets.css">
     <link type="text/css" rel="stylesheet" href="./css/login.css">
     <link type="text/css" rel="stylesheet" href="../../api/files/style/external" />
@@ -78,13 +79,14 @@
     </div>
     -->
 
-        <form id="loginForm" autocomplete="off" action="../../dhis-web-commons-security/login.action" method="post">
+        <form id="loginForm" autocomplete="off" action="../../dhis-web-commons-security/login.action" method="post" onsubmit="return captchaValidations()">
             <div>
                 <div id="signInLabel">Sign in</div>
                 <div><input type="text" autocomplete="off" id="j_username" name="j_username" placeholder="Username"/></div>
                 <div><input type="password" id="j_password" name="j_password" autocomplete="off" placeholder="Password" /></div>
             </div>
 
+<div style="display: inline-block;" class="g-recaptcha" data-sitekey="6LcGMioaAAAAAFwhpDS4sFZViwtj-eUBoaDynJiD" ></div>
 
             <div id="submitDiv">
                 <input id="submit" class="button" type="submit" value="Sign in">
