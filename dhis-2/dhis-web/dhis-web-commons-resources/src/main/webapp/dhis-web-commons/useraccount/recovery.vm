@@ -3,6 +3,7 @@
 <head>
     <title>$encoder.htmlEncode( $applicationTitle )</title>
     <meta name="referrer" content="no-referrer">
+       <script src="https://www.google.com/recaptcha/api.js"></script>
     <script type="text/javascript" src="../javascripts/jQuery/jquery.min.js"></script>
     <script type="text/javascript" src="../javascripts/useraccount/recovery.js"></script>
     <link type="text/css" rel="stylesheet" href="../css/account.css">
@@ -26,12 +27,11 @@
         <td style="width:100px"><label id="labelUsername" for="username">$i18n.getString( "user_name" )</label></td>
         <td><input type="text" id="username" name="username" autocomplete="off"></td>
     </tr>
-    <tr>
-        <td></td>
-        <td><input id="recoveryButton" type="button" value="$i18n.getString( 'recover' )" style="width:10em" onclick="recoverAccount()"></td>
-    </tr>
 </table>
-
+<div style="display: inline-block;" class="g-recaptcha" data-sitekey="6LcGMioaAAAAAFwhpDS4sFZViwtj-eUBoaDynJiD" ></div>
+						    <div>
+                                                       <input id="recoveryButton" type="button" value="$i18n.getString( 'recover' )" style="width:10em" onclick="recoverAccount()">
+                                                    </div>
 </form>
 
 <div id="recoverySuccessMessage" style="display:none">$i18n.getString( 'recover_success_message' )</div>
