@@ -1,7 +1,6 @@
-package org.hisp.dhis.reservedvalue;
-
+package org.hisp.dhis.user;
 /*
- * Copyright (c) 2004-2020, University of Oslo
+ * Copyright (c) 2004-2021, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,31 +27,40 @@ package org.hisp.dhis.reservedvalue;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import org.hisp.dhis.common.GenericStore;
+import org.hisp.dhis.DhisSpringTest;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.testcontainers.shaded.com.google.common.collect.Sets;
 
-import java.util.List;
+import java.util.HashSet;
 
-/**
- * @author Stian Sandvold
- */
-public interface ReservedValueStore
-    extends GenericStore<ReservedValue>
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class UserGroupInfoStoreTest extends DhisSpringTest
 {
-    List<ReservedValue> reserveValues( ReservedValue reservedValue, List<String> values );
+    @Autowired
+    private UserGroupInfoStore userGroupInfoStore;
 
-    List<ReservedValue> reserveValuesAndCheckUniqueness( ReservedValue reservedValue, List<String> values );
+    @Autowired
+    private UserGroupService userGroupService;
 
-    List<ReservedValue> reserveValuesJpa( ReservedValue reservedValue, List<String> values );
+    @Autowired
+    private UserService userService;
 
-    List<ReservedValue> getIfReservedValues( ReservedValue reservedValue, List<String> values );
+    @Test
+    public void testIsUserGroupMember()
+    {
+        User userA = createUser( 'A' );
+        userService.addUser( userA );
 
-    int getNumberOfUsedValues( ReservedValue reservedValue );
+        UserGroup userGroupA = createUserGroup( 'A', Sets.newHashSet( userA ) );
+        UserGroup userGroupB = createUserGroup( 'B', new HashSet<>() );
 
-    void removeExpiredReservations();
+        userGroupService.addUserGroup( userGroupA );
+        userGroupService.addUserGroup( userGroupB );
 
-    boolean useReservedValue( String ownerUID, String value );
-
-    void deleteReservedValueByUid( String uid );
-
-    boolean isReserved( String ownerObject, String ownerUID, String value );
+        assertTrue( userGroupInfoStore.isMember( userGroupA, userA.getUid() ) );
+        assertFalse( userGroupInfoStore.isMember( userGroupB, userA.getUid() ) );
+    }
 }

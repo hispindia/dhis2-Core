@@ -1,7 +1,7 @@
-package org.hisp.dhis.reservedvalue;
+package org.hisp.dhis.user.hibernate;
 
 /*
- * Copyright (c) 2004-2020, University of Oslo
+ * Copyright (c) 2004-2021, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,31 +28,38 @@ package org.hisp.dhis.reservedvalue;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import org.hisp.dhis.common.GenericStore;
+import org.hibernate.SessionFactory;
+import org.hibernate.jpa.QueryHints;
+import org.hibernate.query.Query;
+import org.hisp.dhis.user.UserGroup;
+import org.hisp.dhis.user.UserGroupInfoStore;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * @author Stian Sandvold
+ * @author Viet Nguyen
  */
-public interface ReservedValueStore
-    extends GenericStore<ReservedValue>
+@Repository
+public class HibernateUserGroupInfoInfoStore
+    implements UserGroupInfoStore
 {
-    List<ReservedValue> reserveValues( ReservedValue reservedValue, List<String> values );
+    private final SessionFactory sessionFactory;
 
-    List<ReservedValue> reserveValuesAndCheckUniqueness( ReservedValue reservedValue, List<String> values );
+    public HibernateUserGroupInfoInfoStore( SessionFactory sessionFactory )
+    {
+        checkNotNull( sessionFactory );
+        this.sessionFactory = sessionFactory;
+    }
 
-    List<ReservedValue> reserveValuesJpa( ReservedValue reservedValue, List<String> values );
-
-    List<ReservedValue> getIfReservedValues( ReservedValue reservedValue, List<String> values );
-
-    int getNumberOfUsedValues( ReservedValue reservedValue );
-
-    void removeExpiredReservations();
-
-    boolean useReservedValue( String ownerUID, String value );
-
-    void deleteReservedValueByUid( String uid );
-
-    boolean isReserved( String ownerObject, String ownerUID, String value );
+    @Override
+    public boolean isMember( UserGroup userGroup, String userUid )
+    {
+        String sql = "select 1 from UserGroup ug inner join ug.members u where ug.uid = :userGroupUid and u.uid = :userUid";
+        Query query = sessionFactory.getCurrentSession().createQuery( sql );
+        query.setParameter( "userGroupUid", userGroup.getUid() );
+        query.setParameter( "userUid", userUid );
+        query.setHint( QueryHints.HINT_CACHEABLE, true );
+        return query.getResultList().size() == 1 ? true : false;
+    }
 }
