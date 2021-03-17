@@ -29,9 +29,12 @@ package org.hisp.dhis.de.action;
  */
 
 import com.opensymphony.xwork2.Action;
-
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.hisp.dhis.jdbc.statementbuilder.PostgreSQLStatementBuilder;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.hisp.dhis.cache.HibernateCacheManager;
 import org.hisp.dhis.common.BaseIdentifiableObject;
 import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.dataset.CompleteDataSetRegistration;
@@ -46,12 +49,15 @@ import org.hisp.dhis.minmax.MinMaxDataElement;
 import org.hisp.dhis.minmax.MinMaxDataElementService;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
+import org.hisp.dhis.period.MonthlyPeriodType;
 import org.hisp.dhis.period.Period;
+import org.hisp.dhis.period.PeriodService;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.dxf2.utils.InputUtils;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -124,6 +130,15 @@ public class GetDataValuesForDataSetAction
 
     @Autowired
     private InputUtils inputUtils;
+    
+    @Autowired
+    private PeriodService periodService;
+    
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    
+    @Autowired
+    private HibernateCacheManager cacheManager;
 
     // -------------------------------------------------------------------------
     // Input
@@ -233,6 +248,8 @@ public class GetDataValuesForDataSetAction
         return dataValueFileResourceMap;
     }
 
+    private String monthlyPeriodTypeName;
+    
     // -------------------------------------------------------------------------
     // Action implementation
     // -------------------------------------------------------------------------
@@ -245,12 +262,61 @@ public class GetDataValuesForDataSetAction
         // Validation
         // ---------------------------------------------------------------------
 
+        
+        PostgreSQLStatementBuilder tempBuilder = new PostgreSQLStatementBuilder();
         User currentUser = currentUserService.getCurrentUser();
 
         DataSet dataSet = dataSetService.getDataSet( dataSetId );
 
         Period period = PeriodType.getPeriodFromIsoString( periodId );
+        
+        /*
+        monthlyPeriodTypeName = MonthlyPeriodType.NAME;
+        PeriodType periodType = periodService.getPeriodTypeByName( monthlyPeriodTypeName );
+        int periodTypeId = 3;
+        */
+        
+        /*
+        Period tempPeriod = new Period();
+        
+        tempPeriod.setPeriodType( periodType );
+        tempPeriod.setStartDate( period.getStartDate() );
+        tempPeriod.setEndDate( period.getEndDate() );
+        periodService.addPeriod( tempPeriod );
+        */
+        
+        // for creating period if not exist
 
+        /*
+        if( period.getId() == 0 && dataSet.getPeriodType().equalsName( MonthlyPeriodType.NAME ) )
+        {
+            System.out.println( " 5 get dataValue -- " + dataSet.getUid() +  " : " + dataSet.getPeriodType() +  " : " + period );
+            
+            Integer hibernate_sequence_last_value = null;
+            String query = "SELECT last_value FROM hibernate_sequence";
+            
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+            while ( rs.next() )
+            {
+               hibernate_sequence_last_value = rs.getInt( 1 );
+            }
+            
+            String insertQueryPeriod = "INSERT INTO period ( periodid, periodtypeid, startdate, enddate ) VALUES ";
+            
+            insertQueryPeriod += "( " + hibernate_sequence_last_value + ", " + periodTypeId + ", '" + period.getStartDateString() + "', '" + period.getEndDateString() + "'  ); ";
+            
+            System.out.println( " insertQueryPeriod -- " + insertQueryPeriod );
+            jdbcTemplate.update( insertQueryPeriod );
+            
+            long next_hibernate_sequence = hibernate_sequence_last_value + 1;
+            String sqlAlter = "ALTER SEQUENCE hibernate_sequence RESTART WITH " + next_hibernate_sequence;
+            jdbcTemplate.execute( sqlAlter );
+           
+            cacheManager.clearCache();
+
+        }
+        */
+        
         OrganisationUnit organisationUnit = organisationUnitService.getOrganisationUnit( organisationUnitId );
 
         if ( organisationUnit == null || period == null || dataSet == null )

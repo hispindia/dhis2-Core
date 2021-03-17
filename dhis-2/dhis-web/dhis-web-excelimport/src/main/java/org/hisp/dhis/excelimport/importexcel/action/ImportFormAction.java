@@ -106,12 +106,18 @@ public class ImportFormAction
         {
             PeriodType type = alldeIterator.next();
             
+            /*
             if ( type.getName().equalsIgnoreCase("Weekly") || type.getName().equalsIgnoreCase("Monthly") 
                 || type.getName().equalsIgnoreCase("quarterly") || type.getName().equalsIgnoreCase("yearly"))
             {
                 //periods.addAll( periodService.getPeriodsByPeriodType(type) );
             }
+            */
             
+            if ( type.getName().equalsIgnoreCase("Monthly") )
+            {
+                //periods.addAll( periodService.getPeriodsByPeriodType(type) );
+            }
             else
             {
                alldeIterator.remove();

@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -129,11 +130,11 @@ public class ImportDataResultAction
         return updatingCount;
     }
 
-    private String selectedPeriodId;
+    private String availablePeriods;
 
-    public void setSelectedPeriodId( String selectedPeriodId )
+    public void setAvailablePeriods( String availablePeriods )
     {
-        this.selectedPeriodId = selectedPeriodId;
+        this.availablePeriods = availablePeriods;
     }
 
     private OrganisationUnitGroup orgUnitGroup;
@@ -152,7 +153,7 @@ public class ImportDataResultAction
     
     private Period selectedPeriod;
     
-    private Integer periodId = null;
+    //private Integer periodId = null;
     
     // -------------------------------------------------------------------------
     // Action implementation
@@ -187,18 +188,23 @@ public class ImportDataResultAction
             return SUCCESS;
         }
         
-        if( selectedPeriodId == null )
+        /*
+        if( availablePeriods == null )
         {
-            message = "Weekly period missing Please select Period";
+            message = "Period missing Please select Period";
 
             return SUCCESS;
         }
+        */
+        /*
         else
         {
-            Period period = periodService.reloadIsoPeriod( selectedPeriodId );
+            Period period = periodService.reloadIsoPeriod( availablePeriods );
+            
             periodId = (int) period.getId();
-            System.out.println( "Start Importing Time : " + new Date() + " -- " + selectedPeriodId + " Period-Id -- " + periodId );
+            System.out.println( "Start Importing Time : " + new Date() + " -- " + availablePeriods + " Period-Id -- " + periodId );
         }
+        */
         
         //selectedPeriod = periodService.getPeriod( availablePeriods );
         
@@ -206,13 +212,26 @@ public class ImportDataResultAction
         String[] row = null;
         int count = 0;
 
+        
         while ( (row = csvReader.readNext()) != null )
         {
             allRows.add( row );
         }
+        
+        
 
-        csvReader.close();
+        /*
+        for( int i=1; (row = csvReader.readNext()) != null; i++)
+        {
+            allRows.add( row );
+        }
+        */
 
+      
+       csvReader.close();  
+        
+        
+        
         String importStatus = "";
         //int count1 = 0;
         //int addCount = 0;
@@ -230,38 +249,76 @@ public class ImportDataResultAction
             String insertQuery = "INSERT INTO datavalue ( dataelementid, periodid, sourceid, categoryoptioncomboid, attributeoptioncomboid, value, storedby, created, lastupdated, deleted, comment, followup ) VALUES ";
             try
             {
-                for( Object obj : allRows )
+                int rowCount = 0;
+                //for( Object obj : allRows )
+                for( int i = 1; i< allRows.size(); i++  )    
+                //Iterator<String[]>rowString= allRows.iterator();
+                
+                //while(rowString.hasNext())
                 {
-                    String[] oneRow = (String[]) obj;
+                    /*
+                    if( rowCount == 0 ) 
+                    {
+                        rowCount++;  
+                        continue;
+                    }
+                    */
+                    
+                    String[] oneRow = (String[]) allRows.get( i );
+                    //System.out.println( "rowCount : " + rowCount  );
+                    //String[] oneRow = rowString.next();
                     int noOfCols = oneRow.length;
-
+                    //System.out.println( " allRows -- " + allRows.size() + " oneRow[2] : " + oneRow[2] + " oneRow[3] -- " + oneRow[3] );
+                    //System.out.println( " noOfCols -- " + noOfCols + " orgUnitIdUidMap : " + orgUnitIdUidMap.size() + " dataElementIdCodeMap -- " + dataElementIdCodeMap.size() );
+                    //System.out.println( " oneRow -- " + oneRow + " oneRow[0] : " + oneRow[0] + " oneRow[1] -- " + oneRow[1] );
                     Integer organisationUnitId = orgUnitIdUidMap.get( oneRow[2] );
                     Integer dataElementId = dataElementIdCodeMap.get( oneRow[0] );
+                    Integer periodId = (int) periodService.reloadIsoPeriod( oneRow[1] ).getId();
+                    //Integer periodId = null;
+                    //String isoPeriod = oneRow[1];
+                    //System.out.println( "isoPeriod : " + isoPeriod + " Period-Id -- " + periodId );
+                    //Period period = periodService.reloadIsoPeriod( isoPeriod );
+                    
+                    //System.out.println( " organisationUnitId -- " + organisationUnitId + " dataElementId : " + dataElementId + " Period-Id -- " + periodId );
+                    
+                    /*
+                    if( period != null )
+                    {
+                        //message = "Period missing Please select Period";
+                        periodId = (int) period.getId();
+                        //continue;
+                        //return SUCCESS;
+                    }
+                    */
+                    
                     Integer categoryOptionComboId = cocIdUidMap.get( oneRow[3] );
                     Integer attributeOptionComboId = cocIdUidMap.get( oneRow[4] );
 
                     //Integer periodId = excelImportService.getSecondWeekPeriodId( oneRow[1] );
                     
+                    /*
                     if ( oneRow[5].equalsIgnoreCase( "" ) || oneRow[5] == null || oneRow[5].equalsIgnoreCase( " " ) )
                     {
                         noOfCols++;
 
                         continue;
                     }
+                    */
+                    
 
                     if( dataElementId != null && periodId != null && organisationUnitId != null  && categoryOptionComboId != null && attributeOptionComboId != null )
                     {
                         String selectQuery = "SELECT value FROM datavalue WHERE dataelementid = " + dataElementId
                             + " AND  periodid = " + periodId + " AND sourceid = " + organisationUnitId
                             + " AND categoryoptioncomboid = " + categoryOptionComboId + " AND attributeoptioncomboid = " + attributeOptionComboId + " ";
-                        
+                        //System.out.println( "selectQuery : " + selectQuery  );
                         SqlRowSet sqlResultSet = jdbcTemplate.queryForRowSet( selectQuery );
 
                         if ( sqlResultSet != null && sqlResultSet.next() )
                         {
                             String updateQuery = "UPDATE datavalue SET value = '" + oneRow[5] + "', storedby = '" + storedBy + "',lastupdated='" + lastUpdatedDate + "' WHERE dataelementid = " + dataElementId + " AND periodid = "
                                 + periodId + " AND sourceid = " + organisationUnitId + " AND categoryoptioncomboid = " + categoryOptionComboId + " AND attributeoptioncomboid = " + attributeOptionComboId;
-
+                            //System.out.println( "updateQuery : " + updateQuery  );
                             jdbcTemplate.update( updateQuery );
                             
                             updateCount++;
@@ -293,7 +350,13 @@ public class ImportDataResultAction
 
                         count++;
                     }
-                   
+                    /*
+                    else
+                    {
+                        continue;
+                    }
+                    */
+                    rowCount++;
                 }
                 
                 if ( insertFlag != 1 )
