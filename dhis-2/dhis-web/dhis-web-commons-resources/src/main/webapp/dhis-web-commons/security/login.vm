@@ -87,7 +87,7 @@
                 <div><input type="password" id="j_password" name="j_password" autocomplete="off" placeholder="Password" /></div>
             </div>
 
-<div style="display: inline-block;" class="g-recaptcha" data-sitekey="6LcGMioaAAAAAFwhpDS4sFZViwtj-eUBoaDynJiD" ></div>
+<div style="display: inline-block;" class="g-recaptcha" data-sitekey="6LeXbmUaAAAAAKHdwDLPIAYR9SgX6i9C0WGW4a5G" ></div>
 
             <div id="submitDiv">
                 <input id="submit" class="button" type="submit" value="Sign in">
