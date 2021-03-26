@@ -28,7 +28,7 @@
         <td><input type="text" id="username" name="username" autocomplete="off"></td>
     </tr>
 </table>
-<div style="display: inline-block;" class="g-recaptcha" data-sitekey="6LcGMioaAAAAAFwhpDS4sFZViwtj-eUBoaDynJiD" ></div>
+<div style="display: inline-block;" class="g-recaptcha" data-sitekey="6LeXbmUaAAAAAKHdwDLPIAYR9SgX6i9C0WGW4a5G" ></div>
 						    <div>
                                                        <input id="recoveryButton" type="button" value="$i18n.getString( 'recover' )" style="width:10em" onclick="recoverAccount()">
                                                     </div>
