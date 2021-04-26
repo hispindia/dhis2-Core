@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.hisp.dhis.config.ConfigurationService;
 import org.hisp.dhis.config.Configuration_IN;
+import org.hisp.dhis.organisationunit.OrganisationUnitGroupSet;
 import org.hisp.dhis.system.database.DatabaseInfoProvider;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -82,7 +83,7 @@ public class AdvanceMySqlBackupResultAction implements Action
     {        
         status = "INPUT";
         System.out.println(" Total No of Selected Tables for Backup is :" + selectedTables.size() );
-        
+        //List<OrganisationUnitGroupSet> organisationUnitGroupSet1List = new ArrayList<>( );
         System.out.println( "Backup Start Time is : " + new Date() );
         
         String dbName = provider.getDatabaseInfo().getName();

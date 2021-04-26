@@ -8,6 +8,9 @@
         var periodIndex = periodList.selectedIndex;
         var ouIdTb = document.getElementById("ouIDTB");
         var orgunitIdValue = ouIdTb.value;
+		
+		var orgUnitGrpList = document.getElementById("orgUnitGroup");
+        var orgUnitGrpIndex = orgUnitGrpList.selectedIndex;
         
         if( periodList.options[periodIndex].text == null || periodList.options[periodIndex].text == "" ) 
         {
@@ -18,7 +21,14 @@
         {
             alert("Please Select OrganisationUnit"); 
             return false;
-        }       
+        }
+
+		else if( orgUnitGrpIndex < 0 || orgUnitGrpList.options[orgUnitGrpIndex].text == "NA" ) 
+        {
+            alert("Please Select OrganisationUnit Group"); 
+            return false;
+        }
+		
         else if( reportListIndex < 0 || reportList.options[reportListIndex].text == null ) 
         {
             alert("Please Select Report"); 
@@ -44,7 +54,7 @@
                 </select>
             </td>
             <td class="NormalB">                            
-                3. $i18n.getString( "organisationunit" ) :<br />
+                2. $i18n.getString( "organisationunit" ) :<br />
                 <input type="text" name="ouNameTB" id="ouNameTB" style="width:200px" disabled>         
             </td>       
         </tr>
@@ -58,12 +68,17 @@
         </tr>           
         <tr>
             <td class="NormalB">
-                2. $i18n.getString( "periods" ) :<br />
+                3. $i18n.getString( "periods" ) :<br />
                 <select id="availablePeriods" name="availablePeriods" style="width:200px"></select>
             </td>
             <td class="NormalB">
-                4. $i18n.getString( "reports" ) :<br />
-                <select id="reportList" name="reportList" style="width:200px"></select>
+                4. $i18n.getString( "OrganisationUnit Group" ):<br />
+                <select id="orgUnitGroup" name="orgUnitGroup" style="width:200px" onchange="getReportsByOrgUnitGroup()">
+					<option value="NA">[ $i18n.getString( "Select OrganisationUnit Group" ) ]</option>
+					#foreach( $orgUnitGroup in $orgUnitGroups )
+						<option value="$orgUnitGroup.id">$orgUnitGroup.name</option>
+					#end
+                </select>
             </td>
         </tr>
         <tr>
@@ -75,20 +90,42 @@
             <td>&nbsp;</td>
         </tr>
         <tr>
-            <td>&nbsp;</td>
+            <td class="NormalB">
+                5. $i18n.getString( "reports" ) :<br />
+                <select id="reportList" name="reportList" style="width:200px"></select>
+            </td>			
             <td class="NormalB">
                 <!--<input type="checkbox" id="aggCB" name="aggCB" checked> $i18n.getString( "aggregated_data" )-->
-                5. $i18n.getString( "generated_data_type" ) :<br />
+                6. $i18n.getString( "generated_data_type" ) :<br />
                 <select id="aggData" name="aggData" style="width:200px">
                     <option selected="selected" value="generateaggdata">$i18n.getString( "generate_agg_data" )</option>
                     <option  value="usecaptureddata">$i18n.getString( "use_captured_data" )</option>
                 </select>
-                <br><br><br><br>                                
-                <input type="submit" id= "generate" name="generate" value='$i18n.getString( "generate_report" )' disabled="disabled">
+                                               
+                
+            </td>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
+		
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>		
+		
+        <tr>
+            <td>&nbsp;</td>
+            <td class="NormalB">
+				<input type="submit" id= "generate" name="generate" value='$i18n.getString( "generate_report" )' disabled="disabled">
                 <input type="hidden" name="autogen" id="autogen" value="0" >
                 <input type="hidden" name="ouIDTB" id="ouIDTB">
                 <input type="hidden" name="reportTypeNameTB" id="reportTypeNameTB" value="$reportTypeName">
-            </td>
+			</td>
+        </tr>			
+			
+			
+			
         </tr>
     </table>
 </form>

@@ -263,6 +263,18 @@ function getPeriodsReceived(xmlObject)
 	}
 }
 
+// update for orgUnit group in GOI report
+function getReportsByOrgUnitGroup() 
+{
+	var ouId = document.getElementById('ouIDTB').value;
+	var reportType = document.reportForm.reportTypeNameTB.value;
+
+	if( ouId != null && ouId != "" )
+	{
+		getReports( ouId, reportType );
+	}
+}
+
 function getPeriodsForCumulative()
 {
     var periodTypeList = document.getElementById( "periodTypeId" );
@@ -342,9 +354,12 @@ function getReports(orgUnitIds, reportTypeName)
 	var periodType = periodTypeList.options[periodTypeList.selectedIndex].value;
 	document.getElementById("ouNameTB").value = "";
 	
+    var orgUnitGrpList = document.getElementById( "orgUnitGroup" );
+    var orgUnitGroupId = orgUnitGrpList.options[ orgUnitGrpList.selectedIndex ].value;
+	
 	if ( periodType != "NA" && orgUnitIds != null && reportTypeName != "" ) 
 	{
-		var url = "getReports.action?periodType=" + periodType + "&ouId=" + orgUnitIds + "&reportType=" + reportTypeName;
+		var url = "getReports.action?periodType=" + periodType + "&ouId=" + orgUnitIds + "&reportType=" + reportTypeName + "&orgUnitGroup=" + orgUnitGroupId; 
 
 		var request = new Request();
 		request.setResponseTypeXML('report');

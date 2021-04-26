@@ -33,6 +33,8 @@ import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementService;
 import org.hisp.dhis.i18n.I18nFormat;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
+import org.hisp.dhis.organisationunit.OrganisationUnitGroup;
+import org.hisp.dhis.organisationunit.OrganisationUnitGroupService;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodService;
@@ -92,6 +94,9 @@ public class GenerateUpwardReportAnalyserResultAction
     
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    
+    @Autowired
+    private OrganisationUnitGroupService organisationUnitGroupService;
     
     private I18nFormat format;
 
@@ -185,6 +190,8 @@ public class GenerateUpwardReportAnalyserResultAction
     private SimpleDateFormat yearFormat;
     private SimpleDateFormat simpleDateMonthYearFormat;
     
+    private List<OrganisationUnit> reportOrgUnitGrpMember = new ArrayList<OrganisationUnit>();
+    
     // -------------------------------------------------------------------------
     // Action Implementation
     // -------------------------------------------------------------------------
@@ -249,6 +256,13 @@ public class GenerateUpwardReportAnalyserResultAction
             parentUnit = orgUnit.getName();
         }
 
+        
+        if ( selReportObj.getOrgunitGroup() != null )
+        {
+            reportOrgUnitGrpMember = new ArrayList<OrganisationUnit>( selReportObj.getOrgunitGroup().getMembers() );
+        }
+        
+        
         System.out.println( orgUnitList.get( 0 ).getName()+ " : " + selReportObj.getName()+" : Report Generation Start Time is : " + new Date() );
 
         // Period Info
@@ -289,9 +303,19 @@ public class GenerateUpwardReportAnalyserResultAction
             else if( aggData.equalsIgnoreCase( GENERATEAGGDATA ) )
             {
                 List<OrganisationUnit> childOrgUnitTree = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( currentOrgUnit.getId() ) );
-                List<Integer> childOrgUnitTreeIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, childOrgUnitTree ) );
-                String childOrgUnitsByComma = getCommaDelimitedString( childOrgUnitTreeIds );
-
+                
+                System.out.println( "childOrgUnitTree  : " + childOrgUnitTree.size() + "---- reportOrgUnitGrpMember  : " + reportOrgUnitGrpMember.size() );
+                
+                reportOrgUnitGrpMember.retainAll( childOrgUnitTree );
+                System.out.println( " after retainAll reportOrgUnitGrpMember  : " + reportOrgUnitGrpMember.size() + "---- childOrgUnitTree  : " + childOrgUnitTree.size() );
+                
+                String childOrgUnitsByComma = "-1";
+                if( reportOrgUnitGrpMember.size() > 0 )
+                {
+                    List<Integer> childOrgUnitTreeIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, reportOrgUnitGrpMember ) );
+                    childOrgUnitsByComma = getCommaDelimitedString( childOrgUnitTreeIds );
+                }
+                
                 aggDeMap.putAll( reportService.getAggDataFromDataValueTable( childOrgUnitsByComma, dataElmentIdsByComma, periodIdsByComma ) );
             }
             else if( aggData.equalsIgnoreCase( USECAPTUREDDATA ) )

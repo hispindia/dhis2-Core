@@ -1,11 +1,17 @@
 package org.hisp.dhis.reports.upward.action;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
+import org.hisp.dhis.organisationunit.OrganisationUnitGroup;
+import org.hisp.dhis.organisationunit.OrganisationUnitGroupService;
+import org.hisp.dhis.organisationunit.OrganisationUnitGroupSet;
 import org.hisp.dhis.period.PeriodService;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.reports.ReportType;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
 
@@ -23,6 +29,9 @@ public class GenerateUpwardReportAnalyserFormAction
     {
         this.periodService = periodService;
     }
+    
+    @Autowired
+    private OrganisationUnitGroupService organisationUnitGroupService;
 
     // -------------------------------------------------------------------------
     // Properties
@@ -40,6 +49,13 @@ public class GenerateUpwardReportAnalyserFormAction
     public String getReportTypeName()
     {
         return reportTypeName;
+    }
+    
+    private List<OrganisationUnitGroup> orgUnitGroups;
+    
+    public List<OrganisationUnitGroup> getOrgUnitGroups()
+    {
+        return orgUnitGroups;
     }
 
     // -------------------------------------------------------------------------
@@ -67,6 +83,10 @@ public class GenerateUpwardReportAnalyserFormAction
             }
         }
 
+        List<OrganisationUnitGroupSet> organisationUnitGroupSet1List = new ArrayList<OrganisationUnitGroupSet>( organisationUnitGroupService.getOrganisationUnitGroupSetByName( "Private GOI Report" ) );
+        OrganisationUnitGroupSet organisationUnitGroupSet = organisationUnitGroupSet1List.get( 0 );
+        orgUnitGroups = new ArrayList<OrganisationUnitGroup>( organisationUnitGroupSet.getOrganisationUnitGroups() );
+        
         return SUCCESS;
     }
 }

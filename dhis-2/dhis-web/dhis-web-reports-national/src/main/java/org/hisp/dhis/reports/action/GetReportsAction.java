@@ -2,6 +2,7 @@ package org.hisp.dhis.reports.action;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.hisp.dhis.organisationunit.OrganisationUnit;
@@ -94,14 +95,22 @@ public class GetReportsAction
         return selectedOrgUnitLevel;
     }
     
+    private String orgUnitGroup;
+    
+    public void setOrgUnitGroup( String orgUnitGroup )
+    {
+        this.orgUnitGroup = orgUnitGroup;
+    }
+    
     // -------------------------------------------------------------------------
     // Action implementation
     // -------------------------------------------------------------------------
 
+
     public String execute()
         throws Exception
     {
-        if ( ouId != null )
+        if ( ouId != null && orgUnitGroup != null && !orgUnitGroup.equalsIgnoreCase( "NA" ) )
         {
             try
             {
@@ -124,7 +133,30 @@ public class GetReportsAction
                 PeriodType periodTypeObj = periodService.getPeriodTypeByName( periodType );
                 
                 reportList = new ArrayList<Report_in>( reportService.getReportsByPeriodSourceAndReportType( periodTypeObj, orgUnit, reportType ) );
-                System.out.println( "ouName  : " + orgUnit.getShortName() + "---- ouLavel  : " + orgUnit.getLevel() + "------LAVEL----- " + selectedOrgUnitLevel + " Report List Size -- " + reportList.size());
+                System.out.println( "ouName  : " + orgUnit.getShortName() + "---- ouLavel  : " + orgUnit.getLevel() + "------orgUnitGroup----- " + orgUnitGroup + " Report List Size -- " + reportList.size());
+                
+                if ( orgUnitGroup != null && !orgUnitGroup.equalsIgnoreCase( "NA" ) )
+                {
+                    
+                    Iterator<Report_in> reportIterator = reportList.iterator();
+                    while ( reportIterator.hasNext() )
+                    {
+                        Report_in reportIn = reportIterator.next();
+                        
+                        if ( reportIn.getOrgunitGroup() != null )
+                        {
+                            if ( reportIn.getOrgunitGroup().getId() != Integer.parseInt( orgUnitGroup ) )
+                            {
+                                reportIterator.remove();
+                            }
+                        }
+                        else
+                        {
+                            reportIterator.remove();
+                        }
+                    }
+                }
+                
                 Collections.sort( reportList, new Report_inNameComparator() );
             }
             catch ( Exception e )

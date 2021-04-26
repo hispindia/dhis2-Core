@@ -70,8 +70,11 @@ public class APIIntegration implements Runnable
     String currentMonth = "";
 
     String currentYear = "";
+    String nextYear = "";
 
     String todayDate = "";
+    
+    String currentFinancialYear = "";
     
     @Override
     public void run()
@@ -91,6 +94,8 @@ public class APIIntegration implements Runnable
         currentDate = simpleDateFormat.format( date ).split( "-" )[2];
         currentMonth = simpleDateFormat.format( date ).split( "-" )[1];
         currentYear = simpleDateFormat.format( date ).split( "-" )[0];
+        nextYear = ""+Integer.parseInt(currentYear) + 1;
+        currentFinancialYear = currentYear + "-" + nextYear;
         
         //JSONObject json = readJsonFromUrl("http://182.156.208.43:85/faber_maharashtra/services/service_phd2");
         try
@@ -168,7 +173,7 @@ public class APIIntegration implements Runnable
               String year = (String) jobject.get("Year");   
               //System.out.println("Year - " + year );
               
-              if( year.equalsIgnoreCase( "2018-19" ) || year.equalsIgnoreCase("2019-20" ) )
+              if( year.equalsIgnoreCase( "2018-19" ) || year.equalsIgnoreCase("2019-20" ) || year.equalsIgnoreCase( currentFinancialYear ))
               {
                   //System.out.println("Year - " + year );
                   
