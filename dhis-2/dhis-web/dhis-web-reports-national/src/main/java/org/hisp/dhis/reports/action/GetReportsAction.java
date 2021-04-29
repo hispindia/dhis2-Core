@@ -135,6 +135,7 @@ public class GetReportsAction
                 reportList = new ArrayList<Report_in>( reportService.getReportsByPeriodSourceAndReportType( periodTypeObj, orgUnit, reportType ) );
                 System.out.println( "ouName  : " + orgUnit.getShortName() + "---- ouLavel  : " + orgUnit.getLevel() + "------orgUnitGroup----- " + orgUnitGroup + " Report List Size -- " + reportList.size());
                 
+                /*
                 if ( orgUnitGroup != null && !orgUnitGroup.equalsIgnoreCase( "NA" ) )
                 {
                     
@@ -156,6 +157,7 @@ public class GetReportsAction
                         }
                     }
                 }
+                */
                 
                 Collections.sort( reportList, new Report_inNameComparator() );
             }

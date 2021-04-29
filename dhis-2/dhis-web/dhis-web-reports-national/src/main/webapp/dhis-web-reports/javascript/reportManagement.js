@@ -354,12 +354,13 @@ function getReports(orgUnitIds, reportTypeName)
 	var periodType = periodTypeList.options[periodTypeList.selectedIndex].value;
 	document.getElementById("ouNameTB").value = "";
 	
-    var orgUnitGrpList = document.getElementById( "orgUnitGroup" );
-    var orgUnitGroupId = orgUnitGrpList.options[ orgUnitGrpList.selectedIndex ].value;
+	var orgUnitGroupId = "";
+	//var orgUnitGrpList = document.getElementById( "orgUnitGroup" );
+    //orgUnitGroupId = orgUnitGrpList.options[ orgUnitGrpList.selectedIndex ].value;
 	
 	if ( periodType != "NA" && orgUnitIds != null && reportTypeName != "" ) 
 	{
-		var url = "getReports.action?periodType=" + periodType + "&ouId=" + orgUnitIds + "&reportType=" + reportTypeName + "&orgUnitGroup=" + orgUnitGroupId; 
+		var url = "getReports.action?periodType=" + periodType + "&ouId=" + orgUnitIds + "&reportType=" + reportTypeName + "&orgUnitGroup=" + orgUnitGroupId;
 
 		var request = new Request();
 		request.setResponseTypeXML('report');

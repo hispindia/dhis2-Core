@@ -305,17 +305,23 @@ public class GenerateUpwardReportAnalyserResultAction
                 List<OrganisationUnit> childOrgUnitTree = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( currentOrgUnit.getId() ) );
                 
                 System.out.println( "childOrgUnitTree  : " + childOrgUnitTree.size() + "---- reportOrgUnitGrpMember  : " + reportOrgUnitGrpMember.size() );
-                
-                reportOrgUnitGrpMember.retainAll( childOrgUnitTree );
-                System.out.println( " after retainAll reportOrgUnitGrpMember  : " + reportOrgUnitGrpMember.size() + "---- childOrgUnitTree  : " + childOrgUnitTree.size() );
-                
                 String childOrgUnitsByComma = "-1";
-                if( reportOrgUnitGrpMember.size() > 0 )
+                if( reportOrgUnitGrpMember != null && reportOrgUnitGrpMember.size() > 0 )
                 {
-                    List<Integer> childOrgUnitTreeIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, reportOrgUnitGrpMember ) );
+                    reportOrgUnitGrpMember.retainAll( childOrgUnitTree );
+                    if( reportOrgUnitGrpMember.size() > 0 )
+                    {
+                        List<Integer> childOrgUnitTreeIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, reportOrgUnitGrpMember ) );
+                        childOrgUnitsByComma = getCommaDelimitedString( childOrgUnitTreeIds );
+                    }
+                }
+                else
+                {
+                    List<Integer> childOrgUnitTreeIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, childOrgUnitTree ) );
                     childOrgUnitsByComma = getCommaDelimitedString( childOrgUnitTreeIds );
                 }
                 
+                System.out.println( " after retainAll reportOrgUnitGrpMember  : " + reportOrgUnitGrpMember.size() + "---- childOrgUnitTree  : " + childOrgUnitTree.size() );
                 aggDeMap.putAll( reportService.getAggDataFromDataValueTable( childOrgUnitsByComma, dataElmentIdsByComma, periodIdsByComma ) );
             }
             else if( aggData.equalsIgnoreCase( USECAPTUREDDATA ) )
