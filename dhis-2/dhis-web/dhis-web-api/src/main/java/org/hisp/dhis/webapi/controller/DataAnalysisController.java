@@ -27,7 +27,6 @@
  */
 package org.hisp.dhis.webapi.controller;
 
-import static org.hisp.dhis.expression.ParseType.VALIDATION_RULE_EXPRESSION;
 import static org.hisp.dhis.system.util.CodecUtils.filenameEncode;
 
 import java.util.ArrayList;
@@ -51,6 +50,8 @@ import org.hisp.dhis.common.GridHeader;
 import org.hisp.dhis.common.cache.CacheStrategy;
 import org.hisp.dhis.dataanalysis.DataAnalysisParams;
 import org.hisp.dhis.dataanalysis.DataAnalysisService;
+import org.hisp.dhis.dataanalysis.FollowupAnalysisRequest;
+import org.hisp.dhis.dataanalysis.FollowupAnalysisResponse;
 import org.hisp.dhis.dataanalysis.FollowupAnalysisService;
 import org.hisp.dhis.dataanalysis.FollowupParams;
 import org.hisp.dhis.dataanalysis.MinMaxOutlierAnalysisService;
@@ -59,7 +60,6 @@ import org.hisp.dhis.dataanalysis.UpdateFollowUpForDataValuesRequest;
 import org.hisp.dhis.dataanalysis.ValidationRuleExpressionDetails;
 import org.hisp.dhis.dataanalysis.ValidationRulesAnalysisParams;
 import org.hisp.dhis.dataelement.DataElement;
-import org.hisp.dhis.dataelement.DataElementOperand;
 import org.hisp.dhis.dataelement.DataElementService;
 import org.hisp.dhis.dataset.DataSetService;
 import org.hisp.dhis.datavalue.DataValue;
@@ -67,7 +67,6 @@ import org.hisp.dhis.datavalue.DataValueService;
 import org.hisp.dhis.datavalue.DeflatedDataValue;
 import org.hisp.dhis.dxf2.webmessage.WebMessageException;
 import org.hisp.dhis.dxf2.webmessage.WebMessageUtils;
-import org.hisp.dhis.expression.ExpressionService;
 import org.hisp.dhis.expression.Operator;
 import org.hisp.dhis.i18n.I18n;
 import org.hisp.dhis.i18n.I18nFormat;
@@ -102,6 +101,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -160,9 +160,6 @@ public class DataAnalysisController
 
     @Autowired
     private FollowupAnalysisService followupAnalysisService;
-
-    @Autowired
-    private ExpressionService expressionService;
 
     @RequestMapping( value = "/validationRules", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE )
     @ResponseStatus( HttpStatus.OK )
@@ -250,15 +247,12 @@ public class DataAnalysisController
             }
         }
 
-        ValidationRuleExpressionDetails validationRuleExpressionDetails = new ValidationRuleExpressionDetails();
+        ValidationAnalysisParams params = validationService.newParamsBuilder(
+            Lists.newArrayList( validationRule ), organisationUnit, Lists.newArrayList( period ) )
+            .withAttributeOptionCombo( attributeOptionCombo )
+            .build();
 
-        processLeftSideDetails( validationRuleExpressionDetails, validationRule, organisationUnit, period,
-            attributeOptionCombo );
-
-        processRightSideDetails( validationRuleExpressionDetails, validationRule, organisationUnit, period,
-            attributeOptionCombo );
-
-        return validationRuleExpressionDetails;
+        return validationService.getValidationRuleExpressionDetails( params );
     }
 
     @RequestMapping( value = "/stdDevOutlier", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE )
@@ -387,14 +381,20 @@ public class DataAnalysisController
 
         List<DeflatedDataValue> dataValues = new ArrayList<>( followupAnalysisService
             .getFollowupDataValues( Sets.newHashSet( organisationUnit ), dataElements,
-                periods, DataAnalysisService.MAX_OUTLIERS + 1 ) ); // +1 to
-                                                                   // detect
-                                                                   // overflow
+                periods, DataAnalysisService.MAX_OUTLIERS + 1 ) );
+        // +1 to detect overflow
 
         session.setAttribute( KEY_ANALYSIS_DATA_VALUES, dataValues );
         session.setAttribute( KEY_ORG_UNIT, organisationUnit );
 
         return deflatedValuesListToResponse( dataValues );
+    }
+
+    @RequestMapping( value = "/followup", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE )
+    @ResponseStatus( HttpStatus.OK )
+    public @ResponseBody FollowupAnalysisResponse performFollowupAnalysis( FollowupAnalysisRequest request )
+    {
+        return followupAnalysisService.getFollowupDataValues( request );
     }
 
     @RequestMapping( value = "/followup/mark", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE )
@@ -528,40 +528,6 @@ public class DataAnalysisController
                 false );
 
         GridUtils.toCsv( grid, response.getWriter() );
-    }
-
-    private void processLeftSideDetails( ValidationRuleExpressionDetails validationRuleExpressionDetails,
-        ValidationRule validationRule, OrganisationUnit organisationUnit, Period period,
-        CategoryOptionCombo attributeOptionCombo )
-    {
-        for ( DataElementOperand operand : expressionService
-            .getExpressionOperands( validationRule.getLeftSide().getExpression(), VALIDATION_RULE_EXPRESSION ) )
-        {
-            DataValue dataValue = dataValueService
-                .getDataValue( operand.getDataElement(), period, organisationUnit, operand.getCategoryOptionCombo(),
-                    attributeOptionCombo );
-
-            String value = dataValue != null ? dataValue.getValue() : null;
-
-            validationRuleExpressionDetails.addLeftSideDetail( operand.getName(), value );
-        }
-    }
-
-    private void processRightSideDetails( ValidationRuleExpressionDetails validationRuleExpressionDetails,
-        ValidationRule validationRule, OrganisationUnit organisationUnit, Period period,
-        CategoryOptionCombo attributeOptionCombo )
-    {
-        for ( DataElementOperand operand : expressionService
-            .getExpressionOperands( validationRule.getRightSide().getExpression(), VALIDATION_RULE_EXPRESSION ) )
-        {
-            DataValue dataValue = dataValueService
-                .getDataValue( operand.getDataElement(), period, organisationUnit, operand.getCategoryOptionCombo(),
-                    attributeOptionCombo );
-
-            String value = dataValue != null ? dataValue.getValue() : null;
-
-            validationRuleExpressionDetails.addRightSideDetail( operand.getName(), value );
-        }
     }
 
     private Grid generateAnalysisReportGridFromResults( List<DeflatedDataValue> results, OrganisationUnit orgUnit )

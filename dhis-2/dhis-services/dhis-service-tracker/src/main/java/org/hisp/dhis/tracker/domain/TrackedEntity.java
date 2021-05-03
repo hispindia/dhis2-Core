@@ -31,10 +31,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import org.locationtech.jts.geom.Geometry;
 
@@ -47,10 +44,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TrackedEntity implements TrackerDto
+public class TrackedEntity
+    implements TrackerDto
 {
-    private String uid;
-
     @JsonProperty
     private String trackedEntity;
 
@@ -85,6 +81,12 @@ public class TrackedEntity implements TrackerDto
     private String storedBy;
 
     @JsonProperty
+    private String createdBy;
+
+    @JsonProperty
+    private String updatedBy;
+
+    @JsonProperty
     @Builder.Default
     private List<Relationship> relationships = new ArrayList<>();
 
@@ -99,4 +101,10 @@ public class TrackedEntity implements TrackerDto
     @JsonProperty
     @Builder.Default
     private List<ProgramOwner> programOwners = new ArrayList<>();
+
+    @Override
+    public String getUid()
+    {
+        return this.trackedEntity;
+    }
 }
