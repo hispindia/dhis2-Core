@@ -1,0 +1,6 @@
+<h3>$i18n.getString( "inspection_management" )</h3>
+
+<ul class="introList">
+    #introListImgItem( "escalationsList.action?listAll=true" "escalations" "escalations" )
+    #introListImgItem( "showDataSetReportForm.action" "schedule_inspection" "scheduleInspection" )
+</ul>

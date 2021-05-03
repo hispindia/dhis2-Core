@@ -43,6 +43,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.hisp.dhis.common.hibernate.SoftDeleteHibernateObjectStore;
 import org.hisp.dhis.event.EventStatus;
+import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramInstance;
 import org.hisp.dhis.program.ProgramStage;
 import org.hisp.dhis.program.ProgramStageInstance;
@@ -227,4 +228,21 @@ public class HibernateProgramStageInstanceStore
     {
         return (programStageInstance == null || programStageInstance.isDeleted()) ? null : programStageInstance;
     }
+    
+    // add methods for Saint Lucia EHS program
+    @Override
+    //@SuppressWarnings( "unchecked" )
+    public List<ProgramStageInstance> getFilteredProgramStageInstances( String programStageInstanceIdsByComma, int min, int max )
+    {
+        //List<Program> userPrograms = new ArrayList<>();
+        String hql = "";
+        
+        hql = "SELECT psi FROM ProgramStageInstance AS psi " +
+              " WHERE psi.id IN (" + programStageInstanceIdsByComma  + " ) ORDER BY psi.executionDate ASC";
+        
+        Query<ProgramStageInstance> query = getQuery( hql ).setFirstResult( min ).setMaxResults( max );
+
+        return query.list();
+        
+    }  
 }

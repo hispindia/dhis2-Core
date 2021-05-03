@@ -128,4 +128,8 @@ public interface ProgramStageInstanceStore
      * @param lastSynchronized The date of last successful sync
      */
     void updateProgramStageInstancesSyncTimestamp( List<String> programStageInstanceUIDs, Date lastSynchronized );
+    
+    
+    // add methods for Saint Lucia EHS program
+    List<ProgramStageInstance> getFilteredProgramStageInstances( String programStageInstanceIdsByComma, int min, int max );
 }

@@ -1,0 +1,6 @@
+
+<h2>$i18n.getString( "inspection_management" )&nbsp;</h2>
+<ul>
+	<li><a href="escalationsList.action?listAll=true">$i18n.getString( "escalation" )&nbsp;</a></li>
+	<li><a href="showDataSetReportForm.action">$i18n.getString( "schedule_inspection" )&nbsp;</a></li>
+</ul>
