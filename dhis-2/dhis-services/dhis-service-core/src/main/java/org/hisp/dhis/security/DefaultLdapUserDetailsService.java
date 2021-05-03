@@ -31,6 +31,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.hisp.dhis.common.CodeGenerator;
 import org.hisp.dhis.system.util.SecurityUtils;
 import org.hisp.dhis.user.UserCredentials;
 import org.hisp.dhis.user.UserService;
@@ -47,8 +48,8 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Torgeir Lorange Ostby
  */
 @Slf4j
-@Service( "userDetailsService" )
-public class DefaultUserDetailsService
+@Service( "ldapUserDetailsService" )
+public class DefaultLdapUserDetailsService
     implements UserDetailsService
 {
     public static final String ID = UserDetailsService.class.getName();
@@ -61,7 +62,7 @@ public class DefaultUserDetailsService
 
     private final SecurityService securityService;
 
-    public DefaultUserDetailsService( UserService userService, SecurityService securityService )
+    public DefaultLdapUserDetailsService( UserService userService, SecurityService securityService )
     {
         checkNotNull( userService );
         checkNotNull( securityService );
@@ -82,6 +83,11 @@ public class DefaultUserDetailsService
     {
         UserCredentials credentials = userService.getUserCredentialsByUsername( username );
 
+        if ( !credentials.isExternalAuth() || !credentials.hasLdapId() )
+        {
+            throw new UsernameNotFoundException( "Wrong type of user, is not LDAP user." );
+        }
+
         boolean enabled = !credentials.isDisabled();
         boolean credentialsNonExpired = userService.credentialsNonExpired( credentials );
         boolean accountNonLocked = !securityService.isLocked( credentials.getUsername() );
@@ -93,7 +99,7 @@ public class DefaultUserDetailsService
                 username, enabled, credentialsNonExpired, accountNonLocked ) );
         }
 
-        return new User( credentials.getUsername(), credentials.getPassword(),
+        return new User( credentials.getUsername(), "EXTERNAL_LDAP_" + CodeGenerator.generateCode( 10 ),
             enabled, true, credentialsNonExpired, accountNonLocked,
             SecurityUtils.getGrantedAuthorities( credentials ) );
     }
