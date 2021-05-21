@@ -1,7 +1,5 @@
-package org.hisp.dhis.sms.config;
-
 /*
- * Copyright (c) 2004-2020, University of Oslo
+ * Copyright (c) 2004-2021, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,22 +25,24 @@ package org.hisp.dhis.sms.config;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.hisp.dhis.sms.config;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
-import org.hisp.dhis.commons.util.DebugUtils;
 import org.hisp.dhis.outboundmessage.OutboundMessageBatch;
 import org.hisp.dhis.outboundmessage.OutboundMessageResponse;
 import org.hisp.dhis.sms.outbound.GatewayResponse;
+import org.hisp.dhis.system.util.SmsUtils;
+import org.jasypt.encryption.pbe.PBEStringEncryptor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -53,23 +53,27 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 @Component( "org.hisp.dhis.sms.config.SimplisticHttpGetGateWay" )
 public class SimplisticHttpGetGateWay
     extends SmsGateway
 {
+    private final PBEStringEncryptor pbeStringEncryptor;
+
+    private final RestTemplate restTemplate;
+
     // -------------------------------------------------------------------------
     // Dependencies
     // -------------------------------------------------------------------------
 
-    private final RestTemplate restTemplate;
-
-    public SimplisticHttpGetGateWay( RestTemplate restTemplate )
+    public SimplisticHttpGetGateWay( RestTemplate restTemplate,
+        @Qualifier( "tripleDesStringEncryptor" ) PBEStringEncryptor pbeStringEncryptor )
     {
         checkNotNull( restTemplate );
+        checkNotNull( pbeStringEncryptor );
+
         this.restTemplate = restTemplate;
+        this.pbeStringEncryptor = pbeStringEncryptor;
     }
 
     // -------------------------------------------------------------------------
@@ -96,30 +100,32 @@ public class SimplisticHttpGetGateWay
     {
         GenericHttpGatewayConfig genericConfig = (GenericHttpGatewayConfig) config;
 
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl( config.getUrlTemplate() );
+        UriComponentsBuilder uriBuilder;
 
         ResponseEntity<String> responseEntity = null;
 
-        HttpEntity<String> requestEntity = null;
+        HttpEntity<String> requestEntity;
 
         URI uri;
 
         try
         {
+            requestEntity = getRequestEntity( genericConfig, text, recipients );
+
             if ( genericConfig.isSendUrlParameters() )
             {
-                uri = uriBuilder.buildAndExpand( getValueStore( genericConfig, text, recipients ) ).encode().toUri();
-
-                requestEntity = new HttpEntity<>( null, getHeaderParameters( genericConfig ) );
+                uriBuilder = UriComponentsBuilder
+                    .fromHttpUrl( config.getUrlTemplate() + "?" + requestEntity.getBody() );
             }
             else
             {
-                uri = uriBuilder.build().encode().toUri();
-
-                requestEntity = getRequestEntity( genericConfig, text, recipients );
+                uriBuilder = UriComponentsBuilder.fromHttpUrl( config.getUrlTemplate() );
             }
 
-            responseEntity = restTemplate.exchange( uri, genericConfig.isUseGet() ? HttpMethod.GET : HttpMethod.POST, requestEntity, String.class );
+            uri = uriBuilder.build().encode().toUri();
+
+            responseEntity = restTemplate.exchange( uri, genericConfig.isUseGet() ? HttpMethod.GET : HttpMethod.POST,
+                requestEntity, String.class );
         }
         catch ( HttpClientErrorException ex )
         {
@@ -143,56 +149,16 @@ public class SimplisticHttpGetGateWay
 
     private HttpEntity<String> getRequestEntity( GenericHttpGatewayConfig config, String text, Set<String> recipients )
     {
-        List<GenericGatewayParameter> parameters = config.getParameters();
-
-        Map<String, String> valueStore = new HashMap<>();
-
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.put( "Content-type", Collections.singletonList( config.getContentType().getValue() ) );
-
-        for ( GenericGatewayParameter parameter : parameters )
-        {
-            if ( parameter.isHeader() )
-            {
-                httpHeaders.put( parameter.getKey(), Collections.singletonList( parameter.getDisplayValue() ) );
-                continue;
-            }
-
-            if ( parameter.isEncode() )
-            {
-                valueStore.put( parameter.getKey(), encodeUrl( parameter.getDisplayValue() ) );
-                continue;
-            }
-
-            valueStore.put( parameter.getKey(), parameter.getDisplayValue() );
-        }
-
-        valueStore.put( KEY_TEXT, text );
-        valueStore.put( KEY_RECIPIENT, StringUtils.join( recipients, "," ) );
-
-        final StringSubstitutor substitutor = new StringSubstitutor( valueStore ); // Matches on ${...}
+        final StringSubstitutor substitutor = new StringSubstitutor( getRequestData( config, text, recipients ) ); // Matches
+        // on
+        // ${...}
 
         String data = substitutor.replace( config.getConfigurationTemplate() );
 
-        return new HttpEntity<>( data, httpHeaders );
+        return new HttpEntity<>( data, getRequestHeaderParameters( config ) );
     }
 
-    private String encodeUrl( String value )
-    {
-        String v = "";
-        try
-        {
-            v = URLEncoder.encode( value, StandardCharsets.UTF_8.toString() );
-        }
-        catch( UnsupportedEncodingException e )
-        {
-            DebugUtils.getStackTrace( e );
-        }
-
-        return v;
-    }
-
-    private Map<String, String> getValueStore( GenericHttpGatewayConfig config, String text, Set<String> recipients )
+    private Map<String, String> getRequestData( GenericHttpGatewayConfig config, String text, Set<String> recipients )
     {
         List<GenericGatewayParameter> parameters = config.getParameters();
 
@@ -202,17 +168,17 @@ public class SimplisticHttpGetGateWay
         {
             if ( !parameter.isHeader() )
             {
-                valueStore.put( parameter.getKey(), parameter.getDisplayValue() );
+                valueStore.put( parameter.getKey(), encodeAndDecryptParameter( parameter ) );
             }
         }
 
-        valueStore.put( KEY_TEXT, text );
+        valueStore.put( KEY_TEXT, SmsUtils.encode( text ) );
         valueStore.put( KEY_RECIPIENT, StringUtils.join( recipients, "," ) );
 
         return valueStore;
     }
 
-    private HttpHeaders getHeaderParameters( GenericHttpGatewayConfig config )
+    private HttpHeaders getRequestHeaderParameters( GenericHttpGatewayConfig config )
     {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.put( "Content-type", Collections.singletonList( config.getContentType().getValue() ) );
@@ -221,11 +187,26 @@ public class SimplisticHttpGetGateWay
         {
             if ( parameter.isHeader() )
             {
-                httpHeaders.put(parameter.getKey(), Collections.singletonList( parameter.getDisplayValue() ) );
+                if ( parameter.getKey().equals( HttpHeaders.AUTHORIZATION ) )
+                {
+                    httpHeaders.add( parameter.getKey(), BASIC + encodeAndDecryptParameter( parameter ) );
+                }
+                else
+                {
+                    httpHeaders.add( parameter.getKey(), encodeAndDecryptParameter( parameter ) );
+                }
             }
         }
 
         return httpHeaders;
+    }
+
+    private String encodeAndDecryptParameter( GenericGatewayParameter parameter )
+    {
+        String value = parameter.isConfidential() ? pbeStringEncryptor.decrypt( parameter.getValue() )
+            : parameter.getValue();
+
+        return parameter.isEncode() ? Base64.getEncoder().encodeToString( value.getBytes() ) : value;
     }
 
     private OutboundMessageResponse getResponse( ResponseEntity<String> responseEntity )

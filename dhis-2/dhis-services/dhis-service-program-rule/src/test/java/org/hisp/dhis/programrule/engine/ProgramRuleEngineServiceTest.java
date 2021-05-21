@@ -1,7 +1,5 @@
-package org.hisp.dhis.programrule.engine;
-
 /*
- * Copyright (c) 2004-2020, University of Oslo
+ * Copyright (c) 2004-2021, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,7 +25,9 @@ package org.hisp.dhis.programrule.engine;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.hisp.dhis.programrule.engine;
 
+import static org.hisp.dhis.external.conf.ConfigurationKey.SYSTEM_PROGRAM_RULE_SERVER_EXECUTION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.hisp.dhis.DhisConvenienceTest;
+import org.hisp.dhis.external.conf.DhisConfigurationProvider;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.program.*;
 import org.hisp.dhis.programrule.ProgramRule;
@@ -58,6 +59,7 @@ import org.mockito.junit.MockitoRule;
 public class ProgramRuleEngineServiceTest extends DhisConvenienceTest
 {
     private static final String NOTIFICATION_UID = "abc123";
+
     private static final String DATA = "abc123";
 
     @Rule
@@ -75,6 +77,9 @@ public class ProgramRuleEngineServiceTest extends DhisConvenienceTest
 
     @Mock
     private ProgramRuleEngine programRuleEngine;
+
+    @Mock
+    private DhisConfigurationProvider config;
 
     @Mock
     private RuleActionSendMessageImplementer ruleActionSendMessage;
@@ -97,12 +102,10 @@ public class ProgramRuleEngineServiceTest extends DhisConvenienceTest
 
     private List<RuleEffect> ruleEffects;
 
-
     @Before
     public void initTest()
     {
         ruleEffects = new ArrayList<>();
-
 
         setUpInstances();
 
@@ -111,6 +114,8 @@ public class ProgramRuleEngineServiceTest extends DhisConvenienceTest
 
         // stub for ruleActionSendMessage
         Mockito.lenient().when( ruleActionSendMessage.accept( any() ) ).thenReturn( true );
+
+        Mockito.when( config.isDisabled( SYSTEM_PROGRAM_RULE_SERVER_EXECUTION ) ).thenReturn( false );
     }
 
     @Test
@@ -125,11 +130,10 @@ public class ProgramRuleEngineServiceTest extends DhisConvenienceTest
     @Test
     public void testWithImplementableActionExist_programInstance()
     {
-        doAnswer( invocationOnMock ->
-        {
+        doAnswer( invocationOnMock -> {
             ruleEffects.add( (RuleEffect) invocationOnMock.getArguments()[0] );
             return ruleEffects;
-        }).when( ruleActionSendMessage ).implement( any(), any( ProgramInstance.class ) );
+        } ).when( ruleActionSendMessage ).implement( any(), any( ProgramInstance.class ) );
 
         List<RuleEffect> effects = new ArrayList<>();
         effects.add( RuleEffect.create( RuleActionSendMessage.create( NOTIFICATION_UID, DATA ) ) );
@@ -146,7 +150,7 @@ public class ProgramRuleEngineServiceTest extends DhisConvenienceTest
         assertEquals( 1, ruleEffects.size() );
 
         RuleAction action = ruleEffects.get( 0 ).ruleAction();
-        if ( action instanceof  RuleActionSendMessage )
+        if ( action instanceof RuleActionSendMessage )
         {
             RuleActionSendMessage ruleActionSendMessage = (RuleActionSendMessage) action;
 
@@ -166,11 +170,10 @@ public class ProgramRuleEngineServiceTest extends DhisConvenienceTest
     @Test
     public void testWithImplementableActionExist_programStageInstance()
     {
-        doAnswer( invocationOnMock ->
-        {
+        doAnswer( invocationOnMock -> {
             ruleEffects.add( (RuleEffect) invocationOnMock.getArguments()[0] );
             return ruleEffects;
-        }).when( ruleActionSendMessage ).implement( any(), any( ProgramStageInstance.class ) );
+        } ).when( ruleActionSendMessage ).implement( any(), any( ProgramStageInstance.class ) );
 
         List<RuleEffect> effects = new ArrayList<>();
         effects.add( RuleEffect.create( RuleActionSendMessage.create( NOTIFICATION_UID, DATA ) ) );
@@ -204,7 +207,7 @@ public class ProgramRuleEngineServiceTest extends DhisConvenienceTest
     {
         OrganisationUnit organisationUnitA = createOrganisationUnit( 'A' );
 
-        Program programA = createProgram('A', new HashSet<>(), organisationUnitA );
+        Program programA = createProgram( 'A', new HashSet<>(), organisationUnitA );
         ProgramStage programStageA = createProgramStage( 'A', programA );
 
         programRuleA = createProgramRule( 'R', programA );

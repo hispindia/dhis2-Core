@@ -1,7 +1,5 @@
-package org.hisp.dhis.program;
-
 /*
- * Copyright (c) 2004-2020, University of Oslo
+ * Copyright (c) 2004-2021, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,13 +25,14 @@ package org.hisp.dhis.program;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.hisp.dhis.program;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.hisp.dhis.external.conf.ConfigurationKey.CHANGELOG_TRACKER;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-import org.hisp.dhis.cache.Cache;
 import org.hisp.dhis.common.AuditType;
 import org.hisp.dhis.common.IllegalQueryException;
 import org.hisp.dhis.dataelement.DataElement;
@@ -286,7 +285,8 @@ public class DefaultProgramStageInstanceService
     @Transactional
     public void auditDataValuesChangesAndHandleFileDataValues( Set<EventDataValue> newDataValues,
         Set<EventDataValue> updatedDataValues, Set<EventDataValue> removedDataValues,
-        Cache<DataElement> dataElementsCache, ProgramStageInstance programStageInstance, boolean singleValue )
+        Map<String, DataElement> dataElementsCache, Set<String> nonAccessibleDataElements,
+        ProgramStageInstance programStageInstance, boolean singleValue )
     {
         Set<EventDataValue> updatedOrNewDataValues = Sets.union( newDataValues, updatedDataValues );
 
@@ -303,7 +303,10 @@ public class DefaultProgramStageInstanceService
         }
         else
         {
-            programStageInstance.setEventDataValues( updatedOrNewDataValues );
+            Set<EventDataValue> nonAccessibleDataValues = programStageInstance.getEventDataValues().stream()
+                .filter( dv -> nonAccessibleDataElements.contains( dv.getDataElement() ) )
+                .collect( Collectors.toSet() );
+            programStageInstance.setEventDataValues( Sets.union( nonAccessibleDataValues, updatedOrNewDataValues ) );
         }
 
         auditDataValuesChanges( newDataValues, updatedDataValues, removedDataValues, dataElementsCache,
@@ -375,14 +378,14 @@ public class DefaultProgramStageInstanceService
     // ---- Audit ----
 
     private void auditDataValuesChanges( Set<EventDataValue> newDataValues, Set<EventDataValue> updatedDataValues,
-        Set<EventDataValue> removedDataValues, Cache<DataElement> dataElementsCache,
+        Set<EventDataValue> removedDataValues, Map<String, DataElement> dataElementsCache,
         ProgramStageInstance programStageInstance )
     {
-        newDataValues.forEach( dv -> createAndAddAudit( dv, dataElementsCache.get( dv.getDataElement() ).orElse( null ),
+        newDataValues.forEach( dv -> createAndAddAudit( dv, dataElementsCache.get( dv.getDataElement() ),
             programStageInstance, AuditType.CREATE ) );
-        updatedDataValues.forEach( dv -> createAndAddAudit( dv, dataElementsCache.get( dv.getDataElement() ).orElse( null ),
+        updatedDataValues.forEach( dv -> createAndAddAudit( dv, dataElementsCache.get( dv.getDataElement() ),
             programStageInstance, AuditType.UPDATE ) );
-        removedDataValues.forEach( dv -> createAndAddAudit( dv, dataElementsCache.get( dv.getDataElement() ).orElse( null ),
+        removedDataValues.forEach( dv -> createAndAddAudit( dv, dataElementsCache.get( dv.getDataElement() ),
             programStageInstance, AuditType.DELETE ) );
     }
 
@@ -401,13 +404,13 @@ public class DefaultProgramStageInstanceService
 
     // ---- File Data Values Handling ----
     private void handleFileDataValueChanges( Set<EventDataValue> newDataValues, Set<EventDataValue> updatedDataValues,
-        Set<EventDataValue> removedDataValues, Cache<DataElement> dataElementsCache )
+        Set<EventDataValue> removedDataValues, Map<String, DataElement> dataElementsCache )
     {
         removedDataValues
-            .forEach( dv -> handleFileDataValueDelete( dv, dataElementsCache.get( dv.getDataElement() ).orElse( null ) ) );
+            .forEach( dv -> handleFileDataValueDelete( dv, dataElementsCache.get( dv.getDataElement() ) ) );
         updatedDataValues
-            .forEach( dv -> handleFileDataValueUpdate( dv, dataElementsCache.get( dv.getDataElement() ).orElse( null ) ) );
-        newDataValues.forEach( dv -> handleFileDataValueSave( dv, dataElementsCache.get( dv.getDataElement() ).orElse( null ) ) );
+            .forEach( dv -> handleFileDataValueUpdate( dv, dataElementsCache.get( dv.getDataElement() ) ) );
+        newDataValues.forEach( dv -> handleFileDataValueSave( dv, dataElementsCache.get( dv.getDataElement() ) ) );
     }
 
     private void handleFileDataValueUpdate( EventDataValue dataValue, DataElement dataElement )
@@ -458,7 +461,8 @@ public class DefaultProgramStageInstanceService
     /**
      * Delete associated FileResource if it exists.
      */
-    private void handleFileDataValueDelete( EventDataValue dataValue, DataElement dataElement ) {
+    private void handleFileDataValueDelete( EventDataValue dataValue, DataElement dataElement )
+    {
         if ( dataElement == null )
         {
             return;

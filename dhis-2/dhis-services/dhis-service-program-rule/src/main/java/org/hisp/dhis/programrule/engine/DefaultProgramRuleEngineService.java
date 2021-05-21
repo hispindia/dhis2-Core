@@ -1,7 +1,5 @@
-package org.hisp.dhis.programrule.engine;
-
 /*
- * Copyright (c) 2004-2020, University of Oslo
+ * Copyright (c) 2004-2021, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,20 +25,27 @@ package org.hisp.dhis.programrule.engine;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.hisp.dhis.programrule.engine;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static org.hisp.dhis.external.conf.ConfigurationKey.SYSTEM_PROGRAM_RULE_SERVER_EXECUTION;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.hisp.dhis.commons.util.DebugUtils;
+import org.hisp.dhis.external.conf.DhisConfigurationProvider;
 import org.hisp.dhis.program.ProgramInstance;
 import org.hisp.dhis.program.ProgramInstanceService;
 import org.hisp.dhis.program.ProgramStageInstance;
 import org.hisp.dhis.program.ProgramStageInstanceService;
 import org.hisp.dhis.rules.models.RuleEffect;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.common.collect.Lists;
 
 /**
  * Created by zubair@dhis2.org on 23.10.17.
@@ -63,31 +68,41 @@ public class DefaultProgramRuleEngineService
 
     private final ProgramStageInstanceService programStageInstanceService;
 
+    private final DhisConfigurationProvider config;
+
     public DefaultProgramRuleEngineService( ProgramRuleEngine programRuleEngine,
         List<RuleActionImplementer> ruleActionImplementers, ProgramInstanceService programInstanceService,
-        ProgramStageInstanceService programStageInstanceService )
+        ProgramStageInstanceService programStageInstanceService,
+        DhisConfigurationProvider config )
     {
         checkNotNull( programRuleEngine );
         checkNotNull( ruleActionImplementers );
         checkNotNull( programInstanceService );
         checkNotNull( programStageInstanceService );
+        checkNotNull( config );
 
         this.programRuleEngine = programRuleEngine;
         this.ruleActionImplementers = ruleActionImplementers;
         this.programInstanceService = programInstanceService;
         this.programStageInstanceService = programStageInstanceService;
+        this.config = config;
     }
 
     @Override
+    @Transactional
     public List<RuleEffect> evaluateEnrollmentAndRunEffects( long programInstanceId )
     {
+        if ( config.isDisabled( SYSTEM_PROGRAM_RULE_SERVER_EXECUTION ) )
+        {
+            return Lists.newArrayList();
+        }
+
         ProgramInstance programInstance = programInstanceService.getProgramInstance( programInstanceId );
         List<RuleEffect> ruleEffects = getRuleEffects( programInstance );
 
         for ( RuleEffect effect : ruleEffects )
         {
-            ruleActionImplementers.stream().filter( i -> i.accept( effect.ruleAction() ) ).forEach( i ->
-            {
+            ruleActionImplementers.stream().filter( i -> i.accept( effect.ruleAction() ) ).forEach( i -> {
                 log.debug( String.format( "Invoking action implementer: %s", i.getClass().getSimpleName() ) );
 
                 i.implement( effect, programInstance );
@@ -97,8 +112,14 @@ public class DefaultProgramRuleEngineService
     }
 
     @Override
+    @Transactional( readOnly = true )
     public List<RuleEffect> evaluateEnrollment( String programInstanceUid )
     {
+        if ( config.isDisabled( SYSTEM_PROGRAM_RULE_SERVER_EXECUTION ) )
+        {
+            return Lists.newArrayList();
+        }
+
         ProgramInstance programInstance = programInstanceService.getProgramInstance( programInstanceUid );
         return getRuleEffects( programInstance );
     }
@@ -121,15 +142,21 @@ public class DefaultProgramRuleEngineService
     }
 
     @Override
+    @Transactional
     public List<RuleEffect> evaluateEventAndRunEffects( long programStageInstanceId )
     {
+        if ( config.isDisabled( SYSTEM_PROGRAM_RULE_SERVER_EXECUTION ) )
+        {
+            return Lists.newArrayList();
+        }
+
         ProgramStageInstance psi = programStageInstanceService.getProgramStageInstance( programStageInstanceId );
+
         List<RuleEffect> ruleEffects = getRuleEffects( psi );
 
         for ( RuleEffect effect : ruleEffects )
         {
-            ruleActionImplementers.stream().filter( i -> i.accept( effect.ruleAction() ) ).forEach( i ->
-            {
+            ruleActionImplementers.stream().filter( i -> i.accept( effect.ruleAction() ) ).forEach( i -> {
                 log.debug( String.format( "Invoking action implementer: %s", i.getClass().getSimpleName() ) );
 
                 i.implement( effect, psi );
@@ -140,8 +167,14 @@ public class DefaultProgramRuleEngineService
     }
 
     @Override
+    @Transactional( readOnly = true )
     public List<RuleEffect> evaluateEvent( String programStageInstanceUid )
     {
+        if ( config.isDisabled( SYSTEM_PROGRAM_RULE_SERVER_EXECUTION ) )
+        {
+            return Lists.newArrayList();
+        }
+
         ProgramStageInstance psi = programStageInstanceService.getProgramStageInstance( programStageInstanceUid );
         return getRuleEffects( psi );
     }

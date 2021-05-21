@@ -1,7 +1,5 @@
-package org.hisp.dhis.dxf2.events;
-
 /*
- * Copyright (c) 2004-2020, University of Oslo
+ * Copyright (c) 2004-2021, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +25,7 @@ package org.hisp.dhis.dxf2.events;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.hisp.dhis.dxf2.events;
 
 import static org.junit.Assert.*;
 
@@ -36,6 +35,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.DhisSpringTest;
 import org.hisp.dhis.common.IdentifiableObjectManager;
 import org.hisp.dhis.common.Objects;
@@ -43,8 +43,10 @@ import org.hisp.dhis.dxf2.common.ImportOptions;
 import org.hisp.dhis.dxf2.events.enrollment.Enrollment;
 import org.hisp.dhis.dxf2.events.enrollment.EnrollmentStatus;
 import org.hisp.dhis.dxf2.events.event.Event;
+import org.hisp.dhis.dxf2.events.trackedentity.Attribute;
 import org.hisp.dhis.dxf2.events.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.dxf2.events.trackedentity.TrackedEntityInstanceService;
+import org.hisp.dhis.dxf2.importsummary.ImportConflict;
 import org.hisp.dhis.dxf2.importsummary.ImportStatus;
 import org.hisp.dhis.dxf2.importsummary.ImportSummaries;
 import org.hisp.dhis.dxf2.importsummary.ImportSummary;
@@ -101,12 +103,17 @@ public class TrackedEntityInstanceServiceTest
     private IdentifiableObjectManager manager;
 
     private org.hisp.dhis.trackedentity.TrackedEntityInstance maleA;
+
     private org.hisp.dhis.trackedentity.TrackedEntityInstance maleB;
+
     private org.hisp.dhis.trackedentity.TrackedEntityInstance femaleA;
+
     private org.hisp.dhis.trackedentity.TrackedEntityInstance femaleB;
+
     private org.hisp.dhis.trackedentity.TrackedEntityInstance dateConflictsMaleA;
 
     private OrganisationUnit organisationUnitA;
+
     private OrganisationUnit organisationUnitB;
 
     private Program programA;
@@ -116,13 +123,20 @@ public class TrackedEntityInstanceServiceTest
     private ProgramStage programStageA2;
 
     private TrackedEntityInstance teiMaleA;
+
     private TrackedEntityInstance teiMaleB;
+
     private TrackedEntityInstance teiFemaleA;
 
     private TrackedEntityAttribute uniqueIdAttribute;
 
+    private TrackedEntityAttribute trackedEntityAttributeB;
+
+    private TrackedEntityType trackedEntityType;
+
     @Override
-    protected void setUpTest() throws Exception
+    protected void setUpTest()
+        throws Exception
     {
         organisationUnitA = createOrganisationUnit( 'A' );
         organisationUnitB = createOrganisationUnit( 'B' );
@@ -131,14 +145,18 @@ public class TrackedEntityInstanceServiceTest
 
         uniqueIdAttribute = createTrackedEntityAttribute( 'A' );
         uniqueIdAttribute.setGenerated( true );
-        //uniqueIdAttribute.setPattern( "RANDOM(#####)" );
+        // uniqueIdAttribute.setPattern( "RANDOM(#####)" );
         TextPattern textPattern = new TextPattern(
             Lists.newArrayList( new TextPatternSegment( TextPatternMethod.RANDOM, "RANDOM(#####)" ) ) );
         uniqueIdAttribute.setTextPattern( textPattern );
 
         trackedEntityAttributeService.addTrackedEntityAttribute( uniqueIdAttribute );
 
-        TrackedEntityType trackedEntityType = createTrackedEntityType( 'A' );
+        trackedEntityAttributeB = createTrackedEntityAttribute( 'B' );
+
+        trackedEntityAttributeService.addTrackedEntityAttribute( trackedEntityAttributeB );
+
+        trackedEntityType = createTrackedEntityType( 'A' );
 
         TrackedEntityTypeAttribute trackedEntityTypeAttribute = new TrackedEntityTypeAttribute();
         trackedEntityTypeAttribute.setTrackedEntityAttribute( uniqueIdAttribute );
@@ -146,7 +164,6 @@ public class TrackedEntityInstanceServiceTest
 
         trackedEntityType.setTrackedEntityTypeAttributes( Lists.newArrayList( trackedEntityTypeAttribute ) );
         trackedEntityTypeService.addTrackedEntityType( trackedEntityType );
-
 
         maleA = createTrackedEntityInstance( organisationUnitA );
         maleB = createTrackedEntityInstance( organisationUnitB );
@@ -170,8 +187,8 @@ public class TrackedEntityInstanceServiceTest
         programStageA1 = createProgramStage( '1', programA );
         programStageA2 = createProgramStage( '2', programA );
 
-
-        programA.setProgramStages( Stream.of( programStageA1, programStageA2 ).collect( Collectors.toCollection( HashSet::new ) ) );
+        programA.setProgramStages(
+            Stream.of( programStageA1, programStageA2 ).collect( Collectors.toCollection( HashSet::new ) ) );
 
         manager.save( organisationUnitA );
         manager.save( organisationUnitB );
@@ -191,45 +208,59 @@ public class TrackedEntityInstanceServiceTest
         trackedEntityAttributeValueService.addTrackedEntityAttributeValue( uniqueId );
 
         programInstanceService.enrollTrackedEntityInstance( maleA, programA, null, null, organisationUnitA );
-        programInstanceService.enrollTrackedEntityInstance( femaleA, programA, DateTime.now().plusMonths( 1 ).toDate(), null, organisationUnitA );
-        programInstanceService.enrollTrackedEntityInstance( dateConflictsMaleA, programA, DateTime.now().plusMonths( 1 ).toDate(), DateTime.now().plusMonths( 2 ).toDate(), organisationUnitA );
+        programInstanceService.enrollTrackedEntityInstance( femaleA, programA, DateTime.now().plusMonths( 1 ).toDate(),
+            null, organisationUnitA );
+        programInstanceService.enrollTrackedEntityInstance( dateConflictsMaleA, programA,
+            DateTime.now().plusMonths( 1 ).toDate(), DateTime.now().plusMonths( 2 ).toDate(), organisationUnitA );
     }
 
     @Test
     public void getPersonByUid()
     {
-        assertEquals( maleA.getUid(), trackedEntityInstanceService.getTrackedEntityInstance( maleA.getUid() ).getTrackedEntityInstance() );
-        assertEquals( femaleB.getUid(), trackedEntityInstanceService.getTrackedEntityInstance( femaleB.getUid() ).getTrackedEntityInstance() );
-        assertNotEquals( femaleA.getUid(), trackedEntityInstanceService.getTrackedEntityInstance( femaleB.getUid() ).getTrackedEntityInstance() );
-        assertNotEquals( maleA.getUid(), trackedEntityInstanceService.getTrackedEntityInstance( maleB.getUid() ).getTrackedEntityInstance() );
+        assertEquals( maleA.getUid(),
+            trackedEntityInstanceService.getTrackedEntityInstance( maleA.getUid() ).getTrackedEntityInstance() );
+        assertEquals( femaleB.getUid(),
+            trackedEntityInstanceService.getTrackedEntityInstance( femaleB.getUid() ).getTrackedEntityInstance() );
+        assertNotEquals( femaleA.getUid(),
+            trackedEntityInstanceService.getTrackedEntityInstance( femaleB.getUid() ).getTrackedEntityInstance() );
+        assertNotEquals( maleA.getUid(),
+            trackedEntityInstanceService.getTrackedEntityInstance( maleB.getUid() ).getTrackedEntityInstance() );
     }
 
     @Test
     public void getPersonByPatient()
     {
-        assertEquals( maleA.getUid(), trackedEntityInstanceService.getTrackedEntityInstance( maleA ).getTrackedEntityInstance() );
-        assertEquals( femaleB.getUid(), trackedEntityInstanceService.getTrackedEntityInstance( femaleB ).getTrackedEntityInstance() );
-        assertNotEquals( femaleA.getUid(), trackedEntityInstanceService.getTrackedEntityInstance( femaleB ).getTrackedEntityInstance() );
-        assertNotEquals( maleA.getUid(), trackedEntityInstanceService.getTrackedEntityInstance( maleB ).getTrackedEntityInstance() );
+        assertEquals( maleA.getUid(),
+            trackedEntityInstanceService.getTrackedEntityInstance( maleA ).getTrackedEntityInstance() );
+        assertEquals( femaleB.getUid(),
+            trackedEntityInstanceService.getTrackedEntityInstance( femaleB ).getTrackedEntityInstance() );
+        assertNotEquals( femaleA.getUid(),
+            trackedEntityInstanceService.getTrackedEntityInstance( femaleB ).getTrackedEntityInstance() );
+        assertNotEquals( maleA.getUid(),
+            trackedEntityInstanceService.getTrackedEntityInstance( maleB ).getTrackedEntityInstance() );
     }
 
     @Test
     @Ignore
     public void testUpdatePerson()
     {
-        TrackedEntityInstance trackedEntityInstance = trackedEntityInstanceService.getTrackedEntityInstance( maleA.getUid() );
+        TrackedEntityInstance trackedEntityInstance = trackedEntityInstanceService
+            .getTrackedEntityInstance( maleA.getUid() );
         // person.setName( "UPDATED_NAME" );
 
-        ImportSummary importSummary = trackedEntityInstanceService.updateTrackedEntityInstance( trackedEntityInstance, null, null, true );
+        ImportSummary importSummary = trackedEntityInstanceService.updateTrackedEntityInstance( trackedEntityInstance,
+            null, null, true );
         assertEquals( ImportStatus.SUCCESS, importSummary.getStatus() );
 
-        // assertEquals( "UPDATED_NAME", personService.getTrackedEntityInstance( maleA.getUid() ).getName() );
+        // assertEquals( "UPDATED_NAME", personService.getTrackedEntityInstance(
+        // maleA.getUid() ).getName() );
     }
 
     @Test
     public void testUpdateTeiByCompletingExistingEnrollmentAndOpeningNewEnrollment()
     {
-        TrackedEntityInstance trackedEntityInstance = trackedEntityInstanceService.getTrackedEntityInstance( maleA.getUid() );
+        TrackedEntityInstance trackedEntityInstance = trackedEntityInstanceService
+            .getTrackedEntityInstance( maleA.getUid() );
         assertNotNull( trackedEntityInstance.getEnrollments() );
         assertEquals( 1, trackedEntityInstance.getEnrollments().size() );
 
@@ -247,7 +278,8 @@ public class TrackedEntityInstanceServiceTest
 
         trackedEntityInstance.getEnrollments().add( enrollment2 );
 
-        ImportSummary importSummary = trackedEntityInstanceService.updateTrackedEntityInstance( trackedEntityInstance, null, null, true );
+        ImportSummary importSummary = trackedEntityInstanceService.updateTrackedEntityInstance( trackedEntityInstance,
+            null, null, true );
         assertEquals( ImportStatus.SUCCESS, importSummary.getStatus() );
         assertEquals( ImportStatus.SUCCESS, importSummary.getEnrollments().getStatus() );
 
@@ -293,7 +325,8 @@ public class TrackedEntityInstanceServiceTest
     @Test
     public void testUpdateTeiByCompletingExistingEnrollmentAndAddNewEventsToSameEnrollment()
     {
-        TrackedEntityInstance trackedEntityInstance = trackedEntityInstanceService.getTrackedEntityInstance( maleA.getUid() );
+        TrackedEntityInstance trackedEntityInstance = trackedEntityInstanceService
+            .getTrackedEntityInstance( maleA.getUid() );
         assertNotNull( trackedEntityInstance.getEnrollments() );
         assertEquals( 1, trackedEntityInstance.getEnrollments().size() );
 
@@ -304,7 +337,8 @@ public class TrackedEntityInstanceServiceTest
 
         Event event1 = new Event();
         event1.setEnrollment( enrollment1.getEnrollment() );
-        event1.setEventDate( DateTimeFormatter.ofPattern( "yyyy-MM-dd", Locale.ENGLISH ).format( LocalDateTime.now() ) );
+        event1
+            .setEventDate( DateTimeFormatter.ofPattern( "yyyy-MM-dd", Locale.ENGLISH ).format( LocalDateTime.now() ) );
 
         event1.setOrgUnit( organisationUnitA.getUid() );
 
@@ -315,7 +349,8 @@ public class TrackedEntityInstanceServiceTest
 
         Event event2 = new Event();
         event2.setEnrollment( enrollment1.getEnrollment() );
-        event2.setEventDate( DateTimeFormatter.ofPattern( "yyyy-MM-dd", Locale.ENGLISH ).format( LocalDateTime.now() ) );
+        event2
+            .setEventDate( DateTimeFormatter.ofPattern( "yyyy-MM-dd", Locale.ENGLISH ).format( LocalDateTime.now() ) );
 
         event2.setOrgUnit( organisationUnitA.getUid() );
 
@@ -326,17 +361,20 @@ public class TrackedEntityInstanceServiceTest
 
         enrollment1.setEvents( Arrays.asList( event1, event2 ) );
 
-        ImportSummary importSummary = trackedEntityInstanceService.updateTrackedEntityInstance( trackedEntityInstance, null, null, true );
+        ImportSummary importSummary = trackedEntityInstanceService.updateTrackedEntityInstance( trackedEntityInstance,
+            null, null, true );
         assertEquals( ImportStatus.SUCCESS, importSummary.getStatus() );
         assertEquals( ImportStatus.SUCCESS, importSummary.getEnrollments().getStatus() );
-        assertEquals( ImportStatus.SUCCESS, importSummary.getEnrollments().getImportSummaries().get( 0 ).getEvents().getStatus() );
+        assertEquals( ImportStatus.SUCCESS,
+            importSummary.getEnrollments().getImportSummaries().get( 0 ).getEvents().getStatus() );
 
     }
 
     @Test
     public void testSyncTeiFutureDatesForEnrollmentAndIncident()
     {
-        TrackedEntityInstance trackedEntityInstance = trackedEntityInstanceService.getTrackedEntityInstance( dateConflictsMaleA.getUid() );
+        TrackedEntityInstance trackedEntityInstance = trackedEntityInstanceService
+            .getTrackedEntityInstance( dateConflictsMaleA.getUid() );
 
         ImportSummary importSummary = trackedEntityInstanceService.updateTrackedEntityInstance( trackedEntityInstance,
             null, new ImportOptions().setImportStrategy( ImportStrategy.SYNC ), true );
@@ -350,7 +388,8 @@ public class TrackedEntityInstanceServiceTest
     @Test
     public void testUpdateTeiByCompletingExistingEnrollmentAndUpdateExistingEventsInSameEnrollment()
     {
-        TrackedEntityInstance trackedEntityInstance = trackedEntityInstanceService.getTrackedEntityInstance( maleA.getUid() );
+        TrackedEntityInstance trackedEntityInstance = trackedEntityInstanceService
+            .getTrackedEntityInstance( maleA.getUid() );
         assertNotNull( trackedEntityInstance.getEnrollments() );
         assertEquals( 1, trackedEntityInstance.getEnrollments().size() );
 
@@ -358,7 +397,8 @@ public class TrackedEntityInstanceServiceTest
 
         Event event1 = new Event();
         event1.setEnrollment( enrollment1.getEnrollment() );
-        event1.setEventDate( DateTimeFormatter.ofPattern( "yyyy-MM-dd", Locale.ENGLISH ).format( LocalDateTime.now() ) );
+        event1
+            .setEventDate( DateTimeFormatter.ofPattern( "yyyy-MM-dd", Locale.ENGLISH ).format( LocalDateTime.now() ) );
 
         event1.setOrgUnit( organisationUnitA.getUid() );
 
@@ -369,10 +409,12 @@ public class TrackedEntityInstanceServiceTest
 
         enrollment1.setEvents( Arrays.asList( event1 ) );
 
-        ImportSummary importSummary = trackedEntityInstanceService.updateTrackedEntityInstance( trackedEntityInstance, null, null, true );
+        ImportSummary importSummary = trackedEntityInstanceService.updateTrackedEntityInstance( trackedEntityInstance,
+            null, null, true );
         assertEquals( ImportStatus.SUCCESS, importSummary.getStatus() );
         assertEquals( ImportStatus.SUCCESS, importSummary.getEnrollments().getStatus() );
-        assertEquals( ImportStatus.SUCCESS, importSummary.getEnrollments().getImportSummaries().get( 0 ).getEvents().getStatus() );
+        assertEquals( ImportStatus.SUCCESS,
+            importSummary.getEnrollments().getImportSummaries().get( 0 ).getEvents().getStatus() );
 
         trackedEntityInstance = trackedEntityInstanceService.getTrackedEntityInstance( maleA.getUid() );
         assertNotNull( trackedEntityInstance.getEnrollments() );
@@ -389,19 +431,23 @@ public class TrackedEntityInstanceServiceTest
         event1 = enrollment1.getEvents().get( 0 );
         event1.setStatus( EventStatus.COMPLETED );
         event1.setCompletedBy( "test" );
-        event1.setCompletedDate( DateTimeFormatter.ofPattern( "yyyy-MM-dd", Locale.ENGLISH ).format( LocalDateTime.now() ) );
+        event1.setCompletedDate(
+            DateTimeFormatter.ofPattern( "yyyy-MM-dd", Locale.ENGLISH ).format( LocalDateTime.now() ) );
 
-        importSummary = trackedEntityInstanceService.updateTrackedEntityInstance( trackedEntityInstance, null, null, true );
+        importSummary = trackedEntityInstanceService.updateTrackedEntityInstance( trackedEntityInstance, null, null,
+            true );
         assertEquals( ImportStatus.SUCCESS, importSummary.getStatus() );
         assertEquals( ImportStatus.SUCCESS, importSummary.getEnrollments().getStatus() );
-        assertEquals( ImportStatus.SUCCESS, importSummary.getEnrollments().getImportSummaries().get( 0 ).getEvents().getStatus() );
+        assertEquals( ImportStatus.SUCCESS,
+            importSummary.getEnrollments().getImportSummaries().get( 0 ).getEvents().getStatus() );
 
     }
 
     @Test
     public void testUpdateTeiByDeletingExistingEventAndAddNewEventForSameProgramStage()
     {
-        TrackedEntityInstance trackedEntityInstance = trackedEntityInstanceService.getTrackedEntityInstance( maleA.getUid() );
+        TrackedEntityInstance trackedEntityInstance = trackedEntityInstanceService
+            .getTrackedEntityInstance( maleA.getUid() );
         assertNotNull( trackedEntityInstance.getEnrollments() );
         assertEquals( 1, trackedEntityInstance.getEnrollments().size() );
 
@@ -409,7 +455,8 @@ public class TrackedEntityInstanceServiceTest
 
         Event event1 = new Event();
         event1.setEnrollment( enrollment1.getEnrollment() );
-        event1.setEventDate( DateTimeFormatter.ofPattern( "yyyy-MM-dd", Locale.ENGLISH ).format( LocalDateTime.now() ) );
+        event1
+            .setEventDate( DateTimeFormatter.ofPattern( "yyyy-MM-dd", Locale.ENGLISH ).format( LocalDateTime.now() ) );
         event1.setOrgUnit( organisationUnitA.getUid() );
         event1.setProgram( programA.getUid() );
         event1.setProgramStage( programStageA1.getUid() );
@@ -422,15 +469,18 @@ public class TrackedEntityInstanceServiceTest
         event2.setProgram( programA.getUid() );
         event2.setProgramStage( programStageA2.getUid() );
         event2.setStatus( EventStatus.SCHEDULE );
-        event2.setDueDate( DateTimeFormatter.ofPattern( "yyyy-MM-dd", Locale.ENGLISH ).format( LocalDateTime.now().plusDays( 10 ) ) );
+        event2.setDueDate(
+            DateTimeFormatter.ofPattern( "yyyy-MM-dd", Locale.ENGLISH ).format( LocalDateTime.now().plusDays( 10 ) ) );
         event2.setTrackedEntityInstance( maleA.getUid() );
 
         enrollment1.setEvents( Arrays.asList( event1, event2 ) );
 
-        ImportSummary importSummary = trackedEntityInstanceService.updateTrackedEntityInstance( trackedEntityInstance, null, null, true );
+        ImportSummary importSummary = trackedEntityInstanceService.updateTrackedEntityInstance( trackedEntityInstance,
+            null, null, true );
         assertEquals( ImportStatus.SUCCESS, importSummary.getStatus() );
         assertEquals( ImportStatus.SUCCESS, importSummary.getEnrollments().getStatus() );
-        assertEquals( ImportStatus.SUCCESS, importSummary.getEnrollments().getImportSummaries().get( 0 ).getEvents().getStatus() );
+        assertEquals( ImportStatus.SUCCESS,
+            importSummary.getEnrollments().getImportSummaries().get( 0 ).getEvents().getStatus() );
 
         trackedEntityInstance = trackedEntityInstanceService.getTrackedEntityInstance( maleA.getUid() );
         assertNotNull( trackedEntityInstance.getEnrollments() );
@@ -441,7 +491,8 @@ public class TrackedEntityInstanceServiceTest
 
         enrollment1 = trackedEntityInstance.getEnrollments().get( 0 );
 
-        event2 = enrollment1.getEvents().stream().filter( e -> e.getProgramStage().equals( programStageA2.getUid() ) ).findFirst().get();
+        event2 = enrollment1.getEvents().stream().filter( e -> e.getProgramStage().equals( programStageA2.getUid() ) )
+            .findFirst().get();
         event2.setDeleted( true );
 
         Event event3 = new Event();
@@ -450,7 +501,8 @@ public class TrackedEntityInstanceServiceTest
         event3.setProgram( programA.getUid() );
         event3.setProgramStage( programStageA2.getUid() );
         event3.setStatus( EventStatus.SCHEDULE );
-        event3.setDueDate( DateTimeFormatter.ofPattern( "yyyy-MM-dd", Locale.ENGLISH ).format( LocalDateTime.now().plusDays( 11 ) ) );
+        event3.setDueDate(
+            DateTimeFormatter.ofPattern( "yyyy-MM-dd", Locale.ENGLISH ).format( LocalDateTime.now().plusDays( 11 ) ) );
         event3.setTrackedEntityInstance( maleA.getUid() );
 
         enrollment1.getEvents().add( event3 );
@@ -458,12 +510,13 @@ public class TrackedEntityInstanceServiceTest
         ImportOptions importOptions = new ImportOptions();
         importOptions.setImportStrategy( ImportStrategy.SYNC );
 
-        importSummary = trackedEntityInstanceService.updateTrackedEntityInstance( trackedEntityInstance, null, importOptions, true );
+        importSummary = trackedEntityInstanceService.updateTrackedEntityInstance( trackedEntityInstance, null,
+            importOptions, true );
         assertEquals( ImportStatus.SUCCESS, importSummary.getStatus() );
         assertEquals( ImportStatus.SUCCESS, importSummary.getEnrollments().getStatus() );
-        assertEquals( ImportStatus.SUCCESS, importSummary.getEnrollments().getImportSummaries().get( 0 ).getEvents().getStatus() );
+        assertEquals( ImportStatus.SUCCESS,
+            importSummary.getEnrollments().getImportSummaries().get( 0 ).getEvents().getStatus() );
     }
-
 
     @Test
     @Ignore
@@ -473,10 +526,12 @@ public class TrackedEntityInstanceServiceTest
         // person.setName( "NAME" );
         trackedEntityInstance.setOrgUnit( organisationUnitA.getUid() );
 
-        ImportSummary importSummary = trackedEntityInstanceService.addTrackedEntityInstance( trackedEntityInstance, null );
+        ImportSummary importSummary = trackedEntityInstanceService.addTrackedEntityInstance( trackedEntityInstance,
+            null );
         assertEquals( ImportStatus.SUCCESS, importSummary.getStatus() );
 
-        // assertEquals( "NAME", personService.getTrackedEntityInstance( importSummary.getReference() ).getName() );
+        // assertEquals( "NAME", personService.getTrackedEntityInstance(
+        // importSummary.getReference() ).getName() );
     }
 
     @Test
@@ -494,13 +549,54 @@ public class TrackedEntityInstanceServiceTest
     @Test
     public void testDeleteTrackedEntityInstances()
     {
-        List<TrackedEntityInstance> teis = Lists.newArrayList( trackedEntityInstanceService.getTrackedEntityInstance( maleA.getUid() ), trackedEntityInstanceService.getTrackedEntityInstance( maleB.getUid() ) );
+        List<TrackedEntityInstance> teis = Lists.newArrayList(
+            trackedEntityInstanceService.getTrackedEntityInstance( maleA.getUid() ),
+            trackedEntityInstanceService.getTrackedEntityInstance( maleB.getUid() ) );
         ImportOptions importOptions = new ImportOptions();
         importOptions.setImportStrategy( ImportStrategy.DELETE );
         trackedEntityInstanceService.deleteTrackedEntityInstances( teis, importOptions );
 
         assertNull( trackedEntityInstanceService.getTrackedEntityInstance( maleA.getUid() ) );
         assertNull( trackedEntityInstanceService.getTrackedEntityInstance( maleB.getUid() ) );
+    }
+
+    @Test
+    public void testTooLongTrackedEntityAttributeValue()
+    {
+        TrackedEntityInstance tei = new TrackedEntityInstance();
+
+        String testValue = StringUtils.repeat( "x", 1201 );
+
+        Attribute attribute = new Attribute( testValue );
+        attribute.setAttribute( trackedEntityAttributeB.getUid() );
+        tei.getAttributes().add( attribute );
+        tei.setTrackedEntityType( trackedEntityType.getUid() );
+
+        List<TrackedEntityInstance> teis = Lists.newArrayList( tei );
+
+        ImportOptions importOptions = new ImportOptions();
+        importOptions.setImportStrategy( ImportStrategy.UPDATE );
+        ImportSummaries importSummaries = trackedEntityInstanceService.addTrackedEntityInstances( teis, importOptions );
+
+        assertEquals( importSummaries.getStatus(), ImportStatus.ERROR );
+
+        Set<ImportConflict> conflicts = importSummaries.getImportSummaries().get( 0 ).getConflicts();
+
+        assertEquals( conflicts.size(), 1 );
+
+        boolean conflictIsPresent = false;
+
+        for ( ImportConflict conflict : conflicts )
+        {
+            if ( conflict.getValue().equals( String.format(
+                "Value exceeds the character limit of 1200 characters: '%s...'", testValue.substring( 0, 25 ) ) ) )
+            {
+                conflictIsPresent = true;
+            }
+        }
+
+        assertTrue( conflictIsPresent );
+
     }
 
     @Test

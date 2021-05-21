@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2020, University of Oslo
+ * Copyright (c) 2004-2021, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -99,10 +99,10 @@ public class TrackedEntityInstanceServiceTest
 
     @Autowired
     private TrackedEntityAttributeService attributeService;
-    
+
     @Autowired
     private UserService userService;
-    
+
     @Autowired
     private TrackedEntityTypeService trackedEntityTypeService;
 
@@ -117,15 +117,19 @@ public class TrackedEntityInstanceServiceTest
     private TrackedEntityInstance entityInstanceB1;
 
     private TrackedEntityAttribute entityInstanceAttribute;
-    
+
     private OrganisationUnit organisationUnit;
-    
+
     private TrackedEntityType trackedEntityTypeA = createTrackedEntityType( 'A' );
+
     private TrackedEntityAttribute attrD = createTrackedEntityAttribute( 'D' );
+
     private TrackedEntityAttribute attrE = createTrackedEntityAttribute( 'E' );
+
     private TrackedEntityAttribute filtF = createTrackedEntityAttribute( 'F' );
+
     private TrackedEntityAttribute filtG = createTrackedEntityAttribute( 'G' );
-    
+
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
@@ -286,7 +290,7 @@ public class TrackedEntityInstanceServiceTest
         assertEquals( entityInstanceA1, entityInstanceService.getTrackedEntityInstance( "A1" ) );
         assertEquals( entityInstanceB1, entityInstanceService.getTrackedEntityInstance( "B1" ) );
     }
-    
+
     @Test
     public void testGetFromUrl()
     {
@@ -313,6 +317,7 @@ public class TrackedEntityInstanceServiceTest
             getDate( 2020, 7, 7 ),
             AssignedUserSelectionMode.PROVIDED,
             newHashSet( "user1111111", "user2222222" ),
+            newHashSet( "tei11111111", "tei22222222" ),
             true,
             1,
             50,
@@ -360,6 +365,9 @@ public class TrackedEntityInstanceServiceTest
         assertTrue( queryParams.getAssignedUsers().stream().anyMatch( u -> u.equals( "user1111111" ) ) );
         assertTrue( queryParams.getAssignedUsers().stream().anyMatch( u -> u.equals( "user2222222" ) ) );
 
+        assertTrue( queryParams.getTrackedEntityInstanceUids().stream().anyMatch( t -> t.equals( "tei11111111" ) ) );
+        assertTrue( queryParams.getTrackedEntityInstanceUids().stream().anyMatch( t -> t.equals( "tei22222222" ) ) );
+
         assertThat( queryParams.isIncludeDeleted(), is( true ) );
         assertThat( queryParams.isIncludeAllAttributes(), is( false ) );
 
@@ -395,6 +403,7 @@ public class TrackedEntityInstanceServiceTest
             getDate( 2020, 7, 7 ),
             AssignedUserSelectionMode.PROVIDED,
             newHashSet( "user-1", "user-2" ),
+            null,
             true,
             1,
             50,
@@ -404,7 +413,7 @@ public class TrackedEntityInstanceServiceTest
             false,
             newArrayList( "order-1" ) );
     }
-    
+
     @Test
     public void testGetFromUrlFailOnIncorrectProgramStage()
     {
@@ -434,6 +443,7 @@ public class TrackedEntityInstanceServiceTest
             getDate( 2020, 7, 7 ),
             AssignedUserSelectionMode.PROVIDED,
             newHashSet( "user-1", "user-2" ),
+            null,
             true,
             1,
             50,
@@ -473,6 +483,7 @@ public class TrackedEntityInstanceServiceTest
             getDate( 2020, 7, 7 ),
             AssignedUserSelectionMode.PROVIDED,
             newHashSet( "user-1", "user-2" ),
+            null,
             true,
             1,
             50,
@@ -512,6 +523,7 @@ public class TrackedEntityInstanceServiceTest
             getDate( 2020, 7, 7 ),
             AssignedUserSelectionMode.PROVIDED,
             newHashSet( "user-1", "user-2" ),
+            null,
             true,
             1,
             50,
@@ -551,6 +563,7 @@ public class TrackedEntityInstanceServiceTest
             getDate( 2020, 7, 7 ),
             AssignedUserSelectionMode.PROVIDED,
             newHashSet( "user-1", "user-2" ),
+            null,
             true,
             1,
             50,
@@ -590,6 +603,7 @@ public class TrackedEntityInstanceServiceTest
             getDate( 2020, 7, 7 ),
             AssignedUserSelectionMode.PROVIDED,
             newHashSet( "user-1", "user-2" ),
+            null,
             true,
             1,
             50,
@@ -633,6 +647,7 @@ public class TrackedEntityInstanceServiceTest
             getDate( 2020, 7, 7 ),
             AssignedUserSelectionMode.PROVIDED,
             newHashSet( "user-1", "user-2" ),
+            null,
             true,
             1,
             50,
@@ -672,6 +687,7 @@ public class TrackedEntityInstanceServiceTest
             getDate( 2020, 7, 7 ),
             AssignedUserSelectionMode.CURRENT,
             newHashSet( "user-1", "user-2" ),
+            null,
             true,
             1,
             50,

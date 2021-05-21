@@ -1,7 +1,5 @@
-package org.hisp.dhis.dxf2.events.event;
-
 /*
- * Copyright (c) 2004-2020, University of Oslo
+ * Copyright (c) 2004-2021, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,17 +25,22 @@ package org.hisp.dhis.dxf2.events.event;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.hisp.dhis.dxf2.events.event;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.hisp.dhis.common.IdentifiableObjectUtils.getIdentifiers;
+import static org.hisp.dhis.commons.config.CommonsConfig.jsonMapper;
 import static org.hisp.dhis.commons.util.TextUtils.*;
 import static org.hisp.dhis.dxf2.events.event.AbstractEventService.STATIC_EVENT_COLUMNS;
 import static org.hisp.dhis.dxf2.events.event.EventSearchParams.*;
+import static org.hisp.dhis.dxf2.events.event.EventUtils.jsonToUserInfo;
 import static org.hisp.dhis.util.DateUtils.*;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.common.*;
@@ -57,6 +60,7 @@ import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramStage;
 import org.hisp.dhis.program.ProgramStatus;
 import org.hisp.dhis.program.ProgramType;
+import org.hisp.dhis.program.UserInfoSnapshot;
 import org.hisp.dhis.query.Order;
 import org.hisp.dhis.security.acl.AccessStringHelper;
 import org.hisp.dhis.user.CurrentUserService;
@@ -75,8 +79,6 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * @author Morten Olav Hansen <mortenoh@gmail.com>
  */
@@ -85,25 +87,54 @@ import lombok.extern.slf4j.Slf4j;
 public class JdbcEventStore
     implements EventStore
 {
+
+    private static final String PSI_EVENT_COMMENT_QUERY = "select psic.programstageinstanceid    as psic_id," +
+        " psinote.trackedentitycommentid as psinote_id," +
+        " psinote.commenttext            as psinote_value," +
+        " psinote.created                as psinote_storeddate," +
+        " psinote.creator                as psinote_storedby," +
+        " psinote.uid                    as psinote_uid," +
+        " psinote.lastupdated            as psinote_lastupdated," +
+        " usernote.userid                as usernote_id," +
+        " usernote.code                  as usernote_code," +
+        " usernote.uid                   as usernote_uid," +
+        " usernote.username              as usernote_username," +
+        " userinfo.firstname             as userinfo_firstname," +
+        " userinfo.surname               as userinfo_surname" +
+        " from programstageinstancecomments psic" +
+        " inner join trackedentitycomment psinote" +
+        " on psic.trackedentitycommentid = psinote.trackedentitycommentid" +
+        " left join users usernote on psinote.lastupdatedby = usernote.userid" +
+        " left join userinfo on usernote.userid = userinfo.userinfoid";
+
+    private static final String PSI_STATUS_EQ = " psi.status = '";
+
+    private static final String PSI_LASTUPDATED_GT = " psi.lastupdated >= '";
+
     private static final String DOT_NAME = ".name)";
 
-    private static final Map<String, String> QUERY_PARAM_COL_MAP = ImmutableMap.<String, String>builder()
+    private static final Map<String, String> QUERY_PARAM_COL_MAP = ImmutableMap.<String, String> builder()
         .put( "event", "psi_uid" ).put( "program", "p_uid" ).put( "programStage", "ps_uid" )
         .put( "enrollment", "pi_uid" ).put( "enrollmentStatus", "pi_status" ).put( "orgUnit", "ou_uid" )
         .put( "orgUnitName", "ou_name" ).put( "trackedEntityInstance", "tei_uid" )
         .put( "eventDate", "psi_executiondate" ).put( "followup", "pi_followup" ).put( "status", "psi_status" )
-        .put( "dueDate", "psi_duedate" ).put( "storedBy", "psi_storedby" ).put( "created", "psi_created" )
+        .put( "dueDate", "psi_duedate" ).put( "storedBy", "psi_storedby" )
+        .put( "lastUpdatedByUserInfo", "psi_lastupdatedbyuserinfo" ).put( "createdByUserInfo", "psi_createdbyuserinfo" )
+        .put( "created", "psi_created" )
         .put( "lastUpdated", "psi_lastupdated" ).put( "completedBy", "psi_completedby" )
         .put( "attributeOptionCombo", "psi_aoc" ).put( "completedDate", "psi_completeddate" )
-        .put( "deleted", "psi_deleted" ).put( "assignedUser", "user_assigned_username").build();
+        .put( "deleted", "psi_deleted" ).put( "assignedUser", "user_assigned_username" ).build();
 
     // -------------------------------------------------------------------------
     // Dependencies
     // -------------------------------------------------------------------------
 
-    //Cannot use DefaultRenderService mapper. Does not work properly - DHIS2-6102
-    private static final ObjectReader eventDataValueJsonReader =
-        JsonEventDataValueSetBinaryType.MAPPER.readerFor( new TypeReference<Map<String, EventDataValue>>() {} );
+    // Cannot use DefaultRenderService mapper. Does not work properly -
+    // DHIS2-6102
+    private static final ObjectReader eventDataValueJsonReader = JsonEventDataValueSetBinaryType.MAPPER
+        .readerFor( new TypeReference<Map<String, EventDataValue>>()
+        {
+        } );
 
     private final StatementBuilder statementBuilder;
 
@@ -113,7 +144,8 @@ public class JdbcEventStore
 
     private final IdentifiableObjectManager manager;
 
-    public JdbcEventStore( StatementBuilder statementBuilder, @Qualifier( "readOnlyJdbcTemplate" ) JdbcTemplate jdbcTemplate,
+    public JdbcEventStore( StatementBuilder statementBuilder,
+        @Qualifier( "readOnlyJdbcTemplate" ) JdbcTemplate jdbcTemplate,
         CurrentUserService currentUserService, IdentifiableObjectManager identifiableObjectManager )
     {
         checkNotNull( statementBuilder );
@@ -132,7 +164,8 @@ public class JdbcEventStore
     // -------------------------------------------------------------------------
 
     @Override
-    public List<Event> getEvents( EventSearchParams params, List<OrganisationUnit> organisationUnits, Map<String, Set<String>> psdesWithSkipSyncTrue )
+    public List<Event> getEvents( EventSearchParams params, List<OrganisationUnit> organisationUnits,
+        Map<String, Set<String>> psdesWithSkipSyncTrue )
     {
         User user = currentUserService.getCurrentUser();
 
@@ -159,7 +192,8 @@ public class JdbcEventStore
 
         while ( rowSet.next() )
         {
-            if ( rowSet.getString( "psi_uid" ) == null || (params.getCategoryOptionCombo() == null && !isSuperUser && !userHasAccess( rowSet )) )
+            if ( rowSet.getString( "psi_uid" ) == null
+                || (params.getCategoryOptionCombo() == null && !isSuperUser && !userHasAccess( rowSet )) )
             {
                 continue;
             }
@@ -213,7 +247,10 @@ public class JdbcEventStore
                 event.setDueDate( DateUtils.getIso8601NoTz( rowSet.getDate( "psi_duedate" ) ) );
                 event.setEventDate( DateUtils.getIso8601NoTz( rowSet.getDate( "psi_executiondate" ) ) );
                 event.setCreated( DateUtils.getIso8601NoTz( rowSet.getDate( "psi_created" ) ) );
+                event.setCreatedByUserInfo( jsonToUserInfo( rowSet.getString( "psi_createdbyuserinfo" ), jsonMapper ) );
                 event.setLastUpdated( DateUtils.getIso8601NoTz( rowSet.getDate( "psi_lastupdated" ) ) );
+                event.setLastUpdatedByUserInfo(
+                    jsonToUserInfo( rowSet.getString( "psi_lastupdatedbyuserinfo" ), jsonMapper ) );
 
                 event.setCompletedBy( rowSet.getString( "psi_completedby" ) );
                 event.setCompletedDate( DateUtils.getIso8601NoTz( rowSet.getDate( "psi_completeddate" ) ) );
@@ -256,9 +293,10 @@ public class JdbcEventStore
 
             if ( !org.springframework.util.StringUtils.isEmpty( rowSet.getString( "psi_eventdatavalues" ) ) )
             {
-                Set<EventDataValue> eventDataValues = convertEventDataValueJsonIntoSet( rowSet.getString( "psi_eventdatavalues" ) );
+                Set<EventDataValue> eventDataValues = convertEventDataValueJsonIntoSet(
+                    rowSet.getString( "psi_eventdatavalues" ) );
 
-                for( EventDataValue dv : eventDataValues )
+                for ( EventDataValue dv : eventDataValues )
                 {
                     DataValue dataValue = convertEventDataValueIntoDtoDataValue( dv );
 
@@ -287,6 +325,21 @@ public class JdbcEventStore
                 note.setStoredDate( DateUtils.getIso8601NoTz( rowSet.getDate( "psinote_storeddate" ) ) );
                 note.setStoredBy( rowSet.getString( "psinote_storedby" ) );
 
+                if ( rowSet.getObject( "usernote_id" ) != null )
+                {
+
+                    note.setLastUpdatedBy(
+                        UserInfoSnapshot.of(
+                            rowSet.getLong( "usernote_id" ),
+                            rowSet.getString( "usernote_code" ),
+                            rowSet.getString( "usernote_uid" ),
+                            rowSet.getString( "usernote_username" ),
+                            rowSet.getString( "userinfo_firstname" ),
+                            rowSet.getString( "userinfo_surname" ) ) );
+                }
+
+                note.setLastUpdated( rowSet.getDate( "psinote_lastupdated" ) );
+
                 event.getNotes().add( note );
                 notes.add( rowSet.getString( "psinote_id" ) );
             }
@@ -299,14 +352,17 @@ public class JdbcEventStore
         {
             CachingMap<String, String> dataElementUidToIdentifierCache = new CachingMap<>();
 
-            List<Collection<DataValue>> dataValuesList = events.stream().map( Event::getDataValues ).collect( Collectors.toList() );
+            List<Collection<DataValue>> dataValuesList = events.stream().map( Event::getDataValues )
+                .collect( Collectors.toList() );
             populateCache( dataElementIdScheme, dataValuesList, dataElementUidToIdentifierCache );
             convertDataValuesIdentifiers( dataElementIdScheme, dataValuesList, dataElementUidToIdentifierCache );
         }
 
         if ( params.getCategoryOptionCombo() == null && !isSuper( user ) )
         {
-            return events.stream().filter( ev -> ev.getAttributeCategoryOptions() != null && splitToArray( ev.getAttributeCategoryOptions(), TextUtils.SEMICOLON ).size() == ev.getOptionSize() ).collect( Collectors.toList() );
+            return events.stream().filter( ev -> ev.getAttributeCategoryOptions() != null
+                && splitToArray( ev.getAttributeCategoryOptions(), TextUtils.SEMICOLON ).size() == ev.getOptionSize() )
+                .collect( Collectors.toList() );
         }
 
         return events;
@@ -408,7 +464,8 @@ public class JdbcEventStore
 
         while ( rowSet.next() )
         {
-            if ( rowSet.getString( "psi_uid" ) == null || ( params.getCategoryOptionCombo() == null && !isSuperUser && !userHasAccess( rowSet ) ) )
+            if ( rowSet.getString( "psi_uid" ) == null
+                || (params.getCategoryOptionCombo() == null && !isSuperUser && !userHasAccess( rowSet )) )
             {
                 continue;
             }
@@ -468,13 +525,14 @@ public class JdbcEventStore
                 && !processedDataValues.containsKey( rowSet.getString( "psi_uid" ) ) )
             {
                 List<DataValue> dataValues = new ArrayList<>();
-                Set<EventDataValue> eventDataValues = convertEventDataValueJsonIntoSet( rowSet.getString( "psi_eventdatavalues" ) );
+                Set<EventDataValue> eventDataValues = convertEventDataValueJsonIntoSet(
+                    rowSet.getString( "psi_eventdatavalues" ) );
 
-                for( EventDataValue dv : eventDataValues )
+                for ( EventDataValue dv : eventDataValues )
                 {
                     dataValues.add( convertEventDataValueIntoDtoDataValue( dv ) );
                 }
-                processedDataValues.put(rowSet.getString( "psi_uid"), dataValues);
+                processedDataValues.put( rowSet.getString( "psi_uid" ), dataValues );
             }
 
             if ( rowSet.getString( "psinote_value" ) != null && !notes.contains( rowSet.getString( "psinote_id" ) ) )
@@ -498,11 +556,11 @@ public class JdbcEventStore
         {
             CachingMap<String, String> dataElementUidToIdentifierCache = new CachingMap<>();
 
-            List<Collection<DataValue>> dataValuesList = eventRows.stream().map( EventRow::getDataValues ).collect( Collectors.toList() );
+            List<Collection<DataValue>> dataValuesList = eventRows.stream().map( EventRow::getDataValues )
+                .collect( Collectors.toList() );
             populateCache( dataElementIdScheme, dataValuesList, dataElementUidToIdentifierCache );
             convertDataValuesIdentifiers( dataElementIdScheme, dataValuesList, dataElementUidToIdentifierCache );
         }
-
 
         return eventRows;
     }
@@ -592,7 +650,9 @@ public class JdbcEventStore
     {
         DataValue dataValue = new DataValue();
         dataValue.setCreated( DateUtils.getIso8601NoTz( eventDataValue.getCreated() ) );
+        dataValue.setCreatedByUserInfo( eventDataValue.getCreatedByUserInfo() );
         dataValue.setLastUpdated( DateUtils.getIso8601NoTz( eventDataValue.getLastUpdated() ) );
+        dataValue.setLastUpdatedByUserInfo( eventDataValue.getLastUpdatedByUserInfo() );
         dataValue.setDataElement( eventDataValue.getDataElement() );
         dataValue.setValue( eventDataValue.getValue() );
         dataValue.setProvidedElsewhere( eventDataValue.getProvidedElsewhere() );
@@ -611,13 +671,16 @@ public class JdbcEventStore
 
         String sql = "select psi.uid as " + EVENT_ID + ", " + "psi.created as " + EVENT_CREATED_ID + ", "
             + "psi.lastupdated as " + EVENT_LAST_UPDATED_ID + ", " + "psi.storedby as " + EVENT_STORED_BY_ID + ", "
+            + "psi.createdbyuserinfo as " + EVENT_CREATED_BY_USER_INFO_ID + ", " + "psi.lastupdatedbyuserinfo as "
+            + EVENT_LAST_UPDATED_BY_USER_INFO_ID + ", "
             + "psi.completedby as " + EVENT_COMPLETED_BY_ID + ", " + "psi.completeddate as " + EVENT_COMPLETED_DATE_ID
             + ", " + "psi.duedate as " + EVENT_DUE_DATE_ID + ", " + "psi.executiondate as " + EVENT_EXECUTION_DATE_ID
             + ", " + "ou.uid as " + EVENT_ORG_UNIT_ID + ", " + "ou.name as " + EVENT_ORG_UNIT_NAME + ", "
             + "psi.status as " + EVENT_STATUS_ID + ", "
             + "pi.uid as " + EVENT_ENROLLMENT_ID + ", "
             + "ps.uid as " + EVENT_PROGRAM_STAGE_ID + ", " + "p.uid as "
-            + EVENT_PROGRAM_ID + ", " + "coc.uid as " + EVENT_ATTRIBUTE_OPTION_COMBO_ID + ", " + "psi.deleted as " + EVENT_DELETED + ", "
+            + EVENT_PROGRAM_ID + ", " + "coc.uid as " + EVENT_ATTRIBUTE_OPTION_COMBO_ID + ", " + "psi.deleted as "
+            + EVENT_DELETED + ", "
             + "psi.geometry as " + EVENT_GEOMETRY + ", ";
 
         for ( QueryItem item : params.getDataElementsAndFilters() )
@@ -678,7 +741,7 @@ public class JdbcEventStore
             sql += ") as att on event.tei_id=att.pav_id left join (";
         }
 
-        sql += getCommentQuery();
+        sql += PSI_EVENT_COMMENT_QUERY;
 
         sql += ") as cm on event.psi_id=cm.psic_id ";
 
@@ -697,11 +760,13 @@ public class JdbcEventStore
             + "ou.uid as ou_uid, p.uid as p_uid, ps.uid as ps_uid, coc.uid as coc_uid, "
             + "psi.programstageinstanceid as psi_id, psi.status as psi_status, psi.executiondate as psi_executiondate, "
             + "psi.eventdatavalues as psi_eventdatavalues, psi.duedate as psi_duedate, psi.completedby as psi_completedby, psi.storedby as psi_storedby, "
-            + "psi.created as psi_created, psi.lastupdated as psi_lastupdated, psi.completeddate as psi_completeddate, psi.deleted as psi_deleted, "
+            + "psi.created as psi_created, psi.createdbyuserinfo as psi_createdbyuserinfo, psi.lastupdated as psi_lastupdated, psi.lastupdatedbyuserinfo as psi_lastupdatedbyuserinfo, "
+            + "psi.completeddate as psi_completeddate, psi.deleted as psi_deleted, "
             + "ST_AsText( psi.geometry ) as psi_geometry, au.uid as user_assigned, auc.username as user_assigned_username, "
             + "cocco.categoryoptionid AS cocco_categoryoptionid, deco.uid AS deco_uid, ";
 
-        if ( (params.getCategoryOptionCombo() == null || params.getCategoryOptionCombo().isDefault()) && !isSuper( user ) )
+        if ( (params.getCategoryOptionCombo() == null || params.getCategoryOptionCombo().isDefault())
+            && !isSuper( user ) )
         {
             sql += "deco.publicaccess AS deco_publicaccess, decoa.uga_access AS uga_access, decoa.ua_access AS ua_access, cocount.option_size AS option_size, ";
         }
@@ -711,7 +776,8 @@ public class JdbcEventStore
             final String col = item.getItemId();
             final String dataValueValueSql = "psi.eventdatavalues #>> '{" + col + ", value}'";
 
-            String queryCol = item.isNumeric() ? " CAST( " + dataValueValueSql + " AS NUMERIC)" : "lower(" + dataValueValueSql + ")";
+            String queryCol = item.isNumeric() ? " CAST( " + dataValueValueSql + " AS NUMERIC)"
+                : "lower(" + dataValueValueSql + ")";
             queryCol += " as " + col + ", ";
 
             sql += queryCol;
@@ -748,7 +814,8 @@ public class JdbcEventStore
                 if ( item.hasOptionSet() && item.hasFilter() )
                 {
                     sql += "inner join optionvalue as " + optCol + " on lower(" + optCol + ".code) = " +
-                        "lower(" + dataValueValueSql + ") and " + optCol + ".optionsetid = " + item.getOptionSet().getId() + " ";
+                        "lower(" + dataValueValueSql + ") and " + optCol + ".optionsetid = "
+                        + item.getOptionSet().getId() + " ";
                 }
 
                 joinedColumns.add( col );
@@ -760,7 +827,8 @@ public class JdbcEventStore
                 {
                     final String encodedFilter = statementBuilder.encode( filter.getFilter(), false );
 
-                    final String queryCol = item.isNumeric() ? " CAST( " + dataValueValueSql + " AS NUMERIC)" : "lower( " + dataValueValueSql + " )";
+                    final String queryCol = item.isNumeric() ? " CAST( " + dataValueValueSql + " AS NUMERIC)"
+                        : "lower( " + dataValueValueSql + " )";
 
                     if ( !item.hasOptionSet() )
                     {
@@ -771,20 +839,22 @@ public class JdbcEventStore
                         if ( QueryOperator.LIKE.getValue().equalsIgnoreCase( filter.getSqlOperator() ) )
                         {
                             eventDataValuesWhereSql += " " + queryCol + " " + filter.getSqlOperator() + " "
-                            + StringUtils.lowerCase( filter.getSqlFilter( encodedFilter ) ) + " ";
+                                + StringUtils.lowerCase( filter.getSqlFilter( encodedFilter ) ) + " ";
                         }
                         else
                         {
                             eventDataValuesWhereSql += " " + queryCol + " " + filter.getSqlOperator() + " "
-                            + StringUtils.lowerCase( StringUtils.isNumeric( encodedFilter ) ? encodedFilter :
-                            filter.getSqlFilter( encodedFilter ) ) + " ";
+                                + StringUtils.lowerCase(
+                                    item.isNumeric() ? encodedFilter : filter.getSqlFilter( encodedFilter ) )
+                                + " ";
                         }
                     }
                     else if ( QueryOperator.IN.getValue().equalsIgnoreCase( filter.getSqlOperator() ) )
                     {
                         sql += "and " + queryCol + " " + filter.getSqlOperator() + " "
-                            + StringUtils.lowerCase( StringUtils.isNumeric( encodedFilter ) ? encodedFilter :
-                            filter.getSqlFilter( encodedFilter ) ) + " ";
+                            + StringUtils.lowerCase(
+                                item.isNumeric() ? encodedFilter : filter.getSqlFilter( encodedFilter ) )
+                            + " ";
                     }
                     else if ( QueryOperator.LIKE.getValue().equalsIgnoreCase( filter.getSqlOperator() ) )
                     {
@@ -794,14 +864,16 @@ public class JdbcEventStore
                     else
                     {
                         sql += "and lower(" + optCol + DOT_NAME + " " + filter.getSqlOperator() + " "
-                            + StringUtils.lowerCase( StringUtils.isNumeric( encodedFilter ) ? encodedFilter :
-                            filter.getSqlFilter( encodedFilter ) ) + " ";
+                            + StringUtils.lowerCase(
+                                item.isNumeric() ? encodedFilter : filter.getSqlFilter( encodedFilter ) )
+                            + " ";
                     }
                 }
             }
         }
 
-        if ( (params.getCategoryOptionCombo() == null || params.getCategoryOptionCombo().isDefault()) && !isSuper( user ) )
+        if ( (params.getCategoryOptionCombo() == null || params.getCategoryOptionCombo().isDefault())
+            && !isSuper( user ) )
         {
             sql += getCategoryOptionSharingForUser( user );
         }
@@ -838,7 +910,7 @@ public class JdbcEventStore
 
         sql += addLastUpdatedFilters( params, hlp, true );
 
-        //Comparing milliseconds instead of always creating new Date( 0 );
+        // Comparing milliseconds instead of always creating new Date( 0 );
         if ( params.getSkipChangedBefore() != null && params.getSkipChangedBefore().getTime() > 0 )
         {
             String skipChangedBefore = DateUtils.getLongDateString( params.getSkipChangedBefore() );
@@ -900,7 +972,8 @@ public class JdbcEventStore
 
         if ( params.hasAssignedUsers() )
         {
-            sql += hlp.whereAnd() + " (au.uid in (" + getQuotedCommaDelimitedString( params.getAssignedUsers() ) + ")) ";
+            sql += hlp.whereAnd() + " (au.uid in (" + getQuotedCommaDelimitedString( params.getAssignedUsers() )
+                + ")) ";
         }
 
         if ( params.isIncludeOnlyUnassignedEvents() )
@@ -920,8 +993,10 @@ public class JdbcEventStore
 
         if ( params.hasSecurityFilter() )
         {
-            sql += hlp.whereAnd() + " (p.uid in (" + getQuotedCommaDelimitedString( params.getAccessiblePrograms() ) + ")) ";
-            sql += hlp.whereAnd() + " (ps.uid in (" + getQuotedCommaDelimitedString( params.getAccessibleProgramStages() ) + ")) ";
+            sql += hlp.whereAnd() + " (p.uid in (" + getQuotedCommaDelimitedString( params.getAccessiblePrograms() )
+                + ")) ";
+            sql += hlp.whereAnd() + " (ps.uid in ("
+                + getQuotedCommaDelimitedString( params.getAccessibleProgramStages() ) + ")) ";
         }
 
         if ( params.isSynchronizationQuery() )
@@ -963,7 +1038,8 @@ public class JdbcEventStore
                 if ( item.hasOptionSet() && item.hasFilter() )
                 {
                     sql += "inner join optionvalue as " + optCol + " on lower(" + optCol + ".code) = " +
-                        "lower(" + dataValueValueSql + ") and " + optCol + ".optionsetid = " + item.getOptionSet().getId() + " ";
+                        "lower(" + dataValueValueSql + ") and " + optCol + ".optionsetid = "
+                        + item.getOptionSet().getId() + " ";
                 }
 
                 joinedColumns.add( col );
@@ -975,7 +1051,8 @@ public class JdbcEventStore
                 {
                     final String encodedFilter = statementBuilder.encode( filter.getFilter(), false );
 
-                    final String queryCol = item.isNumeric() ? " CAST( " + dataValueValueSql + " AS NUMERIC)" : "lower(" + dataValueValueSql + ")";
+                    final String queryCol = item.isNumeric() ? " CAST( " + dataValueValueSql + " AS NUMERIC)"
+                        : "lower(" + dataValueValueSql + ")";
 
                     if ( !item.hasOptionSet() )
                     {
@@ -1093,7 +1170,8 @@ public class JdbcEventStore
 
         if ( params.hasAssignedUsers() )
         {
-            sql += hlp.whereAnd() + " (au.uid in (" + getQuotedCommaDelimitedString( params.getAssignedUsers() ) + ")) ";
+            sql += hlp.whereAnd() + " (au.uid in (" + getQuotedCommaDelimitedString( params.getAssignedUsers() )
+                + ")) ";
         }
 
         if ( params.isIncludeOnlyUnassignedEvents() )
@@ -1173,7 +1251,6 @@ public class JdbcEventStore
         return sql;
     }
 
-
     private String getEventPagingQuery( EventSearchParams params )
     {
         String sql = " ";
@@ -1182,16 +1259,6 @@ public class JdbcEventStore
         {
             sql += "limit " + params.getPageSizeWithDefault() + " offset " + params.getOffset() + " ";
         }
-
-        return sql;
-    }
-
-    private String getCommentQuery()
-    {
-        String sql = "select psic.programstageinstanceid as psic_id, psinote.trackedentitycommentid as psinote_id, psinote.commenttext as psinote_value, "
-            + "psinote.created as psinote_storeddate, psinote.creator as psinote_storedby, psinote.uid as psinote_uid "
-            + "from programstageinstancecomments psic "
-            + "inner join trackedentitycomment psinote on psic.trackedentitycommentid=psinote.trackedentitycommentid ";
 
         return sql;
     }
@@ -1310,12 +1377,18 @@ public class JdbcEventStore
             return true;
         }
 
-        if ( rowSet.getString( "uga_access" ) == null && rowSet.getString( "ua_access" ) == null && rowSet.getString( "deco_publicaccess" ) == null )
+        if ( rowSet.getString( "uga_access" ) == null && rowSet.getString( "ua_access" ) == null
+            && rowSet.getString( "deco_publicaccess" ) == null )
         {
             return false;
         }
 
-        return AccessStringHelper.isEnabled( rowSet.getString( "deco_publicaccess" ), AccessStringHelper.Permission.DATA_READ );
+        return AccessStringHelper.isEnabled( rowSet.getString( "deco_publicaccess" ),
+            AccessStringHelper.Permission.DATA_READ )
+            || AccessStringHelper.isEnabled( rowSet.getString( "uga_access" ),
+                AccessStringHelper.Permission.DATA_READ )
+            || AccessStringHelper.isEnabled( rowSet.getString( "ua_access" ),
+                AccessStringHelper.Permission.DATA_READ );
     }
 
     private Set<EventDataValue> convertEventDataValueJsonIntoSet( String jsonString )
@@ -1353,7 +1426,8 @@ public class JdbcEventStore
         }
     }
 
-    private void populateCache( IdScheme idScheme, List<Collection<DataValue>> dataValuesList, CachingMap<String, String> dataElementUidToIdentifierCache )
+    private void populateCache( IdScheme idScheme, List<Collection<DataValue>> dataValuesList,
+        CachingMap<String, String> dataElementUidToIdentifierCache )
     {
         Set<String> deUids = new HashSet<>();
 
@@ -1376,10 +1450,10 @@ public class JdbcEventStore
             {
                 String dataElementsUidsSqlString = getQuotedCommaDelimitedString( deUids );
 
-                String deSql =
-                    "select de.uid, de.attributevalues #>> '{" + idScheme.getAttribute() + ", value}' as value " +
-                        "from dataelement de where de.uid in (" + dataElementsUidsSqlString + ") " +
-                        "and de.attributevalues ? '" + idScheme.getAttribute() + "'";
+                String deSql = "select de.uid, de.attributevalues #>> '{" + idScheme.getAttribute()
+                    + ", value}' as value " +
+                    "from dataelement de where de.uid in (" + dataElementsUidsSqlString + ") " +
+                    "and de.attributevalues ? '" + idScheme.getAttribute() + "'";
 
                 SqlRowSet deRowSet = jdbcTemplate.queryForRowSet( deSql );
 
