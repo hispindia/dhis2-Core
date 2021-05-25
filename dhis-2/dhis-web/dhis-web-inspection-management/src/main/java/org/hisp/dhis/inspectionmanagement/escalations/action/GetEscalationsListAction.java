@@ -549,12 +549,20 @@ public class GetEscalationsListAction
 
             if ( !escalationStatus.equalsIgnoreCase( "" ) ) // escalation Status
                                                             // filter
+                /*
                 query += "INNER JOIN (" + "SELECT programstageinstanceid " + "FROM trackedentitydatavalue "
                     + "WHERE dataelementid = 3460 "
                     + // -- escalation Status dataelement id
                     "AND value ILIKE '" + escalationStatus + "' "
                     + ") tdv1 on tdv1.programstageinstanceid = psi.programstageinstanceid ";
-
+                */ 
+                
+                query += "INNER JOIN (" + "SELECT programstageinstanceid " + "FROM programstageinstance "
+                    + "WHERE eventdatavalues -> 'oYNscX4WRDk' ->> 'value' "
+                    + // -- escalation Status dataelement uid
+                    " ILIKE '" + escalationStatus + "' "
+                    + ") evdatavalue1 on evdatavalue1.programstageinstanceid = psi.programstageinstanceid ";
+            
             if ( !establishmentName.equalsIgnoreCase( "" ) ) // establishment
                                                              // Name filter
                 query += "INNER JOIN (" + "SELECT trackedentityinstanceid " + "FROM trackedentityattributevalue "
@@ -659,6 +667,7 @@ public class GetEscalationsListAction
 
         }
 
+        /*
         for( ProgramStageInstance psi : programStageInstances)
         {
             for( EventDataValue edv : psi.getEventDataValues() )
@@ -668,7 +677,7 @@ public class GetEscalationsListAction
             }
             
         }
-        
+        */
         
         String attributeIdsByComma = "88,89,94,698,699";
         String trackerDataElementIdsByComma = "1951,1952,1953,1954,3460";
@@ -677,8 +686,10 @@ public class GetEscalationsListAction
 
         teiValueMap = new HashMap<String, String>( getTrackedEntityInstanceAttributeValuesByAttributeIds( attributeIdsByComma ) );
         //teInstanceDataValueMap = new HashMap<String, String>( getTrackedEntityDataValuesByDataElementIds( trackerDataElementIdsByComma ) );
+        teInstanceDataValueMap = new HashMap<String, String>();
+        teInstanceDataValueMap = new HashMap<String, String>( getEventDataValues( ( programStageInstances ) ));
         
-        teInstanceDataValueMap = new HashMap<String, String>( );
+        
         teiMap = new HashMap<Integer, String>( getTrackedEntityInstanceAttributeValuesByAttributeId( teNameAttributeId ) );
 
         teiAttributeValueMap = new HashMap<String, String>( getTrackedEntityAttributeValue( teOperatorNameAttributeId ) );
@@ -717,6 +728,13 @@ public class GetEscalationsListAction
             escalationStatusMap.put( option.getCode(), option.getName() );
         }
 
+        /*
+        for ( String key : escalationStatusMap.keySet() )
+        {
+            System.out.println( "  key " + key + " -- value -- " + escalationStatusMap.get( key ) );
+        }
+        */
+        
         // users = new ArrayList<User>( userService.getAllUsers() );
 
         UserGroup inspectorUserGroup = userGroupService.getUserGroupByName( INSPECTOR_USER_GROUP ).get( 0 );
@@ -884,6 +902,40 @@ public class GetEscalationsListAction
         }
     }
     */
+
+    public Map<String, String> getEventDataValues( List<ProgramStageInstance> programStageInstances )
+    {
+        Map<String, String> teiDataValueMap = new HashMap<String, String>();
+
+        try
+        {
+            /*
+            String query = "SELECT programstageinstanceid, dataelementid, value FROM trackedentitydatavalue  "
+                + "WHERE dataelementid IN ( " + dataElementIdsByComma + ")";
+
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+            */
+            
+            for( ProgramStageInstance psi : programStageInstances)
+            {
+                for( EventDataValue edv : psi.getEventDataValues() )
+                {
+                    edv.getDataElement();
+                    edv.getValue();
+                    
+                    teiDataValueMap.put( psi.getId() + ":" + edv.getDataElement(), edv.getValue() );
+                }
+                
+            }
+
+            return teiDataValueMap;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal DataElement id", e );
+        }
+    }    
+    
     
     // --------------------------------------------------------------------------------
     // Get Active Tracked Entity Instance List By Program

@@ -133,7 +133,7 @@ public class UpdateEscalationsStatusAction implements Action
                     
                     ImportSummary importSummary = eventService.updateEvent( updatedEvent, true, null, false );
                     
-                    System.out.println(  " importSummary -- " + importSummary );
+                    System.out.println(  " importSummary -- " + importSummary);
                     
                     //TrackedEntityDataValue trackedEntityDataValue = trackedEntityDataValueService.getTrackedEntityDataValue( programStageInstance, psDataElement );
                 

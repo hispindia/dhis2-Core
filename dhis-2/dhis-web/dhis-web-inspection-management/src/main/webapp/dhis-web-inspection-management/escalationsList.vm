@@ -175,7 +175,8 @@
 							#set( $nameKey = $programStageInstance.getProgramInstance().getEntityInstance().id + ":" + 89 )
 							#set( $establishmentTypeKey = $programStageInstance.getProgramInstance().getEntityInstance().id + ":" + 88 )
 							#set( $ownerKey = $programStageInstance.getProgramInstance().getEntityInstance().id + ":" + 94 )
-							#set( $statusKey = $programStageInstance.id + ":" + 3460 )
+							<!--#set( $statusKey = $programStageInstance.id + ":" + 3460 )-->
+							#set( $statusKey = $programStageInstance.id + ":" + "oYNscX4WRDk" )
 							
 							<td>$!encoder.htmlEncode( $programStageInstance.getProgramInstance().getProgram().getName() )</td>
 							<td>$!format.formatDate( $programStageInstance.getExecutionDate() )</td>

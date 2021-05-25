@@ -23,7 +23,7 @@ function goToDashboard( psiUid, teiUid, programUid, orgUnitUid)
     	    	//alert( json.response );
     	    	if ( json.response == "success" )
     	    	{
-    	    		var url = '../dhis-web-ehs/index.html#/dashboard?tei=' + teiUid + "&program=" + programUid + "&ou=" + orgUnitUid+ "&psiUid=" + psiUid;
+    	    		var url = '../dhis-web-tracker-capture/index.html#/dashboard?tei=' + teiUid + "&program=" + programUid + "&ou=" + orgUnitUid+ "&psiUid=" + psiUid;
     	    		  
     	    		window.location.href = url;
     	    	}
