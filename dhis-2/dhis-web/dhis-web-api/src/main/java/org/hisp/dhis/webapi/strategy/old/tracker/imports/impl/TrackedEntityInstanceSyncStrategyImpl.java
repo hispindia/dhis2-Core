@@ -25,54 +25,42 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.translation;
+package org.hisp.dhis.webapi.strategy.old.tracker.imports.impl;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.hisp.dhis.dxf2.events.trackedentity.TrackedEntityInstance;
+import org.hisp.dhis.dxf2.events.trackedentity.TrackedEntityInstanceService;
+import org.hisp.dhis.dxf2.importsummary.ImportSummaries;
+import org.hisp.dhis.scheduling.SchedulingManager;
+import org.hisp.dhis.webapi.controller.exception.BadRequestException;
+import org.hisp.dhis.webapi.strategy.old.tracker.imports.request.TrackerEntityInstanceRequest;
+import org.springframework.stereotype.Component;
 
 /**
- * @author Morten Olav Hansen <mortenoh@gmail.com>
+ * @author Luca Cambi <luca@dhis2.org>
  */
-public enum TranslationProperty
+@Component
+public class TrackedEntityInstanceSyncStrategyImpl extends AbstractTrackedEntityInstanceStrategy
 {
-    NAME( "name" ),
-    SHORT_NAME( "shortName" ),
-    DESCRIPTION( "description" ),
-    FORM_NAME( "formName" ),
-    NUMERATOR_DESCRIPTION( "numeratorDescription" ),
-    DENOMINATOR_DESCRIPTION( "denominatorDescription" ),
-    RELATIONSHIP_FROM_TO_NAME( "fromToName" ),
-    RELATIONSHIP_TO_FROM_NAME( "toFromName" ),
-    INSTRUCTION( "instruction" ),
-    CONTENT( "content" ),
-    domainAxisLabel( "domainAxisLabel" ),
-    rangeAxisLabel( "rangeAxisLabel" ),
-    targetLineLabel( "targetLineLabel" ),
-    baseLineLabel( "baseLineLabel" ),
-    title( "title" ),
-    subtitle( "subtitle" ),
-    SUBJECT_TEMPLATE( "notificationSubjectTemplate" ),
-    MESSAGE_TEMPLATE( "notificationMessageTemplate" );
-
-    private String name;
-
-    TranslationProperty( String name )
+    public TrackedEntityInstanceSyncStrategyImpl( TrackedEntityInstanceService trackedEntityInstanceService,
+        SchedulingManager schedulingManager )
     {
-        this.name = name;
+        super( trackedEntityInstanceService, schedulingManager );
     }
 
-    public static TranslationProperty fromValue( String value )
+    @Override
+    public ImportSummaries mergeOrDeleteTrackedEntityInstances(
+        TrackerEntityInstanceRequest trackerEntityInstanceRequest )
+        throws IOException,
+        BadRequestException
     {
-        for ( TranslationProperty type : TranslationProperty.values() )
-        {
-            if ( type.getName().equalsIgnoreCase( value ) )
-            {
-                return type;
-            }
-        }
+        List<TrackedEntityInstance> trackedEntityInstances = getTrackedEntityInstancesListByMediaType(
+            trackerEntityInstanceRequest.getMediaType(), trackerEntityInstanceRequest.getInputStream() );
 
-        return null;
+        return trackedEntityInstanceService.mergeOrDeleteTrackedEntityInstances( trackedEntityInstances,
+            trackerEntityInstanceRequest.getImportOptions(), null );
     }
 
-    public String getName()
-    {
-        return name;
-    }
 }

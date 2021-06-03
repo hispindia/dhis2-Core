@@ -25,54 +25,45 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.translation;
+package org.hisp.dhis.webapi.strategy.old.tracker.imports.impl;
 
-/**
- * @author Morten Olav Hansen <mortenoh@gmail.com>
- */
-public enum TranslationProperty
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+import lombok.RequiredArgsConstructor;
+
+import org.hisp.dhis.dxf2.events.trackedentity.TrackedEntityInstance;
+import org.hisp.dhis.dxf2.events.trackedentity.TrackedEntityInstanceService;
+import org.hisp.dhis.scheduling.SchedulingManager;
+import org.hisp.dhis.webapi.controller.exception.BadRequestException;
+import org.hisp.dhis.webapi.strategy.old.tracker.imports.TrackedEntityInstanceStrategyHandler;
+import org.springframework.http.MediaType;
+
+@RequiredArgsConstructor
+public abstract class AbstractTrackedEntityInstanceStrategy implements TrackedEntityInstanceStrategyHandler
 {
-    NAME( "name" ),
-    SHORT_NAME( "shortName" ),
-    DESCRIPTION( "description" ),
-    FORM_NAME( "formName" ),
-    NUMERATOR_DESCRIPTION( "numeratorDescription" ),
-    DENOMINATOR_DESCRIPTION( "denominatorDescription" ),
-    RELATIONSHIP_FROM_TO_NAME( "fromToName" ),
-    RELATIONSHIP_TO_FROM_NAME( "toFromName" ),
-    INSTRUCTION( "instruction" ),
-    CONTENT( "content" ),
-    domainAxisLabel( "domainAxisLabel" ),
-    rangeAxisLabel( "rangeAxisLabel" ),
-    targetLineLabel( "targetLineLabel" ),
-    baseLineLabel( "baseLineLabel" ),
-    title( "title" ),
-    subtitle( "subtitle" ),
-    SUBJECT_TEMPLATE( "notificationSubjectTemplate" ),
-    MESSAGE_TEMPLATE( "notificationMessageTemplate" );
+    final protected TrackedEntityInstanceService trackedEntityInstanceService;
 
-    private String name;
+    final SchedulingManager schedulingManager;
 
-    TranslationProperty( String name )
+    protected List<TrackedEntityInstance> getTrackedEntityInstancesListByMediaType( String mediaType,
+        InputStream inputStream )
+        throws IOException,
+        BadRequestException
     {
-        this.name = name;
-    }
-
-    public static TranslationProperty fromValue( String value )
-    {
-        for ( TranslationProperty type : TranslationProperty.values() )
+        if ( MediaType.valueOf( mediaType ).equals( MediaType.APPLICATION_JSON ) )
         {
-            if ( type.getName().equalsIgnoreCase( value ) )
-            {
-                return type;
-            }
+            return trackedEntityInstanceService.getTrackedEntityInstancesJson( inputStream );
         }
-
-        return null;
-    }
-
-    public String getName()
-    {
-        return name;
+        else if ( mediaType
+            .equals( MediaType.APPLICATION_XML_VALUE ) )
+        {
+            return trackedEntityInstanceService.getTrackedEntityInstancesXml( inputStream );
+        }
+        else
+        {
+            throw new BadRequestException( "Value " + mediaType + " not allowed as Media Type " );
+        }
     }
 }

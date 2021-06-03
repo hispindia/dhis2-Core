@@ -25,54 +25,25 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.translation;
+package org.hisp.dhis.webapi.strategy.old.tracker.imports.request;
 
-/**
- * @author Morten Olav Hansen <mortenoh@gmail.com>
- */
-public enum TranslationProperty
+import java.io.InputStream;
+
+import lombok.Builder;
+import lombok.Data;
+
+import org.hisp.dhis.dxf2.common.ImportOptions;
+import org.hisp.dhis.scheduling.JobConfiguration;
+
+@Data
+@Builder
+public class TrackerEntityInstanceRequest
 {
-    NAME( "name" ),
-    SHORT_NAME( "shortName" ),
-    DESCRIPTION( "description" ),
-    FORM_NAME( "formName" ),
-    NUMERATOR_DESCRIPTION( "numeratorDescription" ),
-    DENOMINATOR_DESCRIPTION( "denominatorDescription" ),
-    RELATIONSHIP_FROM_TO_NAME( "fromToName" ),
-    RELATIONSHIP_TO_FROM_NAME( "toFromName" ),
-    INSTRUCTION( "instruction" ),
-    CONTENT( "content" ),
-    domainAxisLabel( "domainAxisLabel" ),
-    rangeAxisLabel( "rangeAxisLabel" ),
-    targetLineLabel( "targetLineLabel" ),
-    baseLineLabel( "baseLineLabel" ),
-    title( "title" ),
-    subtitle( "subtitle" ),
-    SUBJECT_TEMPLATE( "notificationSubjectTemplate" ),
-    MESSAGE_TEMPLATE( "notificationMessageTemplate" );
+    InputStream inputStream;
 
-    private String name;
+    ImportOptions importOptions;
 
-    TranslationProperty( String name )
-    {
-        this.name = name;
-    }
+    String mediaType;
 
-    public static TranslationProperty fromValue( String value )
-    {
-        for ( TranslationProperty type : TranslationProperty.values() )
-        {
-            if ( type.getName().equalsIgnoreCase( value ) )
-            {
-                return type;
-            }
-        }
-
-        return null;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
+    JobConfiguration jobConfiguration;
 }

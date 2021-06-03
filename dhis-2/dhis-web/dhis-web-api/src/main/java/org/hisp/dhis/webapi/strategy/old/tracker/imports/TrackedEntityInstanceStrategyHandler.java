@@ -25,54 +25,17 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.translation;
+package org.hisp.dhis.webapi.strategy.old.tracker.imports;
 
-/**
- * @author Morten Olav Hansen <mortenoh@gmail.com>
- */
-public enum TranslationProperty
+import java.io.IOException;
+
+import org.hisp.dhis.dxf2.importsummary.ImportSummaries;
+import org.hisp.dhis.webapi.controller.exception.BadRequestException;
+import org.hisp.dhis.webapi.strategy.old.tracker.imports.request.TrackerEntityInstanceRequest;
+
+public interface TrackedEntityInstanceStrategyHandler
 {
-    NAME( "name" ),
-    SHORT_NAME( "shortName" ),
-    DESCRIPTION( "description" ),
-    FORM_NAME( "formName" ),
-    NUMERATOR_DESCRIPTION( "numeratorDescription" ),
-    DENOMINATOR_DESCRIPTION( "denominatorDescription" ),
-    RELATIONSHIP_FROM_TO_NAME( "fromToName" ),
-    RELATIONSHIP_TO_FROM_NAME( "toFromName" ),
-    INSTRUCTION( "instruction" ),
-    CONTENT( "content" ),
-    domainAxisLabel( "domainAxisLabel" ),
-    rangeAxisLabel( "rangeAxisLabel" ),
-    targetLineLabel( "targetLineLabel" ),
-    baseLineLabel( "baseLineLabel" ),
-    title( "title" ),
-    subtitle( "subtitle" ),
-    SUBJECT_TEMPLATE( "notificationSubjectTemplate" ),
-    MESSAGE_TEMPLATE( "notificationMessageTemplate" );
-
-    private String name;
-
-    TranslationProperty( String name )
-    {
-        this.name = name;
-    }
-
-    public static TranslationProperty fromValue( String value )
-    {
-        for ( TranslationProperty type : TranslationProperty.values() )
-        {
-            if ( type.getName().equalsIgnoreCase( value ) )
-            {
-                return type;
-            }
-        }
-
-        return null;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
+    ImportSummaries mergeOrDeleteTrackedEntityInstances( TrackerEntityInstanceRequest trackerEntityInstanceRequest )
+        throws IOException,
+        BadRequestException;
 }
