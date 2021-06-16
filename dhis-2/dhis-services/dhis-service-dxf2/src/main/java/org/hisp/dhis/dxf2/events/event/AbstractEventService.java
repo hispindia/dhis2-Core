@@ -150,6 +150,9 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import com.vividsolutions.jts.geom.Geometry;
+import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValue;
+
 /**
  * @author Morten Olav Hansen <mortenoh@gmail.com>
  */
