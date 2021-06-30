@@ -410,7 +410,7 @@ public class DefaultDataValueSetService
 
         for ( OrganisationUnit unit : params.getOrganisationUnits() )
         {
-            if ( !organisationUnitService.isInUserHierarchy( unit ) )
+            if ( !organisationUnitService.isInUserDataViewHierarchy( unit ) )
             {
                 throw new IllegalQueryException( "User is not allowed to view org unit: " + unit.getUid() );
             }
@@ -1373,6 +1373,14 @@ public class DefaultDataValueSetService
             // -----------------------------------------------------------------
 
             DataValue existingValue = !skipExistingCheck ? dataValueBatchHandler.findObject( internalValue ) : null;
+
+            // -----------------------------------------------------------------
+            // Preserve any existing created date unless overwritten by import
+            // -----------------------------------------------------------------
+            if ( existingValue != null && !dataValue.hasCreated() )
+            {
+                internalValue.setCreated( existingValue.getCreated() );
+            }
 
             // -----------------------------------------------------------------
             // Check soft deleted data values on update and import

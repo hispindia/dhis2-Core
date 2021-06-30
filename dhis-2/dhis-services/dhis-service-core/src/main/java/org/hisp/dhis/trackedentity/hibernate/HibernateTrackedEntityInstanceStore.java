@@ -902,7 +902,8 @@ public class HibernateTrackedEntityInstanceStore
                     .append( SPACE )
                     .append( filter.getSqlOperator() )
                     .append( SPACE )
-                    .append( StringUtils.lowerCase( filter.getSqlFilter( filter.getFilter() ) ) );
+                    .append( StringUtils
+                        .lowerCase( filter.getSqlFilter( statementBuilder.encode( filter.getFilter(), false ) ) ) );
             }
         }
     }
@@ -1160,7 +1161,6 @@ public class HibernateTrackedEntityInstanceStore
         {
             String start = getMediumDateString( params.getEventStartDate() );
             String end = getMediumDateString( params.getEventEndDate() );
-            events.append( whereHlp.whereAnd() );
 
             if ( params.isEventStatus( EventStatus.COMPLETED ) )
             {

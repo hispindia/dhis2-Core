@@ -763,7 +763,10 @@ public abstract class AbstractEventService
 
         for ( Event event : eventList )
         {
-            if ( trackerOwnershipAccessManager.hasAccess( user,
+            boolean canSkipCheck = event.getTrackedEntityInstance() == null ||
+                trackerOwnershipAccessManager.canSkipOwnershipCheck( user, event.getProgramType() );
+
+            if ( canSkipCheck || trackerOwnershipAccessManager.hasAccess( user,
                 entityInstanceService.getTrackedEntityInstance( event.getTrackedEntityInstance() ),
                 programService.getProgram( event.getProgram() ) ) )
             {
