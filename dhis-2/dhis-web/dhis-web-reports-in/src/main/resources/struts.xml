@@ -256,7 +256,12 @@
             <param name="onExceptionReturn">plainTextError</param>
         </action>
 
-
+		<!-- Md Report Options -->
+        <action name="getMDReportOptions"
+            class="org.hisp.dhis.reports.md.action.GetMDReportOptionsAction">
+            <result name="success" type="velocity-xml">/dhis-web-reports-in/responseMDReportOptions.vm</result>
+            <param name="onExceptionReturn">plainTextError</param>
+        </action>
 		       
         <!-- Auto Reports -->
         <action name="autoReportAnalyser"

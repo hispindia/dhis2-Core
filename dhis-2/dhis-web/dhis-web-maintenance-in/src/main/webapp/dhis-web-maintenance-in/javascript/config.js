@@ -23,12 +23,26 @@ function clearFolder( folderId )
 	
 }
 
-function clearFolderRecieved( messageElement )
+function clearFolderRecieved( xmlObject )
 {
-	var message = messageElement.firstChild.nodeValue;
+	//var message = messageElement.firstChild.nodeValue;
 
-    document.getElementById( 'message' ).innerHTML = message;
+    //document.getElementById( 'message' ).innerHTML = message;
     document.getElementById( 'message' ).style.display = 'block';
+    
+    var responseMsgs = xmlObject.getElementsByTagName("message");
+    
+    for ( var i = 0; i < responseMsgs.length; i++ )
+    {
+        var responseMsg = responseMsgs[ i ].getElementsByTagName("statusMessage")[0].firstChild.nodeValue;
+		
+		//document.reportForm.ouNameTB.value = orgUnitName;
+		//document.reportForm.ouLevelTB.value = level;	
+		//document.getElementById( 'responseMessage' ).style.display = 'block';
+	    document.getElementById( 'message' ).innerHTML = responseMsg;
+    }  
+    
+    
 }
 
 

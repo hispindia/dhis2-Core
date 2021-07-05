@@ -1,5 +1,3 @@
- 
-
 
 // form validation for MD report
 function formValidationsForMDReport()
@@ -174,6 +172,44 @@ function getorgUnitLevels( ouLevel, maxOULevel )
 	else
 	{
 		document.getElementById( "ViewReport" ).disabled = false;
+	}
+}
+
+//----------------------------------------------------------------------
+//Get MD Report Options
+//----------------------------------------------------------------------
+
+function getMDReportOptions() 
+{
+	var mdReportFileNameList = document.getElementById('mdReportFileName');
+	var mdReportFileName = mdReportFileNameList.options[mdReportFileNameList.selectedIndex].value;
+
+	if ( mdReportFileName != "" ) 
+	{
+		var url = "getMDReportOptions.action?mdReportFileName=" + mdReportFileName;
+
+		var request = new Request();
+		request.setResponseTypeXML('report');
+		request.setCallbackSuccess(getMDReportOptionReceived);
+		request.send(url); 
+	}
+}
+
+function getMDReportOptionReceived(xmlObject)
+{
+	var availableDataElements = document.getElementById("availableDataElements");
+	var selectedDataElements = document.getElementById("selectedDataElements");
+	
+	clearList(availableDataElements);
+	clearList(selectedDataElements);
+	
+	var reports = xmlObject.getElementsByTagName("report");
+	for ( var i = 0; i < reports.length; i++) 
+	{
+		var optionText = reports[i].getElementsByTagName("optionText")[0].firstChild.nodeValue;
+		var optionValue = reports[i].getElementsByTagName("optionValue")[0].firstChild.nodeValue;
+
+		$("#availableDataElements").append("<option value='"+ optionValue + "' title='"+ optionText + "'>" + optionText + "</option>");
 	}
 }
 

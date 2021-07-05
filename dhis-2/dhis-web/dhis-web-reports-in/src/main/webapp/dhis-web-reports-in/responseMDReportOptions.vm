@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<reports>
+    #foreach( $reportOption in $reportOptionList )
+    	<report>
+        	<optionText>$encoder.xmlEncode( $reportOption.optionText )</optionText>
+        	<optionValue>$encoder.xmlEncode( $reportOption.optionValue )</optionValue>
+    	</report>
+    #end
+</reports>

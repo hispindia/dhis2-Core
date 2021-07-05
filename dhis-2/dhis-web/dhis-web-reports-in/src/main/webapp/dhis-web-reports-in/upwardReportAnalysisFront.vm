@@ -81,7 +81,8 @@
                 5. $i18n.getString( "generated_data_type" ) :<br />
                 <select id="aggData" name="aggData" style="width:200px">
                     <option value="generateaggdata">$i18n.getString( "generate_agg_data" )</option>
-                    <option selected="selected" value="usecaptureddata">$i18n.getString( "use_captured_data" )</option>
+                    <option value="usecaptureddata">$i18n.getString( "use_captured_data" )</option>
+					<!--<option value="useexistingaggdata">$i18n.getString( "use_existing_agg_data" )</option>-->
                 </select>
                 <br><br><br><br>                                
                 <input type="submit" id= "generate" name="generate" value='$i18n.getString( "generate_report" )' disabled="disabled">

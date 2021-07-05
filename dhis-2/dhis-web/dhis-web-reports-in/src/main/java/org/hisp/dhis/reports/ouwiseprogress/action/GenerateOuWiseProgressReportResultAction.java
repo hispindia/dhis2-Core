@@ -363,9 +363,10 @@ public class GenerateOuWiseProgressReportResultAction
             periodList = new ArrayList<Period>( periodService.getIntersectingPeriods( sDate, eDate ) );
         }
         
-        //List<Period> periodList = new ArrayList<Period>( periodService.getIntersectingPeriods( sDate, eDate ) );        
+        //List<Period> periodList = new ArrayList<Period>( periodService.getIntersectingPeriods( sDate, eDate ) );   
+        String periodIdsByComma = "1";
         Collection<Integer> periodIds = new ArrayList<Integer>( getIdentifiers(Period.class, periodList ) );        
-        String periodIdsByComma = getCommaDelimitedString( periodIds );
+        periodIdsByComma = getCommaDelimitedString( periodIds );
         
         //System.out.println(  dataSetIDs + " -- " + selPeriodType.getName() + " -- periodIdsByComma : " + periodIdsByComma );
         

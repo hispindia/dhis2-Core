@@ -22,6 +22,7 @@ import org.hisp.dhis.reports.ReportService;
 import org.hisp.dhis.reports.ReportType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -94,6 +95,13 @@ public class MDReportFormAction implements Action
         return reportOptionList;
     }
     
+    private List<ReportOption> mdReportList;
+    
+    public List<ReportOption> getMdReportList()
+    {
+        return mdReportList;
+    }
+
     private List<OrganisationUnitLevel> levels;
 
     public List<OrganisationUnitLevel> getLevels()
@@ -131,10 +139,92 @@ public class MDReportFormAction implements Action
         simpleDateFormat = new SimpleDateFormat( "MMM-yyyy" );
         Collections.sort( periods, new PeriodsComparator() );
         
-        reportOptionList = new ArrayList<ReportOption>( getReportOptions() );
+        //reportOptionList = new ArrayList<ReportOption>( getReportOptions() );
+        
+        mdReportList = new ArrayList<ReportOption>( getMDReportList() );
+        
         
         return SUCCESS;
     }
+ 
+    // Supportive Methods
+    
+    private List<ReportOption> getMDReportList( )
+    {
+        List<ReportOption> mdReportList = new ArrayList<ReportOption>();
+        
+        String newpath = "";
+        try
+        {
+            newpath = System.getenv( "DHIS2_HOME" ) + File.separator + raFolderName + File.separator + "mdReportsList.xml";
+        }
+        catch ( NullPointerException npe )
+        {
+            System.out.println("DHIS_HOME is not set");
+            return null;
+        }
+        
+        String reportName = "";
+        String reportXMLFileName = "";
+        
+        try
+        {
+            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+            Document doc = docBuilder.parse( new File( newpath ) );
+            if ( doc == null )
+            {
+                System.out.println( "There is no MAP XML file in the DHIS2 Home" );
+                return null;
+            }
+
+            NodeList listOfReports = doc.getElementsByTagName( "mdReport" );
+            int totalReports = listOfReports.getLength();
+
+            for( int s = 0; s < totalReports; s++ )
+            {
+                Node reportNode = listOfReports.item( s );
+                Element reportElement = (Element) reportNode;
+                
+                NodeList reportNameList = reportElement.getElementsByTagName( "name" );
+                Element reportNameElement = (Element) reportNameList.item( 0 );
+                NodeList textreportNameList = reportNameElement.getChildNodes();
+                reportName = ((Node) textreportNameList.item( 0 )).getNodeValue().trim();
+
+                NodeList reportFileNameList = reportElement.getElementsByTagName( "filename" );
+                Element reportFileNameElement = (Element) reportFileNameList.item( 0 );
+                NodeList textreportFileNameList = reportFileNameElement.getChildNodes();
+                reportXMLFileName = ((Node) textreportFileNameList.item( 0 )).getNodeValue().trim();
+                
+                if( reportName != null && reportXMLFileName != null )
+                {
+                    ReportOption reportOption = new ReportOption( reportName, reportXMLFileName );
+                    mdReportList.add( reportOption );
+                }
+                
+            }// end of for loop with s var
+        }// try block end
+        catch ( SAXParseException err )
+        {
+            System.out.println( "** Parsing error" + ", line " + err.getLineNumber() + ", uri " + err.getSystemId() );
+            System.out.println( " " + err.getMessage() );
+            return null;
+        }
+        catch ( SAXException e )
+        {
+            Exception x = e.getException();
+            ((x == null) ? e : x).printStackTrace();
+            return null;
+        }
+        catch ( Throwable t )
+        {
+            t.printStackTrace();
+            return null;
+        }
+        
+        return mdReportList;
+    }    
+    
     
     
     private List<ReportOption> getReportOptions( )

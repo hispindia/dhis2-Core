@@ -55,7 +55,9 @@
 		#if( $auth.hasAccess( "dhis-web-reports-in", "metaDataReportAnalyser") )
 			<li><a href = "metaDataReportAnalyser.action">Meta Data Reports</a></li>
 		#end		
-		
+		#if( $auth.hasAccess( "dhis-web-reports-in", "mdReportAnalyser") )
+			<li><a href = "mdReportAnalyser.action">Monitoring Report</a>
+		#end		
 		#if( $auth.hasAccess( "dhis-web-reports-in", "analysisReportAnalyser") )
 			<li><a href = "analysisReportAnalyser.action">Analysis Reports</a></li>
 		#end			

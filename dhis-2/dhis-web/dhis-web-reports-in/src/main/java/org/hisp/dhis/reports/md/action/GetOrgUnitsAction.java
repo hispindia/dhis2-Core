@@ -102,11 +102,13 @@ public class GetOrgUnitsAction implements Action
             orgUnit = organisationUnitService.getOrganisationUnit( orgUnitId );
         }
         
-       // System.out.println(" orgUnit Id is : " + orgUnit.getId() + " , orgUnit Name is : " + orgUnit.getName() );
+        System.out.println(" orgUnit Id is : " + orgUnit.getId() + " , orgUnit Name is : " + orgUnit.getName() );
         //orgUnitLevel = organisationUnitService.getLevelOfOrganisationUnit( orgUnit );
-        orgUnitLevel = organisationUnitService.getOrganisationUnitLevel( orgUnit.getUid() ).getLevel();
+        //orgUnit.getLevel();
+        //orgUnitLevel = organisationUnitService.getOrganisationUnitLevel( orgUnit.getUid() ).getLevel();
+        orgUnitLevel = orgUnit.getLevel();
         maxOrgUnitLevel = organisationUnitService.getNumberOfOrganisationalLevels();
-            
+        System.out.println(" orgUnit Id is : " + orgUnit.getId() + " , orgUnit Name is : " + orgUnit.getName() +" level -- " + orgUnitLevel +" max level -- " + maxOrgUnitLevel );    
         List<OrganisationUnit> orgUnitList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( orgUnit.getId() ) );
         Map<Integer, Integer> orgunitLevelMap = new HashMap<Integer, Integer>( reportService.getOrgunitLevelMap() );
     
@@ -116,9 +118,13 @@ public class GetOrgUnitsAction implements Action
         {
             OrganisationUnit orgU = ouIterator.next();
             
-            Integer level = orgunitLevelMap.get( orgU.getId() );
+            Integer level = orgunitLevelMap.get( (int)orgU.getId() );
             if( level == null )
-                level = organisationUnitService.getOrganisationUnitLevel( orgU.getUid() ).getLevel();
+            {
+                //level = organisationUnitService.getOrganisationUnitLevel( orgU.getUid() ).getLevel();
+                level = orgUnit.getLevel();
+            }
+               
             if ( level > maxOrgUnitLevel )
             {
                 maxOrgUnitLevel = level;
