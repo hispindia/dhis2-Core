@@ -4,6 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.hisp.dhis.config.ConfigurationService_IN;
 import org.hisp.dhis.config.Configuration_IN;
@@ -69,7 +71,7 @@ public class ClearFolderAction implements Action
         String clearFolderPath;
         
         statusMessage = "";
-        
+       
         if( selectedButton.equalsIgnoreCase( "clearoutput" ) )
         {
             String raFolderName = configurationService_IN.getConfigurationByKey( Configuration_IN.KEY_REPORTFOLDER ).getValue();
@@ -85,6 +87,26 @@ public class ClearFolderAction implements Action
                 statusMessage = "Problem while clearing OUTPUT folder, please see the log";
             }
         }
+        
+        else if( selectedButton.equalsIgnoreCase( "cleartemp" ) )
+        {
+            //String raFolderName = configurationService_IN.getConfigurationByKey( Configuration_IN.KEY_REPORTFOLDER ).getValue();
+            String deleteFolderPath = System.getenv( "DHIS2_HOME" ) + File.separator + Configuration_IN.DEFAULT_TEMPFOLDER;
+            
+            //Creating the File object
+            File file = new File( deleteFolderPath );
+            if( file.exists() )
+            {
+                deleteTempFolder(file);
+                statusMessage = "Successfully Cleared the Folder : " + Configuration_IN.DEFAULT_TEMPFOLDER;
+                System.out.println( "temp Folder/ Files deleted ........" );
+            }
+            else
+            {
+                statusMessage = "temp Folder/ Files not Exist";
+            }
+            
+        }        
         else if( selectedButton.equalsIgnoreCase( "clearbounced" ) )
         {
             clearFolderPath = System.getenv( "DHIS2_HOME" ) + File.separator + "mi" + File.separator + "bounced";
@@ -237,5 +259,20 @@ public class ClearFolderAction implements Action
 
         return SUCCESS;
     }
-    
+    //deleteTempFolder
+    public void deleteTempFolder( File file )
+    {
+        for ( File subFile : file.listFiles() ) 
+        {
+            if( subFile.isDirectory() ) 
+            {
+                deleteTempFolder( subFile );
+            } 
+            else 
+            {
+               subFile.delete();
+            }
+         }
+         file.delete();
+      }    
 }

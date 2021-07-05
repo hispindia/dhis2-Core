@@ -46,6 +46,7 @@
             <td class="NormalB">
                 <label for="startDate">3. $i18n.getString( 'start_date' ) ($i18n.getString( "format.date.label" ))</label><br/>
                 <input type="text" id="startDate" name="startDate" onChange="if(!isDate( this.value )) this.value='';" style="width:180px" class="{validate:{required:true,dateISO:true}}">
+				<img src="../images/calendar.png" alt=""/></a>
             </td>
         </tr>
         <tr>
@@ -68,7 +69,8 @@
             <td class="NormalB">
                 <label for="endDate">4. $i18n.getString( 'end_date' ) ($i18n.getString( "format.date.label" ))</label><br />
                 <input type="text" id="endDate" name="endDate" onChange="if(!isDate( this.value )) this.value='';"  style="width:180px" class="{validate:{required:true,dateISO:true}}">
-            </td>
+				<img src="../images/calendar.png" alt=""/></a>	
+</td>
         </tr>
         <tr>
             <td>

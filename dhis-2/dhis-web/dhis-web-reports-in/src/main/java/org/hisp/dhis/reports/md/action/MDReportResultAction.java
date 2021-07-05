@@ -45,7 +45,6 @@ import com.opensymphony.xwork2.Action;
 
 public class MDReportResultAction  implements Action
 {
-
     private final String GENERATEAGGDATA = "generateaggdata";
 
     private final String USEEXISTINGAGGDATA = "useexistingaggdata";
@@ -116,6 +115,7 @@ public class MDReportResultAction  implements Action
         this.selectedEndPeriodId = selectedEndPeriodId;
     }
     
+    
     /*
     private int ouIDTB;
 
@@ -131,8 +131,6 @@ public class MDReportResultAction  implements Action
     {
         this.ouIDTB = ouIDTB;
     }
-    
-    
     
     private String aggData;
     
@@ -262,7 +260,8 @@ public class MDReportResultAction  implements Action
         
         // Getting selected orgunit and its immediate children
         OrganisationUnit selOrgUnit = organisationUnitService.getOrganisationUnit( ouIDTB );
-        List<OrganisationUnit> selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        //List<OrganisationUnit> selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        List<OrganisationUnit> selOUList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( (int)selOrgUnit.getId() ) );
         Map<Integer, Integer> orgunitLevelMap = new HashMap<Integer, Integer>( reportService.getOrgunitLevelMap() );
         Iterator<OrganisationUnit> ouIterator = selOUList.iterator();
         while ( ouIterator.hasNext() )
@@ -271,7 +270,8 @@ public class MDReportResultAction  implements Action
             
             Integer level = orgunitLevelMap.get( orgU.getId() );
             if( level == null )
-                level = organisationUnitService.getOrganisationUnitLevel( orgU.getUid() ).getLevel();
+                //level = organisationUnitService.getOrganisationUnitLevel( orgU.getUid() ).getLevel();
+                level = orgU.getLevel();
             if ( level > orgUnitLevelCB )
             {
                 ouIterator.remove();
@@ -281,9 +281,9 @@ public class MDReportResultAction  implements Action
         int maxOuLevel = 1;
         if ( selOUList != null && selOUList.size() > 0 )
         {
-            minOULevel = organisationUnitService.getOrganisationUnitLevel( selOUList.get( 0 ).getUid() ).getLevel();
+            //minOULevel = organisationUnitService.getOrganisationUnitLevel( selOUList.get( 0 ).getUid() ).getLevel();
+            minOULevel = selOUList.get( 0 ).getLevel();
         }
-        
         maxOuLevel = orgUnitLevelCB;
         
         
@@ -404,7 +404,9 @@ public class MDReportResultAction  implements Action
             //resultList.add( ""+ rowCount );
             Integer level = orgunitLevelMap.get( tempOrgUnit.getId() );
             if( level == null )
-                level = organisationUnitService.getOrganisationUnitLevel( tempOrgUnit.getUid() ).getLevel();
+                //level = organisationUnitService.getLevelOfOrganisationUnit( tempOrgUnit.getId() );
+                //level = organisationUnitService.getOrganisationUnitLevel( tempOrgUnit.getUid() ).getLevel();
+                level = tempOrgUnit.getLevel();
             
            // colCount = 1 + level - minOULevel;
             
@@ -551,7 +553,8 @@ public class MDReportResultAction  implements Action
         
         // Getting selected orgunit and its immediate children
         OrganisationUnit selOrgUnit = organisationUnitService.getOrganisationUnit( ouIDTB );
-        List<OrganisationUnit> selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        //List<OrganisationUnit> selOUList = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( selOrgUnit.getId() ) );
+        List<OrganisationUnit> selOUList = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( (int)selOrgUnit.getId() ) );
         Map<Integer, Integer> orgunitLevelMap = new HashMap<Integer, Integer>( reportService.getOrgunitLevelMap() );
         Iterator<OrganisationUnit> ouIterator = selOUList.iterator();
         while ( ouIterator.hasNext() )
@@ -560,7 +563,10 @@ public class MDReportResultAction  implements Action
             
             Integer level = orgunitLevelMap.get( orgU.getId() );
             if( level == null )
-                level = organisationUnitService.getOrganisationUnitLevel( orgU.getUid() ).getLevel();
+                //level = organisationUnitService.getLevelOfOrganisationUnit( orgU.getId() );
+                //level = organisationUnitService.getOrganisationUnitLevel( orgU.getUid() ).getLevel();
+                level = orgU.getLevel();
+                
             if ( level > orgUnitLevelCB )
             {
                 ouIterator.remove();
@@ -570,7 +576,9 @@ public class MDReportResultAction  implements Action
         int maxOuLevel = 1;
         if ( selOUList != null && selOUList.size() > 0 )
         {
-            minOULevel = organisationUnitService.getOrganisationUnitLevel( selOUList.get( 0 ).getUid() ).getLevel();
+            //minOULevel = organisationUnitService.getLevelOfOrganisationUnit( selOUList.get( 0 ).getId() );
+            //minOULevel = organisationUnitService.getOrganisationUnitLevel( selOUList.get( 0 ).getUid() ).getLevel();
+            minOULevel = selOUList.get( 0 ).getLevel();
         }
         maxOuLevel = orgUnitLevelCB;
         
@@ -587,11 +595,11 @@ public class MDReportResultAction  implements Action
             deCount++;
         }
         
+        System.out.println( " Selected DataElements Size : - "  + selectedDataElements.size() );
+        
         String mainHeaderInfo = "OrgUnit Name is "+ selOrgUnit.getShortName() + " From : " + simpleDateFormat.format( sDate ) + " To : "+ simpleDateFormat.format( eDate );
         sheet0.mergeCells( 0, 0, tempLavelCount + deCount, 0 );
         sheet0.addCell( new Label( 0, 0, mainHeaderInfo, getCellFormat2() ) );
-        
-        
         
         sheet0.addCell( new Label( headerCol, headerRow, "Sl.No.", getCellFormat2() ) );
         int c1 = headerCol + 1;
@@ -624,6 +632,7 @@ public class MDReportResultAction  implements Action
         orgUnitList = new ArrayList<OrganisationUnit>( selOrgUnit.getChildren() );
         //Collections.sort( orgUnitList, new IdentifiableObjectNameComparator() );
         Collections.sort( orgUnitList );
+
         // collect dataElementIDs by commaSepareted
         String dataElmentIdsByComma = getDataelementIdsFromSelectedList();
         
@@ -654,7 +663,8 @@ public class MDReportResultAction  implements Action
            // List<String> resultList = new ArrayList<String>();
             //int flag = 0;
             OrganisationUnit tempOrgUnit = (OrganisationUnit) it.next();
-            List<OrganisationUnit> orgUnitWithChildTree = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( tempOrgUnit.getId() ) );
+            //List<OrganisationUnit> orgUnitWithChildTree = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( tempOrgUnit.getId() ) );
+            List<OrganisationUnit> orgUnitWithChildTree = new ArrayList<OrganisationUnit>( getOrganisationUnitWithChildren( (int)tempOrgUnit.getId() ) );
             List<Integer> childOrgUnitTreeIds = new ArrayList<Integer>( getIdentifiers( OrganisationUnit.class, orgUnitWithChildTree ) );
             String childOrgUnitsByComma = getCommaDelimitedString( childOrgUnitTreeIds );
             
@@ -683,9 +693,11 @@ public class MDReportResultAction  implements Action
             
             sheet0.addCell( new Number( headerCol, headerRow  + rowCount, rowCount, getCellFormat1() ) );
             //resultList.add( ""+ rowCount );
-            Integer level = orgunitLevelMap.get( tempOrgUnit.getId() );
+            Integer level = orgunitLevelMap.get( (int)tempOrgUnit.getId() );
             if( level == null )
-                level = organisationUnitService.getOrganisationUnitLevel( tempOrgUnit.getUid() ).getLevel();
+                //level = organisationUnitService.getLevelOfOrganisationUnit( tempOrgUnit.getId() );
+                //level = organisationUnitService.getOrganisationUnitLevel( tempOrgUnit.getUid() ).getLevel();
+                level = tempOrgUnit.getLevel();
             
             colCount = 1 + level - minOULevel;
             sheet0.addCell( new Label( colCount, headerRow  + rowCount, tempOrgUnit.getName(), getCellFormat1() ) );
@@ -775,7 +787,7 @@ public class MDReportResultAction  implements Action
         List<OrganisationUnit> children = new ArrayList<OrganisationUnit>( orgUnit.getChildren() );
         //Collections.sort( children, new IdentifiableObjectNameComparator() );
         Collections.sort( children );
-        Iterator childIterator = children.iterator();
+        Iterator<OrganisationUnit> childIterator = children.iterator();
         OrganisationUnit child;
         while ( childIterator.hasNext() )
         {
@@ -985,4 +997,53 @@ public class MDReportResultAction  implements Action
         
         return dataElmentIdsByComma;
     }
+    
+// supportive methods
+    
+    public Collection<OrganisationUnit> getOrganisationUnitWithChildren( int id )
+    {
+        OrganisationUnit organisationUnit = organisationUnitService.getOrganisationUnit( id );
+
+        if ( organisationUnit == null )
+        {
+            return Collections.emptySet();
+        }
+
+        List<OrganisationUnit> result = new ArrayList<OrganisationUnit>();
+
+        int rootLevel = 1;
+
+        organisationUnit.setHierarchyLevel( rootLevel );
+
+        result.add( organisationUnit );
+
+        addOrganisationUnitChildren( organisationUnit, result, rootLevel );
+
+        return result;
+    }
+
+    /**
+     * Support method for getOrganisationUnitWithChildren(). Adds all
+     * OrganisationUnit children to a result collection.
+     */
+    private void addOrganisationUnitChildren( OrganisationUnit parent, List<OrganisationUnit> result, int level )
+    {
+        if ( parent.getChildren() != null && parent.getChildren().size() > 0 )
+        {
+            level++;
+        }
+
+        List<OrganisationUnit> childList = parent.getSortedChildren();
+
+        for ( OrganisationUnit child : childList )
+        {
+            child.setHierarchyLevel( level );
+
+            result.add( child );
+
+            addOrganisationUnitChildren( child, result, level );
+        }
+
+        level--;
+    }   
 }

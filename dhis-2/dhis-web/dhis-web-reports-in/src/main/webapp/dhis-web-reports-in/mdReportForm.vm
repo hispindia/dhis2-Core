@@ -36,11 +36,31 @@
     <div id="overlayImg"><img  width="50" height="50" src="images/ajax-loader.gif" /></div>
 </div>
 
-<h1>$i18n.getString( "md_report_ra" )</h1> 
+<h1>$i18n.getString( "Monitoring Report Analyser" )</h1> 
 <hr /><br />
 <form id="reportForm" name="reportForm" action="generateMDReport.action" method="post" onSubmit="return formValidationsForMDReport()" target="_blank">
 	
 	<table style=" border-collapse: collapse; margin-top: 0;" cellpadding="0" cellspacing="0" border=0 width="75%" align="center">
+		<tr>
+			<td width="37%" class="NormalB">
+				$i18n.getString( "MD Report List" ):<br />
+		        <select id="mdReportFileName" name="mdReportFileName" style="min-width:24em" onchange="getMDReportOptions()">
+		            #set( $count = 0 )
+		            #foreach( $mdReport in $mdReportList )                                         
+		                <option value="$mdReport.optionValue" title="$mdReport.optionText">$mdReport.optionText</option>
+		                #set( $count = $count + 1 )
+		            #end
+		        </select>
+		  </td>
+			<td width="11%" class="NormalB">&nbsp;</td>
+			<td width="52%" class="NormalB">&nbsp;</td>
+		</tr>
+		<tr>
+			<td class="NormalB">&nbsp;</td>
+			<td class="NormalB">&nbsp;</td>
+			<td class="NormalB">&nbsp;</td>
+		</tr>    		
+		
 		<tr>
 			<td width="37%" class="NormalB">
 				$i18n.getString( "filter" ):&nbsp;
@@ -58,9 +78,11 @@
 		<tr>
 			<td class="NormalB">$i18n.getString( "available_delist" )<br>
 				<select multiple size="7" id="availableDataElements" name="availableDataElements"  style="width:325px; height:100px" ondblclick="moveSelectedById( 'availableDataElements', 'selectedDataElements' )">
+					<!--
 					#foreach ( $reportOption in $reportOptionList )
-					<option value="$reportOption.optionValue" title="$reportOption.optionText">$reportOption.optionText</option>
+						<option value="$reportOption.optionValue" title="$reportOption.optionText">$reportOption.optionText</option>
 					#end
+					-->
 				</select>
 			</td>
 			<td class="NormalB" align="center"><br />
@@ -147,5 +169,7 @@
     #foreach ( $reportOption in $reportOptionList )
         availableDataElements['$reportOption.optionValue'] = '$encoder.jsEscape( $reportOption.optionText, "'" )';
     #end
+
+	getMDReportOptions();
     
 </script>
