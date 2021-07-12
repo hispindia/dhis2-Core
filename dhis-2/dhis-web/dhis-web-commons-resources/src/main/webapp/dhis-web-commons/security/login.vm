@@ -50,7 +50,9 @@
 <div id="loginField">
     <div id="loginArea">
         <div id="bannerArea">
-            <a href="http://www.dhis2.org"><img src="../../api/staticContent/logo_front" style="border:none"></a>
+            <!--<a href="http://www.dhis2.org"><img src="../../api/staticContent/logo_front" style="border:none"></a>-->
+             <img src="../security/nikusth2.png" style="border-color:white; border:2px solid white;width:300px;"></br>
+             <img src="../security/nikusth_logo.png" style="border:none; width:300px; height:200px;">				
         </div>
 
         <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">
