@@ -49,7 +49,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.hibernate.SessionFactory;
+import org.hisp.dhis.analytics.AggregationType;
 import org.hisp.dhis.common.CodeGenerator;
+import org.hisp.dhis.common.QueryItem;
+import org.hisp.dhis.common.QueryOperator;
+import org.hisp.dhis.common.ValueType;
 import org.hisp.dhis.dxf2.TrackerTest;
 import org.hisp.dhis.dxf2.events.TrackedEntityInstanceParams;
 import org.hisp.dhis.dxf2.events.enrollment.Enrollment;
@@ -100,6 +104,8 @@ public class TrackedEntityInstanceAggregateTest extends TrackerTest
     protected void mockCurrentUserService()
     {
         User user = createUser( "testUser" );
+        user.addOrganisationUnit( organisationUnitA );
+        userService.updateUser( user );
 
         makeUserSuper( user );
 
@@ -152,7 +158,6 @@ public class TrackedEntityInstanceAggregateTest extends TrackerTest
         doInTransaction( () -> {
             org.hisp.dhis.trackedentity.TrackedEntityInstance t1 = this.persistTrackedEntityInstance();
             org.hisp.dhis.trackedentity.TrackedEntityInstance t2 = this.persistTrackedEntityInstance();
-            this.persistRelationship( t1, t2 );
             teiUid[0] = t1.getUid();
             teiUid[1] = t2.getUid();
         } );
@@ -179,6 +184,30 @@ public class TrackedEntityInstanceAggregateTest extends TrackerTest
             .collect( Collectors.toSet() );
         assertTrue( teis.contains( teiUid[0] ) );
         assertTrue( teis.contains( teiUid[1] ) );
+    }
+
+    @Test
+    public void testFetchTrackedEntityInstancesWithSingleQuoteInAttributeSearchInput()
+    {
+        doInTransaction( () -> {
+            this.persistTrackedEntityInstance();
+            this.persistTrackedEntityInstance();
+            this.persistTrackedEntityInstance();
+            this.persistTrackedEntityInstance();
+        } );
+
+        TrackedEntityInstanceQueryParams queryParams = new TrackedEntityInstanceQueryParams();
+        queryParams.setOrganisationUnits( Sets.newHashSet( organisationUnitA ) );
+        queryParams.setTrackedEntityType( trackedEntityTypeA );
+        queryParams.addFilter( new QueryItem( createTrackedEntityAttribute( 'A' ), QueryOperator.EQ, "M'M",
+            ValueType.TEXT, AggregationType.NONE, null ) );
+
+        TrackedEntityInstanceParams params = new TrackedEntityInstanceParams();
+
+        final List<TrackedEntityInstance> trackedEntityInstances = trackedEntityInstanceService
+            .getTrackedEntityInstances( queryParams, params, false, true );
+
+        assertThat( trackedEntityInstances, hasSize( 0 ) );
     }
 
     @Test
@@ -212,6 +241,71 @@ public class TrackedEntityInstanceAggregateTest extends TrackerTest
             .getTrackedEntityInstances( queryParams, params, false, true );
 
         assertThat( limitedTTrackedEntityInstances, hasSize( 0 ) );
+    }
+
+    @Test
+    public void testFetchTrackedEntityInstancesWithEventFilters()
+    {
+        doInTransaction( () -> {
+            this.persistTrackedEntityInstanceWithEnrollmentAndEvents();
+            this.persistTrackedEntityInstanceWithEnrollmentAndEvents();
+            this.persistTrackedEntityInstanceWithEnrollmentAndEvents();
+            this.persistTrackedEntityInstanceWithEnrollmentAndEvents();
+        } );
+
+        TrackedEntityInstanceQueryParams queryParams = new TrackedEntityInstanceQueryParams();
+        queryParams.setOrganisationUnits( Sets.newHashSet( organisationUnitA ) );
+        queryParams.setProgram( programA );
+        queryParams.setEventStatus( EventStatus.COMPLETED );
+        queryParams.setEventStartDate( Date.from( Instant.now().minus( 10, ChronoUnit.DAYS ) ) );
+        queryParams.setEventEndDate( Date.from( Instant.now().plus( 10, ChronoUnit.DAYS ) ) );
+
+        TrackedEntityInstanceParams params = new TrackedEntityInstanceParams();
+
+        final List<TrackedEntityInstance> trackedEntityInstances = trackedEntityInstanceService
+            .getTrackedEntityInstances( queryParams, params, false, true );
+
+        assertThat( trackedEntityInstances, hasSize( 4 ) );
+
+        // Update status to active
+        queryParams.setEventStatus( EventStatus.ACTIVE );
+
+        final List<TrackedEntityInstance> limitedTrackedEntityInstances = trackedEntityInstanceService
+            .getTrackedEntityInstances( queryParams, params, false, true );
+
+        assertThat( limitedTrackedEntityInstances, hasSize( 0 ) );
+
+        // Update status to overdue
+        queryParams.setEventStatus( EventStatus.OVERDUE );
+
+        final List<TrackedEntityInstance> limitedTrackedEntityInstances2 = trackedEntityInstanceService
+            .getTrackedEntityInstances( queryParams, params, false, true );
+
+        assertThat( limitedTrackedEntityInstances2, hasSize( 0 ) );
+
+        // Update status to schedule
+        queryParams.setEventStatus( EventStatus.SCHEDULE );
+
+        final List<TrackedEntityInstance> limitedTrackedEntityInstances3 = trackedEntityInstanceService
+            .getTrackedEntityInstances( queryParams, params, false, true );
+
+        assertThat( limitedTrackedEntityInstances3, hasSize( 0 ) );
+
+        // Update status to schedule
+        queryParams.setEventStatus( EventStatus.SKIPPED );
+
+        final List<TrackedEntityInstance> limitedTrackedEntityInstances4 = trackedEntityInstanceService
+            .getTrackedEntityInstances( queryParams, params, false, true );
+
+        assertThat( limitedTrackedEntityInstances4, hasSize( 0 ) );
+
+        // Update status to visited
+        queryParams.setEventStatus( EventStatus.VISITED );
+
+        final List<TrackedEntityInstance> limitedTrackedEntityInstances5 = trackedEntityInstanceService
+            .getTrackedEntityInstances( queryParams, params, false, true );
+
+        assertThat( limitedTrackedEntityInstances5, hasSize( 0 ) );
     }
 
     @Test
@@ -512,33 +606,6 @@ public class TrackedEntityInstanceAggregateTest extends TrackerTest
     }
 
     @Test
-    public void testEnrollmentWithoutOrgUnit()
-    {
-        Map<String, Object> enrollmentValues = new HashMap<>();
-        enrollmentValues.put( "orgUnit", null );
-        doInTransaction( () -> this.persistTrackedEntityInstanceWithEnrollmentAndEvents( enrollmentValues ) );
-
-        TrackedEntityInstanceQueryParams queryParams = new TrackedEntityInstanceQueryParams();
-        queryParams.setOrganisationUnits( Sets.newHashSet( organisationUnitA ) );
-        queryParams.setTrackedEntityType( trackedEntityTypeA );
-        queryParams.setIncludeAllAttributes( true );
-
-        TrackedEntityInstanceParams params = new TrackedEntityInstanceParams();
-        params.setIncludeEnrollments( true );
-        params.setIncludeEvents( true );
-
-        final List<TrackedEntityInstance> trackedEntityInstances = trackedEntityInstanceService
-            .getTrackedEntityInstances( queryParams, params, false, true );
-        TrackedEntityInstance tei = trackedEntityInstances.get( 0 );
-        Enrollment enrollment = tei.getEnrollments().get( 0 );
-        Event event = enrollment.getEvents().get( 0 );
-
-        assertNotNull( enrollment );
-        assertNotNull( event );
-
-    }
-
-    @Test
     public void testTrackedEntityInstanceRelationshipsTei2Tei()
     {
         final String[] teiUid = new String[2];
@@ -625,7 +692,7 @@ public class TrackedEntityInstanceAggregateTest extends TrackerTest
                 .persistTrackedEntityInstanceWithEnrollmentAndEvents();
             sessionFactory.getCurrentSession().flush();
             sessionFactory.getCurrentSession().clear();
-            t2 = manager.get( org.hisp.dhis.trackedentity.TrackedEntityInstance.class,
+            t2 = manager.getByUid( org.hisp.dhis.trackedentity.TrackedEntityInstance.class,
                 Collections.singletonList( t2.getUid() ) ).get( 0 );
             ProgramInstance pi = t2.getProgramInstances().iterator().next();
             final ProgramStageInstance psi = pi.getProgramStageInstances().iterator().next();

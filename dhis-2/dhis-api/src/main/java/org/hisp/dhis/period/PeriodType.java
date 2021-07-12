@@ -29,7 +29,6 @@ package org.hisp.dhis.period;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -51,7 +50,6 @@ import org.hisp.dhis.calendar.impl.Iso8601Calendar;
 import org.hisp.dhis.common.DxfNamespaces;
 import org.hisp.dhis.common.IdentifiableObjectUtils;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -258,7 +256,6 @@ public abstract class PeriodType
      * @return the ISO period name.
      */
     public static String getIsoPeriod( org.hisp.dhis.calendar.Calendar calendar, String periodType, Date startDate )
-        throws SQLException
     {
         final PeriodType pt = PeriodType.getPeriodTypeByName( periodType );
         return pt.createPeriod( startDate, calendar ).getIsoDate();
@@ -289,7 +286,6 @@ public abstract class PeriodType
      *
      * @return a unique name for the PeriodType. E.g. "Monthly".
      */
-    @JsonProperty
     public abstract String getName();
 
     /**

@@ -29,13 +29,13 @@ package org.hisp.dhis.dxf2.metadata.objectbundle.hooks;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hisp.dhis.common.BaseIdentifiableObject;
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.common.adapter.BaseIdentifiableObject_;
 import org.hisp.dhis.dxf2.metadata.objectbundle.ObjectBundle;
@@ -83,28 +83,26 @@ public class UserObjectBundleHook extends AbstractObjectBundleHook
     }
 
     @Override
-    public <T extends IdentifiableObject> List<ErrorReport> validate( T object, ObjectBundle bundle )
+    public <T extends IdentifiableObject> void validate( T object, ObjectBundle bundle,
+        Consumer<ErrorReport> addReports )
     {
         if ( !(object instanceof User) )
         {
-            return new ArrayList<>();
+            return;
         }
 
-        ArrayList<ErrorReport> errorReports = new ArrayList<>();
         User user = (User) object;
 
         if ( user.getWhatsApp() != null && !ValidationUtils.validateWhatsapp( user.getWhatsApp() ) )
         {
-            errorReports.add( new ErrorReport( User.class, ErrorCode.E4027, user.getWhatsApp(), "Whatsapp" ) );
+            addReports.accept( new ErrorReport( User.class, ErrorCode.E4027, user.getWhatsApp(), "Whatsapp" ) );
         }
-
-        return errorReports;
     }
 
     @Override
     public void preCreate( IdentifiableObject object, ObjectBundle bundle )
     {
-        if ( !User.class.isInstance( object ) || ((User) object).getUserCredentials() == null )
+        if ( !(object instanceof User) || ((User) object).getUserCredentials() == null )
             return;
 
         User user = (User) object;
@@ -127,7 +125,7 @@ public class UserObjectBundleHook extends AbstractObjectBundleHook
     @Override
     public void postCreate( IdentifiableObject persistedObject, ObjectBundle bundle )
     {
-        if ( !User.class.isInstance( persistedObject ) || !bundle.hasExtras( persistedObject, "uc" ) )
+        if ( !(persistedObject instanceof User) || !bundle.hasExtras( persistedObject, "uc" ) )
             return;
 
         User user = (User) persistedObject;
@@ -156,7 +154,7 @@ public class UserObjectBundleHook extends AbstractObjectBundleHook
     @Override
     public void preUpdate( IdentifiableObject object, IdentifiableObject persistedObject, ObjectBundle bundle )
     {
-        if ( !User.class.isInstance( object ) || ((User) object).getUserCredentials() == null )
+        if ( !(object instanceof User) || ((User) object).getUserCredentials() == null )
             return;
         User user = (User) object;
         bundle.putExtras( user, "uc", user.getUserCredentials() );
@@ -181,7 +179,7 @@ public class UserObjectBundleHook extends AbstractObjectBundleHook
     @Override
     public void postUpdate( IdentifiableObject persistedObject, ObjectBundle bundle )
     {
-        if ( !User.class.isInstance( persistedObject ) || !bundle.hasExtras( persistedObject, "uc" ) )
+        if ( !(persistedObject instanceof User) || !bundle.hasExtras( persistedObject, "uc" ) )
             return;
 
         User user = (User) persistedObject;
@@ -210,10 +208,12 @@ public class UserObjectBundleHook extends AbstractObjectBundleHook
     @SuppressWarnings( "unchecked" )
     public void postCommit( ObjectBundle bundle )
     {
-        if ( !bundle.getObjectMap().containsKey( User.class ) )
+        if ( !bundle.hasObjects( User.class ) )
+        {
             return;
+        }
 
-        List<IdentifiableObject> objects = bundle.getObjectMap().get( User.class );
+        Iterable<User> objects = bundle.getObjects( User.class );
         Map<String, Map<String, Object>> userReferences = bundle.getObjectReferences( User.class );
         Map<String, Map<String, Object>> userCredentialsReferences = bundle
             .getObjectReferences( UserCredentials.class );
@@ -224,9 +224,9 @@ public class UserObjectBundleHook extends AbstractObjectBundleHook
             return;
         }
 
-        for ( IdentifiableObject identifiableObject : objects )
+        for ( User identifiableObject : objects )
         {
-            User user = (User) identifiableObject;
+            User user = identifiableObject;
             handleNoAccessRoles( user, bundle );
 
             user = bundle.getPreheat().get( bundle.getPreheatIdentifier(), user );
@@ -285,7 +285,7 @@ public class UserObjectBundleHook extends AbstractObjectBundleHook
     private void handleNoAccessRoles( User user, ObjectBundle bundle )
     {
         Set<String> preHeatedRoles = bundle.getPreheat().get( PreheatIdentifier.UID, user )
-            .getUserCredentials().getUserAuthorityGroups().stream().map( role -> role.getUid() )
+            .getUserCredentials().getUserAuthorityGroups().stream().map( BaseIdentifiableObject::getUid )
             .collect( Collectors.toSet() );
 
         user.getUserCredentials().getUserAuthorityGroups().stream()

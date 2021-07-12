@@ -92,6 +92,8 @@ public class EventDataQueryRequest
 
     private IdScheme dataIdScheme;
 
+    private IdScheme outputIdScheme;
+
     private DisplayProperty displayProperty;
 
     private Date relativePeriodDate;
@@ -112,11 +114,17 @@ public class EventDataQueryRequest
 
     private boolean coordinatesOnly;
 
+    private boolean coordinateOuFallback;
+
     private String coordinateField;
+
+    private String fallbackCoordinateField;
 
     private Integer page;
 
     private Integer pageSize;
+
+    private boolean paging;
 
     /**
      * Copies all properties of this request onto the given request.
@@ -159,8 +167,10 @@ public class EventDataQueryRequest
         queryRequest.timeField = this.timeField;
         queryRequest.coordinatesOnly = this.coordinatesOnly;
         queryRequest.coordinateField = this.coordinateField;
+        queryRequest.fallbackCoordinateField = this.fallbackCoordinateField;
         queryRequest.page = this.page;
         queryRequest.pageSize = this.pageSize;
+        queryRequest.paging = this.paging;
         return request;
     }
 
@@ -179,6 +189,7 @@ public class EventDataQueryRequest
                 .collapseDataDimensions( criteria.isCollapseDataDimensions() )
                 .completedOnly( criteria.isCompletedOnly() )
                 .coordinateField( criteria.getCoordinateField() )
+                .fallbackCoordinateField( criteria.getFallbackCoordinateField() )
                 .desc( criteria.getDesc() )
                 .dimension( criteria.getDimension() )
                 .displayProperty( criteria.getDisplayProperty() )
@@ -192,6 +203,7 @@ public class EventDataQueryRequest
                 .outputType( criteria.getOutputType() )
                 .page( criteria.getPage() )
                 .pageSize( criteria.getPageSize() )
+                .paging( criteria.isPaging() )
                 .programStatus( criteria.getProgramStatus() )
                 .relativePeriodDate( criteria.getRelativePeriodDate() )
                 .showHierarchy( criteria.isShowHierarchy() )
@@ -205,8 +217,10 @@ public class EventDataQueryRequest
                 .userOrgUnit( criteria.getUserOrgUnit() )
                 .value( criteria.getValue() )
                 .dataIdScheme( criteria.getDataIdScheme() )
+                .outputIdScheme( criteria.getOutputIdScheme() )
                 .orgUnitField( criteria.getOrgUnitField() )
-                .coordinatesOnly( criteria.isCoordinatesOnly() );
+                .coordinatesOnly( criteria.isCoordinatesOnly() )
+                .coordinateOuFallback( criteria.isCoordinateOuFallback() );
         }
 
         public EventDataQueryRequestBuilder fromCriteria( EnrollmentAnalyticsQueryCriteria criteria )
@@ -228,6 +242,7 @@ public class EventDataQueryRequest
                 .programStatus( criteria.getProgramStatus() )
                 .page( criteria.getPage() )
                 .pageSize( criteria.getPageSize() )
+                .paging( criteria.isPaging() )
                 .displayProperty( criteria.getDisplayProperty() )
                 .relativePeriodDate( criteria.getRelativePeriodDate() )
                 .userOrgUnit( criteria.getUserOrgUnit() )
