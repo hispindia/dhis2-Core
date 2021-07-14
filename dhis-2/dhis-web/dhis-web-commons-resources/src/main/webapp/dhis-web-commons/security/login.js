@@ -76,3 +76,18 @@ login.changeLocale = function( locale )
 	} );
 }
 
+// add for google recaptcha-v2 on login page
+function captchaValidations()
+{
+	if(grecaptcha && grecaptcha.getResponse().length > 0)
+	{
+		//the recaptcha is checked
+		return true;
+	}
+	else
+	{
+		//The recaptcha is not cheched
+		alert('You have to check the recaptcha !');
+		return false;
+	}
+} 

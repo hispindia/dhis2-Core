@@ -7,6 +7,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="shortcut icon" href="../../favicon.ico"/>
     <script type="text/javascript" src="../javascripts/jQuery/jquery.min.js"></script>
+	<script src="https://www.google.com/recaptcha/api.js"></script><!-- // add for google recaptcha-v2 -->
     <script>
         $.ajaxSetup( {
           beforeSend: function(xhr) {
@@ -55,7 +56,7 @@
              <img src="../security/nikusth_logo.png" style="border:none; width:300px; height:200px;">				
         </div>
 
-        <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">
+        <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post" onsubmit="return captchaValidations()">
             <div>
                 <div id="signInLabel">Sign in</div>
                 <div><input type="text" id="j_username" name="j_username" placeholder="Username" required></div>
@@ -68,6 +69,7 @@
                            placeholder="$i18n.getString('two_factor_authentication_code')" hidden readonly>
                 </div>
             </div>
+			<div style="display: inline-block;" class="g-recaptcha" data-sitekey="6LdF7XYaAAAAAIh7wrGwd-QY8cV8ukPPHEAJnV5Q" ></div><!-- // add for google recaptcha-v2 -->
             <div id="submitDiv">
                 <input id="submit" class="button" type="submit" value="$i18n.getString('sign_in')">
             </div>
