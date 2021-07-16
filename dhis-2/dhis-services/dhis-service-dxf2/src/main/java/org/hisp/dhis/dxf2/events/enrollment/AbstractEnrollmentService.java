@@ -1129,12 +1129,23 @@ public abstract class AbstractEnrollmentService
                 continue;
             }
 
+            // custom change for check null value in attributeValueMap
+            if ( attributeValueMap.get( trackedEntityAttribute.getUid() ) != null )
+            {
+                if ( attributeValueMap.get( trackedEntityAttribute.getUid() ).length() > TEA_VALUE_MAX_LENGTH )
+                {
+                    // We shorten the value to first 25 characters, since we dont want to post a 1200+ string back.
+                    importConflicts.add( new ImportConflict( "Attribute.value", String.format( "Value exceeds the character limit of %s characters: '%s...'", TEA_VALUE_MAX_LENGTH, attributeValueMap.get( trackedEntityAttribute.getUid() ).substring( 0, 25 ) ) ) );
+                }
+            }
+            /*
             if ( attributeValueMap.get( trackedEntityAttribute.getUid() ).length() > TEA_VALUE_MAX_LENGTH )
             {
                 // We shorten the value to first 25 characters, since we dont want to post a 1200+ string back.
                 importConflicts.add( new ImportConflict( "Attribute.value", String.format( "Value exceeds the character limit of %s characters: '%s...'", TEA_VALUE_MAX_LENGTH, attributeValueMap.get( trackedEntityAttribute.getUid() ).substring( 0, 25 ) ) ) );
             }
-
+            */
+            
             if ( trackedEntityAttribute.isUnique() )
             {
                 OrganisationUnit organisationUnit = manager.get( OrganisationUnit.class, instance.getOrgUnit() );
