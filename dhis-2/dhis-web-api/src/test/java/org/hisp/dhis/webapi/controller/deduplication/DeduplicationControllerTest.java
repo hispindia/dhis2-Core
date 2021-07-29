@@ -32,6 +32,9 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.hisp.dhis.deduplication.DeduplicationService;
@@ -45,6 +48,7 @@ import org.hisp.dhis.trackedentity.TrackerAccessManager;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.webapi.controller.DeduplicationController;
+import org.hisp.dhis.webapi.controller.exception.BadRequestException;
 import org.hisp.dhis.webapi.controller.exception.ConflictException;
 import org.hisp.dhis.webapi.controller.exception.NotFoundException;
 import org.hisp.dhis.webapi.controller.exception.OperationNotAllowedException;
@@ -97,6 +101,8 @@ public class DeduplicationControllerTest
 
     private static final String teiB = "trackedentB";
 
+    private static final String uid = "uid";
+
     @Before
     public void setUpTest()
     {
@@ -118,10 +124,11 @@ public class DeduplicationControllerTest
 
     @Test
     public void getAllPotentialDuplicate()
+        throws BadRequestException
     {
         PotentialDuplicateQuery potentialDuplicateQuery = new PotentialDuplicateQuery();
 
-        deduplicationController.getAll( potentialDuplicateQuery, mock( HttpServletResponse.class ) );
+        deduplicationController.getAllByQuery( potentialDuplicateQuery, mock( HttpServletResponse.class ) );
 
         verify( deduplicationService ).getAllPotentialDuplicatesBy( potentialDuplicateQuery );
     }
@@ -130,21 +137,46 @@ public class DeduplicationControllerTest
     public void getPotentialDuplicateNotFound()
         throws NotFoundException
     {
-        when( deduplicationService.getPotentialDuplicateByUid( teiA ) ).thenReturn( null );
-        deduplicationController.getPotentialDuplicate( teiA );
+        when( deduplicationService.getPotentialDuplicateByUid( uid ) ).thenReturn( null );
+        deduplicationController.getPotentialDuplicateById( uid );
     }
 
     @Test
-    public void getPotentialDuplicate()
+    public void getPotentialDuplicateByUid()
         throws NotFoundException
     {
-        when( deduplicationService.getPotentialDuplicateByUid( teiA ) )
+        when( deduplicationService.getPotentialDuplicateByUid( uid ) )
             .thenReturn( new PotentialDuplicate( teiA, teiB ) );
 
-        PotentialDuplicate pd = deduplicationController.getPotentialDuplicate( teiA );
+        PotentialDuplicate pd = deduplicationController.getPotentialDuplicateById( uid );
 
         assertEquals( teiA, pd.getTeiA() );
-        verify( deduplicationService ).getPotentialDuplicateByUid( teiA );
+        verify( deduplicationService ).getPotentialDuplicateByUid( uid );
+    }
+
+    @Test
+    public void getPotentialDuplicateByTei()
+        throws NotFoundException,
+        BadRequestException,
+        OperationNotAllowedException
+    {
+        when( deduplicationService.getPotentialDuplicateByTei( eq( teiA ), any() ) )
+            .thenReturn( Collections.singletonList( new PotentialDuplicate( teiA, teiB ) ) );
+
+        List<PotentialDuplicate> pd = deduplicationController.getPotentialDuplicateByTei( teiA,
+            DeduplicationStatus.INVALID.name() );
+
+        assertEquals( 1, pd.size() );
+        verify( deduplicationService ).getPotentialDuplicateByTei( teiA, DeduplicationStatus.INVALID );
+    }
+
+    @Test( expected = BadRequestException.class )
+    public void shouldThrowGetPotentialDuplicateByTeiMissingStatus()
+        throws NotFoundException,
+        BadRequestException,
+        OperationNotAllowedException
+    {
+        deduplicationController.getPotentialDuplicateByTei( teiA, null );
     }
 
     @Test
@@ -319,30 +351,65 @@ public class DeduplicationControllerTest
         verify( deduplicationService ).exists( pd );
     }
 
-    @Test
-    public void markPotentialDuplicateInvalid()
-        throws NotFoundException
+    @Test( expected = NotFoundException.class )
+    public void updatePotentialDuplicateInvalidNotFound()
+        throws NotFoundException,
+        BadRequestException
     {
-
-        when( deduplicationService.getPotentialDuplicateByUid( teiA ) )
-            .thenReturn( new PotentialDuplicate( teiA, teiB ) );
-
-        deduplicationController.markPotentialDuplicateInvalid( teiA );
-
-        ArgumentCaptor<PotentialDuplicate> pd = ArgumentCaptor.forClass( PotentialDuplicate.class );
-
-        verify( deduplicationService ).updatePotentialDuplicate( pd.capture() );
-
-        verify( deduplicationService ).getPotentialDuplicateByUid( teiA );
-        verify( deduplicationService ).updatePotentialDuplicate( pd.getValue() );
-        assertEquals( DeduplicationStatus.INVALID, pd.getValue().getStatus() );
+        when( deduplicationService.getPotentialDuplicateByUid( uid ) ).thenReturn( null );
+        deduplicationController.updatePotentialDuplicate( uid, DeduplicationStatus.INVALID.name() );
     }
 
-    @Test( expected = NotFoundException.class )
-    public void markPotentialDuplicateInvalidNotFound()
-        throws NotFoundException
+    @Test
+    public void shouldUpdatePotentialDuplicate()
+        throws NotFoundException,
+        BadRequestException
     {
-        when( deduplicationService.getPotentialDuplicateByUid( teiA ) ).thenReturn( null );
-        deduplicationController.markPotentialDuplicateInvalid( teiA );
+
+        PotentialDuplicate potentialDuplicate = new PotentialDuplicate( teiA, teiB );
+
+        when( deduplicationService.getPotentialDuplicateByUid( uid ) ).thenReturn( potentialDuplicate );
+
+        deduplicationController.updatePotentialDuplicate( uid, DeduplicationStatus.INVALID.name() );
+
+        ArgumentCaptor<PotentialDuplicate> potentialDuplicateArgumentCaptor = ArgumentCaptor
+            .forClass( PotentialDuplicate.class );
+
+        verify( deduplicationService ).updatePotentialDuplicate( potentialDuplicateArgumentCaptor.capture() );
+
+        assertEquals( DeduplicationStatus.INVALID, potentialDuplicateArgumentCaptor.getValue().getStatus() );
+    }
+
+    @Test( expected = BadRequestException.class )
+    public void shouldThrowUpdatePotentialDuplicateMergedStatusDb()
+        throws NotFoundException,
+        BadRequestException
+    {
+        PotentialDuplicate potentialDuplicate = new PotentialDuplicate( teiA, teiB );
+        potentialDuplicate.setStatus( DeduplicationStatus.MERGED );
+
+        when( deduplicationService.getPotentialDuplicateByUid( uid ) ).thenReturn( potentialDuplicate );
+
+        deduplicationController.updatePotentialDuplicate( uid, DeduplicationStatus.INVALID.name() );
+    }
+
+    @Test( expected = BadRequestException.class )
+    public void shouldThrowUpdatePotentialDuplicateMergeRequest()
+        throws NotFoundException,
+        BadRequestException
+    {
+        PotentialDuplicate potentialDuplicate = new PotentialDuplicate( teiA, teiB );
+
+        when( deduplicationService.getPotentialDuplicateByUid( uid ) ).thenReturn( potentialDuplicate );
+
+        deduplicationController.updatePotentialDuplicate( uid, DeduplicationStatus.MERGED.name() );
+    }
+
+    @Test( expected = BadRequestException.class )
+    public void shouldThrowUpdatePotentialDuplicateInvalidStatusRequest()
+        throws NotFoundException,
+        BadRequestException
+    {
+        deduplicationController.updatePotentialDuplicate( uid, "invalid status" );
     }
 }
