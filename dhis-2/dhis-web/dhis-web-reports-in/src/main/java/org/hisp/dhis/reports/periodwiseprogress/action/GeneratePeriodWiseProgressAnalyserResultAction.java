@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,9 +41,12 @@ import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodService;
 import org.hisp.dhis.period.PeriodType;
+import org.hisp.dhis.periods.comparator.PeriodsComparator;
 import org.hisp.dhis.reports.ReportService;
 import org.hisp.dhis.reports.Report_in;
 import org.hisp.dhis.reports.Report_inDesign;
+import org.hisp.dhis.reports.action.PeriodsStartDateComparator;
+import org.hisp.dhis.periods.comparator.PeriodsComparator;
 import org.hisp.dhis.system.util.MathUtils;
 
 import com.opensymphony.xwork2.Action;
@@ -292,14 +296,15 @@ public class GeneratePeriodWiseProgressAnalyserResultAction
                     //System.out.println( " Key is : " + periodId + " Value is : " + batchDataMap.get( periodId ));
                 }
                 
-                //Collections.sort( periodList, new PeriodStartDateComparator() );
+                Collections.sort( periodList, new PeriodsStartDateComparator() );
             }
+            /*
             else
             {
                 
             }
+            */
         }
-        
         else
         {
             PeriodType periodType = periodService.getPeriodTypeByName( periodTypeId );
@@ -307,11 +312,11 @@ public class GeneratePeriodWiseProgressAnalyserResultAction
             
             periodList = new ArrayList<Period>( periodService.getPeriodsBetweenDates( periodType, sDate, eDate ) );
             //List<Period> periodList = new ArrayList<Period>( periodService.getIntersectingPeriods( sDate, eDate ) );
-            //Collections.sort( periodList, new PeriodStartDateComparator() );
+            Collections.sort( periodList, new PeriodsStartDateComparator() );
             
         }
         
-        
+        //Collections.sort( periodList, new PeriodsComparator() );
         if( periodTypeId.equalsIgnoreCase( "monthly" ) )
         {
             simpleDateFormat = new SimpleDateFormat( "MMM-yyyy" ); 
