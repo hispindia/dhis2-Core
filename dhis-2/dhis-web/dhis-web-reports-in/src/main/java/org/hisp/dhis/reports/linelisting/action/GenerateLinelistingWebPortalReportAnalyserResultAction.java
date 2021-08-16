@@ -887,13 +887,15 @@ public class GenerateLinelistingWebPortalReportAnalyserResultAction implements A
                     else if ( sType.equalsIgnoreCase( "dataelement-string" ) )
                     {
                         
-                        if ( tempadeInAdeStr != null && tempadeInAdeStr.equalsIgnoreCase("Adequate") )
+                        if ( tempadeInAdeStr != null && ( tempadeInAdeStr.equalsIgnoreCase("Adequate") || tempadeInAdeStr.equalsIgnoreCase("0") ) )
                         {
                             tempStr1 = "59";
+                            tempadeInAdeStr = "Adequate";
                         }
-                        else if ( tempadeInAdeStr != null && tempadeInAdeStr.equalsIgnoreCase("Inadequate") )
+                        else if ( tempadeInAdeStr != null && (  tempadeInAdeStr.equalsIgnoreCase("Inadequate") || tempadeInAdeStr.equalsIgnoreCase("1") ) )
                         {
                             tempStr1 = "60";
+                            tempadeInAdeStr = "Inadequate";
                         }
                        
                         try

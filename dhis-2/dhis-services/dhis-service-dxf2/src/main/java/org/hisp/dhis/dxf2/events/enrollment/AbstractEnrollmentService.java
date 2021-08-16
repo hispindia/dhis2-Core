@@ -1130,6 +1130,8 @@ public abstract class AbstractEnrollmentService
             }
 
             // custom change for check null value in attributeValueMap
+            //String attributeValue = attributeValueMap.get( trackedEntityAttribute.getUid() );
+            //if ( attributeValue != null && attributeValue.length() > TEA_VALUE_MAX_LENGTH )
             if ( attributeValueMap.get( trackedEntityAttribute.getUid() ) != null )
             {
                 if ( attributeValueMap.get( trackedEntityAttribute.getUid() ).length() > TEA_VALUE_MAX_LENGTH )
