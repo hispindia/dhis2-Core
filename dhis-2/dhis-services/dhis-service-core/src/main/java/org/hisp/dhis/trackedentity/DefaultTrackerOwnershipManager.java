@@ -47,7 +47,12 @@ import org.hisp.dhis.dxf2.events.event.EventContext;
 import org.hisp.dhis.external.conf.DhisConfigurationProvider;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
-import org.hisp.dhis.program.*;
+import org.hisp.dhis.program.Program;
+import org.hisp.dhis.program.ProgramOwnershipHistory;
+import org.hisp.dhis.program.ProgramOwnershipHistoryService;
+import org.hisp.dhis.program.ProgramTempOwnershipAudit;
+import org.hisp.dhis.program.ProgramTempOwnershipAuditService;
+import org.hisp.dhis.program.ProgramType;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
 import org.springframework.core.env.Environment;
@@ -186,6 +191,8 @@ public class DefaultTrackerOwnershipManager implements TrackerOwnershipManager
             {
                 trackedEntityProgramOwnerService.createTrackedEntityProgramOwner( entityInstance, program, orgUnit );
             }
+
+            ownerCache.invalidate( getOwnershipCacheKey( () -> entityInstance.getId(), program ) );
         }
         else
         {
@@ -228,6 +235,8 @@ public class DefaultTrackerOwnershipManager implements TrackerOwnershipManager
                 trackedEntityProgramOwnerService.createTrackedEntityProgramOwner( entityInstance, program,
                     organisationUnit );
             }
+
+            ownerCache.invalidate( getOwnershipCacheKey( () -> entityInstance.getId(), program ) );
         }
         else
         {
@@ -318,6 +327,18 @@ public class DefaultTrackerOwnershipManager implements TrackerOwnershipManager
         }
     }
 
+    @Override
+    public boolean canSkipOwnershipCheck( User user, Program program )
+    {
+        return program == null || canSkipOwnershipCheck( user, program.getProgramType() );
+    }
+
+    @Override
+    public boolean canSkipOwnershipCheck( User user, ProgramType programType )
+    {
+        return user == null || user.isSuper() || ProgramType.WITHOUT_REGISTRATION == programType;
+    }
+
     // -------------------------------------------------------------------------
     // Private Helper Methods
     // -------------------------------------------------------------------------
@@ -331,34 +352,6 @@ public class DefaultTrackerOwnershipManager implements TrackerOwnershipManager
     private String tempAccessKey( String teiUid, String programUid, String username )
     {
         return username + COLON + programUid + COLON + teiUid;
-    }
-
-    /**
-     * Get the current owner of this tei-program combination. Fallbacks to the
-     * registered OU if no owner explicitly exists for the program
-     *
-     * @param entityInstance The tei
-     * @param program The program
-     * @return The owning Organisation unit.
-     */
-    private OrganisationUnit getOwner( TrackedEntityInstance entityInstance, Program program )
-    {
-        return ownerCache.get( getOwnershipCacheKey( entityInstance::getId, program ), s -> {
-            OrganisationUnit ou;
-            TrackedEntityProgramOwner trackedEntityProgramOwner = trackedEntityProgramOwnerService
-                .getTrackedEntityProgramOwner(
-                    entityInstance.getId(), program.getId() );
-
-            if ( trackedEntityProgramOwner == null )
-            {
-                ou = entityInstance.getOrganisationUnit();
-            }
-            else
-            {
-                ou = trackedEntityProgramOwner.getOrganisationUnit();
-            }
-            return ou;
-        } ).get();
     }
 
     /**
@@ -425,17 +418,6 @@ public class DefaultTrackerOwnershipManager implements TrackerOwnershipManager
         return temporaryTrackerOwnershipCache
             .get( tempAccessKey( trackedEntityOuInfo.getTrackedEntityUid(), program.getUid(), user.getUsername() ) )
             .orElse( false );
-    }
-
-    /**
-     * Ownership check can be skipped if the user is super user or if the
-     * program is without registration.
-     *
-     * @return true if ownership check can be skipped
-     */
-    private boolean canSkipOwnershipCheck( User user, Program program )
-    {
-        return user == null || user.isSuper() || program == null || program.isWithoutRegistration();
     }
 
     /**

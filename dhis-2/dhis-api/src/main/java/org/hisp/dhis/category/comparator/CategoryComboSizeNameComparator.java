@@ -25,40 +25,29 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.reservedvalue;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import org.hisp.dhis.scheduling.AbstractJob;
-import org.hisp.dhis.scheduling.JobConfiguration;
-import org.hisp.dhis.scheduling.JobType;
-import org.springframework.stereotype.Component;
+package org.hisp.dhis.category.comparator;
 
 /**
- * @author Henning Håkonsen
+ * @author Abyot Asalefew Gizaw
+ * @version $Id$
  */
-@Component( "removeExpiredReservedValuesJob" )
-public class RemoveExpiredReservedValuesJob
-    extends AbstractJob
+import java.util.Comparator;
+
+import org.hisp.dhis.category.CategoryCombo;
+
+public class CategoryComboSizeNameComparator
+    implements Comparator<CategoryCombo>
 {
-    private final ReservedValueService reservedValueService;
-
-    public RemoveExpiredReservedValuesJob( ReservedValueService reservedValueService )
-    {
-        checkNotNull( reservedValueService );
-
-        this.reservedValueService = reservedValueService;
-    }
-
     @Override
-    public JobType getJobType()
+    public int compare( CategoryCombo o1, CategoryCombo o2 )
     {
-        return JobType.REMOVE_EXPIRED_RESERVED_VALUES;
-    }
+        int result = o1.getOptionCombos().size() - o2.getOptionCombos().size();
 
-    @Override
-    public void execute( JobConfiguration jobConfiguration )
-    {
-        reservedValueService.removeExpiredReservations();
+        if ( result == 0 )
+        {
+            result = o1.getDisplayName().compareTo( o2.getDisplayName() );
+        }
+
+        return result;
     }
 }
