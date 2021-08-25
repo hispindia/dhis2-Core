@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programStages>
+	#foreach( $programStage in $programStages )	
+		<programStage>
+			<id>$programStage.id</id>
+			<name>$encoder.xmlEncode( $programStage.getName() )</name>
+		</programStage>
+	#end
+</programStages>

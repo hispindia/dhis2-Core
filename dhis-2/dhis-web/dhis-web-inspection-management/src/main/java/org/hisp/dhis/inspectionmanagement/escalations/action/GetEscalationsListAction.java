@@ -105,11 +105,11 @@ public class GetEscalationsListAction
         return simpleDateFormat;
     }
 
-    private String list;
-
-    public String getList()
+    private String escalationsList;
+    
+    public String getEscalationsList()
     {
-        return list;
+        return escalationsList;
     }
 
     private List<ProgramStageInstance> programStageInstances = new ArrayList<ProgramStageInstance>();
@@ -326,6 +326,14 @@ public class GetEscalationsListAction
         this.programUid = programUid;
     }
 
+    private int totalEscalationsList;
+    
+    public int getTotalEscalationsList()
+    {
+        return totalEscalationsList;
+    }
+
+    
     // private String listAllCondition;
     // -------------------------------------------------------------------------
     // Action Implementation
@@ -335,7 +343,7 @@ public class GetEscalationsListAction
     public String execute()
         throws Exception
     {
-        list = "List of Escalations";
+        escalationsList = "List of Escalations";
 
         System.out.println( "listAll -- " + listAll );
         String programIdsByComma = "-1";
@@ -386,7 +394,7 @@ public class GetEscalationsListAction
                 query = " SELECT programstageinstanceid FROM programstageinstance psi "
                     + " INNER JOIN programstage ps ON ps.programstageid = psi.programstageid "
                     + " INNER JOIN program p ON p.programid = ps.programid " + " WHERE p.uid = '" + programUid
-                    + "' AND ps.name ILIKE 'Escalation' order by psi.executiondate ";
+                    + "' AND ps.name ILIKE 'Escalation' AND psi.deleted = false order by psi.executiondate ";
             }
 
             else
@@ -394,14 +402,15 @@ public class GetEscalationsListAction
                 query = "SELECT programstageinstanceid FROM programstageinstance psi "
                     + " INNER JOIN programstage ps ON ps.programstageid = psi.programstageid "
                     + " INNER JOIN program p ON p.programid = ps.programid "
-                    + " WHERE  ps.name ILIKE 'Escalation' AND ps.programid IN ( " + programIdsByComma + " ) order by psi.executiondate;";
+                    + " WHERE  ps.name ILIKE 'Escalation' AND psi.deleted = false AND ps.programid IN ( " + programIdsByComma + " ) order by psi.executiondate;";
             }
 
             System.out.println( " inside list All " + listAll + " programUid  " + programUid );
             //System.out.println( " programIdsByComma  "+ programIdsByComma );
             
             programStageInstances = new ArrayList<ProgramStageInstance>( getProgramStageInstanceList( query ) );
-
+            
+            totalEscalationsList = programStageInstances.size();
             this.paging = createPaging( programStageInstances.size() );
 
             // programStageInstances = getProgramStageInstancesBetween( paging.getStartPos(), paging.getPageSize() );
@@ -610,7 +619,7 @@ public class GetEscalationsListAction
 
             // String q_where = "WHERE psi.programstageid in ( 3461 ) "; //
             // Escalation program stage ids
-            String q_where = " WHERE ps.name ILIKE 'Escalation' ";
+            String q_where = " WHERE ps.name ILIKE 'Escalation' AND psi.deleted = false ";
 
             if ( programId != null )
                 q_where += "AND pi.programid = " + programId + " "; // program
@@ -660,6 +669,8 @@ public class GetEscalationsListAction
 
             programStageInstances = new ArrayList<ProgramStageInstance>( getProgramStageInstanceList( query ) );
 
+            totalEscalationsList = programStageInstances.size();
+            
             this.paging = createPaging( programStageInstances.size() );
 
             programStageInstances = getFilterProgramStageInstancesBetween( programStageInstances, paging.getStartPos(),
@@ -765,7 +776,11 @@ public class GetEscalationsListAction
         {
             for ( ProgramStageInstance programStageInstance : programStageInstances )
             {
-                programInstanceIdsByComma += "," + programStageInstance.getId();
+                if( programStageInstance != null )
+                {
+                    programInstanceIdsByComma += "," + programStageInstance.getId();
+                }
+                //programInstanceIdsByComma += "," + programStageInstance.getId();
             }
 
             // System.out.println( "  filter size " + programStageInstances.size()

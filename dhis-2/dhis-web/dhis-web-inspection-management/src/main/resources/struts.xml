@@ -14,6 +14,77 @@
       <param name="menu">/dhis-web-inspection-management/menu.vm</param>
     </action>
 
+	<!-- Scheduling Inspections-->
+	
+	<!-- Scheduling Inspections List -->
+	<action name="schedulingInspectionsList" class="org.hisp.dhis.inspectionmanagement.schedulinginspections.action.GetSchedulingInspectionsListAction">
+      <result name="success" type="velocity">/main.vm</result>
+      <param name="page">/dhis-web-inspection-management/schedulingInspectionsList.vm</param>
+      <param name="menu">/dhis-web-inspection-management/menu.vm</param>
+      <param name="javascripts">javascript/schedulingInspections.js</param>
+      <param name="stylesheets">style/schedulinginspections.css</param>
+	</action>
+
+	<!--  Add Scheduled Inspection Form -->
+	<action name="showAddScheduledInspectionForm" class="org.hisp.dhis.inspectionmanagement.schedulinginspections.action.ShowAddScheduledInspectionFormAction">
+      <result name="success" type="velocity">/main.vm</result>
+      <param name="page">/dhis-web-inspection-management/addScheduledInspectionForm.vm</param>
+      <param name="menu">/dhis-web-inspection-management/menu.vm</param>
+      <param name="javascripts">javascript/schedulingInspections.js</param>
+      <param name="anyAuthorities">F_SCHEDULE_INSECPTION_ADD</param>
+	</action>
+
+	<!--  Add Scheduled Inspection -->
+	<action name="addScheduledInspection" class="org.hisp.dhis.inspectionmanagement.schedulinginspections.action.AddScheduledInspectionAction">
+      <result name="success" type="redirect">schedulingInspectionsList.action?listAll=${listAll}</result>
+      <param name="listAll">true</param>
+	  <param name="anyAuthorities">F_SCHEDULE_INSECPTION_ADD</param>
+	</action>
+	
+	<!--  Update Scheduled Inspection Form -->
+	<action name="showUpdateScheduledInspectionForm" class="org.hisp.dhis.inspectionmanagement.schedulinginspections.action.ShowUpdateScheduledInspectionFormAction">
+      <result name="success" type="velocity">/main.vm</result>
+      <param name="page">/dhis-web-inspection-management/updateScheduledInspectionForm.vm</param>
+      <param name="menu">/dhis-web-inspection-management/menu.vm</param>
+      <param name="javascripts">javascript/schedulingInspections.js</param>
+      <param name="anyAuthorities">F_SCHEDULE_INSECPTION_UPDATE</param>
+	</action>
+
+	<!--  Update Scheduled Inspection -->
+	<action name="updateScheduledInspection" class="org.hisp.dhis.inspectionmanagement.schedulinginspections.action.UpdateScheduledInspectionAction">
+		<result name="success" type="redirect">schedulingInspectionsList.action?listAll=${listAll}</result>
+	    <param name="anyAuthorities">F_SCHEDULE_INSECPTION_UPDATE</param>	
+	</action>
+	
+
+	<!--  Remove Scheduled Inspection -->
+	<action name="removeScheduledInspection" class="org.hisp.dhis.inspectionmanagement.schedulinginspections.action.RemoveScheduledInspectionAction">
+      <result name="success" type="velocity-json">../dhis-web-commons/ajax/jsonResponseSuccess.vm</result>
+      <result name="error" type="velocity-json">../dhis-web-commons/ajax/jsonResponseError.vm</result>
+      <param name="anyAuthorities">F_SCHEDULE_INSECPTION_DELETE</param>
+	</action>
+
+
+	<!-- Get Program Stage List-->
+	<action name="getprogramStageList" class="org.hisp.dhis.inspectionmanagement.schedulinginspections.action.GetProgramStageListAction">
+      <result name="success" type="velocity-xml">/dhis-web-inspection-management/responseProgramStageList.vm</result>
+      <param name="onExceptionReturn">plainTextError</param>
+	</action>
+
+	<!--  TEI Attribute Details -->
+	<action name="getTEIAttributeDetails" class="org.hisp.dhis.inspectionmanagement.schedulinginspections.action.GetTEIAttributeDetailsAction">
+      <result name="success" type="velocity-xml">/dhis-web-inspection-management/responseTEIAttributeDetails.vm</result>
+      <param name="onExceptionReturn">plainTextError</param>
+	</action>
+
+	<!--  TEI List -->
+	<action name="showTEIList" class="org.hisp.dhis.inspectionmanagement.schedulinginspections.action.GetTEIListAction">
+      <result name="success" type="velocity">/content.vm</result>
+      <param name="page">/dhis-web-inspection-management/teiList.vm</param>
+	</action>
+	
+		
+
 	<!-- Escalations List -->
     <action name="escalationsList" class="org.hisp.dhis.inspectionmanagement.escalations.action.GetEscalationsListAction">
       <result name="success" type="velocity">/main.vm</result>

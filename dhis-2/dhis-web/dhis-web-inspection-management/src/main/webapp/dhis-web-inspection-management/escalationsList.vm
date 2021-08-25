@@ -134,7 +134,8 @@
 				
 				<td>
 					##filterDiv( "trackedEntity" )
-					Total -- $programStageInstances.size()
+					##Total -- $programStageInstances.size()
+					Total -- $totalEscalationsList
 				</td>
 				
 				<!--<td colspan="3" style="text-align:right"><input type="button" value="$i18n.getString( "Add New" )" onclick="window.location.href='showAddScheduledInspectionForm.action'" style="width:70px"></td>-->				

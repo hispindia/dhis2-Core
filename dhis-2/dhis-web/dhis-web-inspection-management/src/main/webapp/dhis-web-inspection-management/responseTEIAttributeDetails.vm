@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<attributes>
+	<attribute>
+		#set( $communityKey = $selTeiId + ":" + 699 )
+		#set( $districtKey = $selTeiId + ":" + 698 )
+		<districtName>$!encoder.xmlEncode($teiValueMap.get( $districtKey ))</districtName>
+		<communityName>$!encoder.xmlEncode($teiValueMap.get( $communityKey ))</communityName>
+	</attribute>
+</attributes>
