@@ -14,7 +14,7 @@
     //alert(id);
 </script>
 
-<h3>$list</h3>
+<h3>$escalationsList</h3>
 <div id="search_details" style="width:100px;height:30px;" align="left"><a href="javascript:showSearchCriteria()">$i18n.getString( "Search Criteria" )</a></div>
 <hr />
 <div class="inputForm" id="search_cat" >

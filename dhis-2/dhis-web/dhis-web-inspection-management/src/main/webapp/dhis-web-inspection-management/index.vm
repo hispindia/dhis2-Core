@@ -2,5 +2,5 @@
 
 <ul class="introList">
     #introListImgItem( "escalationsList.action?listAll=true" "escalation" "escalation" )
-    #introListImgItem( "showDataSetReportForm.action" "schedule_inspection" "scheduleInspection" )
+    #introListImgItem( "schedulingInspectionsList.action?listAll=true" "schedule_inspection" "scheduleInspection" )
 </ul>
