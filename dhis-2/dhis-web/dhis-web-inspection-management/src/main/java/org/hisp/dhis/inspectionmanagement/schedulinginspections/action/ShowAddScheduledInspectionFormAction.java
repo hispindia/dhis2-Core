@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.jexl2.UnifiedJEXL.Exception;
 import org.hisp.dhis.attribute.AttributeService;
 import org.hisp.dhis.external.conf.DhisConfigurationProvider;
 import org.hisp.dhis.option.Option;
@@ -207,6 +208,7 @@ public class ShowAddScheduledInspectionFormAction implements Action
     public String execute()
         throws Exception
     {
+        String programStageName = "Inspection";
         if ( id != null )
         {
             attribute = trackedEntityAttributeService.getTrackedEntityAttribute( id );
@@ -214,6 +216,8 @@ public class ShowAddScheduledInspectionFormAction implements Action
 
             programs = programService.getAllPrograms();
             programs.removeAll( programService.getPrograms( ProgramType.WITHOUT_REGISTRATION ) );
+            
+            programs = new ArrayList<Program>( getProgramsByProgramStageName( programStageName ) );
             Collections.sort( programs );
         }
         
@@ -226,6 +230,9 @@ public class ShowAddScheduledInspectionFormAction implements Action
         //trackedEntities = trackedEntityService.getAllTrackedEntity();
         
         programs = programService.getAllPrograms();
+        
+        programs = new ArrayList<Program>( getProgramsByProgramStageName( programStageName ) );
+        Collections.sort( programs );
         OptionSet optionSet = optionService.getOptionSetByCode( INSPECTION_TYPE );
         
         //programStageService
@@ -342,5 +349,39 @@ public class ShowAddScheduledInspectionFormAction implements Action
             throw new RuntimeException( "Illegal Attribute id", e );
         }
     }
+    
+    
+    // --------------------------------------------------------------------------------
+    // Get Program List By Program ProgramStage Name
+    // --------------------------------------------------------------------------------
+    public List<Program> getProgramsByProgramStageName( String programStageName )
+    {
+        List<Program> programiList = new ArrayList<Program>();
+
+        try
+        {
+            String query = "SELECT programid from programstage  " + " WHERE name ILIKE '%" + programStageName + "%' ";
+
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+            while ( rs.next() )
+            {
+                Integer pId = rs.getInt( 1 );
+
+                if ( pId != null )
+                {
+                    // System.out.println( " psiId -- " + psiId );
+                    Program program = programService.getProgram( pId );
+                    programiList.add( program );
+                }
+            }
+
+            return programiList;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal Program id", e );
+        }
+    }    
     
 }

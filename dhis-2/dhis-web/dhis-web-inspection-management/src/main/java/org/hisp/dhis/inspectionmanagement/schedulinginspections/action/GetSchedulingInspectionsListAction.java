@@ -471,20 +471,35 @@ public class GetSchedulingInspectionsListAction extends ActionPagingSupport<Prog
                     "INNER JOIN programstage ps ON ps.programstageid = psi.programstageid ";
             
             if( !inspectionType.equalsIgnoreCase( "" ) )    // inspection filter
+                /*
                 query += "INNER JOIN (" +
                           "SELECT programstageinstanceid " +
                           "FROM trackedentitydatavalue " +
                           "WHERE dataelementid = 1953 " + // -- inspection type
                           "AND value ILIKE '" + inspectionType + "' " +
                           ") tdv1 on tdv1.programstageinstanceid = psi.programstageinstanceid ";
-
+                */
+                query += "INNER JOIN (" + "SELECT programstageinstanceid FROM programstageinstance " +
+                    "WHERE eventdatavalues -> 'aQQ4oBQ2LlT' ->> 'value' " + // -- inspection type dataelementUid
+                    " ILIKE '" + inspectionType + "' " +
+                    ") evdatavalue1 on evdatavalue1.programstageinstanceid = psi.programstageinstanceid ";
+            
             if( !assignedInspector.equalsIgnoreCase( "" ) )     // inspector filter
-                query += "INNER JOIN (" +
+                
+                /*query += "INNER JOIN (" +
                          "SELECT programstageinstanceid " +
                          "FROM trackedentitydatavalue " +
                          "WHERE dataelementid = 1954 " +  // -- assigned inspector
                          "AND value ILIKE '" + assignedInspector + "' " +
                          ") tdv2 on tdv2.programstageinstanceid = psi.programstageinstanceid ";
+                */
+                
+                query += "INNER JOIN (" + "SELECT programstageinstanceid FROM programstageinstance " +
+                         "WHERE eventdatavalues -> 'aBx0rbxAGei' ->> 'value' " + // -- assigned inspector dataelementUid
+                         " ILIKE '" + assignedInspector + "' " +
+                         ") evdatavalue2 on evdatavalue2.programstageinstanceid = psi.programstageinstanceid ";            
+            
+            
             
             if( !districtName.equalsIgnoreCase( "" ) )    // district filter
                 query += "INNER JOIN (" +
@@ -584,7 +599,7 @@ public class GetSchedulingInspectionsListAction extends ActionPagingSupport<Prog
         }
 
         String attributeIdsByComma = "89,698,699";
-        String trackerDataElementIdsByComma = "1951,1952,1953,1954";
+        //String trackerDataElementIdsByComma = "1951,1952,1953,1954";
         Integer teNameAttributeId = 89;
         //ScheduledInspectionService  scheduledInspectionService = new ScheduledInspectionService();
         

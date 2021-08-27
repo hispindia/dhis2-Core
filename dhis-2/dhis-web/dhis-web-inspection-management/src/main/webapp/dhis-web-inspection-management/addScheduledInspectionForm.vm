@@ -141,16 +141,16 @@
 		
     <tr>
         <td><label for="scheduleDate">$i18n.getString( "schedule_date" )<em title="$i18n.getString( 'required' )" class="required">*</em></label></td>
-        <td><input type="text" id="deps1951" name="deps1951" class="{validate:{required:true}}"/></td>
+        <td><input type="text" id="depsFFgsHumW2e4" name="depsFFgsHumW2e4" class="{validate:{required:true}}"/></td>
 		<script type="text/javascript">
-        	datePicker( 'deps1951' );
+        	datePicker( 'depsFFgsHumW2e4' );
         </script>    
         <td></td>
     </tr>
 
     <tr>
         <td><label for="scheduleDuration">$i18n.getString( "schedule_duration" )<em title="$i18n.getString( 'required' )" class="required">*</em></label></td>
-        <td><input type="text" id="deps1952" name="deps1952" class="{validate:{required:true}}"/></td>
+        <td><input type="text" id="depsp2WbPogmvnC" name="depsp2WbPogmvnC" class="{validate:{required:true}}"/></td>
         <td></td>
     </tr>	
 	
@@ -177,7 +177,7 @@
 
 	<tr>
 		<td><label for="InspectionTypeId">$i18n.getString( "Inspection Type" )<em title="$i18n.getString( 'required' )" class="required">*</em></label></td>
-		<td><select id="deps1953" name="deps1953" class="{validate:{required:true}}">
+		<td><select id="depsaQQ4oBQ2LlT" name="depsaQQ4oBQ2LlT" class="{validate:{required:true}}">
 		    <option value="">[$i18n.getString('please_select')]</option>
 			#foreach($option in $options)
 				<option value="$option.code">$encoder.htmlEncode($option.name)</option>
@@ -194,7 +194,7 @@
 	</tr>
 	<tr>
 		<td><label for="assignedInspectorId">$i18n.getString( "assigned_inspector" )<em title="$i18n.getString( 'required' )" class="required">*</em></label></td>
-		<td><select id="deps1954" name="deps1954" class="{validate:{required:true}}">
+		<td><select id="depsaBx0rbxAGei" name="depsaBx0rbxAGei" class="{validate:{required:true}}">
 		    <option value="">[$i18n.getString('please_select')]</option>
 			#foreach($user in $users)
 				<option value="$user.getName()">$encoder.htmlEncode($user.getName())</option>
@@ -215,7 +215,7 @@
 
     <tr>
         <td><label for="remarks">$i18n.getString( "remarks" )</label></td>
-        <td><textarea name="deps1955" id="deps1955"></textarea></td>
+        <td><textarea name="depsobqAPIKe6hs" id="depsobqAPIKe6hs"></textarea></td>
         <td></td>
     </tr>	
 	

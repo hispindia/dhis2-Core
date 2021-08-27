@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.jexl2.UnifiedJEXL.Exception;
+import org.hisp.dhis.eventdatavalue.EventDataValue;
 import org.hisp.dhis.option.Option;
 import org.hisp.dhis.option.OptionService;
 import org.hisp.dhis.option.OptionSet;
@@ -123,9 +125,9 @@ public class ShowUpdateScheduledInspectionFormAction implements Action
         return users;
     }
     
-    private Map<Integer, String> teInstanceDataValueMap = new HashMap<Integer, String>();
+    private Map<String, String> teInstanceDataValueMap = new HashMap<String, String>();
     
-    public Map<Integer, String> getTeInstanceDataValueMap()
+    public Map<String, String> getTeInstanceDataValueMap()
     {
         return teInstanceDataValueMap;
     }
@@ -159,6 +161,7 @@ public class ShowUpdateScheduledInspectionFormAction implements Action
         
         //teInstanceDataValueMap = new HashMap<Integer, String>( getTrackedEntityDataValuesByProgramStageInstanceId( programStageInstanceId ) );
         
+        teInstanceDataValueMap = new HashMap<String, String>( getEventDataValues( ( programStageInstance ) ));
         //System.out.println( teInstanceDataValueMap.size() + " -- " + teInstanceDataValueMap );
         return SUCCESS;
     }
@@ -203,6 +206,33 @@ public class ShowUpdateScheduledInspectionFormAction implements Action
         }
     }    
     
-    
+    public Map<String, String> getEventDataValues( ProgramStageInstance programStageInstance )
+    {
+        Map<String, String> teiDataValueMap = new HashMap<String, String>();
+
+        try
+        {
+            /*
+            String query = "SELECT programstageinstanceid, dataelementid, value FROM trackedentitydatavalue  "
+                + "WHERE dataelementid IN ( " + dataElementIdsByComma + ")";
+
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+            */
+            
+            for( EventDataValue edv : programStageInstance.getEventDataValues() )
+            {
+                edv.getDataElement();
+                edv.getValue();
+                
+                teiDataValueMap.put( edv.getDataElement(), edv.getValue() );
+            }
+            
+            return teiDataValueMap;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal DataElement id", e );
+        }
+    }            
     
 }
