@@ -735,6 +735,32 @@ public class DefaultDataValueSetService
         return saveDataValueSetPdf( in, importOptions, null );
     }
 
+    
+    // for excel-import start
+    @Override
+    @Transactional
+    public ImportSummary saveDataValueSetExcelImport( DataValueSet dataValueSet  )
+    {
+        return saveDataValueSetExcelImport( dataValueSet, ImportOptions.getDefaultImportOptions(), null );
+    }   
+    
+    @Override
+    @Transactional
+    public ImportSummary saveDataValueSetExcelImport( DataValueSet dataValueSet, ImportOptions importOptions, JobConfiguration id )
+    {
+        try
+        {
+            return saveDataValueSet( importOptions, id, dataValueSet );
+        }
+        catch ( Exception ex )
+        {
+            log.error( DebugUtils.getStackTrace( ex ) );
+            notifier.notify( id, ERROR, "Process failed: " + ex.getMessage(), true );
+            return new ImportSummary( ImportStatus.ERROR, "The import process failed: " + ex.getMessage() );
+        }
+    }    
+    // for excel-import end
+    
     /**
      * There are specific id schemes for data elements and organisation units
      * and a generic id scheme for all objects. The specific id schemes will
