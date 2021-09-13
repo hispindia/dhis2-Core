@@ -18,6 +18,8 @@
     <module>dhis-web-api-test</module>
     <module>dhis-web-dataentry</module>
     <module>dhis-web-approval</module>
+	<!-- India Module -->
+	<module>dhis-web-excelimport</module>
     <module>dhis-web-portal</module>
     <module>dhis-web-apps</module>
 
