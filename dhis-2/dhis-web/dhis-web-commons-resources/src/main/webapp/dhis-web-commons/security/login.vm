@@ -38,17 +38,17 @@
         font-family: 'Gill Sans MT', sans-serif;
     }
     #head {
-        height:90px;
+        height:80px;
+        width: 100%;
         border-bottom:  5px solid #002F6C;
-		margin: 0 2em;
-        margin-top: 1em;
-		
     }
-    .headImage {
-        width: 25%;
-        float: left;
-        text-align: center;
 
+    .headImage {
+        width: 20%;
+        float: left;
+        text-align: center;            
+        padding: .25em 0;
+        background: white;
     }
     .box {
         height: 150px;
@@ -65,22 +65,25 @@
 <body class="">
 
 <div id="head">
-    <div class="headImage">
-        <img src="../security/usaid-logo.png" style="margin-top:1em" alt="USAID Logo"/>
-    </div>
-    <div class="headImage">
-        <img src="../security/seal_of_mizoram.png" alt="seal of mizoram"  height="70" width="110"/>
-    </div>
-    <div class="headImage">
-        <img src="../security/nha-logo.png"  alt="NHA Logo" height="70" width="90"/>
-    </div>
-    <div class="headImage">
-        <img src="../security/nishtha-logo.png" alt="NISHTHA Logo" height="70" width="110"/>
-    </div>
+        <div class="headImage">
+            <img src="../security/usaid-logo.png" style="margin-top:6px" alt="USAID Logo" />
+        </div>
+        <div class="headImage">
+            <img src="../security/H&FW_Dpt_Mizoram.jpg" alt="FW Dpt Mizoram" height="60" width="60" />
+        </div>
+        <div class="headImage">
+            <img src="../security/seal_of_mizoram.png" alt="seal of mizoram" height="60" width="100" />
+        </div>
+        <div class="headImage">
+            <img src="../security/IDSP_Mizoram.jpg" alt="IDSP Mizoram" height="60" width="60" />
+        </div>
+        <div class="headImage">
+            <img src="../security/nha-logo.png" alt="NHA Logo" height="60" width="80" />
+        </div>
 </div>
 <div style="clear: both"></div>
 <div id="body">
-    <div style="text-align:center;margin:10px 0;">
+    <div style="text-align:center;margin:5px 0;">
     <h1 style="color:#002F6C">Mizoram COVID-19 Dashboard </h1>
     </div>
     <div>
@@ -114,30 +117,28 @@
     <div id="container" style="padding: 0 10em">
         <div style="width:40%;margin: 5em 0em;float:left" >
             <h2 style="color:#002F6C;">About Mizoram COVID-19 Dashboard</h2>
-            <h4 style="max-width:500px;text-align:justify;padding: 2px">Mizoram COVID19 Dashboard provides the State an overview of the prevailing COVID19 pandemic for 
-            different components such as COVID19 case management, testing, logistics, infrastructure, and vaccination
-             to review and plan the response towards COVID19 management.</h4>
+            <h4 style="max-width:500px;text-align:justify;padding: 2px">Mizoram State COVID-19 dashboard : An easy and comprehensive way to access, understand and act upon the available information</h4>
         </div>
-        <div id="loginField" style="width:40%;float:left;border: 2px solid #002F6C;border-radius:5px;margin-left:70px;padding: 1em;">
+        <div id="loginField" style="width:40%;float:right;border: 2px solid #002F6C;border-radius:5px;margin-left:65px;padding: 1em;">
                 <div id="loginForm">
                     <div id="">
                         <!--<a href="http://www.dhis2.org"><img src="../../api/staticContent/logo_front" style="border:none"></a>-->
                     </div>
 
                     <form id="" action="../../dhis-web-commons-security/login.action" method="post">
-                        <div>
+                        <div style="text-align:center;">
                             <div id="signInLabel" style="font-size:25px">Sign in</div>
                             <div><input type="text" id="j_username" name="j_username" placeholder="Username" required></div>
                             <div><input type="password" id="j_password" name="j_password" autocomplete="off" placeholder="Password"
                                         required></div>
-                            <div>
+                            <div style="display:none">
                                 <label><input type="checkbox" name="2fa" value="2fa" id="2fa"/>$i18n.getString(
                                     'login_using_two_factor_authentication')</label>
                                 <input type="code" id="2fa_code" name="2fa_code"
                                     placeholder="$i18n.getString('two_factor_authentication_code')" hidden readonly>
                             </div>
                         </div>
-                        <div id="submitDiv">
+                        <div id="submitDiv" style="text-align:center">
                             <input id="submit" class="button" type="submit" value="$i18n.getString('sign_in')">
                         </div>
                         #if( $keyAccountRecovery )
@@ -187,10 +188,16 @@
 </div>
 
 <div style="clear:both"></div>
-    <div style="margin: 0 2em;border-top:  2px solid grey;padding-top:1em">
+    <div style="margin:0.5em 2em 2em;border-top:  2px solid grey;padding-top:1em">
 
         <div style="float:left;">
-            <img src="../security/HISP India logo.png" height="40" width: "60" />
+            <img src="../security/nishtha-logo.png" alt="NISHTHA Logo" height="50" width="90" />
+        </div>
+        <div style="text-align:center;width:85%;float:left;">
+        <h4 style="font-style:italic">© 2021 All Rights Reserved by Government of Mizoram
+</h4>
+<p>
+Supported under NISHTHA by USAID</p>
         </div>
         <div style="float:right">
             <img src="../security/jhpiego-logo.svg"  height="60" width: "70"/>
