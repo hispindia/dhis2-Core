@@ -5,15 +5,49 @@
 
 <meta name="viewport" content="width=device-width, user-scalable=no" />
 <link rel="stylesheet" href="../css/login_mobile.css" />
+<style>
+    #head {
+        width: 100%;
+		height: 35px;
+    }
 
+    .headImage {
+        width: 16.66%;
+        float: left;
+        text-align: center;
+        padding: .25em 0;
+        background: white;
+    }
+</style>
 </head>
 
 <body>
 
+<div id="head">
+    <div class="headImage">
+        <img src="../security/usaid-logo.png" style="margin-top:4px;margin-left:2px" alt="USAID Logo" height="18" width="58"/>
+    </div>
+    <div class="headImage">
+        <img src="../security/H&FW_Dpt_Mizoram.jpg" alt="FW Dpt Mizoram" height="26" width="26" />
+    </div>
+    <div class="headImage">
+        <img src="../security/seal_of_mizoram.png" alt="seal of mizoram" height="26" width="35" />
+    </div>
+    <div class="headImage">
+        <img src="../security/IDSP_Mizoram.jpg" alt="IDSP Mizoram" height="26" width="26" />
+    </div>
+    <div class="headImage">
+        <img src="../security/nha-logo.png" alt="NHA Logo" height="26" width="40" />
+    </div>
+	<div class="headImage">
+            <img src="../security/nishtha-logo.png" alt="NISHTHA Logo" height="27" width="30" />
+    </div>
+</div>
 <div id="wrap">
 
 <div id="header">
-	<a href="login.action" tabindex="-1"><img src="logo_mobile.png" width="88" height="24" alt="DHIS 2"></a>
+	<img src="jhpiego-logo-mobile.png" height="20" alt="DHIS 2">
+    <span style="color:white;font-size:13px;">Mizoram COVID-19 Dashboard </span>
 </div>
 
 <div id="content" align="center" style="text-align: left;">
@@ -48,7 +82,6 @@
 </form>
 </div>
 </div>
-
 #* Seems we can't access macros.vm from login.vm/login_mobile.vm so we include the full script here *#
 #if( $googleAnalyticsUA && $googleAnalyticsUA != '' )
 <script type="text/javascript">
@@ -64,5 +97,10 @@
 </script>
 #end
 
+<div style="position: absolute;bottom: 0px;text-align: center;width: 100%;color:black">
+ <h4 style="font-style:italic;color:black;">© 2021 All Rights Reserved by Government of Mizoram</h4>
+ <p>Supported under NISHTHA by USAID</p>
+
+</div>
 </body>
 </html>
