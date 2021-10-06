@@ -25,28 +25,26 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.expression.dataitem;
+package org.hisp.dhis.security;
 
-import static org.hisp.dhis.common.DimensionItemType.REPORTING_RATE;
-import static org.hisp.dhis.parser.expression.antlr.ExpressionParser.ExprContext;
+import javax.xml.bind.DatatypeConverter;
 
-import org.hisp.dhis.common.DimensionalItemId;
-import org.hisp.dhis.parser.expression.CommonExpressionVisitor;
+import org.apache.commons.lang.SerializationUtils;
+import org.springframework.security.core.Authentication;
 
-/**
- * Expression item ReportingRate
- *
- * @author Jim Grace
- */
-public class DimItemReportingRate
-    extends DimensionalItem
+public class AuthenticationSerializer
 {
-    @Override
-    public DimensionalItemId getDimensionalItemId( ExprContext ctx,
-        CommonExpressionVisitor visitor )
+
+    public static String serialize( Authentication authentication )
     {
-        return new DimensionalItemId( REPORTING_RATE,
-            ctx.uid0.getText(),
-            ctx.REPORTING_RATE_TYPE().getText() );
+        byte[] bytes = SerializationUtils.serialize( authentication );
+        return DatatypeConverter.printBase64Binary( bytes );
+    }
+
+    public static Authentication deserialize( String authentication )
+    {
+        byte[] decoded = DatatypeConverter.parseBase64Binary( authentication );
+        Authentication auth = (Authentication) SerializationUtils.deserialize( decoded );
+        return auth;
     }
 }
