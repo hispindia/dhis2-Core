@@ -45,7 +45,7 @@
     	var dataImportTypeValue = document.getElementById( "dataImportType" ).value;
     	
     	//alert( "dataImportTypeValue -- " + dataImportTypeValue );
-    	if( dataImportTypeValue == "vccinesType" ) 
+    	if( dataImportTypeValue == "vccineDeliveryType" ) 
     	{
 			document.getElementById("vccinesTypeTD").style.display = "block";
     	}
@@ -93,10 +93,15 @@
 		<tr>
             <td class="NormalB">
                 1. Import Type : <br />
-                <select id="dataImportType" name="dataImportType" style="width:200px" onchange="vaccinesTypes()" class="{validate:{required:true}}">
+                <select id="dataImportType" name="dataImportType" style="width:220px" onchange="vaccinesTypes()" class="{validate:{required:true}}">
                     <option value="NA">[ Select ImportType ]</option>
-					<option value="reportType">DCH, DCHC, CCC, 4C and Home Isolation Report</option>
-					<option value="vccinesType">Vaccines Type</option>
+					<option value="dchReport">COVID19 - DCH Reporting</option>
+					<option value="dchcCCCReport">COVID19 - DCHC & CCC Reporting</option>
+					<option value="ccccReport">COVID19 - CCCC (4C) Reporting</option>
+					<option value="homeIsolationReport">COVID19 - Home Isolation Reporting</option>
+					<option value="vccineDeliveryType">COVIDVAC - Vaccine delivery</option>
+					<option value="logisticsReport">COVID19 - Logistics</option>
+					<!--<option value="reportType">DCH, DCHC, CCC, 4C and Home Isolation Report</option>-->
 					
                 </select>
             </td>

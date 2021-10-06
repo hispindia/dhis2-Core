@@ -259,15 +259,47 @@ public class ExcelImportDataValueSetAction implements Action
         //String excelImportFolderName = "excelimport";
         if( dataImportType != null && !dataImportType.equalsIgnoreCase( "NA" ) )
         {
-            if( dataImportType.equalsIgnoreCase( "reportType" ) )
+            if( dataImportType.equalsIgnoreCase( "vccineDeliveryType" ) )
             {
-                deCodesImportXMLFileName = "dataValueSetMappingReportType.xml";
+                deCodesImportXMLFileName = "dataValueSetMappingVccineDeliveryType.xml";
+                if( attributeTypeCOCUid != null && !attributeTypeCOCUid.equalsIgnoreCase( "NA" ) )
+                {
+                    attributeOptionCombo = attributeTypeCOCUid;
+                }
+            }
+            else if( dataImportType.equalsIgnoreCase( "homeIsolationReport" ) )
+            {
+                deCodesImportXMLFileName = "dataValueSetMappingHomeIsolation.xml";
                 CategoryOptionCombo defaultAttributeOptionCombo = categoryService.getDefaultCategoryOptionCombo();
                 attributeOptionCombo = defaultAttributeOptionCombo.getUid();
             }
-            else if( dataImportType.equalsIgnoreCase( "vccinesType" ) )
+            else if( dataImportType.equalsIgnoreCase( "dchcCCCReport" ) )
             {
-                deCodesImportXMLFileName = "dataValueSetMappingVccinesType.xml";
+                deCodesImportXMLFileName = "dataValueSetMappingDCHCCC.xml";
+                if( attributeTypeCOCUid != null && !attributeTypeCOCUid.equalsIgnoreCase( "NA" ) )
+                {
+                    attributeOptionCombo = attributeTypeCOCUid;
+                }
+            }
+            else if( dataImportType.equalsIgnoreCase( "dchReport" ) )
+            {
+                deCodesImportXMLFileName = "dataValueSetMappingDCH.xml";
+                if( attributeTypeCOCUid != null && !attributeTypeCOCUid.equalsIgnoreCase( "NA" ) )
+                {
+                    attributeOptionCombo = attributeTypeCOCUid;
+                }
+            }
+            else if( dataImportType.equalsIgnoreCase( "ccccReport" ) )
+            {
+                deCodesImportXMLFileName = "dataValueSetMappingCCCC.xml";
+                if( attributeTypeCOCUid != null && !attributeTypeCOCUid.equalsIgnoreCase( "NA" ) )
+                {
+                    attributeOptionCombo = attributeTypeCOCUid;
+                }
+            }
+            else if( dataImportType.equalsIgnoreCase( "logisticsReport" ) )
+            {
+                deCodesImportXMLFileName = "dataValueSetMappingLogistics.xml";
                 if( attributeTypeCOCUid != null && !attributeTypeCOCUid.equalsIgnoreCase( "NA" ) )
                 {
                     attributeOptionCombo = attributeTypeCOCUid;
@@ -287,6 +319,14 @@ public class ExcelImportDataValueSetAction implements Action
             //importStatusMsgList.add( message );
             return SUCCESS;
         }
+        
+        if( deCodesImportXMLFileName.equalsIgnoreCase( "" ) )
+        {
+            message = "The xml mapping file not found";
+            //importStatusMsgList.add( message );
+            return SUCCESS;
+        }
+        
         /*
         if( attributeTypeCOCUid != null && !attributeTypeCOCUid.equalsIgnoreCase( "NA" ) )
         {
