@@ -141,6 +141,9 @@
                         <div id="submitDiv" style="text-align:center">
                             <input id="submit" class="button" type="submit" value="$i18n.getString('sign_in')">
                         </div>
+                        <div style="text-align:center">
+                            <a style="color:tomato;font-weight:600;font-size:18px" href="*">Click for Citizen Dashboard</a>
+                        </div>
                         #if( $keyAccountRecovery )
                             <div style="padding-bottom: 10px">
                                 <a id="forgotPasswordLink" href="recovery.action">$i18n.getString('forgot_password')</a>

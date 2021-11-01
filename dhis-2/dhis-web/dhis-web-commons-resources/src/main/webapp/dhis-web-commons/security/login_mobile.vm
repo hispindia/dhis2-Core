@@ -75,6 +75,9 @@
 	</p>
 </div>
 
+<div style="text-align:center">
+    <a style="color:tomato;font-weight:600;font-size:18px" href="*">Click for Citizen Dashboard</a>
+</div>
 #if ( $keyConfig.selfRegistrationAllowed() )
 <div class="header-box" align="center"><a href="account.action">Create an account</a></div>
 #end
