@@ -54,7 +54,7 @@ import static org.hisp.dhis.common.DimensionalObjectUtils.asTypedList;
 /**
  * Class representing query parameters for retrieving event data from the
  * event analytics service. Example instantiation:
- * 
+ *
  * <pre>
  * {@code
  * EventQueryParams params = new EventQueryParams.Builder()
@@ -64,14 +64,14 @@ import static org.hisp.dhis.common.DimensionalObjectUtils.asTypedList;
  *      .build();
  * }
  * </pre>
- * 
+ *
  * @author Lars Helge Overland
- */ 
+ */
 public class EventQueryParams
     extends DataQueryParams
 {
     public static final String EVENT_COORDINATE_FIELD = "EVENT";
-    
+
     /**
      * The query items.
      */
@@ -106,7 +106,7 @@ public class EventQueryParams
      * Columns to sort descending.
      */
     private List<DimensionalItemObject> desc = new ArrayList<>();
-    
+
     /**
      * The organisation unit selection mode.
      */
@@ -137,7 +137,7 @@ public class EventQueryParams
      * or tracked entity instance.
      */
     private EventOutputType outputType;
-    
+
     /**
      * Indicates the event status.
      */
@@ -153,7 +153,7 @@ public class EventQueryParams
      * Indicates whether request is intended to fetch events with coordinates only.
      */
     private boolean coordinatesOnly;
-    
+
     /**
      * Indicates whether request is intended to fetch events with geometry only.
      */
@@ -163,12 +163,12 @@ public class EventQueryParams
      * Indicates whether the query originates from an aggregate data query.
      */
     private boolean aggregateData;
-    
+
     /**
      * Size of cluster in meter.
      */
     private Long clusterSize;
-    
+
     /**
      * The coordinate field to use as basis for spatial event analytics.
      */
@@ -178,7 +178,7 @@ public class EventQueryParams
      * Bounding box for events to include in clustering.
      */
     private String bbox;
-    
+
     /**
      * Indicates whether to include underlying points for each cluster.
      */
@@ -193,7 +193,7 @@ public class EventQueryParams
      * Indicates whether to include metadata details to response
      */
     protected boolean includeMetadataDetails;
-    
+
     /**
      * Identifier scheme to use for data and attribute values. Applies to data
      * elements with option sets and legend sets, which are stored as codes and
@@ -208,7 +208,7 @@ public class EventQueryParams
     private EventQueryParams()
     {
     }
-    
+
     @Override
     protected EventQueryParams instance()
     {
@@ -267,15 +267,15 @@ public class EventQueryParams
     public static EventQueryParams fromDataQueryParams( DataQueryParams dataQueryParams )
     {
         EventQueryParams params = new EventQueryParams();
-        
+
         dataQueryParams.copyTo( params );
-        
+
         EventQueryParams.Builder builder = new EventQueryParams.Builder( params );
 
         for ( DimensionalItemObject object : dataQueryParams.getProgramDataElements() )
         {
             ProgramDataElementDimensionItem element = (ProgramDataElementDimensionItem) object;
-            DataElement dataElement = element.getDataElement(); 
+            DataElement dataElement = element.getDataElement();
             QueryItem item = new QueryItem( dataElement, ( dataElement.getLegendSets().isEmpty() ? null : dataElement.getLegendSets().get( 0 ) ), dataElement.getValueType(), dataElement.getAggregationType(), dataElement.getOptionSet() );
             item.setProgram( element.getProgram() );
             builder.addItem( item );
@@ -293,7 +293,7 @@ public class EventQueryParams
         for ( DimensionalItemObject object : dataQueryParams.getFilterProgramDataElements() )
         {
             ProgramDataElementDimensionItem element = (ProgramDataElementDimensionItem) object;
-            DataElement dataElement = element.getDataElement(); 
+            DataElement dataElement = element.getDataElement();
             QueryItem item = new QueryItem( dataElement, ( dataElement.getLegendSets().isEmpty() ? null : dataElement.getLegendSets().get( 0 ) ), dataElement.getValueType(), dataElement.getAggregationType(), dataElement.getOptionSet() );
             item.setProgram( element.getProgram() );
             builder.addItemFilter( item );
@@ -414,7 +414,7 @@ public class EventQueryParams
 
         return duplicates;
     }
-    
+
     /**
      * Returns a list of items and item filters.
      */
@@ -437,7 +437,7 @@ public class EventQueryParams
 
         return objects;
     }
-    
+
     /**
      * Get legend sets part of items and item filters.
      */
@@ -461,10 +461,10 @@ public class EventQueryParams
             .flatMap( q -> q.stream() )
             .collect( Collectors.toSet() );
     }
-    
+
     /**
      * Indicates whether the given time field is valid, i.e. whether
-     * it is either a fixed time field or matches the identifier of an 
+     * it is either a fixed time field or matches the identifier of an
      * attribute or data element of date value type part of the query program.
      */
     public boolean timeFieldIsValid()
@@ -473,7 +473,7 @@ public class EventQueryParams
         {
             return true;
         }
-        
+
         if ( TimeField.fieldIsValid( timeField ) )
         {
             return true;
@@ -484,13 +484,13 @@ public class EventQueryParams
         {
             return true;
         }
-        
+
         if ( program.getDataElements().stream()
             .anyMatch( de -> de.getValueType().isDate() && timeField.equals( de.getUid() ) ) )
         {
             return true;
         }
-        
+
         return false;
     }
 
@@ -504,8 +504,8 @@ public class EventQueryParams
 
     /**
      * Removes items and item filters of type program indicators.
-     * 
-     * TODO add support for program indicators in aggregate event 
+     *
+     * TODO add support for program indicators in aggregate event
      * analytics and remove this method.
      */
     public EventQueryParams removeProgramIndicatorItems()
@@ -561,7 +561,7 @@ public class EventQueryParams
     {
         return !items.isEmpty() || !itemFilters.isEmpty();
     }
-    
+
     /**
      * Returns true if an aggregation type is defined, and this is type is {@link #AggregationType.LAST}
      */
@@ -569,7 +569,7 @@ public class EventQueryParams
     {
         return getAggregationType() != null && getAggregationType().isLastPeriodAggregationType();
     }
-    
+
     /**
      * Returns true if a program indicator exists with non-default analytics period boundaries.
      */
@@ -635,7 +635,7 @@ public class EventQueryParams
     {
         return limit != null && limit > 0;
     }
-    
+
     public boolean hasEventStatus()
     {
         return eventStatus != null;
@@ -646,17 +646,18 @@ public class EventQueryParams
         return value != null;
     }
 
+    @Override
     public boolean hasProgramIndicatorDimension()
     {
         return programIndicator != null;
     }
-    
+
     public boolean hasEventProgramIndicatorDimension()
     {
         return programIndicator != null &&
             AnalyticsType.EVENT.equals( programIndicator.getAnalyticsType() );
     }
-    
+
     public boolean hasEnrollmentProgramIndicatorDimension()
     {
         return programIndicator != null &&
@@ -664,7 +665,7 @@ public class EventQueryParams
     }
 
     /**
-     * Indicates whether the EventQueryParams has exactly one Period dimension. 
+     * Indicates whether the EventQueryParams has exactly one Period dimension.
      * @return true when exactly one Period dimension exists.
      */
     public boolean hasSinglePeriod()
@@ -673,14 +674,14 @@ public class EventQueryParams
     }
 
     /**
-     * Indicates whether the EventQueryParams has Period filters. 
+     * Indicates whether the EventQueryParams has Period filters.
      * @return true when any Period filters exists.
      */
     public boolean hasFilterPeriods()
     {
         return getFilterPeriods().size() > 0;
     }
-    
+
     /**
      * Indicates whether the program of this query requires registration of
      * tracked entity instances.
@@ -689,7 +690,7 @@ public class EventQueryParams
     {
         return program != null && program.isRegistration();
     }
-    
+
     public boolean hasClusterSize()
     {
         return clusterSize != null;
@@ -699,12 +700,12 @@ public class EventQueryParams
     {
         return programStatus != null;
     }
-    
+
     public boolean hasBbox()
     {
         return bbox != null && !bbox.isEmpty();
     }
-    
+
     public boolean hasDataIdScheme()
     {
         return dataIdScheme != null;
@@ -718,7 +719,7 @@ public class EventQueryParams
     {
         return SortOrder.ASC.equals( sortOrder ) ? -1 : SortOrder.DESC.equals( sortOrder ) ? 1 : 0;
     }
-    
+
     @Override
     public String toString()
     {
@@ -812,7 +813,7 @@ public class EventQueryParams
     {
         return outputType;
     }
-    
+
     public EventStatus getEventStatus()
     {
         return eventStatus;
@@ -858,6 +859,7 @@ public class EventQueryParams
         return includeClusterPoints;
     }
 
+    @Override
     public boolean isIncludeMetadataDetails()
     {
         return includeMetadataDetails;
@@ -876,9 +878,10 @@ public class EventQueryParams
      * Builder for {@link DataQueryParams} instances.
      */
     public static class Builder
+        implements QueryParamsBuilder
     {
         private EventQueryParams params;
-        
+
         public Builder()
         {
             this.params = new EventQueryParams();
@@ -887,7 +890,7 @@ public class EventQueryParams
         public Builder( DataQueryParams dataQueryParams )
         {
             EventQueryParams eventQueryParams = EventQueryParams.fromDataQueryParams( dataQueryParams );
-            
+
             this.params = eventQueryParams.instance();
         }
 
@@ -926,7 +929,8 @@ public class EventQueryParams
             this.params.periodType = periodType;
             return this;
         }
-        
+
+        @Override
         public Builder addDimension( DimensionalObject dimension )
         {
             this.params.addDimension( dimension );
@@ -938,43 +942,52 @@ public class EventQueryParams
             this.params.dimensions.remove( new BaseDimensionalObject( dimension ) );
             return this;
         }
-        
+
+        @Override
+        public Builder removeDimensionOrFilter( String dimension )
+        {
+            this.params.dimensions.remove( new BaseDimensionalObject( dimension ) );
+            this.params.filters.remove( new BaseDimensionalObject( dimension ) );
+            return this;
+        }
+
         public Builder withOrganisationUnits( List<? extends DimensionalItemObject> organisationUnits )
         {
             this.params.setDimensionOptions( ORGUNIT_DIM_ID, DimensionType.ORGANISATION_UNIT, null, asList( organisationUnits ) );
             return this;
         }
-        
+
+        @Override
         public Builder addFilter( DimensionalObject filter )
         {
             this.params.addFilter( filter );
             return this;
         }
-        
+
         public Builder addItem( QueryItem item )
         {
             this.params.items.add( item );
             return this;
         }
-        
+
         public Builder removeItems()
         {
             this.params.items.clear();
             return this;
         }
-        
+
         public Builder addItemFilter( QueryItem item )
         {
             this.params.itemFilters.add( item );
             return this;
         }
-        
+
         public Builder addItemProgramIndicator( ProgramIndicator programIndicator )
         {
             this.params.itemProgramIndicators.add( programIndicator );
             return this;
         }
-        
+
         public Builder removeItemProgramIndicators()
         {
             this.params.itemProgramIndicators.clear();
@@ -986,16 +999,16 @@ public class EventQueryParams
             this.params.value = value;
             return this;
         }
-        
+
         public Builder withProgramIndicator( ProgramIndicator programIndicator )
         {
             this.params.programIndicator = programIndicator;
             return this;
         }
-        
+
         public Builder withOrganisationUnitMode( OrganisationUnitSelectionMode organisationUnitMode )
         {
-            this.params.organisationUnitMode = organisationUnitMode; 
+            this.params.organisationUnitMode = organisationUnitMode;
             return this;
         }
 
@@ -1010,7 +1023,7 @@ public class EventQueryParams
             this.params.skipData = skipData;
             return this;
         }
-        
+
         public Builder withCompletedOnly( boolean completedOnly )
         {
             this.params.completedOnly = completedOnly;
@@ -1028,7 +1041,7 @@ public class EventQueryParams
             this.params.coordinatesOnly = coordinatesOnly;
             return this;
         }
-        
+
         public Builder withGeometryOnly( boolean geometryOnly )
         {
             this.params.geometryOnly = geometryOnly;
@@ -1052,7 +1065,7 @@ public class EventQueryParams
             this.params.pageSize = pageSize;
             return this;
         }
-        
+
         public Builder withPartitions( Partitions partitions )
         {
             this.params.partitions = partitions;
@@ -1064,13 +1077,13 @@ public class EventQueryParams
             this.params.tableName = tableName;
             return this;
         }
-        
+
         public Builder addAscSortItem( DimensionalItemObject sortItem )
         {
             this.params.asc.add( sortItem );
             return this;
         }
-        
+
         public Builder addDescSortItem( DimensionalItemObject sortItem )
         {
             this.params.desc.add( sortItem );
@@ -1082,13 +1095,13 @@ public class EventQueryParams
             this.params.aggregationType = aggregationType;
             return this;
         }
-        
+
         public Builder withSkipRounding( boolean skipRounding )
         {
             this.params.skipRounding = skipRounding;
             return this;
         }
-        
+
         public Builder withShowHierarchy( boolean showHierarchy )
         {
             this.params.showHierarchy = showHierarchy;
@@ -1112,7 +1125,7 @@ public class EventQueryParams
             this.params.outputType = outputType;
             return this;
         }
-        
+
         public Builder withEventStatus( EventStatus eventStatus )
         {
             this.params.eventStatus = eventStatus;
@@ -1130,31 +1143,31 @@ public class EventQueryParams
             this.params.aggregateData = aggregateData;
             return this;
         }
-        
+
         public Builder withTimeField( String timeField )
         {
             this.params.timeField = timeField;
             return this;
         }
-        
+
         public Builder withClusterSize( Long clusterSize )
         {
             this.params.clusterSize = clusterSize;
             return this;
         }
-        
+
         public Builder withCoordinateField( String coordinateField )
         {
             this.params.coordinateField = coordinateField;
             return this;
         }
-        
+
         public Builder withBbox( String bbox )
         {
             this.params.bbox = bbox;
             return this;
         }
-        
+
         public Builder withIncludeClusterPoints( boolean includeClusterPoints )
         {
             this.params.includeClusterPoints = includeClusterPoints;
@@ -1166,13 +1179,13 @@ public class EventQueryParams
             this.params.programStatus = programStatus;
             return this;
         }
-        
+
         public Builder withStartEndDatesForPeriods()
         {
             this.params.replacePeriodsWithStartEndDates();
             return this;
         }
-        
+
         public Builder withApiVersion( DhisApiVersion apiVersion )
         {
             this.params.apiVersion = apiVersion;
@@ -1184,13 +1197,13 @@ public class EventQueryParams
             this.params.includeMetadataDetails = includeMetadataDetails;
             return this;
         }
-        
+
         public Builder withDataIdScheme( IdScheme dataIdScheme )
         {
             this.params.dataIdScheme = dataIdScheme;
             return this;
         }
-        
+
         public EventQueryParams build()
         {
             return params;
