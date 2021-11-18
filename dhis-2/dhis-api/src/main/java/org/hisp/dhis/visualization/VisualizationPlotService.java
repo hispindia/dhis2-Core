@@ -25,19 +25,42 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.datavalue;
+package org.hisp.dhis.visualization;
+
+import java.util.Date;
+
+import org.hisp.dhis.category.CategoryOptionCombo;
+import org.hisp.dhis.dataelement.DataElement;
+import org.hisp.dhis.i18n.I18nFormat;
+import org.hisp.dhis.indicator.Indicator;
+import org.hisp.dhis.organisationunit.OrganisationUnit;
+import org.hisp.dhis.period.Period;
+import org.hisp.dhis.user.User;
+import org.jfree.chart.JFreeChart;
 
 /**
- * A class that can consume a deflated data value.
+ * This service is used to wrap and support the rendering of different type of
+ * charts based on different visualization types. This code of this class is not
+ * new, it was just sightly re-adapted from the old ChartService in order to to
+ * support Visualization charts.
  *
- * @author Jim Grace
+ * This is mainly needed because of the deprecation process of charts and report
+ * tables.
+ *
+ * @author maikel arabori
  */
-public interface DeflatedDataValueConsumer
+public interface VisualizationPlotService
 {
-    /**
-     * Consumes a deflated data value.
-     *
-     * @param deflatedDataValue the DeflatedDataValue to consume.
-     */
-    void consume( DeflatedDataValue deflatedDataValue );
+    JFreeChart getJFreeChart( PlotData plotData, Date date, OrganisationUnit organisationUnit, I18nFormat format,
+        User currentUser );
+
+    JFreeChart getJFreePeriodChart( Indicator indicator, OrganisationUnit organisationUnit, boolean title,
+        I18nFormat format );
+
+    JFreeChart getJFreeOrganisationUnitChart( Indicator indicator, OrganisationUnit parent, boolean title,
+        I18nFormat format );
+
+    JFreeChart getJFreeChartHistory( DataElement dataElement, CategoryOptionCombo categoryOptionCombo,
+        CategoryOptionCombo attributeOptionCombo, Period lastPeriod, OrganisationUnit organisationUnit,
+        int historyLength, I18nFormat format );
 }
