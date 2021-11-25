@@ -27,6 +27,7 @@
  */
 package org.hisp.dhis.dxf2.events.trackedentity.store;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,8 +40,11 @@ import org.hisp.dhis.dxf2.events.trackedentity.store.mapper.EventRowCallbackHand
 import org.hisp.dhis.dxf2.events.trackedentity.store.mapper.NoteRowCallbackHandler;
 import org.hisp.dhis.dxf2.events.trackedentity.store.query.EventQuery;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 /**
@@ -68,7 +72,7 @@ public class DefaultEventStore
         "join programinstance pi on psic.programstageinstanceid = pi.programinstanceid " +
         "where psic.programstageinstanceid in (:ids)";
 
-    private final static String ACL_FILTER_SQL = "CASE WHEN p.type = 'WITHOUT_REGISTRATION' THEN " +
+    final static String ACL_FILTER_SQL = "CASE WHEN p.type = 'WITHOUT_REGISTRATION' THEN " +
         "psi.programstageid in (:programStageIds) and p.trackedentitytypeid in (:trackedEntityTypeIds) else true END " +
         "AND pi.programid IN (:programIds)";
 
@@ -86,20 +90,71 @@ public class DefaultEventStore
     @Override
     public Multimap<String, Event> getEventsByEnrollmentIds( List<Long> enrollmentsId, AggregateContext ctx )
     {
+        List<List<Long>> enrollmentIdsPartitions = Lists.partition( enrollmentsId, PARITITION_SIZE );
+
+        Multimap<String, Event> eventMultimap = ArrayListMultimap.create();
+
+        enrollmentIdsPartitions
+            .forEach( partition -> eventMultimap.putAll( getEventsByEnrollmentIdsPartitioned( partition, ctx ) ) );
+
+        return eventMultimap;
+    }
+
+    private Multimap<String, Event> getEventsByEnrollmentIdsPartitioned( List<Long> enrollmentsId,
+        AggregateContext ctx )
+    {
         EventRowCallbackHandler handler = new EventRowCallbackHandler();
 
-        jdbcTemplate.query( withAclCheck( GET_EVENTS_SQL, ctx, ACL_FILTER_SQL ),
-            createIdsParam( enrollmentsId )
-                .addValue( "trackedEntityTypeIds", ctx.getTrackedEntityTypes() )
-                .addValue( "programStageIds", ctx.getProgramStages() )
-                .addValue( "programIds", ctx.getPrograms() ),
-            handler );
+        AclQueryWithParams aclQueryWithParams = getAclQueryWithParams( ctx, createIdsParam( enrollmentsId ) );
+
+        jdbcTemplate.query( withAclCheck( GET_EVENTS_SQL, ctx, aclQueryWithParams.getQuery() ),
+            aclQueryWithParams.getQueryParams(), handler );
 
         return handler.getItems();
     }
 
+    AclQueryWithParams getAclQueryWithParams( AggregateContext ctx, MapSqlParameterSource idsParam )
+    {
+        AclQueryWithParams.AclQueryWithParamsBuilder aclQueryWithParams = AclQueryWithParams.builder()
+            .idsParam( idsParam );
+        if ( ctx.getPrograms().isEmpty() )
+        {
+            return aclQueryWithParams
+                .query( "false" )
+                .build();
+        }
+        else
+        {
+            if ( ctx.getTrackedEntityTypes().isEmpty() || ctx.getProgramStages().isEmpty() )
+            {
+                return aclQueryWithParams.query( "p.type <> 'WITHOUT_REGISTRATION' AND pi.programid IN (:programIds)" )
+                    .param( "programIds", ctx.getPrograms() )
+                    .build();
+            }
+            else
+            {
+                return aclQueryWithParams.query( ACL_FILTER_SQL )
+                    .param( "trackedEntityTypeIds", ctx.getTrackedEntityTypes() )
+                    .param( "programStageIds", ctx.getProgramStages() )
+                    .param( "programIds", ctx.getPrograms() )
+                    .build();
+            }
+        }
+    }
+
     @Override
     public Map<String, List<DataValue>> getDataValues( List<Long> programStageInstanceId )
+    {
+        List<List<Long>> psiIdsPartitions = Lists.partition( programStageInstanceId, PARITITION_SIZE );
+
+        Map<String, List<DataValue>> dataValueListMultimap = new HashMap<>();
+
+        psiIdsPartitions.forEach( partition -> dataValueListMultimap.putAll( getDataValuesPartitioned( partition ) ) );
+
+        return dataValueListMultimap;
+    }
+
+    private Map<String, List<DataValue>> getDataValuesPartitioned( List<Long> programStageInstanceId )
     {
         EventDataValueRowCallbackHandler handler = new EventDataValueRowCallbackHandler();
 
