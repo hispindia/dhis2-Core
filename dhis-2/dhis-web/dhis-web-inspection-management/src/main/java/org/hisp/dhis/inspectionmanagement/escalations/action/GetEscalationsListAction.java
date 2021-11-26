@@ -6,8 +6,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.jexl2.UnifiedJEXL.Exception;
 import org.hisp.dhis.eventdatavalue.EventDataValue;
@@ -348,11 +350,15 @@ public class GetEscalationsListAction
         System.out.println( "listAll -- " + listAll );
         String programIdsByComma = "-1";
         //List<Program> userPrograms = new ArrayList<Program>( currentUserService.getCurrentUser().getUserCredentials().getAllPrograms() );
-        List<Program> userPrograms = new ArrayList<Program>();
+        //List<Program> userPrograms = new ArrayList<Program>();
+        Set<Program> userPrograms = new LinkedHashSet<Program>();
+        
         List<OrganisationUnit> userOrgUnits = new ArrayList<OrganisationUnit>( currentUserService.getCurrentUserOrganisationUnits() );
-        if( userOrgUnits != null && userOrgUnits.size() > 0 )
+        List<OrganisationUnit> userOrgUnitsWithChildren = new ArrayList<OrganisationUnit>( organisationUnitService.getOrganisationUnitWithChildren( userOrgUnits.get( 0 ).getUid() ) );
+        
+        if( userOrgUnitsWithChildren != null && userOrgUnitsWithChildren.size() > 0 )
         {
-            for( OrganisationUnit userOrg : userOrgUnits )
+            for( OrganisationUnit userOrg : userOrgUnitsWithChildren )
             {
                 userPrograms.addAll( userOrg.getPrograms() );
             }
@@ -367,9 +373,8 @@ public class GetEscalationsListAction
             }
         }
 
-        
-        
-        
+        System.out.println( " userOrgUnits size " + userOrgUnits.size() +" userPrograms size  "+ userPrograms.size() );
+        System.out.println( " userOrgUnitsWithChildren size " + userOrgUnitsWithChildren.size() +" programIdsByComma  "+ programIdsByComma );
         
         simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
 
