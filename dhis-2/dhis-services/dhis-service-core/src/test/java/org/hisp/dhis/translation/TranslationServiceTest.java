@@ -32,13 +32,18 @@ import static org.junit.Assert.*;
 import java.util.*;
 
 import org.hisp.dhis.*;
+import org.hisp.dhis.analytics.AggregationType;
+import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.chart.*;
 import org.hisp.dhis.common.*;
 import org.hisp.dhis.dataelement.*;
 import org.hisp.dhis.eventchart.*;
+import org.hisp.dhis.expression.Expression;
 import org.hisp.dhis.mapping.*;
 import org.hisp.dhis.option.*;
 import org.hisp.dhis.organisationunit.*;
+import org.hisp.dhis.period.PeriodType;
+import org.hisp.dhis.predictor.Predictor;
 import org.hisp.dhis.program.*;
 import org.hisp.dhis.program.notification.NotificationTrigger;
 import org.hisp.dhis.program.notification.ProgramNotificationRecipient;
@@ -49,6 +54,8 @@ import org.hisp.dhis.user.*;
 import org.hisp.dhis.visualization.*;
 import org.junit.*;
 import org.springframework.beans.factory.annotation.*;
+
+import com.google.common.collect.Sets;
 
 /**
  * @author Viet Nguyen <viet@dhis2.org>
@@ -366,6 +373,82 @@ public class TranslationServiceTest
         assertEquals( "translated Name", template.getDisplayName() );
         assertEquals( "translated SUBJECT TEMPLATE", template.getDisplaySubjectTemplate() );
         assertEquals( "translated MESSAGE TEMPLATE", template.getDisplayMessageTemplate() );
+    }
 
+    @Test
+    public void testProgramLabels()
+    {
+        Program program = createProgram( 'A' );
+        manager.save( program );
+        Set<Translation> translations = new HashSet<>();
+        translations.add( new Translation( locale.getLanguage(), TranslationProperty.INCIDENT_DATE_LABEL,
+            "translated INCIDENT_DATE_LABEL" ) );
+        translations.add( new Translation( locale.getLanguage(), TranslationProperty.ENROLLMENT_DATE_LABEL,
+            "translated ENROLLMENT_DATE_LABEL" ) );
+
+        manager.updateTranslations( program, translations );
+
+        program = manager.get( Program.class, program.getUid() );
+        assertEquals( "translated INCIDENT_DATE_LABEL", program.getDisplayIncidentDateLabel() );
+        assertEquals( "translated ENROLLMENT_DATE_LABEL", program.getDisplayEnrollmentDateLabel() );
+    }
+
+    @Test
+    public void testProgramStageLabels()
+    {
+        Program program = createProgram( 'A' );
+        manager.save( program );
+        ProgramStage programStage = createProgramStage( 'A', program );
+        manager.save( programStage );
+        Set<Translation> translations = new HashSet<>();
+        translations.add( new Translation( locale.getLanguage(), TranslationProperty.EXECUTION_DATE_LABEL,
+            "translated EXECUTION_DATE_LABEL" ) );
+        translations.add( new Translation( locale.getLanguage(), TranslationProperty.DUE_DATE_LABEL,
+            "translated DUE_DATE_LABEL" ) );
+
+        manager.updateTranslations( programStage, translations );
+
+        programStage = manager.get( ProgramStage.class, programStage.getUid() );
+        assertEquals( "translated EXECUTION_DATE_LABEL", programStage.getDisplayExecutionDateLabel() );
+        assertEquals( "translated DUE_DATE_LABEL", programStage.getDisplayDueDateLabel() );
+    }
+
+    @Test
+    public void testPredictorTranslations()
+    {
+        DataElement dataElementX = createDataElement( 'X', ValueType.NUMBER, AggregationType.NONE );
+        DataElement dataElementA = createDataElement( 'A' );
+        DataElement dataElementB = createDataElement( 'B' );
+        manager.save( dataElementA );
+        manager.save( dataElementB );
+        manager.save( dataElementX );
+
+        OrganisationUnitLevel orgUnitLevel1 = new OrganisationUnitLevel( 1, "Level1" );
+        manager.save( orgUnitLevel1 );
+
+        CategoryOptionCombo defaultCombo = categoryService.getDefaultCategoryOptionCombo();
+        PeriodType periodTypeMonthly = PeriodType.getPeriodTypeByName( "Monthly" );
+
+        Expression expressionA = new Expression(
+            "AVG(#{" + dataElementA.getUid() + "})+1.5*STDDEV(#{" + dataElementA.getUid() + "})", "descriptionA" );
+
+        Expression expressionB = new Expression( "AVG(#{" + dataElementB.getUid() + "." + defaultCombo.getUid() + "})",
+            "descriptionB" );
+
+        Predictor predictor = createPredictor( dataElementX, defaultCombo, "A", expressionA, expressionB,
+            periodTypeMonthly, orgUnitLevel1, 6, 1, 0 );
+
+        manager.save( predictor );
+
+        manager.updateTranslations( predictor,
+            Sets.newHashSet( new Translation( locale.getLanguage(), TranslationProperty.NAME,
+                "translated Predictor Name" ),
+                new Translation( locale.getLanguage(), TranslationProperty.DESCRIPTION,
+                    "translated Predictor description" ) ) );
+
+        predictor = manager.get( Predictor.class, predictor.getUid() );
+
+        assertEquals( "translated Predictor Name", predictor.getDisplayName() );
+        assertEquals( "translated Predictor description", predictor.getDisplayDescription() );
     }
 }
