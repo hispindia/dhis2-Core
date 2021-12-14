@@ -25,7 +25,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.security.vote;
+package org.hisp.dhis.webapi.security.vote;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -69,6 +69,7 @@ public class ExternalAccessVoter implements AccessDecisionVoter<FilterInvocation
         // clean this up when they are
         externalClasses.put( "charts", Visualization.class );
         externalClasses.put( "reportTables", Visualization.class );
+        externalClasses.put( "visualizations", Visualization.class );
         externalClasses.put( "maps", org.hisp.dhis.mapping.Map.class );
         externalClasses.put( "reports", Report.class );
         externalClasses.put( "documents", Document.class );

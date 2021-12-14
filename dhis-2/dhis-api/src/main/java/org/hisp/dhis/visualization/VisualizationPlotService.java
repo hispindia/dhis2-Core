@@ -25,43 +25,42 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.association;
+package org.hisp.dhis.visualization;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Date;
 
-import lombok.Data;
+import org.hisp.dhis.category.CategoryOptionCombo;
+import org.hisp.dhis.dataelement.DataElement;
+import org.hisp.dhis.i18n.I18nFormat;
+import org.hisp.dhis.indicator.Indicator;
+import org.hisp.dhis.organisationunit.OrganisationUnit;
+import org.hisp.dhis.period.Period;
+import org.hisp.dhis.user.User;
+import org.jfree.chart.JFreeChart;
 
-@Data
-public class IdentifiableObjectAssociations
-    extends HashMap<String, Set<String>>
+/**
+ * This service is used to wrap and support the rendering of different type of
+ * charts based on different visualization types. This code of this class is not
+ * new, it was just sightly re-adapted from the old ChartService in order to to
+ * support Visualization charts.
+ *
+ * This is mainly needed because of the deprecation process of charts and report
+ * tables.
+ *
+ * @author maikel arabori
+ */
+public interface VisualizationPlotService
 {
-    public IdentifiableObjectAssociations()
-    {
-        super();
-    }
+    JFreeChart getJFreeChart( PlotData plotData, Date date, OrganisationUnit organisationUnit, I18nFormat format,
+        User currentUser );
 
-    public void addAllAssociations( String from, List<String> tos )
-    {
-        Set<String> associated = getCurrentAssociationsOrCreate( from );
-        associated.addAll( tos.stream()
-            .filter( Objects::nonNull )
-            .collect( Collectors.toSet() ) );
-    }
+    JFreeChart getJFreePeriodChart( Indicator indicator, OrganisationUnit organisationUnit, boolean title,
+        I18nFormat format );
 
-    private Set<String> getCurrentAssociationsOrCreate( String from )
-    {
-        Set<String> associated = get( from );
-        if ( Objects.isNull( associated ) )
-        {
-            associated = new HashSet<>();
-            put( from, associated );
-        }
-        return associated;
-    }
+    JFreeChart getJFreeOrganisationUnitChart( Indicator indicator, OrganisationUnit parent, boolean title,
+        I18nFormat format );
 
+    JFreeChart getJFreeChartHistory( DataElement dataElement, CategoryOptionCombo categoryOptionCombo,
+        CategoryOptionCombo attributeOptionCombo, Period lastPeriod, OrganisationUnit organisationUnit,
+        int historyLength, I18nFormat format );
 }
