@@ -41,6 +41,8 @@ import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.SetValuedMap;
 import org.hisp.dhis.common.*;
 import org.hisp.dhis.common.exception.InvalidIdentifierReferenceException;
 import org.hisp.dhis.commons.collection.CachingMap;
@@ -468,15 +470,16 @@ public abstract class AbstractEnrollmentService
 
         Program program = getProgram( importOptions.getIdSchemes(), enrollment.getProgram() );
 
-        ImportSummary importSummary = validateRequest( program, daoTrackedEntityInstance, enrollment, importOptions );
+        OrganisationUnit organisationUnit = getOrganisationUnit( importOptions.getIdSchemes(),
+            enrollment.getOrgUnit() );
+
+        ImportSummary importSummary = validateRequest( program, daoTrackedEntityInstance, enrollment, organisationUnit,
+            importOptions );
 
         if ( importSummary.getStatus() != ImportStatus.SUCCESS )
         {
             return importSummary;
         }
-
-        OrganisationUnit organisationUnit = getOrganisationUnit( importOptions.getIdSchemes(),
-            enrollment.getOrgUnit() );
 
         List<String> errors = trackerAccessManager.canCreate( importOptions.getUser(),
             new ProgramInstance( program, daoTrackedEntityInstance, organisationUnit ), false );
@@ -638,15 +641,16 @@ public abstract class AbstractEnrollmentService
 
     private ImportSummary validateRequest( Program program,
         org.hisp.dhis.trackedentity.TrackedEntityInstance entityInstance,
-        Enrollment enrollment, ImportOptions importOptions )
+        Enrollment enrollment, OrganisationUnit organisationUnit, ImportOptions importOptions )
     {
         ImportSummary importSummary = new ImportSummary( enrollment.getEnrollment() );
 
-        if ( !program.isRegistration() )
+        String error = validateProgramForEnrollment( program, enrollment, organisationUnit, importOptions );
+
+        if ( !StringUtils.isEmpty( error ) )
         {
             importSummary.setStatus( ImportStatus.ERROR );
-            importSummary.setDescription( "Provided program " + program.getUid() +
-                " is a program without registration. An enrollment cannot be created into program without registration." );
+            importSummary.setDescription( error );
             importSummary.incrementIgnored();
 
             return importSummary;
@@ -717,6 +721,38 @@ public abstract class AbstractEnrollmentService
         }
 
         return importSummary;
+    }
+
+    private String validateProgramForEnrollment( Program program, Enrollment enrollment, OrganisationUnit orgUnit,
+        ImportOptions importOptions )
+    {
+        if ( program == null )
+        {
+            return "Program can not be null";
+        }
+
+        if ( orgUnit == null )
+        {
+            return "OrganisationUnit can not be null";
+        }
+
+        if ( !program.isRegistration() )
+        {
+            return "Provided program " + program.getUid() +
+                " is a program without registration. An enrollment cannot be created into program without registration.";
+        }
+
+        SetValuedMap<String, String> programAssociations = programService
+            .getProgramOrganisationUnitsAssociations( Collections.singleton( program.getUid() ) );
+
+        if ( !CollectionUtils.isEmpty( programAssociations.get( program.getUid() ) ) )
+        {
+            if ( !programAssociations.get( program.getUid() ).contains( orgUnit.getUid() ) )
+            {
+                return "Program is not assigned to this Organisation Unit: " + enrollment.getOrgUnit();
+            }
+        }
+        return null;
     }
 
     // -------------------------------------------------------------------------

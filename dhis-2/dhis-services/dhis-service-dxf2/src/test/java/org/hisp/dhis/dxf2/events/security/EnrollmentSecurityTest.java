@@ -30,10 +30,14 @@ package org.hisp.dhis.dxf2.events.security;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 
-import org.hisp.dhis.DhisSpringTest;
+import org.hisp.dhis.TransactionalIntegrationTestBase;
+import org.hisp.dhis.attribute.Attribute;
+import org.hisp.dhis.attribute.AttributeService;
+import org.hisp.dhis.attribute.AttributeValue;
 import org.hisp.dhis.common.CodeGenerator;
 import org.hisp.dhis.common.IdentifiableObjectManager;
 import org.hisp.dhis.common.IllegalQueryException;
@@ -67,7 +71,7 @@ import com.google.common.collect.Sets;
  * @author Morten Olav Hansen <mortenoh@gmail.com>
  */
 public class EnrollmentSecurityTest
-    extends DhisSpringTest
+    extends TransactionalIntegrationTestBase
 {
     @Autowired
     private EnrollmentService enrollmentService;
@@ -80,6 +84,9 @@ public class EnrollmentSecurityTest
 
     @Autowired
     private IdentifiableObjectManager manager;
+
+    @Autowired
+    private AttributeService attributeService;
 
     @Autowired
     private UserService _userService;
@@ -105,6 +112,12 @@ public class EnrollmentSecurityTest
     private ProgramStage programStageA;
 
     private ProgramStage programStageB;
+
+    @Override
+    public boolean emptyDatabaseAfterTest()
+    {
+        return true;
+    }
 
     @Override
     protected void setUpTest()
@@ -477,6 +490,71 @@ public class EnrollmentSecurityTest
         enrollmentService.getEnrollment( importSummary.getReference() );
     }
 
+    @Test
+    public void testAddEnrollmentToOrgUnitWithoutProgramAccess()
+    {
+        programA.setPublicAccess( AccessStringHelper.DEFAULT );
+        manager.updateNoAcl( programA );
+        Enrollment en = createEnrollment( programA.getUid(), maleA.getUid() );
+        en.setOrgUnit( organisationUnitB.getUid() );
+        ImportSummary importSummary = enrollmentService.addEnrollment(
+            en, ImportOptions.getDefaultImportOptions() );
+
+        assertEquals( ImportStatus.ERROR, importSummary.getStatus() );
+        assertEquals( "Program is not assigned to this Organisation Unit: " + organisationUnitB.getUid(),
+            importSummary.getDescription() );
+
+        programA.setPublicAccess( AccessStringHelper.DEFAULT );
+        programA.getOrganisationUnits().add( organisationUnitB );
+        manager.updateNoAcl( programA );
+
+        importSummary = enrollmentService.addEnrollment(
+            en, ImportOptions.getDefaultImportOptions() );
+        assertEquals( ImportStatus.SUCCESS, importSummary.getStatus() );
+
+    }
+
+    @Test
+    public void testAddEnrollmentWithOrgUnitIdSchemeToOrgUnitWithoutProgramAccess()
+    {
+        programA.setPublicAccess( AccessStringHelper.DEFAULT );
+        manager.updateNoAcl( programA );
+        Enrollment en = createEnrollment( programA.getUid(), maleA.getUid() );
+        Attribute attribute = new Attribute();
+        attribute.setUnique( true );
+        attribute.setUid( "D1DDOl5hTsL" );
+        attribute.setValueType( ValueType.NUMBER );
+        attribute.setOrganisationUnitAttribute( true );
+        attribute.setName( "OrgUnitAttribute" );
+        attributeService.addAttribute( attribute );
+
+        AttributeValue av = new AttributeValue();
+        av.setAttribute( attribute );
+        av.setValue( "1025" );
+        organisationUnitB.setAttributeValues( Collections.singleton( av ) );
+        manager.updateNoAcl( organisationUnitB );
+
+        en.setOrgUnit( av.getValue() );
+        ImportOptions importOptions = new ImportOptions();
+        importOptions.getIdSchemes().setOrgUnitIdScheme( "ATTRIBUTE" );
+        importOptions.getIdSchemes().getOrgUnitIdScheme().setAttribute( "D1DDOl5hTsL" );
+        ImportSummary importSummary = enrollmentService.addEnrollment(
+            en, importOptions );
+
+        assertEquals( ImportStatus.ERROR, importSummary.getStatus() );
+        assertEquals( "Program is not assigned to this Organisation Unit: " + av.getValue(),
+            importSummary.getDescription() );
+
+        programA.setPublicAccess( AccessStringHelper.DEFAULT );
+        programA.getOrganisationUnits().add( organisationUnitB );
+        manager.updateNoAcl( programA );
+
+        importSummary = enrollmentService.addEnrollment(
+            en, importOptions );
+        assertEquals( ImportStatus.SUCCESS, importSummary.getStatus() );
+
+    }
+
     private Enrollment createEnrollment( String program, String person )
     {
         Enrollment enrollment = new Enrollment();
@@ -489,4 +567,5 @@ public class EnrollmentSecurityTest
 
         return enrollment;
     }
+
 }
