@@ -25,7 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.hisp.dhis.helpers;
 
 import com.google.gson.JsonArray;
@@ -36,6 +35,8 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.spi.json.GsonJsonProvider;
 import org.hisp.dhis.Constants;
+
+import java.util.List;
 
 /**
  * @author Gintare Vilkelyte <vilkelyte.gintare@gmail.com>
@@ -111,6 +112,14 @@ public class JsonObjectBuilder
         return this;
     }
 
+    public JsonObjectBuilder addArray( String name, List<String> array )
+    {
+        JsonArray jsonArray = new JsonArray();
+        array.forEach( jsonArray::add );
+
+        return addArray( name, jsonArray );
+    }
+
     public JsonObjectBuilder addArray( String name, JsonArray array )
     {
         jsonObject.add( name, array );
@@ -151,7 +160,8 @@ public class JsonObjectBuilder
             .addArray( arrayName, objects )
             .build();
 
-        JsonPath.using( jsonPathConfiguration ).parse( jsonObject ).put( path, arrayName, object.getAsJsonArray( arrayName ) );
+        JsonPath.using( jsonPathConfiguration ).parse( jsonObject ).put( path, arrayName,
+            object.getAsJsonArray( arrayName ) );
 
         return this;
     }
@@ -169,8 +179,7 @@ public class JsonObjectBuilder
         }
         else
         {
-            new JsonObjectBuilder()
-                .addArray( arrayName, objects )
+            this.addArrayByJsonPath( path, arrayName, objects )
                 .build();
         }
 

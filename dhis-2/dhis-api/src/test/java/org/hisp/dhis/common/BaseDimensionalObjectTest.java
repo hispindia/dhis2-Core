@@ -27,8 +27,6 @@
  */
 package org.hisp.dhis.common;
 
-import static io.github.benas.randombeans.EnhancedRandomBuilder.aNewEnhancedRandom;
-import static io.github.benas.randombeans.EnhancedRandomBuilder.aNewEnhancedRandomBuilder;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -38,6 +36,7 @@ import org.hamcrest.collection.IsIterableContainingInAnyOrder;
 import org.hisp.dhis.analytics.AggregationType;
 import org.hisp.dhis.legend.Legend;
 import org.hisp.dhis.legend.LegendSet;
+import org.jeasy.random.EasyRandom;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -48,6 +47,8 @@ import com.google.common.collect.Sets;
  */
 public class BaseDimensionalObjectTest
 {
+    private static final EasyRandom rnd = new EasyRandom();
+
     @Test
     @SuppressWarnings( "unchecked" )
     public void verifyInstanceCloneObject()
@@ -63,7 +64,7 @@ public class BaseDimensionalObjectTest
         target.setAggregationType( AggregationType.AVERAGE );
         target.setDataDimension( true );
         target.setFixed( true );
-        target.setDimensionalKeywords( new DimensionalKeywords( aNewEnhancedRandomBuilder().build()
+        target.setDimensionalKeywords( new DimensionItemKeywords( rnd
             .objects( BaseIdentifiableObject.class, 5 ).collect( Collectors.toList() ) ) );
 
         BaseDimensionalObject cloned = (BaseDimensionalObject) target.instance();
@@ -88,17 +89,17 @@ public class BaseDimensionalObjectTest
         assertThat( cloned.getAggregationType(), is( target.getAggregationType() ) );
         assertThat( cloned.isDataDimension(), is( target.isDataDimension() ) );
         assertThat( cloned.isFixed(), is( target.isFixed() ) );
-        assertThat( cloned.getDimensionalKeywords().getGroupBy(),
-            hasSize( target.getDimensionalKeywords().getGroupBy().size() ) );
+        assertThat( cloned.getDimensionItemKeywords().getKeywords(),
+            hasSize( target.getDimensionItemKeywords().getKeywords().size() ) );
     }
 
     private DimensionalItemObject buildDimensionalItemObject()
     {
-        return aNewEnhancedRandom().nextObject( BaseDimensionalItemObject.class );
+        return rnd.nextObject( BaseDimensionalItemObject.class );
     }
 
     private Legend buildLegend()
     {
-        return aNewEnhancedRandom().nextObject( Legend.class );
+        return rnd.nextObject( Legend.class );
     }
 }

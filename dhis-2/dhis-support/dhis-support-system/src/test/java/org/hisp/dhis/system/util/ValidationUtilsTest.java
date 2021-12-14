@@ -161,6 +161,19 @@ public class ValidationUtilsTest
         assertTrue( usernameIsValid( "johnmichaeldoe" ) );
         assertTrue( usernameIsValid( "ted@johnson.com" ) );
         assertTrue( usernameIsValid( "harry@gmail.com" ) );
+        assertTrue( usernameIsValid( "har_ry@gmail.com" ) );
+
+        assertFalse( usernameIsValid( "Harry@gmail.com" ) );
+        assertFalse( usernameIsValid( "_harry@gmail.com" ) );
+        assertFalse( usernameIsValid( "harry@gmail.com_" ) );
+        assertFalse( usernameIsValid( ".harry@gmail.com" ) );
+        assertFalse( usernameIsValid( "harry@gmail.com." ) );
+        assertFalse( usernameIsValid( "@harry@gmail.com" ) );
+        assertFalse( usernameIsValid( "harry@gmail.com@" ) );
+        assertFalse( usernameIsValid( "harry_@gmail.com" ) );
+        assertFalse( usernameIsValid( "har__ry@gmail.com" ) );
+        assertFalse( usernameIsValid( "harry@@gmail.com" ) );
+        assertFalse( usernameIsValid( "harry..gmail.com" ) );
 
         assertFalse( usernameIsValid( null ) );
         assertFalse( usernameIsValid( CodeGenerator.generateCode( 400 ) ) );
@@ -234,7 +247,13 @@ public class ValidationUtilsTest
         assertNotNull( dataValueIsValid( "Date", de ) );
 
         de.setValueType( ValueType.DATETIME );
-        assertNull( dataValueIsValid( "2013-04-01T11:00:00.000Z", de ) );
+        assertNull( dataValueIsValid( "2021-08-30T13:53:33.767412Z", de ) );
+        assertNull( dataValueIsValid( "2021-08-30T13:53:33.767412", de ) );
+        assertNull( dataValueIsValid( "2013-04-01T11:12:05.5417Z", de ) );
+        assertNull( dataValueIsValid( "2013-04-01T11:12:05.5417", de ) );
+        assertNull( dataValueIsValid( "2013-04-01T11:12:02.541Z", de ) );
+        assertNull( dataValueIsValid( "2021-08-30T13:53:33.741", de ) );
+        assertNull( dataValueIsValid( "2013-04-01T11:12:00", de ) );
         assertNotNull( dataValueIsValid( "2013-04-01", de ) );
         assertNotNull( dataValueIsValid( "abcd", de ) );
     }
@@ -245,6 +264,7 @@ public class ValidationUtilsTest
         assertFalse( isValidHexColor( "abcpqr" ) );
         assertFalse( isValidHexColor( "#qwerty" ) );
         assertFalse( isValidHexColor( "FFAB#O" ) );
+        assertFalse( isValidHexColor( "#aaee88ee" ) );
 
         assertTrue( isValidHexColor( "#FF0" ) );
         assertTrue( isValidHexColor( "#FF0000" ) );

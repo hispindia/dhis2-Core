@@ -34,11 +34,14 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.hisp.dhis.DhisConvenienceTest;
 import org.hisp.dhis.random.BeanRandomizer;
 import org.hisp.dhis.trackedentitycomment.TrackedEntityComment;
 import org.hisp.dhis.tracker.domain.Note;
 import org.hisp.dhis.tracker.preheat.TrackerPreheat;
+import org.hisp.dhis.user.User;
 import org.hisp.dhis.util.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,40 +49,52 @@ import org.junit.Test;
 /**
  * @author Luciano Fiandesio
  */
-public class NotesConverterServiceTest
+public class NotesConverterServiceTest extends DhisConvenienceTest
 {
+    private static final String CURRENT_USER = "usernamea";
+
     private NotesConverterService notesConverterService;
 
     private TrackerPreheat preheat;
 
-    private BeanRandomizer rnd;
+    private final BeanRandomizer rnd = BeanRandomizer.create();
 
     @Before
     public void setUp()
     {
         this.notesConverterService = new NotesConverterService();
+        User user = createUser( 'A' );
         this.preheat = new TrackerPreheat();
-        rnd = new BeanRandomizer();
+        preheat.setUser( user );
     }
 
     @Test
     public void verifyConvertCommentToNote()
     {
-        Note note = rnd.randomObject( Note.class );
+        Note note = rnd.nextObject( Note.class );
 
         final TrackedEntityComment comment = notesConverterService.from( preheat, note );
         assertNoteValues( comment, note );
     }
 
     @Test
+    public void verifyConvertCommentToNoteWithNoStoredByDefined()
+    {
+        Note note = rnd.nextObject( Note.class );
+        note.setStoredBy( null );
+
+        final TrackedEntityComment comment = notesConverterService.from( preheat, note );
+        assertNoteValuesWithCurrentUser( comment, note );
+    }
+
+    @Test
     public void verifyConvertCommentsToNotes()
     {
-        List<Note> notes = rnd.randomObjects( Note.class, 10 );
+        List<Note> notes = rnd.objects( Note.class, 10 ).collect( Collectors.toList() );
 
         final List<TrackedEntityComment> comments = notesConverterService.from( preheat, notes );
 
         assertThat( comments, hasSize( 10 ) );
-
         for ( Note note : notes )
         {
             assertNoteValues( comments.stream().filter( c -> c.getUid().equals( note.getNote() ) ).findFirst().get(),
@@ -90,7 +105,7 @@ public class NotesConverterServiceTest
     @Test
     public void verifyConvertNoteToComment()
     {
-        TrackedEntityComment comment = rnd.randomObject( TrackedEntityComment.class );
+        TrackedEntityComment comment = rnd.nextObject( TrackedEntityComment.class );
 
         final Note note = notesConverterService.to( comment );
 
@@ -100,7 +115,8 @@ public class NotesConverterServiceTest
     @Test
     public void verifyConvertNotesToComments()
     {
-        List<TrackedEntityComment> comments = rnd.randomObjects( TrackedEntityComment.class, 10 );
+        List<TrackedEntityComment> comments = rnd.objects( TrackedEntityComment.class, 10 )
+            .collect( Collectors.toList() );
 
         final List<Note> notes = notesConverterService.to( comments );
 
@@ -116,9 +132,15 @@ public class NotesConverterServiceTest
         assertThat( comment, is( notNullValue() ) );
         assertThat( comment.getUid(), is( note.getNote() ) );
         assertThat( comment.getCommentText(), is( note.getValue() ) );
-        // assertThat( comment.getCreator(), is( note.getStoredBy() ) ); // TODO
-        // check
-        // if this is needed
+        assertThat( comment.getCreator(), is( note.getStoredBy() ) );
+    }
+
+    private void assertNoteValuesWithCurrentUser( TrackedEntityComment comment, Note note )
+    {
+        assertThat( comment, is( notNullValue() ) );
+        assertThat( comment.getUid(), is( note.getNote() ) );
+        assertThat( comment.getCommentText(), is( note.getValue() ) );
+        assertThat( comment.getCreator(), is( CURRENT_USER ) );
     }
 
     private void assertCommentValues( Note note, TrackedEntityComment comment )

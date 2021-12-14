@@ -29,8 +29,10 @@ package org.hisp.dhis.mock;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -38,6 +40,7 @@ import javax.annotation.Nullable;
 import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.feedback.ErrorReport;
 import org.hisp.dhis.user.User;
+import org.hisp.dhis.user.UserAccountExpiryInfo;
 import org.hisp.dhis.user.UserAuthorityGroup;
 import org.hisp.dhis.user.UserCredentials;
 import org.hisp.dhis.user.UserQueryParams;
@@ -370,6 +373,12 @@ public class MockUserService
     }
 
     @Override
+    public List<UserAccountExpiryInfo> getExpiringUserAccounts( int inDays )
+    {
+        return null;
+    }
+
+    @Override
     public void set2FA( User user, Boolean twoFA )
     {
     }
@@ -398,8 +407,20 @@ public class MockUserService
     }
 
     @Override
+    public Set<String> findNotifiableUsersWithLastLoginBetween( Date from, Date to )
+    {
+        return null;
+    }
+
+    @Override
     public String getDisplayName( String userUid )
     {
         return null;
+    }
+
+    @Override
+    public List<UserCredentials> getUsersWithAuthority( String authority )
+    {
+        return Collections.emptyList();
     }
 }

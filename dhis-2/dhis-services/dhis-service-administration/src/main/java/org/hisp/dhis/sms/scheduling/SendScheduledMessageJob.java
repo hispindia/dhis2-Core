@@ -36,8 +36,9 @@ import java.util.List;
 import org.hisp.dhis.feedback.ErrorCode;
 import org.hisp.dhis.feedback.ErrorReport;
 import org.hisp.dhis.message.MessageSender;
-import org.hisp.dhis.scheduling.AbstractJob;
+import org.hisp.dhis.scheduling.Job;
 import org.hisp.dhis.scheduling.JobConfiguration;
+import org.hisp.dhis.scheduling.JobProgress;
 import org.hisp.dhis.scheduling.JobType;
 import org.hisp.dhis.sms.outbound.OutboundSms;
 import org.hisp.dhis.sms.outbound.OutboundSmsService;
@@ -48,8 +49,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component( "sendScheduledMessageJob" )
-public class SendScheduledMessageJob
-    extends AbstractJob
+public class SendScheduledMessageJob implements Job
 {
     private final OutboundSmsService outboundSmsService;
 
@@ -80,7 +80,7 @@ public class SendScheduledMessageJob
     }
 
     @Override
-    public void execute( JobConfiguration jobConfiguration )
+    public void execute( JobConfiguration jobConfiguration, JobProgress progress )
     {
         Clock clock = new Clock().startClock();
 
@@ -102,7 +102,7 @@ public class SendScheduledMessageJob
                 "SMS gateway configuration does not exist" );
         }
 
-        return super.validate();
+        return Job.super.validate();
     }
 
     // -------------------------------------------------------------------------

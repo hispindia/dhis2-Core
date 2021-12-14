@@ -102,6 +102,8 @@ public enum JobType
     TEI_IMPORT( false ),
     DISABLE_INACTIVE_USERS( true, SchedulingType.CRON,
         DisableInactiveUsersJobParameters.class, null ),
+    ACCOUNT_EXPIRY_ALERT( false ),
+    SYSTEM_VERSION_UPDATE_CHECK( false ),
 
     // Testing purposes
     MOCK( false, SchedulingType.CRON, MockJobParameters.class, null ),
@@ -136,6 +138,11 @@ public enum JobType
         this.schedulingType = schedulingType;
         this.jobParameters = jobParameters;
         this.relativeApiElements = relativeApiElements;
+    }
+
+    public boolean isUsingNotifications()
+    {
+        return this == RESOURCE_TABLE || this == ANALYTICS_TABLE || this == CONTINUOUS_ANALYTICS_TABLE;
     }
 
     public boolean isCronSchedulingType()

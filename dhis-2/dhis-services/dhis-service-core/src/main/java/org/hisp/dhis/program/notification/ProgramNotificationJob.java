@@ -32,8 +32,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.Calendar;
 
 import org.hisp.dhis.message.MessageService;
-import org.hisp.dhis.scheduling.AbstractJob;
+import org.hisp.dhis.scheduling.Job;
 import org.hisp.dhis.scheduling.JobConfiguration;
+import org.hisp.dhis.scheduling.JobProgress;
 import org.hisp.dhis.scheduling.JobType;
 import org.hisp.dhis.system.notification.NotificationLevel;
 import org.hisp.dhis.system.notification.Notifier;
@@ -45,7 +46,7 @@ import org.springframework.stereotype.Component;
  */
 
 @Component( "programNotificationsJob" )
-public class ProgramNotificationJob extends AbstractJob
+public class ProgramNotificationJob implements Job
 {
     private final ProgramNotificationService programNotificationService;
 
@@ -76,7 +77,7 @@ public class ProgramNotificationJob extends AbstractJob
     }
 
     @Override
-    public void execute( JobConfiguration jobConfiguration )
+    public void execute( JobConfiguration jobConfiguration, JobProgress progress )
     {
         final Clock clock = new Clock().startClock();
 

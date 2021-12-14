@@ -40,10 +40,12 @@ import org.hisp.dhis.feedback.ObjectReport;
 import org.hisp.dhis.importexport.ImportStrategy;
 import org.hisp.dhis.preheat.PreheatIdentifier;
 import org.hisp.dhis.user.User;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Luciano Fiandesio
  */
+@Component
 public class SecurityCheck implements ObjectValidationCheck
 {
     @Override
@@ -58,6 +60,10 @@ public class SecurityCheck implements ObjectValidationCheck
         if ( importStrategy.isCreate() || importStrategy.isCreateAndUpdate() )
         {
             runValidationCheck( bundle, klass, nonPersistedObjects, ImportStrategy.CREATE, context, addReports );
+        }
+        if ( importStrategy.isDelete() )
+        {
+            runValidationCheck( bundle, klass, persistedObjects, ImportStrategy.DELETE, context, addReports );
         }
     }
 

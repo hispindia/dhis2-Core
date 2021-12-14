@@ -27,7 +27,12 @@
  */
 package org.hisp.dhis.tracker;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -98,29 +103,25 @@ public class TrackerIdentifierCollector
     private void collectProgramRulesFields( Map<Class<?>, Set<String>> map,
         TrackerIdentifierParams params )
     {
-        Set<String> programStages = map.get( ProgramStage.class );
-        if ( programStages != null )
-        {
-            List<ProgramRule> programRules = programRuleService.getProgramRuleByProgramStage( programStages );
-            Set<String> dataElements = programRules.stream()
-                .flatMap( pr -> pr.getProgramRuleActions().stream() )
-                .filter( a -> Objects.nonNull( a.getDataElement() ) )
-                .map( a -> a.getDataElement().getUid() )
-                .collect( Collectors.toSet() );
+        List<ProgramRule> programRules = programRuleService.getProgramRulesLinkedToTeaOrDe();
+        Set<String> dataElements = programRules.stream()
+            .flatMap( pr -> pr.getProgramRuleActions().stream() )
+            .filter( a -> Objects.nonNull( a.getDataElement() ) )
+            .map( a -> a.getDataElement().getUid() )
+            .collect( Collectors.toSet() );
 
-            dataElements
-                .forEach(
-                    de -> addIdentifier( map, DataElement.class, params.getDataElementIdScheme().getIdScheme(), de ) );
+        dataElements
+            .forEach(
+                de -> addIdentifier( map, DataElement.class, params.getDataElementIdScheme().getIdScheme(), de ) );
 
-            Set<String> attributes = programRules.stream()
-                .flatMap( pr -> pr.getProgramRuleActions().stream() )
-                .filter( a -> Objects.nonNull( a.getAttribute() ) )
-                .map( a -> a.getAttribute().getUid() )
-                .collect( Collectors.toSet() );
+        Set<String> attributes = programRules.stream()
+            .flatMap( pr -> pr.getProgramRuleActions().stream() )
+            .filter( a -> Objects.nonNull( a.getAttribute() ) )
+            .map( a -> a.getAttribute().getUid() )
+            .collect( Collectors.toSet() );
 
-            attributes.forEach(
-                attribute -> addIdentifier( map, TrackedEntityAttribute.class, TrackerIdScheme.UID, attribute ) );
-        }
+        attributes.forEach(
+            attribute -> addIdentifier( map, TrackedEntityAttribute.class, TrackerIdScheme.UID, attribute ) );
     }
 
     private void collectDefaults( Map<Class<?>, Set<String>> map,
@@ -207,7 +208,7 @@ public class TrackerIdentifierCollector
     private void collectRelationships(
         Map<Class<?>, Set<String>> map, List<Relationship> relationships )
     {
-        relationships.parallelStream().forEach( relationship -> {
+        relationships.forEach( relationship -> {
 
             RelationshipKey relationshipKey = RelationshipPreheatKeySupport.getRelationshipKey( relationship );
 

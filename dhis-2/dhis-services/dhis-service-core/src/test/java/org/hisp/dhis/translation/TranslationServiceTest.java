@@ -36,16 +36,27 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.hisp.dhis.DhisSpringTest;
-import org.hisp.dhis.chart.ChartType;
+import org.hisp.dhis.analytics.AggregationType;
+import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.common.IdentifiableObjectManager;
 import org.hisp.dhis.common.UserContext;
 import org.hisp.dhis.common.ValueType;
+import org.hisp.dhis.commons.util.RelationshipUtils;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.eventchart.EventChart;
-import org.hisp.dhis.mapping.*;
+import org.hisp.dhis.eventvisualization.EventVisualization;
+import org.hisp.dhis.eventvisualization.EventVisualizationType;
+import org.hisp.dhis.expression.Expression;
+import org.hisp.dhis.mapping.ExternalMapLayer;
+import org.hisp.dhis.mapping.ImageFormat;
+import org.hisp.dhis.mapping.MapLayerPosition;
+import org.hisp.dhis.mapping.MapService;
 import org.hisp.dhis.option.Option;
 import org.hisp.dhis.option.OptionSet;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
+import org.hisp.dhis.organisationunit.OrganisationUnitLevel;
+import org.hisp.dhis.period.PeriodType;
+import org.hisp.dhis.predictor.Predictor;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramSection;
 import org.hisp.dhis.program.ProgramStage;
@@ -64,6 +75,8 @@ import org.hisp.dhis.user.UserSettingKey;
 import org.hisp.dhis.visualization.Visualization;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.collect.Sets;
 
 /**
  * @author Viet Nguyen <viet@dhis2.org>
@@ -159,6 +172,8 @@ public class TranslationServiceTest
         relationship.setFrom( from );
         relationship.setTo( to );
         relationship.setRelationshipType( relationshipType );
+        relationship.setKey( RelationshipUtils.generateRelationshipKey( relationship ) );
+        relationship.setInvertedKey( RelationshipUtils.generateRelationshipInvertedKey( relationship ) );
 
         manager.save( relationship );
 
@@ -261,7 +276,7 @@ public class TranslationServiceTest
 
         EventChart ecA = new EventChart( "ecA" );
         ecA.setProgram( prA );
-        ecA.setType( ChartType.COLUMN );
+        ecA.setType( EventVisualizationType.COLUMN );
         ecA.setBaseLineLabel( "BaseLineLabel" );
         ecA.setDomainAxisLabel( "DomainAxisLabel" );
         ecA.setRangeAxisLabel( "RangeAxisLabel" );
@@ -288,6 +303,50 @@ public class TranslationServiceTest
         manager.updateTranslations( ecA, translations );
 
         EventChart updated = manager.get( EventChart.class, ecA.getUid() );
+
+        assertEquals( "translated BaseLineLabel", updated.getDisplayBaseLineLabel() );
+        assertEquals( "translated DomainAxisLabel", updated.getDisplayDomainAxisLabel() );
+        assertEquals( "translated RangeAxisLabel", updated.getDisplayRangeAxisLabel() );
+        assertEquals( "translated TargetLineLabel", updated.getDisplayTargetLineLabel() );
+        assertEquals( "translated Title", updated.getDisplayTitle() );
+        assertEquals( "translated SubTitle", updated.getDisplaySubtitle() );
+    }
+
+    @Test
+    public void testEventVisualizationTranslations()
+    {
+        Program prA = createProgram( 'A', null, null );
+        manager.save( prA );
+
+        EventVisualization evA = new EventVisualization( "evA" );
+        evA.setProgram( prA );
+        evA.setType( EventVisualizationType.COLUMN );
+        evA.setBaseLineLabel( "BaseLineLabel" );
+        evA.setDomainAxisLabel( "DomainAxisLabel" );
+        evA.setRangeAxisLabel( "RangeAxisLabel" );
+        evA.setTargetLineLabel( "TargetLineLabel" );
+        evA.setTitle( "Title" );
+        evA.setSubtitle( "SubTitle" );
+
+        manager.save( evA );
+
+        Set<Translation> translations = new HashSet<>();
+        translations.add( new Translation( locale.getLanguage(), "baseLineLabel",
+            "translated BaseLineLabel" ) );
+        translations.add( new Translation( locale.getLanguage(), "domainAxisLabel",
+            "translated DomainAxisLabel" ) );
+        translations.add( new Translation( locale.getLanguage(), "rangeAxisLabel",
+            "translated RangeAxisLabel" ) );
+        translations.add( new Translation( locale.getLanguage(), "targetLineLabel",
+            "translated TargetLineLabel" ) );
+        translations.add( new Translation( locale.getLanguage(), "title",
+            "translated Title" ) );
+        translations.add( new Translation( locale.getLanguage(), "subtitle",
+            "translated SubTitle" ) );
+
+        manager.updateTranslations( evA, translations );
+
+        EventVisualization updated = manager.get( EventVisualization.class, evA.getUid() );
 
         assertEquals( "translated BaseLineLabel", updated.getDisplayBaseLineLabel() );
         assertEquals( "translated DomainAxisLabel", updated.getDisplayDomainAxisLabel() );
@@ -384,6 +443,46 @@ public class TranslationServiceTest
         assertEquals( "translated Name", template.getDisplayName() );
         assertEquals( "translated SUBJECT TEMPLATE", template.getDisplaySubjectTemplate() );
         assertEquals( "translated MESSAGE TEMPLATE", template.getDisplayMessageTemplate() );
+    }
 
+    @Test
+    public void testPredictorTranslations()
+    {
+        DataElement dataElementX = createDataElement( 'X', ValueType.NUMBER, AggregationType.NONE );
+        DataElement dataElementA = createDataElement( 'A' );
+        DataElement dataElementB = createDataElement( 'B' );
+        manager.save( dataElementA );
+        manager.save( dataElementB );
+        manager.save( dataElementX );
+
+        OrganisationUnitLevel orgUnitLevel1 = new OrganisationUnitLevel( 1, "Level1" );
+        manager.save( orgUnitLevel1 );
+
+        CategoryOptionCombo defaultCombo = categoryService.getDefaultCategoryOptionCombo();
+        PeriodType periodTypeMonthly = PeriodType.getPeriodTypeByName( "Monthly" );
+
+        Expression expressionA = new Expression(
+            "AVG(#{" + dataElementA.getUid() + "})+1.5*STDDEV(#{" + dataElementA.getUid() + "})", "descriptionA" );
+        expressionA.setTranslations( Sets.newHashSet( new Translation( locale.getLanguage(), "DESCRIPTION",
+            "translated descriptionA" ) ) );
+
+        Expression expressionB = new Expression( "AVG(#{" + dataElementB.getUid() + "." + defaultCombo.getUid() + "})",
+            "descriptionB" );
+        expressionB.setTranslations( Sets.newHashSet( new Translation( locale.getLanguage(), "DESCRIPTION",
+            "translated descriptionB" ) ) );
+
+        Predictor predictor = createPredictor( dataElementX, defaultCombo, "A", expressionA, expressionB,
+            periodTypeMonthly, orgUnitLevel1, 6, 1, 0 );
+
+        manager.save( predictor );
+
+        manager.updateTranslations( predictor, Sets.newHashSet( new Translation( locale.getLanguage(), "NAME",
+            "translated Predictor Name" ) ) );
+
+        predictor = manager.get( Predictor.class, predictor.getUid() );
+
+        assertEquals( "translated Predictor Name", predictor.getDisplayName() );
+        assertEquals( "translated descriptionA", predictor.getGenerator().getDisplayDescription() );
+        assertEquals( "translated descriptionB", predictor.getSampleSkipTest().getDisplayDescription() );
     }
 }

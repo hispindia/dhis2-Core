@@ -29,6 +29,7 @@ package org.hisp.dhis.user;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -80,6 +81,13 @@ public interface UserStore
     List<User> getExpiringUsers( UserQueryParams userQueryParams );
 
     /**
+     * @param inDays number of days to include
+     * @return list of those users that are about to expire in the provided
+     *         number of days (or less) and which have an email configured
+     */
+    List<UserAccountExpiryInfo> getExpiringUserAccounts( int inDays );
+
+    /**
      * Returns UserCredentials for given username.
      *
      * @param username username for which the UserCredentials will be returned
@@ -114,6 +122,17 @@ public interface UserStore
      * @return number of users disabled
      */
     int disableUsersInactiveSince( Date inactiveSince );
+
+    /**
+     * Selects all not disabled users where the
+     * {@link UserCredentials#getLastLogin()} is within the given time-frame and
+     * which have an email address.
+     *
+     * @param from start of the selected time-frame (inclusive)
+     * @param to end of the selected time-frame (exclusive)
+     * @return user emails having a last login within the given time-frame.
+     */
+    Set<String> findNotifiableUsersWithLastLoginBetween( Date from, Date to );
 
     String getDisplayName( String userUid );
 }

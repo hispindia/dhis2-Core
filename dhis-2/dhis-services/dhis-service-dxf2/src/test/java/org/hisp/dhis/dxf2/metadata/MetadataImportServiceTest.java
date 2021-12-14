@@ -32,7 +32,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -50,7 +49,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
 import org.hisp.dhis.TransactionalIntegrationTest;
-import org.hisp.dhis.category.CategoryCombo;
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.common.IdentifiableObjectManager;
 import org.hisp.dhis.common.MergeMode;
@@ -60,6 +58,7 @@ import org.hisp.dhis.dataset.DataSetService;
 import org.hisp.dhis.dataset.Section;
 import org.hisp.dhis.dxf2.metadata.feedback.ImportReport;
 import org.hisp.dhis.dxf2.metadata.objectbundle.ObjectBundleMode;
+import org.hisp.dhis.eventreport.EventReport;
 import org.hisp.dhis.feedback.ErrorCode;
 import org.hisp.dhis.feedback.Status;
 import org.hisp.dhis.importexport.ImportStrategy;
@@ -542,31 +541,6 @@ public class MetadataImportServiceTest extends TransactionalIntegrationTest
         assertEquals( 2, dataSet.getTranslations().size() );
     }
 
-    @Test( expected = IllegalArgumentException.class )
-    public void testImportNonExistingEntityObject()
-        throws IOException
-    {
-        User user = createUser( 'A' );
-        manager.save( user );
-
-        UserGroup userGroup = createUserGroup( 'A', Sets.newHashSet( user ) );
-        manager.save( userGroup );
-
-        userGroup = manager.get( UserGroup.class, "ugabcdefghA" );
-        assertNotNull( userGroup );
-
-        Map<Class<? extends IdentifiableObject>, List<IdentifiableObject>> metadata = renderService.fromMetadata(
-            new ClassPathResource( "dxf2/favorites/metadata_chart_with_accesses.json" ).getInputStream(),
-            RenderFormat.JSON );
-
-        MetadataImportParams params = createParams( ImportStrategy.CREATE, metadata );
-
-        importService.importMetadata( params );
-
-        // Should not get to this point.
-        fail( "The exception org.hibernate.MappingException was expected." );
-    }
-
     @Test
     public void testImportMultiPropertyUniqueness()
         throws IOException
@@ -648,7 +622,10 @@ public class MetadataImportServiceTest extends TransactionalIntegrationTest
         User user = createUser( 'A' );
         manager.save( user );
 
-        UserGroup userGroup = createUserGroup( 'A', Sets.newHashSet( user ) );
+        User userA = manager.get( User.class, user.getUid() );
+        assertNotNull( userA );
+
+        UserGroup userGroup = createUserGroup( 'A', Sets.newHashSet( userA ) );
         manager.save( userGroup );
 
         userGroup = manager.get( UserGroup.class, "ugabcdefghA" );
@@ -691,51 +668,6 @@ public class MetadataImportServiceTest extends TransactionalIntegrationTest
         assertNotNull( visualization );
         assertEquals( 0, visualization.getUserGroupAccesses().size() );
         assertEquals( 0, visualization.getUserAccesses().size() );
-    }
-
-    /**
-     * 1. Create an object with UserGroupAccessA 2. Update object with only
-     * UserGroupAccessB in payload and mergeMode=MERGE Expected: updated object
-     * will have two UserGroupAccesses
-     *
-     * @throws IOException
-     */
-    @Test
-    public void testImportSharingWithMergeModeMerge()
-        throws IOException
-    {
-        User user = createUser( "A", "ALL" );
-        manager.save( user );
-
-        Map<Class<? extends IdentifiableObject>, List<IdentifiableObject>> metadata = renderService.fromMetadata(
-            new ClassPathResource( "dxf2/dataset_with_accesses_skipSharing.json" ).getInputStream(),
-            RenderFormat.JSON );
-
-        MetadataImportParams params = createParams( ImportStrategy.CREATE, metadata );
-        params.setUser( user );
-
-        ImportReport report = importService.importMetadata( params );
-        assertEquals( Status.OK, report.getStatus() );
-
-        DataSet dataSet = manager.get( DataSet.class, "em8Bg4LCr5k" );
-        assertNotNull( dataSet.getSharing().getUserGroups() );
-        assertEquals( 1, dataSet.getSharing().getUserGroups().size() );
-
-        metadata = renderService.fromMetadata(
-            new ClassPathResource( "dxf2/dataset_with_accesses_merge_mode.json" ).getInputStream(),
-            RenderFormat.JSON );
-
-        params = createParams( ImportStrategy.CREATE_AND_UPDATE, metadata );
-        params.setMergeMode( MergeMode.MERGE );
-        params.setUser( user );
-
-        report = importService.importMetadata( params );
-        assertEquals( Status.OK, report.getStatus() );
-
-        dataSet = manager.get( DataSet.class, "em8Bg4LCr5k" );
-        assertNotNull( dataSet.getSharing().getUserGroups() );
-
-        assertEquals( 2, dataSet.getSharing().getUserGroups().size() );
     }
 
     /**
@@ -803,6 +735,12 @@ public class MetadataImportServiceTest extends TransactionalIntegrationTest
 
         ProgramStage programStage = program.getProgramStages().iterator().next();
         assertNotNull( programStage.getProgram() );
+
+        assertEquals( 3, programStage.getProgramStageDataElements().size() );
+        programStage.getProgramStageDataElements().forEach( psde -> {
+            assertNotNull( psde.getSkipAnalytics() );
+            assertFalse( psde.getSkipAnalytics() );
+        } );
 
         Set<ProgramStageSection> programStageSections = programStage.getProgramStageSections();
         assertNotNull( programStageSections );
@@ -878,8 +816,6 @@ public class MetadataImportServiceTest extends TransactionalIntegrationTest
         assertNotNull( programStage.getProgramStageSections() );
 
         assertNotNull( manager.get( ProgramStageSection.class, "JwcV2ZifEQf" ) );
-
-        CategoryCombo categoryCombo = manager.get( CategoryCombo.class, "faV8QvLgIwB" );
 
         metadata = renderService.fromMetadata(
             new ClassPathResource( "dxf2/programstage_with_removed_section.json" ).getInputStream(),
@@ -1118,6 +1054,16 @@ public class MetadataImportServiceTest extends TransactionalIntegrationTest
         assertEquals( "test1", maps.get( 0 ).getName() );
         assertEquals( 1, maps.get( 0 ).getMapViews().size() );
 
+        org.hisp.dhis.mapping.Map map = manager.get( org.hisp.dhis.mapping.Map.class, "LTNgXfzTFTv" );
+        assertNotNull( map );
+        assertEquals( 1, map.getMapViews().size() );
+
+        MapView mapView = map.getMapViews().get( 0 );
+        assertNotNull( mapView );
+        assertEquals( "#ddeeff", mapView.getNoDataColor() );
+        assertEquals( "#aabbcc", mapView.getOrganisationUnitColor() );
+        assertEquals( ThematicMapType.CHOROPLETH, mapView.getThematicMapType() );
+
         metadata = renderService.fromMetadata(
             new ClassPathResource( "dxf2/map_update.json" ).getInputStream(), RenderFormat.JSON );
 
@@ -1129,14 +1075,63 @@ public class MetadataImportServiceTest extends TransactionalIntegrationTest
         report = importService.importMetadata( params );
         assertEquals( Status.OK, report.getStatus() );
 
-        org.hisp.dhis.mapping.Map map = manager.get( org.hisp.dhis.mapping.Map.class, "LTNgXfzTFTv" );
+        map = manager.get( org.hisp.dhis.mapping.Map.class, "LTNgXfzTFTv" );
         assertNotNull( map );
         assertEquals( 1, map.getMapViews().size() );
 
-        MapView mapView = map.getMapViews().get( 0 );
+        mapView = map.getMapViews().get( 0 );
         assertNotNull( mapView );
         assertEquals( "#ddeeff", mapView.getNoDataColor() );
+        assertEquals( "#aabbcc", mapView.getOrganisationUnitColor() );
         assertEquals( ThematicMapType.CHOROPLETH, mapView.getThematicMapType() );
+    }
+
+    /**
+     * Payload includes Program and ProgramStage with sharing settings.
+     * <p>
+     * Expected: after created, both Program and ProgramStage are saved
+     * correctly together with sharing settings.
+     */
+    @Test
+    public void testImportProgramWithProgramStageAndSharing()
+        throws IOException
+    {
+        User user = createUser( "A", "ALL" );
+        manager.save( user );
+
+        Map<Class<? extends IdentifiableObject>, List<IdentifiableObject>> metadata = renderService.fromMetadata(
+            new ClassPathResource( "dxf2/program_programStage_with_sharing.json" ).getInputStream(),
+            RenderFormat.JSON );
+
+        MetadataImportParams params = createParams( ImportStrategy.CREATE, metadata );
+        params.setSkipSharing( false );
+        params.setUser( user );
+
+        ImportReport report = importService.importMetadata( params );
+        assertEquals( Status.OK, report.getStatus() );
+
+        ProgramStage programStage = programStageService.getProgramStage( "oORy3Rg9hLE" );
+        assertEquals( 1, programStage.getSharing().getUserGroups().size() );
+
+        Program program = manager.get( "QIHW6CBdLsP" );
+        assertEquals( 1, program.getSharing().getUserGroups().size() );
+    }
+
+    @Test
+    public void testImportEventReportWithProgramIndicators()
+        throws IOException
+    {
+        Map<Class<? extends IdentifiableObject>, List<IdentifiableObject>> metadata = renderService.fromMetadata(
+            new ClassPathResource( "dxf2/eventreport_with_program_indicator.json" ).getInputStream(),
+            RenderFormat.JSON );
+        MetadataImportParams params = createParams( ImportStrategy.CREATE, metadata );
+        ImportReport report = importService.importMetadata( params );
+        assertEquals( Status.OK, report.getStatus() );
+
+        EventReport eventReport = manager.get( EventReport.class, "pCSijMNjMcJ" );
+        assertNotNull( eventReport.getProgramIndicatorDimensions() );
+        assertEquals( 1, eventReport.getProgramIndicatorDimensions().size() );
+        assertEquals( "Cl00ghs775c", eventReport.getProgramIndicatorDimensions().get( 0 ).getUid() );
     }
 
     private MetadataImportParams createParams( ImportStrategy importStrategy,

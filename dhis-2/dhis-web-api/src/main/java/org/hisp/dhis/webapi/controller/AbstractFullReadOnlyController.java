@@ -40,9 +40,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cache2k.Cache;
 import org.hisp.dhis.attribute.AttributeService;
-import org.hisp.dhis.cache.PaginationCacheManager;
 import org.hisp.dhis.common.DhisApiVersion;
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.common.IdentifiableObjectManager;
@@ -51,6 +49,8 @@ import org.hisp.dhis.common.UserContext;
 import org.hisp.dhis.dxf2.common.OrderParams;
 import org.hisp.dhis.dxf2.common.TranslateParams;
 import org.hisp.dhis.dxf2.webmessage.WebMessageException;
+import org.hisp.dhis.eventchart.EventChart;
+import org.hisp.dhis.eventreport.EventReport;
 import org.hisp.dhis.fieldfilter.Defaults;
 import org.hisp.dhis.fieldfilter.FieldFilterParams;
 import org.hisp.dhis.fieldfilter.FieldFilterService;
@@ -71,6 +71,7 @@ import org.hisp.dhis.query.QueryParserException;
 import org.hisp.dhis.query.QueryService;
 import org.hisp.dhis.schema.Schema;
 import org.hisp.dhis.security.acl.AclService;
+import org.hisp.dhis.user.CurrentUser;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserSettingKey;
@@ -106,9 +107,6 @@ public abstract class AbstractFullReadOnlyController<T extends IdentifiableObjec
     protected static final String DEFAULTS = "INCLUDE";
 
     protected static final WebOptions NO_WEB_OPTIONS = new WebOptions( new HashMap<>() );
-
-    @Autowired
-    protected PaginationCacheManager paginationCacheManager;
 
     @Autowired
     protected IdentifiableObjectManager manager;
@@ -165,12 +163,13 @@ public abstract class AbstractFullReadOnlyController<T extends IdentifiableObjec
     @GetMapping
     public @ResponseBody RootNode getObjectList(
         @RequestParam Map<String, String> rpParameters, OrderParams orderParams,
-        HttpServletResponse response, User currentUser )
+        HttpServletResponse response, @CurrentUser User currentUser )
         throws QueryParserException
     {
+        List<Order> orders = orderParams.getOrders( getSchema() );
         List<String> fields = Lists.newArrayList( contextService.getParameterValues( "fields" ) );
         List<String> filters = Lists.newArrayList( contextService.getParameterValues( "filter" ) );
-        List<Order> orders = orderParams.getOrders( getSchema() );
+        forceFilterForEventChartOrReport( filters );
 
         if ( fields.isEmpty() )
         {
@@ -206,9 +205,7 @@ public abstract class AbstractFullReadOnlyController<T extends IdentifiableObjec
             }
             else
             {
-                Cache<String, Long> paginationCache = paginationCacheManager.getPaginationCache( getEntityClass() );
-                String cacheKey = composePaginationCountKey( currentUser, filters, options );
-                totalCount = paginationCache.computeIfAbsent( cacheKey, () -> countTotal( options, filters, orders ) );
+                totalCount = countTotal( options, filters, orders );
             }
 
             pager = new Pager( options.getPage(), totalCount, options.getPageSize() );
@@ -242,12 +239,11 @@ public abstract class AbstractFullReadOnlyController<T extends IdentifiableObjec
     public @ResponseBody RootNode getObject(
         @PathVariable( "uid" ) String pvUid,
         @RequestParam Map<String, String> rpParameters,
+        @CurrentUser User currentUser,
         HttpServletRequest request, HttpServletResponse response )
         throws Exception
     {
-        User user = currentUserService.getCurrentUser();
-
-        if ( !aclService.canRead( user, getEntityClass() ) )
+        if ( !aclService.canRead( currentUser, getEntityClass() ) )
         {
             throw new ReadAccessDeniedException(
                 "You don't have the proper permissions to read objects of this type." );
@@ -263,7 +259,7 @@ public abstract class AbstractFullReadOnlyController<T extends IdentifiableObjec
 
         cachePrivate( response );
 
-        return getObjectInternal( pvUid, rpParameters, filters, fields, user );
+        return getObjectInternal( pvUid, rpParameters, filters, fields, currentUser );
     }
 
     @GetMapping( "/{uid}/{property}" )
@@ -271,14 +267,13 @@ public abstract class AbstractFullReadOnlyController<T extends IdentifiableObjec
         @PathVariable( "uid" ) String pvUid, @PathVariable( "property" ) String pvProperty,
         @RequestParam Map<String, String> rpParameters,
         TranslateParams translateParams,
+        @CurrentUser User currentUser,
         HttpServletResponse response )
         throws Exception
     {
-        User user = currentUserService.getCurrentUser();
-
         if ( !"translations".equals( pvProperty ) )
         {
-            setUserContext( user, translateParams );
+            setUserContext( currentUser, translateParams );
         }
         else
         {
@@ -287,7 +282,7 @@ public abstract class AbstractFullReadOnlyController<T extends IdentifiableObjec
 
         try
         {
-            if ( !aclService.canRead( user, getEntityClass() ) )
+            if ( !aclService.canRead( currentUser, getEntityClass() ) )
             {
                 throw new ReadAccessDeniedException(
                     "You don't have the proper permissions to read objects of this type." );
@@ -305,7 +300,7 @@ public abstract class AbstractFullReadOnlyController<T extends IdentifiableObjec
             cachePrivate( response );
 
             return getObjectInternal( pvUid, rpParameters, Lists.newArrayList(),
-                Lists.newArrayList( pvProperty + fieldFilter ), user );
+                Lists.newArrayList( pvProperty + fieldFilter ), currentUser );
         }
         finally
         {
@@ -320,22 +315,21 @@ public abstract class AbstractFullReadOnlyController<T extends IdentifiableObjec
         @PathVariable( "itemId" ) String pvItemId,
         @RequestParam Map<String, String> parameters,
         TranslateParams translateParams,
-        HttpServletResponse response )
+        HttpServletResponse response, @CurrentUser User currentUser )
         throws Exception
     {
-        User user = currentUserService.getCurrentUser();
-        setUserContext( user, translateParams );
+        setUserContext( currentUser, translateParams );
 
         try
         {
-            if ( !aclService.canRead( user, getEntityClass() ) )
+            if ( !aclService.canRead( currentUser, getEntityClass() ) )
             {
                 throw new ReadAccessDeniedException(
                     "You don't have the proper permissions to read objects of this type." );
             }
 
             RootNode rootNode = getObjectInternal( pvUid, parameters, Lists.newArrayList(),
-                Lists.newArrayList( pvProperty + "[:all]" ), user );
+                Lists.newArrayList( pvProperty + "[:all]" ), currentUser );
 
             // TODO optimize this using field filter (collection filtering)
             if ( !rootNode.getChildren().isEmpty() && rootNode.getChildren().get( 0 ).isCollection() )
@@ -366,7 +360,7 @@ public abstract class AbstractFullReadOnlyController<T extends IdentifiableObjec
 
     @SuppressWarnings( "unchecked" )
     private RootNode getObjectInternal( String uid, Map<String, String> parameters,
-        List<String> filters, List<String> fields, User user )
+        List<String> filters, List<String> fields, User currentUser )
         throws Exception
     {
         WebOptions options = new WebOptions( parameters );
@@ -379,7 +373,7 @@ public abstract class AbstractFullReadOnlyController<T extends IdentifiableObjec
 
         Query query = queryService.getQueryFromUrl( getEntityClass(), filters, new ArrayList<>(),
             getPaginationData( options ), options.getRootJunction() );
-        query.setUser( user );
+        query.setUser( currentUser );
         query.setObjects( entities );
         query.setDefaults( Defaults.valueOf( options.get( "defaults", DEFAULTS ) ) );
 
@@ -396,7 +390,7 @@ public abstract class AbstractFullReadOnlyController<T extends IdentifiableObjec
 
         CollectionNode collectionNode = fieldFilterService.toCollectionNode( getEntityClass(),
             new FieldFilterParams( entities, fields, Defaults.valueOf( options.get( "defaults", DEFAULTS ) ) )
-                .setUser( user ) );
+                .setUser( currentUser ) );
 
         if ( options.isTrue( "useWrapper" ) || entities.size() > 1 )
         {
@@ -460,12 +454,6 @@ public abstract class AbstractFullReadOnlyController<T extends IdentifiableObjec
     {
         response.setHeader( ContextUtils.HEADER_CACHE_CONTROL,
             noCache().cachePrivate().getHeaderValue() );
-    }
-
-    private String composePaginationCountKey( User currentUser, List<String> filters, WebOptions options )
-    {
-        return currentUser.getUsername() + "." + getEntityName() + "." + String.join( "|", filters ) + "."
-            + options.getRootJunction().name();
     }
 
     private boolean hasHref( List<String> fields )
@@ -601,5 +589,26 @@ public abstract class AbstractFullReadOnlyController<T extends IdentifiableObjec
         }
 
         return InclusionStrategy.Include.NON_NULL;
+    }
+
+    /**
+     * @deprecated This is a temporary workaround to keep EventChart and
+     *             EventReport backward compatible with the new
+     *             EventVisualization entity.
+     *
+     * @param filters
+     */
+    @Deprecated
+    private void forceFilterForEventChartOrReport( final List<String> filters )
+    {
+        if ( getEntityClass().isAssignableFrom( EventChart.class ) )
+        {
+            filters.add( "type:!eq:PIVOT_TABLE" );
+            filters.add( "type:!eq:LINE_LIST" );
+        }
+        else if ( getEntityClass().isAssignableFrom( EventReport.class ) )
+        {
+            filters.add( "type:in:[PIVOT_TABLE,LINE_LIST]" );
+        }
     }
 }

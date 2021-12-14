@@ -39,15 +39,20 @@ public interface DeduplicationService
 
     int countPotentialDuplicates( PotentialDuplicateQuery query );
 
-    boolean exists( PotentialDuplicate potentialDuplicate );
+    boolean exists( PotentialDuplicate potentialDuplicate )
+        throws PotentialDuplicateConflictException;
 
     List<PotentialDuplicate> getAllPotentialDuplicatesBy( PotentialDuplicateQuery query );
-
-    List<PotentialDuplicate> getPotentialDuplicateByTei( String tei, DeduplicationStatus status );
 
     void addPotentialDuplicate( PotentialDuplicate potentialDuplicate );
 
     void updatePotentialDuplicate( PotentialDuplicate potentialDuplicate );
 
-    boolean isAutoMergeable( PotentialDuplicate potentialDuplicate );
+    void autoMerge( DeduplicationMergeParams deduplicationRequest )
+        throws PotentialDuplicateConflictException,
+        PotentialDuplicateForbiddenException;
+
+    void manualMerge( DeduplicationMergeParams deduplicationRequest )
+        throws PotentialDuplicateConflictException,
+        PotentialDuplicateForbiddenException;
 }

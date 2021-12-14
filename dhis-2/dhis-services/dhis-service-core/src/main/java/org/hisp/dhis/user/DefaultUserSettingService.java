@@ -240,8 +240,9 @@ public class DefaultUserSettingService
 
                 if ( useFallback && systemSettingKey.isPresent() )
                 {
+                    SettingKey setting = systemSettingKey.get();
                     result.put( userSettingKey.getName(),
-                        systemSettingManager.getSystemSetting( systemSettingKey.get() ) );
+                        systemSettingManager.getSystemSetting( setting, setting.getClazz() ) );
                 }
                 else
                 {
@@ -310,12 +311,13 @@ public class DefaultUserSettingService
         String cacheKey = getCacheKey( key.getName(), username );
 
         SerializableOptional result = userSettingCache
-            .get( cacheKey, c -> getUserSettingOptional( key, username ) ).get();
+            .get( cacheKey, c -> getUserSettingOptional( key, username ) );
 
         if ( !result.isPresent() && NAME_SETTING_KEY_MAP.containsKey( key.getName() ) )
         {
+            SettingKey settingKey = NAME_SETTING_KEY_MAP.get( key.getName() );
             return SerializableOptional.of(
-                systemSettingManager.getSystemSetting( NAME_SETTING_KEY_MAP.get( key.getName() ) ) );
+                systemSettingManager.getSystemSetting( settingKey, settingKey.getClazz() ) );
         }
         else
         {

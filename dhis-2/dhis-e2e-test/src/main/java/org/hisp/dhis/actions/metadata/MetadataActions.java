@@ -1,5 +1,3 @@
-package org.hisp.dhis.actions.metadata;
-
 /*
  * Copyright (c) 2004-2021, University of Oslo
  * All rights reserved.
@@ -27,17 +25,19 @@ package org.hisp.dhis.actions.metadata;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.hisp.dhis.actions.metadata;
 
-import com.google.gson.JsonObject;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
+
+import java.io.File;
+
 import org.hisp.dhis.actions.RestApiActions;
 import org.hisp.dhis.dto.ApiResponse;
 import org.hisp.dhis.dto.MetadataApiResponse;
 import org.hisp.dhis.helpers.QueryParamsBuilder;
 
-import java.io.File;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
+import com.google.gson.JsonObject;
 
 /**
  * @author Gintare Vilkelyte <vilkelyte.gintare@gmail.com>
@@ -78,8 +78,8 @@ public class MetadataActions
     {
         ApiResponse response = importMetadata( object, queryParams );
 
-        response.validate().body( "stats.ignored", not(
-            equalTo( response.extract( "stats.total" ) ) ) );
+        response.validate().body( "response.stats.ignored", not(
+            equalTo( response.extract( "response.stats.total" ) ) ) );
 
         return new MetadataApiResponse( response );
     }
@@ -88,8 +88,8 @@ public class MetadataActions
     {
         ApiResponse response = importMetadata( file, queryParams );
 
-        response.validate().body( "stats.ignored", not(
-            equalTo( response.extract( "stats.total" ) ) ) );
+        response.validate().body( "response.stats.ignored", not(
+            equalTo( response.extract( "response.stats.total" ) ) ) );
 
         return new MetadataApiResponse( response );
     }

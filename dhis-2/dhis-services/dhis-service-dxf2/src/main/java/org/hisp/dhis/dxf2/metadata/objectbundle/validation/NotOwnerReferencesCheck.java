@@ -49,10 +49,12 @@ import org.hisp.dhis.schema.Property;
 import org.hisp.dhis.schema.PropertyType;
 import org.hisp.dhis.schema.Schema;
 import org.hisp.dhis.system.util.ReflectionUtils;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Morten Olav Hansen
  */
+@Component
 public class NotOwnerReferencesCheck implements ValidationCheck
 {
     @Override
@@ -100,8 +102,9 @@ public class NotOwnerReferencesCheck implements ValidationCheck
 
         Schema schema = ctx.getSchemaService().getDynamicSchema( HibernateProxyUtils.getRealClass( object ) );
 
-        schema.getProperties().stream().filter( p -> !p.isOwner()
-            && (PropertyType.REFERENCE == p.getPropertyType() || PropertyType.REFERENCE == p.getItemPropertyType()) )
+        schema.getProperties().stream().filter( p -> !p.isOwner() && p.isWritable()
+            && (PropertyType.REFERENCE == p.getPropertyType() && schema.getKlass() != p.getKlass()
+                || PropertyType.REFERENCE == p.getItemPropertyType() && schema.getKlass() != p.getItemKlass()) )
             .forEach( p -> {
                 if ( !p.isCollection() )
                 {

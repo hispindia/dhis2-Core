@@ -32,6 +32,7 @@ import static org.hisp.dhis.common.OrganisationUnitSelectionMode.SELECTED;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 
 import org.hisp.dhis.category.CategoryOption;
 import org.hisp.dhis.category.CategoryOptionCombo;
@@ -80,7 +81,7 @@ public class DataExportParams
 
     private Integer orgUnitLevel;
 
-    private boolean includeChildren;
+    private boolean includeDescendants;
 
     private boolean orderByOrgUnitPath;
 
@@ -104,7 +105,7 @@ public class DataExportParams
 
     private IdSchemes outputIdSchemes;
 
-    private DeflatedDataValueConsumer callback;
+    private BlockingQueue<DeflatedDataValue> blockingQueue;
 
     // -------------------------------------------------------------------------
     // Constructors
@@ -192,9 +193,9 @@ public class DataExportParams
         return organisationUnits != null && !organisationUnits.isEmpty();
     }
 
-    public boolean isIncludeChildrenForOrganisationUnits()
+    public boolean isIncludeDescendantsForOrganisationUnits()
     {
-        return includeChildren && hasOrganisationUnits();
+        return includeDescendants && hasOrganisationUnits();
     }
 
     public boolean hasOrgUnitLevel()
@@ -202,9 +203,9 @@ public class DataExportParams
         return orgUnitLevel != null;
     }
 
-    public boolean hasCallback()
+    public boolean hasBlockingQueue()
     {
-        return callback != null;
+        return blockingQueue != null;
     }
 
     public OrganisationUnit getFirstOrganisationUnit()
@@ -274,7 +275,7 @@ public class DataExportParams
             .add( "org units", organisationUnits )
             .add( "org unit selection mode", ouMode )
             .add( "org unit level", orgUnitLevel )
-            .add( "children", includeChildren )
+            .add( "descendants", includeDescendants )
             .add( "order by org unit path", orderByOrgUnitPath )
             .add( "order by period", orderByPeriod )
             .add( "org unit groups", organisationUnitGroups )
@@ -286,7 +287,7 @@ public class DataExportParams
             .add( "last updated duration", lastUpdatedDuration )
             .add( "limit", limit )
             .add( "output id schemes", outputIdSchemes )
-            .add( "callback", callback )
+            .add( "blockingQueue", blockingQueue )
             .toString();
     }
 
@@ -426,14 +427,14 @@ public class DataExportParams
         return this;
     }
 
-    public boolean isIncludeChildren()
+    public boolean isIncludeDescendants()
     {
-        return includeChildren;
+        return includeDescendants;
     }
 
-    public DataExportParams setIncludeChildren( boolean includeChildren )
+    public DataExportParams setIncludeDescendants( boolean includeDescendants )
     {
-        this.includeChildren = includeChildren;
+        this.includeDescendants = includeDescendants;
         return this;
     }
 
@@ -558,14 +559,14 @@ public class DataExportParams
         return this;
     }
 
-    public DeflatedDataValueConsumer getCallback()
+    public BlockingQueue<DeflatedDataValue> getBlockingQueue()
     {
-        return callback;
+        return blockingQueue;
     }
 
-    public DataExportParams setCallback( DeflatedDataValueConsumer callback )
+    public DataExportParams setBlockingQueue( BlockingQueue<DeflatedDataValue> blockingQueue )
     {
-        this.callback = callback;
+        this.blockingQueue = blockingQueue;
         return this;
     }
 }

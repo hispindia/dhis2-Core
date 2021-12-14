@@ -48,6 +48,7 @@ import org.hisp.dhis.user.User;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 @Builder
@@ -64,12 +65,15 @@ public class Sharing
      * Uid of the User who owns the object
      */
     @JsonProperty
+    @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
     private String owner;
 
     @JsonProperty( "public" )
+    @JacksonXmlProperty( localName = "public", namespace = DxfNamespaces.DXF_2_0 )
     private String publicAccess;
 
     @JsonProperty
+    @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
     private boolean external;
 
     /**
@@ -77,7 +81,36 @@ public class Sharing
      */
     @Setter
     @JsonProperty
+    @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
     private Map<String, UserAccess> users = new HashMap<>();
+
+    /**
+     * Map of UserGroupAccess. Key is UserGroup uid
+     */
+    @Setter
+    @JsonProperty
+    @JacksonXmlProperty( namespace = DxfNamespaces.DXF_2_0 )
+    private Map<String, UserGroupAccess> userGroups = new HashMap<>();
+
+    public Sharing( String publicAccess, UserAccess... userAccesses )
+    {
+        this.publicAccess = publicAccess;
+
+        for ( UserAccess userAccess : userAccesses )
+        {
+            users.put( userAccess.getId(), userAccess );
+        }
+    }
+
+    public Sharing( String publicAccess, UserGroupAccess... userGroupAccesses )
+    {
+        this.publicAccess = publicAccess;
+
+        for ( UserGroupAccess userGroupAccess : userGroupAccesses )
+        {
+            userGroups.put( userGroupAccess.getId(), userGroupAccess );
+        }
+    }
 
     public Map<String, UserAccess> getUsers()
     {
@@ -88,13 +121,6 @@ public class Sharing
 
         return users;
     }
-
-    /**
-     * Map of UserGroupAccess. Key is UserGroup uid
-     */
-    @Setter
-    @JsonProperty
-    private Map<String, UserGroupAccess> userGroups = new HashMap<>();
 
     public Map<String, UserGroupAccess> getUserGroups()
     {
@@ -130,22 +156,27 @@ public class Sharing
         userAccesses.forEach( this::addUserAccess );
     }
 
-    public void setDtoUserAccesses( Set<org.hisp.dhis.user.UserAccess> userAccesses )
+    public void setDtoUserAccesses( Set<org.hisp.dhis.user.UserAccess> dto )
     {
-        this.users = clearOrInit( this.users );
-        if ( userAccesses != null && !userAccesses.isEmpty() )
+        if ( dto == null )
         {
-            userAccesses.forEach( ua -> this.addUserAccess( new UserAccess( ua ) ) );
+            return;
         }
+
+        this.users = clearOrInit( this.users );
+        dto.forEach( ua -> this.addUserAccess( new UserAccess( ua ) ) );
     }
 
     public void setDtoUserGroupAccesses( Set<org.hisp.dhis.user.UserGroupAccess> userGroupAccesses )
     {
-        this.userGroups = clearOrInit( this.userGroups );
-        if ( userGroupAccesses != null && !userGroupAccesses.isEmpty() )
+        if ( userGroupAccesses == null )
         {
-            userGroupAccesses.forEach( uga -> this.addUserGroupAccess( new UserGroupAccess( uga ) ) );
+            return;
         }
+
+        this.userGroups = clearOrInit( this.userGroups );
+        userGroupAccesses.forEach( uga -> this.addUserGroupAccess( new UserGroupAccess( uga ) ) );
+
     }
 
     public void setUserGroupAccess( Set<UserGroupAccess> userGroupAccesses )
@@ -158,7 +189,7 @@ public class Sharing
     {
         if ( userAccess != null )
         {
-            this.users.put( userAccess.getId(), userAccess );
+            getUsers().put( userAccess.getId(), userAccess );
         }
     }
 

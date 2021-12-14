@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -146,7 +146,7 @@ public class QueryFilter
         return "'" + encodedFilter + "'";
     }
 
-    private String quote( String filterItem )
+    protected String quote( String filterItem )
     {
         return "'" + filterItem + "'";
     }

@@ -1,5 +1,3 @@
-package org.hisp.dhis.actions;
-
 /*
  * Copyright (c) 2004-2021, University of Oslo
  * All rights reserved.
@@ -27,6 +25,7 @@ package org.hisp.dhis.actions;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.hisp.dhis.actions;
 
 import static io.restassured.RestAssured.oauth2;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -42,8 +41,8 @@ import io.restassured.RestAssured;
 public class LoginActions
 {
     /**
-     * Makes sure user with given name is logged in.
-     * Will throw assertion exception if authentication is not successful.
+     * Makes sure user with given name is logged in. Will throw assertion
+     * exception if authentication is not successful.
      *
      * @param username
      * @param password
@@ -65,8 +64,8 @@ public class LoginActions
     }
 
     /**
-     * Makes sure user configured in env variables is logged in.
-     * Will throw assertion exception if authentication is not successful.
+     * Makes sure user configured in env variables is logged in. Will throw
+     * assertion exception if authentication is not successful.
      */
     public void loginAsSuperUser()
     {
@@ -74,8 +73,8 @@ public class LoginActions
     }
 
     /**
-     * Makes sure user admin:district is logged in.
-     * Will throw assertion exception if authentication is not successful.
+     * Makes sure user admin:district is logged in. Will throw assertion
+     * exception if authentication is not successful.
      */
     public void loginAsDefaultUser()
     {
@@ -113,6 +112,7 @@ public class LoginActions
 
     /**
      * Logs in with oAuth2 token
+     *
      * @param token
      */
     public void loginWithToken( String token )

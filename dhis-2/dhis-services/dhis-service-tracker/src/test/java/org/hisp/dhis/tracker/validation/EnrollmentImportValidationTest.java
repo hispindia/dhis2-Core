@@ -41,6 +41,8 @@ import org.hisp.dhis.tracker.TrackerImportParams;
 import org.hisp.dhis.tracker.TrackerImportService;
 import org.hisp.dhis.tracker.TrackerImportStrategy;
 import org.hisp.dhis.tracker.TrackerType;
+import org.hisp.dhis.tracker.preheat.TrackerPreheat;
+import org.hisp.dhis.tracker.preheat.TrackerPreheatService;
 import org.hisp.dhis.tracker.report.*;
 import org.hisp.dhis.user.User;
 import org.junit.Test;
@@ -58,6 +60,9 @@ public class EnrollmentImportValidationTest
 
     @Autowired
     private TrackerImportService trackerImportService;
+
+    @Autowired
+    private TrackerPreheatService trackerPreheatService;
 
     @Override
     protected void initTest()
@@ -87,6 +92,31 @@ public class EnrollmentImportValidationTest
 
         assertEquals( 0, trackerImportReport.getValidationReport().getErrorReports().size() );
         assertEquals( TrackerStatus.OK, trackerImportReport.getStatus() );
+    }
+
+    @Test
+    public void testPreheatOwnershipForSubsequentEnrollment()
+        throws IOException
+    {
+        TrackerImportParams params = createBundleFromJson(
+            "tracker/validations/enrollments_te_enrollments-data.json" );
+
+        params.setImportStrategy( TrackerImportStrategy.CREATE );
+        TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
+
+        assertEquals( 0, trackerImportReport.getValidationReport().getErrorReports().size() );
+        assertEquals( TrackerStatus.OK, trackerImportReport.getStatus() );
+
+        TrackerImportParams secondParams = createBundleFromJson(
+            "tracker/validations/enrollments_te_enrollments-data.json" );
+
+        TrackerPreheat preheat = trackerPreheatService.preheat( secondParams );
+
+        secondParams.getEnrollments().forEach( e -> {
+            assertEquals( e.getOrgUnit(),
+                preheat.getProgramOwner().get( e.getTrackedEntity() ).get( e.getProgram() ).getOrganisationUnit()
+                    .getUid() );
+        } );
     }
 
     @Test( expected = IOException.class )
@@ -199,7 +229,7 @@ public class EnrollmentImportValidationTest
     }
 
     @Test
-    public void testEnrollmentInAnotherProgramExists()
+    public void testActiveEnrollmentAlreadyExists()
         throws IOException
     {
         TrackerImportParams trackerImportParams = createBundleFromJson(
@@ -218,13 +248,10 @@ public class EnrollmentImportValidationTest
 
         validationReport = trackerImportReport.getValidationReport();
 
-        assertEquals( 2, validationReport.getErrorReports().size() );
+        assertEquals( 1, validationReport.getErrorReports().size() );
 
         assertThat( validationReport.getErrorReports(),
             hasItem( hasProperty( "errorCode", equalTo( TrackerErrorCode.E1015 ) ) ) );
-
-        assertThat( validationReport.getErrorReports(),
-            hasItem( hasProperty( "errorCode", equalTo( TrackerErrorCode.E1016 ) ) ) );
     }
 
     /**

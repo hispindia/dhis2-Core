@@ -58,5 +58,4 @@ public final class GistPreferences
      */
     @JsonProperty
     private final Gist.Transform transformation;
-
 }

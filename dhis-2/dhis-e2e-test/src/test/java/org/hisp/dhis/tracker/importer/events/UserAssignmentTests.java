@@ -25,20 +25,19 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.hisp.dhis.tracker.importer.events;
 
 import com.google.gson.JsonObject;
+import org.hisp.dhis.Constants;
 import org.hisp.dhis.actions.metadata.MetadataActions;
 import org.hisp.dhis.actions.metadata.ProgramActions;
 import org.hisp.dhis.dto.ApiResponse;
 import org.hisp.dhis.dto.TrackerApiResponse;
 import org.hisp.dhis.helpers.JsonObjectBuilder;
 import org.hisp.dhis.helpers.QueryParamsBuilder;
-import org.hisp.dhis.helpers.file.FileReaderUtils;
 import org.hisp.dhis.tracker.TrackerNtiApiTest;
+import org.hisp.dhis.tracker.importer.databuilder.EventDataBuilder;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -81,13 +80,14 @@ public class UserAssignmentTests
         // arrange
         String loggedInUser = loginActions.getLoggedInUserId();
 
-        programActions.programStageActions.enableUserAssignment( programStageId, Boolean.parseBoolean( userAssignmentEnabled ) );
+        programActions.programStageActions.enableUserAssignment( programStageId,
+            Boolean.parseBoolean( userAssignmentEnabled ) );
 
         // act
         String eventId = createEvents( programId, programStageId, loggedInUser )
             .extractImportedEvents().get( 0 );
 
-        ApiResponse response = trackerActions.get( "/events/" + eventId );
+        ApiResponse response = trackerActions.getEvent( eventId );
         if ( !Boolean.parseBoolean( userAssignmentEnabled ) )
         {
             response.validate()
@@ -100,7 +100,6 @@ public class UserAssignmentTests
             .body( "assignedUser", equalTo( loggedInUser ) );
     }
 
-    @Disabled
     @Test
     public void shouldRemoveUserAssignment()
         throws Exception
@@ -111,7 +110,8 @@ public class UserAssignmentTests
         programActions.programStageActions.enableUserAssignment( programStageId, true );
         createEvents( programId, programStageId, loggedInUser );
 
-        JsonObject eventBody = trackerActions.get( "/events?program=" + programId + "&assignedUserMode=CURRENT" )
+        JsonObject eventBody = trackerActions.get( "/events?program=" + programId + "&assignedUserMode=CURRENT&ouMode=ACCESSIBLE" )
+            .validateStatus( 200 )
             .extractJsonObject( "instances[0]" );
 
         assertNotNull( eventBody, "no events matching the query." );
@@ -120,29 +120,26 @@ public class UserAssignmentTests
         // act
         eventBody.add( "assignedUser", null );
 
-        ApiResponse response = trackerActions.postAndGetJobReport( new JsonObjectBuilder( eventBody ).wrapIntoArray( "events" ),
-            new QueryParamsBuilder().addAll( "importStrategy=UPDATE" ) );
+        trackerActions.postAndGetJobReport(
+            new JsonObjectBuilder( eventBody ).wrapIntoArray( "events" ),
+            new QueryParamsBuilder().addAll( "importStrategy=UPDATE" ) )
+            .validateSuccessfulImport();
 
         // assert
-        response.validate().statusCode( 200 );
 
-        trackerActions.get( "/events/" + eventId )
+        trackerActions.getEvent( eventId )
             .validate()
             .body( "assignedUser", nullValue() );
 
     }
 
     private TrackerApiResponse createEvents( String programId, String programStageId, String assignedUserId )
-        throws Exception
     {
-        JsonObject body = new FileReaderUtils().read( new File( "src/test/resources/tracker/importer/events/event.json" ) )
-            .replacePropertyValuesWithIds( "event" )
-            .replacePropertyValuesWith( "program", programId )
-            .replacePropertyValuesWith( "programStage", programStageId )
-            .replacePropertyValuesWith( "assignedUser", assignedUserId )
-            .get( JsonObject.class );
+        JsonObject jsonObject = new EventDataBuilder()
+            .setAssignedUser( assignedUserId )
+            .array( Constants.ORG_UNIT_IDS[0], programId, programStageId );
 
-        TrackerApiResponse eventResponse = trackerActions.postAndGetJobReport( body );
+        TrackerApiResponse eventResponse = trackerActions.postAndGetJobReport( jsonObject );
 
         eventResponse.validateSuccessfulImport();
 

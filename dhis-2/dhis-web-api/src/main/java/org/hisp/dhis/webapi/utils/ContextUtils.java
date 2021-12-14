@@ -77,6 +77,10 @@ public class ContextUtils
 
     public static final String CONTENT_TYPE_CSV = "application/csv; charset=UTF-8";
 
+    public static final String CONTENT_TYPE_TEXT_CSV = "text/csv";
+
+    public static final String CONTENT_TYPE_CSV_GZIP = "application/csv+gzip";
+
     public static final String CONTENT_TYPE_PNG = "image/png";
 
     public static final String CONTENT_TYPE_JPG = "image/jpeg";
@@ -361,5 +365,22 @@ public class ContextUtils
             : StringUtils.EMPTY;
 
         return String.format( "%s%s", wildcardPath, queryString );
+    }
+
+    /**
+     * Removes ".format.compression" extension if present, for example
+     * "data.xml.zip" will be replaced with "data".
+     *
+     * We do this to make sure the filename is without any additional extensions
+     * in case the client mistakenly also sends in the extension they want.
+     *
+     * @param name String to string
+     * @param format Format to match for
+     * @param compression Compression to match for
+     * @return String without .format.compression extension
+     */
+    public static String stripFormatCompressionExtension( String name, String format, String compression )
+    {
+        return name != null ? name.replace( "." + format + "." + compression, "" ) : "";
     }
 }

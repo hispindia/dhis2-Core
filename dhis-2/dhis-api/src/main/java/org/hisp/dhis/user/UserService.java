@@ -30,6 +30,7 @@ package org.hisp.dhis.user;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -437,6 +438,13 @@ public interface UserService
      */
     List<User> getExpiringUsers();
 
+    /**
+     * @param inDays number of days to include
+     * @return list of those users that are about to expire in the provided
+     *         number of days (or less) and which have an email configured
+     */
+    List<UserAccountExpiryInfo> getExpiringUserAccounts( int inDays );
+
     void set2FA( User user, Boolean twoFA );
 
     /**
@@ -467,8 +475,25 @@ public interface UserService
     int disableUsersInactiveSince( Date inactiveSince );
 
     /**
+     * Selects all not disabled users where the
+     * {@link UserCredentials#getLastLogin()} is within the given time-frame and
+     * which have an email address.
+     *
+     * @param from start of the selected time-frame (inclusive)
+     * @param to end of the selected time-frame (exclusive)
+     * @return user emails having a last login within the given time-frame.
+     */
+    Set<String> findNotifiableUsersWithLastLoginBetween( Date from, Date to );
+
+    /**
      * Get user display name by concat( firstname,' ', surname ) Return null if
      * User doesn't exist
      */
     String getDisplayName( String userUid );
+
+    /**
+     * Given an Authorities's name, retrieves a list of users that has that
+     * authority.
+     */
+    List<UserCredentials> getUsersWithAuthority( String authority );
 }

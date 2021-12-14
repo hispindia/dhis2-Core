@@ -29,6 +29,7 @@ package org.hisp.dhis.datastatistics.hibernate;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.hisp.dhis.setting.SettingKey.COUNT_PASSIVE_DASHBOARD_VIEWS_IN_USAGE_ANALYTICS;
+import static org.hisp.dhis.system.util.SqlUtils.escapeSql;
 import static org.hisp.dhis.util.DateUtils.asSqlDate;
 
 import java.util.Date;
@@ -123,8 +124,8 @@ public class HibernateDataStatisticsEventStore
         }
 
         sql += "group by uid) as events " +
-            "inner join " + eventType.getTable() + " c on c.uid = events.uid " +
-            "order by events.views " + sortOrder.getValue() + " " +
+            "inner join " + escapeSql( eventType.getTable() ) + " c on c.uid = events.uid " +
+            "order by events.views " + escapeSql( sortOrder.getValue() ) + " " +
             "limit ?;";
 
         PreparedStatementSetter pss = ( ps ) -> {
@@ -158,7 +159,7 @@ public class HibernateDataStatisticsEventStore
             "from datastatisticsevent dse " +
             "where dse.favoriteuid = ?";
 
-        if ( !(boolean) systemSettingManager.getSystemSetting( COUNT_PASSIVE_DASHBOARD_VIEWS_IN_USAGE_ANALYTICS ) )
+        if ( !systemSettingManager.getBoolSetting( COUNT_PASSIVE_DASHBOARD_VIEWS_IN_USAGE_ANALYTICS ) )
         {
             sql += " and dse.eventtype != '" + DataStatisticsEventType.PASSIVE_DASHBOARD_VIEW.name() + "'";
         }

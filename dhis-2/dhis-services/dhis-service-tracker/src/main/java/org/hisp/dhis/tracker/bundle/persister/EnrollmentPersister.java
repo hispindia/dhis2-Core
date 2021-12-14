@@ -35,7 +35,8 @@ import java.util.Objects;
 import org.hibernate.Session;
 import org.hisp.dhis.program.ProgramInstance;
 import org.hisp.dhis.reservedvalue.ReservedValueService;
-import org.hisp.dhis.trackedentity.TrackerOwnershipManager;
+import org.hisp.dhis.trackedentity.TrackedEntityProgramOwnerService;
+import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValueAuditService;
 import org.hisp.dhis.trackedentitycomment.TrackedEntityComment;
 import org.hisp.dhis.trackedentitycomment.TrackedEntityCommentService;
 import org.hisp.dhis.tracker.TrackerIdScheme;
@@ -60,19 +61,21 @@ public class EnrollmentPersister extends AbstractTrackerPersister<Enrollment, Pr
 
     private final TrackerSideEffectConverterService sideEffectConverterService;
 
-    private final TrackerOwnershipManager trackerOwnershipManager;
+    private final TrackedEntityProgramOwnerService trackedEntityProgramOwnerService;
 
     public EnrollmentPersister( ReservedValueService reservedValueService,
         TrackerConverterService<Enrollment, ProgramInstance> enrollmentConverter,
         TrackedEntityCommentService trackedEntityCommentService,
-        TrackerSideEffectConverterService sideEffectConverterService, TrackerOwnershipManager trackerOwnershipManager )
+        TrackerSideEffectConverterService sideEffectConverterService,
+        TrackedEntityProgramOwnerService trackedEntityProgramOwnerService,
+        TrackedEntityAttributeValueAuditService trackedEntityAttributeValueAuditService )
     {
-        super( reservedValueService );
+        super( reservedValueService, trackedEntityAttributeValueAuditService );
 
         this.enrollmentConverter = enrollmentConverter;
         this.trackedEntityCommentService = trackedEntityCommentService;
         this.sideEffectConverterService = sideEffectConverterService;
-        this.trackerOwnershipManager = trackerOwnershipManager;
+        this.trackedEntityProgramOwnerService = trackedEntityProgramOwnerService;
     }
 
     @Override
@@ -80,7 +83,7 @@ public class EnrollmentPersister extends AbstractTrackerPersister<Enrollment, Pr
         Enrollment enrollment, ProgramInstance programInstance )
     {
         handleTrackedEntityAttributeValues( session, preheat, enrollment.getAttributes(),
-            programInstance.getEntityInstance() );
+            preheat.getTrackedEntity( TrackerIdScheme.UID, programInstance.getEntityInstance().getUid() ) );
     }
 
     @Override
@@ -109,6 +112,8 @@ public class EnrollmentPersister extends AbstractTrackerPersister<Enrollment, Pr
     protected void updatePreheat( TrackerPreheat preheat, ProgramInstance programInstance )
     {
         preheat.putEnrollments( TrackerIdScheme.UID, Collections.singletonList( programInstance ) );
+        preheat.addProgramOwner( programInstance.getEntityInstance().getUid(), programInstance.getProgram().getUid(),
+            programInstance.getOrganisationUnit() );
     }
 
     @Override
@@ -128,6 +133,8 @@ public class EnrollmentPersister extends AbstractTrackerPersister<Enrollment, Pr
             .object( programInstance.getUid() )
             .importStrategy( bundle.getImportStrategy() )
             .accessedBy( bundle.getUsername() )
+            .programInstance( programInstance )
+            .program( programInstance.getProgram() )
             .build();
     }
 
@@ -152,8 +159,19 @@ public class EnrollmentPersister extends AbstractTrackerPersister<Enrollment, Pr
     {
         if ( isNew( preheat, entity.getUid() ) )
         {
-            trackerOwnershipManager.assignOwnership( entity.getEntityInstance(), entity.getProgram(),
-                entity.getOrganisationUnit(), false, true );
+            if ( preheat.getProgramOwner().get( entity.getEntityInstance().getUid() ) == null
+                || preheat.getProgramOwner().get( entity.getEntityInstance().getUid() )
+                    .get( entity.getProgram().getUid() ) == null )
+            {
+                trackedEntityProgramOwnerService.createTrackedEntityProgramOwner( entity.getEntityInstance(),
+                    entity.getProgram(), entity.getOrganisationUnit() );
+            }
         }
+    }
+
+    @Override
+    protected String getUpdatedTrackedEntity( ProgramInstance entity )
+    {
+        return entity.getEntityInstance().getUid();
     }
 }

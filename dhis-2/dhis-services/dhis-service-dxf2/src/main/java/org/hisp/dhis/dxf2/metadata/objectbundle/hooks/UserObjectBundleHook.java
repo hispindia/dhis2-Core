@@ -73,6 +73,11 @@ public class UserObjectBundleHook extends AbstractObjectBundleHook<User>
     public void validate( User user, ObjectBundle bundle,
         Consumer<ErrorReport> addReports )
     {
+        if ( bundle.getImportMode().isCreate() && !ValidationUtils.usernameIsValid( user.getUsername() ) )
+        {
+            addReports.accept( new ErrorReport( User.class, ErrorCode.E4049, "Username", user.getUsername() ) );
+        }
+
         if ( user.getWhatsApp() != null && !ValidationUtils.validateWhatsapp( user.getWhatsApp() ) )
         {
             addReports.accept( new ErrorReport( User.class, ErrorCode.E4027, user.getWhatsApp(), "Whatsapp" ) );
@@ -165,10 +170,13 @@ public class UserObjectBundleHook extends AbstractObjectBundleHook<User>
             userService.encodeAndSetPassword( persistedUserCredentials, userCredentials.getPassword() );
         }
 
-        mergeService.merge(
-            new MergeParams<>( userCredentials, persistedUserCredentials ).setMergeMode( bundle.getMergeMode() ) );
-        preheatService.connectReferences( persistedUserCredentials, bundle.getPreheat(),
-            bundle.getPreheatIdentifier() );
+        if ( userCredentials != persistedUserCredentials )
+        {
+            mergeService.merge(
+                new MergeParams<>( userCredentials, persistedUserCredentials ).setMergeMode( bundle.getMergeMode() ) );
+            preheatService.connectReferences( persistedUserCredentials, bundle.getPreheat(),
+                bundle.getPreheatIdentifier() );
+        }
 
         persistedUserCredentials.setUserInfo( user );
         user.setUserCredentials( persistedUserCredentials );

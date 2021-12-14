@@ -27,8 +27,9 @@
  */
 package org.hisp.dhis.leader.election;
 
-import org.hisp.dhis.scheduling.AbstractJob;
+import org.hisp.dhis.scheduling.Job;
 import org.hisp.dhis.scheduling.JobConfiguration;
+import org.hisp.dhis.scheduling.JobProgress;
 import org.hisp.dhis.scheduling.JobType;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +39,7 @@ import org.springframework.stereotype.Component;
  * @author Ameen Mohamed
  */
 @Component
-public class LeaderRenewalJob extends AbstractJob
+public class LeaderRenewalJob implements Job
 {
     private LeaderManager leaderManager;
 
@@ -58,7 +59,7 @@ public class LeaderRenewalJob extends AbstractJob
     }
 
     @Override
-    public void execute( JobConfiguration jobConfiguration )
+    public void execute( JobConfiguration jobConfiguration, JobProgress progress )
     {
         leaderManager.renewLeader();
     }

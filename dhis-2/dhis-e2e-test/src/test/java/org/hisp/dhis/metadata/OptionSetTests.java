@@ -1,5 +1,3 @@
-package org.hisp.dhis.metadata;
-
 /*
  * Copyright (c) 2004-2021, University of Oslo
  * All rights reserved.
@@ -27,8 +25,11 @@ package org.hisp.dhis.metadata;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.hisp.dhis.metadata;
 
-import com.google.gson.JsonObject;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.*;
+
 import org.hisp.dhis.ApiTest;
 import org.hisp.dhis.actions.LoginActions;
 import org.hisp.dhis.actions.metadata.OptionActions;
@@ -39,8 +40,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.Matchers.*;
+import com.google.gson.JsonObject;
 
 /**
  * @author Gintare Vilkelyte <vilkelyte.gintare@gmail.com>
@@ -181,7 +181,8 @@ public class OptionSetTests
     private String createOption( String optionSetId )
     {
         return optionActions
-            .createOption( "Option name auto" + DataGenerator.randomString(), "Option code auto" + DataGenerator.randomString(),
+            .createOption( "Option name auto" + DataGenerator.randomString(),
+                "Option code auto" + DataGenerator.randomString(),
                 optionSetId );
     }
 }

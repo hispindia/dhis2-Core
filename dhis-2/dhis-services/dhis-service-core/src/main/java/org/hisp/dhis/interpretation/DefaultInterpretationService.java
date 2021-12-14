@@ -38,6 +38,7 @@ import java.util.Set;
 import org.hisp.dhis.common.CodeGenerator;
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.common.SubscribableObject;
+import org.hisp.dhis.eventvisualization.EventVisualization;
 import org.hisp.dhis.external.conf.DhisConfigurationProvider;
 import org.hisp.dhis.hibernate.HibernateProxyUtils;
 import org.hisp.dhis.i18n.I18n;
@@ -228,6 +229,12 @@ public class DefaultInterpretationService
     }
 
     @Override
+    public List<Interpretation> getInterpretations( EventVisualization eventVisualization )
+    {
+        return interpretationStore.getInterpretations( eventVisualization );
+    }
+
+    @Override
     public List<Interpretation> getInterpretations( Map map )
     {
         return interpretationStore.getInterpretations( map );
@@ -360,15 +367,8 @@ public class DefaultInterpretationService
                 + "/interpretation/"
                 + interpretation.getUid();
             break;
-        case REPORT_TABLE:
-            path = "/dhis-web-pivot/index.html?id=" + interpretation.getReportTable().getUid() + "&interpretationid="
-                + interpretation.getUid();
-            break;
-        case CHART:
-            path = "/dhis-web-data-visualizer/index.html#/" + interpretation.getChart().getUid() + "/interpretation/"
-                + interpretation.getUid();
-            break;
         case EVENT_REPORT:
+        case EVENT_VISUALIZATION:
             path = "/dhis-web-event-reports/index.html?id=" + interpretation.getEventReport().getUid()
                 + "&interpretationid=" + interpretation.getUid();
             break;

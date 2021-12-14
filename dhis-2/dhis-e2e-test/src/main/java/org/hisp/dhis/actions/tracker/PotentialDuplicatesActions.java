@@ -25,7 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.hisp.dhis.actions.tracker;
 
 import com.google.gson.JsonObject;
@@ -47,11 +46,28 @@ public class PotentialDuplicatesActions
     public ApiResponse createPotentialDuplicate( String teiA, String teiB, String status )
     {
         JsonObject object = new JsonObjectBuilder()
-            .addProperty( "teiA", teiA )
-            .addProperty( "teiB", teiB )
+            .addProperty( "original", teiA )
+            .addProperty( "duplicate", teiB )
             .addProperty( "status", status )
             .build();
 
         return this.post( object );
+    }
+
+    public String createAndValidatePotentialDuplicate( String teiA, String teiB, String status )
+    {
+        return createPotentialDuplicate( teiA, teiB, status )
+            .validateStatus( 200 )
+            .extractString( "id" );
+    }
+
+    public ApiResponse manualMergePotentialDuplicate( String potentialDuplicate, JsonObject jsonObject )
+    {
+        return this.post( String.format( "/%s/merge?mergeStrategy=MANUAL", potentialDuplicate ), jsonObject );
+    }
+
+    public ApiResponse autoMergePotentialDuplicate( String potentialDuplicate )
+    {
+        return this.post( String.format( "/%s/merge?mergeStrategy=AUTO", potentialDuplicate ), new JsonObject() );
     }
 }

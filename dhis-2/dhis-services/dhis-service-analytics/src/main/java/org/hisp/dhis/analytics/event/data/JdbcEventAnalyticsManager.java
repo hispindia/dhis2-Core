@@ -27,10 +27,7 @@
  */
 package org.hisp.dhis.analytics.event.data;
 
-import static org.apache.commons.lang.time.DateUtils.addYears;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.trimToEmpty;
-import static org.apache.commons.lang3.StringUtils.wrap;
+import static org.apache.commons.lang3.time.DateUtils.addYears;
 import static org.hisp.dhis.analytics.event.EventAnalyticsService.ITEM_LATITUDE;
 import static org.hisp.dhis.analytics.event.EventAnalyticsService.ITEM_LONGITUDE;
 import static org.hisp.dhis.analytics.table.JdbcEventAnalyticsTableManager.OU_GEOMETRY_COL_SUFFIX;
@@ -40,7 +37,6 @@ import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.ORG_UNIT_STRUCT_ALI
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.quote;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.quoteAlias;
 import static org.hisp.dhis.common.DimensionalObject.ORGUNIT_DIM_ID;
-import static org.hisp.dhis.common.DimensionalObject.PERIOD_DIM_ID;
 import static org.hisp.dhis.common.IdentifiableObjectUtils.getUids;
 import static org.hisp.dhis.common.QueryOperator.IN;
 import static org.hisp.dhis.commons.util.TextUtils.getQuotedCommaDelimitedString;
@@ -51,7 +47,6 @@ import static org.hisp.dhis.util.DateUtils.getMediumDateString;
 import static org.postgresql.util.PSQLState.DIVISION_BY_ZERO;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -61,9 +56,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
 import org.hisp.dhis.analytics.AggregationType;
-import org.hisp.dhis.analytics.EventOutputType;
 import org.hisp.dhis.analytics.Rectangle;
-import org.hisp.dhis.analytics.TimeField;
 import org.hisp.dhis.analytics.event.EventAnalyticsManager;
 import org.hisp.dhis.analytics.event.EventQueryParams;
 import org.hisp.dhis.analytics.event.ProgramIndicatorSubqueryBuilder;
@@ -86,7 +79,6 @@ import org.hisp.dhis.commons.util.TextUtils;
 import org.hisp.dhis.jdbc.StatementBuilder;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.period.Period;
-import org.hisp.dhis.program.AnalyticsPeriodBoundary;
 import org.hisp.dhis.program.AnalyticsType;
 import org.hisp.dhis.program.ProgramIndicatorService;
 import org.hisp.dhis.system.util.MathUtils;
@@ -115,14 +107,19 @@ public class JdbcEventAnalyticsManager
     extends AbstractJdbcEventAnalyticsManager
     implements EventAnalyticsManager
 {
+    protected static final String OPEN_IN = " in (";
 
-    private static final String OPEN_IN = " in (";
+    private static final String ORG_UNIT_UID_LEVEL_COLUMN_PREFIX = "uidlevel";
+
+    private final EventTimeFieldSqlRenderer timeFieldSqlRenderer;
 
     public JdbcEventAnalyticsManager( JdbcTemplate jdbcTemplate, StatementBuilder statementBuilder,
         ProgramIndicatorService programIndicatorService,
-        ProgramIndicatorSubqueryBuilder programIndicatorSubqueryBuilder )
+        ProgramIndicatorSubqueryBuilder programIndicatorSubqueryBuilder,
+        EventTimeFieldSqlRenderer timeFieldSqlRenderer )
     {
         super( jdbcTemplate, statementBuilder, programIndicatorService, programIndicatorSubqueryBuilder );
+        this.timeFieldSqlRenderer = timeFieldSqlRenderer;
     }
 
     @Override
@@ -321,7 +318,7 @@ public class JdbcEventAnalyticsManager
     protected String getSelectClause( EventQueryParams params )
     {
         ImmutableList.Builder<String> cols = new ImmutableList.Builder<String>()
-            .add( "psi", "ps", "executiondate", "storedby" );
+            .add( "psi", "ps", "executiondate", "storedby", "lastupdated" );
 
         if ( params.getProgram().isRegistration() )
         {
@@ -401,33 +398,8 @@ public class JdbcEventAnalyticsManager
         // Periods
         // ---------------------------------------------------------------------
 
-        if ( params.hasNonDefaultBoundaries() )
-        {
-            for ( AnalyticsPeriodBoundary boundary : params.getProgramIndicator().getAnalyticsPeriodBoundaries() )
-            {
-                sql += hlp.whereAnd() + " "
-                    + statementBuilder.getBoundaryCondition( boundary, params.getProgramIndicator(),
-                        params.getEarliestStartDate(), params.getLatestEndDate() )
-                    + " ";
-            }
-        }
-        else if ( params.hasStartEndDate() )
-        {
-
-            String timeCol = params.getOutputType() == EventOutputType.ENROLLMENT
-                ? quoteAlias( TimeField.ENROLLMENT_DATE.getField() )
-                : quoteAlias( TimeField.EVENT_DATE.getField() );
-
-            sql += hlp.whereAnd() + " " + timeCol + " >= '" + getMediumDateString( params.getStartDate() ) + "' ";
-            sql += hlp.whereAnd() + " " + timeCol + " <= '" + getMediumDateString( params.getEndDate() ) + "' ";
-        }
-        else // Periods
-        {
-            String alias = getPeriodAlias( params );
-
-            sql += hlp.whereAnd() + " " + quote( alias, params.getPeriodType().toLowerCase() ) + OPEN_IN
-                + getQuotedCommaDelimitedString( getUids( params.getDimensionOrFilterItems( PERIOD_DIM_ID ) ) ) + ") ";
-        }
+        sql += hlp.whereAnd() + " "
+            + timeFieldSqlRenderer.renderTimeFieldSql( params );
 
         // ---------------------------------------------------------------------
         // Organisation units
@@ -437,20 +409,27 @@ public class JdbcEventAnalyticsManager
         {
             String orgUnitCol = quoteAlias( params.getOrgUnitFieldFallback() );
 
-            sql += hlp.whereAnd() + " " + orgUnitCol + OPEN_IN
-                + getQuotedCommaDelimitedString( getUids( params.getDimensionOrFilterItems( ORGUNIT_DIM_ID ) ) ) + ") ";
+            sql += hlp.whereAnd() + " " + orgUnitCol + OPEN_IN +
+                getQuotedCommaDelimitedString( getUids( params.getDimensionOrFilterItems( ORGUNIT_DIM_ID ) ) ) + ") ";
         }
         else if ( params.isOrganisationUnitMode( OrganisationUnitSelectionMode.CHILDREN ) )
         {
             String orgUnitCol = quoteAlias( params.getOrgUnitFieldFallback() );
 
-            sql += hlp.whereAnd() + " " + orgUnitCol + OPEN_IN
-                + getQuotedCommaDelimitedString( getUids( params.getOrganisationUnitChildren() ) ) + ") ";
+            sql += hlp.whereAnd() + " " + orgUnitCol + OPEN_IN +
+                getQuotedCommaDelimitedString( getUids( params.getOrganisationUnitChildren() ) ) + ") ";
         }
         else // Descendants
         {
-            sql += descendantsOrgUnitStatement( getOrgUnitAlias( params ),
-                params.getDimensionOrFilterItems( ORGUNIT_DIM_ID ), hlp );
+            String orgUnitAlias = getOrgUnitAlias( params );
+
+            String sqlSnippet = getOrgDescendantsSqlSnippet( orgUnitAlias,
+                params.getDimensionOrFilterItems( ORGUNIT_DIM_ID ) );
+
+            if ( sqlSnippet != null && !sqlSnippet.trim().isEmpty() )
+            {
+                sql += hlp.whereAnd() + " " + sqlSnippet;
+            }
         }
 
         // ---------------------------------------------------------------------
@@ -471,7 +450,7 @@ public class JdbcEventAnalyticsManager
         // Program stage
         // ---------------------------------------------------------------------
 
-        if ( params.hasProgramStage() && params.getOutputType() != EventOutputType.ENROLLMENT )
+        if ( params.hasProgramStage() )
         {
             sql += hlp.whereAnd() + " " + quoteAlias( "ps" ) + " = '" + params.getProgramStage().getUid() + "' ";
         }
@@ -490,8 +469,9 @@ public class JdbcEventAnalyticsManager
 
                     if ( IN.equals( filter.getOperator() ) )
                     {
-                        QueryFilter inQueryFilter = new InQueryFilter( field, filter );
-                        sql += hlp.whereAnd() + " " + getSqlFilter( inQueryFilter, item );
+                        InQueryFilter inQueryFilter = new InQueryFilter( field,
+                            statementBuilder.encode( filter.getFilter(), false ), item.isText() );
+                        sql += hlp.whereAnd() + " " + inQueryFilter.getSqlFilter();
                     }
                     else
                     {
@@ -607,40 +587,29 @@ public class JdbcEventAnalyticsManager
     }
 
     /**
-     * Creates a SQL statement of descendants org units. When there are multiple
-     * levels the "or" operator will be used as junction. The final result will
-     * be a query in the format: "where/and (ax."uidlevel0" in ('orgUid-1',
-     * 'orgUid-2', 'orgUid-2') )"
-     *
-     * @param orgUnitAlias
-     * @param dimensionalItems
-     * @param helper
-     * @return the SQL statement
+     * Generates a sub query which provides a filter by organisation -
+     * descendant level
      */
-    private String descendantsOrgUnitStatement( final String orgUnitAlias,
-        final List<DimensionalItemObject> dimensionalItems, final SqlHelper helper )
+    private String getOrgDescendantsSqlSnippet( String orgUnitAlias,
+        List<DimensionalItemObject> dimensionOrFilterItems )
     {
-        final StringBuilder statement = new StringBuilder();
-        final Map<String, String> orgUnitColsAndUnitUids = new HashMap<>();
+        Map<String, List<OrganisationUnit>> collect = dimensionOrFilterItems.stream()
+            .map( object -> (OrganisationUnit) object )
+            .collect( Collectors.groupingBy(
+                unit -> quote( orgUnitAlias, ORG_UNIT_UID_LEVEL_COLUMN_PREFIX + unit.getLevel() ) ) );
 
-        statement.append( helper.whereAnd() ).append( " (" );
+        return collect.keySet()
+            .stream()
+            .map( org -> toInCondition( org, collect.get( org ) ) )
+            .collect( Collectors.joining( " and " ) );
+    }
 
-        for ( final DimensionalItemObject itemObject : dimensionalItems )
-        {
-            final OrganisationUnit unit = (OrganisationUnit) itemObject;
-            final String orgUnitCol = quote( orgUnitAlias, "uidlevel" + unit.getLevel() );
-            final String orgUnitValue = isBlank( orgUnitColsAndUnitUids.get( orgUnitCol ) )
-                ? wrap( unit.getUid(), "'" )
-                : trimToEmpty( orgUnitColsAndUnitUids.get( orgUnitCol ) ) + ", " + wrap( unit.getUid(), "'" );
-
-            orgUnitColsAndUnitUids.put( orgUnitCol, orgUnitValue );
-        }
-
-        statement.append( orgUnitColsAndUnitUids.entrySet().stream()
-            .map( entry -> (entry.getKey()).concat( OPEN_IN ).concat( entry.getValue() ).concat( ")" ) )
-            .collect( Collectors.joining( " or " ) ) ).toString();
-
-        return statement.append( " ) " ).toString();
+    private String toInCondition( String org, List<OrganisationUnit> organisationUnits )
+    {
+        return organisationUnits.stream()
+            .filter( unit -> unit.getUid() != null && !unit.getUid().trim().isEmpty() )
+            .map( unit -> "'" + unit.getUid() + "'" )
+            .collect( Collectors.joining( ",", org + OPEN_IN, ") " ) );
     }
 
     /**

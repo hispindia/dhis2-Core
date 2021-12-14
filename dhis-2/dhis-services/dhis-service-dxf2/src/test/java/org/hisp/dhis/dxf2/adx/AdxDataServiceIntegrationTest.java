@@ -48,6 +48,7 @@ import org.hisp.dhis.category.CategoryOption;
 import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.common.IdSchemes;
 import org.hisp.dhis.common.IdentifiableObjectManager;
+import org.hisp.dhis.common.IdentifiableProperty;
 import org.hisp.dhis.common.ValueType;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataset.DataSet;
@@ -55,6 +56,7 @@ import org.hisp.dhis.datavalue.DataExportParams;
 import org.hisp.dhis.datavalue.DataValue;
 import org.hisp.dhis.datavalue.DataValueService;
 import org.hisp.dhis.dxf2.common.ImportOptions;
+import org.hisp.dhis.dxf2.datavalueset.DataValueSetQueryParams;
 import org.hisp.dhis.dxf2.datavalueset.DataValueSetService;
 import org.hisp.dhis.mock.MockCurrentUserService;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
@@ -65,6 +67,7 @@ import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodService;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.user.CurrentUserService;
+import org.hisp.dhis.user.CurrentUserServiceTarget;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserService;
 import org.junit.Test;
@@ -377,8 +380,8 @@ public class AdxDataServiceIntegrationTest
         userService.addUser( user );
 
         CurrentUserService currentUserService = new MockCurrentUserService( user );
-        setDependency( dataValueSetService, "currentUserService", currentUserService );
-        setDependency( organisationUnitService, "currentUserService", currentUserService );
+        setDependency( CurrentUserServiceTarget.class, CurrentUserServiceTarget::setCurrentUserService,
+            currentUserService, dataValueSetService, organisationUnitService );
     }
 
     // --------------------------------------------------------------------------
@@ -394,26 +397,21 @@ public class AdxDataServiceIntegrationTest
             .setDataSets( Sets.newHashSet( dsA ) )
             .setPeriods( Sets.newHashSet( pe202001 ) )
             .setOrganisationUnits( Sets.newHashSet( ouA ) )
-            .setIncludeChildren( true )
+            .setIncludeDescendants( true )
             .setIncludeDeleted( false )
             .setLastUpdated( now )
             .setLimit( 999 )
             .setOutputIdSchemes( new IdSchemes().setIdScheme( "CODE" ) );
 
-        DataExportParams actual = adxDataService.getFromUrl(
-            Sets.newHashSet( dsA.getUid() ),
-            Sets.newHashSet( "202001" ),
-            null,
-            null,
-            Sets.newHashSet( ouA.getUid() ),
-            true,
-            null,
-            null,
-            false,
-            now,
-            null,
-            999,
-            new IdSchemes() );
+        DataExportParams actual = adxDataService.getFromUrl( DataValueSetQueryParams.builder()
+            .dataSet( Sets.newHashSet( dsA.getUid() ) )
+            .period( Sets.newHashSet( "202001" ) )
+            .orgUnit( Sets.newHashSet( ouA.getUid() ) )
+            .children( true )
+            .includeDeleted( false )
+            .lastUpdated( now )
+            .limit( 999 )
+            .build() );
 
         assertEquals( expected.toString(), actual.toString() );
     }
@@ -432,25 +430,24 @@ public class AdxDataServiceIntegrationTest
             .setOrganisationUnits( Sets.newHashSet( ouB ) )
             .setOrganisationUnitGroups( Sets.newHashSet( ougA ) )
             .setAttributeOptionCombos( Sets.newHashSet( cocMcDonalds ) )
-            .setIncludeChildren( false )
+            .setIncludeDescendants( false )
             .setIncludeDeleted( true )
             .setLastUpdated( now )
             .setOutputIdSchemes( new IdSchemes().setIdScheme( "UID" ) );
 
-        DataExportParams actual = adxDataService.getFromUrl(
-            Sets.newHashSet( dsB.getCode() ),
-            null,
-            then,
-            now,
-            Sets.newHashSet( ouB.getCode() ),
-            false,
-            Sets.newHashSet( ougA.getCode() ),
-            Sets.newHashSet( cocMcDonalds.getUid() ),
-            true,
-            now,
-            "10d",
-            null,
-            new IdSchemes().setIdScheme( "UID" ) );
+        DataExportParams actual = adxDataService.getFromUrl( DataValueSetQueryParams.builder()
+            .dataSet( Sets.newHashSet( dsB.getCode() ) )
+            .startDate( then )
+            .endDate( now )
+            .orgUnit( Sets.newHashSet( ouB.getCode() ) )
+            .children( false )
+            .orgUnitGroup( Sets.newHashSet( ougA.getCode() ) )
+            .attributeOptionCombo( Sets.newHashSet( cocMcDonalds.getUid() ) )
+            .includeDeleted( true )
+            .lastUpdated( now )
+            .lastUpdatedDuration( "10d" )
+            .idScheme( IdentifiableProperty.UID.name() )
+            .build() );
 
         assertEquals( expected.toString(), actual.toString() );
     }
@@ -499,7 +496,7 @@ public class AdxDataServiceIntegrationTest
                 .setOrgUnitIdScheme( "NAME" )
                 .setCategoryIdScheme( "UID" )
                 .setCategoryOptionIdScheme( "NAME" ) )
-            .setIncludeChildren( true ) );
+            .setIncludeDescendants( true ) );
     }
 
     @Test
@@ -514,7 +511,7 @@ public class AdxDataServiceIntegrationTest
                 .setOrgUnitIdScheme( "NAME" )
                 .setCategoryIdScheme( "UID" )
                 .setCategoryOptionIdScheme( "NAME" ) )
-            .setIncludeChildren( true )
+            .setIncludeDescendants( true )
             .setAttributeOptionCombos( Sets.newHashSet( cocMcDonalds ) ) );
     }
 

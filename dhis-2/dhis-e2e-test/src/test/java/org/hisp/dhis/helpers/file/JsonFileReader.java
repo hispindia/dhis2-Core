@@ -1,5 +1,3 @@
-package org.hisp.dhis.helpers.file;
-
 /*
  * Copyright (c) 2004-2021, University of Oslo
  * All rights reserved.
@@ -27,18 +25,21 @@ package org.hisp.dhis.helpers.file;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import org.hisp.dhis.actions.IdGenerator;
+package org.hisp.dhis.helpers.file;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.function.Consumer;
 import java.util.function.Function;
+
+import org.hisp.dhis.actions.IdGenerator;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 /**
  * @author Gintare Vilkelyte <vilkelyte.gintare@gmail.com>
@@ -75,7 +76,6 @@ public class JsonFileReader
     {
         replace( p -> {
             JsonObject object = ((JsonElement) p).getAsJsonObject();
-
             if ( replacedValue.equalsIgnoreCase( "uniqueid" ) )
             {
                 object.addProperty( propertyName, new IdGenerator().generateUniqueId() );
@@ -91,6 +91,28 @@ public class JsonFileReader
         return this;
     }
 
+    @Override
+    public FileReader replacePropertyValuesRecursivelyWith( String propertyName, String replacedValue )
+    {
+        replace( obj, jsonObject -> {
+            if ( !jsonObject.has( propertyName ) )
+            {
+                return;
+            }
+            if ( replacedValue.equalsIgnoreCase( "uniqueid" ) )
+            {
+                jsonObject.addProperty( propertyName, new IdGenerator().generateUniqueId() );
+            }
+            else
+            {
+                jsonObject.addProperty( propertyName, replacedValue );
+            }
+        } );
+
+        return this;
+    }
+
+
     public JsonObject get()
     {
         return obj;
@@ -100,15 +122,13 @@ public class JsonFileReader
     public JsonFileReader replace( Function<Object, Object> function )
     {
         JsonObject newObj = new JsonObject();
-        for ( String key :
-            obj.keySet() )
+        for ( String key : obj.keySet() )
         {
             JsonElement element = obj.get( key );
             if ( element.isJsonArray() )
             {
                 JsonArray array = new JsonArray();
-                for ( JsonElement e :
-                    element.getAsJsonArray() )
+                for ( JsonElement e : element.getAsJsonArray() )
                 {
                     array.add( (JsonElement) function.apply( e ) );
                 }
@@ -123,5 +143,29 @@ public class JsonFileReader
 
         obj = newObj;
         return this;
+    }
+
+    private void replace( JsonElement root, Consumer<JsonObject> function )
+    {
+        if ( root.isJsonArray() )
+        {
+            for ( JsonElement e : root.getAsJsonArray() )
+            {
+                replace( e,function );
+            }
+        }
+        else if ( root.isJsonObject() )
+        {
+            JsonObject jsonObjRoot = root.getAsJsonObject();
+            function.accept( jsonObjRoot );
+            for ( String key : jsonObjRoot.keySet() )
+            {
+                JsonElement element = jsonObjRoot.get( key );
+                if ( element.isJsonArray() )
+                {
+                    replace( element,function );
+                }
+            }
+        }
     }
 }

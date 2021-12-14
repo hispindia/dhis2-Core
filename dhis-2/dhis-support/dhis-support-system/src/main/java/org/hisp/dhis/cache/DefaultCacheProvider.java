@@ -115,7 +115,16 @@ public class DefaultCacheProvider
         userGroupNameCache,
         userDisplayNameCache,
         programWebHookNotificationTemplateCache,
-        programStageWebHookNotificationTemplateCache
+        programStageWebHookNotificationTemplateCache,
+        pgmOrgUnitAssocCache,
+        catOptOrgUnitAssocCache,
+        apiTokensCache,
+        programCache,
+        teiAttributesCache,
+        programTeiAttributesCache,
+        userGroupUIDCache,
+        securityCache
+
     }
 
     private final Map<String, Cache<?>> allCaches = new ConcurrentHashMap<>();
@@ -476,5 +485,90 @@ public class DefaultCacheProvider
             .withInitialCapacity( (int) getActualSize( 20 ) )
             .forceInMemory()
             .withMaximumSize( orZeroInTestRun( getActualSize( SIZE_500 ) ) ) );
+    }
+
+    @Override
+    public <V> Cache<V> createProgramOrgUnitAssociationCache()
+    {
+        return registerCache( this.<V> newBuilder()
+            .forRegion( Region.pgmOrgUnitAssocCache.name() )
+            .expireAfterWrite( 1, TimeUnit.HOURS )
+            .withInitialCapacity( (int) getActualSize( 20 ) )
+            .withMaximumSize( orZeroInTestRun( SIZE_1K ) ) );
+    }
+
+    @Override
+    public <V> Cache<V> createCatOptOrgUnitAssociationCache()
+    {
+        return registerCache( this.<V> newBuilder()
+            .forRegion( Region.catOptOrgUnitAssocCache.name() )
+            .expireAfterWrite( 1, TimeUnit.HOURS )
+            .withInitialCapacity( (int) getActualSize( 20 ) )
+            .withMaximumSize( orZeroInTestRun( SIZE_1K ) ) );
+    }
+
+    @Override
+    public <V> Cache<V> createApiKeyCache()
+    {
+        return registerCache( this.<V> newBuilder()
+            .forRegion( Region.apiTokensCache.name() )
+            .expireAfterWrite( 1, TimeUnit.HOURS )
+            .withInitialCapacity( (int) getActualSize( SIZE_1K ) )
+            .forceInMemory()
+            .withMaximumSize( orZeroInTestRun( getActualSize( SIZE_10K ) ) ) );
+    }
+
+    @Override
+    public <V> Cache<V> createProgramCache()
+    {
+        return registerCache( this.<V> newBuilder()
+            .forRegion( Region.programCache.name() )
+            .expireAfterWrite( 1, TimeUnit.MINUTES )
+            .withInitialCapacity( (int) getActualSize( SIZE_1K ) )
+            .withMaximumSize( orZeroInTestRun( getActualSize( SIZE_10K ) ) ) );
+    }
+
+    @Override
+    public <V> Cache<V> createTeiAttributesCache()
+    {
+        return registerCache( this.<V> newBuilder()
+            .forRegion( Region.teiAttributesCache.name() )
+            .expireAfterWrite( 10, TimeUnit.MINUTES )
+            .withInitialCapacity( (int) getActualSize( SIZE_1 ) )
+            .forceInMemory()
+            .withMaximumSize( orZeroInTestRun( getActualSize( SIZE_1 ) ) ) );
+    }
+
+    @Override
+    public <V> Cache<V> createProgramTeiAttributesCache()
+    {
+        return registerCache( this.<V> newBuilder()
+            .forRegion( Region.programTeiAttributesCache.name() )
+            .expireAfterWrite( 10, TimeUnit.MINUTES )
+            .withInitialCapacity( (int) getActualSize( SIZE_1 ) )
+            .forceInMemory()
+            .withMaximumSize( orZeroInTestRun( getActualSize( SIZE_1 ) ) ) );
+    }
+
+    @Override
+    public <V> Cache<V> createUserGroupUIDCache()
+    {
+        return registerCache( this.<V> newBuilder()
+            .forRegion( Region.userGroupUIDCache.name() )
+            .expireAfterWrite( 10, TimeUnit.MINUTES )
+            .withInitialCapacity( (int) getActualSize( SIZE_100 ) )
+            .forceInMemory()
+            .withMaximumSize( orZeroInTestRun( getActualSize( SIZE_1K ) ) ) );
+    }
+
+    @Override
+    public <V> Cache<V> createSecurityCache()
+    {
+        return registerCache( this.<V> newBuilder()
+            .forRegion( Region.securityCache.name() )
+            .expireAfterWrite( 10, TimeUnit.MINUTES )
+            .withInitialCapacity( (int) getActualSize( SIZE_100 ) )
+            .forceInMemory()
+            .withMaximumSize( orZeroInTestRun( getActualSize( SIZE_1K ) ) ) );
     }
 }

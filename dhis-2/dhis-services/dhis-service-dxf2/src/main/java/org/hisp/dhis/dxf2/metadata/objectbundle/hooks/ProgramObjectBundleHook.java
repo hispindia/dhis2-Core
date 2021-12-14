@@ -40,7 +40,6 @@ import org.hisp.dhis.preheat.PreheatIdentifier;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramInstance;
 import org.hisp.dhis.program.ProgramInstanceService;
-import org.hisp.dhis.program.ProgramService;
 import org.hisp.dhis.program.ProgramStage;
 import org.hisp.dhis.program.ProgramStageService;
 import org.hisp.dhis.program.ProgramStatus;
@@ -58,8 +57,6 @@ import org.springframework.stereotype.Component;
 public class ProgramObjectBundleHook extends AbstractObjectBundleHook<Program>
 {
     private final ProgramInstanceService programInstanceService;
-
-    private final ProgramService programService;
 
     private final ProgramStageService programStageService;
 
@@ -120,10 +117,7 @@ public class ProgramObjectBundleHook extends AbstractObjectBundleHook<Program>
                 ps.setProgram( program );
             }
 
-            programStageService.saveProgramStage( ps );
         } );
-
-        programService.updateProgram( program );
     }
 
     private void addProgramInstance( Program program )

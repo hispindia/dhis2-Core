@@ -27,11 +27,23 @@
  */
 package org.hisp.dhis.render;
 
+import lombok.AllArgsConstructor;
+
 /**
  * @author Morten Olav Hansen <mortenoh@gmail.com>
  */
+@AllArgsConstructor
 public enum RenderFormat
 {
-    JSON,
-    XML
+    JSON( "json" ),
+    XML( "xml" ),
+    ADX_XML( "adx+xml" ),
+    CSV( "csv" );
+
+    private String format;
+
+    public boolean isEqual( String format )
+    {
+        return this.format.equals( format );
+    }
 }

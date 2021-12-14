@@ -30,8 +30,9 @@ package org.hisp.dhis.pushanalysis.scheduling;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import org.hisp.dhis.pushanalysis.PushAnalysisService;
-import org.hisp.dhis.scheduling.AbstractJob;
+import org.hisp.dhis.scheduling.Job;
 import org.hisp.dhis.scheduling.JobConfiguration;
+import org.hisp.dhis.scheduling.JobProgress;
 import org.hisp.dhis.scheduling.JobType;
 import org.hisp.dhis.scheduling.parameters.PushAnalysisJobParameters;
 import org.springframework.stereotype.Component;
@@ -40,8 +41,7 @@ import org.springframework.stereotype.Component;
  * @author Stian Sandvold
  */
 @Component( "pushAnalysisJob" )
-public class PushAnalysisJob
-    extends AbstractJob
+public class PushAnalysisJob implements Job
 {
     private final PushAnalysisService pushAnalysisService;
 
@@ -62,7 +62,7 @@ public class PushAnalysisJob
     }
 
     @Override
-    public void execute( JobConfiguration jobConfiguration )
+    public void execute( JobConfiguration jobConfiguration, JobProgress progress )
     {
         PushAnalysisJobParameters parameters = (PushAnalysisJobParameters) jobConfiguration.getJobParameters();
 

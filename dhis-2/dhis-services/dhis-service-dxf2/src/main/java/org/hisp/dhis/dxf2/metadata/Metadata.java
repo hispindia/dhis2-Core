@@ -41,7 +41,6 @@ import org.hisp.dhis.category.CategoryOption;
 import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.category.CategoryOptionGroup;
 import org.hisp.dhis.category.CategoryOptionGroupSet;
-import org.hisp.dhis.chart.Chart;
 import org.hisp.dhis.common.DimensionalObject;
 import org.hisp.dhis.common.DxfNamespaces;
 import org.hisp.dhis.common.NameableObject;
@@ -61,6 +60,7 @@ import org.hisp.dhis.document.Document;
 import org.hisp.dhis.dxf2.events.event.Event;
 import org.hisp.dhis.eventchart.EventChart;
 import org.hisp.dhis.eventreport.EventReport;
+import org.hisp.dhis.eventvisualization.EventVisualization;
 import org.hisp.dhis.indicator.Indicator;
 import org.hisp.dhis.indicator.IndicatorGroup;
 import org.hisp.dhis.indicator.IndicatorGroupSet;
@@ -91,7 +91,6 @@ import org.hisp.dhis.programrule.ProgramRuleAction;
 import org.hisp.dhis.programrule.ProgramRuleVariable;
 import org.hisp.dhis.relationship.RelationshipType;
 import org.hisp.dhis.report.Report;
-import org.hisp.dhis.reporttable.ReportTable;
 import org.hisp.dhis.scheduling.JobConfiguration;
 import org.hisp.dhis.schema.Schema;
 import org.hisp.dhis.sqlview.SqlView;
@@ -103,6 +102,7 @@ import org.hisp.dhis.user.UserGroup;
 import org.hisp.dhis.validation.ValidationRule;
 import org.hisp.dhis.validation.ValidationRuleGroup;
 import org.hisp.dhis.validation.notification.ValidationNotificationTemplate;
+import org.hisp.dhis.visualization.Visualization;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
@@ -649,19 +649,6 @@ public class Metadata
     }
 
     @JsonProperty
-    @JacksonXmlElementWrapper( localName = "charts", namespace = DxfNamespaces.DXF_2_0 )
-    @JacksonXmlProperty( localName = "chart", namespace = DxfNamespaces.DXF_2_0 )
-    public List<Chart> getCharts()
-    {
-        return getValues( Chart.class );
-    }
-
-    public void setCharts( List<Chart> charts )
-    {
-        setValues( Chart.class, charts );
-    }
-
-    @JsonProperty
     @JacksonXmlElementWrapper( localName = "reports", namespace = DxfNamespaces.DXF_2_0 )
     @JacksonXmlProperty( localName = "report", namespace = DxfNamespaces.DXF_2_0 )
     public List<Report> getReports()
@@ -672,19 +659,6 @@ public class Metadata
     public void setReports( List<Report> reports )
     {
         setValues( Report.class, reports );
-    }
-
-    @JsonProperty
-    @JacksonXmlElementWrapper( localName = "reportTables", namespace = DxfNamespaces.DXF_2_0 )
-    @JacksonXmlProperty( localName = "reportTable", namespace = DxfNamespaces.DXF_2_0 )
-    public List<ReportTable> getReportTables()
-    {
-        return getValues( ReportTable.class );
-    }
-
-    public void setReportTables( List<ReportTable> reportTables )
-    {
-        setValues( ReportTable.class, reportTables );
     }
 
     @JsonProperty
@@ -932,6 +906,32 @@ public class Metadata
     public void setEventCharts( List<EventChart> eventCharts )
     {
         setValues( EventChart.class, eventCharts );
+    }
+
+    @JsonProperty
+    @JacksonXmlElementWrapper( localName = "eventVisualizations", namespace = DxfNamespaces.DXF_2_0 )
+    @JacksonXmlProperty( localName = "eventVisualization", namespace = DxfNamespaces.DXF_2_0 )
+    public List<EventVisualization> getEventVisualizations()
+    {
+        return getValues( EventVisualization.class );
+    }
+
+    public void setEventVisualizations( List<EventVisualization> eventVisualizations )
+    {
+        setValues( EventVisualization.class, eventVisualizations );
+    }
+
+    @JsonProperty
+    @JacksonXmlElementWrapper( localName = "visualizations", namespace = DxfNamespaces.DXF_2_0 )
+    @JacksonXmlProperty( localName = "visualization", namespace = DxfNamespaces.DXF_2_0 )
+    public List<Visualization> getVisualizations()
+    {
+        return getValues( Visualization.class );
+    }
+
+    public void setVisualizations( List<Visualization> visualizations )
+    {
+        setValues( Visualization.class, visualizations );
     }
 
     @JsonProperty

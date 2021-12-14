@@ -25,6 +25,8 @@
         "F_DASHBOARD_PUBLIC_ADD",
         "F_METADATA_IMPORT",
         "F_VISUALIZATION_PUBLIC_ADD",
+        "F_EVENT_VISUALIZATION_PUBLIC_ADD",
+        "F_EVENT_VISUALIZATION_EXTERNAL",
         "F_VIEW_UNAPPROVED_DATA",
         "F_VISUALIZATION_EXTERNAL",
         "F_USERGROUP_MANAGING_RELATIONSHIPS_VIEW",
@@ -90,6 +92,7 @@
           "id": "inVD5SdytkT"
         }
       ],
+      "dataViewMaxOrganisationUnitLevel": 4,
       "userCredentials": {
         "id": "yqJHNnkF3SJ",
         "user": {
@@ -109,7 +112,7 @@
             "id": "tHEWGwIMsJk"
           }
         ],
-        "username": "UserB",
+        "username": "userb",
         "invitation": false,
         "disabled": false,
         "externalAuth": false
@@ -136,9 +139,10 @@
           "id": "inVD5SdytkT"
         }
       ],
+      "dataViewMaxOrganisationUnitLevel": 3,
       "userCredentials": {
         "id": "m3ww4DWJtMf",
-        "username": "UserA",
+        "username": "usera",
         "userRoles": [
           {
             "id": "tHEWGwIMsJk"
@@ -175,6 +179,7 @@
           "id": "inVD5SdytkT"
         }
       ],
+      "dataViewMaxOrganisationUnitLevel": 4,
       "userCredentials": {
         "id": "EgBSdwGi7rr",
         "externalAuth": false,

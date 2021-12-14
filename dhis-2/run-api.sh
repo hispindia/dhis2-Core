@@ -13,7 +13,6 @@ DEFAULT_DHIS2_HOME=/opt/dhis2
 DHIS2_PORT=${2:-$DEFAULT_DHIS2_PORT}
 #DHIS2_HOME=${1:-$DEFAULT_DHIS2_HOME}
 
-
 echo -e "Usage: run-api.sh ([DHIS2_HOME_FOLDER] [DHIS2_PORT])\n"
 echo -e "Note: JDK 11 or later is required!\n"
 # Define DHIS2_HOME folder here or set it before you run this script
@@ -29,8 +28,6 @@ else
   echo -e "Environment variable DHIS2_HOME is set.\n"
 fi
 
-
-
 echo "JAVA_HOME: $JAVA_HOME"
 echo "DHIS2_HOME: $DHIS2_HOME"
 echo "Hostname: $DHIS2_HOSTNAME"
@@ -39,10 +36,24 @@ echo -e "Port: $DHIS2_PORT\n"
 [ ! -d $DHIS2_HOME ] && echo "DHIS2_HOME directory '$DHIS2_HOME' DOES NOT exists, aborting..." && exit 1;
 [ ! -f "$DHIS2_HOME/dhis.conf" ] && echo "dhis.conf in directory '$DHIS2_HOME' DOES NOT exists, aborting..." && exit 1;
 
-read -p "Do you wan to compile first? (if yes press y/Y to continue) " -n 1 -r
+read -p "Do you want to skip compile? (if yes press y/Y) " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-  mvn clean install -Pdev -Pjdk11 -T 100C -DskipTests -Dmaven.test.skip=true -Dmaven.site.skip=true -Dmaven.javadoc.skip=true
+  java \
+    -Ddhis2.home=$DHIS2_HOME \
+    -Djetty.host=$DHIS2_HOSTNAME \
+    -Djetty.http.port=$DHIS2_PORT \
+    -jar "$(dirname "$0")/dhis-web-embedded-jetty/target/dhis-web-embedded-jetty.jar"
+  exit 0;
 fi
 
-java -Ddhis2.home=$DHIS2_HOME -Djetty.host=$DHIS2_HOSTNAME -Djetty.http.port=$DHIS2_PORT -jar ./dhis-web-embedded-jetty/target/dhis-web-embedded-jetty.jar
+mvn clean install \
+    -f "$(dirname "$0")/pom.xml" \
+    --batch-mode --no-transfer-progress \
+    -Pdev -T 100C \
+    -DskipTests -Dmaven.test.skip=true -Dmaven.site.skip=true -Dmaven.javadoc.skip=true
+java \
+    -Ddhis2.home=$DHIS2_HOME \
+    -Djetty.host=$DHIS2_HOSTNAME \
+    -Djetty.http.port=$DHIS2_PORT \
+    -jar "$(dirname "$0")/dhis-web-embedded-jetty/target/dhis-web-embedded-jetty.jar"

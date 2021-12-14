@@ -27,6 +27,7 @@
  */
 package org.hisp.dhis.dxf2.datavalueset;
 
+import static java.util.Collections.singleton;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
@@ -65,6 +66,7 @@ import org.hisp.dhis.period.PeriodService;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.security.acl.AccessStringHelper;
 import org.hisp.dhis.user.CurrentUserService;
+import org.hisp.dhis.user.CurrentUserServiceTarget;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserService;
 import org.junit.Test;
@@ -154,6 +156,8 @@ public class DataValueSetServiceExportTest
 
     private String peAUid;
 
+    private String peBUid;
+
     @Override
     public void setUpTest()
     {
@@ -167,6 +171,7 @@ public class DataValueSetServiceExportTest
         periodService.addPeriod( peB );
 
         peAUid = peA.getUid();
+        peBUid = peB.getUid();
 
         deA = createDataElement( 'A' );
         deB = createDataElement( 'B' );
@@ -253,8 +258,9 @@ public class DataValueSetServiceExportTest
         user.setOrganisationUnits( Sets.newHashSet( ouA, ouB ) );
         userService.addUser( user );
         CurrentUserService currentUserService = new MockCurrentUserService( user );
-        setDependency( dataValueSetService, "currentUserService", currentUserService );
-        setDependency( organisationUnitService, "currentUserService", currentUserService );
+
+        setDependency( CurrentUserServiceTarget.class, CurrentUserServiceTarget::setCurrentUserService,
+            currentUserService, dataValueSetService, organisationUnitService );
 
         enableDataSharing( user, dsA, AccessStringHelper.DATA_READ_WRITE );
         enableDataSharing( user, dsB, AccessStringHelper.DATA_READ_WRITE );
@@ -295,6 +301,38 @@ public class DataValueSetServiceExportTest
     }
 
     @Test
+    public void testExportBasic_FromUrlParamsWithCodes()
+        throws IOException
+    {
+        DataValueSetQueryParams params = DataValueSetQueryParams.builder()
+            .dataSet( singleton( dsA.getCode() ) )
+            .inputOrgUnitIdScheme( IdentifiableProperty.CODE )
+            .orgUnit( singleton( ouA.getCode() ) )
+            .inputDataSetIdScheme( IdentifiableProperty.CODE )
+            .period( singleton( peAUid ) )
+            .dataSetIdScheme( IdentifiableProperty.CODE.name() )
+            .orgUnitIdScheme( IdentifiableProperty.CODE.name() )
+            .build();
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        dataValueSetService.writeDataValueSetJson( dataValueSetService.getFromUrl( params ), out );
+
+        DataValueSet dvs = jsonMapper.readValue( out.toByteArray(), DataValueSet.class );
+
+        assertNotNull( dvs );
+        assertNotNull( dvs.getDataSet() );
+        assertEquals( dsA.getCode(), dvs.getDataSet() );
+        assertEquals( 4, dvs.getDataValues().size() );
+
+        for ( org.hisp.dhis.dxf2.datavalue.DataValue dv : dvs.getDataValues() )
+        {
+            assertNotNull( dv );
+            assertEquals( ouA.getCode(), dv.getOrgUnit() );
+            assertEquals( peAUid, dv.getPeriod() );
+        }
+    }
+
+    @Test
     public void testExportAttributeOptionCombo()
         throws IOException
     {
@@ -323,6 +361,41 @@ public class DataValueSetServiceExportTest
     }
 
     @Test
+    public void testExportAttributeOptionCombo_FromUrlParamsWithCodes()
+        throws IOException
+    {
+        DataValueSetQueryParams params = DataValueSetQueryParams.builder()
+            .dataSet( singleton( dsA.getCode() ) )
+            .inputOrgUnitIdScheme( IdentifiableProperty.CODE )
+            .orgUnit( singleton( ouB.getCode() ) )
+            .inputDataSetIdScheme( IdentifiableProperty.CODE )
+            .period( singleton( peAUid ) )
+            .attributeOptionCombo( singleton( cocA.getCode() ) )
+            .inputIdScheme( IdentifiableProperty.CODE )
+            .dataSetIdScheme( IdentifiableProperty.CODE.name() )
+            .orgUnitIdScheme( IdentifiableProperty.CODE.name() )
+            .attributeOptionComboIdScheme( IdentifiableProperty.CODE.name() )
+            .build();
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        dataValueSetService.writeDataValueSetJson( dataValueSetService.getFromUrl( params ), out );
+
+        DataValueSet dvs = jsonMapper.readValue( out.toByteArray(), DataValueSet.class );
+
+        assertNotNull( dvs );
+        assertNotNull( dvs.getDataSet() );
+        assertEquals( 2, dvs.getDataValues().size() );
+
+        for ( org.hisp.dhis.dxf2.datavalue.DataValue dv : dvs.getDataValues() )
+        {
+            assertNotNull( dv );
+            assertEquals( ouB.getCode(), dv.getOrgUnit() );
+            assertEquals( cocA.getCode(), dv.getAttributeOptionCombo() );
+            assertEquals( peAUid, dv.getPeriod() );
+        }
+    }
+
+    @Test
     public void testExportOrgUnitChildren()
         throws IOException
     {
@@ -331,7 +404,7 @@ public class DataValueSetServiceExportTest
         DataExportParams params = new DataExportParams()
             .setDataSets( Sets.newHashSet( dsA ) )
             .setOrganisationUnits( Sets.newHashSet( ouA ) )
-            .setIncludeChildren( true )
+            .setIncludeDescendants( true )
             .setPeriods( Sets.newHashSet( peA ) );
 
         dataValueSetService.writeDataValueSetJson( params, out );
@@ -368,6 +441,41 @@ public class DataValueSetServiceExportTest
             .setOutputIdSchemes( idSchemes );
 
         dataValueSetService.writeDataValueSetJson( params, out );
+
+        DataValueSet dvs = jsonMapper.readValue( out.toByteArray(), DataValueSet.class );
+
+        assertNotNull( dvs );
+        assertNotNull( dvs.getDataSet() );
+        assertNotNull( dvs.getOrgUnit() );
+        assertEquals( dsB.getCode(), dvs.getDataSet() );
+        assertEquals( ouA.getCode(), dvs.getOrgUnit() );
+        assertEquals( 2, dvs.getDataValues().size() );
+
+        for ( org.hisp.dhis.dxf2.datavalue.DataValue dv : dvs.getDataValues() )
+        {
+            assertNotNull( dv );
+            assertEquals( deA.getCode(), dv.getDataElement() );
+            assertEquals( ouA.getCode(), dv.getOrgUnit() );
+        }
+    }
+
+    @Test
+    public void testExportOutputSingleDataValueSetIdSchemeCode_FromUrlParamsWithCodes()
+        throws IOException
+    {
+        DataValueSetQueryParams params = DataValueSetQueryParams.builder()
+            .orgUnitIdScheme( IdentifiableProperty.CODE.name() )
+            .dataElementIdScheme( IdentifiableProperty.CODE.name() )
+            .dataSetIdScheme( IdentifiableProperty.CODE.name() )
+            //
+            .dataSet( singleton( dsB.getCode() ) )
+            .orgUnit( singleton( ouA.getCode() ) )
+            .period( singleton( peBUid ) )
+            .inputIdScheme( IdentifiableProperty.CODE )
+            .build();
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        dataValueSetService.writeDataValueSetJson( dataValueSetService.getFromUrl( params ), out );
 
         DataValueSet dvs = jsonMapper.readValue( out.toByteArray(), DataValueSet.class );
 
@@ -560,7 +668,7 @@ public class DataValueSetServiceExportTest
             .setDataSets( Sets.newHashSet( dsA ) )
             .setPeriods( Sets.newHashSet( peA, peB ) )
             .setOrganisationUnitGroups( Sets.newHashSet( ogA ) )
-            .setIncludeChildren( true );
+            .setIncludeDescendants( true );
 
         assertIllegalQueryEx(
             assertThrows( IllegalQueryException.class, () -> dataValueSetService.writeDataValueSetJson( params, out ) ),

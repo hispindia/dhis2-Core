@@ -111,12 +111,16 @@ public class ObjectBundleServiceUserTest
         User userA = userService.getUser( "sPWjoHSY03y" );
         User userB = userService.getUser( "MwhEJUnTHkn" );
 
-        assertUsernameEquals( userA, UserCredentials::getUserInfo, "UserA" );
-        assertUsernameEquals( userB, UserCredentials::getUserInfo, "UserB" );
+        assertUsernameEquals( userA, UserCredentials::getUserInfo, "usera" );
         assertUsernameEquals( userA, UserCredentials::getCreatedBy, "admin" );
-        assertUsernameEquals( userB, UserCredentials::getCreatedBy, "admin" );
-
+        assertEquals( "user@a.org", userA.getEmail() );
+        assertEquals( Integer.valueOf( 3 ), userA.getDataViewMaxOrganisationUnitLevel() );
         assertEquals( 1, userA.getOrganisationUnits().size() );
+
+        assertUsernameEquals( userB, UserCredentials::getUserInfo, "userb" );
+        assertUsernameEquals( userB, UserCredentials::getCreatedBy, "admin" );
+        assertEquals( "user@b.org", userB.getEmail() );
+        assertEquals( Integer.valueOf( 4 ), userB.getDataViewMaxOrganisationUnitLevel() );
         assertEquals( 1, userB.getOrganisationUnits().size() );
     }
 
@@ -149,8 +153,9 @@ public class ObjectBundleServiceUserTest
         User userB = manager.get( User.class, "MwhEJUnTHkn" );
 
         assertUsernameEquals( userA, UserCredentials::getUserInfo, "UserAA" );
-        assertUsernameEquals( userB, UserCredentials::getUserInfo, "UserBB" );
         assertUsernameEquals( userA, UserCredentials::getCreatedBy, "admin" );
+
+        assertUsernameEquals( userB, UserCredentials::getUserInfo, "UserBB" );
         assertUsernameEquals( userB, UserCredentials::getCreatedBy, "admin" );
     }
 

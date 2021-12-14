@@ -25,13 +25,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.hisp.dhis.tracker;
 
 import com.google.gson.JsonObject;
 import org.hisp.dhis.ApiTest;
+import org.hisp.dhis.Constants;
 import org.hisp.dhis.actions.LoginActions;
 import org.hisp.dhis.actions.MaintenanceActions;
+import org.hisp.dhis.actions.metadata.ProgramActions;
 import org.hisp.dhis.actions.tracker.importer.TrackerActions;
 import org.hisp.dhis.dto.TrackerApiResponse;
 import org.hisp.dhis.helpers.file.FileReaderUtils;
@@ -47,7 +48,13 @@ import java.util.List;
 public class TrackerNtiApiTest
     extends ApiTest
 {
+    protected static final String TRACKER_PROGRAM_STAGE_ID = "nlXNK4b7LVr";
+
+    protected String TRACKER_PROGRAM_ID = Constants.TRACKER_PROGRAM_ID;
+
     protected TrackerActions trackerActions;
+
+    protected ProgramActions programActions;
 
     protected LoginActions loginActions;
 
@@ -56,6 +63,7 @@ public class TrackerNtiApiTest
     {
         trackerActions = new TrackerActions();
         loginActions = new LoginActions();
+        programActions = new ProgramActions();
     }
 
     protected String importEnrollment()
@@ -64,7 +72,8 @@ public class TrackerNtiApiTest
         JsonObject teiBody = new FileReaderUtils()
             .readJsonAndGenerateData( new File( "src/test/resources/tracker/importer/teis/teiAndEnrollment.json" ) );
 
-        return trackerActions.postAndGetJobReport( teiBody ).validateSuccessfulImport().extractImportedEnrollments().get( 0 );
+        return trackerActions.postAndGetJobReport( teiBody ).validateSuccessfulImport().extractImportedEnrollments()
+            .get( 0 );
     }
 
     protected String importTei()
@@ -78,7 +87,8 @@ public class TrackerNtiApiTest
 
     protected List<String> importTeis()
     {
-        List<String> teis = trackerActions.postAndGetJobReport( new File( "src/test/resources/tracker/importer/teis/teis.json" ) )
+        List<String> teis = trackerActions
+            .postAndGetJobReport( new File( "src/test/resources/tracker/importer/teis/teis.json" ) )
             .validateSuccessfulImport().extractImportedTeis();
 
         return teis;
@@ -87,20 +97,33 @@ public class TrackerNtiApiTest
     protected List<String> importEvents()
         throws Exception
     {
-        JsonObject object = new FileReaderUtils().read( new File( "src/test/resources/tracker/importer/events/events.json" ) )
+        JsonObject object = new FileReaderUtils()
+            .read( new File( "src/test/resources/tracker/importer/events/events.json" ) )
             .replacePropertyValuesWithIds( "event" ).get( JsonObject.class );
 
         return trackerActions.postAndGetJobReport( object )
             .validateSuccessfulImport().extractImportedEvents();
     }
 
-    protected TrackerApiResponse importTeiWithEnrollment( String programId, String programStageId )
+    protected TrackerApiResponse importTeiWithEnrollment( String programId )
         throws Exception
     {
         JsonObject teiWithEnrollment = new FileReaderUtils()
             .read( new File( "src/test/resources/tracker/importer/teis/teiWithEnrollments.json" ) )
-            .replacePropertyValuesWith( "program", programId )
-            .replacePropertyValuesWith( "programStage", programStageId )
+            .replacePropertyValuesRecursivelyWith( "program", programId )
+            .get( JsonObject.class );
+
+        return trackerActions.postAndGetJobReport( teiWithEnrollment ).validateSuccessfulImport();
+    }
+
+    protected TrackerApiResponse importTeiWithEnrollmentAndEvent( String orgUnit, String programId, String programStageId )
+        throws Exception
+    {
+        JsonObject teiWithEnrollment = new FileReaderUtils()
+            .read( new File( "src/test/resources/tracker/importer/teis/teiWithEnrollmentAndEventsNested.json" ) )
+            .replacePropertyValuesRecursivelyWith( "orgUnit", orgUnit )
+            .replacePropertyValuesRecursivelyWith( "program", programId )
+            .replacePropertyValuesRecursivelyWith( "programStage", programStageId )
             .get( JsonObject.class );
 
         TrackerApiResponse response = trackerActions.postAndGetJobReport( teiWithEnrollment );
@@ -123,6 +146,7 @@ public class TrackerNtiApiTest
     @AfterEach
     public void afterEachNTI()
     {
+        loginActions.loginAsSuperUser();
         new MaintenanceActions().removeSoftDeletedData();
     }
 }

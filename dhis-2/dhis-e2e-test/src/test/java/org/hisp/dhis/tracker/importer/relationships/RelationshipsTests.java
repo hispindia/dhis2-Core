@@ -25,7 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.hisp.dhis.tracker.importer.relationships;
 
 import com.google.gson.JsonObject;
@@ -41,6 +40,7 @@ import org.hisp.dhis.helpers.QueryParamsBuilder;
 import org.hisp.dhis.helpers.TestCleanUp;
 import org.hisp.dhis.helpers.file.FileReaderUtils;
 import org.hisp.dhis.tracker.TrackerNtiApiTest;
+import org.hisp.dhis.tracker.importer.databuilder.RelationshipDataBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -83,9 +83,15 @@ public class RelationshipsTests
     private static Stream<Arguments> provideRelationshipData()
     {
         return Stream.of(
-            Arguments.arguments( "HrS7b5Lis6E", "event", events.get( 0 ), "trackedEntity", teis.get( 0 ) ), //event to tei
-            Arguments.arguments( "HrS7b5Lis6w", "trackedEntity", teis.get( 0 ), "event", events.get( 0 ) ), // tei to event
-            Arguments.arguments( "HrS7b5Lis6P", "event", events.get( 0 ), "event", events.get( 1 ) ), // event to event
+            Arguments.arguments( "HrS7b5Lis6E", "event", events.get( 0 ), "trackedEntity", teis.get( 0 ) ), // event
+            // to
+            // tei
+            Arguments.arguments( "HrS7b5Lis6w", "trackedEntity", teis.get( 0 ), "event", events.get( 0 ) ), // tei
+            // to
+            // event
+            Arguments.arguments( "HrS7b5Lis6P", "event", events.get( 0 ), "event", events.get( 1 ) ), // event
+            // to
+            // event
             Arguments.arguments( "xLmPUYJX8Ks", "trackedEntity", teis.get( 0 ), "trackedEntity",
                 teis.get( 1 ) ) ); // tei to tei
     }
@@ -96,12 +102,13 @@ public class RelationshipsTests
             Arguments.of( teis.get( 0 ), teis.get( 1 ), teis.get( 1 ), teis.get( 0 ), true, 1,
                 "bi: reversed direction should import 1" ),
             Arguments
-                .of( teis.get( 0 ), teis.get( 1 ), teis.get( 0 ), teis.get( 1 ), false, 1, "uni: same direction should import 1" ),
+                .of( teis.get( 0 ), teis.get( 1 ), teis.get( 0 ), teis.get( 1 ), false, 1,
+                    "uni: same direction should import 1" ),
             Arguments
-                .of( teis.get( 0 ), teis.get( 1 ), teis.get( 0 ), teis.get( 1 ), true, 1, "bi: same direction should import 1" ),
+                .of( teis.get( 0 ), teis.get( 1 ), teis.get( 0 ), teis.get( 1 ), true, 1,
+                    "bi: same direction should import 1" ),
             Arguments.of( teis.get( 0 ), teis.get( 1 ), teis.get( 1 ), teis.get( 0 ), false, 2,
-                "uni: reversed direction should import 2" )
-        );
+                "uni: reversed direction should import 2" ) );
     }
 
     @BeforeAll
@@ -150,7 +157,8 @@ public class RelationshipsTests
 
         // assert
         response.validateErrorReport();
-        assertThat( trackerActions.get( "/relationships/" + relationshipId ).getBody(), matchesJSON( relationshipBody ) );
+        assertThat( trackerActions.get( "/relationships/" + relationshipId ).getBody(),
+            matchesJSON( relationshipBody ) );
     }
 
     @ParameterizedTest
@@ -188,18 +196,16 @@ public class RelationshipsTests
 
     @Test
     public void shouldNotDuplicateNonBidirectionalRelationship()
+        throws Exception
     {
-        // Given 2 existing tracked entities and a bidirectional relationship
+        // Given 2 existing tracked entities and a unidirectional relationship
         // between them
-        IdGenerator idGenerator = new IdGenerator();
 
-        String trackedEntity_1 = idGenerator.generateUniqueId();
-        String trackedEntity_2 = idGenerator.generateUniqueId();
+        String trackedEntity_1 = importTei();
+        String trackedEntity_2 = importTei();
 
-        JsonObject jsonObject = trackerActions.buildTrackedEntityAndRelationships(
-            trackedEntity_1,
-            trackedEntity_2,
-            trackerActions::buildNonBidirectionalTrackedEntityRelationship );
+        JsonObject jsonObject = new RelationshipDataBuilder().buildUniDirectionalRelationship( trackedEntity_1, trackedEntity_2 )
+            .array();
 
         trackerActions.postAndGetJobReport( jsonObject )
             .validateSuccessfulImport()
@@ -214,7 +220,9 @@ public class RelationshipsTests
             .body( "stats.ignored", equalTo( 1 ) );
 
         // and is imported again when the relation is in inverse order
-        trackerActions.postAndGetJobReport( trackerActions.invertRelationship( jsonObject ) )
+        jsonObject = new RelationshipDataBuilder().buildUniDirectionalRelationship( trackedEntity_2, trackedEntity_1 )
+            .array();
+        trackerActions.postAndGetJobReport( jsonObject )
             .validateSuccessfulImport()
             .validateRelationships()
             .body( "stats.ignored", equalTo( 0 ) )
@@ -231,18 +239,18 @@ public class RelationshipsTests
 
     @Test
     public void shouldNotDuplicateBidirectionalRelationship()
+        throws Exception
     {
         // Given 2 existing tracked entities and a bidirectional relationship
         // between them
-        IdGenerator idGenerator = new IdGenerator();
 
-        String trackedEntity_1 = idGenerator.generateUniqueId();
-        String trackedEntity_2 = idGenerator.generateUniqueId();
+        String trackedEntity_1 = importTei();
+        String trackedEntity_2 = importTei();
 
-        JsonObject jsonObject = trackerActions.buildTrackedEntityAndRelationships(
-            trackedEntity_1,
-            trackedEntity_2,
-            trackerActions::buildBidirectionalTrackedEntityRelationship );
+        JsonObject jsonObject = new RelationshipDataBuilder().buildBidirectionalRelationship( trackedEntity_1, trackedEntity_2 )
+            .array();
+        JsonObject invertedRelationship = new RelationshipDataBuilder()
+            .buildBidirectionalRelationship( trackedEntity_2, trackedEntity_1 ).array();
 
         TrackerApiResponse trackerApiResponse = trackerActions.postAndGetJobReport( jsonObject )
             .validateSuccessfulImport();
@@ -254,7 +262,7 @@ public class RelationshipsTests
         String createdRelationshipUid = trackerApiResponse.extractImportedRelationships().get( 0 );
 
         // when posting the same payload, then relationship is ignored both ways
-        Stream.of( jsonObject, trackerActions.invertRelationship( jsonObject ) )
+        Stream.of( jsonObject, invertedRelationship )
             .map( trackerActions::postAndGetJobReport )
             .map( tar -> tar.validateSuccessfulImportWithIgnored( 1 ) )
             .map( TrackerApiResponse::validateRelationships )
@@ -302,7 +310,7 @@ public class RelationshipsTests
             .validate()
             .statusCode( 404 );
 
-        trackerActions.get( "/trackedEntities/" + teis.get( 0 ) + "?fields=relationships" )
+        trackerActions.getTrackedEntity( teis.get( 0 ) + "?fields=relationships" )
             .validate()
             .body( "relationships", Matchers.empty() );
     }
@@ -376,7 +384,8 @@ public class RelationshipsTests
         // arrange
         String relationshipTypeId = relationshipTypeActions.get( "", new QueryParamsBuilder()
             .addAll( "filter=fromConstraint.relationshipEntity:eq:TRACKED_ENTITY_INSTANCE",
-                "filter=toConstraint.relationshipEntity:eq:TRACKED_ENTITY_INSTANCE", "filter=bidirectional:eq:" + bidirectional,
+                "filter=toConstraint.relationshipEntity:eq:TRACKED_ENTITY_INSTANCE",
+                "filter=bidirectional:eq:" + bidirectional,
                 "filter=name:like:TA" ) )
             .extractString( "relationshipTypes.id[0]" );
 
@@ -418,7 +427,7 @@ public class RelationshipsTests
         {
         case "trackedEntity":
         {
-            return trackerActions.get( "/trackedEntities/" + id, new QueryParamsBuilder().add( "fields=relationships" ) );
+            return trackerActions.getTrackedEntity( id + "?fields=relationships" );
         }
 
         case "event":
@@ -433,7 +442,8 @@ public class RelationshipsTests
         }
     }
 
-    private void validateRelationship( ApiResponse response, String relationshipTypeId, String fromInstance, String fromInstanceId,
+    private void validateRelationship( ApiResponse response, String relationshipTypeId, String fromInstance,
+        String fromInstanceId,
         String toInstance, String toInstanceId, String relationshipId )
     {
         String bodyPrefix = "";

@@ -29,8 +29,9 @@ package org.hisp.dhis.reservedvalue;
 
 import lombok.RequiredArgsConstructor;
 
-import org.hisp.dhis.scheduling.AbstractJob;
+import org.hisp.dhis.scheduling.Job;
 import org.hisp.dhis.scheduling.JobConfiguration;
+import org.hisp.dhis.scheduling.JobProgress;
 import org.hisp.dhis.scheduling.JobType;
 import org.springframework.stereotype.Component;
 
@@ -39,8 +40,7 @@ import org.springframework.stereotype.Component;
  */
 @Component( "removeUsedOrExpiredReservedValuesJob" )
 @RequiredArgsConstructor
-public class RemoveUsedOrExpiredReservedValuesJob
-    extends AbstractJob
+public class RemoveUsedOrExpiredReservedValuesJob implements Job
 {
     private final ReservedValueService reservedValueService;
 
@@ -51,7 +51,7 @@ public class RemoveUsedOrExpiredReservedValuesJob
     }
 
     @Override
-    public void execute( JobConfiguration jobConfiguration )
+    public void execute( JobConfiguration jobConfiguration, JobProgress progress )
     {
         reservedValueService.removeUsedOrExpiredReservations();
     }

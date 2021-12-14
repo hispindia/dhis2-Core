@@ -25,23 +25,25 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.hisp.dhis.tracker.importer;
 
-import org.hisp.dhis.dto.ApiResponse;
-import org.hisp.dhis.dto.TrackerApiResponse;
-import org.hisp.dhis.tracker.TrackerNtiApiTest;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.hamcrest.Matchers.*;
+import org.hisp.dhis.dto.ApiResponse;
+import org.hisp.dhis.dto.TrackerApiResponse;
+import org.hisp.dhis.helpers.QueryParamsBuilder;
+import org.hisp.dhis.tracker.TrackerNtiApiTest;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * @author Gintare Vilkelyte <vilkelyte.gintare@gmail.com>
@@ -73,12 +75,15 @@ public class TrackerExportTests
     private Stream<Arguments> provideParams()
     {
         return Stream.of( new Arguments[] {
-            Arguments.of( "/trackedEntities/" + teiId, "enrollments.createdAt,relationships[from.trackedEntity,to.trackedEntity]",
+            Arguments.of( "/trackedEntities/" + teiId,
+                "enrollments.createdAt,relationships[from.trackedEntity,to.trackedEntity]",
                 null ),
             Arguments.of( "/trackedEntities/" + teiId, "trackedEntity,enrollments", null ),
             Arguments.of( "/enrollments/" + enrollmentId, "program,status,enrolledAt", null ),
-            Arguments.of( "/enrollments/" + enrollmentId, "**", "enrollment,updatedAt,createdAt,occurredAt,enrolledAt", null ),
-            Arguments.of( "/trackedEntities/" + teiId, "*", "attributes,enrollments[createdAt,events],trackedEntity,orgUnit" ),
+            Arguments.of( "/enrollments/" + enrollmentId, "**", "enrollment,updatedAt,createdAt,occurredAt,enrolledAt",
+                null ),
+            Arguments.of( "/trackedEntities/" + teiId, "*",
+                "attributes,enrollments[createdAt,events],trackedEntity,orgUnit" ),
             Arguments.of( "/trackedEntities/" + teiId, "**", "attributes,enrollments[createdAt,events]" ),
             Arguments.of( "/events/" + eventId, "enrollment,createdAt", null ),
             Arguments.of( "/relationships/" + relationshipId, "from,to.trackedEntity[*]", null )
@@ -100,8 +105,25 @@ public class TrackerExportTests
             p -> {
                 response.validate()
                     .body( p, allOf( not( nullValue() ), not( contains( nullValue() ) ), not( emptyIterable() ) ) );
-            }
-        );
+            } );
+    }
+
+    @Test
+    public void singleTeiAndCollectionTeiShouldReturnSameResult()
+    {
+
+        TrackerApiResponse trackedEntity = trackerActions.getTrackedEntity( "Kj6vYde4LHh",
+            new QueryParamsBuilder()
+                .add( "fields", "*" )
+                .add( "includeAllAttributes", "true" ) );
+
+        TrackerApiResponse trackedEntities = trackerActions.getTrackedEntities( new QueryParamsBuilder()
+            .add( "fields", "*" )
+            .add( "includeAllAttributes", "true" )
+            .add( "trackedEntity", "Kj6vYde4LHh" )
+            .add( "orgUnit", "O6uvpzGd5pu" ) );
+
+        assertEquals( trackedEntities.extractJsonObject( "instances[0]" ), trackedEntity.getBody() );
     }
 
     private List<String> splitFields( String fields )
@@ -130,5 +152,27 @@ public class TrackerExportTests
         } );
 
         return split;
+    }
+
+    @Test
+    public void shouldReturnSingleTeiGivenFilter()
+    {
+
+        trackerActions.get("trackedEntities?orgUnit=O6uvpzGd5pu&program=f1AyMswryyQ&filter=kZeSYCgaHTk:in:Bravo")
+                .validate()
+                .statusCode(200)
+                .body("instances.findAll { it.trackedEntity == 'Kj6vYde4LHh' }.size()", is(1))
+                .body("instances.attributes.flatten().findAll { it.attribute == 'kZeSYCgaHTk' }.value", everyItem(is("Bravo")));
+    }
+
+    @Test
+    public void shouldReturnSingleTeiGivenFilterWhileSkippingPaging()
+    {
+
+        trackerActions.get("trackedEntities?skipPaging=true&orgUnit=O6uvpzGd5pu&program=f1AyMswryyQ&filter=kZeSYCgaHTk:in:Bravo")
+                .validate()
+                .statusCode(200)
+                .body("instances.findAll { it.trackedEntity == 'Kj6vYde4LHh' }.size()", is(1))
+                .body("instances.attributes.flatten().findAll { it.attribute == 'kZeSYCgaHTk' }.value", everyItem(is("Bravo")));
     }
 }

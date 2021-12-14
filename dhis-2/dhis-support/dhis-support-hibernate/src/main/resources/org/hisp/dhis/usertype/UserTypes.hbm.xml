@@ -18,6 +18,10 @@
     <param name="clazz">java.lang.Object</param>
   </typedef>
 
+  <typedef class="org.hisp.dhis.hibernate.jsonb.type.JsonNodeBinaryType" name="jbJsonNode">
+    <param name="clazz">com.fasterxml.jackson.databind.JsonNode</param>
+  </typedef>
+
   <typedef class="org.hisp.dhis.hibernate.jsonb.type.JsonBinaryPlainStringType" name="jbPlainString">
   </typedef>
 
@@ -49,6 +53,14 @@
     <param name="clazz">org.hisp.dhis.visualization.OutlierAnalysis</param>
   </typedef>
 
+  <typedef class="org.hisp.dhis.hibernate.jsonb.type.JsonBinaryType" name="jblDashboardLayout">
+    <param name="clazz">org.hisp.dhis.dashboard.design.Layout</param>
+  </typedef>
+
+  <typedef class="org.hisp.dhis.hibernate.jsonb.type.JsonBinaryType" name="jbDashboardItemConfig">
+    <param name="clazz">org.hisp.dhis.dashboard.design.ItemConfig</param>
+  </typedef>
+
   <typedef class="org.hisp.dhis.hibernate.jsonb.type.JsonBinaryType" name="jbTextPattern">
     <param name="clazz">org.hisp.dhis.textpattern.TextPattern</param>
   </typedef>
@@ -62,11 +74,11 @@
     <param name="clazz">org.hisp.dhis.render.DeviceRenderTypeMap</param>
     <param name="renderType">org.hisp.dhis.render.type.ValueTypeRenderingObject</param>
   </typedef>
-  
+
   <typedef class="org.hisp.dhis.hibernate.jsonb.type.JsonBinaryType" name="jbFilterPeriod">
     <param name="clazz">org.hisp.dhis.trackedentityfilter.FilterPeriod</param>
   </typedef>
-  
+
   <typedef class="org.hisp.dhis.hibernate.jsonb.type.JsonBinaryType" name="jbSet">
     <param name="clazz">java.util.HashSet</param>
   </typedef>
@@ -82,15 +94,15 @@
   <typedef class="org.hisp.dhis.hibernate.jsonb.type.JsonListBinaryType" name="jlbEventFilter">
     <param name="clazz">org.hisp.dhis.trackedentityfilter.EventFilter</param>
   </typedef>
-  
+
   <typedef class="org.hisp.dhis.hibernate.jsonb.type.JsonBinaryType" name="jbEventQueryCriteria">
     <param name="clazz">org.hisp.dhis.programstagefilter.EventQueryCriteria</param>
   </typedef>
-  
+
   <typedef class="org.hisp.dhis.hibernate.jsonb.type.JsonListBinaryType" name="jbSeries">
     <param name="clazz">org.hisp.dhis.visualization.Series</param>
   </typedef>
-  
+
   <typedef class="org.hisp.dhis.hibernate.jsonb.type.JsonListBinaryType" name="jlbMentions">
     <param name="clazz">org.hisp.dhis.interpretation.Mention</param>
   </typedef>
@@ -129,6 +141,10 @@
 
   <typedef class="org.hisp.dhis.hibernate.jsonb.type.SafeJsonBinaryType" name="jbValueTypeOptions">
     <param name="clazz">org.hisp.dhis.common.ValueTypeOptions</param>
+  </typedef>
+
+  <typedef class="org.hisp.dhis.hibernate.jsonb.type.ApiKeyAttributeJsonBinaryType" name="jbApiKeyAttributesList">
+    <param name="clazz">org.hisp.dhis.security.apikey.ApiTokenAttribute</param>
   </typedef>
 
 </hibernate-mapping>

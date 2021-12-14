@@ -25,7 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.hisp.dhis.tracker.importer.tei;
 
 import com.google.gson.JsonObject;
@@ -33,7 +32,6 @@ import org.hisp.dhis.Constants;
 import org.hisp.dhis.dto.ApiResponse;
 import org.hisp.dhis.dto.TrackerApiResponse;
 import org.hisp.dhis.helpers.JsonObjectBuilder;
-import org.hisp.dhis.helpers.QueryParamsBuilder;
 import org.hisp.dhis.helpers.file.FileReaderUtils;
 import org.hisp.dhis.tracker.TrackerNtiApiTest;
 import org.junit.jupiter.api.BeforeAll;
@@ -79,12 +77,13 @@ public class TeiImportTests
         // assert that the tei was imported
         String teiId = response.extractImportedTeis().get( 0 );
 
-        ApiResponse teiResponse = trackerActions.get( "/trackedEntities/" + teiId );
+        ApiResponse teiResponse = trackerActions.getTrackedEntity( teiId );
 
         teiResponse.validate()
             .statusCode( 200 );
 
-        assertThat( teiResponse.getBody(), matchesJSON( trackedEntities.get( "trackedEntities" ).getAsJsonArray().get( 0 ) ) );
+        assertThat( teiResponse.getBody(),
+            matchesJSON( trackedEntities.get( "trackedEntities" ).getAsJsonArray().get( 0 ) ) );
     }
 
     @Test
@@ -107,7 +106,7 @@ public class TeiImportTests
         // assert that the TEI was imported
         String teiId = response.extractImportedTeis().get( 0 );
 
-        ApiResponse teiResponse = trackerActions.get( "/trackedEntities/" + teiId );
+        ApiResponse teiResponse = trackerActions.getTrackedEntity( teiId );
 
         teiResponse.validate()
             .statusCode( 200 );
@@ -116,12 +115,39 @@ public class TeiImportTests
     }
 
     @Test
+    public void shouldImportTeiAndEnrollmentWithAttributes()
+            throws Exception
+    {
+        JsonObject teiBody = new FileReaderUtils()
+                .readJsonAndGenerateData( new File( "src/test/resources/tracker/importer/teis/teiWithEnrollmentAndAttributes.json" ) );
+
+        // act
+        TrackerApiResponse response = trackerActions.postAndGetJobReport( teiBody );
+
+        // assert
+        response.validateSuccessfulImport()
+                .validate()
+                .body( "stats.created", equalTo( 2 ) )
+                .rootPath( "bundleReport.typeReportMap" )
+                .body( "TRACKED_ENTITY.objectReports", hasSize( 1 ) )
+                .body( "ENROLLMENT.objectReports", hasSize( 1 ) );
+
+        // assert that the TEI was imported
+        String teiId = response.extractImportedTeis().get( 0 );
+
+        ApiResponse teiResponse = trackerActions.getTrackedEntity( teiId );
+
+        teiResponse.validate().statusCode( 200 );
+    }
+
+    @Test
     public void shouldImportTeisWithEnrollmentsEventsAndRelationship()
         throws Exception
     {
         // the file contains 2 teis with 1 enrollment and 1 event each
         JsonObject teiPayload = new FileReaderUtils()
-            .readJsonAndGenerateData( new File( "src/test/resources/tracker/importer/teis/teisWithEnrollmentsAndEvents.json" ) );
+            .readJsonAndGenerateData(
+                new File( "src/test/resources/tracker/importer/teis/teisWithEnrollmentsAndEvents.json" ) );
 
         // act
         TrackerApiResponse response = trackerActions.postAndGetJobReport( teiPayload );
@@ -137,12 +163,8 @@ public class TeiImportTests
 
         JsonObject teiBody = teiPayload.get( "trackedEntities" ).getAsJsonArray().get( 0 ).getAsJsonObject();
 
-        ApiResponse trackedEntityResponse = trackerActions.get( "/trackedEntities/" + teiBody.get( "trackedEntity" ).getAsString(),
-            new QueryParamsBuilder().addAll( "fields=*" ) );
-
-        trackedEntityResponse.validate()
-            .statusCode( 200 );
-
+        ApiResponse trackedEntityResponse = trackerActions
+            .getTrackedEntity( teiBody.get( "trackedEntity" ).getAsString() + "?fields=*" ).validateStatus( 200 );
         assertThat( trackedEntityResponse.getBody(), matchesJSON( teiBody ) );
     }
 

@@ -1,5 +1,3 @@
-package org.hisp.dhis.actions;
-
 /*
  * Copyright (c) 2004-2021, University of Oslo
  * All rights reserved.
@@ -27,12 +25,13 @@ package org.hisp.dhis.actions;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-import org.hisp.dhis.dto.ApiResponse;
-import org.hisp.dhis.dto.ImportSummary;
+package org.hisp.dhis.actions;
 
 import java.util.List;
 import java.util.logging.Logger;
+
+import org.hisp.dhis.dto.ApiResponse;
+import org.hisp.dhis.dto.ImportSummary;
 
 /**
  * @author Gintare Vilkelyte <vilkelyte.gintare@gmail.com>
@@ -65,7 +64,7 @@ public class SystemActions
 
     public List<ImportSummary> getTaskSummaries( String taskType, String taskId )
     {
-        return getTaskSummariesResponse( taskType, taskId ).getImportSummaries();
+        return getTaskSummariesResponse( taskType, taskId ).validateStatus( 200 ).getImportSummaries();
     }
 
     public ApiResponse getTaskSummariesResponse( String taskType, String taskId )

@@ -39,8 +39,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.hisp.dhis.feedback.ErrorCode;
 import org.hisp.dhis.feedback.ErrorReport;
 import org.hisp.dhis.message.MessageSender;
-import org.hisp.dhis.scheduling.AbstractJob;
+import org.hisp.dhis.scheduling.Job;
 import org.hisp.dhis.scheduling.JobConfiguration;
+import org.hisp.dhis.scheduling.JobProgress;
 import org.hisp.dhis.scheduling.JobType;
 import org.hisp.dhis.setting.SettingKey;
 import org.hisp.dhis.setting.SystemSettingManager;
@@ -56,8 +57,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component( "credentialsExpiryAlertJob" )
-public class CredentialsExpiryAlertJob
-    extends AbstractJob
+public class CredentialsExpiryAlertJob implements Job
 {
     private static final String SUBJECT = "Password Expiry Alert";
 
@@ -98,10 +98,10 @@ public class CredentialsExpiryAlertJob
     }
 
     @Override
-    public void execute( JobConfiguration jobConfiguration )
+    public void execute( JobConfiguration jobConfiguration, JobProgress progress )
     {
-        boolean isExpiryAlertEnabled = (Boolean) systemSettingManager
-            .getSystemSetting( SettingKey.CREDENTIALS_EXPIRY_ALERT );
+        boolean isExpiryAlertEnabled = systemSettingManager
+            .getBoolSetting( SettingKey.CREDENTIALS_EXPIRY_ALERT );
 
         if ( !isExpiryAlertEnabled )
         {
@@ -138,7 +138,7 @@ public class CredentialsExpiryAlertJob
                 "EMAIL gateway configuration does not exist" );
         }
 
-        return super.validate();
+        return Job.super.validate();
     }
 
     private void sendExpiryAlert( Map<String, String> content )
@@ -163,8 +163,7 @@ public class CredentialsExpiryAlertJob
 
     private int getRemainingDays( UserCredentials userCredentials )
     {
-        int daysBeforeChangeRequired = (Integer) systemSettingManager.getSystemSetting( SettingKey.CREDENTIALS_EXPIRES )
-            * 30;
+        int daysBeforeChangeRequired = systemSettingManager.getIntSetting( SettingKey.CREDENTIALS_EXPIRES ) * 30;
 
         Date passwordLastUpdated = userCredentials.getPasswordLastUpdated();
 

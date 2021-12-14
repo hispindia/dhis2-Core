@@ -33,8 +33,9 @@ import java.util.Date;
 
 import org.hisp.dhis.analytics.AnalyticsTableGenerator;
 import org.hisp.dhis.analytics.AnalyticsTableUpdateParams;
-import org.hisp.dhis.scheduling.AbstractJob;
+import org.hisp.dhis.scheduling.Job;
 import org.hisp.dhis.scheduling.JobConfiguration;
+import org.hisp.dhis.scheduling.JobProgress;
 import org.hisp.dhis.scheduling.JobType;
 import org.hisp.dhis.scheduling.parameters.AnalyticsJobParameters;
 import org.springframework.stereotype.Component;
@@ -43,8 +44,7 @@ import org.springframework.stereotype.Component;
  * @author Lars Helge Overland
  */
 @Component( "analyticsTableJob" )
-public class AnalyticsTableJob
-    extends AbstractJob
+public class AnalyticsTableJob implements Job
 {
     private final AnalyticsTableGenerator analyticsTableGenerator;
 
@@ -66,7 +66,7 @@ public class AnalyticsTableJob
     }
 
     @Override
-    public void execute( JobConfiguration jobConfiguration )
+    public void execute( JobConfiguration jobConfiguration, JobProgress progress )
     {
         AnalyticsJobParameters parameters = (AnalyticsJobParameters) jobConfiguration.getJobParameters();
 
@@ -79,6 +79,6 @@ public class AnalyticsTableJob
             .withStartTime( new Date() )
             .build();
 
-        analyticsTableGenerator.generateTables( params );
+        analyticsTableGenerator.generateTables( params, progress );
     }
 }

@@ -33,15 +33,25 @@ import static org.hisp.dhis.analytics.ColumnDataType.TEXT;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.quote;
 import static org.hisp.dhis.util.DateUtils.getLongDateString;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Future;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hisp.dhis.analytics.*;
+import org.hisp.dhis.analytics.AnalyticsIndex;
+import org.hisp.dhis.analytics.AnalyticsTable;
+import org.hisp.dhis.analytics.AnalyticsTableColumn;
+import org.hisp.dhis.analytics.AnalyticsTableHook;
+import org.hisp.dhis.analytics.AnalyticsTableHookService;
+import org.hisp.dhis.analytics.AnalyticsTableManager;
+import org.hisp.dhis.analytics.AnalyticsTablePartition;
+import org.hisp.dhis.analytics.AnalyticsTablePhase;
+import org.hisp.dhis.analytics.AnalyticsTableType;
+import org.hisp.dhis.analytics.AnalyticsTableUpdateParams;
 import org.hisp.dhis.analytics.partition.PartitionManager;
 import org.hisp.dhis.calendar.Calendar;
 import org.hisp.dhis.category.CategoryService;
@@ -54,6 +64,7 @@ import org.hisp.dhis.commons.util.TextUtils;
 import org.hisp.dhis.dataapproval.DataApprovalLevelService;
 import org.hisp.dhis.jdbc.StatementBuilder;
 import org.hisp.dhis.organisationunit.OrganisationUnitGroupSet;
+import org.hisp.dhis.organisationunit.OrganisationUnitLevel;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.resourcetable.ResourceTableService;
@@ -64,7 +75,6 @@ import org.hisp.dhis.util.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.Assert;
 
 import com.google.common.base.Preconditions;
@@ -166,19 +176,6 @@ public abstract class AbstractJdbcTableManager
     {
     }
 
-    /**
-     * Removes data which was updated or deleted between the last successful
-     * analytics table update and the start of this analytics table update
-     * process, excluding data which was created during that time span.
-     *
-     * Override in order to remove updated and deleted data for "latest"
-     * partition update.
-     */
-    @Override
-    public void removeUpdatedData( AnalyticsTableUpdateParams params, List<AnalyticsTable> tables )
-    {
-    }
-
     @Override
     public void createTable( AnalyticsTable table )
     {
@@ -193,33 +190,20 @@ public abstract class AbstractJdbcTableManager
     }
 
     @Override
-    @Async
-    public Future<?> createIndexesAsync( ConcurrentLinkedQueue<AnalyticsIndex> indexes )
+    public void createIndex( AnalyticsIndex index )
     {
-        while ( true )
-        {
-            AnalyticsIndex inx = indexes.poll();
+        final String indexName = index.getIndexName( getAnalyticsTableType() );
+        final String indexColumns = StringUtils.join( index.getColumns(), "," );
 
-            if ( inx == null )
-            {
-                break;
-            }
+        final String sql = "create index " + indexName + " " +
+            "on " + index.getTable() + " " +
+            "using " + index.getType().keyword() + " (" + indexColumns + ");";
 
-            final String indexName = inx.getIndexName( getAnalyticsTableType() );
-            final String indexColumns = StringUtils.join( inx.getColumns(), "," );
+        log.debug( "Create index: '{}' with SQL: '{}'", indexName, sql );
 
-            final String sql = "create index " + indexName + " " +
-                "on " + inx.getTable() + " " +
-                "using " + inx.getType().keyword() + " (" + indexColumns + ");";
+        jdbcTemplate.execute( sql );
 
-            log.debug( "Create index: '{}' with SQL: '{}'", indexName, sql );
-
-            jdbcTemplate.execute( sql );
-
-            log.debug( "Created index: '{}'", indexName );
-        }
-
-        return null;
+        log.debug( "Created index: '{}'", indexName );
     }
 
     @Override
@@ -267,23 +251,9 @@ public abstract class AbstractJdbcTableManager
     }
 
     @Override
-    @Async
-    public Future<?> populateTablesAsync( AnalyticsTableUpdateParams params,
-        ConcurrentLinkedQueue<AnalyticsTablePartition> partitions )
+    public void populateTablePartition( AnalyticsTableUpdateParams params, AnalyticsTablePartition partition )
     {
-        while ( true )
-        {
-            AnalyticsTablePartition partition = partitions.poll();
-
-            if ( partition == null )
-            {
-                break;
-            }
-
-            populateTable( params, partition );
-        }
-
-        return null;
+        populateTable( params, partition );
     }
 
     @Override
@@ -465,10 +435,10 @@ public abstract class AbstractJdbcTableManager
     protected AnalyticsTable getLatestAnalyticsTable( AnalyticsTableUpdateParams params,
         List<AnalyticsTableColumn> dimensionColumns, List<AnalyticsTableColumn> valueColumns )
     {
-        Date lastFullTableUpdate = (Date) systemSettingManager
-            .getSystemSetting( SettingKey.LAST_SUCCESSFUL_ANALYTICS_TABLES_UPDATE );
-        Date lastLatestPartitionUpdate = (Date) systemSettingManager
-            .getSystemSetting( SettingKey.LAST_SUCCESSFUL_LATEST_ANALYTICS_PARTITION_UPDATE );
+        Date lastFullTableUpdate = systemSettingManager
+            .getDateSetting( SettingKey.LAST_SUCCESSFUL_ANALYTICS_TABLES_UPDATE );
+        Date lastLatestPartitionUpdate = systemSettingManager
+            .getDateSetting( SettingKey.LAST_SUCCESSFUL_LATEST_ANALYTICS_PARTITION_UPDATE );
         Date lastAnyTableUpdate = DateUtils.getLatest( lastLatestPartitionUpdate, lastFullTableUpdate );
 
         Assert.notNull( lastFullTableUpdate,
@@ -527,8 +497,8 @@ public abstract class AbstractJdbcTableManager
      */
     protected List<AnalyticsTableColumn> filterDimensionColumns( List<AnalyticsTableColumn> columns )
     {
-        Date lastResourceTableUpdate = (Date) systemSettingManager
-            .getSystemSetting( SettingKey.LAST_SUCCESSFUL_RESOURCE_TABLES_UPDATE );
+        Date lastResourceTableUpdate = systemSettingManager
+            .getDateSetting( SettingKey.LAST_SUCCESSFUL_RESOURCE_TABLES_UPDATE );
 
         if ( lastResourceTableUpdate == null )
         {

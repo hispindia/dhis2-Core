@@ -79,7 +79,10 @@ public class EventDataValuesValidationHook
             }
 
             validateDataElement( reporter, dataElement, dataValue, programStage, event );
-            validateOptionSet( reporter, dataElement, dataValue.getValue() );
+            if ( dataValue.getValue() != null )
+            {
+                validateOptionSet( reporter, dataElement, dataValue.getValue() );
+            }
         }
 
         validateMandatoryDataValues( event, context, reporter );
@@ -123,7 +126,9 @@ public class EventDataValuesValidationHook
         ProgramStage programStage, DataValue dataValue, Event event )
     {
         if ( dataValue.getValue() != null || !needsToValidateDataValues( event, programStage ) )
+        {
             return;
+        }
 
         Optional<ProgramStageDataElement> optionalPsde = Optional.of( programStage )
             .map( ps -> ps.getProgramStageDataElements().stream() ).flatMap( psdes -> psdes

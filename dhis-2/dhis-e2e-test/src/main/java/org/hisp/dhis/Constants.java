@@ -1,5 +1,3 @@
-package org.hisp.dhis;
-
 /*
  * Copyright (c) 2004-2021, University of Oslo
  * All rights reserved.
@@ -27,12 +25,15 @@ package org.hisp.dhis;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.hisp.dhis;
 
 /**
  * @author Gintare Vilkelyte <vilkelyte.gintare@gmail.com>
  */
 public class Constants
 {
+    public static final String USER_PASSWORD = "Test1212?";
+
     public static final String TRACKED_ENTITY_TYPE = "Q9GufDoplCL";
 
     public static String ORG_UNIT_GROUP_ID = "n9bh3KM5wmu";
@@ -59,5 +60,4 @@ public class Constants
         "O6uvpzGd5pu",
         "YuQRtpLP10I"
     };
-
 }

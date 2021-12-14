@@ -1,5 +1,3 @@
-package org.hisp.dhis.helpers.extensions;
-
 /*
  * Copyright (c) 2004-2021, University of Oslo
  * All rights reserved.
@@ -27,6 +25,7 @@ package org.hisp.dhis.helpers.extensions;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.hisp.dhis.helpers.extensions;
 
 import io.restassured.authentication.NoAuthScheme;
 import io.restassured.authentication.PreemptiveBasicAuthScheme;
@@ -60,9 +59,10 @@ public class AuthFilter
             lastLoggedInUserPsw = "";
         }
 
-        if ( requestSpec.getAuthenticationScheme() instanceof PreemptiveBasicAuthScheme && (
-            ((PreemptiveBasicAuthScheme) requestSpec.getAuthenticationScheme()).getUserName() != lastLoggedInUser ||
-                ((PreemptiveBasicAuthScheme) requestSpec.getAuthenticationScheme()).getPassword() != lastLoggedInUserPsw) )
+        if ( requestSpec.getAuthenticationScheme() instanceof PreemptiveBasicAuthScheme
+            && (((PreemptiveBasicAuthScheme) requestSpec.getAuthenticationScheme()).getUserName() != lastLoggedInUser ||
+                ((PreemptiveBasicAuthScheme) requestSpec.getAuthenticationScheme())
+                    .getPassword() != lastLoggedInUserPsw) )
         {
             if ( hasSessionCookie( requestSpec ) )
             {

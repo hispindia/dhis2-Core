@@ -49,7 +49,6 @@ import org.springframework.stereotype.Service;
 public class TrackedEntityTrackerConverterService
     implements TrackerConverterService<TrackedEntity, TrackedEntityInstance>
 {
-
     @Override
     public TrackedEntity to( TrackedEntityInstance trackedEntityInstance )
     {
@@ -114,6 +113,7 @@ public class TrackedEntityTrackerConverterService
         tei.setStoredBy( te.getStoredBy() );
         tei.setLastUpdated( now );
         tei.setDeleted( false );
+        tei.setPotentialDuplicate( te.isPotentialDuplicate() );
         tei.setCreatedAtClient( DateUtils.fromInstant( te.getCreatedAtClient() ) );
         tei.setLastUpdatedAtClient( DateUtils.fromInstant( te.getUpdatedAtClient() ) );
         tei.setOrganisationUnit( organisationUnit );

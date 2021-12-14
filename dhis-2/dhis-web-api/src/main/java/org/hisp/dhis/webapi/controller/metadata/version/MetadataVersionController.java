@@ -39,7 +39,7 @@ import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.common.DhisApiVersion;
 import org.hisp.dhis.common.cache.CacheStrategy;
 import org.hisp.dhis.dxf2.metadata.version.exception.MetadataVersionServiceException;
@@ -350,8 +350,7 @@ public class MetadataVersionController
 
     private boolean isMetadataVersioningEnabled()
     {
-        Boolean setting = (Boolean) systemSettingManager.getSystemSetting( SettingKey.METADATAVERSION_ENABLED );
-        return setting.booleanValue();
+        return systemSettingManager.getBoolSetting( SettingKey.METADATAVERSION_ENABLED );
     }
 
     private RootNode getMetadataVersionsAsNode( List<MetadataVersion> versions )

@@ -75,6 +75,8 @@ import org.hisp.dhis.webapi.json.JsonDocument.JsonPathException;
 public final class JsonResponse implements JsonObject, JsonArray, JsonString, JsonNumber, JsonBoolean, Serializable
 {
 
+    public static final JsonResponse NULL = new JsonResponse( new JsonDocument( "null" ), "$" );
+
     private final JsonDocument content;
 
     private final String path;
@@ -88,6 +90,11 @@ public final class JsonResponse implements JsonObject, JsonArray, JsonString, Js
     {
         this.content = content;
         this.path = path;
+    }
+
+    public JsonDocument getJsonDocument()
+    {
+        return this.content;
     }
 
     private <T> T value( JsonNodeType expected, Function<JsonNode, T> get, Function<JsonPathException, T> orElse )

@@ -28,6 +28,7 @@
 package org.hisp.dhis.tracker.preprocess;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramInstance;
 import org.hisp.dhis.program.ProgramStage;
 import org.hisp.dhis.tracker.bundle.TrackerBundle;
@@ -55,15 +56,48 @@ public class EventWithoutRegistrationPreProcessor
 
                 if ( programStage != null )
                 {
-                    ProgramInstance enrollment = bundle.getPreheat()
-                        .getProgramInstancesWithoutRegistration( programStage.getProgram().getUid() );
-
-                    if ( enrollment != null )
+                    // TODO remove if once metadata import is fixed
+                    if ( programStage.getProgram() == null )
                     {
-                        event.setEnrollment( enrollment.getUid() );
+                        // Program stages should always have a program! Due to
+                        // how metadata
+                        // import is currently implemented
+                        // it's possible that users run into the edge case that
+                        // a program
+                        // stage does not have an associated
+                        // program. Tell the user it's an issue with the
+                        // metadata and not
+                        // the event itself. This should be
+                        // fixed in the metadata import. For more see
+                        // https://jira.dhis2.org/browse/DHIS2-12123
+                        //
+                        // PreCheckMandatoryFieldsValidationHook.validateEvent
+                        // will create
+                        // a validation error for this edge case
+                        return;
                     }
+                    setEnrollment( bundle, programStage.getProgram().getUid(), event );
                 }
             }
+            else if ( StringUtils.isNotEmpty( event.getProgram() ) )
+            {
+                Program program = bundle.getPreheat().get( Program.class, event.getProgram() );
+
+                if ( program != null )
+                {
+                    setEnrollment( bundle, program.getUid(), event );
+                }
+            }
+        }
+    }
+
+    private void setEnrollment( TrackerBundle bundle, String uid, Event event )
+    {
+        ProgramInstance enrollment = bundle.getPreheat().getProgramInstancesWithoutRegistration( uid );
+
+        if ( enrollment != null )
+        {
+            event.setEnrollment( enrollment.getUid() );
         }
     }
 }

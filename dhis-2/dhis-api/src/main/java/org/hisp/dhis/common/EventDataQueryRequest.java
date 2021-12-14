@@ -179,6 +179,11 @@ public class EventDataQueryRequest
         return new ExtendedEventDataQueryRequestBuilder();
     }
 
+    public boolean hasStartEndDate()
+    {
+        return startDate != null && endDate != null;
+    }
+
     public static class ExtendedEventDataQueryRequestBuilder extends EventDataQueryRequestBuilder
     {
         public EventDataQueryRequestBuilder fromCriteria( EventsAnalyticsQueryCriteria criteria )
@@ -226,8 +231,10 @@ public class EventDataQueryRequest
         public EventDataQueryRequestBuilder fromCriteria( EnrollmentAnalyticsQueryCriteria criteria )
         {
             return startDate( criteria.getStartDate() )
+                .timeField( criteria.getTimeField() )
                 .endDate( criteria.getEndDate() )
-                .dimension( criteria.getDimension() )
+                .dimension(
+                    criteria.getDimension() )
                 .filter( criteria.getFilter() )
                 .ouMode( criteria.getOuMode() )
                 .asc( criteria.getAsc() )

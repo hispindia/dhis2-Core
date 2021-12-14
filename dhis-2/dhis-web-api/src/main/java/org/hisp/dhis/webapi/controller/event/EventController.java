@@ -134,6 +134,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 
@@ -160,7 +161,7 @@ public class EventController
 
     private final EventService eventService;
 
-    private final CsvEventService csvEventService;
+    private final CsvEventService<Event> csvEventService;
 
     private final EventRowService eventRowService;
 
@@ -247,7 +248,8 @@ public class EventController
 
         if ( fields.isEmpty() )
         {
-            fields.addAll( Preset.ALL.getFields() );
+            fields.add( "*" );
+            fields.add( "dataValues" );
         }
 
         CategoryOptionCombo attributeOptionCombo = inputUtils.getAttributeOptionCombo( attributeCc, attributeCos,
@@ -509,17 +511,19 @@ public class EventController
         EventCriteria eventCriteria, @RequestParam Map<String, String> parameters, Model model,
         HttpServletResponse response,
         HttpServletRequest request )
-        throws WebMessageException
     {
         WebOptions options = new WebOptions( parameters );
         List<String> fields = Lists.newArrayList( contextService.getParameterValues( "fields" ) );
 
         if ( fields.isEmpty() )
         {
-            fields.addAll( Preset.ALL.getFields() );
+            fields.add(
+                "event,uid,program,programType,status,assignedUser,orgUnit,orgUnitName,eventDate,orgUnit,orgUnitName,created,lastUpdated,followup" );
         }
 
         EventSearchParams params = requestToSearchParamsMapper.map( eventCriteria );
+
+        setParamBasedOnFieldParameters( params, fields );
 
         Events events = eventService.getEvents( params );
 
@@ -638,7 +642,7 @@ public class EventController
             response.addHeader( "Content-Disposition", "attachment; filename=" + eventCriteria.getAttachment() );
         }
 
-        csvEventService.writeEvents( outputStream, events, !skipHeader );
+        csvEventService.writeEvents( outputStream, events.getEvents(), !skipHeader );
     }
 
     // -------------------------------------------------------------------------
@@ -900,15 +904,15 @@ public class EventController
     {
         InputStream inputStream = StreamUtils.wrapAndCheckCompressionFormat( request.getInputStream() );
 
-        Events events = csvEventService.readEvents( inputStream, skipFirst );
+        List<Event> events = csvEventService.readEvents( inputStream, skipFirst );
 
         if ( !importOptions.isAsync() )
         {
-            ImportSummaries importSummaries = eventService.addEvents( events.getEvents(), importOptions, null );
+            ImportSummaries importSummaries = eventService.addEvents( events, importOptions, null );
             importSummaries.setImportOptions( importOptions );
             return importSummaries( importSummaries );
         }
-        return startAsyncImport( importOptions, events.getEvents() );
+        return startAsyncImport( importOptions, events );
     }
 
     // -------------------------------------------------------------------------
@@ -1099,5 +1103,22 @@ public class EventController
     private String getParamValue( Map<String, List<String>> params, String key )
     {
         return params.get( key ) != null ? params.get( key ).get( 0 ) : null;
+    }
+
+    private void setParamBasedOnFieldParameters( EventSearchParams params, List<String> fields )
+    {
+        String joined = Joiner.on( "" ).join( fields );
+
+        if ( joined.contains( "*" ) )
+        {
+            params.setIncludeAllDataElements( true );
+            params.setIncludeAttributes( true );
+            params.setIncludeRelationships( true );
+        }
+
+        if ( joined.contains( "relationships" ) )
+        {
+            params.setIncludeRelationships( true );
+        }
     }
 }

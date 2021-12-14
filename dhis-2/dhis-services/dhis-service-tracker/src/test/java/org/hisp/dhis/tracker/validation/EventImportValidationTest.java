@@ -38,7 +38,6 @@ import static org.hisp.dhis.tracker.TrackerImportStrategy.UPDATE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -191,7 +190,27 @@ public class EventImportValidationTest
 
         assertEquals( TrackerStatus.OK, trackerImportReport.getStatus() );
         assertEquals( 0, trackerImportReport.getValidationReport().getErrorReports().size() );
+    }
 
+    @Test
+    public void testTrackerAndProgramEventUpdateSuccess()
+        throws IOException
+    {
+        TrackerImportParams trackerBundleParams = createBundleFromJson(
+            "tracker/validations/program_and_tracker_events.json" );
+        trackerBundleParams.setImportStrategy( TrackerImportStrategy.CREATE );
+
+        TrackerImportReport trackerImportReport = trackerImportService.importTracker( trackerBundleParams );
+
+        assertEquals( TrackerStatus.OK, trackerImportReport.getStatus() );
+        assertEquals( 0, trackerImportReport.getValidationReport().getErrorReports().size() );
+
+        trackerBundleParams.setImportStrategy( UPDATE );
+
+        trackerImportReport = trackerImportService.importTracker( trackerBundleParams );
+
+        assertEquals( TrackerStatus.OK, trackerImportReport.getStatus() );
+        assertEquals( 0, trackerImportReport.getValidationReport().getErrorReports().size() );
     }
 
     @Test
@@ -379,7 +398,7 @@ public class EventImportValidationTest
             assertTrue( CodeGenerator.isValidUid( comment.getUid() ) );
             assertTrue( comment.getCreated().getTime() > now.getTime() );
             assertTrue( comment.getLastUpdated().getTime() > now.getTime() );
-            assertNull( comment.getCreator() );
+            assertNotNull( comment.getCreator() );
             assertEquals( ADMIN_USER_UID, comment.getLastUpdatedBy().getUid() );
         } );
     }
@@ -409,7 +428,7 @@ public class EventImportValidationTest
             assertTrue( CodeGenerator.isValidUid( comment.getUid() ) );
             assertTrue( comment.getCreated().getTime() > now.getTime() );
             assertTrue( comment.getLastUpdated().getTime() > now.getTime() );
-            assertNull( comment.getCreator() );
+            assertNotNull( comment.getCreator() );
             assertEquals( ADMIN_USER_UID, comment.getLastUpdatedBy().getUid() );
         } );
     }

@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -134,6 +135,10 @@ public class EventTrackerConverterService
                 value.setValue( dataValue.getValue() );
                 value.setProvidedElsewhere( dataValue.getProvidedElsewhere() );
                 value.setStoredBy( dataValue.getStoredBy() );
+                value.setLastUpdatedBy( Optional.ofNullable( dataValue.getLastUpdatedByUserInfo() )
+                    .map( UserInfoSnapshot::getUsername ).orElse( "" ) );
+                value.setCreatedBy( Optional.ofNullable( dataValue.getCreatedByUserInfo() )
+                    .map( UserInfoSnapshot::getUsername ).orElse( "" ) );
 
                 event.getDataValues().add( value );
             }
@@ -266,6 +271,12 @@ public class EventTrackerConverterService
             eventDataValue.setLastUpdated( new Date() );
             eventDataValue.setProvidedElsewhere( dataValue.isProvidedElsewhere() );
             eventDataValue.setDataElement( dataValue.getDataElement() );
+            eventDataValue.setLastUpdatedByUserInfo( UserInfoSnapshot.from( preheat.getUser() ) );
+
+            User createdBy = preheat.getUsers().get( dataValue.getCreatedBy() );
+            eventDataValue
+                .setCreatedByUserInfo( Optional.ofNullable( createdBy ).map( u -> UserInfoSnapshot.from( createdBy ) )
+                    .orElseGet( () -> UserInfoSnapshot.from( preheat.getUser() ) ) );
 
             programStageInstance.getEventDataValues().add( eventDataValue );
         }

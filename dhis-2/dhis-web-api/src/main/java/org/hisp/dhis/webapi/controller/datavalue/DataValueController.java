@@ -27,7 +27,6 @@
  */
 package org.hisp.dhis.webapi.controller.datavalue;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.conflict;
 import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.error;
 import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.notFound;
@@ -40,6 +39,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import lombok.RequiredArgsConstructor;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.category.CategoryOptionCombo;
@@ -65,7 +66,7 @@ import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.setting.SettingKey;
 import org.hisp.dhis.setting.SystemSettingManager;
-import org.hisp.dhis.user.CurrentUserService;
+import org.hisp.dhis.user.CurrentUser;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.webapi.mvc.annotation.ApiVersion;
 import org.hisp.dhis.webapi.utils.FileResourceUtils;
@@ -94,6 +95,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 @RequestMapping( value = DataValueController.RESOURCE_PATH )
 @ApiVersion( { DhisApiVersion.DEFAULT, DhisApiVersion.ALL } )
+@RequiredArgsConstructor
 public class DataValueController
 {
     public static final String RESOURCE_PATH = "/dataValues";
@@ -103,8 +105,6 @@ public class DataValueController
     // ---------------------------------------------------------------------
     // Dependencies
     // ---------------------------------------------------------------------
-
-    private final CurrentUserService currentUserService;
 
     private final DataValueService dataValueService;
 
@@ -117,28 +117,6 @@ public class DataValueController
     private final DataValidator dataValueValidation;
 
     private final FileResourceUtils fileResourceUtils;
-
-    public DataValueController( final CurrentUserService currentUserService, final DataValueService dataValueService,
-        final SystemSettingManager systemSettingManager, final InputUtils inputUtils,
-        final FileResourceService fileResourceService, final DataValidator dataValueValidation,
-        final FileResourceUtils fileResourceUtils )
-    {
-        checkNotNull( currentUserService );
-        checkNotNull( dataValueService );
-        checkNotNull( systemSettingManager );
-        checkNotNull( inputUtils );
-        checkNotNull( fileResourceService );
-        checkNotNull( dataValueValidation );
-        checkNotNull( fileResourceUtils );
-
-        this.currentUserService = currentUserService;
-        this.dataValueService = dataValueService;
-        this.systemSettingManager = systemSettingManager;
-        this.inputUtils = inputUtils;
-        this.fileResourceService = fileResourceService;
-        this.dataValueValidation = dataValueValidation;
-        this.fileResourceUtils = fileResourceUtils;
-    }
 
     // ---------------------------------------------------------------------
     // POST
@@ -158,10 +136,12 @@ public class DataValueController
         @RequestParam( required = false ) String value,
         @RequestParam( required = false ) String comment,
         @RequestParam( required = false ) Boolean followUp,
-        @RequestParam( required = false ) boolean force, HttpServletResponse response )
+        @RequestParam( required = false ) boolean force,
+        @CurrentUser User currentUser,
+        HttpServletResponse response )
         throws WebMessageException
     {
-        saveDataValueInternal( de, co, cc, cp, pe, ou, ds, value, comment, followUp, force );
+        saveDataValueInternal( de, co, cc, cp, pe, ou, ds, value, comment, followUp, force, currentUser );
     }
 
     @PreAuthorize( "hasRole('ALL') or hasRole('F_DATAVALUE_ADD')" )
@@ -177,13 +157,15 @@ public class DataValueController
         @RequestParam( required = false ) String comment,
         @RequestParam( required = false ) Boolean followUp,
         @RequestParam( required = false ) boolean force,
-        @RequestParam MultipartFile file )
+        @RequestParam MultipartFile file,
+        @CurrentUser User currentUser )
         throws WebMessageException,
         IOException
     {
         FileResource fileResource = fileResourceUtils.saveFileResource( file, FileResourceDomain.DATA_VALUE );
 
-        saveDataValueInternal( de, co, cc, cp, pe, ou, ds, fileResource.getUid(), comment, followUp, force );
+        saveDataValueInternal( de, co, cc, cp, pe, ou, ds, fileResource.getUid(), comment, followUp, force,
+            currentUser );
 
         WebMessage webMessage = new WebMessage( Status.OK, HttpStatus.ACCEPTED );
         webMessage.setResponse( new FileResourceWebMessageResponse( fileResource ) );
@@ -193,25 +175,23 @@ public class DataValueController
 
     private void saveDataValueInternal( String de, String co, String cc,
         String cp, String pe, String ou, String ds, String value,
-        String comment, Boolean followUp, boolean force )
+        String comment, Boolean followUp, boolean force, User currentUser )
         throws WebMessageException
     {
-        boolean strictPeriods = (Boolean) systemSettingManager
-            .getSystemSetting( SettingKey.DATA_IMPORT_STRICT_PERIODS );
+        boolean strictPeriods = systemSettingManager
+            .getBoolSetting( SettingKey.DATA_IMPORT_STRICT_PERIODS );
 
-        boolean strictCategoryOptionCombos = (Boolean) systemSettingManager
-            .getSystemSetting( SettingKey.DATA_IMPORT_STRICT_CATEGORY_OPTION_COMBOS );
+        boolean strictCategoryOptionCombos = systemSettingManager
+            .getBoolSetting( SettingKey.DATA_IMPORT_STRICT_CATEGORY_OPTION_COMBOS );
 
-        boolean strictOrgUnits = (Boolean) systemSettingManager
-            .getSystemSetting( SettingKey.DATA_IMPORT_STRICT_ORGANISATION_UNITS );
+        boolean strictOrgUnits = systemSettingManager
+            .getBoolSetting( SettingKey.DATA_IMPORT_STRICT_ORGANISATION_UNITS );
 
-        boolean requireCategoryOptionCombo = (Boolean) systemSettingManager
-            .getSystemSetting( SettingKey.DATA_IMPORT_REQUIRE_CATEGORY_OPTION_COMBO );
+        boolean requireCategoryOptionCombo = systemSettingManager
+            .getBoolSetting( SettingKey.DATA_IMPORT_REQUIRE_CATEGORY_OPTION_COMBO );
 
-        FileResourceRetentionStrategy retentionStrategy = (FileResourceRetentionStrategy) systemSettingManager
-            .getSystemSetting( SettingKey.FILE_RESOURCE_RETENTION_STRATEGY );
-
-        User currentUser = currentUserService.getCurrentUser();
+        FileResourceRetentionStrategy retentionStrategy = systemSettingManager
+            .getSystemSetting( SettingKey.FILE_RESOURCE_RETENTION_STRATEGY, FileResourceRetentionStrategy.class );
 
         // ---------------------------------------------------------------------
         // Input validation
@@ -291,7 +271,7 @@ public class DataValueController
         // Assemble and save data value
         // ---------------------------------------------------------------------
 
-        String storedBy = currentUserService.getCurrentUsername();
+        String storedBy = currentUser.getUsername();
 
         Date now = new Date();
 
@@ -401,13 +381,13 @@ public class DataValueController
         @RequestParam String pe,
         @RequestParam String ou,
         @RequestParam( required = false ) String ds,
-        @RequestParam( required = false ) boolean force, HttpServletResponse response )
+        @RequestParam( required = false ) boolean force,
+        @CurrentUser User currentUser,
+        HttpServletResponse response )
         throws WebMessageException
     {
-        FileResourceRetentionStrategy retentionStrategy = (FileResourceRetentionStrategy) systemSettingManager
-            .getSystemSetting( SettingKey.FILE_RESOURCE_RETENTION_STRATEGY );
-
-        User currentUser = currentUserService.getCurrentUser();
+        FileResourceRetentionStrategy retentionStrategy = systemSettingManager
+            .getSystemSetting( SettingKey.FILE_RESOURCE_RETENTION_STRATEGY, FileResourceRetentionStrategy.class );
 
         // ---------------------------------------------------------------------
         // Input validation
@@ -474,14 +454,13 @@ public class DataValueController
         @RequestParam( required = false ) String cp,
         @RequestParam String pe,
         @RequestParam String ou,
+        @CurrentUser User currentUser,
         Model model, HttpServletResponse response )
         throws WebMessageException
     {
         // ---------------------------------------------------------------------
         // Input validation
         // ---------------------------------------------------------------------
-
-        User currentUser = currentUserService.getCurrentUser();
 
         DataElement dataElement = dataValueValidation.getAndValidateDataElement( de );
 

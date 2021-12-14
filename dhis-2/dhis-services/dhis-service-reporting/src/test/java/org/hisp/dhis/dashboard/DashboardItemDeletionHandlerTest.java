@@ -27,16 +27,19 @@
  */
 package org.hisp.dhis.dashboard;
 
-import static org.junit.Assert.*;
+import static org.hisp.dhis.eventvisualization.EventVisualizationType.LINE_LIST;
+import static org.junit.Assert.assertEquals;
 
 import org.hisp.dhis.DhisSpringTest;
-import org.hisp.dhis.chart.ChartType;
 import org.hisp.dhis.document.Document;
 import org.hisp.dhis.document.DocumentService;
 import org.hisp.dhis.eventchart.EventChart;
 import org.hisp.dhis.eventchart.EventChartService;
 import org.hisp.dhis.eventreport.EventReport;
 import org.hisp.dhis.eventreport.EventReportService;
+import org.hisp.dhis.eventvisualization.EventVisualization;
+import org.hisp.dhis.eventvisualization.EventVisualizationService;
+import org.hisp.dhis.eventvisualization.EventVisualizationType;
 import org.hisp.dhis.mapping.Map;
 import org.hisp.dhis.mapping.MappingService;
 import org.hisp.dhis.program.Program;
@@ -61,6 +64,9 @@ public class DashboardItemDeletionHandlerTest
 
     @Autowired
     private VisualizationService visualizationService;
+
+    @Autowired
+    private EventVisualizationService eventVisualizationService;
 
     @Autowired
     private MappingService mappingService;
@@ -121,13 +127,33 @@ public class DashboardItemDeletionHandlerTest
     }
 
     @Test
+    public void testDeleteEventVisualization()
+    {
+        programService.addProgram( program );
+
+        EventVisualization eventVisualization = createEventVisualization( 'A', program );
+        eventVisualizationService.save( eventVisualization );
+
+        dashboardItem.setEventVisualization( eventVisualization );
+        dashboardService.saveDashboard( dashboard );
+
+        assertEquals( 1, dashboardService.getEventVisualizationDashboardItems( eventVisualization ).size() );
+        assertEquals( 1, dashboard.getItemCount() );
+
+        eventVisualizationService.delete( eventVisualization );
+
+        assertEquals( 0, dashboardService.getEventVisualizationDashboardItems( eventVisualization ).size() );
+        assertEquals( 0, dashboard.getItemCount() );
+    }
+
+    @Test
     public void testDeleteEventChart()
     {
         programService.addProgram( program );
 
         EventChart eventChart = new EventChart( "A" );
         eventChart.setProgram( program );
-        eventChart.setType( ChartType.COLUMN );
+        eventChart.setType( EventVisualizationType.COLUMN );
         eventChartService.saveEventChart( eventChart );
 
         dashboardItem.setEventChart( eventChart );
@@ -168,6 +194,7 @@ public class DashboardItemDeletionHandlerTest
 
         EventReport eventReport = new EventReport( "A" );
         eventReport.setProgram( program );
+        eventReport.setType( LINE_LIST );
         eventReportService.saveEventReport( eventReport );
 
         dashboardItem.setEventReport( eventReport );

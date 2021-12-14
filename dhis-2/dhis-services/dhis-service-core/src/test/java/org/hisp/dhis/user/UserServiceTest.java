@@ -29,6 +29,7 @@ package org.hisp.dhis.user;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toSet;
 import static org.hisp.dhis.setting.SettingKey.CAN_GRANT_OWN_USER_AUTHORITY_GROUPS;
@@ -146,10 +147,10 @@ public class UserServiceTest
         addUser( 'A' );
         addUser( 'B' );
 
-        assertEquals( 2, userService.getUserCredentialsByUsernames( asList( "UsernameA", "UsernameB" ) ).size() );
+        assertEquals( 2, userService.getUserCredentialsByUsernames( asList( "usernamea", "usernameb" ) ).size() );
         assertEquals( 2,
-            userService.getUserCredentialsByUsernames( asList( "UsernameA", "UsernameB", "usernameX" ) ).size() );
-        assertEquals( 0, userService.getUserCredentialsByUsernames( asList( "usernameC" ) ).size() );
+            userService.getUserCredentialsByUsernames( asList( "usernamea", "usernameb", "usernamex" ) ).size() );
+        assertEquals( 0, userService.getUserCredentialsByUsernames( asList( "usernamec" ) ).size() );
     }
 
     @Test
@@ -592,6 +593,35 @@ public class UserServiceTest
     }
 
     @Test
+    public void testGetExpiringUserAccounts()
+    {
+        ZonedDateTime now = ZonedDateTime.now();
+        Date inFiveDays = Date.from( now.plusDays( 5 ).toInstant() );
+        Date inSixDays = Date.from( now.plusDays( 6 ).toInstant() );
+        Date inEightDays = Date.from( now.plusDays( 8 ).toInstant() );
+        addUser( 'A' );
+        addUser( 'B', UserCredentials::setAccountExpiry, inFiveDays );
+        addUser( 'C' );
+        addUser( 'D', UserCredentials::setAccountExpiry, inSixDays );
+        addUser( 'E', UserCredentials::setAccountExpiry, inEightDays );
+
+        List<UserAccountExpiryInfo> soonExpiringAccounts = userService.getExpiringUserAccounts( 7 );
+        Set<String> soonExpiringAccountNames = soonExpiringAccounts.stream()
+            .map( UserAccountExpiryInfo::getUsername ).collect( toSet() );
+        assertEquals( new HashSet<>( asList( "usernameb", "usernamed" ) ), soonExpiringAccountNames );
+
+        soonExpiringAccounts = userService.getExpiringUserAccounts( 9 );
+        soonExpiringAccountNames = soonExpiringAccounts.stream()
+            .map( UserAccountExpiryInfo::getUsername ).collect( toSet() );
+        assertEquals( new HashSet<>( asList( "usernameb", "usernamed", "usernamee" ) ), soonExpiringAccountNames );
+
+        for ( UserAccountExpiryInfo expiryInfo : soonExpiringAccounts )
+        {
+            assertEquals( expiryInfo.getUsername().replace( "username", "email" ), expiryInfo.getEmail() );
+        }
+    }
+
+    @Test
     public void testDisableUsersInactiveSince()
     {
         ZonedDateTime now = ZonedDateTime.now();
@@ -622,5 +652,32 @@ public class UserServiceTest
         List<User> users = userService.getUsers( params );
         assertEquals( new HashSet<>( asList( userA.getUid(), userB.getUid() ) ),
             users.stream().map( User::getUid ).collect( toSet() ) );
+    }
+
+    @Test
+    public void testFindNotifiableUsersWithLastLoginBetween()
+    {
+        ZonedDateTime now = ZonedDateTime.now();
+        Date oneMonthsAgo = Date.from( now.minusMonths( 1 ).toInstant() );
+        Date twoMonthsAgo = Date.from( now.minusMonths( 2 ).toInstant() );
+        Date threeMonthAgo = Date.from( now.minusMonths( 3 ).toInstant() );
+        Date fourMonthAgo = Date.from( now.minusMonths( 4 ).toInstant() );
+        Date twentyTwoDaysAgo = Date.from( now.minusDays( 22 ).toInstant() );
+
+        addUser( 'A', UserCredentials::setLastLogin, threeMonthAgo );
+        addUser( 'B', credentials -> {
+            credentials.setDisabled( true );
+            credentials.setLastLogin( Date.from( now.minusMonths( 4 ).plusDays( 2 ).toInstant() ) );
+        } );
+
+        addUser( 'C', UserCredentials::setLastLogin, twentyTwoDaysAgo );
+        addUser( 'D' );
+
+        assertEquals( singleton( "emaila" ),
+            userService.findNotifiableUsersWithLastLoginBetween( threeMonthAgo, twoMonthsAgo ) );
+        assertEquals( singleton( "emaila" ),
+            userService.findNotifiableUsersWithLastLoginBetween( fourMonthAgo, oneMonthsAgo ) );
+        assertEquals( new HashSet<>( asList( "emaila", "emailc" ) ),
+            userService.findNotifiableUsersWithLastLoginBetween( fourMonthAgo, Date.from( now.toInstant() ) ) );
     }
 }

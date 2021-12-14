@@ -1,5 +1,3 @@
-package org.hisp.dhis.aggregate;
-
 /*
  * Copyright (c) 2004-2021, University of Oslo
  * All rights reserved.
@@ -27,6 +25,7 @@ package org.hisp.dhis.aggregate;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.hisp.dhis.aggregate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -83,7 +82,8 @@ public class DataImportTest
         systemActions = new SystemActions();
 
         new LoginActions().loginAsSuperUser();
-        metadataActions.importMetadata( new File( "src/test/resources/aggregate/metadata.json" ), "async=false" ).validate()
+        metadataActions.importMetadata( new File( "src/test/resources/aggregate/metadata.json" ), "async=false" )
+            .validate()
             .statusCode( 200 );
     }
 
@@ -95,6 +95,7 @@ public class DataImportTest
                 new QueryParamsBuilder().add( "importReportMode=FULL" ) );
 
         response.validate().statusCode( 200 )
+            .rootPath( "response" )
             .body( "status", equalTo( "SUCCESS" ) )
             .body( "conflicts", empty() )
             .body( "importCount", notNullValue() )
@@ -104,7 +105,8 @@ public class DataImportTest
 
         ImportSummary importSummary = response.getImportSummaries().get( 0 );
         assertThat( response.getAsString(),
-            importSummary.getImportCount().getImported() + importSummary.getImportCount().getUpdated(), greaterThan( 0 ) );
+            importSummary.getImportCount().getImported() + importSummary.getImportCount().getUpdated(),
+            greaterThan( 0 ) );
 
     }
 
@@ -139,7 +141,8 @@ public class DataImportTest
 
         ImportSummary importSummary = response.getImportSummaries().get( 0 );
         assertThat( response.getAsString(),
-            importSummary.getImportCount().getImported() + importSummary.getImportCount().getUpdated(), greaterThan( 0 ) );
+            importSummary.getImportCount().getImported() + importSummary.getImportCount().getUpdated(),
+            greaterThan( 0 ) );
     }
 
     @Test
@@ -150,15 +153,17 @@ public class DataImportTest
         String period = "201911";
         String dataSet = "VEM58nY22sO";
 
-        JsonObject importedPayload = new JsonFileReader( new File( "src/test/resources/aggregate/dataValues_single_dataset.json" ) )
-            .get();
+        JsonObject importedPayload = new JsonFileReader(
+            new File( "src/test/resources/aggregate/dataValues_single_dataset.json" ) )
+                .get();
         ApiResponse response = dataValueSetActions.post( importedPayload );
 
         response.validate().statusCode( 200 )
+            .rootPath( "response" )
             .body( "status", equalTo( "SUCCESS" ) )
             .body( "conflicts", empty() )
             .body( "importCount", notNullValue() )
-            .rootPath( "importCount" )
+            .rootPath( "response.importCount" )
             .body( "ignored", not( greaterThan( 0 ) ) )
             .body( "deleted", not( greaterThan( 0 ) ) );
 
@@ -166,9 +171,11 @@ public class DataImportTest
 
         assertThat( importSummary, notNullValue() );
         assertThat( response.getAsString(),
-            importSummary.getImportCount().getImported() + importSummary.getImportCount().getUpdated(), greaterThanOrEqualTo( 2 ) );
+            importSummary.getImportCount().getImported() + importSummary.getImportCount().getUpdated(),
+            greaterThanOrEqualTo( 2 ) );
 
-        response = dataValueSetActions.get( String.format( "?orgUnit=%s&period=%s&dataSet=%s", orgUnit, period, dataSet ) );
+        response = dataValueSetActions
+            .get( String.format( "?orgUnit=%s&period=%s&dataSet=%s", orgUnit, period, dataSet ) );
 
         response.validate()
             .body( "dataSet", equalTo( dataSet ) )
@@ -178,8 +185,7 @@ public class DataImportTest
 
         JsonArray dataValues = response.getBody().get( "dataValues" ).getAsJsonArray();
 
-        for ( JsonElement j : dataValues
-        )
+        for ( JsonElement j : dataValues )
         {
             JsonObject object = j.getAsJsonObject();
 
@@ -199,11 +205,13 @@ public class DataImportTest
         QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder();
         queryParamsBuilder.addAll( "importReportMode=FULL", "importStrategy=DELETE" );
 
-        ApiResponse response = dataValueSetActions.postFile( new File( "src/test/resources/aggregate/dataValues_bulk.json" ),
+        ApiResponse response = dataValueSetActions.postFile(
+            new File( "src/test/resources/aggregate/dataValues_bulk.json" ),
             queryParamsBuilder );
         response.validate().statusCode( 200 );
 
-        response = dataValueSetActions.postFile( new File( "src/test/resources/aggregate/dataValues_single_dataset.json" ),
+        response = dataValueSetActions.postFile(
+            new File( "src/test/resources/aggregate/dataValues_single_dataset.json" ),
             queryParamsBuilder );
         response.validate().statusCode( 200 );
     }

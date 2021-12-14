@@ -38,16 +38,21 @@ import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.unauthorized;
 
 import java.beans.PropertyEditorSupport;
 import java.util.Date;
+import java.util.function.Function;
 
 import javax.servlet.ServletException;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.hisp.dhis.common.DeleteNotAllowedException;
+import org.hisp.dhis.common.IdentifiableProperty;
 import org.hisp.dhis.common.IllegalQueryException;
 import org.hisp.dhis.common.MaintenanceModeException;
 import org.hisp.dhis.common.QueryRuntimeException;
 import org.hisp.dhis.common.exception.InvalidIdentifierReferenceException;
+import org.hisp.dhis.commons.jackson.jsonpatch.JsonPatchException;
 import org.hisp.dhis.dataapproval.exceptions.DataApprovalException;
+import org.hisp.dhis.deduplication.PotentialDuplicateConflictException;
+import org.hisp.dhis.deduplication.PotentialDuplicateForbiddenException;
 import org.hisp.dhis.dxf2.adx.AdxException;
 import org.hisp.dhis.dxf2.metadata.MetadataExportException;
 import org.hisp.dhis.dxf2.metadata.MetadataImportException;
@@ -68,6 +73,8 @@ import org.hisp.dhis.webapi.controller.exception.MetadataVersionException;
 import org.hisp.dhis.webapi.controller.exception.NotAuthenticatedException;
 import org.hisp.dhis.webapi.controller.exception.NotFoundException;
 import org.hisp.dhis.webapi.controller.exception.OperationNotAllowedException;
+import org.hisp.dhis.webapi.security.apikey.ApiTokenAuthenticationException;
+import org.hisp.dhis.webapi.security.apikey.ApiTokenError;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.BadSqlGrammarException;
@@ -104,15 +111,8 @@ public class CrudControllerAdvice
     @InitBinder
     protected void initBinder( WebDataBinder binder )
     {
-        binder.registerCustomEditor( Date.class, new PropertyEditorSupport()
-        {
-            @Override
-            public void setAsText( String value )
-                throws IllegalArgumentException
-            {
-                setValue( DateUtils.parseDate( value ) );
-            }
-        } );
+        binder.registerCustomEditor( Date.class, new FromTextPropertyEditor( DateUtils::parseDate ) );
+        binder.registerCustomEditor( IdentifiableProperty.class, new FromTextPropertyEditor( String::toUpperCase ) );
     }
 
     @ExceptionHandler( IllegalQueryException.class )
@@ -262,7 +262,8 @@ public class CrudControllerAdvice
         throw ex;
     }
 
-    @ExceptionHandler( { BadRequestException.class, IllegalArgumentException.class, SchemaPathException.class } )
+    @ExceptionHandler( { BadRequestException.class, IllegalArgumentException.class, SchemaPathException.class,
+        JsonPatchException.class } )
     @ResponseBody
     public WebMessage handleBadRequest( Exception exception )
     {
@@ -331,14 +332,42 @@ public class CrudControllerAdvice
         return unauthorized( ex.getMessage() );
     }
 
+    @ExceptionHandler( ApiTokenAuthenticationException.class )
+    @ResponseBody
+    public WebMessage handleApiTokenAuthenticationException( ApiTokenAuthenticationException ex )
+    {
+        ApiTokenError apiTokenError = ex.getError();
+        if ( apiTokenError != null )
+        {
+            return createWebMessage( apiTokenError.getDescription(), Status.ERROR,
+                apiTokenError.getHttpStatus() );
+        }
+        return unauthorized( ex.getMessage() );
+    }
+
+    @ExceptionHandler( { PotentialDuplicateConflictException.class } )
+    @ResponseBody
+    public WebMessage handlePotentialDuplicateConflictRequest( Exception exception )
+    {
+        return conflict( exception.getMessage() );
+    }
+
+    @ExceptionHandler( { PotentialDuplicateForbiddenException.class } )
+    @ResponseBody
+    public WebMessage handlePotentialDuplicateForbiddenRequest( Exception exception )
+    {
+        return forbidden( exception.getMessage() );
+    }
+
     /**
      * Catches default exception and send back to user, but re-throws internally
      * so it still ends up in server logs.
      */
-    @ExceptionHandler( Exception.class )
     @ResponseBody
+    @ExceptionHandler( Exception.class )
     public WebMessage defaultExceptionHandler( Exception ex )
     {
+        ex.printStackTrace();
         return error( getExceptionMessage( ex ) );
     }
 
@@ -381,5 +410,27 @@ public class CrudControllerAdvice
         }
 
         return false;
+    }
+
+    /**
+     * Simple adapter to {@link PropertyEditorSupport} that allows to use lambda
+     * {@link Function}s to convert value from its text representation.
+     */
+    private static final class FromTextPropertyEditor extends PropertyEditorSupport
+    {
+
+        private final Function<String, Object> fromText;
+
+        private FromTextPropertyEditor( Function<String, Object> fromText )
+        {
+            this.fromText = fromText;
+        }
+
+        @Override
+        public void setAsText( String text )
+            throws IllegalArgumentException
+        {
+            setValue( fromText.apply( text ) );
+        }
     }
 }

@@ -27,14 +27,18 @@
  */
 package org.hisp.dhis;
 
+import javax.sql.DataSource;
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.hisp.dhis.config.UnitTestConfig;
 import org.hisp.dhis.external.conf.ConfigurationKey;
+import org.hisp.dhis.h2.H2SqlFunction;
 import org.hisp.dhis.utils.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -55,19 +59,24 @@ public abstract class DhisSpringTest extends BaseSpringTest
         return false;
     }
 
+    @Autowired
+    private DataSource dataSource;
+
     @Before
     public final void before()
         throws Exception
     {
         TestUtils.executeStartupRoutines( applicationContext );
 
-        boolean enableQueryLogging = dhisConfigurationProvider.getBoolean( ConfigurationKey.ENABLE_QUERY_LOGGING );
+        boolean enableQueryLogging = dhisConfigurationProvider.isEnabled( ConfigurationKey.ENABLE_QUERY_LOGGING );
 
         if ( enableQueryLogging )
         {
             Configurator.setLevel( "org.hisp.dhis.datasource.query", Level.INFO );
             Configurator.setRootLevel( Level.INFO );
         }
+
+        H2SqlFunction.registerH2Functions( dataSource );
 
         setUpTest();
     }
