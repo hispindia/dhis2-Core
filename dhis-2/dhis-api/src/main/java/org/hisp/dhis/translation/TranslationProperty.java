@@ -47,7 +47,9 @@ public enum TranslationProperty
     targetLineLabel( "targetLineLabel" ),
     baseLineLabel( "baseLineLabel" ),
     title( "title" ),
-    subtitle( "subtitle" );
+    subtitle( "subtitle" ),
+    SUBJECT_TEMPLATE( "notificationSubjectTemplate" ),
+    MESSAGE_TEMPLATE( "notificationMessageTemplate" );
 
     private String name;
 
