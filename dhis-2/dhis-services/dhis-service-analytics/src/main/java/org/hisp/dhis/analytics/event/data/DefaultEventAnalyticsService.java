@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021, University of Oslo
+ * Copyright (c) 2004-2022, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -154,6 +154,10 @@ public class DefaultEventAnalyticsService
 
     private static final String NAME_POINTS = "Points";
 
+    private static final String NAME_PROGRAM_STATUS = "Program status";
+
+    private static final String NAME_EVENT_STATUS = "Event status";
+
     private static final Option OPT_TRUE = new Option( "Yes", "1" );
 
     private static final Option OPT_FALSE = new Option( "No", "0" );
@@ -241,7 +245,7 @@ public class DefaultEventAnalyticsService
 
         queryValidator.validate( params );
 
-        if ( analyticsCache.isEnabled() )
+        if ( analyticsCache.isEnabled() && !params.analyzeOnly() )
         {
             final EventQueryParams immutableParams = new EventQueryParams.Builder( params ).build();
             return analyticsCache.getOrFetch( params, p -> getAggregatedEventDataGrid( immutableParams ) );
@@ -503,7 +507,7 @@ public class DefaultEventAnalyticsService
         // Headers and data
         // ---------------------------------------------------------------------
 
-        if ( !params.isSkipData() )
+        if ( !params.isSkipData() || params.analyzeOnly() )
         {
             // -----------------------------------------------------------------
             // Headers
@@ -589,6 +593,8 @@ public class DefaultEventAnalyticsService
             }
         }
 
+        maybeApplyIdScheme( params, grid );
+
         // ---------------------------------------------------------------------
         // Meta-data
         // ---------------------------------------------------------------------
@@ -603,10 +609,10 @@ public class DefaultEventAnalyticsService
      * data property indicated in the query. This happens only when a custom ID
      * Schema is set.
      *
-     * @param params the {@link DataQueryParams}.
+     * @param params the {@link EventQueryParams}.
      * @param grid the grid.
      */
-    private void maybeApplyIdScheme( DataQueryParams params, Grid grid )
+    private void maybeApplyIdScheme( EventQueryParams params, Grid grid )
     {
         if ( !params.isSkipMeta() )
         {
@@ -739,7 +745,11 @@ public class DefaultEventAnalyticsService
             .addHeader( new GridHeader(
                 ITEM_ORG_UNIT_NAME, NAME_ORG_UNIT_NAME, TEXT, false, true ) )
             .addHeader( new GridHeader(
-                ITEM_ORG_UNIT_CODE, NAME_ORG_UNIT_CODE, TEXT, false, true ) );
+                ITEM_ORG_UNIT_CODE, NAME_ORG_UNIT_CODE, TEXT, false, true ) )
+            .addHeader( new GridHeader(
+                ITEM_PROGRAM_STATUS, NAME_PROGRAM_STATUS, TEXT, false, true ) )
+            .addHeader( new GridHeader(
+                ITEM_EVENT_STATUS, NAME_EVENT_STATUS, TEXT, false, true ) );
 
         return grid;
     }

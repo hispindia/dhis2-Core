@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021, University of Oslo
+ * Copyright (c) 2004-2022, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,8 +45,7 @@ import org.hisp.dhis.user.sharing.Sharing;
 
 import com.google.common.collect.Lists;
 
-public abstract class CascadeSharingTest
-    extends DhisSpringTest
+abstract class CascadeSharingTest extends DhisSpringTest
 {
     protected DimensionalItemObject baseDimensionalItemObject( final String dimensionItem, DimensionItemType type )
     {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021, University of Oslo
+ * Copyright (c) 2004-2022, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,10 +27,10 @@
  */
 package org.hisp.dhis.tracker.bundle;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,13 +56,13 @@ import org.hisp.dhis.tracker.report.TrackerImportReport;
 import org.hisp.dhis.tracker.report.TrackerStatus;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 
-public class ReportSummaryIntegrationTest
-    extends TransactionalIntegrationTest
+class ReportSummaryIntegrationTest extends TransactionalIntegrationTest
 {
+
     @Autowired
     private TrackerImportService trackerImportService;
 
@@ -86,39 +86,31 @@ public class ReportSummaryIntegrationTest
     {
         renderService = _renderService;
         userService = _userService;
-
-        Map<Class<? extends IdentifiableObject>, List<IdentifiableObject>> metadata = renderService
-            .fromMetadata( new ClassPathResource( "tracker/simple_metadata.json" ).getInputStream(),
-                RenderFormat.JSON );
-
+        Map<Class<? extends IdentifiableObject>, List<IdentifiableObject>> metadata = renderService.fromMetadata(
+            new ClassPathResource( "tracker/simple_metadata.json" ).getInputStream(), RenderFormat.JSON );
         ObjectBundleParams params = new ObjectBundleParams();
         params.setObjectBundleMode( ObjectBundleMode.COMMIT );
         params.setImportStrategy( ImportStrategy.CREATE );
         params.setObjects( metadata );
-
         ObjectBundle bundle = objectBundleService.create( params );
         ObjectBundleValidationReport validationReport = objectBundleValidationService.validate( bundle );
         assertFalse( validationReport.hasErrorReports() );
-
         objectBundleService.commit( bundle );
-
         userA = userService.getUser( "M5zQapPyTZI" );
     }
 
     @Test
-    public void testStatsCountForOneCreatedTEI()
+    void testStatsCountForOneCreatedTEI()
         throws IOException
     {
         InputStream inputStream = new ClassPathResource( "tracker/single_tei.json" ).getInputStream();
-
         TrackerImportParams params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         params.setAtomicMode( AtomicMode.OBJECT );
         TrackerImportReport trackerImportTeiReport = trackerImportService.importTracker( params );
-
         assertNotNull( trackerImportTeiReport );
         assertEquals( TrackerStatus.OK, trackerImportTeiReport.getStatus() );
-        assertTrue( trackerImportTeiReport.getValidationReport().getErrorReports().isEmpty() );
+        assertTrue( trackerImportTeiReport.getValidationReport().getErrors().isEmpty() );
         assertEquals( 1, trackerImportTeiReport.getStats().getCreated() );
         assertEquals( 0, trackerImportTeiReport.getStats().getUpdated() );
         assertEquals( 0, trackerImportTeiReport.getStats().getIgnored() );
@@ -126,24 +118,21 @@ public class ReportSummaryIntegrationTest
     }
 
     @Test
-    public void testStatsCountForOneCreatedAndOneUpdatedTEI()
+    void testStatsCountForOneCreatedAndOneUpdatedTEI()
         throws IOException
     {
         InputStream inputStream = new ClassPathResource( "tracker/single_tei.json" ).getInputStream();
-
         TrackerImportParams params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         trackerImportService.importTracker( params );
-
         inputStream = new ClassPathResource( "tracker/one_update_tei_and_one_new_tei.json" ).getInputStream();
         params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         params.setImportStrategy( TrackerImportStrategy.CREATE_AND_UPDATE );
         TrackerImportReport trackerImportTeiReport = trackerImportService.importTracker( params );
-
         assertNotNull( trackerImportTeiReport );
         assertEquals( TrackerStatus.OK, trackerImportTeiReport.getStatus() );
-        assertTrue( trackerImportTeiReport.getValidationReport().getErrorReports().isEmpty() );
+        assertTrue( trackerImportTeiReport.getValidationReport().getErrors().isEmpty() );
         assertEquals( 1, trackerImportTeiReport.getStats().getCreated() );
         assertEquals( 1, trackerImportTeiReport.getStats().getUpdated() );
         assertEquals( 0, trackerImportTeiReport.getStats().getIgnored() );
@@ -151,15 +140,13 @@ public class ReportSummaryIntegrationTest
     }
 
     @Test
-    public void testStatsCountForOneCreatedAndOneUpdatedTEIAndOneInvalidTEI()
+    void testStatsCountForOneCreatedAndOneUpdatedTEIAndOneInvalidTEI()
         throws IOException
     {
         InputStream inputStream = new ClassPathResource( "tracker/single_tei.json" ).getInputStream();
-
         TrackerImportParams params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         trackerImportService.importTracker( params );
-
         inputStream = new ClassPathResource( "tracker/one_update_tei_and_one_new_tei_and_one_invalid_tei.json" )
             .getInputStream();
         params = renderService.fromJson( inputStream, TrackerImportParams.class );
@@ -167,10 +154,9 @@ public class ReportSummaryIntegrationTest
         params.setAtomicMode( AtomicMode.OBJECT );
         params.setImportStrategy( TrackerImportStrategy.CREATE_AND_UPDATE );
         TrackerImportReport trackerImportTeiReport = trackerImportService.importTracker( params );
-
         assertNotNull( trackerImportTeiReport );
         assertEquals( TrackerStatus.OK, trackerImportTeiReport.getStatus() );
-        assertEquals( 1, trackerImportTeiReport.getValidationReport().getErrorReports().size() );
+        assertEquals( 1, trackerImportTeiReport.getValidationReport().getErrors().size() );
         assertEquals( 1, trackerImportTeiReport.getStats().getCreated() );
         assertEquals( 1, trackerImportTeiReport.getStats().getUpdated() );
         assertEquals( 1, trackerImportTeiReport.getStats().getIgnored() );
@@ -178,24 +164,21 @@ public class ReportSummaryIntegrationTest
     }
 
     @Test
-    public void testStatsCountForOneCreatedEnrollment()
+    void testStatsCountForOneCreatedEnrollment()
         throws IOException
     {
         InputStream inputStream = new ClassPathResource( "tracker/single_tei.json" ).getInputStream();
-
         TrackerImportParams params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         trackerImportService.importTracker( params );
-
         inputStream = new ClassPathResource( "tracker/single_enrollment.json" ).getInputStream();
         params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         params.setImportStrategy( TrackerImportStrategy.CREATE_AND_UPDATE );
         TrackerImportReport trackerImportEnrollmentReport = trackerImportService.importTracker( params );
-
         assertNotNull( trackerImportEnrollmentReport );
         assertEquals( TrackerStatus.OK, trackerImportEnrollmentReport.getStatus() );
-        assertTrue( trackerImportEnrollmentReport.getValidationReport().getErrorReports().isEmpty() );
+        assertTrue( trackerImportEnrollmentReport.getValidationReport().getErrors().isEmpty() );
         assertEquals( 1, trackerImportEnrollmentReport.getStats().getCreated() );
         assertEquals( 0, trackerImportEnrollmentReport.getStats().getUpdated() );
         assertEquals( 0, trackerImportEnrollmentReport.getStats().getIgnored() );
@@ -203,38 +186,33 @@ public class ReportSummaryIntegrationTest
     }
 
     @Test
-    public void testStatsCountForOneCreatedEnrollmentAndUpdateSameEnrollment()
+    void testStatsCountForOneCreatedEnrollmentAndUpdateSameEnrollment()
         throws IOException
     {
         InputStream inputStream = new ClassPathResource( "tracker/single_tei.json" ).getInputStream();
-
         TrackerImportParams params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         trackerImportService.importTracker( params );
-
         inputStream = new ClassPathResource( "tracker/single_enrollment.json" ).getInputStream();
         params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         params.setImportStrategy( TrackerImportStrategy.CREATE_AND_UPDATE );
         TrackerImportReport trackerImportEnrollmentReport = trackerImportService.importTracker( params );
-
         assertNotNull( trackerImportEnrollmentReport );
         assertEquals( TrackerStatus.OK, trackerImportEnrollmentReport.getStatus() );
-        assertTrue( trackerImportEnrollmentReport.getValidationReport().getErrorReports().isEmpty() );
+        assertTrue( trackerImportEnrollmentReport.getValidationReport().getErrors().isEmpty() );
         assertEquals( 1, trackerImportEnrollmentReport.getStats().getCreated() );
         assertEquals( 0, trackerImportEnrollmentReport.getStats().getUpdated() );
         assertEquals( 0, trackerImportEnrollmentReport.getStats().getIgnored() );
         assertEquals( 0, trackerImportEnrollmentReport.getStats().getDeleted() );
-
         inputStream = new ClassPathResource( "tracker/single_enrollment.json" ).getInputStream();
         params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         params.setImportStrategy( TrackerImportStrategy.CREATE_AND_UPDATE );
         trackerImportEnrollmentReport = trackerImportService.importTracker( params );
-
         assertNotNull( trackerImportEnrollmentReport );
         assertEquals( TrackerStatus.OK, trackerImportEnrollmentReport.getStatus() );
-        assertTrue( trackerImportEnrollmentReport.getValidationReport().getErrorReports().isEmpty() );
+        assertTrue( trackerImportEnrollmentReport.getValidationReport().getErrors().isEmpty() );
         assertEquals( 0, trackerImportEnrollmentReport.getStats().getCreated() );
         assertEquals( 1, trackerImportEnrollmentReport.getStats().getUpdated() );
         assertEquals( 0, trackerImportEnrollmentReport.getStats().getIgnored() );
@@ -242,31 +220,27 @@ public class ReportSummaryIntegrationTest
     }
 
     @Test
-    public void testStatsCountForOneUpdateEnrollmentAndOneCreatedEnrollment()
+    void testStatsCountForOneUpdateEnrollmentAndOneCreatedEnrollment()
         throws IOException
     {
         InputStream inputStream = new ClassPathResource( "tracker/one_update_tei_and_one_new_tei.json" )
             .getInputStream();
-
         TrackerImportParams params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         trackerImportService.importTracker( params );
-
         inputStream = new ClassPathResource( "tracker/single_enrollment.json" ).getInputStream();
         params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         trackerImportService.importTracker( params );
-
         inputStream = new ClassPathResource( "tracker/one_update_enrollment_and_one_new_enrollment.json" )
             .getInputStream();
         params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         params.setImportStrategy( TrackerImportStrategy.CREATE_AND_UPDATE );
         TrackerImportReport trackerImportEnrollmentReport = trackerImportService.importTracker( params );
-
         assertNotNull( trackerImportEnrollmentReport );
         assertEquals( TrackerStatus.OK, trackerImportEnrollmentReport.getStatus() );
-        assertTrue( trackerImportEnrollmentReport.getValidationReport().getErrorReports().isEmpty() );
+        assertTrue( trackerImportEnrollmentReport.getValidationReport().getErrors().isEmpty() );
         assertEquals( 1, trackerImportEnrollmentReport.getStats().getCreated() );
         assertEquals( 1, trackerImportEnrollmentReport.getStats().getUpdated() );
         assertEquals( 0, trackerImportEnrollmentReport.getStats().getIgnored() );
@@ -274,21 +248,18 @@ public class ReportSummaryIntegrationTest
     }
 
     @Test
-    public void testStatsCountForOneUpdateEnrollmentAndOneCreatedEnrollmentAndOneInvalidEnrollment()
+    void testStatsCountForOneUpdateEnrollmentAndOneCreatedEnrollmentAndOneInvalidEnrollment()
         throws IOException
     {
         InputStream inputStream = new ClassPathResource( "tracker/one_update_tei_and_one_new_tei.json" )
             .getInputStream();
-
         TrackerImportParams params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         trackerImportService.importTracker( params );
-
         inputStream = new ClassPathResource( "tracker/single_enrollment.json" ).getInputStream();
         params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         trackerImportService.importTracker( params );
-
         inputStream = new ClassPathResource( "tracker/one_update_and_one_new_and_one_invalid_enrollment.json" )
             .getInputStream();
         params = renderService.fromJson( inputStream, TrackerImportParams.class );
@@ -296,10 +267,9 @@ public class ReportSummaryIntegrationTest
         params.setAtomicMode( AtomicMode.OBJECT );
         params.setImportStrategy( TrackerImportStrategy.CREATE_AND_UPDATE );
         TrackerImportReport trackerImportEnrollmentReport = trackerImportService.importTracker( params );
-
         assertNotNull( trackerImportEnrollmentReport );
         assertEquals( TrackerStatus.OK, trackerImportEnrollmentReport.getStatus() );
-        assertEquals( 1, trackerImportEnrollmentReport.getValidationReport().getErrorReports().size() );
+        assertEquals( 1, trackerImportEnrollmentReport.getValidationReport().getErrors().size() );
         assertEquals( 1, trackerImportEnrollmentReport.getStats().getCreated() );
         assertEquals( 1, trackerImportEnrollmentReport.getStats().getUpdated() );
         assertEquals( 1, trackerImportEnrollmentReport.getStats().getIgnored() );
@@ -307,28 +277,24 @@ public class ReportSummaryIntegrationTest
     }
 
     @Test
-    public void testStatsCountForOneCreatedEvent()
+    void testStatsCountForOneCreatedEvent()
         throws IOException
     {
         InputStream inputStream = new ClassPathResource( "tracker/single_tei.json" ).getInputStream();
-
         TrackerImportParams params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         trackerImportService.importTracker( params );
-
         inputStream = new ClassPathResource( "tracker/single_enrollment.json" ).getInputStream();
         params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         trackerImportService.importTracker( params );
-
         inputStream = new ClassPathResource( "tracker/single_event.json" ).getInputStream();
         params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         TrackerImportReport trackerImportEventReport = trackerImportService.importTracker( params );
-
         assertNotNull( trackerImportEventReport );
         assertEquals( TrackerStatus.OK, trackerImportEventReport.getStatus() );
-        assertTrue( trackerImportEventReport.getValidationReport().getErrorReports().isEmpty() );
+        assertTrue( trackerImportEventReport.getValidationReport().getErrors().isEmpty() );
         assertEquals( 1, trackerImportEventReport.getStats().getCreated() );
         assertEquals( 0, trackerImportEventReport.getStats().getUpdated() );
         assertEquals( 0, trackerImportEventReport.getStats().getIgnored() );
@@ -336,34 +302,29 @@ public class ReportSummaryIntegrationTest
     }
 
     @Test
-    public void testStatsCountForOneUpdateEventAndOneNewEvent()
+    void testStatsCountForOneUpdateEventAndOneNewEvent()
         throws IOException
     {
         InputStream inputStream = new ClassPathResource( "tracker/single_tei.json" ).getInputStream();
-
         TrackerImportParams params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         trackerImportService.importTracker( params );
-
         inputStream = new ClassPathResource( "tracker/single_enrollment.json" ).getInputStream();
         params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         trackerImportService.importTracker( params );
-
         inputStream = new ClassPathResource( "tracker/single_event.json" ).getInputStream();
         params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         trackerImportService.importTracker( params );
-
         inputStream = new ClassPathResource( "tracker/one_update_event_and_one_new_event.json" ).getInputStream();
         params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         params.setImportStrategy( TrackerImportStrategy.CREATE_AND_UPDATE );
         TrackerImportReport trackerImportEventReport = trackerImportService.importTracker( params );
-
         assertNotNull( trackerImportEventReport );
         assertEquals( TrackerStatus.OK, trackerImportEventReport.getStatus() );
-        assertTrue( trackerImportEventReport.getValidationReport().getErrorReports().isEmpty() );
+        assertTrue( trackerImportEventReport.getValidationReport().getErrors().isEmpty() );
         assertEquals( 1, trackerImportEventReport.getStats().getCreated() );
         assertEquals( 1, trackerImportEventReport.getStats().getUpdated() );
         assertEquals( 0, trackerImportEventReport.getStats().getIgnored() );
@@ -371,25 +332,21 @@ public class ReportSummaryIntegrationTest
     }
 
     @Test
-    public void testStatsCountForOneUpdateEventAndOneNewEventAndOneInvalidEvent()
+    void testStatsCountForOneUpdateEventAndOneNewEventAndOneInvalidEvent()
         throws IOException
     {
         InputStream inputStream = new ClassPathResource( "tracker/single_tei.json" ).getInputStream();
-
         TrackerImportParams params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         trackerImportService.importTracker( params );
-
         inputStream = new ClassPathResource( "tracker/single_enrollment.json" ).getInputStream();
         params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         trackerImportService.importTracker( params );
-
         inputStream = new ClassPathResource( "tracker/single_event.json" ).getInputStream();
         params = renderService.fromJson( inputStream, TrackerImportParams.class );
         params.setUserId( userA.getUid() );
         trackerImportService.importTracker( params );
-
         inputStream = new ClassPathResource( "tracker/one_update_and_one_new_and_one_invalid_event.json" )
             .getInputStream();
         params = renderService.fromJson( inputStream, TrackerImportParams.class );
@@ -397,10 +354,9 @@ public class ReportSummaryIntegrationTest
         params.setAtomicMode( AtomicMode.OBJECT );
         params.setImportStrategy( TrackerImportStrategy.CREATE_AND_UPDATE );
         TrackerImportReport trackerImportEventReport = trackerImportService.importTracker( params );
-
         assertNotNull( trackerImportEventReport );
         assertEquals( TrackerStatus.OK, trackerImportEventReport.getStatus() );
-        assertEquals( 1, trackerImportEventReport.getValidationReport().getErrorReports().size() );
+        assertEquals( 1, trackerImportEventReport.getValidationReport().getErrors().size() );
         assertEquals( 1, trackerImportEventReport.getStats().getCreated() );
         assertEquals( 1, trackerImportEventReport.getStats().getUpdated() );
         assertEquals( 1, trackerImportEventReport.getStats().getIgnored() );

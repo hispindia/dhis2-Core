@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021, University of Oslo
+ * Copyright (c) 2004-2022, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -368,8 +368,11 @@ public class DefaultInterpretationService
                 + interpretation.getUid();
             break;
         case EVENT_REPORT:
-        case EVENT_VISUALIZATION:
             path = "/dhis-web-event-reports/index.html?id=" + interpretation.getEventReport().getUid()
+                + "&interpretationid=" + interpretation.getUid();
+            break;
+        case EVENT_VISUALIZATION:
+            path = "/dhis-web-event-visualizer/index.html?id=" + interpretation.getEventVisualization().getUid()
                 + "&interpretationid=" + interpretation.getUid();
             break;
         case EVENT_CHART:

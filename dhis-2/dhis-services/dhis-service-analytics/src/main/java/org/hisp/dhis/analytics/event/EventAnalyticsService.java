@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021, University of Oslo
+ * Copyright (c) 2004-2022, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,6 +78,10 @@ public interface EventAnalyticsService
 
     String ITEM_POINTS = "points";
 
+    String ITEM_PROGRAM_STATUS = "programstatus";
+
+    String ITEM_EVENT_STATUS = "eventstatus";
+
     /**
      * Generates aggregated event data for the given query.
      *
@@ -135,4 +139,5 @@ public interface EventAnalyticsService
      * @return event clusters as a Grid object.
      */
     Rectangle getRectangle( EventQueryParams params );
+
 }

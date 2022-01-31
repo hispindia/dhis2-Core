@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021, University of Oslo
+ * Copyright (c) 2004-2022, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -198,7 +198,7 @@ public class HibernateDataValueStore extends HibernateGenericStore<DataValue>
         }
         else if ( params.hasStartEndDate() )
         {
-            hql += "and (pe.startDate >= :startDate and pe.endDate < :endDate) ";
+            hql += "and (pe.startDate >= :startDate and pe.endDate <= :endDate) ";
         }
 
         if ( params.isIncludeDescendantsForOrganisationUnits() )

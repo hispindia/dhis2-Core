@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2021, University of Oslo
+ * Copyright (c) 2004-2022, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,13 +74,6 @@ public class Period
      * Transient string holding the ISO representation of the period.
      */
     private transient String isoPeriod;
-
-    /**
-     * Transient boolean. If true, this Period has been created as a consequence
-     * of a Dimensional Item Object having an Offset Period value higher/lower
-     * than 0
-     */
-    private transient boolean shifted = false;
 
     // -------------------------------------------------------------------------
     // Constructors
@@ -410,15 +403,5 @@ public class Period
     public void setPeriodType( PeriodType periodType )
     {
         this.periodType = periodType;
-    }
-
-    public boolean isShifted()
-    {
-        return shifted;
-    }
-
-    public void setShifted( boolean shifted )
-    {
-        this.shifted = shifted;
     }
 }
