@@ -171,14 +171,7 @@ public class JdbcEventStore
 
         boolean isSuperUser = isSuper( user );
 
-        if ( !isSuperUser )
-        {
-            params.setAccessiblePrograms( manager.getDataReadAll( Program.class )
-                .stream().map( Program::getUid ).collect( Collectors.toSet() ) );
-
-            params.setAccessibleProgramStages( manager.getDataReadAll( ProgramStage.class )
-                .stream().map( ProgramStage::getUid ).collect( Collectors.toSet() ) );
-        }
+        setAccessiblePrograms( user, params );
 
         Map<String, Event> eventUidToEventMap = new HashMap<>( params.getPageSizeWithDefault() );
         List<Event> events = new ArrayList<>();
@@ -404,6 +397,10 @@ public class JdbcEventStore
     @Override
     public List<Map<String, String>> getEventsGrid( EventSearchParams params, List<OrganisationUnit> organisationUnits )
     {
+        User user = currentUserService.getCurrentUser();
+
+        setAccessiblePrograms( user, params );
+
         String sql = buildGridSql( params, organisationUnits );
 
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet( sql );
@@ -439,14 +436,7 @@ public class JdbcEventStore
 
         boolean isSuperUser = isSuper( user );
 
-        if ( !isSuperUser )
-        {
-            params.setAccessiblePrograms( manager.getDataReadAll( Program.class )
-                .stream().map( Program::getUid ).collect( Collectors.toSet() ) );
-
-            params.setAccessibleProgramStages( manager.getDataReadAll( ProgramStage.class )
-                .stream().map( ProgramStage::getUid ).collect( Collectors.toSet() ) );
-        }
+        setAccessiblePrograms( user, params );
 
         List<EventRow> eventRows = new ArrayList<>();
 
@@ -614,16 +604,7 @@ public class JdbcEventStore
     {
         User user = currentUserService.getCurrentUser();
 
-        boolean isSuperUser = isSuper( user );
-
-        if ( !isSuperUser )
-        {
-            params.setAccessiblePrograms( manager.getDataReadAll( Program.class )
-                .stream().map( Program::getUid ).collect( Collectors.toSet() ) );
-
-            params.setAccessibleProgramStages( manager.getDataReadAll( ProgramStage.class )
-                .stream().map( ProgramStage::getUid ).collect( Collectors.toSet() ) );
-        }
+        setAccessiblePrograms( user, params );
 
         String sql;
 
@@ -753,8 +734,6 @@ public class JdbcEventStore
 
     private String getEventSelectQuery( EventSearchParams params, List<OrganisationUnit> organisationUnits, User user )
     {
-        List<Long> orgUnitIds = getIdentifiers( organisationUnits );
-
         SqlHelper hlp = new SqlHelper();
 
         String sql = "select " + getEventSelectIdentifiersByIdScheme( params.getIdSchemes() ) + " psi.uid as psi_uid, "
@@ -794,8 +773,9 @@ public class JdbcEventStore
             + "inner join categoryoptioncombo coc on coc.categoryoptioncomboid=psi.attributeoptioncomboid "
             + "inner join categoryoptioncombos_categoryoptions cocco on psi.attributeoptioncomboid=cocco.categoryoptioncomboid "
             + "inner join dataelementcategoryoption deco on cocco.categoryoptionid=deco.categoryoptionid "
+            + "left join trackedentityprogramowner po on (pi.trackedentityinstanceid=po.trackedentityinstanceid) "
+            + "inner join organisationunit ou on (coalesce(po.organisationunitid, psi.organisationunitid)=ou.organisationunitid) "
             + "left join trackedentityinstance tei on tei.trackedentityinstanceid=pi.trackedentityinstanceid "
-            + "left join organisationunit ou on (psi.organisationunitid=ou.organisationunitid) "
             + "left join organisationunit teiou on (tei.organisationunitid=teiou.organisationunitid) "
             + "left join users auc on (psi.assigneduserid=auc.userid) "
             + "left join userinfo au on (auc.userid=au.userinfoid) ";
@@ -923,9 +903,9 @@ public class JdbcEventStore
             sql += hlp.whereAnd() + " psi.attributeoptioncomboid = " + params.getCategoryOptionCombo().getId() + " ";
         }
 
-        if ( orgUnitIds != null && !orgUnitIds.isEmpty() )
+        if ( !organisationUnits.isEmpty() || params.getOrgUnit() != null )
         {
-            sql += hlp.whereAnd() + " psi.organisationunitid in (" + getCommaDelimitedString( orgUnitIds ) + ") ";
+            sql += getOrgUnitSql( hlp, params, organisationUnits );
         }
 
         if ( params.getStartDate() != null )
@@ -1020,7 +1000,8 @@ public class JdbcEventStore
             + "inner join program p on p.programid = pi.programid "
             + "inner join programstage ps on ps.programstageid = psi.programstageid "
             + "inner join categoryoptioncombo coc on coc.categoryoptioncomboid = psi.attributeoptioncomboid "
-            + "inner join organisationunit ou on psi.organisationunitid = ou.organisationunitid "
+            + "left join trackedentityprogramowner po on (pi.trackedentityinstanceid=po.trackedentityinstanceid) "
+            + "inner join organisationunit ou on (coalesce(po.organisationunitid, psi.organisationunitid)=ou.organisationunitid) "
             + "left join users auc on (psi.assigneduserid=auc.userid) "
             + "left join userinfo au on (auc.userid=au.userinfoid) ";
 
@@ -1084,10 +1065,9 @@ public class JdbcEventStore
             sql += hlp.whereAnd() + eventDataValuesWhereSql + " ";
         }
 
-        if ( organisationUnits != null && !organisationUnits.isEmpty() )
+        if ( !organisationUnits.isEmpty() || params.getOrgUnit() != null )
         {
-            sql += hlp.whereAnd() + " psi.organisationunitid in ("
-                + getCommaDelimitedString( getIdentifiers( organisationUnits ) ) + ") ";
+            sql += getOrgUnitSql( hlp, params, organisationUnits );
         }
 
         if ( params.getProgramStage() != null )
@@ -1464,5 +1444,64 @@ public class JdbcEventStore
                 }
             }
         }
+    }
+
+    private void setAccessiblePrograms( User user, EventSearchParams params )
+    {
+        if ( !isSuper( user ) )
+        {
+            params.setAccessiblePrograms(
+                manager.getDataReadAll( Program.class ).stream().map( Program::getUid ).collect( Collectors.toSet() ) );
+
+            params.setAccessibleProgramStages( manager.getDataReadAll( ProgramStage.class ).stream()
+                .map( ProgramStage::getUid ).collect( Collectors.toSet() ) );
+        }
+
+    }
+
+    private String getOrgUnitSql( SqlHelper hlp, EventSearchParams params, List<OrganisationUnit> organisationUnits )
+    {
+        StringBuilder orgUnitSql = new StringBuilder();
+        orgUnitSql.append( hlp.whereAnd() );
+
+        if ( params.getOrgUnit() != null && !params.isPathOrganisationUnitMode() )
+        {
+            orgUnitSql.append( " ou.organisationunitid = " + params.getOrgUnit().getId() + " " );
+        }
+        else
+        {
+            SqlHelper orHlp = new SqlHelper( true );
+            StringBuilder subOrgUnitSql = new StringBuilder();
+            String path = "ou.path LIKE '";
+            for ( OrganisationUnit organisationUnit : organisationUnits )
+            {
+                if ( params.isOrganisationUnitMode( OrganisationUnitSelectionMode.DESCENDANTS ) )
+                {
+                    subOrgUnitSql.append( orHlp.or() ).append( path )
+                        .append( organisationUnit.getPath() ).append( "%' " )
+                        .append( hlp.whereAnd() ).append( " ou.hierarchylevel > " + organisationUnit.getLevel() );
+                }
+                else if ( params.isOrganisationUnitMode( OrganisationUnitSelectionMode.CHILDREN ) )
+                {
+                    subOrgUnitSql.append( orHlp.or() ).append( path )
+                        .append( organisationUnit.getPath() ).append( "%' " )
+                        .append( hlp.whereAnd() ).append( " ou.hierarchylevel = " + (organisationUnit.getLevel() + 1) );
+                }
+                else
+                {
+                    subOrgUnitSql.append( orHlp.or() ).append( path )
+                        .append( organisationUnit.getPath() ).append( "%' " );
+                }
+            }
+
+            if ( !organisationUnits.isEmpty() )
+            {
+                subOrgUnitSql.insert( 0, " (" );
+                subOrgUnitSql.append( ") " );
+                orgUnitSql.append( subOrgUnitSql );
+            }
+        }
+
+        return orgUnitSql.toString();
     }
 }
