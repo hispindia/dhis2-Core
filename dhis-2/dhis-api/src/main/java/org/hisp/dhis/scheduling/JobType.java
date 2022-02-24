@@ -79,6 +79,9 @@ public enum JobType
     TRACKER_IMPORT_NOTIFICATION_JOB( "trackerImportNotificationJob", false ),
     TRACKER_IMPORT_RULE_ENGINE_JOB( "trackerImportRuleEngineJob", false ),
 
+    // custom change Schedule Update License Status 
+    UPDATE_LICENSE_STATUS( "updateLicenseStatusJob", true ),
+    
     // Internal jobs
     LEADER_ELECTION( "leaderElectionJob", false ),
     LEADER_RENEWAL( "leaderRenewalJob", false ),
