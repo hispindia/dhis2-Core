@@ -3,8 +3,10 @@ package org.hisp.dhis.inspectionmanagement.schedulinginspections.action;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,11 +14,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.struts2.ServletActionContext;
 import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.category.CategoryService;
+import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dxf2.events.event.DataValue;
 import org.hisp.dhis.dxf2.events.event.Event;
 import org.hisp.dhis.dxf2.events.event.EventService;
 import org.hisp.dhis.dxf2.importsummary.ImportSummary;
 import org.hisp.dhis.event.EventStatus;
+import org.hisp.dhis.eventdatavalue.EventDataValue;
 import org.hisp.dhis.i18n.I18nFormat;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramInstance;
@@ -189,7 +193,27 @@ public class AddScheduledInspectionAction  implements Action
         
         EventStatus eventStatus = EventStatus.SCHEDULE;
         ProgramStageInstance programStageInstance = new ProgramStageInstance();
+           
+        Map<DataElement, EventDataValue> dataElementEventDataValueMap = new HashMap<DataElement, EventDataValue>();
+        boolean providedElsewhere = false;
+        String value = null;
+        List<ProgramStageDataElement> programStageDataElements = new ArrayList<ProgramStageDataElement>( programStage.getProgramStageDataElements() );
+        
+        if ( programStageDataElements != null && programStageDataElements.size() > 0 )
+        {
+            for ( ProgramStageDataElement programStageDataElement : programStageDataElements )
+            {
+                EventDataValue eventDataValue = new EventDataValue();
+                value = request.getParameter( PREFIX_DATAELEMENT + programStageDataElement.getDataElement().getUid() );
                 
+                eventDataValue.setDataElement( programStageDataElement.getDataElement().getUid() );
+                eventDataValue.setValue( value ); // for Expired
+                eventDataValue.setProvidedElsewhere( providedElsewhere );
+                eventDataValue.setStoredBy( storedBy );
+                dataElementEventDataValueMap.put( programStageDataElement.getDataElement(), eventDataValue );
+            }
+        }
+        
         if ( programInstance != null )
         {
             programStageInstance = new ProgramStageInstance();
@@ -206,20 +230,17 @@ public class AddScheduledInspectionAction  implements Action
             programStageInstance.setStoredBy( storedBy );
             programStageInstance.setLastUpdated( now );
 
-            programStageInstanceId = (int)programStageInstanceService.addProgramStageInstance( programStageInstance );
+            //programStageInstanceId = (int)programStageInstanceService.addProgramStageInstance( programStageInstance );
+            
+            programStageInstanceService.saveEventDataValuesAndSaveProgramStageInstance( programStageInstance, dataElementEventDataValueMap );
         }
 
         // add trackedEntityDataValue for for SCHEDULE the
         // event/programStageInstance
 
-       
         
-        ProgramStageInstance tempProgramStageInstance = programStageInstanceService.getProgramStageInstance( programStageInstanceId );
-
-        String value = null;
-
-        List<ProgramStageDataElement> programStageDataElements = new ArrayList<ProgramStageDataElement>( programStage.getProgramStageDataElements() );
-
+        //ProgramStageInstance tempProgramStageInstance = programStageInstanceService.getProgramStageInstance( programStageInstanceId );
+        /*
         Set<DataValue> updatedEventDataValues = new HashSet<>();
         Event updatedEvent = eventService.getEvent( tempProgramStageInstance );
         
@@ -230,51 +251,20 @@ public class AddScheduledInspectionAction  implements Action
             {
                 //value = request.getParameter( PREFIX_DATAELEMENT + programStageDataElement.getDataElement().getId() );
                 value = request.getParameter( PREFIX_DATAELEMENT + programStageDataElement.getDataElement().getUid() );
-                boolean providedElsewhere = false;
-                DataValue updateEventDataValue = new DataValue();
                 
+                EventDataValue eventDataValue = new EventDataValue();
+                eventDataValue.setDataElement( programStageDataElement.getDataElement().getUid() );
+                eventDataValue.setValue( value ); // for Expired
+                eventDataValue.setProvidedElsewhere( providedElsewhere );
+                eventDataValue.setStoredBy( storedBy );
+                dataElementEventDataValueMap.put( programStageDataElement.getDataElement(), eventDataValue );
+                
+                DataValue updateEventDataValue = new DataValue();
                 updateEventDataValue.setDataElement( programStageDataElement.getDataElement().getUid() );
                 updateEventDataValue.setValue( value );
                 updateEventDataValue.setProvidedElsewhere( providedElsewhere );
                 
-                
                 updatedEventDataValues.add( updateEventDataValue );
-                
-                
-                /*
-
-                TrackedEntityDataValue trackedEntityDataValue = trackedEntityDataValueService
-                    .getTrackedEntityDataValue( tempProgramStageInstance, programStageDataElement.getDataElement() );
-
-                if ( trackedEntityDataValue == null )
-                {
-                    if ( value != null && StringUtils.isNotBlank( value ) )
-                    {
-                        boolean providedElsewhere = false;
-
-                        trackedEntityDataValue = new TrackedEntityDataValue( tempProgramStageInstance,
-                        programStageDataElement.getDataElement(), value );
-                        trackedEntityDataValue.setProgramStageInstance( programStageInstance );
-                        trackedEntityDataValue.setProvidedElsewhere( providedElsewhere );
-                        trackedEntityDataValue.setValue( value );
-                        // trackedEntityDataValue.setAutoFields();
-                        trackedEntityDataValue.setCreated( now );
-                        trackedEntityDataValue.setLastUpdated( now );
-                        trackedEntityDataValue.setStoredBy( storedBy );
-
-                        trackedEntityDataValueService.saveTrackedEntityDataValue( trackedEntityDataValue );
-                    }
-                }
-                else
-                {
-                    trackedEntityDataValue.setValue( value );
-                    // trackedEntityDataValue.setAutoFields();
-                    trackedEntityDataValue.setStoredBy( storedBy );
-                    trackedEntityDataValue.setLastUpdated( now );
-
-                    trackedEntityDataValueService.updateTrackedEntityDataValue( trackedEntityDataValue );
-                }
-                */
             }
             
             //updatedEvent.setStatus( eventStatus );
@@ -285,7 +275,8 @@ public class AddScheduledInspectionAction  implements Action
             
             //importSummaries.getImportSummaries().get( 0 );
         }
-
+        */
+        
 
         return SUCCESS;
     }

@@ -442,7 +442,7 @@ public class UpdateLicenseStatusJob extends AbstractJob
                 ProgramStageInstance programStageInstance = new ProgramStageInstance();
                 ProgramInstance programInstance = programInstanceService.getProgramInstance( piUID );
                 
-                Set<EventDataValue> updatedEventDataValues = new HashSet<>();
+                //Set<EventDataValue> updatedEventDataValues = new HashSet<>();
                 
                 boolean providedElsewhere = false;
                 EventDataValue eventDataValueLicenseStatus = new EventDataValue();
@@ -454,14 +454,14 @@ public class UpdateLicenseStatusJob extends AbstractJob
                 eventDataValueLicenseStatus.setValue( "2" ); // for Expired
                 eventDataValueLicenseStatus.setProvidedElsewhere( providedElsewhere );
                 eventDataValueLicenseStatus.setStoredBy( storedBy );
-                updatedEventDataValues.add( eventDataValueLicenseStatus );
+                //updatedEventDataValues.add( eventDataValueLicenseStatus );
                 
                 EventDataValue eventDataValueReasonForLicense = new EventDataValue();
                 eventDataValueReasonForLicense.setDataElement( REASON_FOR_LICENSE_DATAELEMENT_UID );
                 eventDataValueReasonForLicense.setValue( "Compliance with the regulation" ); // for Expired
                 eventDataValueReasonForLicense.setProvidedElsewhere( providedElsewhere );
                 eventDataValueReasonForLicense.setStoredBy( storedBy );
-                updatedEventDataValues.add( eventDataValueReasonForLicense );
+                //updatedEventDataValues.add( eventDataValueReasonForLicense );
                 
                 Map<DataElement, EventDataValue> dataElementEventDataValueMap = new HashMap<DataElement, EventDataValue>();
                 
