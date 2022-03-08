@@ -38,6 +38,7 @@ import static org.hisp.dhis.tracker.TrackerImportStrategy.UPDATE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -125,6 +126,8 @@ class EventImportValidationTest extends AbstractImportValidationTest
         TrackerImportParams trackerImportParams = createBundleFromJson(
             "tracker/validations/enrollments_te_te-data.json" );
         User user = userService.getUser( ADMIN_USER_UID );
+        injectSecurityContext( user );
+
         trackerImportParams.setUser( user );
         TrackerImportReport trackerImportReport = trackerImportService.importTracker( trackerImportParams );
         assertEquals( 0, trackerImportReport.getValidationReport().getErrors().size() );
@@ -276,6 +279,21 @@ class EventImportValidationTest extends AbstractImportValidationTest
     }
 
     @Test
+    void testCOFoundButAOCNotFound()
+        throws IOException
+    {
+        TrackerImportParams trackerBundleParams = createBundleFromJson(
+            "tracker/validations/events_cant-find-aoc-but-co-exists.json" );
+        trackerBundleParams.setImportStrategy( TrackerImportStrategy.CREATE );
+
+        TrackerImportReport trackerImportReport = trackerImportService.importTracker( trackerBundleParams );
+
+        assertEquals( 1, trackerImportReport.getValidationReport().getErrors().size() );
+        assertThat( trackerImportReport.getValidationReport().getErrors(),
+            hasItem( hasProperty( "errorCode", equalTo( TrackerErrorCode.E1115 ) ) ) );
+    }
+
+    @Test
     void testNoCategoryOption()
         throws IOException
     {
@@ -296,7 +314,7 @@ class EventImportValidationTest extends AbstractImportValidationTest
             "tracker/validations/events_cant-find-cat-option-combo-set.json" );
         trackerBundleParams.setImportStrategy( TrackerImportStrategy.CREATE );
         TrackerImportReport trackerImportReport = trackerImportService.importTracker( trackerBundleParams );
-        assertEquals( 2, trackerImportReport.getValidationReport().getErrors().size() );
+        assertEquals( 1, trackerImportReport.getValidationReport().getErrors().size() );
         assertThat( trackerImportReport.getValidationReport().getErrors(),
             hasItem( hasProperty( "errorCode", equalTo( TrackerErrorCode.E1117 ) ) ) );
     }
@@ -333,7 +351,7 @@ class EventImportValidationTest extends AbstractImportValidationTest
             assertTrue( CodeGenerator.isValidUid( comment.getUid() ) );
             assertTrue( comment.getCreated().getTime() > now.getTime() );
             assertTrue( comment.getLastUpdated().getTime() > now.getTime() );
-            assertNotNull( comment.getCreator() );
+            assertNull( comment.getCreator() );
             assertEquals( ADMIN_USER_UID, comment.getLastUpdatedBy().getUid() );
         } );
     }
@@ -357,7 +375,7 @@ class EventImportValidationTest extends AbstractImportValidationTest
             assertTrue( CodeGenerator.isValidUid( comment.getUid() ) );
             assertTrue( comment.getCreated().getTime() > now.getTime() );
             assertTrue( comment.getLastUpdated().getTime() > now.getTime() );
-            assertNotNull( comment.getCreator() );
+            assertNull( comment.getCreator() );
             assertEquals( ADMIN_USER_UID, comment.getLastUpdatedBy().getUid() );
         } );
     }

@@ -109,8 +109,6 @@ public class JdbcEventAnalyticsTableManager
             databaseInfo, jdbcTemplate );
     }
 
-    public static final String STORED_BY_COL_NAME = "storedby";
-
     private static final List<AnalyticsTableColumn> FIXED_COLS = ImmutableList.of(
         new AnalyticsTableColumn( quote( "psi" ), CHARACTER_11, NOT_NULL, "psi.uid" ),
         new AnalyticsTableColumn( quote( "pi" ), CHARACTER_11, NOT_NULL, "pi.uid" ),
@@ -123,7 +121,23 @@ public class JdbcEventAnalyticsTableManager
         new AnalyticsTableColumn( quote( "completeddate" ), TIMESTAMP, "psi.completeddate" ),
         new AnalyticsTableColumn( quote( "created" ), TIMESTAMP, "psi.created" ),
         new AnalyticsTableColumn( quote( "lastupdated" ), TIMESTAMP, "psi.lastupdated" ),
-        new AnalyticsTableColumn( quote( STORED_BY_COL_NAME ), VARCHAR_255, "psi.storedby" ),
+        new AnalyticsTableColumn( quote( "storedby" ), VARCHAR_255, "psi.storedby" ),
+        new AnalyticsTableColumn( quote( "createdbyusername" ), VARCHAR_255,
+            "psi.createdbyuserinfo ->> 'username' as createdbyusername" ),
+        new AnalyticsTableColumn( quote( "createdbyname" ), VARCHAR_255,
+            "psi.createdbyuserinfo ->> 'firstName' as createdbyname" ),
+        new AnalyticsTableColumn( quote( "createdbylastname" ), VARCHAR_255,
+            "psi.createdbyuserinfo ->> 'surname' as createdbylastname" ),
+        new AnalyticsTableColumn( quote( "createdbydisplayname" ), VARCHAR_255,
+            getDisplayName( "createdbyuserinfo", "psi", "createdbydisplayname" ) ),
+        new AnalyticsTableColumn( quote( "lastupdatedbyusername" ), VARCHAR_255,
+            "psi.lastupdatedbyuserinfo ->> 'username' as lastupdatedbyusername" ),
+        new AnalyticsTableColumn( quote( "lastupdatedbyname" ), VARCHAR_255,
+            "psi.lastupdatedbyuserinfo ->> 'firstName' as lastupdatedbyname" ),
+        new AnalyticsTableColumn( quote( "lastupdatedbylastname" ), VARCHAR_255,
+            "psi.lastupdatedbyuserinfo ->> 'surname' as lastupdatedbylastname" ),
+        new AnalyticsTableColumn( quote( "lastupdatedbydisplayname" ), VARCHAR_255,
+            getDisplayName( "lastupdatedbyuserinfo", "psi", "lastupdatedbydisplayname" ) ),
         new AnalyticsTableColumn( quote( "pistatus" ), VARCHAR_50, "pi.status" ),
         new AnalyticsTableColumn( quote( "psistatus" ), VARCHAR_50, "psi.status" ),
         new AnalyticsTableColumn( quote( "psigeometry" ), GEOMETRY, "psi.geometry" )
@@ -363,7 +377,7 @@ public class JdbcEventAnalyticsTableManager
     {
         List<AnalyticsTableColumn> columns = new ArrayList<>();
 
-        if ( program.hasCategoryCombo() )
+        if ( program.hasNonDefaultCategoryCombo() )
         {
             List<Category> categories = program.getCategoryCombo().getCategories();
 

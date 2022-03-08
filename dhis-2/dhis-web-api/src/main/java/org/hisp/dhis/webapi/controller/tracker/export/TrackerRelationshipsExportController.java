@@ -27,14 +27,12 @@
  */
 package org.hisp.dhis.webapi.controller.tracker.export;
 
-import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.badRequest;
 import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.notFound;
 import static org.hisp.dhis.webapi.controller.tracker.TrackerControllerSupport.RESOURCE_PATH;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -52,7 +50,6 @@ import org.hisp.dhis.dxf2.webmessage.WebMessage;
 import org.hisp.dhis.dxf2.webmessage.WebMessageException;
 import org.hisp.dhis.program.ProgramInstance;
 import org.hisp.dhis.program.ProgramInstanceService;
-import org.hisp.dhis.program.ProgramStage;
 import org.hisp.dhis.program.ProgramStageInstance;
 import org.hisp.dhis.program.ProgramStageInstanceService;
 import org.hisp.dhis.trackedentity.TrackedEntityInstance;
@@ -77,7 +74,7 @@ import com.google.common.collect.ImmutableMap;
 @RequiredArgsConstructor
 public class TrackerRelationshipsExportController
 {
-    protected final static String RELATIONSHIPS = "relationships";
+    protected static final String RELATIONSHIPS = "relationships";
 
     private final TrackedEntityInstanceService trackedEntityInstanceService;
 
@@ -99,7 +96,7 @@ public class TrackerRelationshipsExportController
         objectRetrievers = ImmutableMap.<Class<?>, Function<String, ?>> builder()
             .put( TrackedEntityInstance.class, trackedEntityInstanceService::getTrackedEntityInstance )
             .put( ProgramInstance.class, programInstanceService::getProgramInstance )
-            .put( ProgramStageInstanceService.class, programStageInstanceService::getProgramStageInstance )
+            .put( ProgramStageInstance.class, programStageInstanceService::getProgramStageInstance )
             .build();
 
         relationshipRetrievers = ImmutableMap
@@ -107,7 +104,7 @@ public class TrackerRelationshipsExportController
             .put( TrackedEntityInstance.class,
                 ( o, criteria ) -> relationshipService
                     .getRelationshipsByTrackedEntityInstance( (TrackedEntityInstance) o, criteria, false ) )
-            .put( ProgramStage.class,
+            .put( ProgramInstance.class,
                 ( o, criteria ) -> relationshipService.getRelationshipsByProgramInstance( (ProgramInstance) o, criteria,
                     false ) )
             .put( ProgramStageInstance.class,
@@ -121,38 +118,15 @@ public class TrackerRelationshipsExportController
         TrackerRelationshipCriteria criteria )
         throws WebMessageException
     {
-
+        String identifier = criteria.getIdentifierParam();
+        String identifierName = criteria.getIdentifierName();
         List<org.hisp.dhis.tracker.domain.Relationship> relationships = tryGetRelationshipFrom(
-            criteria.getTei(),
-            TrackedEntityInstance.class,
-            () -> notFound( "No trackedEntityInstance '" + criteria.getTei() + "' found." ),
+            identifier,
+            criteria.getIdentifierClass(),
+            () -> notFound( "No " + identifierName + " '" + identifier + "' found." ),
             criteria );
 
-        if ( Objects.isNull( relationships ) )
-        {
-            relationships = tryGetRelationshipFrom(
-                criteria.getEnrollment(),
-                ProgramInstance.class,
-                () -> notFound( "No enrollment '" + criteria.getEnrollment() + "' found." ),
-                criteria );
-        }
-
-        if ( Objects.isNull( relationships ) )
-        {
-            relationships = tryGetRelationshipFrom(
-                criteria.getEvent(),
-                ProgramStageInstance.class,
-                () -> notFound( "No event '" + criteria.getEvent() + "' found." ),
-                criteria );
-        }
-
-        if ( Objects.isNull( relationships ) )
-        {
-            throw new WebMessageException( badRequest( "Missing required parameter 'tei', 'enrollment' or 'event'." ) );
-        }
-
         PagingWrapper<org.hisp.dhis.tracker.domain.Relationship> relationshipPagingWrapper = new PagingWrapper<>();
-
         if ( criteria.isPagingRequest() )
         {
             relationshipPagingWrapper = relationshipPagingWrapper.withPager(
@@ -173,7 +147,7 @@ public class TrackerRelationshipsExportController
         return Optional.ofNullable( relationshipService.getRelationshipByUid( id ) )
             .map( RELATIONSHIP_MAPPER::from )
             .orElseThrow(
-                () -> new WebMessageException( notFound( "No relationship with id '" + id + "' was found." ) ) );
+                () -> new WebMessageException( notFound( "No relationship '" + id + "' found." ) ) );
     }
 
     @SneakyThrows

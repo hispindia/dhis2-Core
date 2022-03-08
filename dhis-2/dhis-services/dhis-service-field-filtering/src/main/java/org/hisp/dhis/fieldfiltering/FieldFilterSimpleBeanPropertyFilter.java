@@ -34,6 +34,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hisp.dhis.scheduling.JobParameters;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonStreamContext;
@@ -43,6 +44,11 @@ import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 
 /**
+ * PropertyFilter that supports filtering using FieldPaths, also supports
+ * skipping of all fields related to sharing.
+ *
+ * The filter _must_ be set on the ObjectMapper before serialising an object.
+ *
  * @author Morten Olav Hansen
  */
 @RequiredArgsConstructor
@@ -113,7 +119,8 @@ public class FieldFilterSimpleBeanPropertyFilter extends SimpleBeanPropertyFilte
 
         while ( sc != null )
         {
-            if ( sc.getCurrentValue() != null && Map.class.isAssignableFrom( sc.getCurrentValue().getClass() ) )
+            if ( sc.getCurrentValue() != null && (Map.class.isAssignableFrom( sc.getCurrentValue().getClass() )
+                || JobParameters.class.isAssignableFrom( sc.getCurrentValue().getClass() )) )
             {
                 sc = sc.getParent();
                 isInsideMap = true;
@@ -129,7 +136,8 @@ public class FieldFilterSimpleBeanPropertyFilter extends SimpleBeanPropertyFilte
             sc = sc.getParent();
         }
 
-        if ( value != null && Map.class.isAssignableFrom( value.getClass() ) )
+        if ( value != null && (Map.class.isAssignableFrom( value.getClass() )
+            || JobParameters.class.isAssignableFrom( value.getClass() )) )
         {
             isInsideMap = true;
         }
@@ -152,6 +160,9 @@ public class FieldFilterSimpleBeanPropertyFilter extends SimpleBeanPropertyFilte
     }
 }
 
+/**
+ * Simple container class used by getPath to handle Maps.
+ */
 @Data
 @RequiredArgsConstructor
 class PathValue

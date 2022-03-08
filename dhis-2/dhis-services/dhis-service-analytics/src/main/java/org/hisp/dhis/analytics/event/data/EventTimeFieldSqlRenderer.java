@@ -39,6 +39,7 @@ import static org.hisp.dhis.common.DimensionalObject.PERIOD_DIM_ID;
 import static org.hisp.dhis.common.IdentifiableObjectUtils.getUids;
 import static org.hisp.dhis.commons.util.TextUtils.getQuotedCommaDelimitedString;
 import static org.hisp.dhis.util.DateUtils.getMediumDateString;
+import static org.hisp.dhis.util.DateUtils.plusOneDay;
 
 import java.util.Collection;
 import java.util.List;
@@ -95,20 +96,9 @@ class EventTimeFieldSqlRenderer extends TimeFieldSqlRenderer
     }
 
     @Override
-    protected String getSqlConditionHasStartEndDate( EventQueryParams params )
+    protected String getColumnName( EventQueryParams params )
     {
-        String timeCol = getTimeCol( params.getOutputType(), getTimeField( params ) );
-
-        return new StringBuilder()
-            .append( timeCol )
-            .append( " >= '" )
-            .append( getMediumDateString( params.getStartDate() ) )
-            .append( "' and " )
-            .append( timeCol )
-            .append( " <= '" )
-            .append( getMediumDateString( params.getEndDate() ) )
-            .append( "' " )
-            .toString();
+        return getTimeCol( params.getOutputType(), getTimeField( params ) );
     }
 
     @Override
@@ -137,8 +127,8 @@ class EventTimeFieldSqlRenderer extends TimeFieldSqlRenderer
     private String toSqlCondition( Period period, TimeField timeField )
     {
         String timeCol = quoteAlias( timeField.getField() );
-        return "( " + timeCol + " >= '" + getMediumDateString( period.getStartDate() ) + "' and " + timeCol + " <= '"
-            + getMediumDateString( period.getEndDate() ) + "') ";
+        return "( " + timeCol + " >= '" + getMediumDateString( period.getStartDate() ) + "' and " + timeCol + " < '"
+            + getMediumDateString( plusOneDay( period.getEndDate() ) ) + "') ";
     }
 
     private String getPeriodAlias( EventQueryParams params )

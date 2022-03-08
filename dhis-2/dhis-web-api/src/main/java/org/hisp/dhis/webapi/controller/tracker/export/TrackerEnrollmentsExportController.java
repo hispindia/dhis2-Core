@@ -94,7 +94,7 @@ public class TrackerEnrollmentsExportController
         }
         else
         {
-            Set<String> enrollmentIds = TextUtils.splitToArray( trackerEnrollmentCriteria.getEnrollment(),
+            Set<String> enrollmentIds = TextUtils.splitToSet( trackerEnrollmentCriteria.getEnrollment(),
                 TextUtils.SEMICOLON );
             enrollmentList = enrollmentIds != null
                 ? enrollmentIds.stream().map( enrollmentService::getEnrollment ).collect( Collectors.toList() )
@@ -106,7 +106,7 @@ public class TrackerEnrollmentsExportController
     }
 
     @GetMapping( value = "{id}" )
-    public Enrollment getTrackedEntityInstanceById( @PathVariable String id )
+    public Enrollment getEnrollmentById( @PathVariable String id )
         throws NotFoundException
     {
 

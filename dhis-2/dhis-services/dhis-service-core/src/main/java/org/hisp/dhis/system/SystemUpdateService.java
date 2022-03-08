@@ -47,12 +47,11 @@ import org.hisp.dhis.message.MessageType;
 import org.hisp.dhis.system.util.DhisHttpResponse;
 import org.hisp.dhis.system.util.HttpUtils;
 import org.hisp.dhis.user.User;
-import org.hisp.dhis.user.UserCredentials;
-import org.hisp.dhis.user.UserCredentialsStore;
 import org.hisp.dhis.user.UserService;
+import org.hisp.dhis.user.UserStore;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.google.api.client.http.HttpStatusCodes;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -84,7 +83,7 @@ public class SystemUpdateService
     public static final String FIELD_NAME_URL = "url";
 
     @NonNull
-    private final UserCredentialsStore userCredentialsStore;
+    private final UserStore userStore;
 
     @NonNull
     private final UserService userService;
@@ -120,7 +119,7 @@ public class SystemUpdateService
                 false, null, null, null, 0, true );
 
             int statusCode = httpResponse.getStatusCode();
-            if ( statusCode != HttpStatusCodes.STATUS_CODE_OK )
+            if ( statusCode != HttpStatus.OK.value() )
             {
                 throw new IllegalStateException(
                     "Failed to fetch the version file, "
@@ -246,11 +245,11 @@ public class SystemUpdateService
     {
         Set<User> recipients = new HashSet<>();
 
-        List<UserCredentials> userCredentials = userCredentialsStore.getHasAuthority( "ALL" );
+        List<User> users = userStore.getHasAuthority( "ALL" );
 
-        for ( UserCredentials credentials : userCredentials )
+        for ( User user : users )
         {
-            recipients.add( userService.getUserByUsername( credentials.getUsername() ) );
+            recipients.add( userService.getUserByUsername( user.getUsername() ) );
         }
 
         return recipients;

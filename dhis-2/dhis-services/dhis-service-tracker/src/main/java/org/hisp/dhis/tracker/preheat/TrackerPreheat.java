@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -47,6 +48,8 @@ import lombok.Setter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.hisp.dhis.category.CategoryOption;
+import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.common.BaseIdentifiableObject;
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.hibernate.HibernateProxyUtils;
@@ -69,11 +72,10 @@ import org.hisp.dhis.tracker.TrackerType;
 import org.hisp.dhis.tracker.domain.Enrollment;
 import org.hisp.dhis.tracker.domain.Event;
 import org.hisp.dhis.user.User;
-import org.hisp.dhis.user.UserCredentials;
 
-import com.google.api.client.util.Lists;
-import com.google.api.client.util.Maps;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.scalified.tree.TreeNode;
 import com.scalified.tree.multinode.ArrayMultiTreeNode;
 
@@ -203,12 +205,11 @@ public class TrackerPreheat
 
     /**
      * A map of valid users by username that are present in the payload. A user
-     * not available in this cache means, payload's username is invalid. These
-     * users are primarily used to represent the ValueType.USERNAME of tracked
-     * entity attributes, used in validation and persisting TEIs.
+     * not available in this cache means, payload's username or uid is invalid.
+     * These users are primarily used to represent the ValueType.USERNAME of
+     * tracked entity attributes and assignedUser fields in events used in
+     * validation and persistence.
      */
-    @Getter
-    @Setter
     private Map<String, User> users = Maps.newHashMap();
 
     /**
@@ -287,6 +288,16 @@ public class TrackerPreheat
         return (T) map.getOrDefault( klass, new HashMap<>() ).get( key );
     }
 
+    public CategoryOption getCategoryOption( String id )
+    {
+        return get( CategoryOption.class, id );
+    }
+
+    public CategoryOptionCombo getCategoryOptionCombo( String id )
+    {
+        return get( CategoryOptionCombo.class, id );
+    }
+
     /**
      * Fetch all the metadata objects from the pre-heat, by object type
      *
@@ -321,23 +332,19 @@ public class TrackerPreheat
 
         if ( User.class.isAssignableFrom( klass ) )
         {
-            if ( !map.containsKey( UserCredentials.class ) )
+            User userObject = (User) object;
+
+            Map<String, IdentifiableObject> identifierMap = map.get( User.class );
+
+            if ( !StringUtils.isEmpty( identifier.getIdentifier( userObject ) ) &&
+                !identifierMap.containsKey( identifier.getIdentifier( userObject ) ) )
             {
-                map.put( UserCredentials.class, new HashMap<>() );
-            }
-
-            User user = (User) object;
-
-            Map<String, IdentifiableObject> identifierMap = map.get( UserCredentials.class );
-
-            if ( !StringUtils.isEmpty( identifier.getIdentifier( user ) ) &&
-                !identifierMap.containsKey( identifier.getIdentifier( user ) ) )
-            {
-                identifierMap.put( identifier.getIdentifier( user ), user.getUserCredentials() );
+                identifierMap.put( identifier.getIdentifier( userObject ), userObject );
             }
         }
 
-        PreheatUtils.resolveKey( identifier, object ).ifPresent( k -> map.get( klass ).put( k, object ) );
+        Optional.ofNullable( identifier.getIdentifier( object ) )
+            .ifPresent( k -> map.get( klass ).put( k, object ) );
 
         return this;
     }
@@ -621,6 +628,27 @@ public class TrackerPreheat
                 orgUnit );
             programOwner.get( teiUid ).put( programUid, tepo );
         }
+    }
+
+    public void addUsers( Set<User> users )
+    {
+        Map<String, User> userMap = users.stream()
+            .filter( Objects::nonNull )
+            .collect( Collectors.toMap( User::getUsername, Function.identity() ) );
+        this.users.putAll( userMap );
+    }
+
+    public Optional<User> getUserByUsername( String username )
+    {
+        return Optional.ofNullable( this.users.get( username ) );
+    }
+
+    public Optional<User> getUserByUid( String uid )
+    {
+        return this.users.values()
+            .stream()
+            .filter( u -> Objects.equals( uid, u.getUid() ) )
+            .findAny();
     }
 
     @Override

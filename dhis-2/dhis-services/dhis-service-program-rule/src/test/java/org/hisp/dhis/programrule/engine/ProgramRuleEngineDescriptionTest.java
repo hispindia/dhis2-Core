@@ -43,6 +43,7 @@ import org.hisp.dhis.programrule.ProgramRule;
 import org.hisp.dhis.programrule.ProgramRuleService;
 import org.hisp.dhis.programrule.ProgramRuleVariable;
 import org.hisp.dhis.programrule.ProgramRuleVariableService;
+import org.hisp.dhis.programrule.ProgramRuleVariableSourceType;
 import org.hisp.dhis.rules.models.RuleValidationResult;
 import org.hisp.dhis.trackedentity.TrackedEntityAttribute;
 import org.hisp.dhis.trackedentity.TrackedEntityAttributeService;
@@ -72,6 +73,9 @@ class ProgramRuleEngineDescriptionTest extends DhisSpringTest
     private String conditionTextDE = "#{Program_Rule_Variable_Text_DE} == 'text_de'";
 
     private String incorrectConditionTextDE = "#{Program_Rule_Variable_Text_DE} == 'text_de' +";
+
+    private String extractDataMatrixValueExpression = "d2:extractDataMatrixValue('serial number'," +
+        " ']d201084700069915412110081996195256\u001D10DXB2005\u001D17220228') > 0";
 
     private String conditionNumericDE = "#{Program_Rule_Variable_Numeric_DE} == 14";
 
@@ -110,6 +114,10 @@ class ProgramRuleEngineDescriptionTest extends DhisSpringTest
     private ProgramRuleVariable programRuleVariableNumericDE;
 
     private ProgramRuleVariable programRuleVariableNumericAtt;
+
+    private ProgramRuleVariable programRuleVariableCalculatedValue1;
+
+    private ProgramRuleVariable programRuleVariableCalculatedValue2;
 
     @Qualifier( "serviceTrackerRuleEngine" )
     @Autowired
@@ -158,6 +166,13 @@ class ProgramRuleEngineDescriptionTest extends DhisSpringTest
         programRuleVariableNumericAtt = createProgramRuleVariableWithTEA( 'S', program, numericAttribute );
         programRuleVariableTextDE = createProgramRuleVariableWithDataElement( 'T', program, textDataElement );
         programRuleVariableNumericDE = createProgramRuleVariableWithDataElement( 'U', program, numericDataElement );
+        programRuleVariableCalculatedValue1 = createProgramRuleVariableWithSourceType( 'X', program,
+            ProgramRuleVariableSourceType.CALCULATED_VALUE, ValueType.NUMBER );
+        programRuleVariableCalculatedValue2 = createProgramRuleVariableWithSourceType( 'Y', program,
+            ProgramRuleVariableSourceType.CALCULATED_VALUE, ValueType.NUMBER );
+        programRuleVariableCalculatedValue1.setName( "prv1" );
+        programRuleVariableCalculatedValue2.setName( "prv2" );
+
         programRuleVariableTextAtt.setName( "Program_Rule_Variable_Text_Attr" );
         programRuleVariableNumericAtt.setName( "Program_Rule_Variable_Numeric_Attr" );
         programRuleVariableTextDE.setName( "Program_Rule_Variable_Text_DE" );
@@ -166,6 +181,8 @@ class ProgramRuleEngineDescriptionTest extends DhisSpringTest
         ruleVariableService.addProgramRuleVariable( programRuleVariableNumericAtt );
         ruleVariableService.addProgramRuleVariable( programRuleVariableTextDE );
         ruleVariableService.addProgramRuleVariable( programRuleVariableNumericDE );
+        ruleVariableService.addProgramRuleVariable( programRuleVariableCalculatedValue1 );
+        ruleVariableService.addProgramRuleVariable( programRuleVariableCalculatedValue2 );
         programRuleTextAtt = createProgramRule( 'P', program );
         programRuleWithD2HasValue = createProgramRule( 'D', program );
         programRuleNumericAtt = createProgramRule( 'Q', program );
@@ -189,6 +206,16 @@ class ProgramRuleEngineDescriptionTest extends DhisSpringTest
         RuleValidationResult result = validateRuleCondition( programRuleTextAtt.getCondition(), program );
         assertNotNull( result );
         assertEquals( "AttributeA == 'text_att' || Current date", result.getDescription() );
+        assertTrue( result.isValid() );
+    }
+
+    @Test
+    void testProgramRuleWithCalculatedValueRuleVariable()
+    {
+        RuleValidationResult result = validateRuleCondition( "#{prv1}+#{prv2}>0", program );
+
+        assertNotNull( result );
+        assertEquals( "prv1+prv2>0", result.getDescription() );
         assertTrue( result.isValid() );
     }
 
@@ -290,6 +317,14 @@ class ProgramRuleEngineDescriptionTest extends DhisSpringTest
         assertNotNull( result );
         assertFalse( result.isValid() );
         assertThat( result.getException(), instanceOf( IllegalStateException.class ) );
+    }
+
+    @Test
+    void testExtractDataMatrixValue()
+    {
+        RuleValidationResult result = validateRuleCondition( extractDataMatrixValueExpression, program );
+        assertNotNull( result );
+        assertTrue( result.isValid() );
     }
 
     @Test

@@ -48,23 +48,32 @@ import static org.hisp.dhis.common.DimensionalObject.LONGITUDE_DIM_ID;
 import static org.hisp.dhis.common.DimensionalObject.ORGUNIT_DIM_ID;
 import static org.hisp.dhis.common.DimensionalObject.ORGUNIT_GROUP_DIM_ID;
 import static org.hisp.dhis.common.DimensionalObject.PERIOD_DIM_ID;
+import static org.hisp.dhis.common.DimensionalObject.PERIOD_FREE_RANGE_SEPARATOR;
 import static org.hisp.dhis.common.DimensionalObjectUtils.asList;
 import static org.hisp.dhis.common.DimensionalObjectUtils.asTypedList;
 import static org.hisp.dhis.common.DimensionalObjectUtils.getDimensionalItemIds;
 import static org.hisp.dhis.common.IdentifiableObjectUtils.getLocalPeriodIdentifier;
 import static org.hisp.dhis.commons.collection.ListUtils.sort;
+import static org.hisp.dhis.i18n.I18nFormat.FORMAT_DATE;
 import static org.hisp.dhis.organisationunit.OrganisationUnit.KEY_LEVEL;
 import static org.hisp.dhis.organisationunit.OrganisationUnit.KEY_ORGUNIT_GROUP;
 import static org.hisp.dhis.organisationunit.OrganisationUnit.KEY_USER_ORGUNIT;
 import static org.hisp.dhis.organisationunit.OrganisationUnit.KEY_USER_ORGUNIT_CHILDREN;
 import static org.hisp.dhis.organisationunit.OrganisationUnit.KEY_USER_ORGUNIT_GRANDCHILDREN;
+import static org.hisp.dhis.period.DailyPeriodType.ISO_FORMAT;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.hisp.dhis.analytics.AnalyticsAggregationType;
 import org.hisp.dhis.analytics.AnalyticsFinancialYearStartKey;
@@ -100,6 +109,7 @@ import org.hisp.dhis.indicator.IndicatorGroup;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.organisationunit.OrganisationUnitGroup;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
+import org.hisp.dhis.period.DailyPeriodType;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.period.RelativePeriodEnum;
@@ -122,6 +132,10 @@ import org.springframework.util.Assert;
 public class DefaultDataQueryService
     implements DataQueryService
 {
+    public static final Collection<DateTimeFormatter> DATE_TIME_FORMATTER = Stream.of( FORMAT_DATE, ISO_FORMAT )
+        .map( DateTimeFormatter::ofPattern )
+        .collect( Collectors.toList() );
+
     private IdentifiableObjectManager idObjectManager;
 
     private OrganisationUnitService organisationUnitService;
@@ -305,8 +319,7 @@ public class DefaultDataQueryService
     }
 
     // TODO Optimize so that org unit levels + boundary are used in query
-    // instead of
-    // fetching all org units one by one
+    // instead of fetching all org units one by one.
 
     @Override
     public DimensionalObject getDimension( String dimension, List<String> items, Date relativePeriodDate,
@@ -351,8 +364,8 @@ public class DefaultDataQueryService
                 }
                 else
                 {
-                    DimensionalItemObject dimItemObject = dimensionService.getDataDimensionalItemObject( inputIdScheme,
-                        uid );
+                    DimensionalItemObject dimItemObject = dimensionService.getDataDimensionalItemObject(
+                        inputIdScheme, uid );
 
                     if ( dimItemObject != null )
                     {
@@ -397,24 +410,50 @@ public class DefaultDataQueryService
 
             for ( String isoPeriod : items )
             {
-                if ( RelativePeriodEnum.contains( isoPeriod ) )
+                // Contains isoPeriod and timeField
+                IsoPeriodHolder isoPeriodHolder = IsoPeriodHolder.of( isoPeriod );
+
+                if ( RelativePeriodEnum.contains( isoPeriodHolder.getIsoPeriod() ) )
                 {
                     containsRelativePeriods = true;
-                    RelativePeriodEnum relativePeriod = RelativePeriodEnum.valueOf( isoPeriod );
+                    RelativePeriodEnum relativePeriod = RelativePeriodEnum.valueOf( isoPeriodHolder.getIsoPeriod() );
 
-                    dimensionalKeywords.addKeyword( isoPeriod, i18n.getString( isoPeriod ) );
+                    dimensionalKeywords.addKeyword( isoPeriodHolder.getIsoPeriod(),
+                        i18n.getString( isoPeriodHolder.getIsoPeriod() ) );
 
                     List<Period> relativePeriods = RelativePeriods.getRelativePeriodsFromEnum( relativePeriod,
                         relativePeriodDate, format, true, financialYearStart );
+
+                    // If custom time filter is specified, set it in periods
+                    if ( isoPeriodHolder.hasDateField() )
+                    {
+                        relativePeriods.forEach( period -> period.setDateField( isoPeriodHolder.getDateField() ) );
+                    }
+
                     periods.addAll( relativePeriods );
                 }
                 else
                 {
-                    Period period = PeriodType.getPeriodFromIsoString( isoPeriod );
+                    Period period = PeriodType.getPeriodFromIsoString( isoPeriodHolder.getIsoPeriod() );
 
                     if ( period != null )
                     {
+                        if ( isoPeriodHolder.hasDateField() )
+                        {
+                            period.setDescription( isoPeriodHolder.getIsoPeriod() );
+                            period.setDateField( isoPeriodHolder.getDateField() );
+                        }
+
+                        dimensionalKeywords.addKeyword( isoPeriodHolder.getIsoPeriod(),
+                            format != null ? i18n.getString( format.formatPeriod( period ) )
+                                : isoPeriodHolder.getIsoPeriod() );
+
                         periods.add( period );
+                    }
+                    else
+                    {
+                        tryParseDateRange( isoPeriodHolder )
+                            .ifPresent( periods::add );
                     }
                 }
             }
@@ -614,6 +653,53 @@ public class DefaultDataQueryService
         }
 
         throw new IllegalQueryException( new ErrorMessage( ErrorCode.E7125, dimension ) );
+    }
+
+    /**
+     * Parses periods in <code>YYYYMMDD_YYYYMMDD</code> or
+     * <code>YYYY-MM-DD_YYYY-MM-DD</code> format.
+     */
+    private Optional<Period> tryParseDateRange( IsoPeriodHolder isoPeriodHolder )
+    {
+        String[] dates = isoPeriodHolder.getIsoPeriod().split( PERIOD_FREE_RANGE_SEPARATOR );
+        if ( dates.length == 2 )
+        {
+            Optional<Date> start = safelyParseDate( dates[0] );
+            Optional<Date> end = safelyParseDate( dates[1] );
+            if ( start.isPresent() && end.isPresent() )
+            {
+                Period period = new Period();
+                period.setPeriodType( new DailyPeriodType() );
+                period.setStartDate( start.get() );
+                period.setEndDate( end.get() );
+                period.setDateField( isoPeriodHolder.getDateField() );
+                return Optional.of( period );
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Date> safelyParseDate( String date )
+    {
+        return DATE_TIME_FORMATTER.stream()
+            .map( dateTimeFormatter -> safelyParseDateUsingFormatter( date, dateTimeFormatter ) )
+            .filter( Objects::nonNull )
+            .findFirst();
+    }
+
+    private Date safelyParseDateUsingFormatter( String date, DateTimeFormatter dateTimeFormatter )
+    {
+        try
+        {
+            return Date.from(
+                LocalDate.parse( date, dateTimeFormatter )
+                    .atStartOfDay( ZoneId.systemDefault() )
+                    .toInstant() );
+        }
+        catch ( Exception e )
+        {
+            return null;
+        }
     }
 
     @Override

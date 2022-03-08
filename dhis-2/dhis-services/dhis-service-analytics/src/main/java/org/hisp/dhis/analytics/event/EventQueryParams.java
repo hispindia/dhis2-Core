@@ -38,12 +38,18 @@ import static org.hisp.dhis.common.FallbackCoordinateFieldType.PSI_GEOMETRY;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import lombok.Getter;
 
 import org.hisp.dhis.analytics.AggregationType;
 import org.hisp.dhis.analytics.AnalyticsAggregationType;
@@ -54,7 +60,9 @@ import org.hisp.dhis.analytics.QueryKey;
 import org.hisp.dhis.analytics.QueryParamsBuilder;
 import org.hisp.dhis.analytics.SortOrder;
 import org.hisp.dhis.analytics.TimeField;
+import org.hisp.dhis.common.AnalyticsDateFilter;
 import org.hisp.dhis.common.BaseDimensionalObject;
+import org.hisp.dhis.common.DateRange;
 import org.hisp.dhis.common.DhisApiVersion;
 import org.hisp.dhis.common.DimensionType;
 import org.hisp.dhis.common.DimensionalItemObject;
@@ -143,12 +151,12 @@ public class EventQueryParams
     /**
      * Columns to sort ascending.
      */
-    private List<DimensionalItemObject> asc = new ArrayList<>();
+    private List<QueryItem> asc = new ArrayList<>();
 
     /**
      * Columns to sort descending.
      */
-    private List<DimensionalItemObject> desc = new ArrayList<>();
+    private List<QueryItem> desc = new ArrayList<>();
 
     /**
      * The organisation unit selection mode.
@@ -189,7 +197,7 @@ public class EventQueryParams
     /**
      * Indicates the event status.
      */
-    private Set<EventStatus> eventStatus;
+    private Set<EventStatus> eventStatus = new LinkedHashSet<>();
 
     /**
      * Indicates whether the data dimension items should be collapsed into a
@@ -248,7 +256,7 @@ public class EventQueryParams
     /**
      * Indicates the program status
      */
-    private Set<ProgramStatus> programStatus;
+    private Set<ProgramStatus> programStatus = new LinkedHashSet<>();
 
     /**
      * Indicates whether to include metadata details to response
@@ -261,6 +269,12 @@ public class EventQueryParams
      * UIDs respectively.
      */
     protected IdScheme dataIdScheme;
+
+    /**
+     * a map holding for each time field a range of dates
+     */
+    @Getter
+    protected Map<AnalyticsDateFilter, DateRange> dateRangeByDateFilter = new HashMap<>();
 
     // -------------------------------------------------------------------------
     // Constructors
@@ -293,7 +307,6 @@ public class EventQueryParams
         params.partitions = new Partitions( this.partitions );
         params.tableName = this.tableName;
         params.periodType = this.periodType;
-
         params.program = this.program;
         params.programStage = this.programStage;
         params.items = new ArrayList<>( this.items );
@@ -312,7 +325,7 @@ public class EventQueryParams
         params.limit = this.limit;
         params.outputType = this.outputType;
         params.outputIdScheme = this.outputIdScheme;
-        params.eventStatus = this.eventStatus;
+        params.eventStatus = new LinkedHashSet<>( this.eventStatus );
         params.collapseDataDimensions = this.collapseDataDimensions;
         params.coordinatesOnly = this.coordinatesOnly;
         params.coordinateOuFallback = this.coordinateOuFallback;
@@ -323,12 +336,13 @@ public class EventQueryParams
         params.fallbackCoordinateField = this.fallbackCoordinateField;
         params.bbox = this.bbox;
         params.includeClusterPoints = this.includeClusterPoints;
-        params.programStatus = this.programStatus;
+        params.programStatus = new LinkedHashSet<>( this.programStatus );
         params.includeMetadataDetails = this.includeMetadataDetails;
         params.dataIdScheme = this.dataIdScheme;
         params.periodType = this.periodType;
-        params.analyzeOrderId = this.analyzeOrderId;
-
+        params.explainOrderId = this.explainOrderId;
+        params.dateRangeByDateFilter = this.dateRangeByDateFilter;
+        params.skipPartitioning = this.skipPartitioning;
         return params;
     }
 
@@ -408,8 +422,9 @@ public class EventQueryParams
         itemFilters.forEach( e -> key.add( "itemFilter", "[" + e.getKey() + "]" ) );
         headers.forEach( header -> key.add( "headers", "[" + header + "]" ) );
         itemProgramIndicators.forEach( e -> key.add( "itemProgramIndicator", e.getUid() ) );
-        asc.forEach( e -> e.getUid() );
-        desc.forEach( e -> e.getUid() );
+        eventStatus.forEach( status -> key.add( "eventStatus", "[" + status + "]" ) );
+        asc.forEach( e -> e.getItem().getUid() );
+        desc.forEach( e -> e.getItem().getUid() );
 
         return key
             .addIgnoreNull( "value", value, () -> value.getUid() )
@@ -422,7 +437,6 @@ public class EventQueryParams
             .addIgnoreNull( "limit", limit )
             .addIgnoreNull( "outputType", outputType )
             .addIgnoreNull( "outputIdScheme", outputIdScheme )
-            .addIgnoreNull( "eventStatus", eventStatus )
             .addIgnoreNull( "collapseDataDimensions", collapseDataDimensions )
             .addIgnoreNull( "coordinatesOnly", coordinatesOnly )
             .addIgnoreNull( "coordinateOuFallback", coordinateOuFallback )
@@ -447,6 +461,9 @@ public class EventQueryParams
      * Replaces periods with start and end dates, using the earliest start date
      * from the periods as start date and the latest end date from the periods
      * as end date. Remove the period dimension or filter.
+     *
+     * When heterogeneous date fields are specified, set a specific start/date
+     * pair for each of them
      */
     private void replacePeriodsWithStartEndDates()
     {
@@ -454,21 +471,70 @@ public class EventQueryParams
 
         for ( Period period : periods )
         {
-            Date start = period.getStartDate();
-            Date end = period.getEndDate();
-
-            if ( startDate == null || (start != null && start.before( startDate )) )
+            if ( Objects.isNull( period.getDateField() ) )
             {
-                startDate = start;
+                Date start = period.getStartDate();
+                Date end = period.getEndDate();
+
+                if ( startDate == null || (start != null && start.before( startDate )) )
+                {
+                    startDate = start;
+                }
+
+                if ( endDate == null || (end != null && end.after( endDate )) )
+                {
+                    endDate = end;
+                }
             }
-
-            if ( endDate == null || (end != null && end.after( endDate )) )
+            else
             {
-                endDate = end;
+                Optional<AnalyticsDateFilter> dateFilter = AnalyticsDateFilter.of( period.getDateField() );
+                if ( dateFilter.isPresent() )
+                {
+                    updateStartForDateFilterIfNecessary( dateFilter.get(), period.getStartDate() );
+                    updateEndForDateFilterIfNecessary( dateFilter.get(), period.getEndDate() );
+                }
             }
         }
 
         removeDimensionOrFilter( PERIOD_DIM_ID );
+    }
+
+    private void updateStartForDateFilterIfNecessary( AnalyticsDateFilter dateFilter, Date start )
+    {
+        if ( dateRangeByDateFilter.get( dateFilter ) != null )
+        {
+            Date startDateInMap = dateRangeByDateFilter.get( dateFilter ).getStartDate();
+            if ( startDateInMap == null || (start != null && start.before( startDateInMap )) )
+            {
+                dateRangeByDateFilter.get( dateFilter ).setStartDate( start );
+            }
+        }
+        else
+        {
+            dateRangeByDateFilter.put( dateFilter, new DateRange( start, null ) );
+        }
+    }
+
+    private void updateEndForDateFilterIfNecessary( AnalyticsDateFilter dateFilter, Date end )
+    {
+        if ( dateRangeByDateFilter.get( dateFilter ) != null )
+        {
+            Date endDateInMap = dateRangeByDateFilter.get( dateFilter ).getEndDate();
+            if ( endDateInMap == null || (end != null && end.after( endDateInMap )) )
+            {
+                dateRangeByDateFilter.get( dateFilter ).setEndDate( end );
+            }
+        }
+        else
+        {
+            dateRangeByDateFilter.put( dateFilter, new DateRange( null, end ) );
+        }
+    }
+
+    public boolean containsScheduledDatePeriod()
+    {
+        return dateRangeByDateFilter != null && dateRangeByDateFilter.containsKey( AnalyticsDateFilter.SCHEDULED_DATE );
     }
 
     /**
@@ -927,7 +993,7 @@ public class EventQueryParams
         return programIndicator;
     }
 
-    public List<DimensionalItemObject> getAsc()
+    public List<QueryItem> getAsc()
     {
         return asc;
     }
@@ -938,7 +1004,7 @@ public class EventQueryParams
         return dimensions;
     }
 
-    public List<DimensionalItemObject> getDesc()
+    public List<QueryItem> getDesc()
     {
         return desc;
     }
@@ -1278,13 +1344,13 @@ public class EventQueryParams
             return this;
         }
 
-        public Builder addAscSortItem( DimensionalItemObject sortItem )
+        public Builder addAscSortItem( QueryItem sortItem )
         {
             this.params.asc.add( sortItem );
             return this;
         }
 
-        public Builder addDescSortItem( DimensionalItemObject sortItem )
+        public Builder addDescSortItem( QueryItem sortItem )
         {
             this.params.desc.add( sortItem );
             return this;
@@ -1328,7 +1394,11 @@ public class EventQueryParams
 
         public Builder withEventStatuses( Set<EventStatus> eventStatuses )
         {
-            this.params.eventStatus = eventStatuses;
+            if ( isNotEmpty( eventStatuses ) )
+            {
+                this.params.eventStatus.addAll( eventStatuses );
+            }
+
             return this;
         }
 
@@ -1388,7 +1458,11 @@ public class EventQueryParams
 
         public Builder withProgramStatuses( Set<ProgramStatus> programStatuses )
         {
-            this.params.programStatus = programStatuses;
+            if ( isNotEmpty( programStatuses ) )
+            {
+                this.params.programStatus.addAll( programStatuses );
+            }
+
             return this;
         }
 
@@ -1424,8 +1498,13 @@ public class EventQueryParams
 
         public Builder withAnalyzeOrderId()
         {
-            this.params.analyzeOrderId = UUID.randomUUID().toString();
+            this.params.explainOrderId = UUID.randomUUID().toString();
             return this;
+        }
+
+        public void withSkipPartitioning( boolean skipPartitioning )
+        {
+            this.params.skipPartitioning = skipPartitioning;
         }
 
         public EventQueryParams build()

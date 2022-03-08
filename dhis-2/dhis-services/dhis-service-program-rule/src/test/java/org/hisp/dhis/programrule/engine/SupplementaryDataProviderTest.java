@@ -44,8 +44,7 @@ import org.hisp.dhis.organisationunit.OrganisationUnitGroupService;
 import org.hisp.dhis.programrule.ProgramRule;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
-import org.hisp.dhis.user.UserAuthorityGroup;
-import org.hisp.dhis.user.UserCredentials;
+import org.hisp.dhis.user.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -73,8 +72,6 @@ class SupplementaryDataProviderTest extends DhisConvenienceTest
     @InjectMocks
     private SupplementaryDataProvider providerToTest;
 
-    private User currentUser;
-
     private OrganisationUnit orgUnitA;
 
     private OrganisationUnit orgUnitB;
@@ -82,10 +79,9 @@ class SupplementaryDataProviderTest extends DhisConvenienceTest
     @BeforeEach
     void setUp()
     {
-        currentUser = createUser( 'A' );
-        UserCredentials userCredentials = createUserCredentials( 'A', currentUser );
-        userCredentials.setUserAuthorityGroups( getAuthorityGroups() );
-        when( currentUserService.getCurrentUser() ).thenReturn( currentUser );
+        User user = createUser( 'A' );
+        user.setUserRoles( getAuthorityGroups() );
+        when( currentUserService.getCurrentUser() ).thenReturn( user );
         orgUnitA = createOrganisationUnit( 'A' );
         orgUnitB = createOrganisationUnit( 'B' );
         OrganisationUnitGroup orgUnitGroup = createOrganisationUnitGroup( 'A' );
@@ -117,13 +113,13 @@ class SupplementaryDataProviderTest extends DhisConvenienceTest
 
     private List<String> getAuthorityGroupUids()
     {
-        return getAuthorityGroups().stream().map( UserAuthorityGroup::getUid ).collect( Collectors.toList() );
+        return getAuthorityGroups().stream().map( UserRole::getUid ).collect( Collectors.toList() );
     }
 
-    private Set<UserAuthorityGroup> getAuthorityGroups()
+    private Set<UserRole> getAuthorityGroups()
     {
-        UserAuthorityGroup groupA = createUserAuthorityGroup( 'A' );
-        UserAuthorityGroup groupB = createUserAuthorityGroup( 'B' );
+        UserRole groupA = createUserRole( 'A' );
+        UserRole groupB = createUserRole( 'B' );
         return Sets.newHashSet( groupA, groupB );
     }
 }

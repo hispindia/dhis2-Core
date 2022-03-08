@@ -38,6 +38,7 @@ import lombok.AllArgsConstructor;
 
 import org.hisp.dhis.analytics.analyze.ExecutionPlanStore;
 import org.hisp.dhis.analytics.dimension.DimensionFilteringAndPagingService;
+import org.hisp.dhis.analytics.dimension.DimensionMapperService;
 import org.hisp.dhis.analytics.dimensions.AnalyticsDimensionsPagingWrapper;
 import org.hisp.dhis.analytics.event.EnrollmentAnalyticsDimensionsService;
 import org.hisp.dhis.analytics.event.EnrollmentAnalyticsService;
@@ -89,9 +90,12 @@ public class EnrollmentAnalyticsController
     @NotNull
     private EnrollmentAnalyticsDimensionsService enrollmentAnalyticsDimensionsService;
 
-    @PreAuthorize( "hasRole('F_PERFORM_MAINTENANCE')" )
-    @GetMapping( value = "/query/{program}/analyze", produces = { APPLICATION_JSON_VALUE, "application/javascript" } )
-    public @ResponseBody Grid getAnalyzeQueryJson( // JSON, JSONP
+    @NotNull
+    private DimensionMapperService dimensionMapperService;
+
+    @PreAuthorize( "hasRole('ALL') or hasRole('F_PERFORM_ANALYTICS_EXPLAIN')" )
+    @GetMapping( value = "/query/{program}/explain", produces = { APPLICATION_JSON_VALUE, "application/javascript" } )
+    public @ResponseBody Grid getExplainQueryJson( // JSON, JSONP
         @PathVariable String program,
         EnrollmentAnalyticsQueryCriteria criteria,
         DhisApiVersion apiVersion,
@@ -105,7 +109,7 @@ public class EnrollmentAnalyticsController
 
         if ( params.analyzeOnly() )
         {
-            String key = params.getAnalyzeOrderId();
+            String key = params.getExplainOrderId();
             grid.maybeAddPerformanceMetrics( executionPlanStore.getExecutionPlans( key ) );
         }
 
@@ -219,7 +223,8 @@ public class EnrollmentAnalyticsController
             CacheStrategy.RESPECT_SYSTEM_SETTING );
         return dimensionFilteringAndPagingService
             .pageAndFilter(
-                enrollmentAnalyticsDimensionsService.getQueryDimensionsByProgramStageId( programId ),
+                dimensionMapperService.toDimensionResponse(
+                    enrollmentAnalyticsDimensionsService.getQueryDimensionsByProgramStageId( programId ) ),
                 dimensionsCriteria,
                 fields );
     }
@@ -236,7 +241,8 @@ public class EnrollmentAnalyticsController
             CacheStrategy.RESPECT_SYSTEM_SETTING );
         return dimensionFilteringAndPagingService
             .pageAndFilter(
-                enrollmentAnalyticsDimensionsService.getAggregateDimensionsByProgramStageId( programId ),
+                dimensionMapperService.toDimensionResponse(
+                    enrollmentAnalyticsDimensionsService.getAggregateDimensionsByProgramStageId( programId ) ),
                 dimensionsCriteria,
                 fields );
     }
@@ -245,7 +251,7 @@ public class EnrollmentAnalyticsController
         EnrollmentAnalyticsQueryCriteria criteria, DhisApiVersion apiVersion, boolean analyzeOnly )
     {
         EventDataQueryRequest request = EventDataQueryRequest.builder()
-            .fromCriteria( criteria )
+            .fromCriteria( (EnrollmentAnalyticsQueryCriteria) criteria.withQueryRequestType() )
             .program( program )
             .apiVersion( apiVersion )
             .build();

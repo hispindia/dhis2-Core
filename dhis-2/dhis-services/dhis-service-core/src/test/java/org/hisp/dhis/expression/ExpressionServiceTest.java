@@ -28,8 +28,10 @@
 package org.hisp.dhis.expression;
 
 import static java.util.Collections.singletonList;
+import static org.hisp.dhis.analytics.AggregationType.LAST;
 import static org.hisp.dhis.analytics.DataType.BOOLEAN;
 import static org.hisp.dhis.analytics.DataType.TEXT;
+import static org.hisp.dhis.common.DimensionItemType.DATA_ELEMENT;
 import static org.hisp.dhis.common.ReportingRateMetric.ACTUAL_REPORTS;
 import static org.hisp.dhis.common.ReportingRateMetric.ACTUAL_REPORTS_ON_TIME;
 import static org.hisp.dhis.common.ReportingRateMetric.EXPECTED_REPORTS;
@@ -43,13 +45,16 @@ import static org.hisp.dhis.expression.MissingValueStrategy.SKIP_IF_ANY_VALUE_MI
 import static org.hisp.dhis.expression.ParseType.INDICATOR_EXPRESSION;
 import static org.hisp.dhis.expression.ParseType.PREDICTOR_EXPRESSION;
 import static org.hisp.dhis.expression.ParseType.VALIDATION_RULE_EXPRESSION;
+import static org.hisp.dhis.util.DateUtils.parseDate;
 import static org.hisp.dhis.utils.Assertions.assertMapEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,6 +76,7 @@ import org.hisp.dhis.common.DimensionalItemObject;
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.common.IdentifiableObjectManager;
 import org.hisp.dhis.common.MapMap;
+import org.hisp.dhis.common.QueryModifiers;
 import org.hisp.dhis.common.ReportingRate;
 import org.hisp.dhis.common.ValueType;
 import org.hisp.dhis.constant.Constant;
@@ -107,7 +113,6 @@ import com.google.common.collect.Lists;
  */
 class ExpressionServiceTest extends DhisSpringTest
 {
-
     @Autowired
     private ExpressionService expressionService;
 
@@ -250,8 +255,6 @@ class ExpressionServiceTest extends DhisSpringTest
     private Map<DimensionalItemObject, Object> valueMap;
 
     private MapMap<Period, DimensionalItemObject, Object> samples;
-
-    private Map<String, Constant> constantMap;
 
     private static final Map<String, Integer> ORG_UNIT_COUNT_MAP = new ImmutableMap.Builder<String, Integer>()
         .put( "orgUnitGrpA", 1000000 ).put( "orgUnitGrpB", 2000000 ).build();
@@ -480,7 +483,6 @@ class ExpressionServiceTest extends DhisSpringTest
         constantB.setUid( "xxxxxxxx025" );
         constantService.saveConstant( constantA );
         constantService.saveConstant( constantB );
-        constantMap = constantService.getConstantMap();
         valueMap = new ImmutableMap.Builder<DimensionalItemObject, Object>().put( dataElementA, 3.0 )
             .put( dataElementB, 13.0 ).put( dataElementF, "Str" ).put( dataElementG, "2022-01-15" )
             .put( dataElementH, true ).put( dataElementOperandA, 5.0 ).put( dataElementOperandB, 15.0 )
@@ -523,11 +525,28 @@ class ExpressionServiceTest extends DhisSpringTest
         {
             return ex.getMessage();
         }
-        Map<DimensionalItemId, DimensionalItemObject> itemMap = new HashMap<>();
-        expressionService.getExpressionDimensionalItemMaps( expr, parseType, dataType, itemMap, itemMap );
-        Object value = expressionService.getExpressionValue( expr, parseType, itemMap, valueMap, constantMap,
-            ORG_UNIT_COUNT_MAP, null, DAYS, missingValueStrategy, null, TEST_SAMPLE_PERIODS, samples, dataType );
-        return result( value, itemMap.values() );
+
+        ExpressionInfo info = expressionService.getExpressionInfo( ExpressionParams.builder()
+            .expression( expr )
+            .parseType( parseType )
+            .dataType( dataType )
+            .build() );
+
+        ExpressionParams baseParams = expressionService.getBaseExpressionParams( info );
+
+        Object value = expressionService.getExpressionValue( baseParams.toBuilder()
+            .expression( expr )
+            .parseType( parseType )
+            .dataType( dataType )
+            .valueMap( valueMap )
+            .orgUnitCountMap( ORG_UNIT_COUNT_MAP )
+            .days( DAYS )
+            .missingValueStrategy( missingValueStrategy )
+            .samplePeriods( TEST_SAMPLE_PERIODS )
+            .periodValueMap( samples )
+            .build() );
+
+        return result( value, baseParams.getItemMap().values() );
     }
 
     /**
@@ -668,18 +687,30 @@ class ExpressionServiceTest extends DhisSpringTest
     }
 
     /**
+     * Gets the organisation unit group counts (if any) in an expression
+     *
+     * @param expr the expression string
+     * @return a string with org unit group uids (if any)
+     */
+    private List<OrganisationUnitGroup> getOrgUnitGroupCountGroups( String expr )
+    {
+        Indicator indicator = new Indicator();
+        indicator.setNumerator( expr );
+        return expressionService.getOrgUnitGroupCountGroups( List.of( indicator ) );
+    }
+
+    /**
      * Gets the organisation unit groups (if any) in an expression
      *
      * @param expr the expression string
      * @return a string with org unit gruop names (if any)
      */
-    private String getOrgUnitGroups( String expr )
+    private String getOrgUnitGroupIds( String expr )
     {
-        Set<OrganisationUnitGroup> orgUnitGroups = expressionService.getExpressionOrgUnitGroups( expr,
-            PREDICTOR_EXPRESSION );
-        List<String> orgUnitGroupNames = orgUnitGroups.stream().map( BaseIdentifiableObject::getName ).sorted()
-            .collect( Collectors.toList() );
-        return String.join( ", ", orgUnitGroupNames );
+        List<String> uids = new ArrayList<>( expressionService.getExpressionOrgUnitGroupIds( expr,
+            PREDICTOR_EXPRESSION ) );
+        Collections.sort( uids );
+        return String.join( ", ", uids );
     }
 
     /**
@@ -700,9 +731,20 @@ class ExpressionServiceTest extends DhisSpringTest
      * @param parseType type of expression to parse
      * @return the validation outcome
      */
-    ExpressionValidationOutcome validity( String expr, ParseType parseType )
+    private ExpressionValidationOutcome validity( String expr, ParseType parseType )
     {
         return expressionService.expressionIsValid( expr, parseType );
+    }
+
+    private DimensionalItemId parseItemId( String expr )
+    {
+        expressionService.getExpressionDescription( expr, INDICATOR_EXPRESSION, DataType.NUMERIC );
+
+        Set<DimensionalItemId> ids = expressionService.getExpressionDimensionalItemIds( expr, INDICATOR_EXPRESSION );
+
+        assertEquals( 1, ids.size() );
+
+        return ids.iterator().next();
     }
 
     // -------------------------------------------------------------------------
@@ -1120,14 +1162,33 @@ class ExpressionServiceTest extends DhisSpringTest
     }
 
     @Test
-    void testGetOrgUnitGroups()
+    void testGetOrgUnitGroupCountGroups()
     {
-        assertEquals( "", getOrgUnitGroups( "#{dataElemenA} " ) );
-        assertEquals( "OugA", getOrgUnitGroups( "OUG{orgUnitGrpA}" ) );
-        assertEquals( "OugA, OugB, OugC",
-            getOrgUnitGroups( "OUG{orgUnitGrpA} + OUG{orgUnitGrpB} + OUG{orgUnitGrpC}" ) );
-        assertEquals( "OugA, OugB, OugC",
-            getOrgUnitGroups( "if(orgUnit.group(orgUnitGrpA,orgUnitGrpB,orgUnitGrpC),1,0)" ) );
+        List<OrganisationUnitGroup> ougs;
+
+        ougs = getOrgUnitGroupCountGroups( "#{dataElemenA}" );
+        assertEquals( 0, ougs.size() );
+
+        ougs = getOrgUnitGroupCountGroups( "OUG{orgUnitGrpA}" );
+        assertEquals( 1, ougs.size() );
+        assertTrue( ougs.contains( orgUnitGroupA ) );
+
+        ougs = getOrgUnitGroupCountGroups( "OUG{orgUnitGrpA} + OUG{orgUnitGrpB} + OUG{orgUnitGrpC}" );
+        assertEquals( 3, ougs.size() );
+        assertTrue( ougs.contains( orgUnitGroupA ) );
+        assertTrue( ougs.contains( orgUnitGroupB ) );
+        assertTrue( ougs.contains( orgUnitGroupC ) );
+    }
+
+    @Test
+    void testGetOrgUnitGroupIds()
+    {
+        assertEquals( "", getOrgUnitGroupIds( "#{dataElemenA} " ) );
+        assertEquals( "orgUnitGrpA", getOrgUnitGroupIds( "if(orgUnit.group(orgUnitGrpA),1,0)" ) );
+        assertEquals( "orgUnitGrpA, orgUnitGrpB",
+            getOrgUnitGroupIds( "if(orgUnit.group(orgUnitGrpA) && orgUnit.group(orgUnitGrpB),1,0)" ) );
+        assertEquals( "orgUnitGrpA, orgUnitGrpB, orgUnitGrpC",
+            getOrgUnitGroupIds( "if(orgUnit.group(orgUnitGrpA,orgUnitGrpB,orgUnitGrpC),1,0)" ) );
     }
 
     @Test
@@ -1164,7 +1225,10 @@ class ExpressionServiceTest extends DhisSpringTest
         assertNull( error( "#{dataElemenF}" ) );
         assertNull( error( "#{dataElemenG}" ) );
         assertNull( error( "#{dataElemenH}" ) );
-        assertNull( error( "if(A, 1, 0)" ) );
+        assertNull( error( "#{dataElemenA}.aggregationType(NOT_AN_AGGREGATION_TYPE)" ) );
+        assertNull( error( "#{dataElemenA}.periodOffset('notANumber')" ) );
+        assertNull( error( "#{dataElemenA}.maxDate(2022-13-01)" ) );
+        assertNull( error( "#{dataElemenA}.minDate(notADate)" ) );
     }
 
     // -------------------------------------------------------------------------
@@ -1225,7 +1289,7 @@ class ExpressionServiceTest extends DhisSpringTest
         indicatorB.setNumerator( "OUG{orgUnitGrpC}" );
         indicatorB.setDenominator( null );
         List<Indicator> indicators = Arrays.asList( indicatorA, indicatorB );
-        Set<OrganisationUnitGroup> items = expressionService.getIndicatorOrgUnitGroups( indicators );
+        List<OrganisationUnitGroup> items = expressionService.getOrgUnitGroupCountGroups( indicators );
         assertEquals( 3, items.size() );
         List<String> nameList = items.stream().map( BaseIdentifiableObject::getName ).sorted()
             .collect( Collectors.toList() );
@@ -1248,7 +1312,7 @@ class ExpressionServiceTest extends DhisSpringTest
         Map<DimensionalItemId, DimensionalItemObject> itemMap = expressionService
             .getIndicatorDimensionalItemMap( indicators );
         IndicatorValue value = expressionService.getIndicatorValueObject( indicatorA, singletonList( period ), itemMap,
-            valueMap, constantMap, null );
+            valueMap, null );
         assertEquals( value.getNumeratorValue(), DELTA, 2.5 );
         assertEquals( value.getDenominatorValue(), DELTA, 5.0 );
         assertEquals( value.getFactor(), DELTA, 100.0 );
@@ -1256,13 +1320,48 @@ class ExpressionServiceTest extends DhisSpringTest
         assertEquals( value.getDivisor(), DELTA, 1 );
         assertEquals( value.getValue(), DELTA, 50.0 );
         value = expressionService.getIndicatorValueObject( indicatorB, singletonList( period ), itemMap, valueMap,
-            constantMap, null );
+            null );
         assertEquals( value.getNumeratorValue(), DELTA, 20.0 );
         assertEquals( value.getDenominatorValue(), DELTA, 5.0 );
         assertEquals( value.getFactor(), DELTA, 36500.0 );
         assertEquals( value.getMultiplier(), DELTA, 36500 );
         assertEquals( value.getDivisor(), DELTA, 1 );
         assertEquals( value.getValue(), DELTA, 146000.0 );
+    }
+
+    @Test
+    void testIndicatorFunctionParsing()
+    {
+        DimensionalItemId id;
+
+        id = new DimensionalItemId( DATA_ELEMENT, "dataElemenA",
+            (QueryModifiers) null );
+        assertEquals( id, parseItemId( "#{dataElemenA}" ) );
+
+        id = new DimensionalItemId( DATA_ELEMENT, "dataElemenA",
+            QueryModifiers.builder().aggregationType( LAST ).build() );
+        assertEquals( id, parseItemId( "#{dataElemenA}.aggregationType(LAST)" ) );
+
+        id = new DimensionalItemId( DATA_ELEMENT, "dataElemenA",
+            QueryModifiers.builder().periodOffset( 10 ).build() );
+        assertEquals( id, parseItemId( "#{dataElemenA}.periodOffset(10)" ) );
+
+        id = new DimensionalItemId( DATA_ELEMENT, "dataElemenA",
+            QueryModifiers.builder().periodOffset( -5 ).build() );
+        assertEquals( id, parseItemId( "#{dataElemenA}.periodOffset(-2).periodOffset(-3)" ) );
+
+        id = new DimensionalItemId( DATA_ELEMENT, "dataElemenA",
+            QueryModifiers.builder().minDate( parseDate( "2020-01-01" ) ).build() );
+        assertEquals( id, parseItemId( "#{dataElemenA}.minDate(2020-1-1)" ) );
+
+        id = new DimensionalItemId( DATA_ELEMENT, "dataElemenA",
+            QueryModifiers.builder().maxDate( parseDate( "2021-12-31" ) ).build() );
+        assertEquals( id, parseItemId( "#{dataElemenA}.maxDate(2021-12-31)" ) );
+
+        id = new DimensionalItemId( DATA_ELEMENT, "dataElemenA",
+            QueryModifiers.builder().periodOffset( -3 ).minDate( parseDate( "2021-04-01" ) )
+                .maxDate( parseDate( "2021-04-30" ) ).build() );
+        assertEquals( id, parseItemId( "#{dataElemenA}.periodOffset(-3).minDate(2021-04-1).maxDate(2021-4-30)" ) );
     }
 
     private Indicator createIndicator( char uniqueCharacter, IndicatorType type, String numerator )

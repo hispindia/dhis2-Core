@@ -35,11 +35,12 @@ import static org.hisp.dhis.analytics.table.JdbcEventAnalyticsTableManager.OU_GE
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.ANALYTICS_TBL_ALIAS;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.DATE_PERIOD_STRUCT_ALIAS;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.ORG_UNIT_STRUCT_ALIAS;
+import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.encode;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.quote;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.quoteAlias;
+import static org.hisp.dhis.common.AnalyticsDateFilter.SCHEDULED_DATE;
 import static org.hisp.dhis.common.DimensionalObject.ORGUNIT_DIM_ID;
 import static org.hisp.dhis.common.IdentifiableObjectUtils.getUids;
-import static org.hisp.dhis.common.QueryOperator.IN;
 import static org.hisp.dhis.commons.util.TextUtils.getQuotedCommaDelimitedString;
 import static org.hisp.dhis.feedback.ErrorCode.E7131;
 import static org.hisp.dhis.feedback.ErrorCode.E7132;
@@ -68,7 +69,6 @@ import org.hisp.dhis.common.DimensionalItemObject;
 import org.hisp.dhis.common.DimensionalObject;
 import org.hisp.dhis.common.Grid;
 import org.hisp.dhis.common.GridHeader;
-import org.hisp.dhis.common.InQueryFilter;
 import org.hisp.dhis.common.OrganisationUnitSelectionMode;
 import org.hisp.dhis.common.QueryFilter;
 import org.hisp.dhis.common.QueryItem;
@@ -131,7 +131,7 @@ public class JdbcEventAnalyticsManager
 
         if ( params.analyzeOnly() )
         {
-            executionPlanStore.addExecutionPlan( params.getAnalyzeOrderId(), sql );
+            executionPlanStore.addExecutionPlan( params.getExplainOrderId(), sql );
         }
         else
         {
@@ -237,7 +237,7 @@ public class JdbcEventAnalyticsManager
 
             if ( params.analyzeOnly() )
             {
-                executionPlanStore.addExecutionPlan( params.getAnalyzeOrderId(), sql );
+                executionPlanStore.addExecutionPlan( params.getExplainOrderId(), sql );
             }
             else
             {
@@ -331,7 +331,13 @@ public class JdbcEventAnalyticsManager
     protected String getSelectClause( EventQueryParams params )
     {
         ImmutableList.Builder<String> cols = new ImmutableList.Builder<String>()
-            .add( "psi", "ps", "executiondate", "storedby", "lastupdated" );
+            .add( "psi", "ps", "executiondate", "storedby", "createdbydisplayname",
+                "lastupdatedbydisplayname", "lastupdated" );
+
+        if ( params.containsScheduledDatePeriod() )
+        {
+            cols.add( SCHEDULED_DATE.getTimeField().getField() );
+        }
 
         if ( params.getProgram().isRegistration() )
         {
@@ -447,15 +453,18 @@ public class JdbcEventAnalyticsManager
         }
 
         // ---------------------------------------------------------------------
-        // Organisation unit group sets
+        // Organisation unit group sets, categories and category option group
+        // set
         // ---------------------------------------------------------------------
 
         List<DimensionalObject> dynamicDimensions = params.getDimensionsAndFilters(
-            Sets.newHashSet( DimensionType.ORGANISATION_UNIT_GROUP_SET, DimensionType.CATEGORY ) );
+            Sets.newHashSet( DimensionType.ORGANISATION_UNIT_GROUP_SET, DimensionType.CATEGORY,
+                DimensionType.CATEGORY_OPTION_GROUP_SET ) );
 
         for ( DimensionalObject dim : dynamicDimensions )
         {
             String col = quoteAlias( dim.getDimensionName() );
+
             sql += hlp.whereAnd() + " " + col + OPEN_IN
                 + getQuotedCommaDelimitedString( getUids( dim.getItems() ) ) + ") ";
         }
@@ -473,29 +482,7 @@ public class JdbcEventAnalyticsManager
         // Query items and filters
         // ---------------------------------------------------------------------
 
-        for ( QueryItem item : params.getItems() )
-        {
-            if ( item.hasFilter() )
-            {
-                for ( QueryFilter filter : item.getFilters() )
-                {
-                    String field = getSelectSql( filter, item, params.getEarliestStartDate(),
-                        params.getLatestEndDate() );
-
-                    if ( IN.equals( filter.getOperator() ) )
-                    {
-                        InQueryFilter inQueryFilter = new InQueryFilter( field,
-                            statementBuilder.encode( filter.getFilter(), false ), item.isText() );
-                        sql += hlp.whereAnd() + " " + inQueryFilter.getSqlFilter();
-                    }
-                    else
-                    {
-                        sql += hlp.whereAnd() + " " + field + " " + filter.getSqlOperator() + " "
-                            + getSqlFilter( filter, item ) + " ";
-                    }
-                }
-            }
-        }
+        sql += getItemsSql( params, hlp );
 
         for ( QueryItem item : params.getItemFilters() )
         {
@@ -542,13 +529,15 @@ public class JdbcEventAnalyticsManager
         if ( params.hasProgramStatus() )
         {
             sql += hlp.whereAnd() + " pistatus in ("
-                + params.getProgramStatus().stream().map( p -> "'" + p.name() + "'" ).collect( joining( "," ) ) + ") ";
+                + params.getProgramStatus().stream().map( p -> encode( p.name(), true ) ).collect( joining( "," ) )
+                + ") ";
         }
 
         if ( params.hasEventStatus() )
         {
             sql += hlp.whereAnd() + " psistatus in ("
-                + params.getEventStatus().stream().map( e -> "'" + e.name() + "'" ).collect( joining( "," ) ) + ") ";
+                + params.getEventStatus().stream().map( e -> encode( e.name(), true ) ).collect( joining( "," ) )
+                + ") ";
         }
 
         if ( params.isCoordinatesOnly() || params.isGeometryOnly() )

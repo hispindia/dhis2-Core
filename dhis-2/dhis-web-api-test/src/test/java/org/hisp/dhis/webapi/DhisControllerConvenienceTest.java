@@ -27,7 +27,9 @@
  */
 package org.hisp.dhis.webapi;
 
+import static org.hisp.dhis.utils.JavaToJson.singleToDoubleQuotes;
 import static org.hisp.dhis.webapi.utils.WebClientUtils.failOnException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 
 import org.hisp.dhis.jsontree.JsonResponse;
@@ -86,8 +88,12 @@ public abstract class DhisControllerConvenienceTest extends DhisMockMvcControlle
     {
         userService = _userService;
         mvc = MockMvcBuilders.webAppContextSetup( webApplicationContext ).build();
+
+        superUser = createAdminUser( "ALL" );
+        switchContextToUser( superUser );
+        currentUser = superUser;
+
         TestUtils.executeStartupRoutines( webApplicationContext );
-        superUser = switchToNewUser( null, "ALL" );
     }
 
     protected final String getSuperuserUid()
@@ -113,7 +119,8 @@ public abstract class DhisControllerConvenienceTest extends DhisMockMvcControlle
             // we need to be an admin to be allowed to create user groups
             switchContextToUser( superUser );
         }
-        currentUser = currentUser == null ? createAdminUser( authorities ) : createUser( username, authorities );
+
+        currentUser = createUser( username, authorities );
         switchContextToUser( currentUser );
         return currentUser;
     }
@@ -136,5 +143,10 @@ public abstract class DhisControllerConvenienceTest extends DhisMockMvcControlle
     {
         return failOnException( () -> new HttpResponse(
             toResponse( mvc.perform( request.session( session ) ).andReturn().getResponse() ) ) );
+    }
+
+    protected final void assertJson( String expected, HttpResponse actual )
+    {
+        assertEquals( singleToDoubleQuotes( expected ), actual.content().toString() );
     }
 }

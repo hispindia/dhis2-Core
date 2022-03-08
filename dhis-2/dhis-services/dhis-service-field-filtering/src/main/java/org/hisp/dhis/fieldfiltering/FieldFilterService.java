@@ -89,6 +89,12 @@ public class FieldFilterService
         this.jsonMapper = configureFieldFilterObjectMapper( jsonMapper );
     }
 
+    public <T> List<ObjectNode> toObjectNodes( List<T> objects, List<String> filters )
+    {
+        FieldFilterParams<T> params = FieldFilterParams.of( objects, filters );
+        return toObjectNodes( params );
+    }
+
     public List<ObjectNode> toObjectNodes( FieldFilterParams<?> params )
     {
         List<ObjectNode> objectNodes = new ArrayList<>();
@@ -106,7 +112,10 @@ public class FieldFilterService
         fieldPathHelper.apply( fieldPaths, HibernateProxyUtils.getRealClass( firstObject ) );
 
         SimpleFilterProvider filterProvider = getSimpleFilterProvider( fieldPaths, params.isSkipSharing() );
-        ObjectMapper objectMapper = jsonMapper.setFilterProvider( filterProvider );
+
+        // only set filter provider on a local copy so that we don't affect
+        // other object mappers (running across other threads)
+        ObjectMapper objectMapper = jsonMapper.copy().setFilterProvider( filterProvider );
 
         Map<String, List<FieldTransformer>> fieldTransformers = getTransformers( fieldPaths );
 
@@ -144,6 +153,9 @@ public class FieldFilterService
         return objectMapper;
     }
 
+    /**
+     * Recursively applies FieldTransformers to a Json node.
+     */
     private void applyTransformers( JsonNode node, JsonNode parent, String path,
         Map<String, List<FieldTransformer>> fieldTransformers )
     {

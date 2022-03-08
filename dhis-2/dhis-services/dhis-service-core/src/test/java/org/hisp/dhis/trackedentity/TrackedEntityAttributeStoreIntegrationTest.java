@@ -27,8 +27,10 @@
  */
 package org.hisp.dhis.trackedentity;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Set;
@@ -42,14 +44,14 @@ import org.hisp.dhis.program.ProgramService;
 import org.hisp.dhis.program.ProgramTrackedEntityAttribute;
 import org.hisp.dhis.security.acl.AccessStringHelper;
 import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeTableManager;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * @author Ameen
  */
-public class TrackedEntityAttributeStoreIntegrationTest
+class TrackedEntityAttributeStoreIntegrationTest
     extends
     IntegrationTestBase
 {
@@ -161,7 +163,7 @@ public class TrackedEntityAttributeStoreIntegrationTest
     }
 
     @Test
-    public void testGetAllIndexableAttributes()
+    void testGetAllIndexableAttributes()
     {
         attributeService.addTrackedEntityAttribute( attributeW );
         attributeService.addTrackedEntityAttribute( attributeY );
@@ -191,7 +193,7 @@ public class TrackedEntityAttributeStoreIntegrationTest
     }
 
     @Test
-    public void testCreateTrigramIndex()
+    void testCreateTrigramIndex()
     {
         attributeService.addTrackedEntityAttribute( attributeW );
         trackedEntityAttributeTableManager.createTrigramIndex( attributeW );

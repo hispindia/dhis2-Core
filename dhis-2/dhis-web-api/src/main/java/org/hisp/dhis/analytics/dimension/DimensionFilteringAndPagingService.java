@@ -44,7 +44,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import org.hisp.dhis.analytics.dimensions.AnalyticsDimensionsPagingWrapper;
-import org.hisp.dhis.common.BaseIdentifiableObject;
 import org.hisp.dhis.common.DimensionsCriteria;
 import org.hisp.dhis.common.Pager;
 import org.hisp.dhis.fieldfiltering.FieldFilterParams;
@@ -62,25 +61,23 @@ public class DimensionFilteringAndPagingService
     @NonNull
     private final FieldFilterService fieldFilterService;
 
-    private final DimensionMapperService dimensionMapperService;
-
     private static final Comparator<DimensionResponse> DEFAULT_COMPARATOR = comparing( DimensionResponse::getCreated,
         nullsFirst( naturalOrder() ) );
 
     private static final Map<String, Comparator<DimensionResponse>> ORDERING_MAP = Map.of(
         "lastUpdated", comparing( DimensionResponse::getLastUpdated, nullsFirst( naturalOrder() ) ),
         "code", comparing( DimensionResponse::getCode, nullsFirst( naturalOrder() ) ),
-        "uid", comparing( DimensionResponse::getId, nullsFirst( naturalOrder() ) ),
+        "uid", comparing( DimensionResponse::getUid, nullsFirst( naturalOrder() ) ),
         "id", comparing( DimensionResponse::getId, nullsFirst( naturalOrder() ) ),
-        "name", comparing( DimensionResponse::getName, nullsFirst( naturalOrder() ) ) );
+        "name", comparing( DimensionResponse::getName, nullsFirst( naturalOrder() ) ),
+        "dimensionType", comparing( DimensionResponse::getDimensionType, nullsFirst( naturalOrder() ) ),
+        "displayName", comparing( DimensionResponse::getDisplayName, nullsFirst( naturalOrder() ) ) );
 
     public AnalyticsDimensionsPagingWrapper<ObjectNode> pageAndFilter(
-        Collection<BaseIdentifiableObject> dimensions,
+        Collection<DimensionResponse> dimensionResponses,
         DimensionsCriteria dimensionsCriteria,
         List<String> fields )
     {
-        Collection<DimensionResponse> dimensionResponses = dimensionMapperService.toDimensionResponse( dimensions );
-
         AnalyticsDimensionsPagingWrapper<ObjectNode> pagingWrapper = new AnalyticsDimensionsPagingWrapper<>();
 
         List<DimensionResponse> filteredDimensions = filterStream( dimensionResponses.stream(),
