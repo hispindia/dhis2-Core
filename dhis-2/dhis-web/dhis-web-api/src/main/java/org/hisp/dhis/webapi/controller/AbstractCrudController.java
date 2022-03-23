@@ -35,6 +35,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -65,11 +66,10 @@ import org.hisp.dhis.dxf2.metadata.MetadataImportService;
 import org.hisp.dhis.dxf2.metadata.collection.CollectionService;
 import org.hisp.dhis.dxf2.metadata.feedback.ImportReport;
 import org.hisp.dhis.dxf2.metadata.feedback.ImportReportMode;
+import org.hisp.dhis.dxf2.metadata.objectbundle.validation.TranslationsCheck;
 import org.hisp.dhis.dxf2.webmessage.WebMessage;
 import org.hisp.dhis.dxf2.webmessage.WebMessageException;
 import org.hisp.dhis.dxf2.webmessage.WebMessageUtils;
-import org.hisp.dhis.feedback.ErrorCode;
-import org.hisp.dhis.feedback.ErrorReport;
 import org.hisp.dhis.feedback.ObjectReport;
 import org.hisp.dhis.feedback.Status;
 import org.hisp.dhis.feedback.TypeReport;
@@ -229,6 +229,9 @@ public abstract class AbstractCrudController<T extends IdentifiableObject>
     @Autowired
     protected SharingService sharingService;
 
+    @Autowired
+    private TranslationsCheck translationsCheck;
+
     // --------------------------------------------------------------------------
     // GET
     // --------------------------------------------------------------------------
@@ -386,7 +389,8 @@ public abstract class AbstractCrudController<T extends IdentifiableObject>
     }
 
     @RequestMapping( value = "/{uid}/translations", method = RequestMethod.PUT )
-    public void replaceTranslations(
+    @ResponseStatus( HttpStatus.NO_CONTENT )
+    public WebMessage replaceTranslations(
         @PathVariable( "uid" ) String pvUid, @RequestParam Map<String, String> rpParameters,
         HttpServletRequest request, HttpServletResponse response )
         throws Exception
@@ -399,7 +403,7 @@ public abstract class AbstractCrudController<T extends IdentifiableObject>
             throw new WebMessageException( WebMessageUtils.notFound( getEntityClass(), pvUid ) );
         }
 
-        T persistedObject = entities.get( 0 );
+        BaseIdentifiableObject persistedObject = (BaseIdentifiableObject) entities.get( 0 );
 
         User user = currentUserService.getCurrentUser();
 
@@ -408,55 +412,22 @@ public abstract class AbstractCrudController<T extends IdentifiableObject>
             throw new UpdateAccessDeniedException( "You don't have the proper permissions to update this object." );
         }
 
-        T object = renderService.fromJson( request.getInputStream(), getEntityClass() );
+        T inputObject = renderService.fromJson( request.getInputStream(), getEntityClass() );
 
-        TypeReport typeReport = new TypeReport( Translation.class );
+        HashSet<Translation> translations = new HashSet<>( inputObject.getTranslations() );
 
-        List<Translation> objectTranslations = Lists.newArrayList( object.getTranslations() );
+        persistedObject.setTranslations( translations );
+        List<ObjectReport> objectReports = new ArrayList<>();
+        translationsCheck.run( persistedObject, getEntityClass(), getSchema(), 0,
+            objectReport -> objectReports.add( objectReport ) );
 
-        for ( int idx = 0; idx < object.getTranslations().size(); idx++ )
+        if ( objectReports.size() == 0 )
         {
-            ObjectReport objectReport = new ObjectReport( Translation.class, idx );
-            Translation translation = objectTranslations.get( idx );
-
-            if ( translation.getLocale() == null )
-            {
-                objectReport.addErrorReport(
-                    new ErrorReport( Translation.class, ErrorCode.E4000, "locale" ).setErrorKlass( getEntityClass() ) );
-            }
-
-            if ( translation.getProperty() == null )
-            {
-                objectReport.addErrorReport( new ErrorReport( Translation.class, ErrorCode.E4000, "property" )
-                    .setErrorKlass( getEntityClass() ) );
-            }
-
-            if ( translation.getValue() == null )
-            {
-                objectReport.addErrorReport(
-                    new ErrorReport( Translation.class, ErrorCode.E4000, "value" ).setErrorKlass( getEntityClass() ) );
-            }
-
-            typeReport.addObjectReport( objectReport );
-
-            if ( !objectReport.isEmpty() )
-            {
-                typeReport.getStats().incIgnored();
-            }
+            manager.update( persistedObject, user );
+            return null;
         }
 
-        if ( !typeReport.getErrorReports().isEmpty() )
-        {
-            WebMessage webMessage = WebMessageUtils.typeReport( typeReport );
-            webMessageService.send( webMessage, response, request );
-            return;
-        }
-
-        validateAndThrowErrors( () -> schemaValidator.validate( persistedObject ) );
-        manager.updateTranslations( persistedObject, object.getTranslations() );
-        manager.update( persistedObject );
-
-        response.setStatus( HttpServletResponse.SC_NO_CONTENT );
+        return WebMessageUtils.objectReport( objectReports.get( 0 ) );
     }
 
     @RequestMapping( value = "/{uid}", method = RequestMethod.PATCH )
