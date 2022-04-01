@@ -34,9 +34,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class EventDataQueryRequestTest
 {
+
+    public static boolean[] totalPagesFlags()
+    {
+        return new boolean[] { false, true };
+    }
 
     @Test
     void testDimensionRefactoringOnlyWhenQuery()
@@ -49,13 +56,13 @@ public class EventDataQueryRequestTest
             .fromCriteria( criteria )
             .build();
 
-        assertEquals( eventDataQueryRequest.getDimension(), Set.of( "pe:TODAY" ) );
+        assertEquals( eventDataQueryRequest.getDimension(), Set.of( Set.of( "pe:TODAY" ) ) );
 
         eventDataQueryRequest = EventDataQueryRequest.builder()
-            .fromCriteria( (EventsAnalyticsQueryCriteria) criteria.withQueryRequestType() )
+            .fromCriteria( (EventsAnalyticsQueryCriteria) criteria.withQueryEndpointAction() )
             .build();
 
-        assertEquals( eventDataQueryRequest.getDimension(), Set.of( "pe:TODAY;YESTERDAY:INCIDENT_DATE" ) );
+        assertEquals( eventDataQueryRequest.getDimension(), Set.of( Set.of( "pe:TODAY;YESTERDAY:INCIDENT_DATE" ) ) );
 
         criteria = new EventsAnalyticsQueryCriteria();
         criteria.setIncidentDate( "TODAY" );
@@ -68,10 +75,10 @@ public class EventDataQueryRequestTest
         assertEquals( eventDataQueryRequest.getDimension(), Collections.emptySet() );
 
         eventDataQueryRequest = EventDataQueryRequest.builder()
-            .fromCriteria( (EventsAnalyticsQueryCriteria) criteria.withQueryRequestType() )
+            .fromCriteria( (EventsAnalyticsQueryCriteria) criteria.withQueryEndpointAction() )
             .build();
 
-        assertEquals( eventDataQueryRequest.getDimension(), Set.of( "pe:TODAY:INCIDENT_DATE" ) );
+        assertEquals( eventDataQueryRequest.getDimension(), Set.of( Set.of( "pe:TODAY:INCIDENT_DATE" ) ) );
 
     }
 
@@ -84,12 +91,13 @@ public class EventDataQueryRequestTest
         criteria.setDimension( new HashSet<>( Set.of( "pe:LAST_MONTH" ) ) );
 
         EventDataQueryRequest eventDataQueryRequest = EventDataQueryRequest.builder()
-            .fromCriteria( (EventsAnalyticsQueryCriteria) criteria.withQueryRequestType() )
+            .fromCriteria( (EventsAnalyticsQueryCriteria) criteria.withQueryEndpointAction() )
             .build();
 
         assertEquals( eventDataQueryRequest.getDimension(),
             Set.of(
-                "pe:LAST_MONTH;LAST_YEAR:EVENT_DATE;202111:ENROLLMENT_DATE;2021:ENROLLMENT_DATE;TODAY:ENROLLMENT_DATE" ) );
+                Set.of(
+                    "pe:LAST_MONTH;LAST_YEAR:EVENT_DATE;202111:ENROLLMENT_DATE;2021:ENROLLMENT_DATE;TODAY:ENROLLMENT_DATE" ) ) );
 
     }
 
@@ -102,11 +110,25 @@ public class EventDataQueryRequestTest
         criteria.setDimension( new HashSet<>( Set.of( "pe:LAST_MONTH" ) ) );
 
         EventDataQueryRequest eventDataQueryRequest = EventDataQueryRequest.builder()
-            .fromCriteria( (EnrollmentAnalyticsQueryCriteria) criteria.withQueryRequestType() )
+            .fromCriteria( (EnrollmentAnalyticsQueryCriteria) criteria.withQueryEndpointAction() )
             .build();
 
         assertEquals( eventDataQueryRequest.getDimension(),
             Set.of(
-                "pe:LAST_MONTH;LAST_YEAR:ENROLLMENT_DATE;202111:INCIDENT_DATE;2021:INCIDENT_DATE;TODAY:INCIDENT_DATE" ) );
+                Set.of(
+                    "pe:LAST_MONTH;LAST_YEAR:ENROLLMENT_DATE;202111:INCIDENT_DATE;2021:INCIDENT_DATE;TODAY:INCIDENT_DATE" ) ) );
+    }
+
+    @ParameterizedTest
+    @MethodSource( value = "totalPagesFlags" )
+    void totalPagesShouldBeSameInCriteriaAndRequestWhenCalled( boolean totalPages )
+    {
+        EnrollmentAnalyticsQueryCriteria criteria = new EnrollmentAnalyticsQueryCriteria();
+
+        criteria.setTotalPages( totalPages );
+
+        assertEquals( EventDataQueryRequest.builder()
+            .fromCriteria( criteria )
+            .build().isTotalPages(), totalPages );
     }
 }

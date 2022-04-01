@@ -52,7 +52,10 @@ import org.hisp.dhis.common.DimensionsCriteria;
 import org.hisp.dhis.common.EventDataQueryRequest;
 import org.hisp.dhis.common.EventsAnalyticsQueryCriteria;
 import org.hisp.dhis.common.Grid;
+import org.hisp.dhis.common.RequestTypeAware;
 import org.hisp.dhis.common.cache.CacheStrategy;
+import org.hisp.dhis.setting.SettingKey;
+import org.hisp.dhis.setting.SystemSettingManager;
 import org.hisp.dhis.system.grid.GridUtils;
 import org.hisp.dhis.webapi.mvc.annotation.ApiVersion;
 import org.hisp.dhis.webapi.utils.ContextUtils;
@@ -97,6 +100,9 @@ public class EventAnalyticsController
 
     @NotNull
     private final DimensionMapperService dimensionMapperService;
+
+    @NotNull
+    private final SystemSettingManager systemSettingManager;
 
     // -------------------------------------------------------------------------
     // Aggregate
@@ -420,12 +426,25 @@ public class EventAnalyticsController
     private EventQueryParams getEventQueryParams( String program, EventsAnalyticsQueryCriteria criteria,
         DhisApiVersion apiVersion, boolean analyzeOnly )
     {
+        checkAndMaybeModifyCriteria( criteria );
+
         EventDataQueryRequest request = EventDataQueryRequest.builder()
-            .fromCriteria( (EventsAnalyticsQueryCriteria) criteria.withQueryRequestType() )
+            .fromCriteria( (EventsAnalyticsQueryCriteria) criteria.withQueryEndpointAction()
+                .withEndpointItem( RequestTypeAware.EndpointItem.EVENT ) )
             .program( program )
             .apiVersion( apiVersion ).build();
 
         return eventDataService.getFromRequest( request, analyzeOnly );
+    }
+
+    private void checkAndMaybeModifyCriteria( EventsAnalyticsQueryCriteria criteria )
+    {
+        Integer analyticsMaxLimit = systemSettingManager.getIntSetting( SettingKey.ANALYTICS_MAX_LIMIT );
+
+        if ( criteria.getPageSize() != null && criteria.getPageSize() > analyticsMaxLimit )
+        {
+            criteria.setPageSize( analyticsMaxLimit );
+        }
     }
 
     private void configResponseForJson( HttpServletResponse response )

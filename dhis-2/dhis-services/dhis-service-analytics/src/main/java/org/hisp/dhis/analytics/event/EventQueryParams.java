@@ -72,6 +72,7 @@ import org.hisp.dhis.common.FallbackCoordinateFieldType;
 import org.hisp.dhis.common.IdScheme;
 import org.hisp.dhis.common.OrganisationUnitSelectionMode;
 import org.hisp.dhis.common.QueryItem;
+import org.hisp.dhis.common.RequestTypeAware;
 import org.hisp.dhis.commons.collection.ListUtils;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.event.EventStatus;
@@ -179,6 +180,11 @@ public class EventQueryParams
     private boolean paging;
 
     /**
+     * The total pages flag.
+     */
+    private boolean totalPages;
+
+    /**
      * The value sort order.
      */
     private SortOrder sortOrder;
@@ -276,6 +282,15 @@ public class EventQueryParams
     @Getter
     protected Map<AnalyticsDateFilter, DateRange> dateRangeByDateFilter = new HashMap<>();
 
+    /**
+     * flag to enable enhanced OR conditions
+     */
+    @Getter
+    protected boolean enhancedCondition = false;
+
+    @Getter
+    protected RequestTypeAware.EndpointItem endpointItem;
+
     // -------------------------------------------------------------------------
     // Constructors
     // -------------------------------------------------------------------------
@@ -321,6 +336,7 @@ public class EventQueryParams
         params.page = this.page;
         params.pageSize = this.pageSize;
         params.paging = this.paging;
+        params.totalPages = this.totalPages;
         params.sortOrder = this.sortOrder;
         params.limit = this.limit;
         params.outputType = this.outputType;
@@ -343,6 +359,8 @@ public class EventQueryParams
         params.explainOrderId = this.explainOrderId;
         params.dateRangeByDateFilter = this.dateRangeByDateFilter;
         params.skipPartitioning = this.skipPartitioning;
+        params.enhancedCondition = this.enhancedCondition;
+        params.endpointItem = this.endpointItem;
         return params;
     }
 
@@ -821,7 +839,12 @@ public class EventQueryParams
 
     public boolean isPaging()
     {
-        return paging || page != null || pageSize != null;
+        return paging && (page != null || pageSize != null);
+    }
+
+    public boolean isTotalPages()
+    {
+        return totalPages;
     }
 
     public int getPageWithDefault()
@@ -1332,6 +1355,12 @@ public class EventQueryParams
             return this;
         }
 
+        public Builder withTotalPages( boolean totalPages )
+        {
+            this.params.totalPages = totalPages;
+            return this;
+        }
+
         public Builder withPartitions( Partitions partitions )
         {
             this.params.partitions = partitions;
@@ -1507,9 +1536,21 @@ public class EventQueryParams
             this.params.skipPartitioning = skipPartitioning;
         }
 
+        public Builder withEnhancedConditions( boolean enhancedConditions )
+        {
+            this.params.enhancedCondition = enhancedConditions;
+            return this;
+        }
+
         public EventQueryParams build()
         {
             return params;
+        }
+
+        public Builder withEndpointItem( RequestTypeAware.EndpointItem endpointItem )
+        {
+            this.params.endpointItem = endpointItem;
+            return this;
         }
     }
 }

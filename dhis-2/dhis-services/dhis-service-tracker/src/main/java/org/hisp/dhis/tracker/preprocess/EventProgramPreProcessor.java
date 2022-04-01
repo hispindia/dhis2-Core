@@ -27,17 +27,20 @@
  */
 package org.hisp.dhis.tracker.preprocess;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.util.Strings;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramStage;
 import org.hisp.dhis.tracker.TrackerIdentifier;
 import org.hisp.dhis.tracker.bundle.TrackerBundle;
 import org.hisp.dhis.tracker.domain.Event;
+import org.hisp.dhis.tracker.preheat.TrackerPreheat;
 import org.springframework.stereotype.Component;
 
 /**
@@ -55,13 +58,13 @@ public class EventProgramPreProcessor
     {
         List<Event> eventsToPreprocess = bundle.getEvents()
             .stream()
-            .filter( e -> Strings.isEmpty( e.getProgram() ) || Strings.isEmpty( e.getProgramStage() ) )
+            .filter( e -> isBlank( e.getProgram() ) || isBlank( e.getProgramStage() ) )
             .collect( Collectors.toList() );
 
         for ( Event event : eventsToPreprocess )
         {
             // Extract program from program stage
-            if ( Strings.isNotEmpty( event.getProgramStage() ) )
+            if ( isNotBlank( event.getProgramStage() ) )
             {
                 ProgramStage programStage = bundle.getPreheat().get( ProgramStage.class, event.getProgramStage() );
                 if ( Objects.nonNull( programStage ) )
@@ -91,7 +94,7 @@ public class EventProgramPreProcessor
                 }
             }
             // If it is a program event, extract program stage from program
-            else if ( Strings.isNotEmpty( event.getProgram() ) )
+            else if ( isNotBlank( event.getProgram() ) )
             {
                 Program program = bundle.getPreheat().get( Program.class, event.getProgram() );
                 if ( Objects.nonNull( program ) && program.isWithoutRegistration() )
@@ -104,6 +107,26 @@ public class EventProgramPreProcessor
                     }
                 }
             }
+        }
+        setAttributeOptionCombo( bundle );
+    }
+
+    private void setAttributeOptionCombo( TrackerBundle bundle )
+    {
+
+        TrackerPreheat preheat = bundle.getPreheat();
+        List<Event> events = bundle.getEvents().stream()
+            .filter( e -> isBlank( e.getAttributeOptionCombo() )
+                && !isBlank( e.getAttributeCategoryOptions() ) )
+            .filter( e -> preheat.get( Program.class, e.getProgram() ) != null )
+            .collect( Collectors.toList() );
+
+        for ( Event e : events )
+        {
+            Program program = preheat.get( Program.class, e.getProgram() );
+            String aoc = preheat.getCategoryOptionComboIdentifier( program.getCategoryCombo(),
+                e.getAttributeCategoryOptions() );
+            e.setAttributeOptionCombo( aoc );
         }
     }
 }

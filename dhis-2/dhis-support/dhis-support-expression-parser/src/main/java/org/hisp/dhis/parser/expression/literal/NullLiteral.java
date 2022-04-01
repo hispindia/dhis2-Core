@@ -25,15 +25,32 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.validation;
+package org.hisp.dhis.parser.expression.literal;
 
-import java.util.List;
+import org.hisp.dhis.parser.expression.CommonExpressionVisitor;
+import org.hisp.dhis.parser.expression.ExpressionItem;
+import org.hisp.dhis.parser.expression.antlr.ExpressionParser;
 
-import org.hisp.dhis.analytics.AnalyticsService;
-import org.hisp.dhis.organisationunit.OrganisationUnit;
-
-public interface ValidationTask
-    extends Runnable
+/**
+ * Provides a null value
+ *
+ * @author Jim Grace
+ */
+public class NullLiteral
+    implements ExpressionItem
 {
-    void init( List<OrganisationUnit> orgUnits, ValidationRunContext context, AnalyticsService analyticsService );
+    @Override
+    public final Object evaluate( ExpressionParser.ExprContext ctx, CommonExpressionVisitor visitor )
+    {
+        // Don't replace this null with a zero:
+        visitor.getState().setReplaceNulls( false );
+
+        return null;
+    }
+
+    @Override
+    public Object getSql( ExpressionParser.ExprContext ctx, CommonExpressionVisitor visitor )
+    {
+        return "null";
+    }
 }

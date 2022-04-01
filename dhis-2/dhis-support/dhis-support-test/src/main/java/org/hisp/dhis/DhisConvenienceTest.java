@@ -760,6 +760,18 @@ public abstract class DhisConvenienceTest
      */
     public static Indicator createIndicator( char uniqueCharacter, IndicatorType type )
     {
+        return createIndicator( uniqueCharacter, type, "Numerator", "Denominator" );
+    }
+
+    /**
+     * @param uniqueCharacter A unique character to identify the object.
+     * @param type The type.
+     * @param numerator The numerator.
+     * @param denominator The denominator.
+     */
+    public static Indicator createIndicator( char uniqueCharacter, IndicatorType type,
+        String numerator, String denominator )
+    {
         Indicator indicator = new Indicator();
         indicator.setAutoFields();
 
@@ -770,9 +782,9 @@ public abstract class DhisConvenienceTest
         indicator.setDescription( "IndicatorDescription" + uniqueCharacter );
         indicator.setAnnualized( false );
         indicator.setIndicatorType( type );
-        indicator.setNumerator( "Numerator" );
+        indicator.setNumerator( numerator );
         indicator.setNumeratorDescription( "NumeratorDescription" );
-        indicator.setDenominator( "Denominator" );
+        indicator.setDenominator( denominator );
         indicator.setDenominatorDescription( "DenominatorDescription" );
 
         return indicator;
@@ -1349,7 +1361,7 @@ public abstract class DhisConvenienceTest
         eventVisualization.setAutoFields();
         eventVisualization.setProgram( program );
         eventVisualization.setName( "EventVisualization" + uniqueCharacter );
-        eventVisualization.setType( EventVisualizationType.COLUMN );
+        eventVisualization.setType( EventVisualizationType.LINE_LIST );
 
         return eventVisualization;
     }
@@ -2424,7 +2436,7 @@ public abstract class DhisConvenienceTest
     {
         checkUserServiceWasInjected();
 
-        UserRole userRole = createAuthorityGroup( username, authorities );
+        UserRole userRole = createUserRole( username, authorities );
         userService.addUserRole( userRole );
 
         boolean present = uid.isPresent();
@@ -2451,8 +2463,8 @@ public abstract class DhisConvenienceTest
     {
         checkUserServiceWasInjected();
 
-        UserRole group = createAuthorityGroup( "Superuser", authorities );
-        group.setUid( "yrB6vc5Ip3r" );
+        UserRole role = createUserRole( "Superuser", authorities );
+        role.setUid( "yrB6vc5Ip3r" );
 
         String username = DEFAULT_USERNAME;
         String password = DEFAULT_ADMIN_PASSWORD;
@@ -2463,14 +2475,14 @@ public abstract class DhisConvenienceTest
         user.setName( "Admin" );
         user.setUsername( username );
         user.setPassword( password );
-        user.getUserRoles().add( group );
+        user.getUserRoles().add( role );
 
         userService.addUser( user );
 
         userService.encodeAndSetPassword( user, password );
         userService.updateUser( user );
 
-        userService.addUserRole( group );
+        userService.addUserRole( role );
 
         return user;
     }
@@ -2595,12 +2607,12 @@ public abstract class DhisConvenienceTest
         return user;
     }
 
-    private static UserRole createAuthorityGroup( String username, String... authorities )
+    protected static UserRole createUserRole( String name, String... authorities )
     {
         UserRole group = new UserRole();
-        group.setCode( username );
-        group.setName( username );
-        group.setDescription( username );
+        group.setCode( name );
+        group.setName( name );
+        group.setDescription( name );
         group.setAuthorities( Sets.newHashSet( authorities ) );
         return group;
     }

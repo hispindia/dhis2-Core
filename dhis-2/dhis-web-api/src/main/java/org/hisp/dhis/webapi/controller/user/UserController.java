@@ -32,12 +32,15 @@ import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.conflict;
 import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.created;
 import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.error;
 import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.importReport;
+import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.notFound;
+import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.validateAndThrowErrors;
 import static org.springframework.beans.BeanUtils.copyProperties;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 import static org.springframework.http.MediaType.TEXT_XML_VALUE;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -71,7 +74,10 @@ import org.hisp.dhis.fieldfilter.Defaults;
 import org.hisp.dhis.hibernate.exception.CreateAccessDeniedException;
 import org.hisp.dhis.hibernate.exception.UpdateAccessDeniedException;
 import org.hisp.dhis.importexport.ImportStrategy;
+import org.hisp.dhis.node.types.RootNode;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
+import org.hisp.dhis.patch.Mutation;
+import org.hisp.dhis.patch.Patch;
 import org.hisp.dhis.query.Order;
 import org.hisp.dhis.query.Pagination;
 import org.hisp.dhis.query.Query;
@@ -100,10 +106,10 @@ import org.hisp.dhis.webapi.webdomain.WebMetadata;
 import org.hisp.dhis.webapi.webdomain.WebOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -112,7 +118,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 
 /**
@@ -256,7 +261,7 @@ public class UserController
 
     @Override
     @GetMapping( "/{uid}/{property}" )
-    public ResponseEntity<ObjectNode> getObjectProperty(
+    public @ResponseBody RootNode getObjectProperty(
         @PathVariable( "uid" ) String pvUid, @PathVariable( "property" ) String pvProperty,
         @RequestParam Map<String, String> rpParameters,
         TranslateParams translateParams,
@@ -271,7 +276,7 @@ public class UserController
 
         User user = userService.getUser( pvUid );
 
-        if ( user == null )
+        if ( user == null || user.getUserCredentials() == null )
         {
             throw new WebMessageException( conflict( "User not found: " + pvUid ) );
         }
@@ -281,7 +286,7 @@ public class UserController
             throw new CreateAccessDeniedException( "You don't have the proper permissions to access this user." );
         }
 
-        return ResponseEntity.ok( userControllerUtils.getUserDataApprovalWorkflows( user ) );
+        return userControllerUtils.getUserDataApprovalWorkflows( user );
     }
 
     // -------------------------------------------------------------------------
@@ -342,7 +347,8 @@ public class UserController
     public WebMessage postJsonInvite( HttpServletRequest request )
         throws Exception
     {
-        return postInvite( request, renderService.fromJson( request.getInputStream(), getEntityClass() ) );
+        User user = renderService.fromJson( request.getInputStream(), getEntityClass() );
+        return postInvite( request, user );
     }
 
     @PostMapping( value = INVITE_PATH, consumes = { APPLICATION_XML_VALUE, TEXT_XML_VALUE } )
@@ -350,12 +356,15 @@ public class UserController
     public WebMessage postXmlInvite( HttpServletRequest request )
         throws Exception
     {
-        return postInvite( request, renderService.fromXml( request.getInputStream(), getEntityClass() ) );
+        User user = renderService.fromXml( request.getInputStream(), getEntityClass() );
+        return postInvite( request, user );
     }
 
     private WebMessage postInvite( HttpServletRequest request, User user )
         throws WebMessageException
     {
+        populateUserCredentialsDtoFields( user );
+
         User currentUser = currentUserService.getCurrentUser();
 
         validateInviteUser( user, currentUser );
@@ -368,7 +377,8 @@ public class UserController
     public void postJsonInvites( HttpServletRequest request )
         throws Exception
     {
-        postInvites( request, renderService.fromJson( request.getInputStream(), Users.class ) );
+        Users users = renderService.fromJson( request.getInputStream(), Users.class );
+        postInvites( request, users );
     }
 
     @PostMapping( value = BULK_INVITE_PATH, consumes = { APPLICATION_XML_VALUE,
@@ -377,13 +387,19 @@ public class UserController
     public void postXmlInvites( HttpServletRequest request )
         throws Exception
     {
-        postInvites( request, renderService.fromXml( request.getInputStream(), Users.class ) );
+        Users users = renderService.fromXml( request.getInputStream(), Users.class );
+        postInvites( request, users );
     }
 
     private void postInvites( HttpServletRequest request, Users users )
         throws WebMessageException
     {
         User currentUser = currentUserService.getCurrentUser();
+
+        for ( User user : users.getUsers() )
+        {
+            populateUserCredentialsDtoFields( user );
+        }
 
         for ( User user : users.getUsers() )
         {
@@ -420,14 +436,9 @@ public class UserController
             throw new WebMessageException( conflict( valid ) );
         }
 
-        boolean isInviteUsername = securityService.isInviteUsername( user.getUsername() );
-
-        RestoreOptions restoreOptions = isInviteUsername ? RestoreOptions.INVITE_WITH_USERNAME_CHOICE
-            : RestoreOptions.INVITE_WITH_DEFINED_USERNAME;
-
         if ( !securityService
             .sendRestoreOrInviteMessage( user, ContextUtils.getContextPath( request ),
-                restoreOptions ) )
+                RestoreOptions.INVITE_WITH_DEFINED_USERNAME ) )
         {
             throw new WebMessageException( error( "Failed to send invite message" ) );
         }
@@ -573,6 +584,72 @@ public class UserController
         throws Exception
     {
         setExpires( uid, null );
+    }
+
+    // -------------------------------------------------------------------------
+    // PATCH
+    //
+
+    @PatchMapping( value = "/{uid}" )
+    @ResponseStatus( value = HttpStatus.NO_CONTENT )
+    public void partialUpdateObject(
+        @PathVariable( "uid" ) String pvUid, @RequestParam Map<String, String> rpParameters,
+        @CurrentUser User currentUser, HttpServletRequest request )
+        throws Exception
+    {
+        WebOptions options = new WebOptions( rpParameters );
+        List<User> entities = getEntity( pvUid, options );
+
+        if ( entities.isEmpty() )
+        {
+            throw new WebMessageException( notFound( getEntityClass(), pvUid ) );
+        }
+
+        User persistedObject = entities.get( 0 );
+
+        if ( !aclService.canUpdate( currentUser, persistedObject ) )
+        {
+            throw new UpdateAccessDeniedException( "You don't have the proper permissions to update this object." );
+        }
+
+        Patch patch = diff( request );
+
+        mergeUserCredentialsMutations( patch );
+
+        prePatchEntity( persistedObject );
+        patchService.apply( patch, persistedObject );
+        validateAndThrowErrors( () -> schemaValidator.validate( persistedObject ) );
+        manager.update( persistedObject );
+        postPatchEntity( persistedObject );
+    }
+
+    /*
+     * This method is used to merge the user credentials with the user object.
+     */
+    private void mergeUserCredentialsMutations( Patch patch )
+    {
+        List<Mutation> mutations = patch.getMutations();
+        List<Mutation> filteredMutations = new ArrayList<>();
+        for ( Mutation mutation : mutations )
+        {
+            Mutation.Operation operation = mutation.getOperation();
+            String path = mutation.getPath();
+            Object value = mutation.getValue();
+
+            if ( path.startsWith( "userCredentials" ) )
+            {
+                path = path.replace( "userCredentials.", "" );
+
+                Mutation filtered = new Mutation( path, value, operation );
+                filteredMutations.add( filtered );
+            }
+            else
+            {
+                filteredMutations.add( mutation );
+            }
+
+            patch.setMutations( filteredMutations );
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -828,10 +905,6 @@ public class UserController
      */
     private ObjectReport inviteUser( User user, User currentUser, HttpServletRequest request )
     {
-        RestoreOptions restoreOptions = user.getUsername() == null || user.getUsername().isEmpty()
-            ? RestoreOptions.INVITE_WITH_USERNAME_CHOICE
-            : RestoreOptions.INVITE_WITH_DEFINED_USERNAME;
-
         securityService.prepareUserForInvite( user );
 
         ImportReport importReport = createUser( user, currentUser );
@@ -843,7 +916,7 @@ public class UserController
         {
             securityService
                 .sendRestoreOrInviteMessage( user, ContextUtils.getContextPath( request ),
-                    restoreOptions );
+                    RestoreOptions.INVITE_WITH_DEFINED_USERNAME );
 
             log.info( String.format( "An invite email was successfully sent to: %s", user.getEmail() ) );
         }

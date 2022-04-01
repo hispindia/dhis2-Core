@@ -37,6 +37,7 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
+import org.hisp.dhis.fileresource.FileResource;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.security.acl.Access;
 import org.hisp.dhis.translation.Translation;
@@ -46,12 +47,10 @@ import org.hisp.dhis.user.UserGroup;
 import org.hisp.dhis.user.UserRole;
 import org.hisp.dhis.user.sharing.Sharing;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Getter
 @Setter
-@JsonInclude( JsonInclude.Include.ALWAYS )
 public class MeDto
 {
     public MeDto( User user, Map<String, Serializable> settings, List<String> programs, List<String> dataSets )
@@ -64,6 +63,7 @@ public class MeDto
         this.languages = user.getLanguages();
         this.gender = user.getGender();
         this.jobTitle = user.getJobTitle();
+        this.avatar = user.getAvatar();
         this.created = user.getCreated();
         this.lastUpdated = user.getLastUpdated();
         this.dataViewOrganisationUnits = user.getDataViewOrganisationUnits();
@@ -80,6 +80,17 @@ public class MeDto
         this.access = user.getAccess();
         this.name = user.getName();
         this.email = user.getEmail();
+        this.phoneNumber = user.getPhoneNumber();
+        this.introduction = user.getIntroduction();
+        this.birthday = user.getBirthday();
+        this.nationality = user.getNationality();
+        this.education = user.getNationality();
+        this.interests = user.getInterests();
+        this.whatsApp = user.getWhatsApp();
+        this.facebookMessenger = user.getFacebookMessenger();
+        this.skype = user.getSkype();
+        this.telegram = user.getTelegram();
+        this.twitter = user.getTwitter();
         this.userRoles = user.getUserRoles();
         this.userCredentials = null;
 
@@ -88,6 +99,7 @@ public class MeDto
         this.settings = settings;
         this.programs = programs;
         this.dataSets = dataSets;
+
     }
 
     @JsonProperty( )
@@ -113,6 +125,9 @@ public class MeDto
 
     @JsonProperty( )
     private String jobTitle;
+
+    @JsonProperty( )
+    private FileResource avatar;
 
     @JsonProperty( )
     private Date created;
@@ -161,6 +176,39 @@ public class MeDto
 
     @JsonProperty( )
     private String email;
+
+    @JsonProperty( )
+    private String phoneNumber;
+
+    @JsonProperty( )
+    private String introduction;
+
+    @JsonProperty( )
+    private Date birthday;
+
+    @JsonProperty( )
+    private String nationality;
+
+    @JsonProperty( )
+    private String education;
+
+    @JsonProperty( )
+    private String interests;
+
+    @JsonProperty( )
+    private String whatsApp;
+
+    @JsonProperty( )
+    private String facebookMessenger;
+
+    @JsonProperty( )
+    private String skype;
+
+    @JsonProperty( )
+    private String telegram;
+
+    @JsonProperty( )
+    private String twitter;
 
     @JsonProperty
     private Set<UserRole> userRoles;

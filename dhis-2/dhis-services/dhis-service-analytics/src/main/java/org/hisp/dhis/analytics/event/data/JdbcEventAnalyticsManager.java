@@ -155,8 +155,19 @@ public class JdbcEventAnalyticsManager
 
         SqlRowSet rowSet = queryForRows( sql );
 
+        int rowsRed = 0;
+
+        grid.setLastDataRow( true );
+
         while ( rowSet.next() )
         {
+            if ( ++rowsRed > params.getPageSizeWithDefault() && !params.isTotalPages() )
+            {
+                grid.setLastDataRow( false );
+
+                continue;
+            }
+
             grid.addRow();
 
             int index = 1;
@@ -223,7 +234,7 @@ public class JdbcEventAnalyticsManager
     @Override
     public long getEventCount( EventQueryParams params )
     {
-        String sql = "select count(psi) ";
+        String sql = "select count(1) ";
 
         sql += getFromClause( params );
 
@@ -347,7 +358,7 @@ public class JdbcEventAnalyticsManager
         cols.add( "ST_AsGeoJSON(psigeometry, 6) as geometry", "longitude", "latitude", "ouname", "oucode", "pistatus",
             "psistatus" );
 
-        List<String> selectCols = ListUtils.distinctUnion( cols.build(), getSelectColumns( params ) );
+        List<String> selectCols = ListUtils.distinctUnion( cols.build(), getSelectColumns( params, false ) );
 
         return "select " + StringUtils.join( selectCols, "," ) + " ";
     }

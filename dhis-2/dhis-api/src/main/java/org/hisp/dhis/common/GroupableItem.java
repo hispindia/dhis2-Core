@@ -25,14 +25,21 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.tracker.domain.mapper;
+package org.hisp.dhis.common;
 
-import org.hisp.dhis.program.UserInfoSnapshot;
-import org.hisp.dhis.tracker.domain.User;
-import org.mapstruct.Mapper;
+import java.util.UUID;
 
-@Mapper
-public interface UserMapper extends DomainMapper<UserInfoSnapshot, User>
+public interface GroupableItem
 {
-    User from( UserInfoSnapshot snapshot );
+
+    default void setGroupUUID( UUID uuid )
+    {
+
+    }
+
+    default UUID getGroupUUID()
+    {
+        return null;
+    }
+
 }

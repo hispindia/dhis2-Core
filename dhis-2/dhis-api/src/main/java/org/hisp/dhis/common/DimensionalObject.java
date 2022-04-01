@@ -53,7 +53,7 @@ import com.google.common.collect.ImmutableSet;
  * @author Lars Helge Overland
  */
 public interface DimensionalObject
-    extends NameableObject
+    extends NameableObject, GroupableItem
 {
     String DATA_X_DIM_ID = "dx"; // in, de, ds, do
 
@@ -81,6 +81,8 @@ public interface DimensionalObject
 
     String PERIOD_FREE_RANGE_SEPARATOR = "_";
 
+    String QUERY_MODS_ID_SEPARATOR = "_";
+
     String OPTION_SEP = ";";
 
     String MULTI_CHOICES_OPTION_SEP = ",";
@@ -88,6 +90,10 @@ public interface DimensionalObject
     String ITEM_SEP = "-";
 
     String PROGRAMSTAGE_SEP = ".";
+
+    String VALUE_COLUMN_NAME = "value";
+
+    String TEXTVALUE_COLUMN_NAME = "textvalue";
 
     List<String> STATIC_DIMS = ImmutableList.<String> builder().add(
         LONGITUDE_DIM_ID, LATITUDE_DIM_ID ).build();

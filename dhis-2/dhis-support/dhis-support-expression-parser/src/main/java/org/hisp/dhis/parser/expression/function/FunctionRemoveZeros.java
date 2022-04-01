@@ -25,17 +25,45 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.tracker.domain.mapper;
+package org.hisp.dhis.parser.expression.function;
 
-import org.hisp.dhis.tracker.domain.Attribute;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import static org.hisp.dhis.parser.expression.antlr.ExpressionParser.ExprContext;
 
-@Mapper( uses = InstantMapper.class )
-public interface AttributeMapper extends DomainMapper<org.hisp.dhis.dxf2.events.trackedentity.Attribute, Attribute>
+import org.hisp.dhis.parser.expression.CommonExpressionVisitor;
+import org.hisp.dhis.parser.expression.ExpressionItem;
+import org.hisp.dhis.parser.expression.antlr.ExpressionParser;
+
+/**
+ * Replace any zero value with a null
+ *
+ * @author Jim Grace
+ */
+public class FunctionRemoveZeros
+    implements ExpressionItem
 {
+    private static final Double ZERO = Double.valueOf( 0.0 );
 
-    @Mapping( target = "createdAt", source = "created" )
-    @Mapping( target = "updatedAt", source = "lastUpdated" )
-    Attribute from( org.hisp.dhis.dxf2.events.trackedentity.Attribute attribute );
+    @Override
+    public final Object evaluate( ExpressionParser.ExprContext ctx, CommonExpressionVisitor visitor )
+    {
+        Object value = visitor.visit( ctx.expr( 0 ) );
+
+        if ( ZERO.equals( value ) )
+        {
+            // Don't replace this null with a zero:
+            visitor.getState().setReplaceNulls( false );
+
+            return null;
+        }
+
+        return value;
+    }
+
+    @Override
+    public Object getSql( ExprContext ctx, CommonExpressionVisitor visitor )
+    {
+        String value = visitor.castStringVisit( ctx.expr( 0 ) );
+
+        return " case " + value + " when 0 then null else " + value + " end";
+    }
 }
