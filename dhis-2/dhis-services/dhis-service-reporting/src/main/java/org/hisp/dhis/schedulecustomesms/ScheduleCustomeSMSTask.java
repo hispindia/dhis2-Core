@@ -47,6 +47,10 @@ public class ScheduleCustomeSMSTask extends AbstractJob
     private static final Log log = LogFactory.getLog( ScheduleCustomeSMSTask.class );
 
     private final static int SMS_CONSENT_ATTRIBUTE_ID = 2618;
+    
+    private final static int IMP_AGENCY_ATTRIBUTE_ID = 4728214;
+    
+    private final static String IMP_AGENCY_ATTRIBUTE_VALUE = "NCASC";
 
     private final static int SEX_ATTRIBUTE_ID = 2613;
 
@@ -177,18 +181,27 @@ public class ScheduleCustomeSMSTask extends AbstractJob
         
         String currentHour = timeFormat.format( date ).split( ":" )[0];
 
-        List<TrackedEntityInstance> teiList = new ArrayList<TrackedEntityInstance>(
-            getTrackedEntityInstancesByAttributeId( SMS_CONSENT_ATTRIBUTE_ID ) );
-        String trackedEntityInstanceIds = getTrackedEntityInstanceIdsByAttributeId( SMS_CONSENT_ATTRIBUTE_ID );
+        List<TrackedEntityInstance> teiList = new ArrayList<TrackedEntityInstance>( getTrackedEntityInstancesByAttributeId() );
         List<String> mobileNumbers = new ArrayList<String>();
+        
+        if ( teiList != null && teiList.size() > 0 )
+        {
+            mobileNumbers = new ArrayList<String>( getTrackedEntityInstanceAttributeValue() );
+        }
+
+        /*
+        List<TrackedEntityInstance> teiList = new ArrayList<TrackedEntityInstance>( getTrackedEntityInstancesByAttributeId( SMS_CONSENT_ATTRIBUTE_ID ) );
+        String trackedEntityInstanceIds = getTrackedEntityInstanceIdsByAttributeId( SMS_CONSENT_ATTRIBUTE_ID );
         //List<String> tempMobileNumbers = new ArrayList<String>();
+        
         if ( trackedEntityInstanceIds != null && trackedEntityInstanceIds.length() > 0 )
         {
             mobileNumbers = new ArrayList<String>(
                 getTrackedEntityInstanceAttributeValueByAttributeIdAndTrackedEntityInstanceIds(
                     MOBILE_NUMBER_ATTRIBUTE_ID, trackedEntityInstanceIds ) );
         }
-
+		*/
+        
         try
         {
             scheduledCustomePillPickUPANDTbScreeingSMS( ART_FOLLOW_UP_PROGRAM_STAGE_ID, SMS_CONSENT_ATTRIBUTE_ID, MOBILE_NUMBER_ATTRIBUTE_ID );
@@ -242,7 +255,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
             //Female client who delivered live birth
             if ( currentDate.equalsIgnoreCase( "14" ) )
             {
-                String trimesterMessage = "तपाईको बच्चा १८ महिना पुगेपछि ,३ महिना स्तनपान गराउन छुटाई ,बच्चाको जाँचको लागि स्वास्थ्य संस्थामा ल्याउनु  होला.";
+                String trimesterMessage = "तपाईको बच्चा १८ महिना पुगेपछि ,३ महिना स्तनपान गराउन छुटाई ,बच्चाको जाँचको लागि स्वास्थ्य संस्थामा ल्याउनु  होला.";
                 try
                 {
                     tempScheduledAwarenessChildComplete18MonthSMS( teiList, trimesterMessage );
@@ -623,6 +636,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
 
         try
         {
+            /*
             String query = "SELECT pi.trackedentityinstanceid, psi.organisationunitid,tedv.value FROM programstageinstance psi "
                 + "INNER JOIN programinstance pi ON  pi.programinstanceid = psi.programinstanceid "
                 + "INNER JOIN trackedentitydatavalue tedv  ON  tedv.programstageinstanceid = psi.programstageinstanceid "
@@ -635,7 +649,17 @@ public class ScheduleCustomeSMSTask extends AbstractJob
                 + "teav.trackedentityattributeid =  "
                 + sms_consent_attri_id
                 + " and teav.value = 'true' ";
-
+            */
+            
+            String query = "SELECT pi.trackedentityinstanceid, psi.organisationunitid, "
+                + "cast(data.value::json ->> 'value' AS VARCHAR) AS de_value FROM programstageinstance psi "
+                + "JOIN json_each_text(psi.eventdatavalues::json) data ON TRUE  "
+                + "INNER JOIN programinstance pi ON  pi.programinstanceid = psi.programinstanceid "
+                + "INNER JOIN trackedentityattributevalue teav ON teav.trackedentityinstanceid = pi.trackedentityinstanceid "
+                + "INNER JOIN dataelement de ON de.uid = data.key "
+                + "WHERE psi.programstageid = " + medical_history_stage_id + " AND de.dataelementid = " + cd4_test_de_id
+                + " AND teav.trackedentityattributeid =  " + sms_consent_attri_id + " AND teav.value = 'true' ";           
+            
             System.out.println( "query = " + query );
 
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
@@ -680,7 +704,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
         }
         catch ( Exception e )
         {
-            throw new RuntimeException( "Illegal Attribute id", e );
+            throw new RuntimeException( "Illegal Attribute/dataelement id", e );
         }
 
         System.out.println( " CD4 Count SMS Scheduler End at : " + new Date() );
@@ -1326,16 +1350,30 @@ public class ScheduleCustomeSMSTask extends AbstractJob
     // --------------------------------------------------------------------------------
     // Get TrackedEntityInstance from tracked entity attribute value
     // --------------------------------------------------------------------------------
-    public List<TrackedEntityInstance> getTrackedEntityInstancesByAttributeId( Integer attributeId )
+    //public List<TrackedEntityInstance> getTrackedEntityInstancesByAttributeId( Integer attributeId )
+    public List<TrackedEntityInstance> getTrackedEntityInstancesByAttributeId()
     {
         List<TrackedEntityInstance> teiList = new ArrayList<TrackedEntityInstance>();
 
         try
         {
+        	/*
             String query = "SELECT trackedentityinstanceid FROM trackedentityattributevalue "
                 + "WHERE value = 'true' AND trackedentityattributeid =  " + attributeId
                 + " order by trackedentityinstanceid ASC ";
-
+			*/	
+            
+            String query = "SELECT teav1.trackedentityinstanceid, teav1.value FROM trackedentityattributevalue teav1 "
+                           + " INNER JOIN ( SELECT trackedentityinstanceid FROM trackedentityattributevalue "
+                           + " WHERE trackedentityattributeid = " + IMP_AGENCY_ATTRIBUTE_ID + " AND value ILIKE '" + IMP_AGENCY_ATTRIBUTE_VALUE + "' ) teav2 "
+                           + " ON teav1.trackedentityinstanceid = teav2.trackedentityinstanceid " 
+                           + " INNER JOIN ( SELECT trackedentityinstanceid FROM trackedentityattributevalue "
+                           + " WHERE trackedentityattributeid =  " + SMS_CONSENT_ATTRIBUTE_ID + " AND value = 'true' ) teav3 "
+                           + " ON teav2.trackedentityinstanceid = teav3.trackedentityinstanceid "
+                           + " WHERE teav1.trackedentityattributeid =  " + MOBILE_NUMBER_ATTRIBUTE_ID;
+            
+            
+            
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
             while ( rs.next() )
@@ -1357,6 +1395,43 @@ public class ScheduleCustomeSMSTask extends AbstractJob
     }
 
     // --------------------------------------------------------------------------------
+    // Get Tracked entity attribute value
+    // --------------------------------------------------------------------------------
+    public List<String> getTrackedEntityInstanceAttributeValue( )
+    {
+        List<String> mobileNumbers = new ArrayList<String>();
+
+        try
+        {
+        	String query = "SELECT teav1.trackedentityinstanceid, teav1.value FROM trackedentityattributevalue teav1 "
+                    + " INNER JOIN ( SELECT trackedentityinstanceid FROM trackedentityattributevalue "
+                    + " WHERE trackedentityattributeid = " + IMP_AGENCY_ATTRIBUTE_ID + " AND value ILIKE '" + IMP_AGENCY_ATTRIBUTE_VALUE + "' ) teav2 "
+                    + " ON teav1.trackedentityinstanceid = teav2.trackedentityinstanceid " 
+                    + " INNER JOIN ( SELECT trackedentityinstanceid FROM trackedentityattributevalue "
+                    + " WHERE trackedentityattributeid =  " + SMS_CONSENT_ATTRIBUTE_ID + " AND value = 'true' ) teav3 "
+                    + " ON teav2.trackedentityinstanceid = teav3.trackedentityinstanceid "
+                    + " WHERE teav1.trackedentityattributeid =  " + MOBILE_NUMBER_ATTRIBUTE_ID;
+     
+            SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
+
+            while ( rs.next() )
+            {
+                String mobileNo = rs.getString( 2 );
+                if ( mobileNo != null )
+                {
+                    mobileNumbers.add( mobileNo );
+                }
+            }
+
+            return mobileNumbers;
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Illegal Attribute id", e );
+        }
+    }    
+    
+    // --------------------------------------------------------------------------------
     // Get TrackedEntityInstance Ids from tracked entity attribute value
     // --------------------------------------------------------------------------------
     public String getLatestEventOrgAndDataValue( Integer psId, Integer dataElementId, long teiId )
@@ -1365,6 +1440,7 @@ public class ScheduleCustomeSMSTask extends AbstractJob
         List<String> tempResult = new ArrayList<String>();
         try
         {
+            /*
             String query = "SELECT psi.organisationunitid, tedv.dataelementid,tedv.value FROM programstageinstance psi "
                 + "INNER JOIN programinstance pi ON  pi.programinstanceid = psi.programinstanceid "
                 + "INNER JOIN trackedentitydatavalue tedv  ON  tedv.programstageinstanceid = psi.programstageinstanceid "
@@ -1373,7 +1449,17 @@ public class ScheduleCustomeSMSTask extends AbstractJob
                 + " AND tedv.dataelementid = "
                 + dataElementId
                 + "  AND pi.trackedentityinstanceid =  " + teiId + " order by psi.lastupdated desc ";
-
+            */
+            
+            
+            String query = "SELECT psi.organisationunitid, de.dataelementid, "
+                + "cast(data.value::json ->> 'value' AS VARCHAR) AS de_value FROM programstageinstance psi "
+                + "JOIN json_each_text(psi.eventdatavalues::json) data ON TRUE "
+                + "INNER JOIN programinstance pi ON  pi.programinstanceid = psi.programinstanceid "
+                + "INNER JOIN dataelement de ON de.uid = data.key "
+                + "WHERE psi.programstageid = " + psId + " AND de.dataelementid = " + dataElementId + " AND "
+                + "pi.trackedentityinstanceid =  " + teiId + " order by psi.lastupdated desc ";
+            
             SqlRowSet rs = jdbcTemplate.queryForRowSet( query );
 
             while ( rs.next() )
