@@ -1489,6 +1489,7 @@ public abstract class AbstractEventService
 		
         //System.out.println( " Inside event "  );
         // for update Longitude and Latitude while creating Event in HIV-Tracker
+        /*
         String longitudeLatitude = getLongitudeAndLatitude( programStageInstance );
         if( longitudeLatitude != null )
         {
@@ -1509,7 +1510,7 @@ public abstract class AbstractEventService
         
         //System.out.println( " event Co-ordinate 1 -- " + programStageInstance.getGeometry()  );
         //end		
-		
+	*/	
 		
 
         if ( programStageInstance.getProgramStage().isEnableUserAssignment() )
@@ -2157,8 +2158,9 @@ public abstract class AbstractEventService
         programStageInstance.setAttributeOptionCombo( aoc );
         programStageInstance.setGeometry( event.getGeometry() );
 		
-		//System.out.println( " Inside programstageinstance "  );
+	//System.out.println( " Inside programstageinstance "  );
         // add custom change for save geometry while add event/programstageinstance
+        /*
         String longitudeLatitude = getLongitudeAndLatitude( programStageInstance );
         if( longitudeLatitude != null )
         {
@@ -2175,7 +2177,7 @@ public abstract class AbstractEventService
                 System.out.println( "Invalid longitude or latitude for property 'coordinates'. of TEA"   );
             }
         }
-        
+        */
         //System.out.println( " psi Co-ordinate 1 -- " + programStageInstance.getGeometry()  );
         // end
 
@@ -2946,8 +2948,8 @@ public abstract class AbstractEventService
             || user.isAuthorized( Authorities.F_TRACKED_ENTITY_INSTANCE_SEARCH_IN_ALL_ORGUNITS.name() );
     }
 	
-	// add custom change for save geometry while add event/programstageinstance
-	// get Longitude and Latitude from TrackedEntityAttribute attribute
+    // add custom change for save geometry while add event/programstageinstance
+    // get Longitude and Latitude from TrackedEntityAttribute attribute
     // get Longitude and Latitude from TrackedEntityAttribute attribute
     public String getLongitudeAndLatitude( ProgramStageInstance programStageInstance )
     {
