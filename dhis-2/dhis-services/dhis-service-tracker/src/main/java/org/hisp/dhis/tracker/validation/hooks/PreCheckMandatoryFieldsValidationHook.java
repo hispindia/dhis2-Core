@@ -62,8 +62,8 @@ public class PreCheckMandatoryFieldsValidationHook
     @Override
     public void validateEnrollment( ValidationErrorReporter reporter, Enrollment enrollment )
     {
-        reporter.addErrorIf( () -> StringUtils.isEmpty( enrollment.getOrgUnit() ), enrollment, E1122, ORG_UNIT );
-        reporter.addErrorIf( () -> StringUtils.isEmpty( enrollment.getProgram() ), enrollment, E1122, "program" );
+        reporter.addErrorIf( () -> enrollment.getOrgUnit().isBlank(), enrollment, E1122, ORG_UNIT );
+        reporter.addErrorIf( () -> enrollment.getProgram().isBlank(), enrollment, E1122, "program" );
         reporter.addErrorIf( () -> StringUtils.isEmpty( enrollment.getTrackedEntity() ), enrollment, E1122,
             "trackedEntity" );
     }
@@ -71,8 +71,8 @@ public class PreCheckMandatoryFieldsValidationHook
     @Override
     public void validateEvent( ValidationErrorReporter reporter, Event event )
     {
-        reporter.addErrorIf( () -> StringUtils.isEmpty( event.getOrgUnit() ), event, E1123, ORG_UNIT );
-        reporter.addErrorIf( () -> StringUtils.isEmpty( event.getProgramStage() ), event, E1123, "programStage" );
+        reporter.addErrorIf( () -> event.getOrgUnit().isBlank(), event, E1123, ORG_UNIT );
+        reporter.addErrorIf( () -> event.getProgramStage().isBlank(), event, E1123, "programStage" );
 
         // TODO remove if once metadata import is fixed
         ProgramStage programStage = reporter.getBundle().getPreheat().getProgramStage( event.getProgramStage() );
@@ -93,7 +93,7 @@ public class PreCheckMandatoryFieldsValidationHook
             return;
         }
 
-        reporter.addErrorIf( () -> StringUtils.isEmpty( event.getProgram() ), event, E1123, "program" );
+        reporter.addErrorIf( event.getProgram()::isBlank, event, E1123, "program" );
     }
 
     @Override

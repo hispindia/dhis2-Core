@@ -46,6 +46,8 @@ public interface CacheProvider
 {
     <V> Cache<V> createAnalyticsResponseCache( Duration initialExpirationTime );
 
+    <V> Cache<V> createAnalyticsCache();
+
     <V> Cache<V> createDefaultObjectCache();
 
     <V> Cache<V> createIsDataApprovedCache();
@@ -111,6 +113,8 @@ public interface CacheProvider
     <V> Cache<V> createProgramOrgUnitAssociationCache();
 
     <V> Cache<V> createCatOptOrgUnitAssociationCache();
+
+    <V> Cache<V> createDataSetOrgUnitAssociationCache();
 
     <V> Cache<V> createApiKeyCache();
 

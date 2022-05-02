@@ -54,6 +54,7 @@ import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.common.BaseIdentifiableObject;
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.commons.util.TextUtils;
+import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.hibernate.HibernateProxyUtils;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.period.Period;
@@ -70,11 +71,13 @@ import org.hisp.dhis.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.trackedentity.TrackedEntityProgramOwnerOrgUnit;
 import org.hisp.dhis.trackedentity.TrackedEntityType;
 import org.hisp.dhis.trackedentitycomment.TrackedEntityComment;
-import org.hisp.dhis.tracker.TrackerIdentifier;
-import org.hisp.dhis.tracker.TrackerIdentifierParams;
+import org.hisp.dhis.tracker.TrackerIdScheme;
+import org.hisp.dhis.tracker.TrackerIdSchemeParam;
+import org.hisp.dhis.tracker.TrackerIdSchemeParams;
 import org.hisp.dhis.tracker.TrackerType;
 import org.hisp.dhis.tracker.domain.Enrollment;
 import org.hisp.dhis.tracker.domain.Event;
+import org.hisp.dhis.tracker.domain.MetadataIdentifier;
 import org.hisp.dhis.user.User;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -121,9 +124,7 @@ public class TrackerPreheat
     /**
      * Internal map of all default object (like category option combo, etc).
      */
-    @Getter
-    @Setter
-    private Map<Class<? extends IdentifiableObject>, IdentifiableObject> defaults = new HashMap<>();
+    private final Map<Class<? extends IdentifiableObject>, IdentifiableObject> defaults = new HashMap<>();
 
     /**
      * All periods available.
@@ -159,10 +160,10 @@ public class TrackerPreheat
     {
         if ( categoryOptionCombo != null )
         {
-            TrackerIdentifier optionComboIdScheme = getIdentifiers().getCategoryOptionComboIdScheme();
+            TrackerIdSchemeParam optionComboIdScheme = this.getIdSchemes().getCategoryOptionComboIdScheme();
             this.cosToCOC.put( categoryOptionComboCacheKey( categoryCombo, categoryOptions ),
                 optionComboIdScheme.getIdentifier( categoryOptionCombo ) );
-            this.put( optionComboIdScheme, categoryOptionCombo );
+            this.put( categoryOptionCombo );
         }
         else
         {
@@ -174,7 +175,7 @@ public class TrackerPreheat
         Set<CategoryOption> categoryOptions )
     {
         Set<String> coIds = categoryOptions.stream()
-            .map( getIdentifiers().getCategoryOptionIdScheme()::getIdentifier )
+            .map( this.getIdSchemes().getCategoryOptionIdScheme()::getIdentifier )
             .collect( Collectors.toSet() );
         return Pair.of( categoryCombo.getUid(), coIds );
     }
@@ -233,7 +234,7 @@ public class TrackerPreheat
         {
             return null;
         }
-        return identifiers.getCategoryOptionComboIdScheme().getIdentifier( categoryOptionCombo );
+        return idSchemes.getCategoryOptionComboIdScheme().getIdentifier( categoryOptionCombo );
     }
 
     private Pair<String, Set<String>> categoryOptionComboCacheKey( CategoryCombo categoryCombo,
@@ -338,16 +339,14 @@ public class TrackerPreheat
     /**
      * A list of Program Stage UID having 1 or more Events
      */
-    @Getter
-    @Setter
     private List<Pair<String, String>> programStageWithEvents = Lists.newArrayList();
 
     /**
-     * Identifier map
+     * idScheme map
      */
     @Getter
     @Setter
-    private TrackerIdentifierParams identifiers = new TrackerIdentifierParams();
+    private TrackerIdSchemeParams idSchemes = new TrackerIdSchemeParams();
 
     /**
      * Map of Program ID (primary key) and List of Org Unit ID associated to
@@ -368,6 +367,26 @@ public class TrackerPreheat
     }
 
     /**
+     * Put a default metadata value (i.e. CategoryOption "default") into the
+     * preheat.
+     *
+     * @param defaultClass class of the default metadata
+     * @param metadata the default metadata
+     * @return the tracker preheat
+     */
+    public <T extends IdentifiableObject> TrackerPreheat putDefault( Class<T> defaultClass, T metadata )
+    {
+        if ( metadata == null )
+        {
+            return this;
+        }
+
+        defaults.put( defaultClass, metadata );
+
+        return this;
+    }
+
+    /**
      * Get a default value from the preheat
      *
      * @param defaultClass The type of object to retrieve
@@ -375,8 +394,29 @@ public class TrackerPreheat
      */
     public <T extends IdentifiableObject> T getDefault( Class<T> defaultClass )
     {
-        String uid = this.defaults.get( defaultClass ).getUid();
-        return this.get( defaultClass, uid );
+        return (T) this.defaults.get( defaultClass );
+    }
+
+    /**
+     * Fetch a metadata object from the pre-heat, based on the type of the
+     * object and the cached identifier.
+     *
+     * @param klass The metadata class to fetch
+     * @param id metadata identifier
+     * @return A metadata object or null
+     */
+    @SuppressWarnings( "unchecked" )
+    public <T extends IdentifiableObject> T get( Class<? extends IdentifiableObject> klass, MetadataIdentifier id )
+    {
+        if ( id == null )
+        {
+            return null;
+        }
+        if ( id.getIdScheme() == TrackerIdScheme.ATTRIBUTE )
+        {
+            return this.get( klass, id.getAttributeValue() );
+        }
+        return this.get( klass, id.getIdentifier() );
     }
 
     /**
@@ -422,7 +462,7 @@ public class TrackerPreheat
     }
 
     @SuppressWarnings( "unchecked" )
-    public <T extends IdentifiableObject> TrackerPreheat put( TrackerIdentifier identifier, T object )
+    public <T extends IdentifiableObject> TrackerPreheat put( TrackerIdSchemeParam idSchemeParam, T object )
     {
         if ( object == null )
         {
@@ -439,27 +479,48 @@ public class TrackerPreheat
 
             Map<String, IdentifiableObject> identifierMap = map.get( User.class );
 
-            if ( !StringUtils.isEmpty( identifier.getIdentifier( userObject ) ) &&
-                !identifierMap.containsKey( identifier.getIdentifier( userObject ) ) )
+            if ( !StringUtils.isEmpty( idSchemeParam.getIdentifier( userObject ) ) &&
+                !identifierMap.containsKey( idSchemeParam.getIdentifier( userObject ) ) )
             {
-                identifierMap.put( identifier.getIdentifier( userObject ), userObject );
+                identifierMap.put( idSchemeParam.getIdentifier( userObject ), userObject );
             }
         }
 
-        Optional.ofNullable( identifier.getIdentifier( object ) )
+        Optional.ofNullable( idSchemeParam.getIdentifier( object ) )
             .ifPresent( k -> map.get( klass ).put( k, object ) );
 
         return this;
     }
 
-    public <T extends IdentifiableObject> TrackerPreheat put( TrackerIdentifier identifier, Collection<T> objects )
+    public <T extends IdentifiableObject> TrackerPreheat put( TrackerIdSchemeParam idSchemeParam,
+        Collection<T> objects )
     {
         for ( T object : objects )
         {
-            put( identifier, object );
+            put( idSchemeParam, object );
         }
 
         return this;
+    }
+
+    public TrackerPreheat put( DataElement dataElement )
+    {
+        return this.put( idSchemes.getDataElementIdScheme(), dataElement );
+    }
+
+    public TrackerPreheat put( Program program )
+    {
+        return this.put( idSchemes.getProgramIdScheme(), program );
+    }
+
+    public TrackerPreheat put( ProgramStage programStage )
+    {
+        return this.put( idSchemes.getProgramStageIdScheme(), programStage );
+    }
+
+    public TrackerPreheat put( CategoryOptionCombo categoryOptionCombo )
+    {
+        return this.put( idSchemes.getCategoryOptionComboIdScheme(), categoryOptionCombo );
     }
 
     public TrackedEntityInstance getTrackedEntity( String uid )
@@ -569,6 +630,11 @@ public class TrackerPreheat
     {
         RelationshipType relationshipType = get( RelationshipType.class, relationship.getRelationshipType() );
 
+        if ( relationship.getUid() != null && relationships.containsKey( relationship.getUid() ) )
+        {
+            return relationships.get( relationship.getUid() );
+        }
+
         if ( Objects.nonNull( relationshipType ) )
         {
 
@@ -599,6 +665,8 @@ public class TrackerPreheat
         if ( Objects.nonNull( relationship ) )
         {
             RelationshipKey relationshipKey = getRelationshipKey( relationship );
+
+            relationships.put( relationship.getUid(), relationship );
 
             if ( relationship.getRelationshipType().isBidirectional() )
             {
@@ -707,14 +775,29 @@ public class TrackerPreheat
             .findAny();
     }
 
+    public OrganisationUnit getOrganisationUnit( MetadataIdentifier id )
+    {
+        return get( OrganisationUnit.class, id );
+    }
+
     public OrganisationUnit getOrganisationUnit( String id )
     {
         return get( OrganisationUnit.class, id );
     }
 
+    public ProgramStage getProgramStage( MetadataIdentifier id )
+    {
+        return get( ProgramStage.class, id );
+    }
+
     public ProgramStage getProgramStage( String id )
     {
         return get( ProgramStage.class, id );
+    }
+
+    public Program getProgram( MetadataIdentifier id )
+    {
+        return get( Program.class, id );
     }
 
     public Program getProgram( String id )
@@ -730,6 +813,19 @@ public class TrackerPreheat
     public TrackedEntityAttribute getTrackedEntityAttribute( String id )
     {
         return get( TrackedEntityAttribute.class, id );
+    }
+
+    public TrackerPreheat addProgramStageWithEvents( String programStageUid, String enrollmentUid )
+    {
+        this.programStageWithEvents.add( Pair.of( programStageUid, enrollmentUid ) );
+        return this;
+    }
+
+    public boolean hasProgramStageWithEvents( MetadataIdentifier programStage, String enrollmentUid )
+    {
+        ProgramStage ps = this.getProgramStage( programStage );
+        ProgramInstance pi = this.getEnrollment( enrollmentUid );
+        return this.programStageWithEvents.contains( Pair.of( ps.getUid(), pi.getUid() ) );
     }
 
     @Override

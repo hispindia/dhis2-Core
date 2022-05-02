@@ -120,6 +120,7 @@ public class DefaultCacheProvider
         programStageWebHookNotificationTemplateCache,
         pgmOrgUnitAssocCache,
         catOptOrgUnitAssocCache,
+        dataSetOrgUnitAssocCache,
         apiTokensCache,
         programCache,
         teiAttributesCache,
@@ -170,6 +171,15 @@ public class DefaultCacheProvider
         return registerCache( this.<V> newBuilder()
             .forRegion( Region.analyticsResponse.name() )
             .expireAfterWrite( initialExpirationTime.toMillis(), MILLISECONDS )
+            .withMaximumSize( orZeroInTestRun( getActualSize( SIZE_10K ) ) ) );
+    }
+
+    @Override
+    public <V> Cache<V> createAnalyticsCache()
+    {
+        return registerCache( this.<V> newBuilder()
+            .forRegion( Region.analyticsResponse.name() )
+            .expireAfterWrite( 12, TimeUnit.HOURS )
             .withMaximumSize( orZeroInTestRun( getActualSize( SIZE_10K ) ) ) );
     }
 
@@ -509,6 +519,16 @@ public class DefaultCacheProvider
     {
         return registerCache( this.<V> newBuilder()
             .forRegion( Region.catOptOrgUnitAssocCache.name() )
+            .expireAfterWrite( 1, TimeUnit.HOURS )
+            .withInitialCapacity( (int) getActualSize( 20 ) )
+            .withMaximumSize( orZeroInTestRun( SIZE_1K ) ) );
+    }
+
+    @Override
+    public <V> Cache<V> createDataSetOrgUnitAssociationCache()
+    {
+        return registerCache( this.<V> newBuilder()
+            .forRegion( Region.dataSetOrgUnitAssocCache.name() )
             .expireAfterWrite( 1, TimeUnit.HOURS )
             .withInitialCapacity( (int) getActualSize( 20 ) )
             .withMaximumSize( orZeroInTestRun( SIZE_1K ) ) );

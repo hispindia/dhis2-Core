@@ -195,6 +195,7 @@ public class EventDataQueryRequest
         queryRequest.totalPages = this.totalPages;
         queryRequest.endpointItem = this.endpointItem;
         queryRequest.enhancedConditions = this.enhancedConditions;
+        queryRequest.outputIdScheme = outputIdScheme;
         return request;
     }
 
@@ -234,7 +235,7 @@ public class EventDataQueryRequest
                 .outputType( criteria.getOutputType() )
                 .page( criteria.getPage() )
                 .pageSize( criteria.getPageSize() )
-                .paging( criteria.getPaging() )
+                .paging( criteria.isPaging() )
                 .programStatus( criteria.getProgramStatus() )
                 .relativePeriodDate( criteria.getRelativePeriodDate() )
                 .showHierarchy( criteria.isShowHierarchy() )
@@ -346,10 +347,11 @@ public class EventDataQueryRequest
                 .coordinatesOnly( criteria.isCoordinatesOnly() )
                 .includeMetadataDetails( criteria.isIncludeMetadataDetails() )
                 .dataIdScheme( criteria.getDataIdScheme() )
+                .outputIdScheme( criteria.getOutputIdScheme() )
                 .programStatus( criteria.getProgramStatus() )
                 .page( criteria.getPage() )
                 .pageSize( criteria.getPageSize() )
-                .paging( criteria.getPaging() )
+                .paging( criteria.isPaging() )
                 .displayProperty( criteria.getDisplayProperty() )
                 .relativePeriodDate( criteria.getRelativePeriodDate() )
                 .userOrgUnit( criteria.getUserOrgUnit() )

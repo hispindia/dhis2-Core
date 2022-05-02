@@ -44,9 +44,9 @@ import org.hisp.dhis.program.ProgramStage;
 import org.hisp.dhis.relationship.RelationshipType;
 import org.hisp.dhis.trackedentity.TrackedEntityType;
 import org.hisp.dhis.tracker.TrackerIdScheme;
-import org.hisp.dhis.tracker.TrackerIdentifier;
+import org.hisp.dhis.tracker.TrackerIdSchemeParam;
+import org.hisp.dhis.tracker.TrackerIdSchemeParams;
 import org.hisp.dhis.tracker.TrackerIdentifierCollector;
-import org.hisp.dhis.tracker.TrackerIdentifierParams;
 import org.hisp.dhis.tracker.TrackerImportParams;
 import org.hisp.dhis.tracker.TrackerTest;
 import org.hisp.dhis.tracker.domain.TrackedEntity;
@@ -54,7 +54,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * @author Morten Olav Hansen <mortenoh@gmail.com>
@@ -77,7 +76,7 @@ class TrackerPreheatServiceTest extends TrackerTest
     void testCollectIdentifiersSimple()
     {
         TrackerImportParams params = new TrackerImportParams();
-        Map<Class<?>, Set<String>> collectedMap = identifierCollector.collect( params, Maps.newHashMap() );
+        Map<Class<?>, Set<String>> collectedMap = identifierCollector.collect( params );
         assertEquals( 2, collectedMap.keySet().size() );
         assertTrue( collectedMap.containsKey( TrackedEntityType.class ) );
         assertTrue( collectedMap.containsKey( RelationshipType.class ) );
@@ -91,7 +90,7 @@ class TrackerPreheatServiceTest extends TrackerTest
         assertTrue( params.getTrackedEntities().isEmpty() );
         assertTrue( params.getEnrollments().isEmpty() );
         assertFalse( params.getEvents().isEmpty() );
-        Map<Class<?>, Set<String>> collectedMap = identifierCollector.collect( params, Maps.newHashMap() );
+        Map<Class<?>, Set<String>> collectedMap = identifierCollector.collect( params );
         assertTrue( collectedMap.containsKey( DataElement.class ) );
         assertTrue( collectedMap.containsKey( ProgramStage.class ) );
         assertTrue( collectedMap.containsKey( OrganisationUnit.class ) );
@@ -127,9 +126,10 @@ class TrackerPreheatServiceTest extends TrackerTest
     void testCollectIdentifiersAttributeValues()
     {
         TrackerImportParams params = TrackerImportParams.builder()
-            .identifiers( TrackerIdentifierParams.builder()
+            .idSchemes( TrackerIdSchemeParams.builder()
                 .idScheme(
-                    TrackerIdentifier.builder().idScheme( TrackerIdScheme.ATTRIBUTE ).value( "ATTR1234567" ).build() )
+                    TrackerIdSchemeParam.builder().idScheme( TrackerIdScheme.ATTRIBUTE ).attributeUid( "ATTR1234567" )
+                        .build() )
                 .build() )
             .trackedEntities( Lists.newArrayList(
                 TrackedEntity.builder().trackedEntity( "TEI12345678" ).orgUnit( "OU123456789" ).build() ) )
@@ -137,7 +137,7 @@ class TrackerPreheatServiceTest extends TrackerTest
         assertFalse( params.getTrackedEntities().isEmpty() );
         assertTrue( params.getEnrollments().isEmpty() );
         assertTrue( params.getEvents().isEmpty() );
-        Map<Class<?>, Set<String>> collectedMap = identifierCollector.collect( params, Maps.newHashMap() );
+        Map<Class<?>, Set<String>> collectedMap = identifierCollector.collect( params );
         assertTrue( collectedMap.containsKey( TrackedEntity.class ) );
         Set<String> trackedEntities = collectedMap.get( TrackedEntity.class );
         assertTrue( collectedMap.containsKey( OrganisationUnit.class ) );

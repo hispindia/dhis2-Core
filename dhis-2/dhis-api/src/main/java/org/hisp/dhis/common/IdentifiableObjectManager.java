@@ -67,7 +67,10 @@ public interface IdentifiableObjectManager
 
     <T extends IdentifiableObject> T get( Class<T> type, long id );
 
-    <T extends IdentifiableObject> T get( Class<T> type, String uid );
+    <T extends IdentifiableObject> T get( Class<T> type, String uid )
+        throws IllegalQueryException;
+
+    <T extends IdentifiableObject> T getAndValidate( Class<T> type, String uid );
 
     <T extends IdentifiableObject> boolean exists( Class<T> type, String uid );
 
@@ -107,6 +110,9 @@ public interface IdentifiableObjectManager
     <T extends IdentifiableObject> long countAllValuesByAttributes( Class<T> type, List<Attribute> attributes );
 
     <T extends IdentifiableObject> List<T> getByUid( Class<T> type, Collection<String> uids );
+
+    <T extends IdentifiableObject> List<T> getAndValidateByUid( Class<T> type, Collection<String> uids )
+        throws IllegalQueryException;
 
     <T extends IdentifiableObject> List<T> getByUid( Collection<Class<? extends IdentifiableObject>> types,
         Collection<String> uids );

@@ -45,9 +45,14 @@ public enum ErrorCode
     E1104( "Attribute option combo not found or not accessible: `{0}`" ),
     E1105( "Data set not found or not accessible: `{0}`" ),
     E1106( "There are duplicate translation record for property `{0}` and locale `{1}`" ),
-    E1107( "Object type `{0}` is not translatable." ),
+    E1107( "Object type `{0}` is not translatable" ),
     E1108( "Could not add item to collection: {0}" ),
     E1109( "Could not remove item from collection: {0}" ),
+    E1110( "Category combo not found or not accessible: `{0}`" ),
+    E1111( "Category option not found or not accessible: `{0}`" ),
+    E1112( "Objects of type `{0}` not found or not accessible: `{1}`" ),
+    E1113( "Object of type `{0}` not found or not accessible: `{1}`" ),
+    E1114( "Data set form type must be custom: `{0}`" ),
 
     /* Org unit merge */
     E1500( "At least two source orgs unit must be specified" ),
@@ -104,14 +109,16 @@ public enum ErrorCode
     E2029( "Data value is not a valid option of the data element option set: `{0}`" ),
     E2030( "Data value must match data element value type: `{0}`" ),
     E2031( "User does not have write access to category option combo: `{0}`" ),
-    E2032( "Data value does not exist" ),
+    E2032( "Data value not found or not accessible" ),
     E2033( "Follow-up must be specified" ),
     E2034( "Filter not supported: `{0}`" ),
     E2035( "Operator not supported: `{0}`" ),
     E2036( "Combination not supported: `{0}`" ),
     E2037( "Order not supported: `{0}`" ),
     E2038( "Field not supported: `{0}`" ),
-    E2039( "StageOffset is allowed only for repeatable stages (`{0}` is not repeatable)" ),
+    E2039( "Stage offset is allowed only for repeatable stages (`{0}` is not repeatable)" ),
+    E2040( "Both category combination and category options must be specified" ),
+    E2041( "Attribute option combo does not exist for given category combo and category options" ),
 
     /* Outlier detection */
     E2200( "At least one data element must be specified" ),
@@ -229,6 +236,7 @@ public enum ErrorCode
     E4312( "Current user is not authorised to read data from SQL view: `{0}`" ),
     E4313( "SQL query contains variable names that are invalid: `{0}`" ),
     E4314( "Provided `{0}`: (`{1}`) are not part of the selected `{2}`" ),
+    E4315( "Provided Program: (`{0}`) is without registration" ),
 
     /* Preheat */
     E5000( "Found matching object for reference, but import mode is CREATE. Identifier was {0}, and object was {1}." ),
@@ -301,6 +309,7 @@ public enum ErrorCode
     E7132( "An indicator expression caused division by zero operation" ),
     E7133( "Query cannot be executed, possibly because of invalid types or invalid operation" ),
     E7134( "Cannot retrieve total value for data elements with skip total category combination" ),
+    E7135( "Date time is not parsable: `{0}`" ),
 
     /* Event analytics */
     E7200( "At least one organisation unit must be specified" ),
@@ -388,7 +397,7 @@ public enum ErrorCode
     E7644( "Period: `{0}` does not conform to the open periods of associated data sets" ),
     E7645( "No data value for file resource exist for the given combination for data element: `{0}`" ),
 
-    // datastore query validation
+    /* Data store query validation */
     E7650( "Not a valid path: `{0}`" ),
     E7651( "Illegal fields expression. Expected `,`, `[` or `]` at position {0} but found `{1}`" ),
     E7652( "Illegal filter expression `{0}`: {1}" ),

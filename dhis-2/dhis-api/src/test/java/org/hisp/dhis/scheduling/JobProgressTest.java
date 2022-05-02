@@ -170,7 +170,7 @@ class JobProgressTest
         verify( progress, never() ).completedStage( anyString() );
         verify( progress, never() ).startingWorkItem( anyString() );
         verify( progress ).failedStage( any( IllegalStateException.class ) );
-        verify( progress, never() ).failedStage( anyString() );
+        verify( progress ).failedStage( "java.lang.IllegalStateException" );
     }
 
     @Test
@@ -194,7 +194,7 @@ class JobProgressTest
         verify( progress, never() ).completedStage( anyString() );
         verify( progress, never() ).startingWorkItem( anyString() );
         verify( progress ).failedStage( any( IllegalStateException.class ) );
-        verify( progress, never() ).failedStage( anyString() );
+        verify( progress ).failedStage( "java.lang.IllegalStateException" );
     }
 
     @Test
@@ -242,7 +242,8 @@ class JobProgressTest
         };
         JobProgress progress = newMockJobProgress();
         List<Integer> items = IntStream.range( 1, parallelism * 2 ).boxed().collect( toList() );
-        assertTrue( progress.runStageInParallel( parallelism, items, String::valueOf, work ) );
+        progress.runStageInParallel( parallelism, items, String::valueOf, work );
+        assertFalse( progress.isSkipCurrentStage() );
         int itemCount = items.size();
         assertEquals( new HashSet<>( items ), new HashSet<>( worked ) );
         assertEquals( itemCount, enterCount.get() );
@@ -280,7 +281,8 @@ class JobProgressTest
         };
         JobProgress progress = newMockJobProgress();
         List<Integer> items = IntStream.range( 1, parallelism * 2 ).boxed().collect( toList() );
-        assertFalse( progress.runStageInParallel( parallelism, items, String::valueOf, work ) );
+        progress.runStageInParallel( parallelism, items, String::valueOf, work );
+        assertTrue( progress.isSkipCurrentStage() );
         int itemCount = items.size();
         int successCount = itemCount / 2;
         int errorCount = itemCount - successCount;
