@@ -31,7 +31,6 @@ import java.util.Date;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
 import org.hisp.dhis.common.IdSchemes;
 import org.hisp.dhis.dataset.CompleteDataSetRegistrationService;
@@ -50,7 +49,6 @@ import org.springframework.web.client.RestTemplate;
  * @author David Katuscak <katuscak.d@gmail.com>
  * @author Jan Bernitt (job progress tracking refactoring)
  */
-@Slf4j
 @Component
 @AllArgsConstructor
 public class CompleteDataSetRegistrationSynchronization implements DataSynchronizationWithoutPaging
@@ -149,7 +147,7 @@ public class CompleteDataSetRegistrationSynchronization implements DataSynchroni
             + " completed data set registrations to synchronize were found.\n";
         msg += "Remote server URL for completeness POST synchronization: " + context.getInstance().getUrl();
 
-        progress.startingProcess( msg );
+        progress.startingStage( msg );
         return progress.runStage( false, () -> sendSyncRequest( context ) );
     }
 

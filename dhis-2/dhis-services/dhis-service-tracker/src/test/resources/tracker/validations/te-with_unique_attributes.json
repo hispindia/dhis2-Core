@@ -33,39 +33,55 @@
   "trackedEntities": [
     {
       "trackedEntity": "bPJ0FMtcnER",
-      "trackedEntityType": "bPJ0FMtcnEh",
-      "orgUnit": "QfUVllTs6cS",
+      "trackedEntityType": {
+        "idScheme": "UID",
+        "identifier": "bPJ0FMtcnEh"
+      },
+      "orgUnit": {
+        "idScheme": "UID",
+        "identifier": "QfUVllTs6cS"
+      },
       "inactive": false,
       "deleted": false,
       "potentialDuplicate": false,
       "relationships": [],
       "attributes": [
         {
-          "attribute": "fmBIpOStKkF",
+          "attribute": {
+            "idScheme": "UID",
+            "identifier": "fmBIpOStKkF"
+          },
           "storedBy": "admin",
           "value": "uniqueName"
         }
       ],
-      "enrollments": [],
-      "programOwners": []
+      "enrollments": []
     },
     {
       "trackedEntity": "bPJ0FMtcnEL",
-      "trackedEntityType": "bPJ0FMtcnEh",
-      "orgUnit": "QfUVllTs6cS",
+      "trackedEntityType": {
+        "idScheme": "UID",
+        "identifier": "bPJ0FMtcnEh"
+      },
+      "orgUnit": {
+        "idScheme": "UID",
+        "identifier": "QfUVllTs6cS"
+      },
       "inactive": false,
       "deleted": false,
       "potentialDuplicate": false,
       "relationships": [],
       "attributes": [
         {
-          "attribute": "fmBIpOStKkF",
+          "attribute": {
+            "idScheme": "UID",
+            "identifier": "fmBIpOStKkF"
+          },
           "storedBy": "admin",
           "value": "uniqueName"
         }
       ],
-      "enrollments": [],
-      "programOwners": []
+      "enrollments": []
     }
   ],
   "enrollments": [],

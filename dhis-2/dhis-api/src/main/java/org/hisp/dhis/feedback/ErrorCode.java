@@ -119,6 +119,9 @@ public enum ErrorCode
     E2039( "Stage offset is allowed only for repeatable stages (`{0}` is not repeatable)" ),
     E2040( "Both category combination and category options must be specified" ),
     E2041( "Attribute option combo does not exist for given category combo and category options" ),
+    E2042( "Min value must be specified" ),
+    E2043( "Max value must be specified" ),
+    E2044( "Max value must be greater than min value" ),
 
     /* Outlier detection */
     E2200( "At least one data element must be specified" ),
@@ -401,7 +404,21 @@ public enum ErrorCode
     E7650( "Not a valid path: `{0}`" ),
     E7651( "Illegal fields expression. Expected `,`, `[` or `]` at position {0} but found `{1}`" ),
     E7652( "Illegal filter expression `{0}`: {1}" ),
-    E7653( "Illegal filter `{0}`: {1}" );
+    E7653( "Illegal filter `{0}`: {1}" ),
+
+    /* GeoJSON import validation and conflicts */
+    E7700( "Error reading JSON input: {0}" ),
+    E7701( "Input is not a valid GeoJSON document: {0}" ),
+    E7702( "GeoJSON attribute does not exist: {0}" ),
+    E7703( "GeoJSON attribute is not of type {0} but: {1}" ),
+    E7704( "GeoJSON attribute is not applicable to organisation units" ),
+    E7705( "GeoJSON feature lacks identifier property: `{0}`" ),
+    E7706( "GeoJSON feature lacks geometry property" ),
+    E7707( "GeoJSON geometry is not valid" ),
+    E7708( "GeoJSON target organisation unit does not exist" ),
+    E7709( "Organisation unit could not be updated with new GeoJSON geometry" ),
+    E7710( "User is not allowed to update the target organisation unit" ),
+    E7711( "Organisation unit cannot be uniquely identified by its name" );
 
     private String message;
 

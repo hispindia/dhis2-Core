@@ -27,8 +27,6 @@
  */
 package org.hisp.dhis.tracker.preprocess;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -63,7 +61,7 @@ public class EventProgramPreProcessor
         for ( Event event : eventsToPreprocess )
         {
             // Extract program from program stage
-            if ( !event.getProgramStage().isBlank() )
+            if ( event.getProgramStage().isNotBlank() )
             {
                 ProgramStage programStage = bundle.getPreheat().getProgramStage( event.getProgramStage() );
                 if ( Objects.nonNull( programStage ) )
@@ -94,7 +92,7 @@ public class EventProgramPreProcessor
                 }
             }
             // If it is a program event, extract program stage from program
-            else if ( !event.getProgram().isBlank() )
+            else if ( event.getProgram().isNotBlank() )
             {
                 Program program = bundle.getPreheat().getProgram( event.getProgram() );
                 if ( Objects.nonNull( program ) && program.isWithoutRegistration() )
@@ -117,17 +115,15 @@ public class EventProgramPreProcessor
 
         TrackerPreheat preheat = bundle.getPreheat();
         List<Event> events = bundle.getEvents().stream()
-            .filter( e -> isBlank( e.getAttributeOptionCombo() )
-                && !isBlank( e.getAttributeCategoryOptions() ) )
+            .filter( e -> e.getAttributeOptionCombo().isBlank() && !e.getAttributeCategoryOptions().isEmpty() )
             .filter( e -> preheat.getProgram( e.getProgram() ) != null )
             .collect( Collectors.toList() );
 
         for ( Event e : events )
         {
             Program program = preheat.getProgram( e.getProgram() );
-            String aoc = preheat.getCategoryOptionComboIdentifier( program.getCategoryCombo(),
-                e.getAttributeCategoryOptions() );
-            e.setAttributeOptionCombo( aoc );
+            e.setAttributeOptionCombo( preheat.getCategoryOptionComboIdentifier( program.getCategoryCombo(),
+                e.getAttributeCategoryOptions() ) );
         }
     }
 }

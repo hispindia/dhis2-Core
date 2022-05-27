@@ -178,6 +178,10 @@ public class User
      */
     private boolean disabled;
 
+    private boolean isCredentialsNonExpired;
+
+    private boolean isAccountNonLocked;
+
     /**
      * The timestamp representing when the user account expires. If not set the
      * account does never expire.
@@ -233,8 +237,7 @@ public class User
     private transient UserCredentialsDto userCredentialsRaw;
 
     /**
-     * Organisation units for data input and data capture operations. TODO move
-     * to User.
+     * Organisation units for data input and data capture operations.
      */
     private Set<OrganisationUnit> organisationUnits = new HashSet<>();
 
@@ -816,13 +819,23 @@ public class User
     @Override
     public boolean isAccountNonLocked()
     {
-        return false;
+        return isAccountNonLocked;
+    }
+
+    public void setAccountNonLocked( boolean isAccountNonLocked )
+    {
+        this.isAccountNonLocked = isAccountNonLocked;
     }
 
     @Override
     public boolean isCredentialsNonExpired()
     {
-        return false;
+        return isCredentialsNonExpired;
+    }
+
+    public void setCredentialsNonExpired( boolean isCredentialsNonExpired )
+    {
+        this.isCredentialsNonExpired = isCredentialsNonExpired;
     }
 
     @Override

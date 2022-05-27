@@ -37,11 +37,11 @@ import org.hisp.dhis.dxf2.TrackerTest;
 import org.hisp.dhis.dxf2.events.TrackedEntityInstanceParams;
 import org.hisp.dhis.dxf2.events.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.dxf2.events.trackedentity.TrackedEntityInstanceService;
-import org.hisp.dhis.mock.MockCurrentUserService;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceQueryParams;
+import org.hisp.dhis.user.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import com.google.common.collect.Sets;
 
@@ -56,13 +56,26 @@ class TrackedEntityInstanceAggregateUserTest extends TrackerTest
     @Autowired
     private TrackedEntityInstanceAggregate trackedEntityInstanceAggregate;
 
-    @Override
-    protected void mockCurrentUserService()
+    private User superUser;
+
+    private User nonSuperUser;
+
+    @BeforeEach
+    void setUp()
     {
-        currentUserService = new MockCurrentUserService( null );
-        ReflectionTestUtils.setField( trackedEntityInstanceAggregate, "currentUserService", currentUserService );
-        ReflectionTestUtils.setField( trackedEntityInstanceService, "currentUserService", currentUserService );
-        ReflectionTestUtils.setField( teiService, "currentUserService", currentUserService );
+        doInTransaction( () -> {
+            superUser = preCreateInjectAdminUser();
+            injectSecurityContext( superUser );
+
+            nonSuperUser = createUserWithAuth( "testUser2" );
+            nonSuperUser.addOrganisationUnit( organisationUnitA );
+            nonSuperUser.getTeiSearchOrganisationUnits().add( organisationUnitA );
+            nonSuperUser.getTeiSearchOrganisationUnits().add( organisationUnitB );
+            userService.updateUser( nonSuperUser );
+
+            dbmsManager.clearSession();
+        } );
+
     }
 
     @Test

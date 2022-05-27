@@ -33,6 +33,7 @@ import static org.hisp.dhis.common.DimensionalObject.ITEM_SEP;
 import static org.hisp.dhis.common.DimensionalObject.PROGRAMSTAGE_SEP;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -110,7 +111,7 @@ public class DefaultQueryItemLocator
     }
 
     /**
-     * given a UID representing a dimension, tries to check if it exists, and if
+     * Given a UID representing a dimension, tries to check if it exists, and if
      * true, returns a QueryItem using the passed UID
      *
      * @param dimension an UID representing a dimension
@@ -119,15 +120,8 @@ public class DefaultQueryItemLocator
     private Optional<QueryItem> getDynamicDimension( String dimension )
     {
         return Optional.ofNullable(
-            dataQueryService.getDimension(
-                dimension,
-                Collections.emptyList(),
-                null,
-                Collections.emptyList(),
-                null,
-                true,
-                false,
-                IdScheme.UID ) )
+            dataQueryService.getDimension( dimension, Collections.emptyList(), (Date) null,
+                Collections.emptyList(), null, true, IdScheme.UID ) )
             .map( PrimaryKeyObject::getUid )
             .map( BaseDimensionalItemObject::new )
             .map( QueryItem::new );

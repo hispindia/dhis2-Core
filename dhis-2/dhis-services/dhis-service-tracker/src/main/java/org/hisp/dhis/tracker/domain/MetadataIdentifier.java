@@ -43,8 +43,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * MetadataIdentifier represents an immutable idScheme aware identifier of
- * metadata.
- *
+ * metadata. <br>
+ * <p>
+ * Tracker allows imports to use identifiers in idScheme {@code UID},
+ * {@code CODE} {@code NAME} and {@code ATTRIBUTE}. Any matching of metadata
+ * like "does the {@code orgUnit} given in the import exist?" has to respect the
+ * user chosen idScheme. To reduce the risk of falsely declaring metadata as for
+ * example not found {@code MetadataIdentifier} wraps the idScheme with the
+ * identifier value.
+ * </p>
+ * <br>
+ * <p>
+ * Compare a {@link MetadataIdentifier} to an {@link IdentifiableObject} using
+ * {@link #isEqualTo(IdentifiableObject)}. {@link MetadataIdentifier} can be
+ * compared to {@link MetadataIdentifier} using {@link #equals(Object)}. If you
+ * must access the actual identifier like the {@code UID} use
+ * {@link #getIdentifier()}. Exercise caution when you do, as you should of
+ * course only compare the UID to another UID.
+ * </p>
+ * <br>
  * idScheme=ATTRIBUTE uses the {@link #identifier} and {@link #attributeValue}
  * to identify metadata while the other idSchemes only rely on the
  * {@link #identifier} (UID, CODE, NAME).
@@ -53,6 +70,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @AllArgsConstructor( access = AccessLevel.PRIVATE )
 public class MetadataIdentifier
 {
+
+    public static MetadataIdentifier EMPTY_UID = MetadataIdentifier.ofUid( (String) null );
+
+    public static MetadataIdentifier EMPTY_CODE = MetadataIdentifier.ofCode( (String) null );
+
+    public static final MetadataIdentifier EMPTY_NAME = MetadataIdentifier.ofName( (String) null );
 
     /**
      * Represents the idScheme the {@link #identifier} is in.
@@ -100,7 +123,25 @@ public class MetadataIdentifier
     }
 
     /**
-     * Creates an identifier for metadata using idScheme UID and the given uid.
+     * Creates an identifier for the given metadata using idScheme UID and its
+     * UID.
+     *
+     * @param metadata identifiable object of which the identifier will be
+     *        returned
+     * @return metadata identifier representing a UID
+     */
+    public static MetadataIdentifier ofUid( IdentifiableObject metadata )
+    {
+        if ( metadata == null )
+        {
+            return MetadataIdentifier.EMPTY_UID;
+        }
+
+        return MetadataIdentifier.ofUid( metadata.getUid() );
+    }
+
+    /**
+     * Creates an identifier for metadata using idScheme UID and the given UID.
      *
      * @param uid metadata uid
      * @return metadata identifier representing a UID
@@ -108,6 +149,24 @@ public class MetadataIdentifier
     public static MetadataIdentifier ofUid( String uid )
     {
         return new MetadataIdentifier( TrackerIdScheme.UID, uid, null );
+    }
+
+    /**
+     * Creates an identifier for the given metadata using idScheme CODE and its
+     * CODE.
+     *
+     * @param metadata identifiable object of which the identifier will be
+     *        returned
+     * @return metadata identifier representing a CODE
+     */
+    public static MetadataIdentifier ofCode( IdentifiableObject metadata )
+    {
+        if ( metadata == null )
+        {
+            return MetadataIdentifier.EMPTY_CODE;
+        }
+
+        return MetadataIdentifier.ofCode( metadata.getCode() );
     }
 
     /**
@@ -120,6 +179,24 @@ public class MetadataIdentifier
     public static MetadataIdentifier ofCode( String code )
     {
         return new MetadataIdentifier( TrackerIdScheme.CODE, code, null );
+    }
+
+    /**
+     * Creates an identifier for the given metadata using idScheme NAME and its
+     * name.
+     *
+     * @param metadata identifiable object of which the identifier will be
+     *        returned
+     * @return metadata identifier representing a NAME
+     */
+    public static MetadataIdentifier ofName( IdentifiableObject metadata )
+    {
+        if ( metadata == null )
+        {
+            return MetadataIdentifier.EMPTY_NAME;
+        }
+
+        return MetadataIdentifier.ofName( metadata.getName() );
     }
 
     /**
@@ -231,5 +308,16 @@ public class MetadataIdentifier
     public boolean isBlank()
     {
         return StringUtils.isBlank( this.getIdentifierOrAttributeValue() );
+    }
+
+    /**
+     * Determines whether this metadata identifier is not blank. Complement of
+     * {@link #isBlank()}.
+     *
+     * @return true if identifier is not blank
+     */
+    public boolean isNotBlank()
+    {
+        return !this.isBlank();
     }
 }

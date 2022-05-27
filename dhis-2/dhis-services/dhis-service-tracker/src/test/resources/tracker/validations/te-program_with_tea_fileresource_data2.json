@@ -33,29 +33,32 @@
   "trackedEntities": [
     {
       "trackedEntity": "EEFkxTWB55B",
-      "trackedEntityType": "KrYIdvLxkMb",
+      "trackedEntityType": {
+        "idScheme": "UID",
+        "identifier": "KrYIdvLxkMb"
+      },
       "createdAtClient": "2020-02-20T12:09:21.844",
-      "orgUnit": "cNEZTkdAvmg",
+      "orgUnit": {
+        "idScheme": "UID",
+        "identifier": "cNEZTkdAvmg"
+      },
       "inactive": false,
       "deleted": false,
       "potentialDuplicate": false,
       "relationships": [],
       "attributes": [
         {
-          "attribute": "zmdwVu2aXj2",
+          "attribute": {
+            "idScheme": "UID",
+            "identifier": "zmdwVu2aXj2"
+          },
           "displayName": "Attribute_FileResource",
           "storedBy": "admin",
           "valueType": "FILE_RESOURCE",
           "value": "Jzf6hHNP7jx"
         }
       ],
-      "enrollments": [],
-      "programOwners": [
-        {
-          "trackedEntity": "EEFkxTWB55Y",
-          "program": "hJUBNVQWl4e"
-        }
-      ]
+      "enrollments": []
     }
   ],
   "enrollments": [],

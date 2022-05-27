@@ -164,16 +164,6 @@ public interface UserService
     boolean isLastSuperUser( User user );
 
     /**
-     * Checks if the given user role represents the last role with ALL
-     * authority.
-     *
-     * @param userRole the user role.
-     * @return true if the given user role represents the last role with ALL
-     *         authority.
-     */
-    boolean isLastSuperRole( UserRole userRole );
-
-    /**
      * Returns a list of users based on the given query parameters. The default
      * order of last name and first name will be applied.
      *
@@ -439,4 +429,9 @@ public interface UserService
      * authority.
      */
     List<User> getUsersWithAuthority( String authority );
+
+    CurrentUserDetails validateAndCreateUserDetails( User user, String password );
+
+    CurrentUserDetailsImpl createUserDetails( User user, String password, boolean accountNonLocked,
+        boolean credentialsNonExpired );
 }

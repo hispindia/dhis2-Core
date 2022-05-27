@@ -33,41 +33,41 @@
   "trackedEntities": [
     {
       "trackedEntity": "IOR1AXXl24H",
-      "trackedEntityType": "nEenWmSyUEp",
+      "trackedEntityType": {
+        "idScheme": "UID",
+        "identifier": "nEenWmSyUEp"
+      },
       "createdAt": "2020-02-20T12:09:21.844",
       "updatedAt": "2020-02-20T12:09:21.844",
-      "orgUnit": "PlKwabX2xRW",
+      "orgUnit": {
+        "idScheme": "UID",
+        "identifier": "PlKwabX2xRW"
+      },
       "inactive": false,
       "deleted": false,
       "potentialDuplicate": false,
       "relationships": [],
       "attributes": [],
-      "enrollments": [],
-      "programOwners": [
-        {
-          "trackedEntity": "EEFkxTWB55Y",
-          "program": "hJUBNVQWl4e"
-        }
-      ]
+      "enrollments": []
     },
     {
       "trackedEntity": "IOR1AXXl25E",
-      "trackedEntityType": "nEenWmSyUEp",
+      "trackedEntityType": {
+        "idScheme": "UID",
+        "identifier": "nEenWmSyUEp"
+      },
       "createdAt": "2020-02-20T12:09:21.844",
       "updatedAt": "2020-02-20T12:09:21.844",
-      "orgUnit": "PlKwabX2xRW",
+      "orgUnit": {
+        "idScheme": "UID",
+        "identifier": "PlKwabX2xRW"
+      },
       "inactive": false,
       "deleted": false,
       "potentialDuplicate": false,
       "relationships": [],
       "attributes": [],
-      "enrollments": [],
-      "programOwners": [
-        {
-          "trackedEntity": "EEFkxTWB55Y",
-          "program": "hJUBNVQWl4e"
-        }
-      ]
+      "enrollments": []
     }
   ],
   "enrollments": [
@@ -128,7 +128,7 @@
       },
       "programStage": {
         "idScheme": "UID",
-        "identifier": "NpsdDv6kKSO"
+        "identifier": "NpsdDv6kKSf"
       },
       "enrollment": "TvctPPhpD8u",
       "orgUnit": {
@@ -143,20 +143,18 @@
       "deleted": false,
       "createdAt": "2019-01-28T12:10:38.108",
       "updatedAt": "2019-01-28T12:10:38.109",
-      "attributeOptionCombo": "HllvX50cXC0",
-      "attributeCategoryOptions": "xYerKDKCefk",
-      "completedBy": "admin",
-      "completedAt": "2019-01-28T00:00:00.000",
-      "dataValues": [
+      "attributeOptionCombo": {
+        "idScheme": "UID",
+        "identifier": "HllvX50cXC0"
+      },
+      "attributeCategoryOptions": [
         {
-          "createdAt": "2019-01-28T12:10:38.113",
-          "updatedAt": "2019-01-28T12:10:38.113",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "DSKTW8qFP0z",
-          "value": "2017-01-27T17:00:00.000Z"
+          "idScheme": "UID",
+          "identifier": "xYerKDKCefk"
         }
       ],
+      "completedBy": "admin",
+      "completedAt": "2019-01-28T00:00:00.000",
       "notes": []
     },
     {
@@ -168,7 +166,7 @@
       },
       "programStage": {
         "idScheme": "UID",
-        "identifier": "NpsdDv6kKSO"
+        "identifier": "NpsdDv6kKSf"
       },
       "enrollment": "TvctPPhpD8u",
       "orgUnit": {
@@ -183,20 +181,18 @@
       "deleted": false,
       "createdAt": "2019-01-28T12:10:38.108",
       "updatedAt": "2019-01-28T12:10:38.109",
-      "attributeOptionCombo": "HllvX50cXC0",
-      "attributeCategoryOptions": "xYerKDKCefk",
-      "completedBy": "admin",
-      "completedAt": "2019-01-28T00:00:00.000",
-      "dataValues": [
+      "attributeOptionCombo": {
+        "idScheme": "UID",
+        "identifier": "HllvX50cXC0"
+      },
+      "attributeCategoryOptions": [
         {
-          "createdAt": "2019-01-28T12:10:38.115",
-          "updatedAt": "2019-01-28T12:10:38.115",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "VD2olWcRozZ",
-          "value": "2019-01-28"
+          "idScheme": "UID",
+          "identifier": "xYerKDKCefk"
         }
       ],
+      "completedBy": "admin",
+      "completedAt": "2019-01-28T00:00:00.000",
       "notes": []
     },
     {
@@ -208,7 +204,7 @@
       },
       "programStage": {
         "idScheme": "UID",
-        "identifier": "NpsdDv6kKSO"
+        "identifier": "NpsdDv6kKSf"
       },
       "enrollment": "TvctPPhpD8u",
       "orgUnit": {
@@ -223,20 +219,18 @@
       "deleted": false,
       "createdAt": "2019-01-28T12:10:38.108",
       "updatedAt": "2019-01-28T12:10:38.109",
-      "attributeOptionCombo": "HllvX50cXC0",
-      "attributeCategoryOptions": "xYerKDKCefk",
-      "completedBy": "admin",
-      "completedAt": "2019-01-28T00:00:00.000",
-      "dataValues": [
+      "attributeOptionCombo": {
+        "idScheme": "UID",
+        "identifier": "HllvX50cXC0"
+      },
+      "attributeCategoryOptions": [
         {
-          "createdAt": "2019-01-28T12:10:38.116",
-          "updatedAt": "2019-01-28T12:10:38.116",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "WS3e6pInnuA",
-          "value": "2019-01-27T18:00:00.000Z"
+          "idScheme": "UID",
+          "identifier": "xYerKDKCefk"
         }
       ],
+      "completedBy": "admin",
+      "completedAt": "2019-01-28T00:00:00.000",
       "notes": []
     },
     {
@@ -248,7 +242,7 @@
       },
       "programStage": {
         "idScheme": "UID",
-        "identifier": "NpsdDv6kKSO"
+        "identifier": "NpsdDv6kKSf"
       },
       "enrollment": "TvctPPhpD8u",
       "orgUnit": {
@@ -263,20 +257,18 @@
       "deleted": false,
       "createdAt": "2019-01-28T12:10:38.108",
       "updatedAt": "2019-01-28T12:10:38.109",
-      "attributeOptionCombo": "HllvX50cXC0",
-      "attributeCategoryOptions": "xYerKDKCefk",
-      "completedBy": "admin",
-      "completedAt": "2019-01-28T00:00:00.000",
-      "dataValues": [
+      "attributeOptionCombo": {
+        "idScheme": "UID",
+        "identifier": "HllvX50cXC0"
+      },
+      "attributeCategoryOptions": [
         {
-          "createdAt": "2019-01-28T12:10:38.116",
-          "updatedAt": "2019-01-28T12:10:38.116",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "h7hXjNVMiRl",
-          "value": "test@dhis2.org"
+          "idScheme": "UID",
+          "identifier": "xYerKDKCefk"
         }
       ],
+      "completedBy": "admin",
+      "completedAt": "2019-01-28T00:00:00.000",
       "notes": []
     },
     {
@@ -288,7 +280,7 @@
       },
       "programStage": {
         "idScheme": "UID",
-        "identifier": "NpsdDv6kKSO"
+        "identifier": "NpsdDv6kKSf"
       },
       "enrollment": "TvctPPhpD8u",
       "orgUnit": {
@@ -303,20 +295,18 @@
       "deleted": false,
       "createdAt": "2019-01-28T12:10:38.108",
       "updatedAt": "2019-01-28T12:10:38.109",
-      "attributeOptionCombo": "HllvX50cXC0",
-      "attributeCategoryOptions": "xYerKDKCefk",
-      "completedBy": "admin",
-      "completedAt": "2019-01-28T00:00:00.000",
-      "dataValues": [
+      "attributeOptionCombo": {
+        "idScheme": "UID",
+        "identifier": "HllvX50cXC0"
+      },
+      "attributeCategoryOptions": [
         {
-          "createdAt": "2019-01-28T12:10:38.121",
-          "updatedAt": "2019-01-28T12:10:38.121",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "KCLriKKezWO",
-          "value": "123"
+          "idScheme": "UID",
+          "identifier": "xYerKDKCefk"
         }
       ],
+      "completedBy": "admin",
+      "completedAt": "2019-01-28T00:00:00.000",
       "notes": []
     },
     {
@@ -328,7 +318,7 @@
       },
       "programStage": {
         "idScheme": "UID",
-        "identifier": "NpsdDv6kKSO"
+        "identifier": "NpsdDv6kKSf"
       },
       "enrollment": "TvctPPhpD8u",
       "orgUnit": {
@@ -343,52 +333,18 @@
       "deleted": false,
       "createdAt": "2019-01-28T12:10:38.108",
       "updatedAt": "2019-01-28T12:10:38.109",
-      "attributeOptionCombo": "HllvX50cXC0",
-      "attributeCategoryOptions": "xYerKDKCefk",
-      "completedBy": "admin",
-      "completedAt": "2019-01-28T00:00:00.000",
-      "dataValues": [
+      "attributeOptionCombo": {
+        "idScheme": "UID",
+        "identifier": "HllvX50cXC0"
+      },
+      "attributeCategoryOptions": [
         {
-          "createdAt": "2019-01-28T12:10:38.122",
-          "updatedAt": "2019-01-28T12:10:38.122",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "A8qxpcalLtf",
-          "value": "Test text for LongText data element."
-        },
-        {
-          "createdAt": "2019-01-28T12:10:38.123",
-          "updatedAt": "2019-01-28T12:10:38.123",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "wIUShyK7lIa",
-          "value": "/PlKwabX2xRW"
-        },
-        {
-          "createdAt": "2019-01-28T12:10:38.122",
-          "updatedAt": "2019-01-28T12:10:38.122",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "kAfSfT69m0E",
-          "value": "123"
-        },
-        {
-          "createdAt": "2019-01-28T12:10:38.123",
-          "updatedAt": "2019-01-28T12:10:38.123",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "ICfA0klVxkd",
-          "value": "23"
-        },
-        {
-          "createdAt": "2019-01-28T12:10:38.122",
-          "updatedAt": "2019-01-28T12:10:38.122",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "zal5vkVEpV0",
-          "value": "-123"
+          "idScheme": "UID",
+          "identifier": "xYerKDKCefk"
         }
       ],
+      "completedBy": "admin",
+      "completedAt": "2019-01-28T00:00:00.000",
       "notes": []
     },
     {
@@ -400,7 +356,7 @@
       },
       "programStage": {
         "idScheme": "UID",
-        "identifier": "NpsdDv6kKSO"
+        "identifier": "NpsdDv6kKSf"
       },
       "enrollment": "TvctPPhpD8u",
       "orgUnit": {
@@ -415,52 +371,18 @@
       "deleted": false,
       "createdAt": "2019-01-28T12:10:38.108",
       "updatedAt": "2019-01-28T12:10:38.109",
-      "attributeOptionCombo": "HllvX50cXC0",
-      "attributeCategoryOptions": "xYerKDKCefk",
-      "completedBy": "admin",
-      "completedAt": "2019-01-28T00:00:00.000",
-      "dataValues": [
+      "attributeOptionCombo": {
+        "idScheme": "UID",
+        "identifier": "HllvX50cXC0"
+      },
+      "attributeCategoryOptions": [
         {
-          "createdAt": "2019-01-28T12:10:38.124",
-          "updatedAt": "2019-01-28T12:10:38.124",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "Kvm949EFjjv",
-          "value": "123"
-        },
-        {
-          "createdAt": "2019-01-28T12:10:38.124",
-          "updatedAt": "2019-01-28T12:10:38.124",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "xaQ4gqDYGL9",
-          "value": "0"
-        },
-        {
-          "createdAt": "2019-01-28T12:10:38.124",
-          "updatedAt": "2019-01-28T12:10:38.124",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "MqGMwzt7M7w",
-          "value": "Test text for Text data element."
-        },
-        {
-          "createdAt": "2019-01-28T12:10:38.124",
-          "updatedAt": "2019-01-28T12:10:38.124",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "WdTLfnn4S1I",
-          "value": "4:00"
-        },
-        {
-          "createdAt": "2019-01-28T12:10:38.123",
-          "updatedAt": "2019-01-28T12:10:38.123",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "xaPkxL28aPx",
-          "value": "1231231"
+          "idScheme": "UID",
+          "identifier": "xYerKDKCefk"
         }
       ],
+      "completedBy": "admin",
+      "completedAt": "2019-01-28T00:00:00.000",
       "notes": []
     },
     {
@@ -472,7 +394,7 @@
       },
       "programStage": {
         "idScheme": "UID",
-        "identifier": "NpsdDv6kKSO"
+        "identifier": "NpsdDv6kKSf"
       },
       "enrollment": "TvctPPhpD8u",
       "orgUnit": {
@@ -487,44 +409,18 @@
       "deleted": false,
       "createdAt": "2019-01-28T12:10:38.108",
       "updatedAt": "2019-01-28T12:10:38.109",
-      "attributeOptionCombo": "HllvX50cXC0",
-      "attributeCategoryOptions": "xYerKDKCefk",
-      "completedBy": "admin",
-      "completedAt": "2019-01-28T00:00:00.000",
-      "dataValues": [
+      "attributeOptionCombo": {
+        "idScheme": "UID",
+        "identifier": "HllvX50cXC0"
+      },
+      "attributeCategoryOptions": [
         {
-          "createdAt": "2019-01-28T12:10:38.136",
-          "updatedAt": "2019-01-28T12:10:38.136",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "gfEoDU4GtXK",
-          "value": "true"
-        },
-        {
-          "createdAt": "2019-01-28T12:10:38.135",
-          "updatedAt": "2019-01-28T12:10:38.135",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "JXF90RhgNiI",
-          "value": "admin"
-        },
-        {
-          "createdAt": "2019-01-28T12:10:38.136",
-          "updatedAt": "2019-01-28T12:10:38.136",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "qw67QlOlzdp",
-          "value": "true"
-        },
-        {
-          "createdAt": "2019-01-28T12:10:38.133",
-          "updatedAt": "2019-01-28T12:10:38.134",
-          "storedBy": "admin",
-          "providedElsewhere": false,
-          "dataElement": "hxUvZqnmBDv",
-          "value": "http://dhis2.org"
+          "idScheme": "UID",
+          "identifier": "xYerKDKCefk"
         }
       ],
+      "completedBy": "admin",
+      "completedAt": "2019-01-28T00:00:00.000",
       "notes": []
     }
   ],

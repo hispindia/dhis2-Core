@@ -48,7 +48,6 @@ import org.hisp.dhis.rules.models.RuleEffects;
 import org.hisp.dhis.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.tracker.AtomicMode;
 import org.hisp.dhis.tracker.FlushMode;
-import org.hisp.dhis.tracker.TrackerIdScheme;
 import org.hisp.dhis.tracker.TrackerImportStrategy;
 import org.hisp.dhis.tracker.TrackerType;
 import org.hisp.dhis.tracker.ValidationMode;
@@ -81,12 +80,6 @@ public class TrackerBundle
      */
     @Builder.Default
     private TrackerBundleMode importMode = TrackerBundleMode.COMMIT;
-
-    /**
-     * What identifiers to match on.
-     */
-    @Builder.Default
-    private TrackerIdScheme identifier = TrackerIdScheme.UID;
 
     /**
      * Sets import strategy (create, update, etc).
@@ -181,10 +174,6 @@ public class TrackerBundle
     @Builder.Default
     private Map<TrackerType, Map<String, TrackerImportStrategy>> resolvedStrategyMap = initStrategyMap();
 
-    private TrackerBundle()
-    {
-    }
-
     private static Map<TrackerType, Map<String, TrackerImportStrategy>> initStrategyMap()
     {
         Map<TrackerType, Map<String, TrackerImportStrategy>> resolvedStrategyMap = new EnumMap<>( TrackerType.class );
@@ -261,5 +250,10 @@ public class TrackerBundle
     public ProgramStageInstance getProgramStageInstance( String event )
     {
         return getPreheat().getEvent( event );
+    }
+
+    public org.hisp.dhis.relationship.Relationship getRelationship( String relationship )
+    {
+        return getPreheat().getRelationship( relationship );
     }
 }

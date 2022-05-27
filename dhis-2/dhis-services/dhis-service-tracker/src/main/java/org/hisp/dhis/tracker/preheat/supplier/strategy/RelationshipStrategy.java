@@ -64,15 +64,10 @@ public class RelationshipStrategy implements ClassBasedSupplierStrategy
 
     private List<org.hisp.dhis.relationship.Relationship> retrieveRelationships( List<List<String>> splitList )
     {
-        List<String> keys = splitList.stream().flatMap( List::stream )
-            .filter( identifier -> !CodeGenerator.isValidUid( identifier ) )
-            .collect( Collectors.toList() );
         List<String> uids = splitList.stream().flatMap( List::stream )
             .filter( CodeGenerator::isValidUid )
             .collect( Collectors.toList() );
 
-        uids.addAll( relationshipStore.getUidsByRelationshipKeys( keys ) );
-
-        return relationshipStore.getByUids( uids );
+        return relationshipStore.getByUidsIncludeDeleted( uids );
     }
 }

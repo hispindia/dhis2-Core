@@ -75,9 +75,6 @@ public class Event
     private MetadataIdentifier orgUnit;
 
     @JsonProperty
-    private String orgUnitName;
-
-    @JsonProperty
     @Builder.Default
     private List<Relationship> relationships = new ArrayList<>();
 
@@ -109,10 +106,11 @@ public class Event
     private Instant updatedAtClient;
 
     @JsonProperty
-    private String attributeOptionCombo;
+    private MetadataIdentifier attributeOptionCombo;
 
     @JsonProperty
-    private String attributeCategoryOptions;
+    @Builder.Default
+    private Set<MetadataIdentifier> attributeCategoryOptions = new HashSet<>();
 
     @JsonProperty
     private String completedBy;

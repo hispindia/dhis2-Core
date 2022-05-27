@@ -63,12 +63,14 @@ class ReportSummaryDeleteIntegrationTest extends TrackerTest
         throws IOException
     {
         setUpMetadata( "tracker/tracker_basic_metadata.json" );
+        injectAdminUser();
         TrackerImportParams params = fromJson( "tracker/tracker_basic_data_before_deletion.json" );
         assertEquals( 13, params.getTrackedEntities().size() );
         assertEquals( 2, params.getEnrollments().size() );
         assertEquals( 2, params.getEvents().size() );
 
-        TrackerBundleReport bundleReport = trackerImportService.importTracker( params ).getBundleReport();
+        TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
+        TrackerBundleReport bundleReport = trackerImportReport.getBundleReport();
 
         assertImportedObjects( 13, bundleReport, TrackerType.TRACKED_ENTITY );
         assertImportedObjects( 2, bundleReport, TrackerType.ENROLLMENT );
@@ -76,6 +78,8 @@ class ReportSummaryDeleteIntegrationTest extends TrackerTest
         assertEquals( 6, manager.getAll( ProgramInstance.class ).size() );
         assertEquals( bundleReport.getTypeReportMap().get( TrackerType.EVENT ).getStats().getCreated(),
             manager.getAll( ProgramStageInstance.class ).size() );
+
+        dbmsManager.clearSession();
     }
 
     @Test
@@ -87,7 +91,6 @@ class ReportSummaryDeleteIntegrationTest extends TrackerTest
         assertEquals( 9, params.getTrackedEntities().size() );
 
         TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
-
         assertEquals( TrackerStatus.OK, trackerImportReport.getStatus() );
         assertDeletedObjects( 9, trackerImportReport.getBundleReport(), TrackerType.TRACKED_ENTITY );
         // remaining

@@ -28,14 +28,13 @@
 package org.hisp.dhis.dxf2.sync;
 
 import static java.lang.String.format;
-import static org.hisp.dhis.scheduling.JobProgress.FailurePolicy.SKIP_ITEM_OUTLIER;
+import static org.hisp.dhis.scheduling.JobProgress.FailurePolicy.SKIP_ITEM;
 
 import java.util.Date;
 import java.util.stream.IntStream;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
 import org.hisp.dhis.common.IdSchemes;
 import org.hisp.dhis.datavalue.DataValueService;
@@ -55,7 +54,6 @@ import org.springframework.web.client.RestTemplate;
  * @author David Katuscak <katuscak.d@gmail.com>
  * @author Jan Bernitt (job progress tracking refactoring)
  */
-@Slf4j
 @Component
 @AllArgsConstructor
 public class DataValueSynchronization implements DataSynchronizationWithPaging
@@ -149,7 +147,7 @@ public class DataValueSynchronization implements DataSynchronizationWithPaging
         msg += "DataValueSynchronization job has " + context.getPages() + " pages to sync. With page size: "
             + context.getPageSize();
 
-        progress.startingStage( msg, context.getPages(), SKIP_ITEM_OUTLIER );
+        progress.startingStage( msg, context.getPages(), SKIP_ITEM );
         progress.runStage( IntStream.range( 1, context.getPages() + 1 ).boxed(),
             page -> format( "Synchronizing page %d with page size %d", page, context.getPageSize() ),
             page -> synchronizePage( page, context ) );

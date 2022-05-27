@@ -32,6 +32,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValue;
+import org.hisp.dhis.tracker.domain.MetadataIdentifier;
 
 /**
  * Simple pojo used to store the data for {@link TrackedEntityAttributeValue}
@@ -47,9 +48,9 @@ public class UniqueAttributeValue
 
     private String teiUid;
 
-    private String attributeUid;
+    private MetadataIdentifier attribute;
 
     private String value;
 
-    private String orgUnitId;
+    private MetadataIdentifier orgUnit;
 }

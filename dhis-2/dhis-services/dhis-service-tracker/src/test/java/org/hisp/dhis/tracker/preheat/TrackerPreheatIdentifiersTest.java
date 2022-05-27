@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -124,15 +125,21 @@ class TrackerPreheatIdentifiersTest extends TrackerTest
         List<Pair<String, TrackerIdSchemeParam>> data = buildDataSet( "DSKTW8qFP0z", "DEAGE", "DE Age" );
         for ( Pair<String, TrackerIdSchemeParam> pair : data )
         {
-            Event event = new Event();
-            event.setProgramStage( MetadataIdentifier.ofUid( "NpsdDv6kKSO" ) );
-            DataValue dv1 = new DataValue();
-            dv1.setDataElement( pair.getLeft() );
-            dv1.setValue( "val1" );
-            event.setDataValues( Collections.singleton( dv1 ) );
-            TrackerImportParams params = buildParams( event, builder().dataElementIdScheme( pair.getRight() ).build() );
+            String id = pair.getLeft();
+            TrackerIdSchemeParam param = pair.getRight();
+            DataValue dv1 = DataValue.builder()
+                .dataElement( param.toMetadataIdentifier( id ) )
+                .value( "val1" )
+                .build();
+            Event event = Event.builder()
+                .programStage( MetadataIdentifier.ofUid( "NpsdDv6kKSO" ) )
+                .dataValues( Collections.singleton( dv1 ) )
+                .build();
+            TrackerImportParams params = buildParams( event, builder().dataElementIdScheme( param ).build() );
+
             TrackerPreheat preheat = trackerPreheatService.preheat( params );
-            assertPreheatedObjectExists( preheat, DataElement.class, pair.getRight(), pair.getLeft() );
+
+            assertPreheatedObjectExists( preheat, DataElement.class, param, id );
         }
     }
 
@@ -142,12 +149,16 @@ class TrackerPreheatIdentifiersTest extends TrackerTest
         List<Pair<String, TrackerIdSchemeParam>> data = buildDataSet( "XXXrKDKCefk", "COA", "COAname" );
         for ( Pair<String, TrackerIdSchemeParam> pair : data )
         {
-            Event event = new Event();
-            event.setAttributeCategoryOptions( pair.getLeft() );
-            TrackerImportParams params = buildParams( event,
-                builder().categoryOptionIdScheme( pair.getRight() ).build() );
+            String id = pair.getLeft();
+            TrackerIdSchemeParam param = pair.getRight();
+            Event event = Event.builder()
+                .attributeCategoryOptions( Set.of( param.toMetadataIdentifier( id ) ) )
+                .build();
+            TrackerImportParams params = buildParams( event, builder().categoryOptionIdScheme( param ).build() );
+
             TrackerPreheat preheat = trackerPreheatService.preheat( params );
-            assertPreheatedObjectExists( preheat, CategoryOption.class, pair.getRight(), pair.getLeft() );
+
+            assertPreheatedObjectExists( preheat, CategoryOption.class, param, id );
         }
     }
 
@@ -157,12 +168,16 @@ class TrackerPreheatIdentifiersTest extends TrackerTest
         List<Pair<String, TrackerIdSchemeParam>> data = buildDataSet( "XXXvX50cXC0", "COCA", "COCAname" );
         for ( Pair<String, TrackerIdSchemeParam> pair : data )
         {
-            Event event = new Event();
-            event.setAttributeOptionCombo( pair.getLeft() );
-            TrackerImportParams params = buildParams( event,
-                builder().categoryOptionComboIdScheme( pair.getRight() ).build() );
+            String id = pair.getLeft();
+            TrackerIdSchemeParam param = pair.getRight();
+            Event event = Event.builder()
+                .attributeOptionCombo( param.toMetadataIdentifier( id ) )
+                .build();
+            TrackerImportParams params = buildParams( event, builder().categoryOptionComboIdScheme( param ).build() );
+
             TrackerPreheat preheat = trackerPreheatService.preheat( params );
-            assertPreheatedObjectExists( preheat, CategoryOptionCombo.class, pair.getRight(), pair.getLeft() );
+
+            assertPreheatedObjectExists( preheat, CategoryOptionCombo.class, param, id );
         }
     }
 

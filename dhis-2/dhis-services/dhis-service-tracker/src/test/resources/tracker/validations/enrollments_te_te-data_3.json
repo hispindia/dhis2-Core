@@ -33,32 +33,38 @@
   "trackedEntities": [
     {
       "trackedEntity": "Kj6vYde4LFf",
-      "trackedEntityType": "bPJ0FMtcnEh",
+      "trackedEntityType": {
+        "idScheme": "UID",
+        "identifier": "bPJ0FMtcnEh"
+      },
       "updatedAt": "2019-08-19T13:59:13.706",
-      "orgUnit": "QfUVllTs6cS",
+      "orgUnit": {
+        "idScheme": "UID",
+        "identifier": "QfUVllTs6cS"
+      },
       "inactive": false,
       "deleted": false,
       "potentialDuplicate": false,
       "relationships": [],
       "attributes": [
         {
-          "attribute": "fmBIpOStKkF",
+          "attribute": {
+            "idScheme": "UID",
+            "identifier": "fmBIpOStKkF"
+          },
           "storedBy": "admin",
           "value": "PersonY"
         },
         {
-          "attribute": "sTJvSLN7Kcb",
+          "attribute": {
+            "idScheme": "UID",
+            "identifier": "sTJvSLN7Kcb"
+          },
           "storedBy": "admin",
           "value": "AddressX"
         }
       ],
-      "enrollments": [],
-      "programOwners": [
-        {
-          "trackedEntity": "Kj6vYde4LHh",
-          "program": "E8o1E9tAppy"
-        }
-      ]
+      "enrollments": []
     }
   ],
   "enrollments": [],

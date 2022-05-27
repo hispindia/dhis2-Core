@@ -27,9 +27,11 @@
  */
 package org.hisp.dhis.security.oidc;
 
+import java.io.Serializable;
 import java.util.Map;
 
-import org.hisp.dhis.user.User;
+import org.hisp.dhis.user.CurrentUserDetails;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -40,13 +42,13 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
  */
 public class DhisOidcUser
     extends DefaultOAuth2User
-    implements OidcUser
+    implements OidcUser, CurrentUserDetails
 {
     private final OidcIdToken oidcIdToken;
 
-    private final User user;
+    private final CurrentUserDetails user;
 
-    public DhisOidcUser( User user, Map<String, Object> attributes, String nameAttributeKey,
+    public DhisOidcUser( CurrentUserDetails user, Map<String, Object> attributes, String nameAttributeKey,
         OidcIdToken idToken )
     {
         super( user.getAuthorities(), attributes, nameAttributeKey );
@@ -72,8 +74,57 @@ public class DhisOidcUser
         return oidcIdToken;
     }
 
-    public User getUser()
+    public UserDetails getUser()
     {
         return user;
+    }
+
+    @Override
+    public String getUsername()
+    {
+        return user.getUsername();
+    }
+
+    @Override
+    public String getPassword()
+    {
+        return user.getPassword();
+    }
+
+    @Override
+    public boolean isAccountNonExpired()
+    {
+        return user.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked()
+    {
+        return user.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired()
+    {
+        return user.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled()
+    {
+        return user.isEnabled();
+    }
+
+    @Override
+    public String getUid()
+    {
+        return user.getUid();
+
+    }
+
+    @Override
+    public Map<String, Serializable> getUserSettings()
+    {
+        return user.getUserSettings();
     }
 }

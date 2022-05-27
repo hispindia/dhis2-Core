@@ -54,9 +54,9 @@ public class PreCheckMandatoryFieldsValidationHook
     @Override
     public void validateTrackedEntity( ValidationErrorReporter reporter, TrackedEntity trackedEntity )
     {
-        reporter.addErrorIf( () -> StringUtils.isEmpty( trackedEntity.getTrackedEntityType() ), trackedEntity, E1121,
+        reporter.addErrorIf( () -> trackedEntity.getTrackedEntityType().isBlank(), trackedEntity, E1121,
             "trackedEntityType" );
-        reporter.addErrorIf( () -> StringUtils.isEmpty( trackedEntity.getOrgUnit() ), trackedEntity, E1121, ORG_UNIT );
+        reporter.addErrorIf( () -> trackedEntity.getOrgUnit().isBlank(), trackedEntity, E1121, ORG_UNIT );
     }
 
     @Override
@@ -101,7 +101,7 @@ public class PreCheckMandatoryFieldsValidationHook
     {
         reporter.addErrorIfNull( relationship.getFrom(), relationship, E1124, "from" );
         reporter.addErrorIfNull( relationship.getTo(), relationship, E1124, "to" );
-        reporter.addErrorIf( () -> StringUtils.isEmpty( relationship.getRelationshipType() ), relationship, E1124,
+        reporter.addErrorIf( () -> relationship.getRelationshipType().isBlank(), relationship, E1124,
             "relationshipType" );
     }
 

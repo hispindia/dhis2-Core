@@ -113,8 +113,10 @@ class PreCheckMetaValidationHookTest
         ValidationErrorReporter reporter = new ValidationErrorReporter( bundle );
 
         // when
-        when( preheat.getOrganisationUnit( ORG_UNIT_UID ) ).thenReturn( new OrganisationUnit() );
-        when( preheat.getTrackedEntityType( TRACKED_ENTITY_TYPE_UID ) ).thenReturn( new TrackedEntityType() );
+        when( preheat.getOrganisationUnit( MetadataIdentifier.ofUid( ORG_UNIT_UID ) ) )
+            .thenReturn( new OrganisationUnit() );
+        when( preheat.getTrackedEntityType( MetadataIdentifier.ofUid( TRACKED_ENTITY_TYPE_UID ) ) )
+            .thenReturn( new TrackedEntityType() );
 
         validatorToTest.validateTrackedEntity( reporter, tei );
 
@@ -131,7 +133,8 @@ class PreCheckMetaValidationHookTest
         ValidationErrorReporter reporter = new ValidationErrorReporter( bundle );
 
         // when
-        when( preheat.getTrackedEntityType( TRACKED_ENTITY_TYPE_UID ) ).thenReturn( new TrackedEntityType() );
+        when( preheat.getTrackedEntityType( MetadataIdentifier.ofUid( TRACKED_ENTITY_TYPE_UID ) ) )
+            .thenReturn( new TrackedEntityType() );
 
         validatorToTest.validateTrackedEntity( reporter, tei );
 
@@ -148,7 +151,8 @@ class PreCheckMetaValidationHookTest
         ValidationErrorReporter reporter = new ValidationErrorReporter( bundle );
 
         // when
-        when( preheat.getOrganisationUnit( ORG_UNIT_UID ) ).thenReturn( new OrganisationUnit() );
+        when( preheat.getOrganisationUnit( MetadataIdentifier.ofUid( ORG_UNIT_UID ) ) )
+            .thenReturn( new OrganisationUnit() );
 
         validatorToTest.validateTrackedEntity( reporter, tei );
 
@@ -341,7 +345,8 @@ class PreCheckMetaValidationHookTest
         ValidationErrorReporter reporter = new ValidationErrorReporter( bundle );
 
         // when
-        when( preheat.get( RelationshipType.class, RELATIONSHIP_TYPE_UID ) ).thenReturn( new RelationshipType() );
+        when( preheat.getRelationshipType( MetadataIdentifier.ofUid( RELATIONSHIP_TYPE_UID ) ) )
+            .thenReturn( new RelationshipType() );
 
         validatorToTest.validateRelationship( reporter, relationship );
 
@@ -368,8 +373,8 @@ class PreCheckMetaValidationHookTest
     {
         return TrackedEntity.builder()
             .trackedEntity( TRACKED_ENTITY_UID )
-            .orgUnit( ORG_UNIT_UID )
-            .trackedEntityType( TRACKED_ENTITY_TYPE_UID )
+            .orgUnit( MetadataIdentifier.ofUid( ORG_UNIT_UID ) )
+            .trackedEntityType( MetadataIdentifier.ofUid( TRACKED_ENTITY_TYPE_UID ) )
             .build();
     }
 
@@ -397,7 +402,7 @@ class PreCheckMetaValidationHookTest
     {
         return Relationship.builder()
             .relationship( CodeGenerator.generateUid() )
-            .relationshipType( RELATIONSHIP_TYPE_UID )
+            .relationshipType( MetadataIdentifier.ofUid( RELATIONSHIP_TYPE_UID ) )
             .build();
     }
 }

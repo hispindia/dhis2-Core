@@ -46,8 +46,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.transaction.Transactional;
-
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.SetValuedMap;
@@ -74,6 +72,7 @@ import org.hisp.dhis.dxf2.events.event.EventService;
 import org.hisp.dhis.dxf2.events.event.Note;
 import org.hisp.dhis.dxf2.events.relationship.RelationshipService;
 import org.hisp.dhis.dxf2.events.trackedentity.Attribute;
+import org.hisp.dhis.dxf2.events.trackedentity.Relationship;
 import org.hisp.dhis.dxf2.events.trackedentity.TrackedEntityInstanceService;
 import org.hisp.dhis.dxf2.importsummary.ImportConflicts;
 import org.hisp.dhis.dxf2.importsummary.ImportStatus;
@@ -118,6 +117,7 @@ import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserService;
 import org.hisp.dhis.util.DateUtils;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -372,9 +372,14 @@ public abstract class AbstractEnrollmentService
         {
             for ( RelationshipItem relationshipItem : programInstance.getRelationshipItems() )
             {
-                enrollment.getRelationships()
-                    .add( relationshipService.getRelationship( relationshipItem.getRelationship(),
-                        RelationshipParams.FALSE, user ) );
+                org.hisp.dhis.relationship.Relationship daoRelationship = relationshipItem.getRelationship();
+                if ( trackerAccessManager.canRead( user, daoRelationship ).isEmpty()
+                    && (params.isIncludeDeleted() || !daoRelationship.isDeleted()) )
+                {
+                    Relationship relationship = relationshipService.getRelationship( relationshipItem.getRelationship(),
+                        RelationshipParams.FALSE, user );
+                    enrollment.getRelationships().add( relationship );
+                }
             }
         }
 

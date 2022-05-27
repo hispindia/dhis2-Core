@@ -44,17 +44,15 @@ import org.hisp.dhis.tracker.TrackerTest;
 import org.hisp.dhis.tracker.domain.Attribute;
 import org.hisp.dhis.tracker.domain.Enrollment;
 import org.hisp.dhis.tracker.domain.EnrollmentStatus;
+import org.hisp.dhis.tracker.domain.MetadataIdentifier;
 import org.hisp.dhis.tracker.domain.TrackedEntity;
 import org.hisp.dhis.tracker.report.TrackerImportReport;
 import org.hisp.dhis.tracker.report.TrackerStatus;
-import org.hisp.dhis.user.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 class LastUpdateImportTest extends TrackerTest
 {
-
     @Autowired
     private TrackerImportService trackerImportService;
 
@@ -64,21 +62,18 @@ class LastUpdateImportTest extends TrackerTest
     @Autowired
     private TrackedEntityInstanceService trackedEntityInstanceService;
 
-    private static User user;
-
-    private static TrackedEntity trackedEntity;
+    private TrackedEntity trackedEntity;
 
     @Override
-    @Transactional
     protected void initTest()
         throws IOException
     {
         setUpMetadata( "tracker/simple_metadata.json" );
-        user = userService.getUser( "M5zQapPyTZI" );
-        TrackerImportParams trackerImportParams = fromJson( "tracker/single_tei.json", user.getUid() );
+        injectAdminUser();
+        TrackerImportParams trackerImportParams = fromJson( "tracker/single_tei.json" );
         assertNoImportErrors( trackerImportService.importTracker( trackerImportParams ) );
         trackedEntity = trackerImportParams.getTrackedEntities().get( 0 );
-        TrackerImportParams enrollmentParams = fromJson( "tracker/single_enrollment.json", user.getUid() );
+        TrackerImportParams enrollmentParams = fromJson( "tracker/single_enrollment.json" );
         assertNoImportErrors( trackerImportService.importTracker( enrollmentParams ) );
         manager.flush();
     }
@@ -87,11 +82,12 @@ class LastUpdateImportTest extends TrackerTest
     void shouldUpdateTeiIfTeiIsUpdated()
         throws IOException
     {
-        TrackerImportParams trackerImportParams = fromJson( "tracker/single_tei.json", user.getUid() );
+        TrackerImportParams trackerImportParams = fromJson( "tracker/single_tei.json" );
         trackerImportParams.setImportStrategy( TrackerImportStrategy.UPDATE );
-        Attribute attribute = new Attribute();
-        attribute.setAttribute( "toUpdate000" );
-        attribute.setValue( "value" );
+        Attribute attribute = Attribute.builder()
+            .attribute( MetadataIdentifier.ofUid( "toUpdate000" ) )
+            .value( "value" )
+            .build();
         trackedEntity.setAttributes( Collections.singletonList( attribute ) );
         Date lastUpdateBefore = trackedEntityInstanceService
             .getTrackedEntityInstance( trackedEntity.getTrackedEntity() ).getLastUpdated();
@@ -108,6 +104,7 @@ class LastUpdateImportTest extends TrackerTest
         Date lastUpdateBefore = trackedEntityInstanceService
             .getTrackedEntityInstance( trackedEntity.getTrackedEntity() ).getLastUpdated();
         TrackerImportReport trackerImportReport = trackerImportService.importTracker( trackerImportParams );
+        logTrackerErrors( trackerImportReport );
         assertEquals( TrackerStatus.OK, trackerImportReport.getStatus() );
         trackerImportParams = fromJson( "tracker/event_with_updated_data_values.json" );
         trackerImportParams.setImportStrategy( TrackerImportStrategy.UPDATE );
@@ -121,7 +118,7 @@ class LastUpdateImportTest extends TrackerTest
     void shouldUpdateTeiIfEnrollmentIsUpdated()
         throws IOException
     {
-        TrackerImportParams trackerImportParams = fromJson( "tracker/single_enrollment.json", user.getUid() );
+        TrackerImportParams trackerImportParams = fromJson( "tracker/single_enrollment.json" );
         Date lastUpdateBefore = trackedEntityInstanceService
             .getTrackedEntityInstance( trackedEntity.getTrackedEntity() ).getLastUpdated();
         Enrollment enrollment = trackerImportParams.getEnrollments().get( 0 );

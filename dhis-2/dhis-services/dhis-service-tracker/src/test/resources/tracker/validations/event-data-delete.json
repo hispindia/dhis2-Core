@@ -45,6 +45,10 @@
       "relationships": [],
       "followup": false,
       "deleted": false,
+      "attributeOptionCombo": {
+        "idScheme": "UID"
+      },
+      "attributeCategoryOptions": [],
       "dataValues": [],
       "notes": []
     }

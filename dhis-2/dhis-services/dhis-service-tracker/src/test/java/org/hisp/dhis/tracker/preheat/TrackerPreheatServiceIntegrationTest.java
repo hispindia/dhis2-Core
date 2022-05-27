@@ -121,8 +121,8 @@ class TrackerPreheatServiceIntegrationTest extends TransactionalIntegrationTest
     void testPreheatWithDifferentIdSchemes()
     {
         TrackedEntity teA = TrackedEntity.builder()
-            .orgUnit( "OUA" )
-            .trackedEntityType( TET_UID )
+            .orgUnit( MetadataIdentifier.ofCode( "OUA" ) )
+            .trackedEntityType( MetadataIdentifier.ofUid( TET_UID ) )
             .build();
         Enrollment enrollmentA = Enrollment.builder()
             .orgUnit( MetadataIdentifier.ofCode( "OUA" ) )

@@ -55,7 +55,6 @@ import org.hisp.dhis.common.DimensionalItemObject;
 import org.hisp.dhis.common.DimensionalObject;
 import org.hisp.dhis.common.Grid;
 import org.hisp.dhis.common.OrganisationUnitSelectionMode;
-import org.hisp.dhis.common.QueryFilter;
 import org.hisp.dhis.common.QueryItem;
 import org.hisp.dhis.common.QueryRuntimeException;
 import org.hisp.dhis.common.ValueType;
@@ -193,7 +192,7 @@ public class JdbcEnrollmentAnalyticsManager
         catch ( DataAccessResourceFailureException ex )
         {
             log.warn( ErrorCode.E7131.getMessage(), ex );
-            throw new QueryRuntimeException( ErrorCode.E7131, ex );
+            throw new QueryRuntimeException( ErrorCode.E7131 );
         }
 
         return count;
@@ -287,20 +286,7 @@ public class JdbcEnrollmentAnalyticsManager
         // Query items and filters
         // ---------------------------------------------------------------------
 
-        sql += getItemsSql( params, hlp );
-
-        for ( QueryItem item : params.getItemFilters() )
-        {
-            if ( item.hasFilter() )
-            {
-                for ( QueryFilter filter : item.getFilters() )
-                {
-                    sql += "and "
-                        + getSelectSql( filter, item, params.getEarliestStartDate(), params.getLatestEndDate() ) + " "
-                        + filter.getSqlOperator() + " " + getSqlFilter( filter, item ) + " ";
-                }
-            }
-        }
+        sql += getStatementForDimensionsAndFilters( params, hlp );
 
         // ---------------------------------------------------------------------
         // Filter expression
@@ -412,13 +398,16 @@ public class JdbcEnrollmentAnalyticsManager
 
             }
 
-            return ColumnAndAlias.ofColumn( "(select '[' || round(ST_X(" + stCentroidFunction + "(" + colName
+            String alias = getAlias( item ).orElse( null );
+
+            return ColumnAndAlias.ofColumnAndAlias( "(select '[' || round(ST_X(" + stCentroidFunction + "(" + colName
                 + "))::numeric, 6) || ',' || round(ST_Y("
                 + stCentroidFunction + "(" + colName + "))::numeric, 6) || ']' as " + colName
                 + " from " + eventTableName
                 + " where " + eventTableName + ".pi = " + ANALYTICS_TBL_ALIAS + ".pi " +
                 "and " + colName + " is not null " + psCondition + ORDER_BY_EXECUTION_DATE +
-                createOrderTypeAndOffset( item.getProgramStageOffset() ) + " " + LIMIT_1 + " )" );
+                createOrderTypeAndOffset( item.getProgramStageOffset() ) + " " + LIMIT_1 + " )",
+                alias );
         }
 
         return ColumnAndAlias.EMPTY;
@@ -456,7 +445,7 @@ public class JdbcEnrollmentAnalyticsManager
                 return "(select json_agg(t1) from (select " + colName + ", incidentdate, duedate, executiondate "
                     + " from " + eventTableName
                     + " where " + eventTableName + ".pi = " + ANALYTICS_TBL_ALIAS + ".pi "
-                    + "and " + colName + " is not null " + "and ps = '" + item.getProgramStage().getUid() + "'"
+                    + "and ps = '" + item.getProgramStage().getUid() + "'"
                     + getExecutionDateFilter( item.getRepeatableStageParams().getStartDate(),
                         item.getRepeatableStageParams().getEndDate() )
                     + ORDER_BY_EXECUTION_DATE + createOrderTypeAndOffset( item.getProgramStageOffset() )
@@ -469,7 +458,7 @@ public class JdbcEnrollmentAnalyticsManager
                 return "(select " + colName
                     + " from " + eventTableName
                     + " where " + eventTableName + ".pi = " + ANALYTICS_TBL_ALIAS + ".pi "
-                    + "and " + colName + " is not null " + "and ps = '" + item.getProgramStage().getUid() + "' "
+                    + "and ps = '" + item.getProgramStage().getUid() + "' "
                     + getExecutionDateFilter( item.getRepeatableStageParams().getStartDate(),
                         item.getRepeatableStageParams().getEndDate() )
                     + ORDER_BY_EXECUTION_DATE + createOrderTypeAndOffset( item.getProgramStageOffset() )

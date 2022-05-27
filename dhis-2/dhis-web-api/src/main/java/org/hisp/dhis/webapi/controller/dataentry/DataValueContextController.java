@@ -32,7 +32,7 @@ import static org.hisp.dhis.commons.collection.CollectionUtils.mapToList;
 import java.util.List;
 import java.util.Set;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.common.DhisApiVersion;
@@ -55,8 +55,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping( "/dataEntry" )
-@AllArgsConstructor
 @ApiVersion( { DhisApiVersion.DEFAULT, DhisApiVersion.ALL } )
 public class DataValueContextController
 {
@@ -77,8 +77,6 @@ public class DataValueContextController
         CategoryOptionCombo co = dataValidator.getAndValidateCategoryOptionCombo( params.getCo() );
         CategoryOptionCombo ao = dataValidator.getAndValidateAttributeOptionCombo( params.getCc(), params.getCp() );
 
-        DataValue dataValue = dataValueService.getAndValidateDataValue( de, pe, ou, co, ao );
-
         List<DataValueAudit> audits = dataValueAuditService.getDataValueAudits( de, pe, ou, co, ao );
 
         List<Period> periods = periodService.getPeriods( pe, 13 );
@@ -92,7 +90,6 @@ public class DataValueContextController
             .setOrderByPeriod( true ) );
 
         return new DataValueContextDto()
-            .setDataValue( DataValueDtoMapper.toDto( dataValue ) )
             .setAudits( mapToList( audits, DataValueDtoMapper::toDto ) )
             .setHistory( mapToList( dataValues, DataValueDtoMapper::toDto ) );
     }

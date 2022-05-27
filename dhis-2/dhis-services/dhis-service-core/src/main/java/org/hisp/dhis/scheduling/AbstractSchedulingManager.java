@@ -145,13 +145,8 @@ public abstract class AbstractSchedulingManager implements SchedulingManager
         }
     }
 
-    /**
-     * Check if this job configuration is currently running
-     *
-     * @param type type of job to check
-     * @return true/false
-     */
-    final boolean isRunning( JobType type )
+    @Override
+    public boolean isRunning( JobType type )
     {
         return isRunningLocally( type ) || isRunningRemotely( type );
     }
@@ -224,22 +219,22 @@ public abstract class AbstractSchedulingManager implements SchedulingManager
         }
     }
 
-    protected final void execute( String jobId )
+    protected final boolean execute( String jobId )
     {
-        execute( jobConfigurationService.getJobConfigurationByUid( jobId ) );
+        return execute( jobConfigurationService.getJobConfigurationByUid( jobId ) );
     }
 
-    protected final void execute( JobConfiguration configuration )
+    protected final boolean execute( JobConfiguration configuration )
     {
         if ( !configuration.isEnabled() )
         {
-            return;
+            return false;
         }
         JobType type = configuration.getJobType();
         if ( configuration.isLeaderOnlyJob() && !leaderManager.isLeader() )
         {
             whenLeaderOnlyOnNonLeader( configuration );
-            return;
+            return false;
         }
         ControlledJobProgress progress = createJobProgress( configuration );
         // OBS: we cannot use computeIfAbsent since we have no way of
@@ -248,13 +243,13 @@ public abstract class AbstractSchedulingManager implements SchedulingManager
         if ( runningLocally.putIfAbsent( type, progress ) != null )
         {
             whenAlreadyRunning( configuration );
-            return;
+            return false;
         }
         if ( !runningRemotely.putIfAbsent( type.name(), progress.getProcesses() ) )
         {
             runningLocally.remove( type );
             whenAlreadyRunning( configuration );
-            return;
+            return false;
         }
 
         Clock clock = new Clock().startClock();
@@ -276,13 +271,21 @@ public abstract class AbstractSchedulingManager implements SchedulingManager
             // run the actual job
             jobService.getJob( type ).execute( configuration, progress );
 
+            Process process = progress.getProcesses().peekLast();
+            if ( process != null && process.getStatus() != JobProgress.Status.RUNNING )
+            {
+                progress.failedProcess( (String) null );
+            }
             if ( configuration.getLastExecutedStatus() == RUNNING )
             {
-                configuration.setLastExecutedStatus( JobStatus.COMPLETED );
+                boolean wasSuccessfulRun = progress.getProcesses().stream()
+                    .allMatch( p -> p.getStatus() == JobProgress.Status.SUCCESS );
+                configuration.setLastExecutedStatus( wasSuccessfulRun ? JobStatus.COMPLETED : JobStatus.FAILED );
             }
         }
         catch ( Exception ex )
         {
+            progress.failedProcess( ex );
             whenRunThrewException( configuration, ex );
         }
         finally
@@ -292,6 +295,7 @@ public abstract class AbstractSchedulingManager implements SchedulingManager
             whenRunIsDone( configuration, clock );
             MDC.remove( "sessionId" );
         }
+        return true;
     }
 
     private ControlledJobProgress createJobProgress( JobConfiguration configuration )

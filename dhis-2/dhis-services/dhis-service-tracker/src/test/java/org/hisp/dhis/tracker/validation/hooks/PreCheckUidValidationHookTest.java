@@ -36,12 +36,15 @@ import static org.hisp.dhis.tracker.validation.hooks.AssertValidationErrorReport
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.hisp.dhis.common.CodeGenerator;
+import org.hisp.dhis.tracker.TrackerIdSchemeParams;
 import org.hisp.dhis.tracker.bundle.TrackerBundle;
 import org.hisp.dhis.tracker.domain.Enrollment;
 import org.hisp.dhis.tracker.domain.Event;
+import org.hisp.dhis.tracker.domain.MetadataIdentifier;
 import org.hisp.dhis.tracker.domain.Note;
 import org.hisp.dhis.tracker.domain.Relationship;
 import org.hisp.dhis.tracker.domain.TrackedEntity;
+import org.hisp.dhis.tracker.preheat.TrackerPreheat;
 import org.hisp.dhis.tracker.report.ValidationErrorReporter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,7 +66,9 @@ class PreCheckUidValidationHookTest
     @BeforeEach
     void setUp()
     {
-        bundle = TrackerBundle.builder().build();
+        TrackerPreheat preheat = new TrackerPreheat();
+        preheat.setIdSchemes( TrackerIdSchemeParams.builder().build() );
+        bundle = TrackerBundle.builder().preheat( preheat ).build();
 
         validationHook = new PreCheckUidValidationHook();
     }
@@ -72,8 +77,10 @@ class PreCheckUidValidationHookTest
     void verifyTrackedEntityValidationSuccess()
     {
         // given
-        TrackedEntity trackedEntity = TrackedEntity.builder().trackedEntity( CodeGenerator.generateUid() )
-            .orgUnit( CodeGenerator.generateUid() ).build();
+        TrackedEntity trackedEntity = TrackedEntity.builder()
+            .trackedEntity( CodeGenerator.generateUid() )
+            .orgUnit( MetadataIdentifier.ofUid( CodeGenerator.generateUid() ) )
+            .build();
         ValidationErrorReporter reporter = new ValidationErrorReporter( bundle );
         validationHook.validateTrackedEntity( reporter, trackedEntity );
         assertFalse( reporter.hasErrors() );
@@ -83,8 +90,10 @@ class PreCheckUidValidationHookTest
     void verifyTrackedEntityWithInvalidUidFails()
     {
         // given
-        TrackedEntity trackedEntity = TrackedEntity.builder().trackedEntity( INVALID_UID )
-            .orgUnit( CodeGenerator.generateUid() ).build();
+        TrackedEntity trackedEntity = TrackedEntity.builder()
+            .trackedEntity( INVALID_UID )
+            .orgUnit( MetadataIdentifier.ofUid( CodeGenerator.generateUid() ) )
+            .build();
         // when
         ValidationErrorReporter reporter = new ValidationErrorReporter( bundle );
         validationHook.validateTrackedEntity( reporter, trackedEntity );

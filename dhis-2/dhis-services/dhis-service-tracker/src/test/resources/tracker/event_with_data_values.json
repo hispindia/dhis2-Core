@@ -57,8 +57,16 @@
       "deleted": false,
       "createdAt": "2019-01-28T12:10:38.108",
       "updatedAt": "2019-01-28T12:10:38.109",
-      "attributeOptionCombo": "HllvX50cXC0",
-      "attributeCategoryOptions": "xYerKDKCefk",
+      "attributeOptionCombo": {
+        "idScheme": "UID",
+        "identifier": "HllvX50cXC0"
+      },
+      "attributeCategoryOptions": [
+        {
+          "idScheme": "UID",
+          "identifier": "xYerKDKCefk"
+        }
+      ],
       "completedBy": "admin",
       "completedAt": "2019-01-28T00:00:00.000",
       "dataValues": [
@@ -67,7 +75,10 @@
           "updatedAt": "2019-01-28T12:10:38.113",
           "storedBy": "admin",
           "providedElsewhere": false,
-          "dataElement": "DATAEL00002",
+          "dataElement": {
+            "idScheme": "UID",
+            "identifier": "DATAEL00002"
+          },
           "value": "Second"
         },
         {
@@ -75,7 +86,10 @@
           "updatedAt": "2019-01-28T12:10:38.113",
           "storedBy": "admin",
           "providedElsewhere": false,
-          "dataElement": "DATAEL00001",
+          "dataElement": {
+            "idScheme": "UID",
+            "identifier": "DATAEL00001"
+          },
           "value": "First"
         },
         {
@@ -83,7 +97,10 @@
           "updatedAt": "2019-01-28T12:10:38.113",
           "storedBy": "admin",
           "providedElsewhere": false,
-          "dataElement": "DATAEL00003",
+          "dataElement": {
+            "idScheme": "UID",
+            "identifier": "DATAEL00003"
+          },
           "value": "Third"
         },
         {
@@ -91,7 +108,10 @@
           "updatedAt": "2019-01-28T12:10:38.113",
           "storedBy": "admin",
           "providedElsewhere": false,
-          "dataElement": "DATAEL00004",
+          "dataElement": {
+            "idScheme": "UID",
+            "identifier": "DATAEL00004"
+          },
           "value": "Fourth"
         }
       ],

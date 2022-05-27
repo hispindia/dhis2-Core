@@ -45,13 +45,12 @@ import org.hisp.dhis.program.ValidationStrategy;
 import org.hisp.dhis.tracker.bundle.TrackerBundle;
 import org.hisp.dhis.tracker.domain.DataValue;
 import org.hisp.dhis.tracker.domain.Event;
+import org.hisp.dhis.tracker.domain.MetadataIdentifier;
 import org.hisp.dhis.tracker.domain.Note;
 import org.hisp.dhis.tracker.domain.TrackerDto;
 import org.hisp.dhis.tracker.preheat.TrackerPreheat;
 import org.hisp.dhis.tracker.programrule.ProgramRuleIssue;
 import org.hisp.dhis.tracker.report.TrackerErrorCode;
-import org.hisp.dhis.tracker.report.TrackerErrorReport;
-import org.hisp.dhis.tracker.report.TrackerWarningReport;
 import org.hisp.dhis.tracker.report.ValidationErrorReporter;
 import org.locationtech.jts.geom.Geometry;
 
@@ -69,12 +68,7 @@ public class ValidationUtils
 
         if ( featureType == null )
         {
-            TrackerErrorReport error = TrackerErrorReport.builder()
-                .uid( dto.getUid() )
-                .trackerType( dto.getTrackerType() )
-                .errorCode( TrackerErrorCode.E1074 )
-                .build( reporter.getBundle() );
-            reporter.addError( error );
+            reporter.addError( dto, TrackerErrorCode.E1074 );
             return;
         }
 
@@ -82,13 +76,7 @@ public class ValidationUtils
 
         if ( FeatureType.NONE == featureType || featureType != typeFromName )
         {
-            TrackerErrorReport error = TrackerErrorReport.builder()
-                .uid( dto.getUid() )
-                .trackerType( dto.getTrackerType() )
-                .errorCode( TrackerErrorCode.E1012 )
-                .addArg( featureType.name() )
-                .build( reporter.getBundle() );
-            reporter.addError( error );
+            reporter.addError( dto, TrackerErrorCode.E1012, featureType.name() );
         }
     }
 
@@ -106,13 +94,7 @@ public class ValidationUtils
                 // warning, ignore the note and continue
                 if ( isNotEmpty( note.getNote() ) && preheat.getNote( note.getNote() ).isPresent() )
                 {
-                    TrackerWarningReport warning = TrackerWarningReport.builder()
-                        .uid( dto.getUid() )
-                        .trackerType( dto.getTrackerType() )
-                        .warningCode( TrackerErrorCode.E1119 )
-                        .addArg( note.getNote() )
-                        .build( reporter.getBundle() );
-                    reporter.addWarning( warning );
+                    reporter.addWarning( dto, TrackerErrorCode.E1119, note.getNote() );
                 }
                 else
                 {
@@ -123,21 +105,21 @@ public class ValidationUtils
         return notes;
     }
 
-    public static List<String> validateMandatoryDataValue( ProgramStage programStage,
-        Event event, List<String> mandatoryDataElements )
+    public static List<MetadataIdentifier> validateMandatoryDataValue( ProgramStage programStage,
+        Event event, List<MetadataIdentifier> mandatoryDataElements )
     {
-        List<String> notPresentMandatoryDataElements = Lists.newArrayList();
+        List<MetadataIdentifier> notPresentMandatoryDataElements = Lists.newArrayList();
 
         if ( !needsToValidateDataValues( event, programStage ) )
         {
             return notPresentMandatoryDataElements;
         }
 
-        Set<String> eventDataElements = event.getDataValues().stream()
+        Set<MetadataIdentifier> eventDataElements = event.getDataValues().stream()
             .map( DataValue::getDataElement )
             .collect( Collectors.toSet() );
 
-        for ( String mandatoryDataElement : mandatoryDataElements )
+        for ( MetadataIdentifier mandatoryDataElement : mandatoryDataElements )
         {
             if ( !eventDataElements.contains( mandatoryDataElement ) )
             {
@@ -174,13 +156,7 @@ public class ValidationUtils
             .forEach( issue -> {
                 List<String> args = Lists.newArrayList( issue.getRuleUid() );
                 args.addAll( issue.getArgs() );
-                TrackerErrorReport error = TrackerErrorReport.builder()
-                    .uid( dto.getUid() )
-                    .trackerType( dto.getTrackerType() )
-                    .errorCode( issue.getIssueCode() )
-                    .addArgs( args.toArray() )
-                    .build( reporter.getBundle() );
-                reporter.addError( error );
+                reporter.addError( dto, issue.getIssueCode(), args.toArray() );
             } );
 
         programRuleIssues
@@ -190,13 +166,7 @@ public class ValidationUtils
                 issue -> {
                     List<String> args = Lists.newArrayList( issue.getRuleUid() );
                     args.addAll( issue.getArgs() );
-                    TrackerWarningReport warning = TrackerWarningReport.builder()
-                        .uid( dto.getUid() )
-                        .trackerType( dto.getTrackerType() )
-                        .warningCode( issue.getIssueCode() )
-                        .addArgs( args.toArray() )
-                        .build( reporter.getBundle() );
-                    reporter.addWarning( warning );
+                    reporter.addWarning( dto, issue.getIssueCode(), args.toArray() );
                 } );
     }
 

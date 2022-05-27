@@ -36,11 +36,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.hisp.dhis.commons.util.RelationshipUtils;
-import org.hisp.dhis.relationship.RelationshipType;
+import org.hisp.dhis.relationship.RelationshipKey;
+import org.hisp.dhis.tracker.domain.MetadataIdentifier;
 import org.hisp.dhis.tracker.domain.Relationship;
 import org.hisp.dhis.tracker.domain.RelationshipItem;
 import org.hisp.dhis.tracker.preheat.TrackerPreheat;
+import org.hisp.dhis.tracker.util.RelationshipKeySupport;
 import org.hisp.dhis.util.DateUtils;
 import org.springframework.stereotype.Service;
 
@@ -77,7 +78,8 @@ public class RelationshipTrackerConverterService
             toRelationship.setFrom( convertRelationshipType( fromRelationship.getFrom() ) );
             toRelationship.setTo( convertRelationshipType( fromRelationship.getTo() ) );
             toRelationship.setUpdatedAt( DateUtils.instantFromDate( fromRelationship.getLastUpdated() ) );
-            toRelationship.setRelationshipType( fromRelationship.getRelationshipType().getUid() );
+            toRelationship
+                .setRelationshipType( MetadataIdentifier.ofUid( fromRelationship.getRelationshipType().getUid() ) );
 
             return toRelationship;
         } ).collect( Collectors.toList() );
@@ -86,18 +88,11 @@ public class RelationshipTrackerConverterService
     private RelationshipItem convertRelationshipType( org.hisp.dhis.relationship.RelationshipItem from )
     {
         RelationshipItem relationshipItem = new RelationshipItem();
-        RelationshipItem.Enrollment enrollment = RelationshipItem.Enrollment.builder()
-            .enrollment( from.getProgramInstance() != null ? from.getProgramInstance().getUid() : null )
-            .build();
-        relationshipItem.setEnrollment( enrollment );
-        RelationshipItem.Event event = RelationshipItem.Event.builder()
-            .event( from.getProgramStageInstance() != null ? from.getProgramStageInstance().getUid() : null )
-            .build();
-        relationshipItem.setEvent( event );
-        RelationshipItem.TrackedEntity trackedEntity = RelationshipItem.TrackedEntity.builder()
-            .trackedEntity( from.getTrackedEntityInstance() != null ? from.getTrackedEntityInstance().getUid() : null )
-            .build();
-        relationshipItem.setTrackedEntity( trackedEntity );
+        relationshipItem.setEnrollment( from.getProgramInstance() != null ? from.getProgramInstance().getUid() : null );
+        relationshipItem
+            .setEvent( from.getProgramStageInstance() != null ? from.getProgramStageInstance().getUid() : null );
+        relationshipItem.setTrackedEntity(
+            from.getTrackedEntityInstance() != null ? from.getTrackedEntityInstance().getUid() : null );
         return relationshipItem;
     }
 
@@ -105,7 +100,7 @@ public class RelationshipTrackerConverterService
     public org.hisp.dhis.relationship.Relationship from( TrackerPreheat preheat, Relationship fromRelationship )
     {
         org.hisp.dhis.relationship.Relationship toRelationship = preheat
-            .getRelationship( fromRelationship );
+            .getRelationship( fromRelationship.getRelationship() );
         return from( preheat, fromRelationship, toRelationship );
     }
 
@@ -123,7 +118,7 @@ public class RelationshipTrackerConverterService
         org.hisp.dhis.relationship.Relationship toRelationship )
     {
         org.hisp.dhis.relationship.RelationshipType relationshipType = preheat
-            .get( RelationshipType.class, fromRelationship.getRelationshipType() );
+            .getRelationshipType( fromRelationship.getRelationshipType() );
         org.hisp.dhis.relationship.RelationshipItem fromItem = new org.hisp.dhis.relationship.RelationshipItem();
         org.hisp.dhis.relationship.RelationshipItem toItem = new org.hisp.dhis.relationship.RelationshipItem();
 
@@ -150,18 +145,18 @@ public class RelationshipTrackerConverterService
         if ( relationshipType.getFromConstraint().getRelationshipEntity().equals( TRACKED_ENTITY_INSTANCE ) )
         {
             fromItem.setTrackedEntityInstance( preheat.getTrackedEntity(
-                fromRelationship.getFrom().getTrackedEntity().getTrackedEntity() ) );
+                fromRelationship.getFrom().getTrackedEntity() ) );
         }
         else if ( relationshipType.getFromConstraint().getRelationshipEntity().equals( PROGRAM_INSTANCE ) )
         {
             fromItem.setProgramInstance(
                 preheat.getEnrollment(
-                    fromRelationship.getFrom().getEnrollment().getEnrollment() ) );
+                    fromRelationship.getFrom().getEnrollment() ) );
         }
         else if ( relationshipType.getFromConstraint().getRelationshipEntity().equals( PROGRAM_STAGE_INSTANCE ) )
         {
             fromItem.setProgramStageInstance(
-                preheat.getEvent( fromRelationship.getFrom().getEvent().getEvent() ) );
+                preheat.getEvent( fromRelationship.getFrom().getEvent() ) );
         }
 
         // TO
@@ -170,24 +165,26 @@ public class RelationshipTrackerConverterService
         if ( relationshipType.getToConstraint().getRelationshipEntity().equals( TRACKED_ENTITY_INSTANCE ) )
         {
             toItem.setTrackedEntityInstance( preheat.getTrackedEntity(
-                fromRelationship.getTo().getTrackedEntity().getTrackedEntity() ) );
+                fromRelationship.getTo().getTrackedEntity() ) );
         }
         else if ( relationshipType.getToConstraint().getRelationshipEntity().equals( PROGRAM_INSTANCE ) )
         {
             toItem.setProgramInstance(
                 preheat.getEnrollment(
-                    fromRelationship.getTo().getEnrollment().getEnrollment() ) );
+                    fromRelationship.getTo().getEnrollment() ) );
         }
         else if ( relationshipType.getToConstraint().getRelationshipEntity().equals( PROGRAM_STAGE_INSTANCE ) )
         {
             toItem.setProgramStageInstance(
-                preheat.getEvent( fromRelationship.getTo().getEvent().getEvent() ) );
+                preheat.getEvent( fromRelationship.getTo().getEvent() ) );
         }
 
         toRelationship.setFrom( fromItem );
         toRelationship.setTo( toItem );
-        toRelationship.setKey( RelationshipUtils.generateRelationshipKey( toRelationship ) );
-        toRelationship.setInvertedKey( RelationshipUtils.generateRelationshipInvertedKey( toRelationship ) );
+        RelationshipKey relationshipKey = RelationshipKeySupport.getRelationshipKey( fromRelationship,
+            relationshipType );
+        toRelationship.setKey( relationshipKey.asString() );
+        toRelationship.setInvertedKey( relationshipKey.inverseKey().asString() );
 
         return toRelationship;
     }

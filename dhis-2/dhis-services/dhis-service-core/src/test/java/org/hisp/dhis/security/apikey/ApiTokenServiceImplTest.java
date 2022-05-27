@@ -52,7 +52,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 class ApiTokenServiceImplTest extends DhisSpringTest
 {
-
     @Autowired
     private ApiTokenStore apiTokenStore;
 
@@ -163,7 +162,7 @@ class ApiTokenServiceImplTest extends DhisSpringTest
 
     private void switchToOtherUser()
     {
-        final User otherUser = createUser( "otherUser" );
+        final User otherUser = createUserWithAuth( "otherUser" );
         injectSecurityContext( otherUser );
     }
 }

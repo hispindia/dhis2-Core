@@ -40,12 +40,9 @@ import org.hisp.dhis.period.Period;
  * The DataValueService interface defines how to work with data values.
  *
  * @author Kristian Nordal
- * @version $Id: DataValueService.java 5715 2008-09-17 14:05:28Z larshelg $
  */
 public interface DataValueService
 {
-    String ID = DataValueService.class.getName();
-
     // -------------------------------------------------------------------------
     // Basic DataValue
     // -------------------------------------------------------------------------
@@ -128,22 +125,6 @@ public interface DataValueService
     DataValue getDataValue( DataElement dataElement, Period period, OrganisationUnit source,
         CategoryOptionCombo categoryOptionCombo, CategoryOptionCombo attributeOptionCombo );
 
-    /**
-     * Returns a DataValue. Throws {@link IllegalQueryException} if the data
-     * value was not found or is not accessible.
-     *
-     * @param dataElement the DataElement of the DataValue.
-     * @param period the Period of the DataValue.
-     * @param source the Source of the DataValue.
-     * @param categoryOptionCombo the category option combo.
-     * @param attributeOptionCombo the attribute option combo.
-     * @return the DataValue which corresponds to the given parameters.
-     * @throws IllegalQueryException if the data value was not found or not
-     *         accessible.
-     */
-    DataValue getAndValidateDataValue( DataElement dataElement, Period period, OrganisationUnit source,
-        CategoryOptionCombo categoryOptionCombo, CategoryOptionCombo attributeOptionCombo );
-
     // -------------------------------------------------------------------------
     // Lists of DataValues
     // -------------------------------------------------------------------------
@@ -176,7 +157,8 @@ public interface DataValueService
      * @param params the data export parameters.
      * @throws IllegalArgumentException if parameters are invalid.
      */
-    void validate( DataExportParams params );
+    void validate( DataExportParams params )
+        throws IllegalQueryException;
 
     /**
      * Returns all DataValues.
@@ -213,19 +195,8 @@ public interface DataValueService
 
     /**
      * Gets the number of DataValues which have been updated between the given
-     * start and end date. The
-     *
-     * <pre>
-     * startDate
-     * </pre>
-     *
-     * and
-     *
-     * <pre>
-     * endDate
-     * </pre>
-     *
-     * parameters can both be null but one must be defined.
+     * start and end date. The {@code startDate} and {@code endDate} parameters
+     * can both be null but one must be defined.
      *
      * @param startDate the start date to compare against data value last
      *        updated.

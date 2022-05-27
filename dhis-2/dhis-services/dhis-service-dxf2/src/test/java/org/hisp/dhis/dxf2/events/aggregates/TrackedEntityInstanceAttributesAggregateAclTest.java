@@ -31,8 +31,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hisp.dhis.security.acl.AccessStringHelper.DATA_READ;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 import org.hisp.dhis.common.CodeGenerator;
@@ -40,14 +38,11 @@ import org.hisp.dhis.dxf2.TrackerTest;
 import org.hisp.dhis.dxf2.events.TrackedEntityInstanceParams;
 import org.hisp.dhis.dxf2.events.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.dxf2.events.trackedentity.TrackedEntityInstanceService;
-import org.hisp.dhis.mock.MockCurrentUserService;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceQueryParams;
 import org.hisp.dhis.trackedentity.TrackedEntityType;
 import org.hisp.dhis.user.User;
-import org.hisp.dhis.user.UserRole;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
@@ -67,16 +62,9 @@ class TrackedEntityInstanceAttributesAggregateAclTest extends TrackerTest
     @Autowired
     private TrackedEntityInstanceAggregate trackedEntityInstanceAggregate;
 
-    @Override
-    protected void mockCurrentUserService()
-    {
-        User user = createUser( "testUser" );
-        setUserAuthorityToNonSuper( user );
-        currentUserService = new MockCurrentUserService( user );
-        ReflectionTestUtils.setField( trackedEntityInstanceAggregate, "currentUserService", currentUserService );
-        ReflectionTestUtils.setField( trackedEntityInstanceService, "currentUserService", currentUserService );
-        ReflectionTestUtils.setField( teiService, "currentUserService", currentUserService );
-    }
+    private User superUser;
+
+    private User nonSuperUser;
 
     @Test
     void verifyTeiCantBeAccessedNoPublicAccessOnTrackedEntityType()
@@ -102,6 +90,7 @@ class TrackedEntityInstanceAttributesAggregateAclTest extends TrackerTest
     {
         final String tetUid = CodeGenerator.generateUid();
         doInTransaction( () -> {
+            injectSecurityContext( superUser );
             TrackedEntityType trackedEntityTypeZ = createTrackedEntityType( 'Z' );
             trackedEntityTypeZ.setUid( tetUid );
             trackedEntityTypeZ.setName( "TrackedEntityTypeZ" + trackedEntityTypeZ.getUid() );
@@ -127,14 +116,5 @@ class TrackedEntityInstanceAttributesAggregateAclTest extends TrackerTest
         final List<TrackedEntityInstance> trackedEntityInstances = trackedEntityInstanceService
             .getTrackedEntityInstances( queryParams, params, false, true );
         assertThat( trackedEntityInstances, hasSize( 2 ) );
-    }
-
-    protected void setUserAuthorityToNonSuper( User user )
-    {
-        UserRole userRole = new UserRole();
-        userRole.setName( "UserRole_" + user.getUsername() );
-        userRole.setUid( CodeGenerator.generateUid() );
-        userRole.setAuthorities( new HashSet<>( Collections.singletonList( "user" ) ) );
-        user.setUserRoles( Sets.newHashSet( userRole ) );
     }
 }

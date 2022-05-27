@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.hamcrest.Matchers;
-import org.hisp.dhis.ApiTest;
 import org.hisp.dhis.actions.LoginActions;
 import org.hisp.dhis.actions.RestApiActions;
 import org.hisp.dhis.actions.metadata.MetadataActions;
@@ -92,7 +91,7 @@ public class RelationshipsTest
             Arguments.arguments( "HrS7b5Lis6P", "event", events.get( 0 ), "event", events.get( 1 ) ), // event
                                                                                                       // to
                                                                                                       // event
-            Arguments.arguments( "xLmPUYJX8Ks", "trackedEntityInstance", teis.get( 0 ), "trackedEntityInstance",
+            Arguments.arguments( "WmNgnmedbQK", "trackedEntityInstance", teis.get( 0 ), "trackedEntityInstance",
                 teis.get( 1 ) ) ); // tei to tei
     }
 

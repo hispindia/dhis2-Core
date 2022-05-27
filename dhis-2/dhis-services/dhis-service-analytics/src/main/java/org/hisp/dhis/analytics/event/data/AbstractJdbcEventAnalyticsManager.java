@@ -35,6 +35,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.hisp.dhis.analytics.DataQueryParams.NUMERATOR_DENOMINATOR_PROPERTIES_COUNT;
+import static org.hisp.dhis.analytics.QueryKey.NV;
 import static org.hisp.dhis.analytics.SortOrder.ASC;
 import static org.hisp.dhis.analytics.SortOrder.DESC;
 import static org.hisp.dhis.analytics.table.JdbcEventAnalyticsTableManager.OU_GEOMETRY_COL_SUFFIX;
@@ -397,14 +398,19 @@ public abstract class AbstractJdbcEventAnalyticsManager
         {
             return ColumnAndAlias.ofColumnAndAlias(
                 column,
-                Optional.of( queryItem )
-                    .filter( QueryItem::hasProgramStage )
-                    .filter( QueryItem::hasRepeatableStageParams )
-                    .map( QueryItem::getRepeatableStageParams )
-                    .map( RepeatableStageParams::getDimension )
+                getAlias( queryItem )
                     .orElse( aliasIfMissing ) );
         }
         return ColumnAndAlias.ofColumn( column );
+    }
+
+    protected Optional<String> getAlias( QueryItem queryItem )
+    {
+        return Optional.of( queryItem )
+            .filter( QueryItem::hasProgramStage )
+            .filter( QueryItem::hasRepeatableStageParams )
+            .map( QueryItem::getRepeatableStageParams )
+            .map( RepeatableStageParams::getDimension );
     }
 
     public Grid getAggregatedEventData( EventQueryParams params, Grid grid, int maxLimit )
@@ -477,7 +483,7 @@ public abstract class AbstractJdbcEventAnalyticsManager
         catch ( DataAccessResourceFailureException ex )
         {
             log.warn( ErrorCode.E7131.getMessage(), ex );
-            throw new QueryRuntimeException( ErrorCode.E7131, ex );
+            throw new QueryRuntimeException( ErrorCode.E7131 );
         }
 
         return grid;
@@ -664,7 +670,7 @@ public abstract class AbstractJdbcEventAnalyticsManager
             .ofColumnAndAlias(
                 "'[' || round(ST_X(" + quote( colName ) + ")::numeric, 6) || ',' || round(ST_Y(" + quote( colName )
                     + ")::numeric, 6) || ']'",
-                colName );
+                getAlias( item ).orElse( colName ) );
     }
 
     /**
@@ -740,7 +746,7 @@ public abstract class AbstractJdbcEventAnalyticsManager
     {
         try
         {
-            if ( item.getValueType() == ValueType.DATETIME )
+            if ( !NV.equals( filter ) && item.getValueType() == ValueType.DATETIME )
             {
                 return DateFormatUtils.format(
                     DateUtils.parseDate( filter,
@@ -848,7 +854,7 @@ public abstract class AbstractJdbcEventAnalyticsManager
         catch ( DataAccessResourceFailureException ex )
         {
             log.warn( ErrorCode.E7131.getMessage(), ex );
-            throw new QueryRuntimeException( ErrorCode.E7131, ex );
+            throw new QueryRuntimeException( ErrorCode.E7131 );
         }
     }
 
@@ -897,12 +903,12 @@ public abstract class AbstractJdbcEventAnalyticsManager
     }
 
     /**
-     * Return SQL string bnased on Items a its params
+     * Return SQL string based on both query items and filters
      *
      * @param params a {@see EventQueryParams}
      * @param hlp a {@see SqlHelper}
      */
-    protected String getItemsSql( EventQueryParams params, SqlHelper hlp )
+    protected String getStatementForDimensionsAndFilters( EventQueryParams params, SqlHelper hlp )
     {
         if ( params.isEnhancedCondition() )
         {
@@ -913,8 +919,8 @@ public abstract class AbstractJdbcEventAnalyticsManager
         // those referring to non-repeatable stages
         // Only for enrollments, for events all query items are treated as
         // non-repeatable
-        Map<Boolean, List<QueryItem>> itemsByRepeatableFlag = params.getItems()
-            .stream()
+        Map<Boolean, List<QueryItem>> itemsByRepeatableFlag = Stream.concat(
+            params.getItems().stream(), params.getItemFilters().stream() )
             .filter( QueryItem::hasFilter )
             .collect( groupingBy(
                 queryItem -> queryItem.hasRepeatableStageParams() && params.getEndpointItem() == ENROLLMENT ) );
@@ -959,8 +965,8 @@ public abstract class AbstractJdbcEventAnalyticsManager
 
     private String getItemsSqlForEnhancedConditions( EventQueryParams params, SqlHelper hlp )
     {
-        Map<UUID, String> sqlConditionByGroup = params.getItems()
-            .stream()
+        Map<UUID, String> sqlConditionByGroup = Stream.concat(
+            params.getItems().stream(), params.getItemFilters().stream() )
             .filter( QueryItem::hasFilter )
             .collect(
                 groupingBy( QueryItem::getGroupUUID, mapping( queryItem -> toSql( queryItem, params ), OR_JOINER ) ) );
