@@ -73,5 +73,12 @@
       <result name="input" type="velocity">/dhis-web-dataentry/validationResult.vm</result>
     </action>
 
+	<!--  For Kyrgyzstan -->
+	<!-- Get Closing balance --> 
+    <action name="saveClosingBal" class="org.hisp.dhis.de.action.SaveClosingBalancAction">
+      <result name="success" type="velocity-json">/dhis-web-dataentry/status.vm</result>
+      <param name="onExceptionReturn">plainTextError</param>
+      <param name="requiredAuthorities">F_DATAVALUE_ADD,F_DATAVALUE_UPDATE,F_DATAVALUE_DELETE</param>
+    </action>
   </package>
 </struts>
