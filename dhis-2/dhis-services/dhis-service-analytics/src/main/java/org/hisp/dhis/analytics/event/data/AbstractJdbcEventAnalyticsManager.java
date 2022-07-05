@@ -35,6 +35,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.hisp.dhis.analytics.DataQueryParams.NUMERATOR_DENOMINATOR_PROPERTIES_COUNT;
+import static org.hisp.dhis.analytics.DataType.NUMERIC;
 import static org.hisp.dhis.analytics.QueryKey.NV;
 import static org.hisp.dhis.analytics.SortOrder.ASC;
 import static org.hisp.dhis.analytics.SortOrder.DESC;
@@ -43,6 +44,7 @@ import static org.hisp.dhis.analytics.table.JdbcEventAnalyticsTableManager.OU_NA
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.ANALYTICS_TBL_ALIAS;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.DATE_PERIOD_STRUCT_ALIAS;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.ORG_UNIT_STRUCT_ALIAS;
+import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.encode;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.quote;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.quoteAlias;
 import static org.hisp.dhis.analytics.util.AnalyticsUtils.throwIllegalQueryEx;
@@ -61,6 +63,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import lombok.Builder;
@@ -79,7 +82,9 @@ import org.hisp.dhis.analytics.event.ProgramIndicatorSubqueryBuilder;
 import org.hisp.dhis.analytics.util.AnalyticsUtils;
 import org.hisp.dhis.common.BaseIdentifiableObject;
 import org.hisp.dhis.common.DimensionType;
+import org.hisp.dhis.common.DimensionalItemObject;
 import org.hisp.dhis.common.DimensionalObject;
+import org.hisp.dhis.common.DisplayProperty;
 import org.hisp.dhis.common.Grid;
 import org.hisp.dhis.common.GridHeader;
 import org.hisp.dhis.common.IdScheme;
@@ -230,13 +235,63 @@ public abstract class AbstractJdbcEventAnalyticsManager
             }
             else
             {
-                sql += quoteAlias( item.getItem().getUid() );
+                /*
+                 * query returns UIDs but we want sorting on name or shortName
+                 * (depending on DisplayProperty) for OUGS/COGS
+                 */
+                sql += Optional.ofNullable( extract( params.getDimensions(), item.getItem() ) )
+                    .filter( this::isSupported )
+                    .filter( this::hasItems )
+                    .map( dim -> toCase( dim, quoteAlias( item.getItem().getUid() ), params.getDisplayProperty() ) )
+                    .orElse( quoteAlias( item.getItem().getUid() ) );
             }
 
             sql += order == ASC ? " asc," : " desc,";
         }
 
         return sql;
+    }
+
+    /**
+     * builds a CASE statement to use in sorting, mapping each OUGS/COGS uid
+     * into its name/shortName
+     */
+    private String toCase( DimensionalObject dimension, String quotedAlias, DisplayProperty displayProperty )
+    {
+        return dimension.getItems().stream()
+            .map( dio -> toWhenEntry( dio, quotedAlias, displayProperty ) )
+            .collect( Collectors.joining( " ", "(CASE ", " ELSE '' END)" ) );
+    }
+
+    /**
+     * given an DimensionalItemObject, builds a WHEN statement
+     */
+    private String toWhenEntry( DimensionalItemObject dio, String quotedAlias, DisplayProperty dp )
+    {
+        return "WHEN " +
+            quotedAlias + "=" + encode( dio.getUid(), true ) +
+            " THEN " + (dp == DisplayProperty.NAME
+                ? encode( dio.getName(), true )
+                : encode( dio.getShortName(), true ));
+    }
+
+    private boolean hasItems( DimensionalObject dimensionalObject )
+    {
+        return !dimensionalObject.getItems().isEmpty();
+    }
+
+    private boolean isSupported( DimensionalObject dimension )
+    {
+        return dimension.getDimensionType() == DimensionType.ORGANISATION_UNIT_GROUP_SET
+            || dimension.getDimensionType() == DimensionType.CATEGORY_OPTION_GROUP_SET;
+    }
+
+    private DimensionalObject extract( List<DimensionalObject> dimensions, DimensionalItemObject item )
+    {
+        return dimensions.stream()
+            .filter( dimensionalObject -> dimensionalObject.getUid().equals( item.getUid() ) )
+            .findFirst()
+            .orElse( null );
     }
 
     /**
@@ -616,7 +671,7 @@ public abstract class AbstractJdbcEventAnalyticsManager
             function = TextUtils.emptyIfEqual( function, AggregationType.CUSTOM.getValue() );
 
             String expression = programIndicatorService.getAnalyticsSql( params.getProgramIndicator().getExpression(),
-                params.getProgramIndicator(), params.getEarliestStartDate(), params.getLatestEndDate() );
+                NUMERIC, params.getProgramIndicator(), params.getEarliestStartDate(), params.getLatestEndDate() );
 
             return function + "(" + expression + ")";
         }
@@ -733,7 +788,7 @@ public abstract class AbstractJdbcEventAnalyticsManager
         if ( item.isProgramIndicator() )
         {
             ProgramIndicator programIndicator = (ProgramIndicator) item.getItem();
-            return programIndicatorService.getAnalyticsSql( programIndicator.getExpression(), programIndicator,
+            return programIndicatorService.getAnalyticsSql( programIndicator.getExpression(), NUMERIC, programIndicator,
                 startDate, endDate );
         }
         else

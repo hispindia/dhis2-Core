@@ -709,7 +709,8 @@ public class EventController
         Model model, HttpServletRequest request )
         throws Exception
     {
-        Event event = eventService.getEvent( programStageInstanceService.getProgramStageInstance( uid ) );
+        Event event = eventService.getEvent( programStageInstanceService.getProgramStageInstance( uid ),
+            true );
 
         if ( event == null )
         {
@@ -727,7 +728,8 @@ public class EventController
         HttpServletResponse response, HttpServletRequest request )
         throws Exception
     {
-        Event event = eventService.getEvent( programStageInstanceService.getProgramStageInstance( eventUid ) );
+        Event event = eventService.getEvent( programStageInstanceService.getProgramStageInstance( eventUid ),
+            true );
 
         if ( event == null )
         {
@@ -792,7 +794,7 @@ public class EventController
             MoreObjects.firstNonNull( dimension, ImageFileDimension.ORIGINAL ) );
 
         response.setContentType( fileResource.getContentType() );
-        response.setContentLength( new Long( fileResource.getContentLength() ).intValue() );
+        response.setContentLengthLong( fileResource.getContentLength() );
         response.setHeader( HttpHeaders.CONTENT_DISPOSITION, "filename=" + fileResource.getName() );
 
         try

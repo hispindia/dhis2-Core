@@ -51,6 +51,7 @@ import org.hisp.dhis.commons.util.TextUtils;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.datavalue.DataValue;
 import org.hisp.dhis.fileresource.FileResource;
+import org.hisp.dhis.option.OptionSet;
 import org.hisp.dhis.render.ObjectValueTypeRenderingOption;
 import org.hisp.dhis.render.StaticRenderingConfiguration;
 import org.hisp.dhis.render.type.ValueTypeRenderingType;
@@ -65,7 +66,7 @@ import com.google.common.collect.Sets;
 public class ValidationUtils
 {
     private static final Pattern USERNAME_PATTERN = Pattern.compile(
-        "^(?=.{4,255}$)(?![_.@])(?!.*[_.@]{2})[a-z0-9._@]+(?<![_.@])$" );
+        "^(?=.{4,255}$)(?![_.@])(?!.*[_.@]{2})[a-zA-Z0-9._@]+(?<![_.@])$" );
 
     private static final String NUM_PAT = "((-?[0-9]+)(\\.[0-9]+)?)";
 
@@ -229,15 +230,21 @@ public class ValidationUtils
      * Validates whether a username is valid.
      *
      * @param username the username.
+     * @param isInvite
      *
      * @return true if the username is valid, false otherwise.
      */
-    public static boolean usernameIsValid( String username )
+    public static boolean usernameIsValid( String username, boolean isInvite )
     {
-        if ( username == null )
+        if ( (username == null || username.length() == 0) && !isInvite )
         {
             return false;
         }
+        else if ( isInvite )
+        {
+            return true;
+        }
+
         Matcher matcher = USERNAME_PATTERN.matcher( username );
         return matcher.matches();
     }
@@ -465,6 +472,11 @@ public class ValidationUtils
         return options.getClass().equals( valueType.getValueTypeOptionsClass() );
     }
 
+    public static String dataValueIsValid( String value, DataElement dataElement )
+    {
+        return dataValueIsValid( value, dataElement, true );
+    }
+
     /**
      * Checks if the given data value is valid according to the value type of
      * the given data element. Considers the value to be valid if null or empty.
@@ -472,6 +484,8 @@ public class ValidationUtils
      * <p/>
      * <ul>
      * <li>data_element_or_type_null_or_empty</li>
+     * <li>data_element_lacks_option_set</li>
+     * <li>value_not_valid_option</li>
      * <li>value_length_greater_than_max_length</li>
      * <li>value_not_numeric</li>
      * <li>value_not_unit_interval</li>
@@ -489,14 +503,35 @@ public class ValidationUtils
      *
      * @return null if the value is valid, a string if not.
      */
-    public static String dataValueIsValid( String value, DataElement dataElement )
+    public static String dataValueIsValid( String value, DataElement dataElement, boolean validateOptions )
     {
-        if ( dataElement == null || dataElement.getValueType() == null )
+        if ( dataElement == null )
         {
             return "data_element_or_type_null_or_empty";
         }
-
-        return dataValueIsValid( value, dataElement.getValueType() );
+        ValueType valueType = dataElement.getValueType();
+        if ( valueType == null )
+        {
+            return "data_element_or_type_null_or_empty";
+        }
+        OptionSet options = dataElement.getOptionSet();
+        boolean isMultiText = valueType == ValueType.MULTI_TEXT;
+        if ( isMultiText && options == null )
+        {
+            return "data_element_lacks_option_set";
+        }
+        if ( validateOptions && options != null )
+        {
+            if ( !isMultiText && options.getOptionByCode( value ) == null )
+            {
+                return "value_not_valid_option";
+            }
+            if ( isMultiText && !options.hasAllOptions( ValueType.splitMultiText( value ) ) )
+            {
+                return "value_not_valid_option";
+            }
+        }
+        return dataValueIsValid( value, valueType );
     }
 
     /**
@@ -708,7 +743,7 @@ public class ValidationUtils
      */
     public static String normalizeBoolean( String bool, ValueType valueType )
     {
-        if ( ValueType.BOOLEAN_TYPES.contains( valueType ) )
+        if ( valueType != null && valueType.isBoolean() )
         {
             if ( BOOL_FALSE_VARIANTS.contains( bool ) && valueType != ValueType.TRUE_ONLY )
             {
