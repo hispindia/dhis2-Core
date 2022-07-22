@@ -9,6 +9,7 @@
     <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
     <link href="http://fonts.cdnfonts.com/css/gill-sans-mt-condensed" rel="stylesheet">
     <script type="text/javascript" src="../javascripts/jQuery/jquery.min.js"></script>
+	<script src="https://www.google.com/recaptcha/api.js"></script><!-- // add for google recaptcha-v2 -->
     <script>
         $.ajaxSetup( {
           beforeSend: function(xhr) {
@@ -125,7 +126,7 @@
                         <!--<a href="http://www.dhis2.org"><img src="../../api/staticContent/logo_front" style="border:none"></a>-->
                     </div>
 
-                    <form id="" action="../../dhis-web-commons-security/login.action" method="post">
+                    <form id="" action="../../dhis-web-commons-security/login.action" method="post" onsubmit="return captchaValidations()">
                         <div style="text-align:center;">
                             <div id="signInLabel" style="font-size:25px">Sign in</div>
                             <div><input type="text" id="j_username" name="j_username" placeholder="Username" required></div>
@@ -137,6 +138,7 @@
                                 <input type="code" id="2fa_code" name="2fa_code"
                                     placeholder="$i18n.getString('two_factor_authentication_code')" hidden readonly>
                             </div>
+							<div style="display: inline-block" class="g-recaptcha" data-sitekey="6LdF7XYaAAAAAIh7wrGwd-QY8cV8ukPPHEAJnV5Q" ></div><!-- // add for google recaptcha-v2 -->
                         </div>
                         <div id="submitDiv" style="text-align:center">
                             <input id="submit" class="button" type="submit" value="$i18n.getString('sign_in')">
