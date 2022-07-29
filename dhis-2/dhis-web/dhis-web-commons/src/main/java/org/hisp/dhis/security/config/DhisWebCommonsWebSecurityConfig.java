@@ -118,7 +118,7 @@ public class DhisWebCommonsWebSecurityConfig
                 .sessionFixation().migrateSession()
                 .sessionCreationPolicy( SessionCreationPolicy.ALWAYS )
                 .enableSessionUrlRewriting( false )
-                .maximumSessions( 10 )
+                .maximumSessions( 1 )
                 .expiredUrl( "/dhis-web-commons-security/logout.action" )
                 .sessionRegistry( sessionRegistry() );
         }
@@ -253,6 +253,8 @@ public class DhisWebCommonsWebSecurityConfig
 
                 .addFilterBefore( CorsFilter.get(), BasicAuthenticationFilter.class )
                 .addFilterBefore( CustomAuthenticationFilter.get(), UsernamePasswordAuthenticationFilter.class );
+
+            http.sessionManagement().maximumSessions( 1 ).expiredUrl( "/dhis-web-commons-security/logout.action" );
 
             setHttpHeaders( http );
         }
