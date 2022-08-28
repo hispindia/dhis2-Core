@@ -98,7 +98,7 @@ public class TrackedEntityAttributeValueAuditTest extends TrackerTest
             .getTrackedEntityAttributeValues(
                 trackedEntityInstance );
 
-        assertEquals( 4, attributeValues.size() );
+        assertEquals( 5, attributeValues.size() );
 
         List<TrackedEntityAttribute> attributes = attributeValues.stream()
             .map( TrackedEntityAttributeValue::getAttribute ).collect( Collectors.toList() );
@@ -107,7 +107,7 @@ public class TrackedEntityAttributeValueAuditTest extends TrackerTest
             .getTrackedEntityAttributeValueAudits(
                 attributes, trackedEntityInstances, AuditType.CREATE );
 
-        assertEquals( 4, attributeValueAudits.size() );
+        assertEquals( 5, attributeValueAudits.size() );
     }
 
     @Test
@@ -143,11 +143,14 @@ public class TrackedEntityAttributeValueAuditTest extends TrackerTest
                 attributes1, trackedEntityInstances, AuditType.DELETE );
 
         assertEquals( 1, attributeValueAudits.size() );
+        attributeValueAudits.forEach( s -> s.getValue().equals( "2020-02-20" ) );
 
         attributeValueAudits = attributeValueAuditService
             .getTrackedEntityAttributeValueAudits(
                 attributes1, trackedEntityInstances, AuditType.UPDATE );
 
         assertEquals( 1, attributeValueAudits.size() );
+        attributeValueAudits.forEach( s -> s.getValue().equals( "TEXT1" ) );
+
     }
 }

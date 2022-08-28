@@ -28,29 +28,54 @@
 package org.hisp.dhis.system.grid;
 
 import static org.hisp.dhis.common.DimensionalObject.DIMENSION_SEP;
-import static org.hisp.dhis.system.util.PDFUtils.*;
+import static org.hisp.dhis.common.adapter.OutputFormatter.maybeFormat;
+import static org.hisp.dhis.system.util.PDFUtils.addTableToDocument;
+import static org.hisp.dhis.system.util.PDFUtils.closeDocument;
+import static org.hisp.dhis.system.util.PDFUtils.getEmptyCell;
+import static org.hisp.dhis.system.util.PDFUtils.getItalicCell;
+import static org.hisp.dhis.system.util.PDFUtils.getSubtitleCell;
+import static org.hisp.dhis.system.util.PDFUtils.getTextCell;
+import static org.hisp.dhis.system.util.PDFUtils.getTitleCell;
+import static org.hisp.dhis.system.util.PDFUtils.openDocument;
+import static org.hisp.dhis.system.util.PDFUtils.resetPaddings;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
-import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.velocity.VelocityContext;
 import org.hisp.dhis.common.DimensionalItemObject;
 import org.hisp.dhis.common.DimensionalObjectUtils;
+import org.hisp.dhis.common.DxfNamespaces;
 import org.hisp.dhis.common.Grid;
 import org.hisp.dhis.common.GridHeader;
+import org.hisp.dhis.common.GridResponse;
+import org.hisp.dhis.common.Pager;
 import org.hisp.dhis.commons.collection.ListUtils;
 import org.hisp.dhis.commons.util.Encoder;
 import org.hisp.dhis.commons.util.TextUtils;
@@ -110,7 +135,7 @@ public class GridUtils
 
     private static final String HTML_INLINE_CSS_TEMPLATE = "grid-html-inline-css.vm";
 
-    private static final String ATTR_GRID = "grid";
+    private static final String TAG_GRID = "grid";
 
     private static final String ATTR_TITLE = "title";
 
@@ -211,7 +236,7 @@ public class GridUtils
         {
             for ( Object col : row )
             {
-                table.addCell( getTextCell( col ) );
+                table.addCell( getTextCell( maybeFormat( col ) ) );
             }
         }
 
@@ -328,10 +353,10 @@ public class GridUtils
 
             for ( Object column : columns )
             {
-                if ( column != null && MathUtils.isNumeric( String.valueOf( column ) ) )
+                if ( column != null && Number.class.isAssignableFrom( column.getClass() ) )
                 {
-                    xlsRow.createCell( columnIndex++, CellType.NUMERIC )
-                        .setCellValue( Double.parseDouble( String.valueOf( column ) ) );
+                    xlsRow.createCell( columnIndex++, CellType.STRING )
+                        .setCellValue( String.valueOf( maybeFormat( column ) ) );
                 }
                 else
                 {
@@ -373,7 +398,7 @@ public class GridUtils
         {
             for ( Object value : row )
             {
-                csvWriter.write( value != null ? String.valueOf( value ) : StringUtils.EMPTY );
+                csvWriter.write( value != null ? String.valueOf( maybeFormat( value ) ) : StringUtils.EMPTY );
             }
 
             csvWriter.endRecord();
@@ -439,15 +464,58 @@ public class GridUtils
         render( grid, null, writer, HTML_INLINE_CSS_TEMPLATE );
     }
 
+    public static void toXml( GridResponse response, OutputStream out )
+    {
+        XMLWriter writer = XMLFactory.getXMLWriter( out );
+        writer.openDocument();
+
+        writer.openElement( "metadata", "xmlns", DxfNamespaces.DXF_2_0 );
+        Pager pager = response.getPager();
+        if ( pager != null )
+        {
+            writer.openElement( "pager" );
+            writer.writeElement( "page", "" + pager.getPage() );
+            writer.writeElement( "pageCount", "" + pager.getPageCount() );
+            writer.writeElement( "total", "" + pager.getTotal() );
+            writer.writeElement( "pageSize", "" + pager.getPageSize() );
+            String nextPage = pager.getNextPage();
+            if ( nextPage != null )
+            {
+                writer.writeElement( "nextPage", nextPage );
+            }
+            String prevPage = pager.getPrevPage();
+            if ( prevPage != null )
+            {
+                writer.writeElement( "prevPage", prevPage );
+            }
+            writer.closeElement(); // pager
+        }
+        toXml( response.getListGrid(), writer, "listGrid" );
+
+        writer.closeElement(); // metadata
+        writer.closeDocument();
+
+    }
+
     /**
      * Writes an XML representation of the given Grid to the given OutputStream.
      */
     public static void toXml( Grid grid, OutputStream out )
     {
         XMLWriter writer = XMLFactory.getXMLWriter( out );
-
         writer.openDocument();
-        writer.openElement( ATTR_GRID, ATTR_TITLE, grid.getTitle(), ATTR_SUBTITLE, grid.getSubtitle(),
+
+        toXml( grid, writer, TAG_GRID );
+
+        writer.closeDocument();
+    }
+
+    /**
+     * Writes an XML representation of the given Grid to the given OutputStream.
+     */
+    private static void toXml( Grid grid, XMLWriter writer, String gridRootTag )
+    {
+        writer.openElement( gridRootTag, ATTR_TITLE, grid.getTitle(), ATTR_SUBTITLE, grid.getSubtitle(),
             ATTR_WIDTH, String.valueOf( grid.getWidth() ), ATTR_HEIGHT, String.valueOf( grid.getHeight() ) );
 
         writer.openElement( ATTR_HEADERS );
@@ -468,7 +536,7 @@ public class GridUtils
 
             for ( Object field : row )
             {
-                writer.writeElement( ATTR_FIELD, field != null ? String.valueOf( field ) : EMPTY );
+                writer.writeElement( ATTR_FIELD, field != null ? String.valueOf( maybeFormat( field ) ) : EMPTY );
             }
 
             writer.closeElement();
@@ -476,8 +544,6 @@ public class GridUtils
 
         writer.closeElement();
         writer.closeElement();
-
-        writer.closeDocument();
     }
 
     /**

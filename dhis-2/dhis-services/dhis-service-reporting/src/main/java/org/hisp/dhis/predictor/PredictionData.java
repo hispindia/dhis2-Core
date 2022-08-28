@@ -25,30 +25,28 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.webapi.controller.event.webrequest;
+package org.hisp.dhis.predictor;
 
-/**
- * Paging parameters
- *
- * @author Giuseppe Nespolino <g.nespolino@gmail.com>
- */
-public interface PagingCriteria
+import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+
+import org.hisp.dhis.common.FoundDimensionItemValue;
+import org.hisp.dhis.datavalue.DataValue;
+import org.hisp.dhis.organisationunit.OrganisationUnit;
+
+@Getter
+@ToString
+@EqualsAndHashCode
+@AllArgsConstructor
+public class PredictionData
 {
+    private final OrganisationUnit orgUnit;
 
-    /**
-     * Page number to return.
-     */
-    Integer getPage();
+    private final List<FoundDimensionItemValue> values;
 
-    /**
-     * Page size.
-     */
-    Integer getPageSize();
-
-    /**
-     * Indicates whether to include the total number of pages in the paging
-     * response.
-     */
-    boolean isTotalPages();
-
+    private final List<DataValue> oldPredictions;
 }

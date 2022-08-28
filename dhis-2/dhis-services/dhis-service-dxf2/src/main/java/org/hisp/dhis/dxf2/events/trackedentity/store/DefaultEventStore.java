@@ -71,11 +71,11 @@ public class DefaultEventStore
         "join programinstance pi on psic.programstageinstanceid = pi.programinstanceid " +
         "where psic.programstageinstanceid in (:ids)";
 
-    private final static String ACL_FILTER_SQL = "CASE WHEN p.type = 'WITHOUT_REGISTRATION' THEN " +
-        "psi.programstageid in (:programStageIds) and p.trackedentitytypeid in (:trackedEntityTypeIds) else true END " +
-        "AND pi.programid IN (:programIds)";
+    private final static String ACL_FILTER_SQL = "CASE WHEN p.type = 'WITH_REGISTRATION' THEN " +
+        "p.trackedentitytypeid in (:trackedEntityTypeIds) else true END " +
+        "AND psi.programstageid in (:programStageIds) AND pi.programid IN (:programIds)";
 
-    private final static String ACL_FILTER_SQL_NO_PROGRAM_STAGE = "CASE WHEN p.type = 'WITHOUT_REGISTRATION' THEN " +
+    private final static String ACL_FILTER_SQL_NO_PROGRAM_STAGE = "CASE WHEN p.type = 'WITH_REGISTRATION' THEN " +
         "p.trackedentitytypeid in (:trackedEntityTypeIds) else true END " +
         "AND pi.programid IN (:programIds)";
 
@@ -112,7 +112,7 @@ public class DefaultEventStore
 
         if ( programStages.isEmpty() )
         {
-            jdbcTemplate.query( withAclCheck( GET_EVENTS_SQL, ctx, ACL_FILTER_SQL_NO_PROGRAM_STAGE ),
+            jdbcTemplate.query( getQuery( GET_EVENTS_SQL, ctx, ACL_FILTER_SQL_NO_PROGRAM_STAGE, "psi" ),
                 createIdsParam( enrollmentsId )
                     .addValue( "trackedEntityTypeIds", ctx.getTrackedEntityTypes() )
                     .addValue( "programStageIds", programStages )
@@ -121,7 +121,7 @@ public class DefaultEventStore
         }
         else
         {
-            jdbcTemplate.query( withAclCheck( GET_EVENTS_SQL, ctx, ACL_FILTER_SQL ),
+            jdbcTemplate.query( getQuery( GET_EVENTS_SQL, ctx, ACL_FILTER_SQL, "psi" ),
                 createIdsParam( enrollmentsId )
                     .addValue( "trackedEntityTypeIds", ctx.getTrackedEntityTypes() )
                     .addValue( "programStageIds", programStages )

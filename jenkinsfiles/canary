@@ -11,7 +11,7 @@ pipeline {
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
-        timeout(time: 20, activity: true)
+        timeout(time: 30)
     }
 
     environment {
@@ -44,7 +44,8 @@ pipeline {
                 echo 'Building DHIS2 ...'
                 script {
                     withMaven(options: [artifactsPublisher(disabled: true)]) {
-                        sh 'mvn -X -T 4 clean install -f dhis-2/pom-full.xml -Pjdk8 --update-snapshots'
+                        sh 'mvn -X -T 4 --batch-mode --no-transfer-progress clean install -f dhis-2/pom.xml -P jdk8,-default --update-snapshots'
+                        sh 'mvn -X -T 4 --batch-mode --no-transfer-progress package -f dhis-2/dhis-web/pom.xml -P jdk8,-default --update-snapshots'
                     }
                 }
             }
@@ -58,6 +59,41 @@ pipeline {
                 sh './copy-war-s3.sh canary ${GIT_BRANCH}'
             }
         }
+
+        stage ('Delete old WARs') {
+            steps {
+                echo 'Deleting old WARs ...'
+                sh 'curl "https://raw.githubusercontent.com/dhis2/dhis2-server-setup/master/ci/scripts/delete-old-wars.sh" -O'
+                sh 'chmod +x delete-old-wars.sh'
+                sh './delete-old-wars.sh ${GIT_BRANCH}'
+            }
+        }
+
+        stage ('Generate Javadocs') {
+            steps {
+                echo 'Generating Javadocs ...'
+                script {
+                    withMaven(options: [artifactsPublisher(disabled: true)]) {
+                        sh 'mvn --batch-mode --no-transfer-progress clean install javadoc:aggregate -DskipTests=true -Dmaven.test.skip=true -f dhis-2/pom.xml'
+                    }
+                }
+            }
+
+            post {
+                success {
+                    javadoc javadocDir: 'dhis-2/target/site/apidocs', keepAll: false
+                }
+            }
+        }
+
+        stage ('Sync Javadocs') {
+            steps {
+                echo 'Syncing Javadocs ...'
+                sh 'curl "https://raw.githubusercontent.com/dhis2/dhis2-server-setup/master/ci/scripts/sync-javadocs-s3.sh" -O'
+                sh 'chmod +x sync-javadocs-s3.sh'
+                sh './sync-javadocs-s3.sh ${GIT_BRANCH}'
+            }
+        }
     }
 
     post {
@@ -69,7 +105,7 @@ pipeline {
 
         aborted {
             script {
-                slack.sendInactivityMessage(20)
+                slack.sendTimedoutMessage(30)
             }
         }
     }
