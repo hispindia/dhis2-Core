@@ -31,6 +31,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hisp.dhis.DhisConvenienceTest.*;
+import static org.hisp.dhis.analytics.DataType.NUMERIC;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.ANALYTICS_TBL_ALIAS;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.quote;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -119,7 +120,7 @@ public class EnrollmentAnalyticsManagerTest
         verify( jdbcTemplate ).queryForRowSet( sql.capture() );
 
         String expected = "ax.\"monthly\",ax.\"ou\"  from " + getTable( programA.getUid() )
-            + " as ax where enrollmentdate >= '2017-01-01' and enrollmentdate <= '2017-12-31' and (uidlevel0 = 'ouabcdefghA' ) limit 10001";
+            + " as ax where enrollmentdate >= '2017-01-01' and enrollmentdate < '2018-01-01' and (uidlevel0 = 'ouabcdefghA' ) limit 10001";
 
         assertSql( sql.getValue(), expected );
 
@@ -223,7 +224,7 @@ public class EnrollmentAnalyticsManagerTest
             createRequestParams( programIndicatorA, relationshipTypeA ) ).withStartDate( startDate )
                 .withEndDate( endDate );
 
-        when( programIndicatorService.getAnalyticsSql( "", programIndicatorA, getDate( 2000, 1, 1 ),
+        when( programIndicatorService.getAnalyticsSql( "", NUMERIC, programIndicatorA, getDate( 2000, 1, 1 ),
             getDate( 2017, 4, 8 ), "subax" ) ).thenReturn( piSubquery );
 
         subject.getEnrollments( params.build(), new ListGrid(), 100 );
@@ -241,7 +242,7 @@ public class EnrollmentAnalyticsManagerTest
             "WHERE rty.relationshiptypeid = " + relationshipTypeA.getId() + " AND tei.uid = ax.tei )) as \""
             + programIndicatorA.getUid()
             + "\"  " + "from analytics_enrollment_" + programA.getUid()
-            + " as ax where enrollmentdate >= '2015-01-01' and enrollmentdate <= '2017-04-08' and (uidlevel0 = 'ouabcdefghA' ) limit 101";
+            + " as ax where enrollmentdate >= '2015-01-01' and enrollmentdate < '2017-04-09' and (uidlevel0 = 'ouabcdefghA' ) limit 101";
 
         assertSql( sql.getValue(), expected );
     }
@@ -263,7 +264,7 @@ public class EnrollmentAnalyticsManagerTest
             createRequestParams( programIndicatorA, relationshipTypeA ) ).withStartDate( startDate )
                 .withEndDate( endDate );
 
-        when( programIndicatorService.getAnalyticsSql( "", programIndicatorA, getDate( 2000, 1, 1 ),
+        when( programIndicatorService.getAnalyticsSql( "", NUMERIC, programIndicatorA, getDate( 2000, 1, 1 ),
             getDate( 2017, 4, 8 ), "subax" ) ).thenReturn( piSubquery );
 
         subject.getEnrollments( params.build(), new ListGrid(), 100 );
@@ -281,7 +282,7 @@ public class EnrollmentAnalyticsManagerTest
             +
             "= " + relationshipTypeA.getId() + " AND pi.uid = ax.pi ))" + " as \"" + programIndicatorA.getUid() + "\"  "
             + "from analytics_enrollment_" + programA.getUid()
-            + " as ax where enrollmentdate >= '2015-01-01' and enrollmentdate <= '2017-04-08' and (uidlevel0 = 'ouabcdefghA' ) limit 101";
+            + " as ax where enrollmentdate >= '2015-01-01' and enrollmentdate < '2017-04-09' and (uidlevel0 = 'ouabcdefghA' ) limit 101";
 
         assertSql( sql.getValue(), expected );
     }
@@ -334,7 +335,7 @@ public class EnrollmentAnalyticsManagerTest
             createRequestParams( programIndicatorA, relationshipTypeA ) ).withStartDate( startDate )
                 .withEndDate( endDate );
 
-        when( programIndicatorService.getAnalyticsSql( "", programIndicatorA, getDate( 2000, 1, 1 ),
+        when( programIndicatorService.getAnalyticsSql( "", NUMERIC, programIndicatorA, getDate( 2000, 1, 1 ),
             getDate( 2017, 4, 8 ), "subax" ) ).thenReturn( piSubquery );
 
         subject.getEnrollments( params.build(), new ListGrid(), 100 );
@@ -352,7 +353,7 @@ public class EnrollmentAnalyticsManagerTest
             "WHERE rty.relationshiptypeid = " + relationshipTypeA.getId() + " AND tei.uid = ax.tei )) as \""
             + programIndicatorA.getUid()
             + "\"  " + "from analytics_enrollment_" + programA.getUid()
-            + " as ax where enrollmentdate >= '2015-01-01' and enrollmentdate <= '2017-04-08' and (uidlevel0 = 'ouabcdefghA' ) limit 101";
+            + " as ax where enrollmentdate >= '2015-01-01' and enrollmentdate < '2017-04-09' and (uidlevel0 = 'ouabcdefghA' ) limit 101";
 
         assertSql( sql.getValue(), expected );
     }

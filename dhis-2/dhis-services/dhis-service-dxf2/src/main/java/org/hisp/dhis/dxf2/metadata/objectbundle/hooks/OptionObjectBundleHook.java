@@ -75,21 +75,75 @@ public class OptionObjectBundleHook
             return;
         }
 
-        final Option option = (Option) object;
+        Option option = (Option) object;
 
-        // if the bundle contains also the option set there is no need to add
-        // the option here
-        // (will be done automatically later and option set may contain raw
-        // value already)
-        if ( option.getOptionSet() != null && !bundle.containsObject( option.getOptionSet() ) )
+        if ( option.getOptionSet() == null )
         {
-            OptionSet optionSet = bundle.getPreheat().get( bundle.getPreheatIdentifier(), OptionSet.class,
-                option.getOptionSet() );
+            return;
+        }
 
-            if ( optionSet != null )
-            {
-                optionSet.addOption( option );
-            }
+        // If OptionSet doesn't contain Option but Option has reference to
+        // OptionSet
+        // then we need to update OptionSet.options collection.
+        OptionSet optionSet = bundle.getPreheat().get( bundle.getPreheatIdentifier(), OptionSet.class,
+            option.getOptionSet().getUid() );
+
+        if ( optionSet != null && optionSet.getOptionByUid( option.getUid() ) == null )
+        {
+            optionSet.addOption( option );
+        }
+    }
+
+    @Override
+    public <T extends IdentifiableObject> void preUpdate( T object, T persistedObject, ObjectBundle bundle )
+    {
+        if ( !(object instanceof Option) )
+        {
+            return;
+        }
+
+        Option option = (Option) object;
+
+        if ( option.getOptionSet() == null )
+        {
+            return;
+        }
+
+        OptionSet optionSet = bundle.getPreheat().get( bundle.getPreheatIdentifier(), OptionSet.class,
+            option.getOptionSet().getUid() );
+
+        if ( optionSet != null )
+        {
+            // Remove the existed option from OptionSet, will add the updating
+            // one
+            // in postUpdate()
+            optionSet.getOptions().remove( persistedObject );
+        }
+    }
+
+    @Override
+    public <T extends IdentifiableObject> void postUpdate( T object, ObjectBundle bundle )
+    {
+        if ( !(object instanceof Option) )
+        {
+            return;
+        }
+
+        Option option = (Option) object;
+
+        if ( option.getOptionSet() == null )
+        {
+            return;
+        }
+
+        OptionSet optionSet = bundle.getPreheat().get( bundle.getPreheatIdentifier(), OptionSet.class,
+            option.getOptionSet().getUid() );
+
+        if ( optionSet != null )
+        {
+            // Add the updated Option to OptionSet, this will allow Hibernate to
+            // re-organize sortOrder gaps if any.
+            optionSet.addOption( option );
         }
     }
 

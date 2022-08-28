@@ -25,60 +25,32 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.webapi.controller.event.webrequest;
+package org.hisp.dhis.predictor;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
-import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import org.hisp.dhis.category.CategoryOptionCombo;
+import org.hisp.dhis.common.DimensionalItemObject;
+import org.hisp.dhis.common.MapMap;
+import org.hisp.dhis.period.Period;
 
 /**
- * simplest implementation of PagingCriteria and SortingCriteria
+ * Context (including data) for computing a single prediction.
  *
- * @author Giuseppe Nespolino <g.nespolino@gmail.com>
+ * @author Jim Grace
  */
 @Data
-@NoArgsConstructor( access = AccessLevel.PROTECTED )
-public abstract class PagingAndSortingCriteriaAdapter implements PagingCriteria, SortingCriteria
+@AllArgsConstructor
+public class PredictionContext
 {
+    private CategoryOptionCombo attributeOptionCombo;
 
-    /**
-     * Page number to return.
-     */
-    private Integer page;
+    private Period outputPeriod;
 
-    /**
-     * Page size.
-     */
-    private Integer pageSize;
+    private MapMap<Period, DimensionalItemObject, Object> periodValueMap;
 
-    /**
-     * Indicates whether to include the total number of pages in the paging
-     * response.
-     */
-    private boolean totalPages;
-
-    /**
-     * Indicates whether paging should be skipped.
-     */
-    private Boolean skipPaging;
-
-    /**
-     * order params
-     */
-    private List<OrderCriteria> order;
-
-    public boolean isPagingRequest()
-    {
-        return !isSkipPaging();
-    }
-
-    public boolean isSkipPaging()
-    {
-        return Optional.ofNullable( skipPaging )
-            .orElse( false );
-    }
-
+    private Map<DimensionalItemObject, Object> valueMap;
 }
