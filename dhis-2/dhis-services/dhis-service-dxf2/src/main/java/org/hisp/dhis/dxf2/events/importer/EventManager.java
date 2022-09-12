@@ -72,8 +72,14 @@ import org.hisp.dhis.program.ProgramStageInstance;
 import org.hisp.dhis.trackedentitydatavalue.TrackedEntityDataValueAudit;
 import org.hisp.dhis.trackedentitydatavalue.TrackedEntityDataValueAuditService;
 import org.hisp.dhis.user.CurrentUserService;
+import org.hisp.dhis.user.User;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import org.hisp.dhis.message.EmailMessageSender;
+import org.hisp.dhis.message.MessageService;
+import org.hisp.dhis.organisationunit.OrganisationUnit;
+import org.hisp.dhis.organisationunit.OrganisationUnitService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.ImmutableList;
 
@@ -105,6 +111,15 @@ public class EventManager
 
     @NonNull
     private final CurrentUserService currentUserService;
+    
+    @Autowired
+    private OrganisationUnitService organisationUnitService;
+    
+    @Autowired
+    private EmailMessageSender emailMessageSender;
+    
+    @Autowired
+    private MessageService messageService;
 
     private static final String IMPORT_ERROR_STRING = "Invalid or conflicting data";
 
@@ -130,7 +145,11 @@ public class EventManager
         {
             return importSummaries;
         }
-
+        
+        
+        List<Event> aaaa = new ArrayList<>();
+        
+        
         // filter out events which are already in the database as well as
         // duplicates in the payload (if stage is not repeatable)
         List<Event> validEvents = resolveImportableEvents( events, importSummaries, workContext );
@@ -168,12 +187,45 @@ public class EventManager
                 {
                     // save the entire batch in one transaction
                     eventPersistenceService.save( workContext, eventsToInsert );
+                    
+                    //System.out.println( " 1 event id "+ eventsToInsert.get( 0 ).getEvent() +  " event uid "+ eventsToInsert.get( 0 ).getUid());
+                    //System.out.println( " 2 event program name "+ eventsToInsert.get( 0 ).getProgram() );
                 }
                 catch ( Exception e )
                 {
                     handleFailure( workContext, importSummaries, events, IMPORT_ERROR_STRING, CREATE );
 
                 }
+                /*
+                for( Event tempEvent : eventsToInsert )
+                {
+                    System.out.println( "3 event tei "+ tempEvent.getTrackedEntityInstance() +  " event uid "+ tempEvent.getUid());
+                    System.out.println( "4 event orgUnit name "+ tempEvent.getOrgUnit() );
+                    OrganisationUnit orgUnit = organisationUnitService.getOrganisationUnit( tempEvent.getOrgUnit() );
+                    String orgUnitEmailAddress = "";
+                    String parentorgUnitEmailAddress  = "";
+                    Set<String> recipients = new HashSet<>();
+                    if( orgUnit.getEmail() != null )
+                    {
+                        orgUnitEmailAddress = orgUnit.getEmail();
+                        recipients.add( orgUnitEmailAddress );
+                    }
+                    if( orgUnit.getParent()!= null && orgUnit.getParent().getEmail() != null )
+                    {
+                        parentorgUnitEmailAddress = orgUnit.getParent().getEmail();
+                        recipients.add( parentorgUnitEmailAddress );
+                    }
+                    
+                    String teiDashboard = "https://swasthyakawach.in/pccds/dhis-web-tracker-capture/index.html#/dashboard?tei=" + tempEvent.getTrackedEntityInstance() + "&program=" + tempEvent.getProgram() + "&ou=" + tempEvent.getOrgUnit();
+                       
+                    String emailText = "Hello," + '\n' + + '\n' + "A new case has been reported from " + orgUnit.getName()+ " on the " + tempEvent.getEventDate() + " ."  + '\n' + '\n' + '\n' +" Please click on the below link to review the case and take appropriate action."
+                                        + '\n' + '\n' + '\n' + teiDashboard ;
+
+                    String emailSubject = "New Case Report";
+                    emailMessageSender.sendMessage( emailSubject, emailText, recipients );
+                    
+                }
+                */
             }
 
             final List<String> eventPersistenceFailedUids = importSummaries.getImportSummaries().stream()
@@ -192,6 +244,46 @@ public class EventManager
             incrementSummaryTotals( events, importSummaries, CREATE );
 
         }
+        
+        for( Event tempEvent : validEvents )
+        {
+            //System.out.println( "3 event tei "+ tempEvent.getTrackedEntityInstance() +  " event uid "+ tempEvent.getUid());
+            //System.out.println( "4 event orgUnit name "+ tempEvent.getOrgUnit() );
+            OrganisationUnit orgUnit = organisationUnitService.getOrganisationUnit( tempEvent.getOrgUnit() );
+            String orgUnitEmailAddress = "";
+            String parentorgUnitEmailAddress  = "";
+            Set<String> recipients = new HashSet<>();
+            if( orgUnit.getEmail() != null )
+            {
+                orgUnitEmailAddress = orgUnit.getEmail();
+                recipients.add( orgUnitEmailAddress );
+            }
+            if( orgUnit.getParent()!= null && orgUnit.getParent().getEmail() != null )
+            {
+                parentorgUnitEmailAddress = orgUnit.getParent().getEmail();
+                recipients.add( parentorgUnitEmailAddress );
+            }
+            
+            String teiDashboard = "https://swasthyakawach.in/pccds/dhis-web-tracker-capture/index.html#/dashboard?tei=" + tempEvent.getTrackedEntityInstance() + "&program=" + tempEvent.getProgram() + "&ou=" + tempEvent.getOrgUnit();
+               
+            String emailText = "Hello, " + '\n' + "A new case has been reported from " + orgUnit.getName()+ " on the " + tempEvent.getEventDate() + " ."  + '\n' + '\n' +" Please click on the below link to review the case and take appropriate action."
+                                + '\n' + '\n' + teiDashboard ;
+
+            String emailSubject = "New Case Report";
+            
+            //emailMessageSender.sendMessage( emailSubject, emailText, recipients );
+            
+            // for send in System Message
+            Set<User> useRrecipients = new HashSet<>();
+            useRrecipients.add( currentUserService.getCurrentUser() );
+            messageService.sendSystemMessage( useRrecipients, emailSubject, emailText );
+            System.out.println( "System message send to " + currentUserService.getCurrentUser().getUsername() );
+            
+        }
+        
+        //Set<User> recipients, String subject, String text
+        //messageService.sendSystemMessage( emailSubject, emailText );
+        
         return importSummaries;
     }
 
