@@ -1426,6 +1426,21 @@ public abstract class AbstractTrackedEntityInstanceService
                     continue;
                 }
 
+
+                // custom change for HIV-Tracker to skip length validation of finger-print-string attribute
+                if ( !daoEntityAttribute.getUid().equalsIgnoreCase( "uiOMHu4LtAP" ) )
+                {
+                    if ( attribute.getValue().length() > TEA_VALUE_MAX_LENGTH )
+                    {
+                        // We shorten the value to first 25 characters, since we dont want to post a 1200+ string back.
+                        importConflicts.addConflict( "Attribute.value",
+                            String.format( "Value exceeds the character limit of %s characters: '%s...'",
+                                TEA_VALUE_MAX_LENGTH, attribute.getValue().substring( 0, 25 ) ) );
+                    }
+                }
+                //end 
+                // comment for HIV-Tracker
+                /*
                 if ( attribute.getValue() != null && attribute.getValue().length() > TEA_VALUE_MAX_LENGTH )
                 {
                     // We shorten the value to first 25 characters, since we
@@ -1434,7 +1449,8 @@ public abstract class AbstractTrackedEntityInstanceService
                         String.format( "Value exceeds the character limit of %s characters: '%s...'",
                             TEA_VALUE_MAX_LENGTH, attribute.getValue().substring( 0, 25 ) ) );
                 }
-
+                */
+                //end
                 if ( daoEntityAttribute.isUnique() )
                 {
                     // Cache was populated in prepareCaches, so I should hit the

@@ -1379,6 +1379,8 @@ public abstract class AbstractEnrollmentService
 
             String attributeValue = attributeValueMap.get( trackedEntityAttribute.getUid() );
 
+            // comment for HIV-Tracker to skip length validation of finger-print-string attribute
+            /*
             if ( attributeValue != null && attributeValue.length() > TEA_VALUE_MAX_LENGTH )
             {
                 // We shorten the value to first 25 characters, since we dont
@@ -1387,7 +1389,8 @@ public abstract class AbstractEnrollmentService
                     String.format( "Value exceeds the character limit of %s characters: '%s...'", TEA_VALUE_MAX_LENGTH,
                         attributeValueMap.get( trackedEntityAttribute.getUid() ).substring( 0, 25 ) ) );
             }
-
+            */
+            //end
             if ( trackedEntityAttribute.isUnique() )
             {
                 checkAttributeUniquenessWithinScope( trackedEntityInstance, trackedEntityAttribute,
