@@ -252,6 +252,7 @@ public class EventManager
             OrganisationUnit orgUnit = organisationUnitService.getOrganisationUnit( tempEvent.getOrgUnit() );
             String orgUnitEmailAddress = "";
             String parentorgUnitEmailAddress  = "";
+            /*
             Set<String> recipients = new HashSet<>();
             if( orgUnit.getEmail() != null )
             {
@@ -263,7 +264,7 @@ public class EventManager
                 parentorgUnitEmailAddress = orgUnit.getParent().getEmail();
                 recipients.add( parentorgUnitEmailAddress );
             }
-            
+            */
             String teiDashboard = "https://swasthyakawach.in/pccds/dhis-web-tracker-capture/index.html#/dashboard?tei=" + tempEvent.getTrackedEntityInstance() + "&program=" + tempEvent.getProgram() + "&ou=" + tempEvent.getOrgUnit();
                
             String emailText = "Hello, " + '\n' + "A new case has been reported from " + orgUnit.getName()+ " on the " + tempEvent.getEventDate() + " ."  + '\n' + '\n' +" Please click on the below link to review the case and take appropriate action."
@@ -275,9 +276,14 @@ public class EventManager
             
             // for send in System Message
             Set<User> useRrecipients = new HashSet<>();
-            useRrecipients.add( currentUserService.getCurrentUser() );
+            //useRrecipients.add( currentUserService.getCurrentUser() );
+            useRrecipients.add( orgUnit.getParent().getUsers().stream().findFirst().get() );
+            useRrecipients.addAll( orgUnit.getParent().getUsers() );
             messageService.sendSystemMessage( useRrecipients, emailSubject, emailText );
-            System.out.println( "System message send to " + currentUserService.getCurrentUser().getUsername() );
+            
+            //System.out.println( "parent user-name " + orgUnit.getParent().getUsers().stream().findFirst().get().getName()  );
+            
+            System.out.println( "System message send to " + orgUnit.getParent().getName() + " to user " + orgUnit.getParent().getUsers().stream().findFirst().get().getName() );
             
         }
         
