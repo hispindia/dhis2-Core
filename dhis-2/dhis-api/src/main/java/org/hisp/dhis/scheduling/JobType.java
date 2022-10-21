@@ -96,6 +96,10 @@ public enum JobType
     TRACKER_IMPORT_JOB( false ),
     TRACKER_IMPORT_NOTIFICATION_JOB( false ),
     TRACKER_IMPORT_RULE_ENGINE_JOB( false ),
+    
+    // custom change for schedule SMS tracker-data for save-child HIV tracker
+    CUSTOM_SMS_TASK( true ),
+    //end
 
     // Internal jobs
     LEADER_ELECTION( false ),
