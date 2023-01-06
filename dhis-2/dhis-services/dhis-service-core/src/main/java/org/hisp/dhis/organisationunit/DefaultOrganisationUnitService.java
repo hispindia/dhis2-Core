@@ -43,6 +43,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
+
 import org.apache.commons.lang3.ObjectUtils;
 import org.hisp.dhis.cache.Cache;
 import org.hisp.dhis.cache.CacheProvider;
@@ -60,7 +62,6 @@ import org.hisp.dhis.system.filter.OrganisationUnitPolygonCoveringCoordinateFilt
 import org.hisp.dhis.system.util.GeoUtils;
 import org.hisp.dhis.system.util.ValidationUtils;
 import org.hisp.dhis.user.CurrentUserService;
-import org.hisp.dhis.user.CurrentUserServiceTarget;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserSettingKey;
 import org.hisp.dhis.user.UserSettingService;
@@ -74,7 +75,7 @@ import com.google.common.collect.Sets;
  */
 @Service( "org.hisp.dhis.organisationunit.OrganisationUnitService" )
 public class DefaultOrganisationUnitService
-    implements OrganisationUnitService, CurrentUserServiceTarget
+    implements OrganisationUnitService
 {
     private static final String LEVEL_PREFIX = "Level ";
 
@@ -96,7 +97,7 @@ public class DefaultOrganisationUnitService
 
     private final OrganisationUnitLevelStore organisationUnitLevelStore;
 
-    private CurrentUserService currentUserService;
+    private final CurrentUserService currentUserService;
 
     private final ConfigurationService configurationService;
 
@@ -121,16 +122,11 @@ public class DefaultOrganisationUnitService
         this.currentUserService = currentUserService;
         this.configurationService = configurationService;
         this.userSettingService = userSettingService;
+
         this.inUserOrgUnitHierarchyCache = cacheProvider.createInUserOrgUnitHierarchyCache();
         this.inUserOrgUnitSearchHierarchyCache = cacheProvider.createInUserSearchOrgUnitHierarchyCache();
         this.userCaptureOrgCountThresholdCache = cacheProvider.createUserCaptureOrgUnitThresholdCache();
         this.inUserOrgUnitViewHierarchyCache = cacheProvider.createInUserViewOrgUnitHierarchyCache();
-    }
-
-    @Override
-    public void setCurrentUserService( CurrentUserService currentUserService )
-    {
-        this.currentUserService = currentUserService;
     }
 
     // -------------------------------------------------------------------------
@@ -205,7 +201,7 @@ public class DefaultOrganisationUnitService
 
     @Override
     @Transactional( readOnly = true )
-    public List<OrganisationUnit> getOrganisationUnitsByUid( Collection<String> uids )
+    public List<OrganisationUnit> getOrganisationUnitsByUid( @Nonnull Collection<String> uids )
     {
         return organisationUnitStore.getByUid( new HashSet<>( uids ) );
     }
@@ -517,8 +513,7 @@ public class DefaultOrganisationUnitService
                 continue;
             }
 
-            String uid1 = ancestor.getUid();
-            ancestorsUid.add( uid1 );
+            ancestorsUid.add( ancestor.getUid() );
         }
 
         OrganisationUnit unit = getOrganisationUnit( organisationUnit.getUid() );

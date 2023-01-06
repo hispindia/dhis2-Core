@@ -47,7 +47,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Kristian Nordal
- * @version $Id: DataSetStoreTest.java 3451 2007-07-09 12:28:19Z torgeilo $
  */
 class DataSetStoreTest extends SingleSetupIntegrationTestBase
 {
@@ -122,7 +121,7 @@ class DataSetStoreTest extends SingleSetupIntegrationTestBase
     {
         DataSet dataSetA = addDataSet( 'A' );
         DataSet dataSetB = addDataSet( 'B' );
-        assertContainsOnly( dataSetStore.getAll(), dataSetA, dataSetB );
+        assertContainsOnly( List.of( dataSetA, dataSetB ), dataSetStore.getAll() );
     }
 
     @Test
@@ -133,8 +132,8 @@ class DataSetStoreTest extends SingleSetupIntegrationTestBase
         PeriodType periodType2 = types.get( 1 );
         DataSet dataSetA = addDataSet( 'A', periodType1 );
         DataSet dataSetB = addDataSet( 'B', periodType2 );
-        assertContainsOnly( dataSetStore.getDataSetsByPeriodType( periodType1 ), dataSetA );
-        assertContainsOnly( dataSetStore.getDataSetsByPeriodType( periodType2 ), dataSetB );
+        assertContainsOnly( List.of( dataSetA ), dataSetStore.getDataSetsByPeriodType( periodType1 ) );
+        assertContainsOnly( List.of( dataSetB ), dataSetStore.getDataSetsByPeriodType( periodType2 ) );
     }
 
     @Test
@@ -145,13 +144,13 @@ class DataSetStoreTest extends SingleSetupIntegrationTestBase
         DataSet dataSetC = addDataSet( 'C' );
         DataEntryForm dataEntryFormX = addDataEntryForm( 'X', dataSetA );
         DataEntryForm dataEntryFormY = addDataEntryForm( 'Y' );
-        assertContainsOnly( dataSetStore.getDataSetsByDataEntryForm( dataEntryFormX ), dataSetA );
+        assertContainsOnly( List.of( dataSetA ), dataSetStore.getDataSetsByDataEntryForm( dataEntryFormX ) );
         dataSetC.setDataEntryForm( dataEntryFormX );
         dataSetStore.update( dataSetC );
-        assertContainsOnly( dataSetStore.getDataSetsByDataEntryForm( dataEntryFormX ), dataSetA, dataSetC );
+        assertContainsOnly( List.of( dataSetA, dataSetC ), dataSetStore.getDataSetsByDataEntryForm( dataEntryFormX ) );
         dataSetB.setDataEntryForm( dataEntryFormY );
         dataSetStore.update( dataSetB );
-        assertContainsOnly( dataSetStore.getDataSetsByDataEntryForm( dataEntryFormY ), dataSetB );
+        assertContainsOnly( List.of( dataSetB ), dataSetStore.getDataSetsByDataEntryForm( dataEntryFormY ) );
     }
 
     @Test
@@ -161,7 +160,7 @@ class DataSetStoreTest extends SingleSetupIntegrationTestBase
         DataSet dataSetA = addDataSet( 'A' );
         addDataSet( 'B', unitX );
         DataSet dataSetC = addDataSet( 'C' );
-        assertContainsOnly( dataSetStore.getDataSetsNotAssignedToOrganisationUnits(), dataSetA, dataSetC );
+        assertContainsOnly( List.of( dataSetA, dataSetC ), dataSetStore.getDataSetsNotAssignedToOrganisationUnits() );
     }
 
     private OrganisationUnit addOrganisationUnit( char uniqueCharacter )

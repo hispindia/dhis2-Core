@@ -41,7 +41,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.hisp.dhis.category.CategoryCombo;
@@ -60,7 +60,6 @@ import org.hisp.dhis.period.Period;
 import org.hisp.dhis.setting.SettingKey;
 import org.hisp.dhis.setting.SystemSettingManager;
 import org.hisp.dhis.user.CurrentUserService;
-import org.hisp.dhis.user.CurrentUserServiceTarget;
 import org.hisp.dhis.user.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,10 +71,10 @@ import com.google.common.collect.Sets;
  * @author Jim Grace
  */
 @Slf4j
+@RequiredArgsConstructor
 @Service( "org.hisp.dhis.dataapproval.DataApprovalService" )
-@AllArgsConstructor
 public class DefaultDataApprovalService
-    implements DataApprovalService, CurrentUserServiceTarget
+    implements DataApprovalService
 {
     private final DataApprovalStore dataApprovalStore;
 
@@ -87,15 +86,9 @@ public class DefaultDataApprovalService
 
     private final IdentifiableObjectManager idObjectManager;
 
-    private CurrentUserService currentUserService;
+    private final CurrentUserService currentUserService;
 
     private final SystemSettingManager systemSettingManager;
-
-    @Override
-    public void setCurrentUserService( CurrentUserService currentUserService )
-    {
-        this.currentUserService = currentUserService;
-    }
 
     // -------------------------------------------------------------------------
     // Data approval workflow
@@ -191,7 +184,7 @@ public class DefaultDataApprovalService
                     da.getDataApprovalLevel().getLevel() >= status.getActionLevel().getLevel() )
                 {
                     continue; // Already approved at or above the level
-                              // requested
+                             // requested
                 }
 
                 DataApprovalLevel nextLevel = nextHigherLevel( status.getActionLevel(), da.getWorkflow() );
@@ -400,7 +393,7 @@ public class DefaultDataApprovalService
                 da.getDataApprovalLevel().getLevel() < status.getApprovedLevel().getLevel() )
             {
                 continue; // Already unaccepted at or not approved up to this
-                          // level
+                         // level
             }
 
             if ( !status.getPermissions().isMayUnaccept() )

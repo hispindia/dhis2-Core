@@ -30,8 +30,10 @@ package org.hisp.dhis.analytics.event.data;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.hisp.dhis.analytics.DataType.BOOLEAN;
+import static org.hisp.dhis.analytics.event.data.OrgUnitTableJoiner.joinOrgUnitTables;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.ANALYTICS_TBL_ALIAS;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.encode;
+import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.getCoalesce;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.quote;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.quoteAlias;
 import static org.hisp.dhis.common.DimensionItemType.DATA_ELEMENT;
@@ -76,7 +78,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -96,7 +97,9 @@ public class JdbcEnrollmentAnalyticsManager
 
     private static final String LIMIT_1 = "limit 1";
 
-    private List<String> COLUMNS = Lists.newArrayList( "pi", "tei", "enrollmentdate", "incidentdate",
+    private static final String IS_NOT_NULL = " is not null ";
+
+    private static final List<String> COLUMNS = List.of( "pi", "tei", "enrollmentdate", "incidentdate",
         "storedby", "createdbydisplayname", "lastupdatedbydisplayname", "lastupdated",
         "ST_AsGeoJSON(pigeometry)", "longitude", "latitude",
         "ouname", "oucode", "enrollmentstatus" );
@@ -106,8 +109,8 @@ public class JdbcEnrollmentAnalyticsManager
         ProgramIndicatorSubqueryBuilder programIndicatorSubqueryBuilder,
         EnrollmentTimeFieldSqlRenderer timeFieldSqlRenderer, ExecutionPlanStore executionPlanStore )
     {
-        super( jdbcTemplate, statementBuilder, programIndicatorService, programIndicatorSubqueryBuilder,
-            executionPlanStore );
+        super( jdbcTemplate, statementBuilder, programIndicatorService,
+            programIndicatorSubqueryBuilder, executionPlanStore );
         this.timeFieldSqlRenderer = timeFieldSqlRenderer;
     }
 
@@ -207,7 +210,8 @@ public class JdbcEnrollmentAnalyticsManager
     @Override
     protected String getFromClause( EventQueryParams params )
     {
-        return " from " + params.getTableName() + " as " + ANALYTICS_TBL_ALIAS + " ";
+        return " from " + params.getTableName() + " as " + ANALYTICS_TBL_ALIAS + " " +
+            joinOrgUnitTables( params, getAnalyticsType() );
     }
 
     /**
@@ -254,7 +258,8 @@ public class JdbcEnrollmentAnalyticsManager
             for ( DimensionalItemObject object : params.getDimensionOrFilterItems( ORGUNIT_DIM_ID ) )
             {
                 OrganisationUnit unit = (OrganisationUnit) object;
-                sql += "uidlevel" + unit.getLevel() + " = '" + unit.getUid() + "' or ";
+                sql += params.getOrgUnitField().getOrgUnitLevelCol( unit.getLevel(), getAnalyticsType() )
+                    + " = '" + unit.getUid() + "' or ";
             }
 
             sql = removeLastOr( sql ) + ") ";
@@ -265,13 +270,26 @@ public class JdbcEnrollmentAnalyticsManager
         // ---------------------------------------------------------------------
 
         List<DimensionalObject> dynamicDimensions = params.getDimensionsAndFilters(
-            Sets.newHashSet( DimensionType.ORGANISATION_UNIT_GROUP_SET, DimensionType.CATEGORY ) );
+            Sets.newHashSet( DimensionType.CATEGORY ) );
 
         for ( DimensionalObject dim : dynamicDimensions )
         {
             String col = quoteAlias( dim.getDimensionName() );
 
             sql += "and " + col + " in (" + getQuotedCommaDelimitedString( getUids( dim.getItems() ) ) + ") ";
+        }
+
+        dynamicDimensions = params
+            .getDimensionsAndFilters( Sets.newHashSet( DimensionType.ORGANISATION_UNIT_GROUP_SET ) );
+
+        for ( DimensionalObject dim : dynamicDimensions )
+        {
+            if ( !dim.isAllItems() )
+            {
+                String col = quoteAlias( dim.getDimensionName() );
+
+                sql += "and " + col + " in (" + getQuotedCommaDelimitedString( getUids( dim.getItems() ) ) + ") ";
+            }
         }
 
         // ---------------------------------------------------------------------
@@ -322,7 +340,7 @@ public class JdbcEnrollmentAnalyticsManager
 
         if ( params.isGeometryOnly() )
         {
-            sql += "and " + quoteAlias( params.getCoordinateField() ) + " is not null ";
+            sql += "and " + getCoalesce( params.getCoordinateFields() ) + IS_NOT_NULL;
         }
 
         if ( params.isCompletedOnly() )
@@ -332,7 +350,7 @@ public class JdbcEnrollmentAnalyticsManager
 
         if ( params.hasBbox() )
         {
-            sql += "and " + quoteAlias( params.getCoordinateField() ) + " && ST_MakeEnvelope(" + params.getBbox()
+            sql += "and " + getCoalesce( params.getCoordinateFields() ) + " && ST_MakeEnvelope(" + params.getBbox()
                 + ",4326) ";
         }
 
@@ -358,7 +376,7 @@ public class JdbcEnrollmentAnalyticsManager
      * @throws NullPointerException if item is null
      */
     @Override
-    protected ColumnAndAlias getCoordinateColumn( final QueryItem item )
+    protected ColumnAndAlias getCoordinateColumn( QueryItem item )
     {
         return getCoordinateColumn( item, null );
     }
@@ -375,12 +393,12 @@ public class JdbcEnrollmentAnalyticsManager
      * @throws NullPointerException if item is null
      */
     @Override
-    protected ColumnAndAlias getCoordinateColumn( final QueryItem item, final String suffix )
+    protected ColumnAndAlias getCoordinateColumn( QueryItem item, String suffix )
     {
         if ( item.getProgram() != null )
         {
-            final String eventTableName = ANALYTICS_EVENT + item.getProgram().getUid();
-            final String colName = quote( item.getItemId() );
+            String eventTableName = ANALYTICS_EVENT + item.getProgram().getUid();
+            String colName = quote( item.getItemId() );
 
             String psCondition = "";
 
@@ -406,7 +424,7 @@ public class JdbcEnrollmentAnalyticsManager
                 + stCentroidFunction + "(" + colName + "))::numeric, 6) || ']' as " + colName
                 + " from " + eventTableName
                 + " where " + eventTableName + ".pi = " + ANALYTICS_TBL_ALIAS + ".pi " +
-                "and " + colName + " is not null " + psCondition + ORDER_BY_EXECUTION_DATE +
+                "and " + colName + IS_NOT_NULL + psCondition + ORDER_BY_EXECUTION_DATE +
                 createOrderTypeAndOffset( item.getProgramStageOffset() ) + " " + LIMIT_1 + " )",
                 alias );
         }
@@ -427,7 +445,7 @@ public class JdbcEnrollmentAnalyticsManager
      *         ax."enrollmentdate"
      */
     @Override
-    protected String getColumn( final QueryItem item, final String suffix )
+    protected String getColumn( QueryItem item, String suffix )
     {
         String colName = item.getItemName();
         String alias = EMPTY;
@@ -438,7 +456,7 @@ public class JdbcEnrollmentAnalyticsManager
 
             colName = quote( colName + suffix );
 
-            final String eventTableName = ANALYTICS_EVENT + item.getProgram().getUid();
+            String eventTableName = ANALYTICS_EVENT + item.getProgram().getUid();
 
             if ( item.getProgramStage().getRepeatable() &&
                 item.hasRepeatableStageParams() && !item.getRepeatableStageParams().simpleStageValueExpected() )
@@ -474,7 +492,7 @@ public class JdbcEnrollmentAnalyticsManager
             return "(select " + colName + alias
                 + " from " + eventTableName
                 + " where " + eventTableName + ".pi = " + ANALYTICS_TBL_ALIAS + ".pi "
-                + "and " + colName + " is not null " + "and ps = '" + item.getProgramStage().getUid() + "' "
+                + "and " + colName + IS_NOT_NULL + "and ps = '" + item.getProgramStage().getUid() + "' "
                 + ORDER_BY_EXECUTION_DATE + createOrderTypeAndOffset( item.getProgramStageOffset() )
                 + " " + LIMIT_1 + " )";
         }
@@ -527,7 +545,7 @@ public class JdbcEnrollmentAnalyticsManager
         return " LIMIT " + count;
     }
 
-    private void assertProgram( final QueryItem item )
+    private void assertProgram( QueryItem item )
     {
         Assert.isTrue( item.hasProgram(),
             "Can not query item with program stage but no program:" + item.getItemName() );

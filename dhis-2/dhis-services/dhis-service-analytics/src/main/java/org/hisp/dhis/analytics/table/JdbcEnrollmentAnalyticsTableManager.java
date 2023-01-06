@@ -27,6 +27,7 @@
  */
 package org.hisp.dhis.analytics.table;
 
+import static java.util.Collections.emptyList;
 import static org.hisp.dhis.analytics.ColumnDataType.CHARACTER_11;
 import static org.hisp.dhis.analytics.ColumnDataType.DOUBLE;
 import static org.hisp.dhis.analytics.ColumnDataType.GEOMETRY;
@@ -43,6 +44,7 @@ import static org.hisp.dhis.util.DateUtils.getLongDateString;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hisp.dhis.analytics.AnalyticsExportSettings;
 import org.hisp.dhis.analytics.AnalyticsTable;
 import org.hisp.dhis.analytics.AnalyticsTableColumn;
 import org.hisp.dhis.analytics.AnalyticsTableHookService;
@@ -65,9 +67,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
 /**
  * @author Markus Bekken
  */
@@ -80,14 +79,14 @@ public class JdbcEnrollmentAnalyticsTableManager
         SystemSettingManager systemSettingManager, DataApprovalLevelService dataApprovalLevelService,
         ResourceTableService resourceTableService, AnalyticsTableHookService tableHookService,
         StatementBuilder statementBuilder, PartitionManager partitionManager, DatabaseInfo databaseInfo,
-        JdbcTemplate jdbcTemplate )
+        JdbcTemplate jdbcTemplate, AnalyticsExportSettings analyticsExportSettings )
     {
         super( idObjectManager, organisationUnitService, categoryService, systemSettingManager,
             dataApprovalLevelService, resourceTableService, tableHookService, statementBuilder, partitionManager,
-            databaseInfo, jdbcTemplate );
+            databaseInfo, jdbcTemplate, analyticsExportSettings );
     }
 
-    private static final List<AnalyticsTableColumn> FIXED_COLS = ImmutableList.of(
+    private static final List<AnalyticsTableColumn> FIXED_COLS = List.of(
         new AnalyticsTableColumn( quote( "pi" ), CHARACTER_11, NOT_NULL, "pi.uid" ),
         new AnalyticsTableColumn( quote( "enrollmentdate" ), TIMESTAMP, "pi.enrollmentdate" ),
         new AnalyticsTableColumn( quote( "incidentdate" ), TIMESTAMP, "pi.incidentdate" ),
@@ -121,7 +120,9 @@ public class JdbcEnrollmentAnalyticsTableManager
         new AnalyticsTableColumn( quote( "oucode" ), TEXT, "ou.code" ),
         new AnalyticsTableColumn( quote( "oulevel" ), INTEGER, "ous.level" ),
         new AnalyticsTableColumn( quote( "pigeometry" ), GEOMETRY, "pi.geometry" )
-            .withIndexType( IndexType.GIST ) );
+            .withIndexType( IndexType.GIST ),
+        new AnalyticsTableColumn( quote( "registrationou" ), CHARACTER_11, NOT_NULL,
+            "coalesce(registrationou.uid,ou.uid)" ) );
 
     @Override
     public AnalyticsTableType getAnalyticsTableType()
@@ -151,7 +152,7 @@ public class JdbcEnrollmentAnalyticsTableManager
         for ( Program program : programs )
         {
             AnalyticsTable table = new AnalyticsTable( getAnalyticsTableType(), getDimensionColumns( program ),
-                Lists.newArrayList(), program );
+                List.of(), program );
 
             tables.add( table );
         }
@@ -162,24 +163,19 @@ public class JdbcEnrollmentAnalyticsTableManager
     @Override
     protected List<String> getPartitionChecks( AnalyticsTablePartition partition )
     {
-        return Lists.newArrayList();
-    }
-
-    @Override
-    protected String getPartitionColumn()
-    {
-        return null;
+        return emptyList();
     }
 
     @Override
     protected void populateTable( AnalyticsTableUpdateParams params, AnalyticsTablePartition partition )
     {
-        final Program program = partition.getMasterTable().getProgram();
+        Program program = partition.getMasterTable().getProgram();
 
         String fromClause = "from programinstance pi " +
             "inner join program pr on pi.programid=pr.programid " +
             "left join trackedentityinstance tei on pi.trackedentityinstanceid=tei.trackedentityinstanceid " +
             "and tei.deleted is false " +
+            "left join organisationunit registrationou on tei.organisationunitid=registrationou.organisationunitid " +
             "inner join organisationunit ou on pi.organisationunitid=ou.organisationunitid " +
             "left join _orgunitstructure ous on pi.organisationunitid=ous.organisationunitid " +
             "left join _organisationunitgroupsetstructure ougs on pi.organisationunitid=ougs.organisationunitid " +

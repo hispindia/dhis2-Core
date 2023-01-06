@@ -27,8 +27,6 @@
  */
 package org.hisp.dhis.fileresource;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +37,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
+
+import lombok.RequiredArgsConstructor;
 
 import org.hibernate.SessionFactory;
 import org.hisp.dhis.common.IllegalQueryException;
@@ -57,6 +59,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * @author Halvdan Hoem Grelland
  */
+@RequiredArgsConstructor
 @Service( "org.hisp.dhis.fileresource.FileResourceService" )
 public class DefaultFileResourceService
     implements FileResourceService
@@ -79,23 +82,6 @@ public class DefaultFileResourceService
 
     private final ApplicationEventPublisher fileEventPublisher;
 
-    public DefaultFileResourceService( FileResourceStore fileResourceStore, SessionFactory sessionFactory,
-        FileResourceContentStore fileResourceContentStore, ImageProcessingService imageProcessingService,
-        ApplicationEventPublisher fileEventPublisher )
-    {
-        checkNotNull( fileResourceStore );
-        checkNotNull( sessionFactory );
-        checkNotNull( fileResourceContentStore );
-        checkNotNull( imageProcessingService );
-        checkNotNull( fileEventPublisher );
-
-        this.fileResourceStore = fileResourceStore;
-        this.sessionFactory = sessionFactory;
-        this.fileResourceContentStore = fileResourceContentStore;
-        this.imageProcessingService = imageProcessingService;
-        this.fileEventPublisher = fileEventPublisher;
-    }
-
     // -------------------------------------------------------------------------
     // FileResourceService implementation
     // -------------------------------------------------------------------------
@@ -109,7 +95,7 @@ public class DefaultFileResourceService
 
     @Override
     @Transactional( readOnly = true )
-    public List<FileResource> getFileResources( List<String> uids )
+    public List<FileResource> getFileResources( @Nonnull List<String> uids )
     {
         return fileResourceStore.getByUid( uids ).stream()
             .map( this::checkStorageStatus )
@@ -221,6 +207,15 @@ public class DefaultFileResourceService
         NoSuchElementException
     {
         fileResourceContentStore.copyContent( fileResource.getStorageKey(), outputStream );
+    }
+
+    @Override
+    @Transactional( readOnly = true )
+    public byte[] copyFileResourceContent( FileResource fileResource )
+        throws IOException,
+        NoSuchElementException
+    {
+        return fileResourceContentStore.copyContent( fileResource.getStorageKey() );
     }
 
     @Override

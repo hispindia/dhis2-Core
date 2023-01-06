@@ -28,15 +28,14 @@
 package org.hisp.dhis.analytics.data;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hisp.dhis.DhisConvenienceTest.createDataSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -58,9 +57,9 @@ import org.hisp.dhis.common.ReportingRate;
 import org.hisp.dhis.common.ReportingRateMetric;
 import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
-import org.hisp.dhis.period.DailyPeriodType;
 import org.hisp.dhis.period.MonthlyPeriodType;
 import org.hisp.dhis.period.PeriodType;
+import org.hisp.dhis.period.PeriodTypeEnum;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -92,10 +91,10 @@ class AnalyticsServiceReportingRateTest extends AnalyticsServiceBaseTest
 
         DataQueryParams params = DataQueryParams.newBuilder().withOrganisationUnit( ou )
             // DATA ELEMENTS
-            .withDataElements( newArrayList( reportingRateA, reportingRateB, reportingRateC ) ).withIgnoreLimit( true )
+            .withDataElements( newArrayList( reportingRateA, reportingRateB, reportingRateC ) )
+            .withIgnoreLimit( true )
             // FILTERS (OU)
-            .withFilters(
-                singletonList( new BaseDimensionalObject( "pe", DimensionType.PERIOD, periods ) ) )
+            .withFilters( List.of( new BaseDimensionalObject( "pe", DimensionType.PERIOD, periods ) ) )
             .build();
 
         initMock( params );
@@ -116,12 +115,15 @@ class AnalyticsServiceReportingRateTest extends AnalyticsServiceBaseTest
 
         Grid grid = target.getAggregatedDataValueGrid( params );
 
-        assertEquals( expectedReports * timeUnit,
-            getValueFromGrid( grid.getRows(), makeKey( dataSetA, ReportingRateMetric.EXPECTED_REPORTS ) ).get(), 0 );
-        assertEquals( 50D,
-            getValueFromGrid( grid.getRows(), makeKey( dataSetA, ReportingRateMetric.REPORTING_RATE ) ).get(), 0 );
-        assertEquals( 500D,
-            getValueFromGrid( grid.getRows(), makeKey( dataSetA, ReportingRateMetric.ACTUAL_REPORTS ) ).get(), 0 );
+        assertEquals( (expectedReports * timeUnit),
+            (Long) getValueFromGrid( grid.getRows(), makeKey( dataSetA, ReportingRateMetric.EXPECTED_REPORTS ) ).get(),
+            0 );
+        assertEquals( 50L,
+            (Long) getValueFromGrid( grid.getRows(), makeKey( dataSetA, ReportingRateMetric.REPORTING_RATE ) ).get(),
+            0 );
+        assertEquals( 500L,
+            (Long) getValueFromGrid( grid.getRows(), makeKey( dataSetA, ReportingRateMetric.ACTUAL_REPORTS ) ).get(),
+            0 );
     }
 
     @Test
@@ -137,20 +139,23 @@ class AnalyticsServiceReportingRateTest extends AnalyticsServiceBaseTest
 
         OrganisationUnit ou = new OrganisationUnit( "aaaa" );
 
-        DataQueryParams params = DataQueryParams.newBuilder().withOrganisationUnit( ou )
+        DataQueryParams params = DataQueryParams.newBuilder()
+            .withOrganisationUnit( ou )
             // DATA ELEMENTS
-            .withDataElements( newArrayList( reportingRateA ) ).withIgnoreLimit( true )
+            .withDataElements( newArrayList( reportingRateA ) )
+            .withIgnoreLimit( true )
             // FILTERS (OU)
-            .withFilters(
-                singletonList( new BaseDimensionalObject( "pe", DimensionType.PERIOD, periods ) ) )
+            .withFilters( List.of( new BaseDimensionalObject( "pe", DimensionType.PERIOD, periods ) ) )
             .build();
 
         initMock( params );
 
+        // NO VALUES
         when( analyticsManager.getAggregatedDataValues( any( DataQueryParams.class ),
-            eq( AnalyticsTableType.COMPLETENESS ), eq( 0 ) ) ).thenReturn( CompletableFuture.completedFuture( null ) ); // NO
-                                                                                                                        // VALUES
+            eq( AnalyticsTableType.COMPLETENESS ), eq( 0 ) ) ).thenReturn( CompletableFuture.completedFuture( null ) );
+
         Map<String, Object> reportingRate = new HashMap<>();
+
         reportingRate.put( dataSetA.getUid() + "-" + ou.getUid(), expectedReports );
 
         when( analyticsManager.getAggregatedDataValues( any( DataQueryParams.class ),
@@ -159,8 +164,9 @@ class AnalyticsServiceReportingRateTest extends AnalyticsServiceBaseTest
 
         Grid grid = target.getAggregatedDataValueGrid( params );
 
-        assertEquals( 0D,
-            getValueFromGrid( grid.getRows(), makeKey( dataSetA, ReportingRateMetric.REPORTING_RATE ) ).get(), 0 );
+        assertEquals( 0,
+            (Long) getValueFromGrid( grid.getRows(), makeKey( dataSetA, ReportingRateMetric.REPORTING_RATE ) ).get(),
+            0L );
     }
 
     @Test
@@ -179,8 +185,7 @@ class AnalyticsServiceReportingRateTest extends AnalyticsServiceBaseTest
             // DATA ELEMENTS
             .withDataElements( newArrayList( reportingRateA ) ).withIgnoreLimit( true )
             // FILTERS (OU)
-            .withFilters(
-                singletonList( new BaseDimensionalObject( "pe", DimensionType.PERIOD, periods ) ) )
+            .withFilters( List.of( new BaseDimensionalObject( "pe", DimensionType.PERIOD, periods ) ) )
             .build();
 
         initMock( params );
@@ -191,11 +196,10 @@ class AnalyticsServiceReportingRateTest extends AnalyticsServiceBaseTest
             eq( AnalyticsTableType.COMPLETENESS ), eq( 0 ) ) )
                 .thenReturn( CompletableFuture.completedFuture( actualReports ) );
 
+        // NO TARGET RETURNED
         when( analyticsManager.getAggregatedDataValues( any( DataQueryParams.class ),
             eq( AnalyticsTableType.COMPLETENESS_TARGET ), eq( 0 ) ) )
-                .thenReturn( CompletableFuture.completedFuture( null ) ); // NO
-                                                                          // TARGET
-                                                                          // RETURNED
+                .thenReturn( CompletableFuture.completedFuture( null ) );
 
         Grid grid = target.getAggregatedDataValueGrid( params );
 
@@ -208,7 +212,7 @@ class AnalyticsServiceReportingRateTest extends AnalyticsServiceBaseTest
     {
         // Create a Dataset with a Daily period type
         DataSet dataSetA = createDataSet( 'A' );
-        dataSetA.setPeriodType( PeriodType.getPeriodTypeByName( DailyPeriodType.NAME ) );
+        dataSetA.setPeriodType( PeriodType.getPeriodType( PeriodTypeEnum.DAILY ) );
 
         ReportingRate reportingRateA = new ReportingRate( dataSetA );
         reportingRateA.setMetric( ReportingRateMetric.REPORTING_RATE );
@@ -223,8 +227,7 @@ class AnalyticsServiceReportingRateTest extends AnalyticsServiceBaseTest
         DataQueryParams params = DataQueryParams.newBuilder()
             .withDataElements( newArrayList( reportingRateA ) ).withIgnoreLimit( true )
             .withPeriods( periods )
-            .withFilters( singletonList(
-                new BaseDimensionalObject( "ou", DimensionType.ORGANISATION_UNIT, singletonList( ou ) ) ) )
+            .withFilters( List.of( new BaseDimensionalObject( "ou", DimensionType.ORGANISATION_UNIT, List.of( ou ) ) ) )
             .build();
 
         initMock( params );
@@ -234,8 +237,7 @@ class AnalyticsServiceReportingRateTest extends AnalyticsServiceBaseTest
         targets.put( dataSetA.getUid() + "-" + "201902", 1D );
 
         // Response for COMPLETENESS - set the completeness value to the same
-        // number of
-        // days of the selected month
+        // number of days of the selected month
         Map<String, Object> actuals = new HashMap<>();
         actuals.put( dataSetA.getUid() + "-" + "201902", 28D );
 
@@ -256,7 +258,7 @@ class AnalyticsServiceReportingRateTest extends AnalyticsServiceBaseTest
     {
         // Create a Dataset with a Daily period type
         DataSet dataSetA = createDataSet( 'A' );
-        dataSetA.setPeriodType( PeriodType.getPeriodTypeByName( DailyPeriodType.NAME ) );
+        dataSetA.setPeriodType( PeriodType.getPeriodType( PeriodTypeEnum.DAILY ) );
 
         ReportingRate reportingRateA = new ReportingRate( dataSetA );
         reportingRateA.setMetric( ReportingRateMetric.REPORTING_RATE );
@@ -271,8 +273,7 @@ class AnalyticsServiceReportingRateTest extends AnalyticsServiceBaseTest
         DataQueryParams params = DataQueryParams.newBuilder()
             .withDataElements( newArrayList( reportingRateA ) ).withIgnoreLimit( true )
             .withPeriods( periods )
-            .withFilters( singletonList(
-                new BaseDimensionalObject( "ou", DimensionType.ORGANISATION_UNIT, singletonList( ou ) ) ) )
+            .withFilters( List.of( new BaseDimensionalObject( "ou", DimensionType.ORGANISATION_UNIT, List.of( ou ) ) ) )
             .build();
 
         initMock( params );
@@ -308,7 +309,7 @@ class AnalyticsServiceReportingRateTest extends AnalyticsServiceBaseTest
         assertThat( grid.getRow( 0 ).get( getDimensionIndex( grid.getHeaders(), "dx" ) ),
             is( dataset.getUid() + ".REPORTING_RATE" ) );
         assertThat( grid.getRow( 0 ).get( getDimensionIndex( grid.getHeaders(), "pe" ) ), is( period ) );
-        assertThat( grid.getRow( 0 ).get( getDimensionIndex( grid.getHeaders(), "value" ) ), is( 100D ) );
+        assertThat( grid.getRow( 0 ).get( getDimensionIndex( grid.getHeaders(), "value" ) ), is( 100L ) );
     }
 
     private int getDimensionIndex( List<GridHeader> headers, String dimension )
@@ -325,13 +326,13 @@ class AnalyticsServiceReportingRateTest extends AnalyticsServiceBaseTest
         return -1;
     }
 
-    private Optional<Double> getValueFromGrid( List<List<Object>> rows, String key )
+    private Optional<Number> getValueFromGrid( List<List<Object>> rows, String key )
     {
         for ( List<Object> row : rows )
         {
             if ( row.get( 0 ).equals( key ) )
             {
-                return Optional.of( (Double) row.get( 2 ) );
+                return Optional.of( (Number) row.get( 2 ) );
             }
         }
         return Optional.empty();

@@ -78,6 +78,8 @@ public class HibernateDbmsManager
     @Override
     public void emptyDatabase()
     {
+        emptyTable( "keyjsonvalue" );
+
         emptyTable( "maplegend" );
         emptyTable( "maplegendset" );
 
@@ -304,6 +306,7 @@ public class HibernateDbmsManager
         emptyTable( "categoryoptiongroup" );
 
         emptyTable( "expression" );
+        emptyTable( "expressiondimensionitem" );
         emptyTable( "categoryoptioncombo" );
         emptyTable( "categorycombo" );
         emptyTable( "dataelementcategory" );

@@ -27,7 +27,7 @@
  */
 package org.hisp.dhis.analytics.table;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyList;
 import static org.hisp.dhis.analytics.ColumnDataType.BOOLEAN;
 import static org.hisp.dhis.analytics.ColumnDataType.CHARACTER_11;
 import static org.hisp.dhis.analytics.ColumnDataType.DATE;
@@ -42,6 +42,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.hisp.dhis.analytics.AnalyticsExportSettings;
 import org.hisp.dhis.analytics.AnalyticsTable;
 import org.hisp.dhis.analytics.AnalyticsTableColumn;
 import org.hisp.dhis.analytics.AnalyticsTableHookService;
@@ -69,8 +70,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -85,14 +84,14 @@ public class JdbcCompletenessTableManager
         SystemSettingManager systemSettingManager, DataApprovalLevelService dataApprovalLevelService,
         ResourceTableService resourceTableService, AnalyticsTableHookService tableHookService,
         StatementBuilder statementBuilder, PartitionManager partitionManager, DatabaseInfo databaseInfo,
-        JdbcTemplate jdbcTemplate )
+        JdbcTemplate jdbcTemplate, AnalyticsExportSettings analyticsExportSettings )
     {
         super( idObjectManager, organisationUnitService, categoryService, systemSettingManager,
             dataApprovalLevelService, resourceTableService, tableHookService, statementBuilder, partitionManager,
-            databaseInfo, jdbcTemplate );
+            databaseInfo, jdbcTemplate, analyticsExportSettings );
     }
 
-    private static final List<AnalyticsTableColumn> FIXED_COLS = ImmutableList.of(
+    private static final List<AnalyticsTableColumn> FIXED_COLS = List.of(
         new AnalyticsTableColumn( quote( "dx" ), CHARACTER_11, NOT_NULL, "ds.uid" ),
         new AnalyticsTableColumn( quote( "year" ), INTEGER, NOT_NULL, "ps.year" ) );
 
@@ -110,7 +109,7 @@ public class JdbcCompletenessTableManager
             ? getLatestAnalyticsTable( params, getDimensionColumns(), getValueColumns() )
             : getRegularAnalyticsTable( params, getDataYears( params ), getDimensionColumns(), getValueColumns() );
 
-        return table.hasPartitionTables() ? Lists.newArrayList( table ) : Lists.newArrayList();
+        return table.hasPartitionTables() ? List.of( table ) : List.of();
     }
 
     @Override
@@ -166,21 +165,14 @@ public class JdbcCompletenessTableManager
     @Override
     protected List<String> getPartitionChecks( AnalyticsTablePartition partition )
     {
-        return partition.isLatestPartition() ? newArrayList()
-            : Lists.newArrayList( "year = " + partition.getYear() + "" );
-    }
-
-    @Override
-    protected String getPartitionColumn()
-    {
-        return "year";
+        return partition.isLatestPartition() ? emptyList() : List.of( "year = " + partition.getYear() + "" );
     }
 
     @Override
     protected void populateTable( AnalyticsTableUpdateParams params, AnalyticsTablePartition partition )
     {
-        final String tableName = partition.getTempTableName();
-        final String partitionClause = partition.isLatestPartition()
+        String tableName = partition.getTempTableName();
+        String partitionClause = partition.isLatestPartition()
             ? "and cdr.lastupdated >= '" + getLongDateString( partition.getStartDate() ) + "' "
             : "and ps.year = " + partition.getYear() + " ";
 
@@ -225,7 +217,7 @@ public class JdbcCompletenessTableManager
             "and cdr.lastupdated < '" + getLongDateString( params.getStartTime() ) + "' " +
             "and cdr.completed = true";
 
-        final String sql = insert + select;
+        String sql = insert + select;
 
         invokeTimeAndLog( sql, String.format( "Populate %s", tableName ) );
     }
@@ -285,7 +277,7 @@ public class JdbcCompletenessTableManager
 
     private List<AnalyticsTableColumn> getValueColumns()
     {
-        return Lists.newArrayList( new AnalyticsTableColumn( quote( "value" ), DATE, "value" ) );
+        return List.of( new AnalyticsTableColumn( quote( "value" ), DATE, "value" ) );
     }
 
     private List<Integer> getDataYears( AnalyticsTableUpdateParams params )

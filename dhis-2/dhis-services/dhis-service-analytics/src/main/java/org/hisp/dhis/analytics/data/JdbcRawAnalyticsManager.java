@@ -27,8 +27,10 @@
  */
 package org.hisp.dhis.analytics.data;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static org.hisp.dhis.analytics.DataQueryParams.*;
+import static org.hisp.dhis.analytics.DataQueryParams.PERIOD_END_DATE_ID;
+import static org.hisp.dhis.analytics.DataQueryParams.PERIOD_END_DATE_NAME;
+import static org.hisp.dhis.analytics.DataQueryParams.PERIOD_START_DATE_ID;
+import static org.hisp.dhis.analytics.DataQueryParams.PERIOD_START_DATE_NAME;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.ANALYTICS_TBL_ALIAS;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.quote;
 import static org.hisp.dhis.common.IdentifiableObjectUtils.getUids;
@@ -38,13 +40,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.analytics.DataQueryParams;
 import org.hisp.dhis.analytics.RawAnalyticsManager;
 import org.hisp.dhis.analytics.util.AnalyticsUtils;
-import org.hisp.dhis.common.*;
+import org.hisp.dhis.common.BaseDimensionalObject;
+import org.hisp.dhis.common.DimensionType;
+import org.hisp.dhis.common.DimensionalItemObject;
+import org.hisp.dhis.common.DimensionalObject;
+import org.hisp.dhis.common.Grid;
+import org.hisp.dhis.common.IdScheme;
 import org.hisp.dhis.commons.util.SqlHelper;
 import org.hisp.dhis.commons.util.TextUtils;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
@@ -62,19 +70,15 @@ import org.springframework.util.Assert;
  * @author Lars Helge Overland
  */
 @Slf4j
+@RequiredArgsConstructor
 @Component( "org.hisp.dhis.analytics.RawAnalyticsManager" )
 public class JdbcRawAnalyticsManager
     implements RawAnalyticsManager
 {
     private static final String DIM_NAME_OU = "ou.path";
 
+    @Qualifier( "readOnlyJdbcTemplate" )
     private final JdbcTemplate jdbcTemplate;
-
-    public JdbcRawAnalyticsManager( @Qualifier( "readOnlyJdbcTemplate" ) JdbcTemplate jdbcTemplate )
-    {
-        checkNotNull( jdbcTemplate );
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     // -------------------------------------------------------------------------
     // RawAnalyticsManager implementation
@@ -93,8 +97,8 @@ public class JdbcRawAnalyticsManager
         {
             dimensions.add( new BaseDimensionalObject( PERIOD_START_DATE_ID, DimensionType.STATIC,
                 PERIOD_START_DATE_NAME, new ArrayList<>() ) );
-            dimensions.add( new BaseDimensionalObject( PERIOD_END_DATE_ID, DimensionType.STATIC, PERIOD_END_DATE_NAME,
-                new ArrayList<>() ) );
+            dimensions.add( new BaseDimensionalObject( PERIOD_END_DATE_ID, DimensionType.STATIC,
+                PERIOD_END_DATE_NAME, List.of() ) );
         }
 
         String sql = getSelectStatement( params, dimensions );
@@ -125,7 +129,7 @@ public class JdbcRawAnalyticsManager
     /**
      * Returns a SQL select statement.
      *
-     * @param params the data query parameters.
+     * @param params the {@link DataQueryParams}.
      * @param dimensions the list of dimensions.
      * @return a SQL select statement.
      */

@@ -41,7 +41,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 
-import lombok.AllArgsConstructor;
+import javax.annotation.Nonnull;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -71,7 +72,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Jan Bernitt
  */
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class DefaultGeoJsonService implements GeoJsonService
 {
     private final AttributeService attributeService;
@@ -138,7 +139,9 @@ public class DefaultGeoJsonService implements GeoJsonService
 
         String idProperty = isBlank( params.getOrgUnitIdProperty() ) ? "id" : params.getOrgUnitIdProperty();
         Function<JsonObject, String> readIdentifiers = feature -> feature.getString( idProperty ).string();
-        JsonList<JsonObject> features = featureCollection.getList( "features", JsonObject.class );
+        JsonList<JsonObject> features = "Feature".equalsIgnoreCase( featureCollection.getString( "type" ).string() )
+            ? JsonValue.of( "[" + featureCollection.node().getDeclaration() + "]" ).asList( JsonObject.class )
+            : featureCollection.getList( "features", JsonObject.class );
         if ( features.isUndefined() || !features.isArray() )
         {
             report
@@ -197,7 +200,8 @@ public class DefaultGeoJsonService implements GeoJsonService
         }
     }
 
-    private List<OrganisationUnit> fetchOrganisationUnits( GeoJsonImportParams params, Set<String> ouIdentifiers )
+    private List<OrganisationUnit> fetchOrganisationUnits( GeoJsonImportParams params,
+        @Nonnull Set<String> ouIdentifiers )
     {
         switch ( params.getIdType() )
         {

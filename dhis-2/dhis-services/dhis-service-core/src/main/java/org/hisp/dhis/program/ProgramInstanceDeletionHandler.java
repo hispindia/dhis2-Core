@@ -33,7 +33,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import org.hisp.dhis.system.deletion.DeletionVeto;
 import org.hisp.dhis.system.deletion.JdbcDeletionHandler;
@@ -44,7 +44,7 @@ import org.springframework.stereotype.Component;
  * @author Quang Nguyen
  */
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ProgramInstanceDeletionHandler extends JdbcDeletionHandler
 {
     private static final DeletionVeto VETO = new DeletionVeto( ProgramInstance.class );
@@ -73,7 +73,7 @@ public class ProgramInstanceDeletionHandler extends JdbcDeletionHandler
         {
             return ACCEPT;
         }
-        String sql = "select count(*) from programinstance where programid = :id";
+        String sql = "select 1 from programinstance where programid = :id limit 1";
         return vetoIfExists( VETO, sql, Map.of( "id", program.getId() ) );
     }
 

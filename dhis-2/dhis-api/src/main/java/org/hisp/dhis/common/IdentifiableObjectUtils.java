@@ -29,13 +29,17 @@ package org.hisp.dhis.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.calendar.Calendar;
 import org.hisp.dhis.calendar.DateTimeUnit;
@@ -86,7 +90,10 @@ public class IdentifiableObjectUtils
             return null;
         }
 
-        List<String> names = objects.stream().map( IdentifiableObject::getDisplayName ).collect( Collectors.toList() );
+        List<String> names = objects.stream()
+            .map( IdentifiableObject::getDisplayName )
+            .collect( Collectors.toList() );
+
         return StringUtils.join( names, SEPARATOR_JOIN );
     }
 
@@ -422,8 +429,6 @@ public class IdentifiableObjectUtils
      */
     public static <T extends BaseIdentifiableObject> String getIdentifierBasedOnIdScheme( T object, IdScheme idScheme )
     {
-        // idScheme with IdentifiableProperty.ATTRIBUTE has to be specially
-        // treated in the code dealing with Attribute IDs
         if ( idScheme.isNull() || idScheme.is( IdentifiableProperty.UID ) )
         {
             return object.getUid();
@@ -442,5 +447,43 @@ public class IdentifiableObjectUtils
         }
 
         return null;
+    }
+
+    /**
+     * Converts the given {@link Set} to a mutable {@link List} and sorts the
+     * items by the ID property.
+     *
+     * @param <T>
+     * @param set the {@link Set}.
+     * @return a {@link List}.
+     */
+    public static <T extends IdentifiableObject> List<T> sortById( Set<T> set )
+    {
+        List<T> list = new ArrayList<>( set );
+        Collections.sort( list, Comparator.comparingLong( T::getId ) );
+        return list;
+    }
+
+    /**
+     * Compare two {@link IdentifiableObject} using UID property.
+     *
+     * @param object object to compare.
+     * @param target object to compare with.
+     * @return TRUE if both objects are null or have same UID or both UIDs are
+     *         null. Otherwise, return FALSE.
+     */
+    public static boolean equalByUID( IdentifiableObject object, IdentifiableObject target )
+    {
+        if ( ObjectUtils.allNotNull( object, target ) )
+        {
+            if ( ObjectUtils.allNotNull( object.getUid(), target.getUid() ) )
+            {
+                return object.getUid().equals( target.getUid() );
+            }
+
+            return ObjectUtils.allNull( object.getUid(), target.getUid() );
+        }
+
+        return ObjectUtils.allNull( object, target );
     }
 }

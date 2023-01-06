@@ -71,9 +71,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Component( "org.hisp.dhis.sms.listener.AggregateDatasetSMSListener" )
 @Transactional
-public class AggregateDataSetSMSListener
-    extends
-    CompressionSMSListener
+public class AggregateDataSetSMSListener extends CompressionSMSListener
 {
     private final DataSetService dataSetService;
 
@@ -137,7 +135,7 @@ public class AggregateDataSetSMSListener
             throw new SMSProcessingException( SmsResponse.OU_NOTIN_DATASET.set( ouid, dsid ) );
         }
 
-        if ( !dataSetService.getLockStatus( null, dataSet, period, orgUnit, aoc, null ).isOpen() )
+        if ( !dataSetService.getLockStatus( dataSet, period, orgUnit, aoc ).isOpen() )
         {
             throw new SMSProcessingException( SmsResponse.DATASET_LOCKED.set( dsid, per ) );
         }

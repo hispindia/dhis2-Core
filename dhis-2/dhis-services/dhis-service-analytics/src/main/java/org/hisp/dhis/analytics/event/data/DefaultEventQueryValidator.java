@@ -27,15 +27,14 @@
  */
 package org.hisp.dhis.analytics.event.data;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.hisp.dhis.analytics.QueryKey.NV;
 import static org.hisp.dhis.util.DateUtils.getMediumDateString;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.hisp.dhis.analytics.QueryValidator;
 import org.hisp.dhis.analytics.event.EventQueryParams;
 import org.hisp.dhis.analytics.event.EventQueryValidator;
 import org.hisp.dhis.common.IllegalQueryException;
@@ -51,21 +50,11 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component( "org.hisp.dhis.analytics.event.EventQueryValidator" )
+@RequiredArgsConstructor
 public class DefaultEventQueryValidator
     implements EventQueryValidator
 {
-    private final QueryValidator queryValidator;
-
     private final SystemSettingManager systemSettingManager;
-
-    public DefaultEventQueryValidator( QueryValidator queryValidator, SystemSettingManager systemSettingManager )
-    {
-        checkNotNull( queryValidator );
-        checkNotNull( systemSettingManager );
-
-        this.queryValidator = queryValidator;
-        this.systemSettingManager = systemSettingManager;
-    }
 
     // -------------------------------------------------------------------------
     // EventQueryValidator implementation
@@ -76,8 +65,6 @@ public class DefaultEventQueryValidator
         throws IllegalQueryException,
         MaintenanceModeException
     {
-        queryValidator.validateMaintenanceMode();
-
         ErrorMessage error = validateForErrorMessage( params );
 
         if ( error != null )
@@ -145,7 +132,7 @@ public class DefaultEventQueryValidator
         {
             error = new ErrorMessage( ErrorCode.E7210, params.getTimeField() );
         }
-        else if ( params.hasOrgUnitField() && !params.orgUnitFieldIsValid() )
+        else if ( !params.orgUnitFieldIsValid() )
         {
             error = new ErrorMessage( ErrorCode.E7211, params.getOrgUnitField() );
         }
@@ -157,13 +144,9 @@ public class DefaultEventQueryValidator
         {
             error = new ErrorMessage( ErrorCode.E7213, params.getBbox() );
         }
-        else if ( (params.hasBbox() || params.hasClusterSize()) && params.getCoordinateField() == null )
+        else if ( (params.hasBbox() || params.hasClusterSize()) && params.getCoordinateFields() == null )
         {
             error = new ErrorMessage( ErrorCode.E7214 );
-        }
-        else if ( params.getFallbackCoordinateField() != null && !params.fallbackCoordinateFieldIsValid() )
-        {
-            error = new ErrorMessage( ErrorCode.E7228, params.getFallbackCoordinateField() );
         }
 
         for ( QueryItem item : params.getItemsAndItemFilters() )

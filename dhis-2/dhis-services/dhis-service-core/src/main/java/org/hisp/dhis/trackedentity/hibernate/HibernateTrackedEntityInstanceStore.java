@@ -68,6 +68,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.SessionFactory;
 import org.hibernate.annotations.QueryHints;
 import org.hibernate.query.Query;
+import org.hisp.dhis.common.AssignedUserSelectionMode;
 import org.hisp.dhis.common.DimensionalItemObject;
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.common.IllegalQueryException;
@@ -84,6 +85,8 @@ import org.hisp.dhis.jdbc.StatementBuilder;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.organisationunit.OrganisationUnitStore;
 import org.hisp.dhis.security.acl.AclService;
+import org.hisp.dhis.setting.SettingKey;
+import org.hisp.dhis.setting.SystemSettingManager;
 import org.hisp.dhis.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceQueryParams;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceStore;
@@ -149,18 +152,24 @@ public class HibernateTrackedEntityInstanceStore
 
     private final StatementBuilder statementBuilder;
 
+    private final SystemSettingManager systemSettingManager;
+
+    // TODO too many arguments in constructor. This needs to be refactored.
     public HibernateTrackedEntityInstanceStore( SessionFactory sessionFactory, JdbcTemplate jdbcTemplate,
         ApplicationEventPublisher publisher, CurrentUserService currentUserService,
-        AclService aclService, OrganisationUnitStore organisationUnitStore, StatementBuilder statementBuilder )
+        AclService aclService, StatementBuilder statementBuilder,
+        OrganisationUnitStore organisationUnitStore, SystemSettingManager systemSettingManager )
     {
         super( sessionFactory, jdbcTemplate, publisher, TrackedEntityInstance.class, currentUserService, aclService,
             false );
 
         checkNotNull( statementBuilder );
         checkNotNull( organisationUnitStore );
+        checkNotNull( systemSettingManager );
 
         this.statementBuilder = statementBuilder;
         this.organisationUnitStore = organisationUnitStore;
+        this.systemSettingManager = systemSettingManager;
     }
 
     // -------------------------------------------------------------------------
@@ -314,9 +323,17 @@ public class HibernateTrackedEntityInstanceStore
 
         log.debug( "Tracked entity instance count SQL: " + sql );
 
-        Integer count = jdbcTemplate.queryForObject( sql, Integer.class );
+        return jdbcTemplate.queryForObject( sql, Integer.class );
+    }
 
-        return count;
+    @Override
+    public int getTrackedEntityInstanceCountForGridWithMaxTeiLimit( TrackedEntityInstanceQueryParams params )
+    {
+        String sql = getCountQueryWithMaxTeiLimit( params );
+
+        log.debug( "Tracked entity instance count SQL: " + sql );
+
+        return jdbcTemplate.queryForObject( sql, Integer.class );
     }
 
     /**
@@ -386,6 +403,12 @@ public class HibernateTrackedEntityInstanceStore
      */
     private String getQuery( TrackedEntityInstanceQueryParams params, boolean isGridQuery )
     {
+        if ( params.isOrQuery() && params.getAttributesAndFilters().isEmpty() )
+        {
+            throw new IllegalArgumentException(
+                "A query parameter is used in the request but there aren't filterable attributes" );
+        }
+
         return new StringBuilder()
             .append( getQuerySelect( params, isGridQuery ) )
             .append( "FROM " )
@@ -405,6 +428,19 @@ public class HibernateTrackedEntityInstanceStore
      */
     private String getCountQuery( TrackedEntityInstanceQueryParams params )
     {
+        return getCountQuery( params );
+    }
+
+    /**
+     * Uses the same basis as the getQuery method, but replaces the projection
+     * with a count, ignores order but uses the TEI limit set on the program if
+     * higher than 0
+     *
+     * @param params params defining the query
+     * @return a count SQL query
+     */
+    private String getCountQueryWithMaxTeiLimit( TrackedEntityInstanceQueryParams params )
+    {
         return new StringBuilder()
             .append( getQueryCountSelect( params ) )
             .append( getQuerySelect( params, true ) )
@@ -412,6 +448,9 @@ public class HibernateTrackedEntityInstanceStore
             .append( getFromSubQuery( params, true, true ) )
             .append( getQueryRelatedTables( params ) )
             .append( getQueryGroupBy( params ) )
+            .append( params.getProgram().getMaxTeiCountToReturn() > 0
+                ? getLimitClause( params.getProgram().getMaxTeiCountToReturn() + 1 )
+                : "" )
             .append( " ) teicount" )
             .toString();
     }
@@ -481,7 +520,7 @@ public class HibernateTrackedEntityInstanceStore
             .append( " FROM trackedentityinstance TEI " )
 
             // INNER JOIN on constraints
-            .append( getFromSubQueryJoinAttributeConditions( whereAnd, params ) )
+            .append( getFromSubQueryJoinAttributeConditions( params ) )
             .append( getFromSubQueryJoinProgramOwnerConditions( params ) )
             .append( getFromSubQueryJoinOrgUnitConditions( params ) )
 
@@ -622,6 +661,13 @@ public class HibernateTrackedEntityInstanceStore
                 .append( "TEI.deleted IS FALSE " );
         }
 
+        if ( params.hasPotentialDuplicateFilter() )
+        {
+            trackedEntity
+                .append( whereAnd.whereAnd() ).append( "TEI.potentialduplicate=" )
+                .append( params.getPotentialDuplicate() ).append( SPACE );
+        }
+
         return trackedEntity.toString();
     }
 
@@ -633,27 +679,17 @@ public class HibernateTrackedEntityInstanceStore
      * @return a series of 1 or more SQL INNER JOINs, or empty string if no
      *         query or attribute filters exists.
      */
-    private String getFromSubQueryJoinAttributeConditions( SqlHelper whereAnd, TrackedEntityInstanceQueryParams params )
+    private String getFromSubQueryJoinAttributeConditions( TrackedEntityInstanceQueryParams params )
     {
-        StringBuilder attributes = new StringBuilder();
-
-        List<QueryItem> filterItems = params.getAttributesAndFilters().stream()
-            .filter( QueryItem::hasFilter )
-            .collect( Collectors.toList() );
-
-        if ( !filterItems.isEmpty() || params.isOrQuery() )
+        if ( !params.isOrQuery() )
         {
-            if ( !params.isOrQuery() )
-            {
-                joinAttributeValueWithoutQueryParameter( attributes, filterItems );
-            }
-            else
-            {
-                joinAttributeValueWithQueryParameter( params, attributes );
-            }
+            return joinAttributeValueWithoutQueryParameter( params );
         }
+        else
+        {
+            return joinAttributeValueWithQueryParameter( params );
 
-        return attributes.toString();
+        }
     }
 
     /**
@@ -665,11 +701,11 @@ public class HibernateTrackedEntityInstanceStore
      * search, allowing both exact match and with wildcards (EQ or LIKE).
      *
      * @param params
-     * @param attributes
      */
-    private void joinAttributeValueWithQueryParameter( TrackedEntityInstanceQueryParams params,
-        StringBuilder attributes )
+    private String joinAttributeValueWithQueryParameter( TrackedEntityInstanceQueryParams params )
     {
+        StringBuilder attributes = new StringBuilder();
+
         final String regexp = statementBuilder.getRegexpMatch();
         final String wordStart = statementBuilder.getRegexpWordStart();
         final String wordEnd = statementBuilder.getRegexpWordEnd();
@@ -705,7 +741,7 @@ public class HibernateTrackedEntityInstanceStore
                 .append( SINGLE_QUOTE );
         }
 
-        attributes.append( ")" );
+        return attributes.append( ")" ).toString();
     }
 
     /**
@@ -713,11 +749,16 @@ public class HibernateTrackedEntityInstanceStore
      * can search by a range of operators. All searching is using lower() since
      * attribute values are case insensitive.
      *
-     * @param attributes
-     * @param filterItems
+     * @param params
      */
-    private void joinAttributeValueWithoutQueryParameter( StringBuilder attributes, List<QueryItem> filterItems )
+    private String joinAttributeValueWithoutQueryParameter( TrackedEntityInstanceQueryParams params )
     {
+        StringBuilder attributes = new StringBuilder();
+
+        List<QueryItem> filterItems = params.getAttributesAndFilters().stream()
+            .filter( QueryItem::hasFilter )
+            .collect( Collectors.toList() );
+
         for ( QueryItem queryItem : filterItems )
         {
             String col = statementBuilder.columnQuote( queryItem.getItemId() );
@@ -738,7 +779,8 @@ public class HibernateTrackedEntityInstanceStore
 
             for ( QueryFilter filter : queryItem.getFilters() )
             {
-                String encodedFilter = statementBuilder.encode( filter.getFilter(), false );
+                String encodedFilter = statementBuilder.encode( filter.getFilter(),
+                    false );
                 attributes
                     .append( "AND " )
                     .append( teav )
@@ -749,6 +791,8 @@ public class HibernateTrackedEntityInstanceStore
                         .lowerCase( filter.getSqlFilter( encodedFilter ) ) );
             }
         }
+
+        return attributes.toString();
     }
 
     /**
@@ -790,7 +834,7 @@ public class HibernateTrackedEntityInstanceStore
 
     /**
      * Generates an INNER JOIN for program owner. This segment is only included
-     * if program is specified.
+     * if program is specified or user is not super.
      *
      * @param params
      * @return a SQL INNER JOIN for program owner, or empty string if no program
@@ -798,7 +842,7 @@ public class HibernateTrackedEntityInstanceStore
      */
     private String getFromSubQueryJoinProgramOwnerConditions( TrackedEntityInstanceQueryParams params )
     {
-        if ( !params.hasProgram() )
+        if ( !params.hasProgram() || skipOwnershipCheck( params ) )
         {
             return "";
         }
@@ -831,7 +875,8 @@ public class HibernateTrackedEntityInstanceStore
         orgUnits
             .append( " INNER JOIN organisationunit OU " )
             .append( "ON OU.organisationunitid = " )
-            .append( params.hasProgram() ? "PO.organisationunitid " : "TEI.organisationunitid " );
+            .append( params.hasProgram() && !skipOwnershipCheck( params ) ? "PO.organisationunitid "
+                : "TEI.organisationunitid " );
 
         if ( !params.hasOrganisationUnits() )
         {
@@ -847,13 +892,16 @@ public class HibernateTrackedEntityInstanceStore
             for ( OrganisationUnit organisationUnit : params.getOrganisationUnits() )
             {
 
-                OrganisationUnit byUid = organisationUnitStore.getByUid( organisationUnit.getUid() );
-
-                orgUnits
-                    .append( orHlp.or() )
-                    .append( "OU.path LIKE '" )
-                    .append( byUid.getPath() )
-                    .append( "%'" );
+                OrganisationUnit ou = organisationUnitStore
+                    .getByUid( organisationUnit.getUid() );
+                if ( ou != null )
+                {
+                    orgUnits
+                        .append( orHlp.or() )
+                        .append( "OU.path LIKE '" )
+                        .append( ou.getPath() )
+                        .append( "%'" );
+                }
             }
 
             orgUnits.append( ") " );
@@ -983,14 +1031,14 @@ public class HibernateTrackedEntityInstanceStore
             .append( "SELECT PSI.programinstanceid " )
             .append( "FROM programstageinstance PSI " );
 
-        if ( params.hasAssignedUsers() )
+        if ( params.getAssignedUserQueryParam().hasAssignedUsers() )
         {
             events
                 .append( "INNER JOIN (" )
                 .append( "SELECT userinfoid AS userid " )
                 .append( "FROM userinfo " )
                 .append( "WHERE uid IN (" )
-                .append( encodeAndQuote( params.getAssignedUsers() ) )
+                .append( encodeAndQuote( params.getAssignedUserQueryParam().getAssignedUsers() ) )
                 .append( ") " )
                 .append( ") AU ON AU.userid = PSI.assigneduserid" );
         }
@@ -1072,14 +1120,14 @@ public class HibernateTrackedEntityInstanceStore
                 .append( SPACE );
         }
 
-        if ( params.isIncludeOnlyUnassignedEvents() )
+        if ( AssignedUserSelectionMode.NONE == params.getAssignedUserQueryParam().getMode() )
         {
             events
                 .append( whereHlp.whereAnd() )
                 .append( "PSI.assigneduserid IS NULL " );
         }
 
-        if ( params.isIncludeOnlyAssignedEvents() )
+        if ( AssignedUserSelectionMode.ANY == params.getAssignedUserQueryParam().getMode() )
         {
             events
                 .append( whereHlp.whereAnd() )
@@ -1208,6 +1256,11 @@ public class HibernateTrackedEntityInstanceStore
         return groupBy.toString();
     }
 
+    private String getLimitClause( int limit )
+    {
+        return "LIMIT " + limit;
+    }
+
     /**
      * Generates the ORDER BY clause. This clause is used both in the subquery
      * and main query. When using it in the subquery, we want to make sure we
@@ -1266,12 +1319,14 @@ public class HibernateTrackedEntityInstanceStore
             if ( innerOrder )
             {
                 orderFields
-                    .add( statementBuilder.columnQuote( order.getField() ) + ".value " + order.getDirection() );
+                    .add( statementBuilder.columnQuote( order.getField() )
+                        + ".value " + order.getDirection() );
             }
             else
             {
                 orderFields.add(
-                    "TEI." + statementBuilder.columnQuote( order.getField() ) + SPACE + order.getDirection() );
+                    "TEI." + statementBuilder.columnQuote( order.getField() ) + SPACE
+                        + order.getDirection() );
             }
         }
     }
@@ -1320,7 +1375,7 @@ public class HibernateTrackedEntityInstanceStore
         if ( params.getOrders() != null )
         {
             List<String> ordersIdentifier = params.getOrders().stream()
-                .map( order -> order.getField() )
+                .map( OrderParam::getField )
                 .collect( Collectors.toList() );
 
             return params.getAttributesAndFilters().stream()
@@ -1334,7 +1389,8 @@ public class HibernateTrackedEntityInstanceStore
     /**
      * Generates the LIMIT and OFFSET part of the subquery. The limit is decided
      * by several factors: 1. maxteilimit in a TET or Program 2. PageSize and
-     * Offset 3. No paging
+     * Offset 3. No paging (TRACKER_TRACKED_ENTITY_QUERY_LIMIT will apply in
+     * this case)
      * <p>
      * If maxteilimit is not 0, it means this is the hard limit of the number of
      * results. In the case where there exists more results than maxteilimit, we
@@ -1347,7 +1403,9 @@ public class HibernateTrackedEntityInstanceStore
      * If we dont have maxteilimit, and paging on, we set normal paging
      * parameters
      * <p>
-     * If neither maxteilimit or paging is set, we have no limit.
+     * If neither maxteilimit or paging is set, we have no limit set by the
+     * user, so system will set the limit to TRACKED_ENTITY_MAX_LIMIT which can
+     * be configured in system settings.
      * <p>
      * The limit is set in the subquery, so the latter joins have fewer rows to
      * consider.
@@ -1360,10 +1418,21 @@ public class HibernateTrackedEntityInstanceStore
     {
         StringBuilder limitOffset = new StringBuilder();
         int limit = params.getMaxTeiLimit();
+        int teiQueryLimit = systemSettingManager.getIntSetting( SettingKey.TRACKED_ENTITY_MAX_LIMIT );
 
         if ( limit == 0 && !params.isPaging() )
         {
-            return "";
+            if ( teiQueryLimit > 0 )
+            {
+                return limitOffset
+                    .append( LIMIT )
+                    .append( SPACE )
+                    .append( teiQueryLimit )
+                    .append( SPACE )
+                    .toString();
+            }
+
+            return limitOffset.toString();
         }
         else if ( limit == 0 && params.isPaging() )
         {
@@ -1406,7 +1475,7 @@ public class HibernateTrackedEntityInstanceStore
     @Override
     public boolean exists( String uid )
     {
-        Query query = getSession()
+        Query<?> query = getSession()
             .createNativeQuery( "select count(*) from trackedentityinstance where uid=:uid and deleted is false" );
         query.setParameter( "uid", uid );
         int count = ((Number) query.getSingleResult()).intValue();
@@ -1417,7 +1486,7 @@ public class HibernateTrackedEntityInstanceStore
     @Override
     public boolean existsIncludingDeleted( String uid )
     {
-        Query query = getSession().createNativeQuery( "select count(*) from trackedentityinstance where uid=:uid" );
+        Query<?> query = getSession().createNativeQuery( "select count(*) from trackedentityinstance where uid=:uid" );
         query.setParameter( "uid", uid );
         int count = ((Number) query.getSingleResult()).intValue();
 
@@ -1560,5 +1629,10 @@ public class HibernateTrackedEntityInstanceStore
         }
 
         return StringUtils.EMPTY;
+    }
+
+    private boolean skipOwnershipCheck( TrackedEntityInstanceQueryParams params )
+    {
+        return params.getUser() != null && params.getUser().isSuper();
     }
 }

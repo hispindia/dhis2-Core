@@ -31,7 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataentryform.DataEntryForm;
@@ -43,7 +43,7 @@ import org.springframework.stereotype.Component;
  * @author Lars Helge Overland
  */
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ProgramStageDeletionHandler extends JdbcDeletionHandler
 {
     private static final DeletionVeto VETO = new DeletionVeto( ProgramStage.class );
@@ -84,7 +84,7 @@ public class ProgramStageDeletionHandler extends JdbcDeletionHandler
 
     private DeletionVeto allowDeleteDataElement( DataElement dataElement )
     {
-        String sql = "select count(*) from programstagedataelement where dataelementid=:id";
+        String sql = "select 1 from programstagedataelement where dataelementid=:id limit 1";
         return vetoIfExists( VETO, sql, Map.of( "id", dataElement.getId() ) );
     }
 }

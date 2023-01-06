@@ -27,10 +27,10 @@
  */
 package org.hisp.dhis.statistics.jdbc;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import lombok.RequiredArgsConstructor;
 
 import org.hisp.dhis.common.Objects;
 import org.hisp.dhis.statistics.StatisticsProvider;
@@ -39,26 +39,13 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author Lars Helge Overland
- * @version $Id$
  */
+@RequiredArgsConstructor
 @Service( "org.hisp.dhis.statistics.StatisticsProvider" )
 public class JdbcStatisticsProvider
     implements StatisticsProvider
 {
-    // -------------------------------------------------------------------------
-    // Dependencies
-    // -------------------------------------------------------------------------
-
-    /**
-     * Read only JDBC template.
-     */
     private final JdbcTemplate jdbcTemplate;
-
-    public JdbcStatisticsProvider( JdbcTemplate jdbcTemplate )
-    {
-        checkNotNull( jdbcTemplate );
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     // -------------------------------------------------------------------------
     // StatisticsProvider implementation

@@ -90,7 +90,6 @@ import com.google.common.collect.Lists;
  */
 class AnalyticsUtilsTest extends DhisConvenienceTest
 {
-
     @Test
     void testGetByDataDimensionType()
     {
@@ -100,14 +99,14 @@ class AnalyticsUtilsTest extends DhisConvenienceTest
         ProgramDataElementDimensionItem pdeA = new ProgramDataElementDimensionItem( prA, deA );
         ProgramDataElementDimensionItem pdeB = new ProgramDataElementDimensionItem( prA, deB );
         ProgramIndicator piA = createProgramIndicator( 'A', prA, null, null );
-        List<DimensionalItemObject> list = Lists.newArrayList( deA, deB, pdeA, pdeB, piA );
-        assertEquals( Lists.newArrayList( deA, deB ),
+        List<DimensionalItemObject> list = List.of( deA, deB, pdeA, pdeB, piA );
+        assertEquals( List.of( deA, deB ),
             AnalyticsUtils.getByDataDimensionItemType( DataDimensionItemType.DATA_ELEMENT, list ) );
-        assertEquals( Lists.newArrayList( pdeA, pdeB ),
+        assertEquals( List.of( pdeA, pdeB ),
             AnalyticsUtils.getByDataDimensionItemType( DataDimensionItemType.PROGRAM_DATA_ELEMENT, list ) );
-        assertEquals( Lists.newArrayList( piA ),
+        assertEquals( List.of( piA ),
             AnalyticsUtils.getByDataDimensionItemType( DataDimensionItemType.PROGRAM_INDICATOR, list ) );
-        assertEquals( Lists.newArrayList(),
+        assertEquals( List.of(),
             AnalyticsUtils.getByDataDimensionItemType( DataDimensionItemType.PROGRAM_ATTRIBUTE, list ) );
     }
 
@@ -181,11 +180,32 @@ class AnalyticsUtilsTest extends DhisConvenienceTest
     {
         DataQueryParams paramsA = DataQueryParams.newBuilder().build();
         DataQueryParams paramsB = DataQueryParams.newBuilder().withSkipRounding( true ).build();
-        assertEquals( null, AnalyticsUtils.getRoundedValueObject( paramsA, null ) );
-        assertEquals( "Car", AnalyticsUtils.getRoundedValueObject( paramsA, "Car" ) );
-        assertEquals( 3d, AnalyticsUtils.getRoundedValueObject( paramsA, 3d ) );
-        assertEquals( (Double) AnalyticsUtils.getRoundedValueObject( paramsA, 3.123 ), 0.01, 3.1 );
-        assertEquals( (Double) AnalyticsUtils.getRoundedValueObject( paramsB, 3.123 ), 0.01, 3.123 );
+        assertEquals( null, AnalyticsUtils.getRoundedValueObject( paramsA, null ), "Should be null" );
+        assertEquals( "Car", AnalyticsUtils.getRoundedValueObject( paramsA, "Car" ), "Should be a String: Car" );
+        assertEquals( 3L, AnalyticsUtils.getRoundedValueObject( paramsA, 3d ), "Should be a long value: 3" );
+        assertEquals( 1000L, AnalyticsUtils.getRoundedValueObject( paramsA, 1000.00000000 ),
+            "Should be a long value: 1000" );
+        assertEquals( 67L, AnalyticsUtils.getRoundedValueObject( paramsA, 67.0 ), "Should be a long value: 67" );
+        assertEquals( 3.1, (Double) AnalyticsUtils.getRoundedValueObject( paramsA, 3.123 ), 0.01,
+            "Should be a double value: 3.1" );
+        assertEquals( 3.123, (Double) AnalyticsUtils.getRoundedValueObject( paramsB, 3.123 ), 0.01,
+            "Should be a double value: 3.123" );
+    }
+
+    @Test
+    void testEndsWithZeroDecimal()
+    {
+        assertFalse( AnalyticsUtils.endsWithZeroAsDecimal( -20.4 ), "The value -20.4 has non-zero decimals" );
+        assertFalse( AnalyticsUtils.endsWithZeroAsDecimal( 20.000000001 ),
+            "The value 20.000000001 has non-zero decimals" );
+        assertFalse( AnalyticsUtils.endsWithZeroAsDecimal( 1000000.000000001 ),
+            "The value 1000000.000000001 has non-zero decimals" );
+
+        assertTrue( AnalyticsUtils.endsWithZeroAsDecimal( -20.0 ), "The value -20.0 has zero decimals" );
+        assertTrue( AnalyticsUtils.endsWithZeroAsDecimal( 20.000000000 ),
+            "The value 20.000000000 has zero decimals" );
+        assertTrue( AnalyticsUtils.endsWithZeroAsDecimal( 1000000.0000 ),
+            "The value 1000000.0000 has zero decimals" );
     }
 
     @Test
@@ -194,11 +214,11 @@ class AnalyticsUtilsTest extends DhisConvenienceTest
         DataQueryParams paramsA = DataQueryParams.newBuilder().build();
         DataQueryParams paramsB = DataQueryParams.newBuilder().withSkipRounding( true ).build();
         assertEquals( null, AnalyticsUtils.getRoundedValue( paramsA, null, null ) );
-        assertEquals( AnalyticsUtils.getRoundedValue( paramsA, null, 3d ).doubleValue(), 0.01, 3d );
-        assertEquals( AnalyticsUtils.getRoundedValue( paramsA, null, 3.123 ).doubleValue(), 0.01, 3.1 );
-        assertEquals( AnalyticsUtils.getRoundedValue( paramsA, 1, 3.123 ).doubleValue(), 0.01, 3.1 );
-        assertEquals( AnalyticsUtils.getRoundedValue( paramsA, 2, 3.123 ).doubleValue(), 0.01, 3.12 );
-        assertEquals( AnalyticsUtils.getRoundedValue( paramsB, 3, 3.123 ).doubleValue(), 0.01, 3.123 );
+        assertEquals( 3d, AnalyticsUtils.getRoundedValue( paramsA, null, 3d ).doubleValue(), 0.01 );
+        assertEquals( 3.1, AnalyticsUtils.getRoundedValue( paramsA, null, 3.123 ).doubleValue(), 0.01 );
+        assertEquals( 3.1, AnalyticsUtils.getRoundedValue( paramsA, 1, 3.123 ).doubleValue(), 0.01 );
+        assertEquals( 3.12, AnalyticsUtils.getRoundedValue( paramsA, 2, 3.123 ).doubleValue(), 0.01 );
+        assertEquals( 3.123, AnalyticsUtils.getRoundedValue( paramsB, 3, 3.123 ).doubleValue(), 0.01 );
         assertEquals( 3l, AnalyticsUtils.getRoundedValue( paramsB, 0, 3.123 ).longValue() );
         assertEquals( 12l, AnalyticsUtils.getRoundedValue( paramsB, 0, 12.34 ).longValue() );
         assertEquals( 13l, AnalyticsUtils.getRoundedValue( paramsB, 0, 13.999 ).longValue() );
@@ -250,7 +270,7 @@ class AnalyticsUtilsTest extends DhisConvenienceTest
         DimensionalObject dx = new BaseDimensionalObject( DimensionalObject.DATA_X_DIM_ID, DimensionType.DATA_X,
             DimensionalObjectUtils.getList( deA, inA, dsA ) );
         DimensionalObject ou = new BaseDimensionalObject( DimensionalObject.ORGUNIT_DIM_ID,
-            DimensionType.ORGANISATION_UNIT, Lists.newArrayList( ouA, ouB ) );
+            DimensionType.ORGANISATION_UNIT, List.of( ouA, ouB ) );
         DataQueryParams params = DataQueryParams.newBuilder().addDimension( dx ).addDimension( ou )
             .withDisplayProperty( DisplayProperty.NAME ).build();
         Map<String, String> map = AnalyticsUtils.getDimensionItemNameMap( params );
@@ -275,7 +295,7 @@ class AnalyticsUtilsTest extends DhisConvenienceTest
         deA.setCategoryCombo( ccA );
         deB.setCategoryCombo( ccB );
         DimensionalObject dx = new BaseDimensionalObject( DimensionalObject.DATA_X_DIM_ID, DimensionType.DATA_X,
-            Lists.newArrayList( deA, deB ) );
+            List.of( deA, deB ) );
         DataQueryParams params = DataQueryParams.newBuilder().addDimension( dx )
             .withDisplayProperty( DisplayProperty.NAME ).build();
         Map<String, String> map = AnalyticsUtils.getCocNameMap( params );
@@ -288,7 +308,7 @@ class AnalyticsUtilsTest extends DhisConvenienceTest
     {
         Grid grid = new ListGrid();
         DataQueryParams params = DataQueryParams.newBuilder()
-            .addDimension( new BaseDimensionalObject( DATA_X_DIM_ID, DimensionType.DATA_X, Lists.newArrayList() ) )
+            .addDimension( new BaseDimensionalObject( DATA_X_DIM_ID, DimensionType.DATA_X, List.of() ) )
             .build();
         grid.addHeader( new GridHeader( DimensionalObject.DATA_X_DIM_ID ) );
         grid.addHeader( new GridHeader( DimensionalObject.ORGUNIT_DIM_ID ) );
@@ -326,7 +346,7 @@ class AnalyticsUtilsTest extends DhisConvenienceTest
         DataElementOperand dxE = new DataElementOperand( dxA, ocA );
         DataElementOperand dxF = new DataElementOperand( dxB, ocA );
         DataQueryParams params = DataQueryParams.newBuilder().addDimension( new BaseDimensionalObject( DATA_X_DIM_ID,
-            DimensionType.DATA_X, Lists.newArrayList( dxA, dxB, dxC, dxD, dxE, dxF ) ) ).build();
+            DimensionType.DATA_X, List.of( dxA, dxB, dxC, dxD, dxE, dxF ) ) ).build();
         Grid grid = new ListGrid();
         grid.addHeader( new GridHeader( DimensionalObject.DATA_X_DIM_ID ) );
         grid.addHeader( new GridHeader( DimensionalObject.ORGUNIT_DIM_ID ) );
@@ -631,7 +651,7 @@ class AnalyticsUtilsTest extends DhisConvenienceTest
         Period p1 = PeriodType.getPeriodFromIsoString( "202001" );
         Period p2 = PeriodType.getPeriodFromIsoString( "202002" );
         Period p3 = PeriodType.getPeriodFromIsoString( "202003" );
-        List<DimensionalItemObject> periods = Lists.newArrayList( p1, p2, p3 );
+        List<DimensionalItemObject> periods = List.of( p1, p2, p3 );
         assertTrue( AnalyticsUtils.isPeriodInPeriods( "202001", periods ) );
         assertFalse( AnalyticsUtils.isPeriodInPeriods( "202005", periods ) );
     }
@@ -648,7 +668,7 @@ class AnalyticsUtilsTest extends DhisConvenienceTest
         ProgramIndicator pi4 = new ProgramIndicator();
         pi4.setUid( pi1.getUid() );
         List<DimensionalItemObject> dimensionalItems = AnalyticsUtils.findDimensionalItems( pi1.getUid(),
-            Lists.newArrayList( pi1, pi2, pi3, pi4 ) );
+            List.of( pi1, pi2, pi3, pi4 ) );
         assertEquals( dimensionalItems.size(), 2 );
     }
 

@@ -27,12 +27,9 @@
  */
 package org.hisp.dhis.tracker.validation;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.core.Every.everyItem;
-import static org.hisp.dhis.tracker.Assertions.assertNoImportErrors;
+import static org.hisp.dhis.tracker.Assertions.assertHasErrors;
+import static org.hisp.dhis.tracker.Assertions.assertHasOnlyErrors;
+import static org.hisp.dhis.tracker.Assertions.assertNoErrors;
 import static org.hisp.dhis.tracker.validation.Users.USER_2;
 import static org.hisp.dhis.tracker.validation.Users.USER_4;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,9 +46,8 @@ import org.hisp.dhis.tracker.TrackerTest;
 import org.hisp.dhis.tracker.TrackerType;
 import org.hisp.dhis.tracker.preheat.TrackerPreheat;
 import org.hisp.dhis.tracker.preheat.TrackerPreheatService;
-import org.hisp.dhis.tracker.report.TrackerErrorCode;
-import org.hisp.dhis.tracker.report.TrackerImportReport;
-import org.hisp.dhis.tracker.report.TrackerValidationReport;
+import org.hisp.dhis.tracker.report.ImportReport;
+import org.hisp.dhis.tracker.report.ValidationReport;
 import org.hisp.dhis.user.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +73,7 @@ class EnrollmentImportValidationTest extends TrackerTest
     {
         setUpMetadata( "tracker/tracker_basic_metadata.json" );
         injectAdminUser();
-        assertNoImportErrors(
+        assertNoErrors(
             trackerImportService.importTracker( fromJson( "tracker/validations/enrollments_te_te-data.json" ) ) );
         manager.flush();
     }
@@ -87,8 +83,8 @@ class EnrollmentImportValidationTest extends TrackerTest
         throws IOException
     {
         TrackerImportParams params = fromJson( "tracker/validations/enrollments_te_enrollments-data.json" );
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
-        assertNoImportErrors( trackerImportReport );
+        ImportReport importReport = trackerImportService.importTracker( params );
+        assertNoErrors( importReport );
     }
 
     @Test
@@ -96,8 +92,8 @@ class EnrollmentImportValidationTest extends TrackerTest
         throws IOException
     {
         TrackerImportParams params = fromJson( "tracker/validations/enrollments_te_enrollments-data.json" );
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
-        assertNoImportErrors( trackerImportReport );
+        ImportReport importReport = trackerImportService.importTracker( params );
+        assertNoErrors( importReport );
         TrackerImportParams secondParams = fromJson(
             "tracker/validations/enrollments_te_enrollments-data.json" );
         TrackerPreheat preheat = trackerPreheatService.preheat( secondParams );
@@ -123,10 +119,10 @@ class EnrollmentImportValidationTest extends TrackerTest
         TrackerImportParams params = fromJson( "tracker/validations/enrollments_te_enrollments-data.json" );
         User user = userService.getUser( USER_2 );
         params.setUser( user );
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
-        assertEquals( 4, trackerImportReport.getValidationReport().getErrors().size() );
-        assertThat( trackerImportReport.getValidationReport().getErrors(),
-            hasItem( hasProperty( "errorCode", equalTo( TrackerErrorCode.E1000 ) ) ) );
+
+        ImportReport importReport = trackerImportService.importTracker( params );
+
+        assertHasErrors( importReport, 4, ValidationCode.E1000 );
     }
 
     @Test
@@ -134,10 +130,10 @@ class EnrollmentImportValidationTest extends TrackerTest
         throws IOException
     {
         TrackerImportParams params = fromJson( "tracker/validations/enrollments_error_non_program_attr.json" );
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
-        assertEquals( 3, trackerImportReport.getValidationReport().getErrors().size() );
-        assertThat( trackerImportReport.getValidationReport().getErrors(),
-            everyItem( hasProperty( "errorCode", equalTo( TrackerErrorCode.E1019 ) ) ) );
+
+        ImportReport importReport = trackerImportService.importTracker( params );
+
+        assertHasErrors( importReport, 3, ValidationCode.E1019 );
     }
 
     @Test
@@ -145,12 +141,12 @@ class EnrollmentImportValidationTest extends TrackerTest
         throws IOException
     {
         TrackerImportParams params = fromJson( "tracker/validations/enrollments_te_attr-data.json" );
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
-        assertEquals( 1, trackerImportReport.getBundleReport().getTypeReportMap().get( TrackerType.ENROLLMENT )
-            .getObjectReportMap().values().size() );
-        assertEquals( 0, trackerImportReport.getValidationReport().getErrors().size() );
-        assertThat( trackerImportReport.getValidationReport().getErrors(),
-            everyItem( hasProperty( "errorCode", equalTo( TrackerErrorCode.E1019 ) ) ) );
+
+        ImportReport importReport = trackerImportService.importTracker( params );
+
+        assertNoErrors( importReport );
+        assertEquals( 1, importReport.getPersistenceReport().getTypeReportMap().get( TrackerType.ENROLLMENT )
+            .getEntityReportMap().values().size() );
     }
 
     @Test
@@ -159,9 +155,9 @@ class EnrollmentImportValidationTest extends TrackerTest
     {
 
         TrackerImportParams params = fromJson( "tracker/validations/enrollments_te_attr-data.json" );
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
+        ImportReport importReport = trackerImportService.importTracker( params );
 
-        assertNoImportErrors( trackerImportReport );
+        assertNoErrors( importReport );
         manager.flush();
         importProgramStageInstances();
         manager.flush();
@@ -169,12 +165,10 @@ class EnrollmentImportValidationTest extends TrackerTest
         User user2 = userService.getUser( USER_4 );
         params.setUser( user2 );
         params.setImportStrategy( TrackerImportStrategy.DELETE );
-        TrackerImportReport trackerImportDeleteReport = trackerImportService.importTracker( params );
-        assertEquals( 2, trackerImportDeleteReport.getValidationReport().getErrors().size() );
-        assertThat( trackerImportDeleteReport.getValidationReport().getErrors(),
-            hasItem( hasProperty( "errorCode", equalTo( TrackerErrorCode.E1103 ) ) ) );
-        assertThat( trackerImportDeleteReport.getValidationReport().getErrors(),
-            hasItem( hasProperty( "errorCode", equalTo( TrackerErrorCode.E1091 ) ) ) );
+
+        ImportReport trackerImportDeleteReport = trackerImportService.importTracker( params );
+
+        assertHasOnlyErrors( trackerImportDeleteReport, ValidationCode.E1103, ValidationCode.E1091 );
     }
 
     protected void importProgramStageInstances()
@@ -182,8 +176,10 @@ class EnrollmentImportValidationTest extends TrackerTest
     {
         TrackerImportParams params = fromJson( "tracker/validations/events-with-registration.json" );
         params.setImportStrategy( TrackerImportStrategy.CREATE );
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
-        assertNoImportErrors( trackerImportReport );
+
+        ImportReport importReport = trackerImportService.importTracker( params );
+
+        assertNoErrors( importReport );
     }
 
     @Test
@@ -192,16 +188,19 @@ class EnrollmentImportValidationTest extends TrackerTest
     {
         TrackerImportParams trackerImportParams = fromJson(
             "tracker/validations/enrollments_double-tei-enrollment_part1.json" );
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( trackerImportParams );
-        TrackerValidationReport validationReport = trackerImportReport.getValidationReport();
-        assertEquals( 0, validationReport.getErrors().size() );
+
+        ImportReport importReport = trackerImportService.importTracker( trackerImportParams );
+
+        assertNoErrors( importReport );
+
         TrackerImportParams trackerImportParams1 = fromJson(
             "tracker/validations/enrollments_double-tei-enrollment_part2.json" );
-        trackerImportReport = trackerImportService.importTracker( trackerImportParams1 );
-        validationReport = trackerImportReport.getValidationReport();
-        assertEquals( 1, validationReport.getErrors().size() );
-        assertThat( validationReport.getErrors(),
-            hasItem( hasProperty( "errorCode", equalTo( TrackerErrorCode.E1015 ) ) ) );
+
+        importReport = trackerImportService.importTracker( trackerImportParams1 );
+
+        ValidationReport validationResult = importReport.getValidationReport();
+
+        assertHasOnlyErrors( validationResult, ValidationCode.E1015 );
     }
 
     @Test
@@ -210,8 +209,8 @@ class EnrollmentImportValidationTest extends TrackerTest
     {
         TrackerImportParams paramsCreate = fromJson(
             "tracker/validations/enrollments_te_enrollments-data.json" );
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( paramsCreate );
-        assertNoImportErrors( trackerImportReport );
+        ImportReport importReport = trackerImportService.importTracker( paramsCreate );
+        assertNoErrors( importReport );
 
         manager.flush();
         manager.clear();
@@ -220,9 +219,10 @@ class EnrollmentImportValidationTest extends TrackerTest
             "tracker/validations/enrollments_te_enrollments-data-delete.json" );
         paramsDelete.setImportStrategy( TrackerImportStrategy.DELETE );
 
-        TrackerImportReport trackerImportReportDelete = trackerImportService.importTracker( paramsDelete );
-        assertNoImportErrors( trackerImportReportDelete );
-        assertEquals( 1, trackerImportReportDelete.getStats().getDeleted() );
+        ImportReport importReportDelete = trackerImportService.importTracker( paramsDelete );
+
+        assertNoErrors( importReportDelete );
+        assertEquals( 1, importReportDelete.getStats().getDeleted() );
     }
 
     /**
@@ -233,7 +233,9 @@ class EnrollmentImportValidationTest extends TrackerTest
         throws IOException
     {
         TrackerImportParams params = fromJson( "tracker/validations/enrollments_bad-note-no-value.json" );
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
-        assertEquals( 0, trackerImportReport.getValidationReport().getErrors().size() );
+
+        ImportReport importReport = trackerImportService.importTracker( params );
+
+        assertNoErrors( importReport );
     }
 }

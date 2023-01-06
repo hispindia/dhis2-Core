@@ -41,6 +41,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.hisp.dhis.analytics.AnalyticsExportSettings;
 import org.hisp.dhis.analytics.AnalyticsTable;
 import org.hisp.dhis.analytics.AnalyticsTableColumn;
 import org.hisp.dhis.analytics.AnalyticsTableHookService;
@@ -66,8 +67,6 @@ import org.hisp.dhis.util.DateUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -77,23 +76,23 @@ import com.google.common.collect.Sets;
 public class JdbcValidationResultTableManager
     extends AbstractJdbcTableManager
 {
+    private static final List<AnalyticsTableColumn> FIXED_COLS = List.of(
+        new AnalyticsTableColumn( quote( "dx" ), CHARACTER_11, NOT_NULL, "vr.uid" ),
+        new AnalyticsTableColumn( quote( "pestartdate" ), TIMESTAMP, "pe.startdate" ),
+        new AnalyticsTableColumn( quote( "peenddate" ), TIMESTAMP, "pe.enddate" ),
+        new AnalyticsTableColumn( quote( "year" ), INTEGER, NOT_NULL, "ps.year" ) );
+
     public JdbcValidationResultTableManager( IdentifiableObjectManager idObjectManager,
         OrganisationUnitService organisationUnitService, CategoryService categoryService,
         SystemSettingManager systemSettingManager, DataApprovalLevelService dataApprovalLevelService,
         ResourceTableService resourceTableService, AnalyticsTableHookService tableHookService,
         StatementBuilder statementBuilder, PartitionManager partitionManager, DatabaseInfo databaseInfo,
-        JdbcTemplate jdbcTemplate )
+        JdbcTemplate jdbcTemplate, AnalyticsExportSettings analyticsExportSettings )
     {
         super( idObjectManager, organisationUnitService, categoryService, systemSettingManager,
             dataApprovalLevelService, resourceTableService, tableHookService, statementBuilder, partitionManager,
-            databaseInfo, jdbcTemplate );
+            databaseInfo, jdbcTemplate, analyticsExportSettings );
     }
-
-    private static final List<AnalyticsTableColumn> FIXED_COLS = ImmutableList.of(
-        new AnalyticsTableColumn( quote( "dx" ), CHARACTER_11, NOT_NULL, "vr.uid" ),
-        new AnalyticsTableColumn( quote( "pestartdate" ), TIMESTAMP, "pe.startdate" ),
-        new AnalyticsTableColumn( quote( "peenddate" ), TIMESTAMP, "pe.enddate" ),
-        new AnalyticsTableColumn( quote( "year" ), INTEGER, NOT_NULL, "ps.year" ) );
 
     @Override
     public AnalyticsTableType getAnalyticsTableType()
@@ -107,7 +106,7 @@ public class JdbcValidationResultTableManager
         AnalyticsTable table = params.isLatestUpdate() ? new AnalyticsTable()
             : getRegularAnalyticsTable( params, getDataYears( params ), getDimensionColumns(), getValueColumns() );
 
-        return table.hasPartitionTables() ? Lists.newArrayList( table ) : Lists.newArrayList();
+        return table.hasPartitionTables() ? List.of( table ) : List.of();
     }
 
     @Override
@@ -139,20 +138,13 @@ public class JdbcValidationResultTableManager
     @Override
     protected List<String> getPartitionChecks( AnalyticsTablePartition partition )
     {
-        return Lists.newArrayList(
-            "year = " + partition.getYear() + "" );
-    }
-
-    @Override
-    protected String getPartitionColumn()
-    {
-        return "year";
+        return List.of( "year = " + partition.getYear() );
     }
 
     @Override
     protected void populateTable( AnalyticsTableUpdateParams params, AnalyticsTablePartition partition )
     {
-        final String tableName = partition.getTempTableName();
+        String tableName = partition.getTempTableName();
 
         String insert = "insert into " + partition.getTempTableName() + " (";
 
@@ -192,7 +184,7 @@ public class JdbcValidationResultTableManager
             "and vrs.created < '" + getLongDateString( params.getStartTime() ) + "' " +
             "and vrs.created is not null";
 
-        final String sql = insert + select;
+        String sql = insert + select;
 
         invokeTimeAndLog( sql, String.format( "Populate %s", tableName ) );
     }
@@ -255,7 +247,7 @@ public class JdbcValidationResultTableManager
 
     private List<AnalyticsTableColumn> getValueColumns()
     {
-        return Lists.newArrayList( new AnalyticsTableColumn( quote( "value" ), DATE, "value" ) );
+        return List.of( new AnalyticsTableColumn( quote( "value" ), DATE, "value" ) );
     }
 
     @Override

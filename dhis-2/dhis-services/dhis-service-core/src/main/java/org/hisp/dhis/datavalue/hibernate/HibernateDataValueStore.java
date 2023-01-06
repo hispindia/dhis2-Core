@@ -32,6 +32,8 @@ import static org.hisp.dhis.common.OrganisationUnitSelectionMode.DESCENDANTS;
 import static org.hisp.dhis.commons.util.TextUtils.getCommaDelimitedString;
 import static org.hisp.dhis.commons.util.TextUtils.removeLastOr;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -51,6 +53,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
+import org.hisp.dhis.category.CategoryCombo;
 import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.commons.util.SqlHelper;
 import org.hisp.dhis.dataelement.DataElement;
@@ -67,7 +70,6 @@ import org.hisp.dhis.period.PeriodStore;
 import org.hisp.dhis.util.DateUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -82,9 +84,9 @@ public class HibernateDataValueStore extends HibernateGenericStore<DataValue>
     // Dependencies
     // -------------------------------------------------------------------------
 
-    private PeriodStore periodStore;
+    private final PeriodStore periodStore;
 
-    private StatementBuilder statementBuilder;
+    private final StatementBuilder statementBuilder;
 
     public HibernateDataValueStore( SessionFactory sessionFactory, JdbcTemplate jdbcTemplate,
         ApplicationEventPublisher publisher, PeriodStore periodStore, StatementBuilder statementBuilder )
@@ -135,6 +137,13 @@ public class HibernateDataValueStore extends HibernateGenericStore<DataValue>
     public DataValue getDataValue( DataElement dataElement, Period period, OrganisationUnit source,
         CategoryOptionCombo categoryOptionCombo, CategoryOptionCombo attributeOptionCombo )
     {
+        return getDataValue( dataElement, period, source, categoryOptionCombo, attributeOptionCombo, false );
+    }
+
+    @Override
+    public DataValue getDataValue( DataElement dataElement, Period period, OrganisationUnit source,
+        CategoryOptionCombo categoryOptionCombo, CategoryOptionCombo attributeOptionCombo, boolean includeDeleted )
+    {
         Period storedPeriod = periodStore.reloadPeriod( period );
 
         if ( storedPeriod == null )
@@ -142,9 +151,11 @@ public class HibernateDataValueStore extends HibernateGenericStore<DataValue>
             return null;
         }
 
-        String hql = "select dv from DataValue dv  where dv.dataElement =:dataElement and dv.period =:period and dv.deleted = false  "
-            +
-            "and dv.attributeOptionCombo =:attributeOptionCombo and dv.categoryOptionCombo =:categoryOptionCombo and dv.source =:source ";
+        String includeDeletedSql = includeDeleted ? "" : "and dv.deleted = false ";
+
+        String hql = "select dv from DataValue dv  where dv.dataElement =:dataElement and dv.period =:period "
+            + includeDeletedSql
+            + "and dv.attributeOptionCombo =:attributeOptionCombo and dv.categoryOptionCombo =:categoryOptionCombo and dv.source =:source ";
 
         return getSingleResult( getQuery( hql )
             .setParameter( "dataElement", dataElement )
@@ -475,44 +486,19 @@ public class HibernateDataValueStore extends HibernateGenericStore<DataValue>
             sql += " order by ou.path";
         }
 
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet( sql );
-
         List<DeflatedDataValue> result = new ArrayList<>();
 
-        while ( rowSet.next() )
-        {
-            Integer dataElementId = rowSet.getInt( 1 );
-            Integer periodId = rowSet.getInt( 2 );
-            Integer organisationUnitId = rowSet.getInt( 3 );
-            Integer categoryOptionComboId = rowSet.getInt( 4 );
-            Integer attributeOptionComboId = rowSet.getInt( 5 );
-            String value = rowSet.getString( 6 );
-            String storedBy = rowSet.getString( 7 );
-            Date created = rowSet.getDate( 8 );
-            Date lastUpdated = rowSet.getDate( 9 );
-            String comment = rowSet.getString( 10 );
-            boolean followup = rowSet.getBoolean( 11 );
-            boolean deleted = rowSet.getBoolean( 12 );
-            String sourcePath = joinOrgUnit ? rowSet.getString( 13 ) : null;
-
-            DeflatedDataValue ddv = new DeflatedDataValue( dataElementId, periodId,
-                organisationUnitId, categoryOptionComboId, attributeOptionComboId,
-                value, storedBy, created, lastUpdated, comment, followup, deleted );
-
-            ddv.setSourcePath( sourcePath );
-
+        jdbcTemplate.query( sql, resultSet -> {
+            DeflatedDataValue ddv = getDefalatedDataValueFromResultSet( resultSet, joinOrgUnit );
             if ( params.hasBlockingQueue() )
             {
-                if ( !addToBlockingQueue( params.getBlockingQueue(), ddv ) )
-                {
-                    return result; // Abort
-                }
+                addToBlockingQueue( params.getBlockingQueue(), ddv );
             }
             else
             {
                 result.add( ddv );
             }
-        }
+        } );
 
         if ( params.hasBlockingQueue() )
         {
@@ -557,6 +543,20 @@ public class HibernateDataValueStore extends HibernateGenericStore<DataValue>
                 .intValue();
     }
 
+    @Override
+    public boolean dataValueExists( CategoryCombo combo )
+    {
+        String cocIdsSql = "select distinct categoryoptioncomboid from categorycombos_optioncombos where categorycomboid = :cc";
+        List<?> cocIds = getSession().createNativeQuery( cocIdsSql )
+            .setParameter( "cc", combo.getId() )
+            .list();
+        String anyDataValueSql = "select 1 from datavalue dv "
+            + "where dv.categoryoptioncomboid in :cocIds or dv.attributeoptioncomboid in :cocIds limit 1";
+        return !getSession().createNativeQuery( anyDataValueSql )
+            .setParameter( "cocIds", cocIds )
+            .list().isEmpty();
+    }
+
     // -------------------------------------------------------------------------
     // Supportive methods
     // -------------------------------------------------------------------------
@@ -571,7 +571,7 @@ public class HibernateDataValueStore extends HibernateGenericStore<DataValue>
     private Set<Period> reloadAndFilterPeriods( Collection<Period> periods )
     {
         return periods != null ? periods.stream()
-            .map( p -> periodStore.reloadPeriod( p ) )
+            .map( periodStore::reloadPeriod )
             .filter( Objects::nonNull )
             .collect( Collectors.toSet() ) : new HashSet<>();
     }
@@ -614,23 +614,53 @@ public class HibernateDataValueStore extends HibernateGenericStore<DataValue>
     }
 
     /**
-     * Adds a {@see DeflatedDataValue} to a blocking queue
+     * Creates a {@link DeflatedDataValue} from a query row.
+     */
+    private DeflatedDataValue getDefalatedDataValueFromResultSet( ResultSet resultSet, boolean joinOrgUnit )
+        throws SQLException
+    {
+        Integer dataElementId = resultSet.getInt( 1 );
+        Integer periodId = resultSet.getInt( 2 );
+        Integer organisationUnitId = resultSet.getInt( 3 );
+        Integer categoryOptionComboId = resultSet.getInt( 4 );
+        Integer attributeOptionComboId = resultSet.getInt( 5 );
+        String value = resultSet.getString( 6 );
+        String storedBy = resultSet.getString( 7 );
+        Date created = resultSet.getDate( 8 );
+        Date lastUpdated = resultSet.getDate( 9 );
+        String comment = resultSet.getString( 10 );
+        boolean followup = resultSet.getBoolean( 11 );
+        boolean deleted = resultSet.getBoolean( 12 );
+        String sourcePath = joinOrgUnit ? resultSet.getString( 13 ) : null;
+
+        DeflatedDataValue ddv = new DeflatedDataValue( dataElementId, periodId,
+            organisationUnitId, categoryOptionComboId, attributeOptionComboId,
+            value, storedBy, created, lastUpdated, comment, followup, deleted );
+
+        ddv.setSourcePath( sourcePath );
+
+        return ddv;
+    }
+
+    /**
+     * Adds a {@link DeflatedDataValue} to a blocking queue
      *
      * @param blockingQueue the queue to add to
      * @param ddv the deflated data value
-     * @return true if it was added, false if timeout
      */
-    private boolean addToBlockingQueue( BlockingQueue<DeflatedDataValue> blockingQueue, DeflatedDataValue ddv )
+    private void addToBlockingQueue( BlockingQueue<DeflatedDataValue> blockingQueue, DeflatedDataValue ddv )
     {
         try
         {
-            return blockingQueue.offer( ddv, DDV_QUEUE_TIMEOUT_VALUE, DDV_QUEUE_TIMEOUT_UNIT );
+            if ( !blockingQueue.offer( ddv, DDV_QUEUE_TIMEOUT_VALUE, DDV_QUEUE_TIMEOUT_UNIT ) )
+            {
+                log.error( "HibernateDataValueStore failed to add to BlockingQueue." );
+            }
         }
-        catch ( InterruptedException e )
+        catch ( InterruptedException ex )
         {
+            log.error( "HibernateDataValueStore BlockingQueue InterruptedException: " + ex.getMessage() );
             Thread.currentThread().interrupt();
-
-            return false;
         }
     }
 }

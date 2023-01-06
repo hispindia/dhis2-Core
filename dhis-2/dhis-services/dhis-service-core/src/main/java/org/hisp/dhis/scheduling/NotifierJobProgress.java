@@ -78,7 +78,7 @@ public class NotifierJobProgress implements JobProgress
     @Override
     public void completedProcess( String summary )
     {
-        notifier.notify( jobId, NotificationLevel.INFO, summary, true );
+        notifier.notify( jobId, summary, true );
     }
 
     @Override
@@ -103,7 +103,7 @@ public class NotifierJobProgress implements JobProgress
     {
         if ( isNotEmpty( summary ) )
         {
-            notifier.notify( jobId, NotificationLevel.INFO, summary, isCancellationRequested() );
+            notifier.notify( jobId, summary );
         }
     }
 
@@ -112,7 +112,7 @@ public class NotifierJobProgress implements JobProgress
     {
         if ( isNotEmpty( error ) )
         {
-            notifier.notify( jobId, NotificationLevel.ERROR, error, isCancellationRequested() );
+            notifier.notify( jobId, NotificationLevel.ERROR, error, false );
         }
     }
 

@@ -30,7 +30,7 @@ package org.hisp.dhis.program;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementDomain;
@@ -41,7 +41,7 @@ import org.springframework.stereotype.Component;
  * @author Chau Thu Tran
  */
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ProgramStageDataElementDeletionHandler extends DeletionHandler
 {
     private final ProgramStageDataElementService programStageDataElementService;
@@ -69,12 +69,10 @@ public class ProgramStageDataElementDeletionHandler extends DeletionHandler
     {
         if ( DataElementDomain.TRACKER == dataElement.getDomainType() )
         {
-            for ( ProgramStageDataElement element : programStageDataElementService.getAllProgramStageDataElements() )
+            for ( ProgramStageDataElement element : programStageDataElementService
+                .getProgramStageDataElements( dataElement ) )
             {
-                if ( element.getDataElement() != null && element.getDataElement().equals( dataElement ) )
-                {
-                    programStageDataElementService.deleteProgramStageDataElement( element );
-                }
+                programStageDataElementService.deleteProgramStageDataElement( element );
             }
         }
     }

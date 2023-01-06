@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.exparity.hamcrest.date.DateMatchers;
 import org.hamcrest.CoreMatchers;
@@ -60,6 +61,7 @@ import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dxf2.common.ImportOptions;
 import org.hisp.dhis.dxf2.events.enrollment.Enrollment;
 import org.hisp.dhis.dxf2.events.enrollment.EnrollmentService;
+import org.hisp.dhis.dxf2.events.event.DataValue;
 import org.hisp.dhis.dxf2.events.event.Event;
 import org.hisp.dhis.dxf2.events.event.EventService;
 import org.hisp.dhis.dxf2.events.trackedentity.TrackedEntityInstance;
@@ -71,6 +73,7 @@ import org.hisp.dhis.event.EventStatus;
 import org.hisp.dhis.importexport.ImportStrategy;
 import org.hisp.dhis.organisationunit.FeatureType;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
+import org.hisp.dhis.period.Period;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramInstance;
 import org.hisp.dhis.program.ProgramInstanceService;
@@ -102,6 +105,7 @@ import com.google.gson.JsonObject;
  */
 class EventImportTest extends TransactionalIntegrationTest
 {
+    private static final String DUE_DATE = "2022-12-12";
 
     @Autowired
     private EventService eventService;
@@ -165,12 +169,6 @@ class EventImportTest extends TransactionalIntegrationTest
     private User superUser;
 
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat( DateUtils.ISO8601_NO_TZ_PATTERN );
-
-    @Override
-    public boolean emptyDatabaseAfterTest()
-    {
-        return true;
-    }
 
     @Override
     protected void setUpTest()
@@ -268,8 +266,6 @@ class EventImportTest extends TransactionalIntegrationTest
         manager.save( pi );
         event = createEvent( "eventUid001" );
         createUserAndInjectSecurityContext( true );
-        // Flush all data to disk
-        manager.flush();
     }
 
     @Test
@@ -280,6 +276,39 @@ class EventImportTest extends TransactionalIntegrationTest
             organisationUnitB.getUid(), null, dataElementB, "10" );
         ImportSummaries importSummaries = eventService.addEventsJson( is, null );
         assertEquals( ImportStatus.SUCCESS, importSummaries.getStatus() );
+    }
+
+    @Test
+    void testAddEventWithDueDateForProgramWithoutRegistration()
+    {
+        String eventUid = CodeGenerator.generateUid();
+
+        Enrollment enrollment = createEnrollment( programA.getUid(),
+            trackedEntityInstanceMaleA.getTrackedEntityInstance() );
+        ImportSummary importSummary = enrollmentService.addEnrollment( enrollment, null, null );
+        assertEquals( ImportStatus.SUCCESS, importSummary.getStatus() );
+
+        Event event = createScheduledTrackerEvent( eventUid, programA, programStageA, EventStatus.SCHEDULE,
+            organisationUnitA );
+
+        ImportSummary summary = eventService.addEvent( event, null, false );
+        assertEquals( ImportStatus.SUCCESS, summary.getStatus() );
+
+        DataValue dataValue = new DataValue();
+        dataValue.setValue( "10" );
+        dataValue.setDataElement( dataElementA.getUid() );
+        event.setDataValues( Set.of( dataValue ) );
+        event.setStatus( EventStatus.COMPLETED );
+
+        summary = eventService.updateEvent( event, true, null, false );
+        assertEquals( ImportStatus.SUCCESS, summary.getStatus() );
+
+        ProgramStageInstance psi = programStageInstanceService.getProgramStageInstance( eventUid );
+
+        final SimpleDateFormat format = new SimpleDateFormat();
+        format.applyPattern( Period.DEFAULT_DATE_FORMAT );
+
+        assertEquals( DUE_DATE, format.format( psi.getDueDate() ) );
     }
 
     /**
@@ -333,7 +362,7 @@ class EventImportTest extends TransactionalIntegrationTest
         throws IOException,
         ParseException
     {
-        String lastupdateDateBefore = trackedEntityInstanceService
+        String lastUpdateDateBefore = trackedEntityInstanceService
             .getTrackedEntityInstance( trackedEntityInstanceMaleA.getTrackedEntityInstance() ).getLastUpdated();
         Enrollment enrollment = createEnrollment( programA.getUid(),
             trackedEntityInstanceMaleA.getTrackedEntityInstance() );
@@ -347,15 +376,15 @@ class EventImportTest extends TransactionalIntegrationTest
 
         // We use JDBC to get the timestamp, since it's stored using JDBC not
         // hibernate.
-        String lastupdateDateNew = DateUtils.getIso8601NoTz( this.jdbcTemplate.queryForObject(
+        String lastUpdateDateNew = DateUtils.getIso8601NoTz( this.jdbcTemplate.queryForObject(
             "SELECT lastupdated FROM trackedentityinstance WHERE uid IN ('"
                 + trackedEntityInstanceMaleA.getTrackedEntityInstance() + "')",
             Timestamp.class ) );
 
         assertTrue( simpleDateFormat
-            .parse( lastupdateDateNew )
+            .parse( lastUpdateDateNew )
             .getTime() > simpleDateFormat
-                .parse( lastupdateDateBefore )
+                .parse( lastUpdateDateBefore )
                 .getTime() );
     }
 
@@ -706,6 +735,23 @@ class EventImportTest extends TransactionalIntegrationTest
         event.setOrgUnit( organisationUnitB.getUid() );
         event.setEnrollment( pi.getUid() );
         event.setEventDate( "2019-10-24" );
+        event.setDeleted( false );
+        return event;
+    }
+
+    private Event createScheduledTrackerEvent( String uid, Program program, ProgramStage ps, EventStatus eventStatus,
+        OrganisationUnit organisationUnit )
+    {
+        Event event = new Event();
+        event.setUid( uid );
+        event.setEvent( uid );
+        event.setStatus( eventStatus );
+        event.setProgram( program.getUid() );
+        event.setProgramStage( ps.getUid() );
+        event.setTrackedEntityInstance( trackedEntityInstanceMaleA.getTrackedEntityInstance() );
+        event.setOrgUnit( organisationUnit.getUid() );
+        event.setEnrollment( pi.getUid() );
+        event.setDueDate( DUE_DATE );
         event.setDeleted( false );
         return event;
     }

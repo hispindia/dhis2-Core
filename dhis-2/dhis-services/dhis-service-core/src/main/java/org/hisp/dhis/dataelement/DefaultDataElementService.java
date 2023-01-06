@@ -31,7 +31,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import lombok.AllArgsConstructor;
+import javax.annotation.Nonnull;
+
+import lombok.RequiredArgsConstructor;
 
 import org.hisp.dhis.attribute.Attribute;
 import org.hisp.dhis.category.CategoryCombo;
@@ -50,7 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * @author Kristian Nordal
  */
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service( "org.hisp.dhis.dataelement.DataElementService" )
 public class DefaultDataElementService
     implements DataElementService
@@ -98,6 +100,10 @@ public class DefaultDataElementService
         // need to reload the options in case this is a create and the options
         // is a shallow reference object
         OptionSet options = optionSetStore.getByUid( dataElement.getOptionSet().getUid() );
+        if ( options == null )
+        {
+            return; // no need to do further checks
+        }
         if ( options.getValueType() != dataElement.getValueType() )
         {
             throw new IllegalQueryException( new ErrorMessage( ErrorCode.E1115, options.getValueType() ) );
@@ -248,7 +254,7 @@ public class DefaultDataElementService
 
     @Override
     @Transactional( readOnly = true )
-    public List<DataElementGroup> getDataElementGroupsByUid( Collection<String> uids )
+    public List<DataElementGroup> getDataElementGroupsByUid( @Nonnull Collection<String> uids )
     {
         return dataElementGroupStore.getByUid( uids );
     }

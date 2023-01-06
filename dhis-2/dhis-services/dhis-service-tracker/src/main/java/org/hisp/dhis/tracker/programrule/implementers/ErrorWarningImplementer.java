@@ -27,10 +27,9 @@
  */
 package org.hisp.dhis.tracker.programrule.implementers;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +41,7 @@ import org.hisp.dhis.tracker.domain.Enrollment;
 import org.hisp.dhis.tracker.domain.EnrollmentStatus;
 import org.hisp.dhis.tracker.domain.Event;
 import org.hisp.dhis.tracker.programrule.*;
-import org.hisp.dhis.tracker.report.TrackerErrorCode;
+import org.hisp.dhis.tracker.validation.ValidationCode;
 
 import com.google.common.collect.Lists;
 
@@ -73,39 +72,25 @@ public abstract class ErrorWarningImplementer<T extends RuleActionMessage>
     }
 
     @Override
-    List<ProgramRuleIssue> applyToEnrollments( Map.Entry<String, List<EnrollmentActionRule>> enrollmentActionRules,
+    List<ProgramRuleIssue> applyToEnrollments( Enrollment enrollment, List<EnrollmentActionRule> enrollmentActionRules,
         TrackerBundle bundle )
     {
-        List<String> filteredEnrollments = bundle.getEnrollments()
-            .stream()
-            .filter( filterEnrollment() )
-            .map( Enrollment::getEnrollment )
-            .collect( Collectors.toList() );
-
-        if ( filteredEnrollments.contains( enrollmentActionRules.getKey() ) )
+        if ( needsToRun( enrollment ) )
         {
-            return parseErrors( enrollmentActionRules.getValue() );
+            return parseErrors( enrollmentActionRules );
         }
-
-        return Lists.newArrayList();
+        return Collections.emptyList();
     }
 
     @Override
-    public List<ProgramRuleIssue> applyToEvents( Map.Entry<String, List<EventActionRule>> actionRules,
+    public List<ProgramRuleIssue> applyToEvents( Event event, List<EventActionRule> actionRules,
         TrackerBundle bundle )
     {
-        List<String> filteredEvents = bundle.getEvents()
-            .stream()
-            .filter( filterEvent() )
-            .map( Event::getEvent )
-            .collect( Collectors.toList() );
-
-        if ( filteredEvents.contains( actionRules.getKey() ) )
+        if ( needsToRun( event ) )
         {
-            return parseErrors( actionRules.getValue() );
+            return parseErrors( actionRules );
         }
-
-        return Lists.newArrayList();
+        return Collections.emptyList();
     }
 
     private <U extends ActionRule> List<ProgramRuleIssue> parseErrors( List<U> effects )
@@ -129,32 +114,32 @@ public abstract class ErrorWarningImplementer<T extends RuleActionMessage>
 
                 return Pair.of( actionRule.getRuleUid(), stringBuilder.toString() );
             } )
-            .map( message -> new ProgramRuleIssue( message.getKey(), TrackerErrorCode.E1300,
+            .map( message -> new ProgramRuleIssue( message.getKey(), ValidationCode.E1300,
                 Lists.newArrayList( message.getValue() ), getIssueType() ) )
             .collect( Collectors.toList() );
     }
 
-    private Predicate<Event> filterEvent()
+    private boolean needsToRun( Event event )
     {
         if ( isOnComplete() )
         {
-            return e -> Objects.equals( EventStatus.COMPLETED, e.getStatus() );
+            return Objects.equals( EventStatus.COMPLETED, event.getStatus() );
         }
         else
         {
-            return e -> true;
+            return true;
         }
     }
 
-    private Predicate<Enrollment> filterEnrollment()
+    private boolean needsToRun( Enrollment enrollment )
     {
         if ( isOnComplete() )
         {
-            return e -> Objects.equals( EnrollmentStatus.COMPLETED, e.getStatus() );
+            return Objects.equals( EnrollmentStatus.COMPLETED, enrollment.getStatus() );
         }
         else
         {
-            return e -> true;
+            return true;
         }
     }
 }

@@ -35,7 +35,7 @@ import java.util.Date;
 import javax.annotation.PostConstruct;
 import javax.persistence.NoResultException;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.hisp.dhis.common.IdentifiableObject;
@@ -66,10 +66,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class DefaultMetadataWorkflowService implements MetadataWorkflowService
 {
-
     private final MetadataProposalStore store;
 
     private final CurrentUserService currentUserService;
@@ -251,7 +250,8 @@ public class DefaultMetadataWorkflowService implements MetadataWorkflowService
     private ImportReport acceptRemove( MetadataProposal proposal, ObjectBundleMode mode )
     {
         return importService.importMetadata(
-            createImportParams( mode, ImportStrategy.DELETE, objectManager.get( proposal.getTargetId() ) ) );
+            createImportParams( mode, ImportStrategy.DELETE, objectManager.get(
+                proposal.getTarget().getType(), proposal.getTargetId() ) ) );
     }
 
     private MetadataImportParams createImportParams( ObjectBundleMode mode, ImportStrategy strategy,

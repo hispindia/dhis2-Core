@@ -27,6 +27,7 @@
  */
 package org.hisp.dhis;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -51,6 +52,8 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 import javax.xml.xpath.XPath;
@@ -60,7 +63,6 @@ import javax.xml.xpath.XPathFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import org.hisp.dhis.analytics.AggregationType;
-import org.hisp.dhis.analytics.UserOrgUnitType;
 import org.hisp.dhis.attribute.Attribute;
 import org.hisp.dhis.attribute.AttributeValue;
 import org.hisp.dhis.category.Category;
@@ -73,10 +75,12 @@ import org.hisp.dhis.category.CategoryService;
 import org.hisp.dhis.common.CodeGenerator;
 import org.hisp.dhis.common.DataDimensionType;
 import org.hisp.dhis.common.DeliveryChannel;
+import org.hisp.dhis.common.IdScheme;
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.common.IllegalQueryException;
 import org.hisp.dhis.common.OrganisationUnitDescendants;
 import org.hisp.dhis.common.OrganisationUnitSelectionMode;
+import org.hisp.dhis.common.UserOrgUnitType;
 import org.hisp.dhis.common.ValueType;
 import org.hisp.dhis.common.cache.CacheStrategy;
 import org.hisp.dhis.commons.util.RelationshipUtils;
@@ -86,6 +90,15 @@ import org.hisp.dhis.dataelement.DataElementDomain;
 import org.hisp.dhis.dataelement.DataElementGroup;
 import org.hisp.dhis.dataelement.DataElementGroupSet;
 import org.hisp.dhis.dataentryform.DataEntryForm;
+import org.hisp.dhis.dataexchange.aggregate.AggregateDataExchange;
+import org.hisp.dhis.dataexchange.aggregate.Api;
+import org.hisp.dhis.dataexchange.aggregate.Filter;
+import org.hisp.dhis.dataexchange.aggregate.Source;
+import org.hisp.dhis.dataexchange.aggregate.SourceParams;
+import org.hisp.dhis.dataexchange.aggregate.SourceRequest;
+import org.hisp.dhis.dataexchange.aggregate.Target;
+import org.hisp.dhis.dataexchange.aggregate.TargetRequest;
+import org.hisp.dhis.dataexchange.aggregate.TargetType;
 import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.dataset.notifications.DataSetNotificationRecipient;
 import org.hisp.dhis.dataset.notifications.DataSetNotificationTemplate;
@@ -123,6 +136,7 @@ import org.hisp.dhis.organisationunit.OrganisationUnitLevel;
 import org.hisp.dhis.period.MonthlyPeriodType;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodType;
+import org.hisp.dhis.period.PeriodTypeEnum;
 import org.hisp.dhis.predictor.Predictor;
 import org.hisp.dhis.predictor.PredictorGroup;
 import org.hisp.dhis.program.AnalyticsPeriodBoundary;
@@ -235,11 +249,15 @@ public abstract class DhisConvenienceTest
 
     public static final String ADMIN_USER_UID = "M5zQapPyTZI";
 
-    public static final String DEFAULT_ADMIN_PASSWORD = "district";
-
     public static final String DEFAULT_USERNAME = "admin";
 
+    public static final String DEFAULT_ADMIN_PASSWORD = "district";
+
     private static final String PROGRAM_RULE_VARIABLE = "ProgramRuleVariable";
+
+    protected static final String FIRST_NAME = "FirstName";
+
+    protected static final String SURNAME = "Surname";
 
     private static Date date;
 
@@ -413,36 +431,53 @@ public abstract class DhisConvenienceTest
     }
 
     // -------------------------------------------------------------------------
-    // Dependency injection methods
-    // -------------------------------------------------------------------------
-
-    protected final <T, D> void setDependency( Class<T> role, BiConsumer<T, D> setter, D dependency,
-        Object... targetServices )
-    {
-        for ( Object targetService : targetServices )
-        {
-            setDependency( role, setter, dependency, targetService );
-        }
-    }
-
-    @SuppressWarnings( "unchecked" )
-    private final <T, D> void setDependency( Class<T> role, BiConsumer<T, D> setter, D dependency,
-        Object targetService )
-    {
-        if ( role.isInstance( targetService ) )
-        {
-            setter.accept( (T) targetService, dependency );
-        }
-        else
-        {
-            throw new IllegalArgumentException( "Failed to set dependency " + role + " on service "
-                + targetService.getClass().getSimpleName() );
-        }
-    }
-
-    // -------------------------------------------------------------------------
     // Create object methods
     // -------------------------------------------------------------------------
+
+    /**
+     * @param uniqueCharacter A unique character to identify the object.
+     */
+    public static AggregateDataExchange getAggregateDataExchange( char uniqueCharacter )
+    {
+        SourceParams sourceParams = new SourceParams()
+            .setPeriodTypes( List.of( PeriodTypeEnum.MONTHLY, PeriodTypeEnum.QUARTERLY ) );
+
+        SourceRequest sourceRequest = new SourceRequest()
+            .setName( "RequestA" )
+            .setVisualization( "JHKuBWP20RO" )
+            .setDx( newArrayList( "LrDpG50RAU9", "uR5HCiJhQ1w" ) )
+            .setPe( newArrayList( "202201", "202202" ) )
+            .setOu( newArrayList( "G9BuXqtNeeb", "jDgiLmYwPDm" ) )
+            .setFilters( newArrayList(
+                new Filter().setDimension( "MuTwGW0BI4o" ).setItems( newArrayList( "v9oULMMdmzE", "eJHJ0bfDCEO" ) ),
+                new Filter().setDimension( "dAOgE7mgysJ" ).setItems( newArrayList( "rbE2mZX86AA", "XjOFfrPwake" ) ) ) )
+            .setInputIdScheme( IdScheme.UID.name() )
+            .setOutputIdScheme( IdScheme.UID.name() );
+
+        Source source = new Source()
+            .setParams( sourceParams )
+            .setRequests( newArrayList( sourceRequest ) );
+
+        Api api = new Api()
+            .setUrl( "https://play.dhis2.org/demo" )
+            .setUsername( DEFAULT_USERNAME )
+            .setPassword( DEFAULT_ADMIN_PASSWORD );
+
+        TargetRequest targetRequest = new TargetRequest()
+            .setIdScheme( IdScheme.UID.name() );
+
+        Target target = new Target()
+            .setApi( api )
+            .setType( TargetType.EXTERNAL )
+            .setRequest( targetRequest );
+
+        AggregateDataExchange exchange = new AggregateDataExchange();
+        exchange.setAutoFields();
+        exchange.setName( "DataExchange" + uniqueCharacter );
+        exchange.setSource( source );
+        exchange.setTarget( target );
+        return exchange;
+    }
 
     /**
      * @param uniqueCharacter A unique character to identify the object.
@@ -1100,6 +1135,16 @@ public abstract class DhisConvenienceTest
     }
 
     /**
+     * @param isoPeriod the ISO period strings.
+     */
+    public static List<Period> createPeriods( String... isoPeriod )
+    {
+        return Stream.of( isoPeriod )
+            .map( PeriodType::getPeriodFromIsoString )
+            .collect( Collectors.toList() );
+    }
+
+    /**
      * @param startDate The start date.
      * @param endDate The end date.
      */
@@ -1541,6 +1586,14 @@ public abstract class DhisConvenienceTest
     public static Program createProgram( char uniqueCharacter )
     {
         return createProgram( uniqueCharacter, null, null );
+    }
+
+    public static Program createProgramWithoutRegistration( char uniqueCharacter )
+    {
+        Program program = createProgram( uniqueCharacter, null, null );
+        program.setProgramType( ProgramType.WITHOUT_REGISTRATION );
+
+        return program;
     }
 
     public static Program createProgram( char uniqueCharacter, Set<ProgramStage> programStages,
@@ -2732,8 +2785,8 @@ public abstract class DhisConvenienceTest
     {
         User user = new User();
         user.setCode( "Code" + uniquePart );
-        user.setFirstName( "FirstName" + uniquePart );
-        user.setSurname( "Surname" + uniquePart );
+        user.setFirstName( FIRST_NAME + uniquePart );
+        user.setSurname( SURNAME + uniquePart );
         return user;
     }
 
@@ -2915,5 +2968,20 @@ public abstract class DhisConvenienceTest
         SecurityContextHolder.setContext( context );
 
         return user;
+    }
+
+    protected RelationshipType createRelTypeConstraint( RelationshipEntity from, RelationshipEntity to )
+    {
+        RelationshipType relType = new RelationshipType();
+        relType.setUid( CodeGenerator.generateUid() );
+        RelationshipConstraint relationshipConstraintFrom = new RelationshipConstraint();
+        relationshipConstraintFrom.setRelationshipEntity( from );
+        RelationshipConstraint relationshipConstraintTo = new RelationshipConstraint();
+        relationshipConstraintTo.setRelationshipEntity( to );
+
+        relType.setFromConstraint( relationshipConstraintFrom );
+        relType.setToConstraint( relationshipConstraintTo );
+
+        return relType;
     }
 }

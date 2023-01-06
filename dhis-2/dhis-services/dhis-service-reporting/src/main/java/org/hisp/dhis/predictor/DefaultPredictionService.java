@@ -33,6 +33,8 @@ import static org.hisp.dhis.common.OrganisationUnitDescendants.DESCENDANTS;
 import static org.hisp.dhis.expression.MissingValueStrategy.NEVER_SKIP;
 import static org.hisp.dhis.expression.ParseType.PREDICTOR_EXPRESSION;
 import static org.hisp.dhis.expression.ParseType.PREDICTOR_SKIP_TEST;
+import static org.hisp.dhis.predictor.PredictionDataFilter.filter;
+import static org.hisp.dhis.predictor.PredictionDisaggregatorUtils.createPredictionDisaggregator;
 import static org.hisp.dhis.predictor.PredictionFormatter.formatPrediction;
 import static org.hisp.dhis.scheduling.JobProgress.FailurePolicy.SKIP_ITEM_OUTLIER;
 
@@ -45,13 +47,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.analytics.AnalyticsService;
-import org.hisp.dhis.analytics.AnalyticsServiceTarget;
 import org.hisp.dhis.analytics.DataType;
 import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.category.CategoryService;
@@ -78,7 +79,6 @@ import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.scheduling.JobProgress;
 import org.hisp.dhis.scheduling.parameters.PredictorJobParameters;
 import org.hisp.dhis.user.CurrentUserService;
-import org.hisp.dhis.user.CurrentUserServiceTarget;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.util.DateUtils;
 import org.hisp.quick.BatchHandlerFactory;
@@ -94,9 +94,9 @@ import com.google.common.collect.Sets;
 @Slf4j
 @Service( "org.hisp.dhis.predictor.PredictionService" )
 @Transactional
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class DefaultPredictionService
-    implements PredictionService, AnalyticsServiceTarget, CurrentUserServiceTarget
+    implements PredictionService
 {
     private final PredictorService predictorService;
 
@@ -114,21 +114,9 @@ public class DefaultPredictionService
 
     private final BatchHandlerFactory batchHandlerFactory;
 
-    private AnalyticsService analyticsService;
+    private final AnalyticsService analyticsService;
 
-    private CurrentUserService currentUserService;
-
-    @Override
-    public void setAnalyticsService( AnalyticsService analyticsService )
-    {
-        this.analyticsService = analyticsService;
-    }
-
-    @Override
-    public void setCurrentUserService( CurrentUserService currentUserService )
-    {
-        this.currentUserService = currentUserService;
-    }
+    private final CurrentUserService currentUserService;
 
     // -------------------------------------------------------------------------
     // Prediction business logic
@@ -213,7 +201,7 @@ public class DefaultPredictionService
         ExpressionInfo exInfo = new ExpressionInfo();
         ExpressionParams baseExParams = getBaseExParams( predictor, exInfo );
         CategoryOptionCombo defaultCategoryOptionCombo = categoryService.getDefaultCategoryOptionCombo();
-        PredictionDisaggregator preDis = new PredictionDisaggregator( predictor, defaultCategoryOptionCombo,
+        PredictionDisaggregator preDis = createPredictionDisaggregator( predictor, defaultCategoryOptionCombo,
             baseExParams.getItemMap().values() );
         Set<DimensionalItemObject> items = preDis.getDisaggregatedItems();
         DataElementOperand outputDataElementOperand = preDis.getOutputDataElementOperand();
@@ -259,7 +247,7 @@ public class DefaultPredictionService
 
             PredictionData data;
 
-            while ( (data = consolidator.getData()) != null )
+            while ( (data = filter( consolidator.getData() )) != null )
             {
                 List<DataValue> predictions = new ArrayList<>();
 
@@ -304,6 +292,8 @@ public class DefaultPredictionService
         }
 
         predictionWriter.flush();
+
+        preDis.issueMappingWarnings();
     }
 
     // -------------------------------------------------------------------------

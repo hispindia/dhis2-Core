@@ -29,7 +29,7 @@ package org.hisp.dhis.program;
 
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.system.deletion.DeletionVeto;
@@ -40,7 +40,7 @@ import org.springframework.stereotype.Component;
  * @author Chau Thu Tran
  */
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ProgramStageInstanceDeletionHandler extends JdbcDeletionHandler
 {
     private static final DeletionVeto VETO = new DeletionVeto( ProgramStageInstance.class );
@@ -59,7 +59,7 @@ public class ProgramStageInstanceDeletionHandler extends JdbcDeletionHandler
     private DeletionVeto allowDeleteProgramStage( ProgramStage programStage )
     {
         return vetoIfExists( VETO,
-            "select count(*) from programstageinstance where programstageid = :id",
+            "select 1 from programstageinstance where programstageid = :id limit 1",
             Map.of( "id", programStage.getId() ) );
     }
 
@@ -74,13 +74,13 @@ public class ProgramStageInstanceDeletionHandler extends JdbcDeletionHandler
     private DeletionVeto allowDeleteProgram( Program program )
     {
         return vetoIfExists( VETO,
-            "select count(*) from programstageinstance psi join programinstance pi on pi.programinstanceid=psi.programinstanceid where pi.programid = :id",
+            "select 1 from programstageinstance psi join programinstance pi on pi.programinstanceid=psi.programinstanceid where pi.programid = :id limit 1",
             Map.of( "id", program.getId() ) );
     }
 
     private DeletionVeto allowDeleteDataElement( DataElement dataElement )
     {
-        return vetoIfExists( VETO, "select count(*) from programstageinstance where eventdatavalues ?? :uid",
+        return vetoIfExists( VETO, "select 1 from programstageinstance where eventdatavalues ?? :uid limit 1",
             Map.of( "uid", dataElement.getUid() ) );
     }
 }

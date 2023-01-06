@@ -27,14 +27,20 @@
  */
 package org.hisp.dhis.user;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
-import org.hisp.dhis.cache.*;
-import org.hisp.dhis.security.acl.*;
-import org.springframework.stereotype.*;
-import org.springframework.transaction.annotation.*;
+import javax.annotation.Nonnull;
+
+import org.hisp.dhis.cache.Cache;
+import org.hisp.dhis.cache.CacheProvider;
+import org.hisp.dhis.cache.HibernateCacheManager;
+import org.hisp.dhis.security.acl.AclService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Lars Helge Overland
@@ -43,10 +49,6 @@ import org.springframework.transaction.annotation.*;
 public class DefaultUserGroupService
     implements UserGroupService
 {
-    // -------------------------------------------------------------------------
-    // Dependencies
-    // -------------------------------------------------------------------------
-
     private final UserGroupStore userGroupStore;
 
     private final CurrentUserService currentUserService;
@@ -197,7 +199,7 @@ public class DefaultUserGroupService
 
     @Override
     @Transactional
-    public void updateUserGroups( User user, Collection<String> uids, User currentUser )
+    public void updateUserGroups( User user, @Nonnull Collection<String> uids, User currentUser )
     {
         Collection<UserGroup> updates = getUserGroupsByUid( uids );
 
@@ -219,7 +221,7 @@ public class DefaultUserGroupService
         }
     }
 
-    private Collection<UserGroup> getUserGroupsByUid( Collection<String> uids )
+    private Collection<UserGroup> getUserGroupsByUid( @Nonnull Collection<String> uids )
     {
         return userGroupStore.getByUid( uids );
     }

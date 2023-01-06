@@ -95,9 +95,11 @@ public interface UserStore
      * Returns User for given username.
      *
      * @param username username for which the User will be returned
+     * @param ignoreCase
+     *
      * @return User for given username or null
      */
-    User getUserByUsername( String username );
+    User getUserByUsername( String username, boolean ignoreCase );
 
     /**
      * Returns User with given userId.
@@ -110,11 +112,8 @@ public interface UserStore
     /**
      * Return CurrentUserGroupInfo used for ACL check in
      * {@link IdentifiableObjectStore}
-     *
-     * @param user
-     * @return
      */
-    CurrentUserGroupInfo getCurrentUserGroupInfo( User user );
+    CurrentUserGroupInfo getCurrentUserGroupInfo( String userUID );
 
     /**
      * Sets {@link User#setDisabled(boolean)} to {@code true} for all users
@@ -137,6 +136,19 @@ public interface UserStore
      *         keys and if available their preferred locale as value
      */
     Map<String, Optional<Locale>> findNotifiableUsersWithLastLoginBetween( Date from, Date to );
+
+    /**
+     * Selects all not disabled users where the
+     * {@link User#getPasswordLastUpdated()} ()} is within the given time-frame
+     * and which have an email address.
+     *
+     * @param from start of the selected time-frame (inclusive)
+     * @param to end of the selected time-frame (exclusive)
+     * @return user emails having a password last updated within the given
+     *         time-frame as keys and if available their preferred locale as
+     *         value
+     */
+    Map<String, Optional<Locale>> findNotifiableUsersWithPasswordLastUpdatedBetween( Date from, Date to );
 
     String getDisplayName( String userUid );
 

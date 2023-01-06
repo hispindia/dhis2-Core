@@ -30,7 +30,7 @@ package org.hisp.dhis.split.orgunit.handler;
 import java.util.List;
 import java.util.Set;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import org.hisp.dhis.configuration.Configuration;
 import org.hisp.dhis.configuration.ConfigurationService;
@@ -47,7 +47,7 @@ import com.google.common.collect.Sets;
  * @author Lars Helge Overland
  */
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class MetadataOrgUnitSplitHandler
 {
     private final UserService userService;
@@ -97,7 +97,7 @@ public class MetadataOrgUnitSplitHandler
         Set<OrganisationUnit> source = Sets.newHashSet( request.getSource() );
 
         List<User> dataCaptureUsers = userService.getUsers( new UserQueryParams()
-            .setCanSeeOwnUserRoles( true )
+            .setCanSeeOwnRoles( true )
             .setOrganisationUnits( source ) );
 
         dataCaptureUsers.forEach( u -> {
@@ -106,7 +106,7 @@ public class MetadataOrgUnitSplitHandler
         } );
 
         List<User> dataViewUsers = userService.getUsers( new UserQueryParams()
-            .setCanSeeOwnUserRoles( true )
+            .setCanSeeOwnRoles( true )
             .setDataViewOrganisationUnits( source ) );
 
         dataViewUsers.forEach( u -> {
@@ -115,7 +115,7 @@ public class MetadataOrgUnitSplitHandler
         } );
 
         List<User> teiSearchOrgUnits = userService.getUsers( new UserQueryParams()
-            .setCanSeeOwnUserRoles( true )
+            .setCanSeeOwnRoles( true )
             .setTeiSearchOrganisationUnits( source ) );
 
         teiSearchOrgUnits.forEach( u -> {

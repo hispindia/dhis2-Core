@@ -32,6 +32,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import java.util.Arrays;
 import java.util.Optional;
 
+import org.hisp.dhis.security.utils.CspUtils;
+
 /**
  * @author Lars Helge Overland
  */
@@ -105,7 +107,7 @@ public enum ConfigurationKey
     /**
      * JDBC driver class.
      */
-    CONNECTION_DRIVER_CLASS( "connection.driver_class", "", false ),
+    CONNECTION_DRIVER_CLASS( "connection.driver_class", "org.postgresql.Driver", false ),
 
     /**
      * Database connection URL.
@@ -121,6 +123,16 @@ public enum ConfigurationKey
      * Database password (sensitive).
      */
     CONNECTION_PASSWORD( "connection.password", "", true ),
+
+    /**
+     * Sets 'hibernate.cache.use_second_level_cache'. (default: true)
+     */
+    USE_SECOND_LEVEL_CACHE( "hibernate.cache.use_second_level_cache", "true", false ),
+
+    /**
+     * Sets 'hibernate.cache.use_query_cache'. (default: true)
+     */
+    USE_QUERY_CACHE( "hibernate.cache.use_query_cache", "true", false ),
 
     /**
      * Sets 'hibernate.hbm2ddl.auto', used in tests only. (default: none)
@@ -338,6 +350,11 @@ public enum ConfigurationKey
      * Analytics server-side cache expiration in seconds. (default: 0)
      */
     ANALYTICS_CACHE_EXPIRATION( "analytics.cache.expiration", "0" ),
+
+    /**
+     * Use unlogged tables during analytics export. (default: off)
+     */
+    ANALYTICS_TABLE_UNLOGGED( "analytics.table.unlogged", Constants.OFF ),
 
     /**
      * Artemis support mode, 2 modes supported: EMBEDDED (starts up an embedded
@@ -674,7 +691,7 @@ public enum ConfigurationKey
     /**
      * Cache invalidation feature. Shutdown server if connector loose connection
      */
-    DEBEZIUM_SHUTDOWN_ON_CONNECTOR_STOP( "debezium.shutdown_on.connector_stop", Constants.OFF, false ),
+    DEBEZIUM_SHUTDOWN_ON_CONNECTOR_STOP( "debezium.shutdown_on.connector_stop", Constants.ON, false ),
 
     /**
      * API authentication feature. Enable or disable personal access tokens.
@@ -691,7 +708,27 @@ public enum ConfigurationKey
      * for each user. If configured to 1, the user will be logged out from any
      * other session when a new session is started.
      */
-    MAX_SESSIONS_PER_USER( "max.sessions.per_user", "10", false );
+    MAX_SESSIONS_PER_USER( "max.sessions.per_user", "10", false ),
+
+    /**
+     * Redis based cache invalidation feature. Enable or disable.
+     */
+    REDIS_CACHE_INVALIDATION_ENABLED( "redis.cache.invalidation.enabled", Constants.OFF, false ),
+
+    /**
+     * Content Security Policy feature. Enable or disable the feature.
+     */
+    CSP_ENABLED( "csp.enabled", Constants.ON, true ),
+
+    /**
+     * CSP upgrade insecure connections. Enable or disable the feature.
+     */
+    CSP_UPGRADE_INSECURE_ENABLED( "csp.upgrade.insecure.enabled", Constants.OFF, true ),
+
+    /**
+     * CSP default header value/string. Enable or disable the feature.
+     */
+    CSP_HEADER_VALUE( "csp.header.value", CspUtils.DEFAULT_HEADER_VALUE, false );
 
     private final String key;
 

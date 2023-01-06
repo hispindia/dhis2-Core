@@ -28,18 +28,16 @@
 package org.hisp.dhis.test.integration;
 
 import org.hisp.dhis.BaseSpringTest;
+import org.hisp.dhis.IntegrationTest;
 import org.hisp.dhis.config.IntegrationTestConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * @author Gintare Vilkelyte <vilkelyte.gintare@gmail.com>
  */
-@ExtendWith( SpringExtension.class )
 @ContextConfiguration( classes = { IntegrationTestConfig.class } )
 @IntegrationTest
 @ActiveProfiles( profiles = { "test-postgres" } )
@@ -59,11 +57,5 @@ public abstract class IntegrationTestBase extends BaseSpringTest
         throws Exception
     {
         nonTransactionalAfter();
-    }
-
-    @Override
-    protected boolean emptyDatabaseAfterTest()
-    {
-        return true;
     }
 }

@@ -48,7 +48,7 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -56,7 +56,6 @@ import org.hisp.dhis.calendar.CalendarService;
 import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.category.CategoryService;
 import org.hisp.dhis.common.AuditType;
-import org.hisp.dhis.common.BatchHandlerFactoryTarget;
 import org.hisp.dhis.common.DxfNamespaces;
 import org.hisp.dhis.common.IdScheme;
 import org.hisp.dhis.common.IdSchemes;
@@ -113,7 +112,6 @@ import org.hisp.dhis.system.util.Clock;
 import org.hisp.dhis.system.util.CsvUtils;
 import org.hisp.dhis.system.util.ValidationUtils;
 import org.hisp.dhis.user.CurrentUserService;
-import org.hisp.dhis.user.CurrentUserServiceTarget;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.util.DateUtils;
 import org.hisp.dhis.util.ObjectUtils;
@@ -132,9 +130,9 @@ import com.google.common.collect.Lists;
  */
 @Slf4j
 @Service( "org.hisp.dhis.dxf2.datavalueset.DataValueSetService" )
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class DefaultDataValueSetService
-    implements DataValueSetService, CurrentUserServiceTarget, BatchHandlerFactoryTarget
+    implements DataValueSetService
 {
     private static final String ERROR_OBJECT_NEEDED_TO_COMPLETE = "Must be provided to complete data set";
 
@@ -148,11 +146,11 @@ public class DefaultDataValueSetService
 
     private final PeriodService periodService;
 
-    private BatchHandlerFactory batchHandlerFactory;
+    private final BatchHandlerFactory batchHandlerFactory;
 
     private final CompleteDataSetRegistrationService registrationService;
 
-    private CurrentUserService currentUserService;
+    private final CurrentUserService currentUserService;
 
     private final DataValueSetStore dataValueSetStore;
 
@@ -182,18 +180,6 @@ public class DefaultDataValueSetService
 
     private final SchemaService schemaService;
 
-    @Override
-    public void setCurrentUserService( CurrentUserService currentUserService )
-    {
-        this.currentUserService = currentUserService;
-    }
-
-    @Override
-    public void setBatchHandlerFactory( BatchHandlerFactory batchHandlerFactory )
-    {
-        this.batchHandlerFactory = batchHandlerFactory;
-    }
-
     // -------------------------------------------------------------------------
     // DataValueSet implementation
     // -------------------------------------------------------------------------
@@ -222,6 +208,13 @@ public class DefaultDataValueSetService
                 DataElementGroup.class,
                 IdentifiableProperty.in( inputIdSchemes, IdSchemes::getDataElementGroupIdScheme ),
                 urlParams.getDataElementGroup() ) );
+        }
+
+        if ( !isEmpty( urlParams.getDataElement() ) )
+        {
+            params.getDataElements().addAll( identifiableObjectManager.getObjects(
+                DataElement.class, IdentifiableProperty.in( inputIdSchemes, IdSchemes::getDataElementIdScheme ),
+                urlParams.getDataElement() ) );
         }
 
         if ( !isEmpty( urlParams.getPeriod() ) )
@@ -902,12 +895,16 @@ public class DefaultDataValueSetService
 
         if ( !context.isDryRun() )
         {
-            DataValue actualDataValue = valueContext.getActualDataValue( dataValueService );
-            if ( valueContext.getDataElement().isFileType() && actualDataValue != null )
+            if ( valueContext.getDataElement().isFileType() )
             {
-                FileResource fr = fileResourceService.getFileResource( actualDataValue.getValue() );
+                DataValue actualDataValue = valueContext.getActualDataValue( dataValueService );
 
-                fileResourceService.updateFileResource( fr );
+                if ( actualDataValue != null )
+                {
+                    FileResource fr = fileResourceService.getFileResource( actualDataValue.getValue() );
+
+                    fileResourceService.updateFileResource( fr );
+                }
             }
 
             context.getDataValueBatchHandler().updateObject( internalValue );
@@ -942,7 +939,8 @@ public class DefaultDataValueSetService
         }
         if ( !internalValue.isDeleted()
             && Objects.equals( existingValue.getValue(), internalValue.getValue() )
-            && Objects.equals( existingValue.getComment(), internalValue.getComment() ) )
+            && Objects.equals( existingValue.getComment(), internalValue.getComment() )
+            && existingValue.isFollowup() == internalValue.isFollowup() )
         {
             return; // avoid performing unnecessary updates
         }
@@ -950,7 +948,7 @@ public class DefaultDataValueSetService
         {
             context.getDataValueBatchHandler().updateObject( internalValue );
 
-            if ( !context.isSkipAudit() )
+            if ( !context.isSkipAudit() && !Objects.equals( existingValue.getValue(), internalValue.getValue() ) )
             {
                 DataValueAudit auditValue = new DataValueAudit( internalValue, existingValue.getValue(),
                     context.getStoredBy( dataValue ), auditType );
@@ -1076,6 +1074,12 @@ public class DefaultDataValueSetService
                 || settings.getBoolSetting( SettingKey.DATA_IMPORT_STRICT_ATTRIBUTE_OPTION_COMBOS ) )
             .strictOrgUnits( options.isStrictOrganisationUnits()
                 || settings.getBoolSetting( SettingKey.DATA_IMPORT_STRICT_ORGANISATION_UNITS ) )
+            .strictDataSetApproval( options.isStrictDataSetApproval()
+                || settings.getBoolSetting( SettingKey.DATA_IMPORT_STRICT_DATA_SET_APPROVAL ) )
+            .strictDataSetLocking( options.isStrictDataSetLocking()
+                || settings.getBoolSetting( SettingKey.DATA_IMPORT_STRICT_DATA_SET_LOCKING ) )
+            .strictDataSetInputPeriods( options.isStrictDataSetInputPeriods()
+                || settings.getBoolSetting( SettingKey.DATA_IMPORT_STRICT_DATA_SET_INPUT_PERIODS ) )
             .requireCategoryOptionCombo( options.isRequireCategoryOptionCombo()
                 || settings.getBoolSetting( SettingKey.DATA_IMPORT_REQUIRE_CATEGORY_OPTION_COMBO ) )
             .requireAttrOptionCombo( options.isRequireAttributeOptionCombo()

@@ -27,7 +27,6 @@
  */
 package org.hisp.dhis.analytics.event.data;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.hisp.dhis.analytics.event.EventAnalyticsService.ITEM_CREATED_BY_DISPLAY_NAME;
 import static org.hisp.dhis.analytics.event.EventAnalyticsService.ITEM_ENROLLMENT_DATE;
 import static org.hisp.dhis.analytics.event.EventAnalyticsService.ITEM_EVENT_DATE;
@@ -38,6 +37,11 @@ import static org.hisp.dhis.analytics.event.EventAnalyticsService.ITEM_LAST_UPDA
 import static org.hisp.dhis.analytics.event.EventAnalyticsService.ITEM_ORG_UNIT_CODE;
 import static org.hisp.dhis.analytics.event.EventAnalyticsService.ITEM_ORG_UNIT_NAME;
 import static org.hisp.dhis.analytics.event.EventAnalyticsService.ITEM_PROGRAM_STATUS;
+import static org.hisp.dhis.analytics.event.EventAnalyticsService.ITEM_SCHEDULED_DATE;
+import static org.hisp.dhis.analytics.event.data.DefaultEventCoordinateService.COL_NAME_GEOMETRY_LIST;
+import static org.hisp.dhis.analytics.event.data.DefaultEventCoordinateService.COL_NAME_PI_GEOMETRY;
+import static org.hisp.dhis.analytics.event.data.DefaultEventCoordinateService.COL_NAME_PSI_GEOMETRY;
+import static org.hisp.dhis.analytics.event.data.DefaultEventCoordinateService.COL_NAME_TEI_GEOMETRY;
 import static org.hisp.dhis.analytics.event.data.DefaultEventDataQueryService.SortableItems.isSortable;
 import static org.hisp.dhis.analytics.event.data.DefaultEventDataQueryService.SortableItems.translateItemIfNecessary;
 import static org.hisp.dhis.analytics.util.AnalyticsUtils.throwIllegalQueryEx;
@@ -47,6 +51,7 @@ import static org.hisp.dhis.common.DimensionalObjectUtils.getDimensionFromParam;
 import static org.hisp.dhis.common.DimensionalObjectUtils.getDimensionItemsFromParam;
 import static org.hisp.dhis.common.DimensionalObjectUtils.getDimensionalItemIds;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -55,6 +60,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -63,6 +69,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.analytics.AnalyticsAggregationType;
 import org.hisp.dhis.analytics.DataQueryService;
 import org.hisp.dhis.analytics.EventOutputType;
+import org.hisp.dhis.analytics.OrgUnitField;
 import org.hisp.dhis.analytics.event.EventDataQueryService;
 import org.hisp.dhis.analytics.event.EventQueryParams;
 import org.hisp.dhis.analytics.event.QueryItemLocator;
@@ -84,13 +91,9 @@ import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementService;
 import org.hisp.dhis.feedback.ErrorCode;
 import org.hisp.dhis.feedback.ErrorMessage;
-import org.hisp.dhis.i18n.I18nFormat;
-import org.hisp.dhis.i18n.I18nManager;
-import org.hisp.dhis.legend.LegendSetService;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.program.Program;
-import org.hisp.dhis.program.ProgramIndicatorService;
 import org.hisp.dhis.program.ProgramService;
 import org.hisp.dhis.program.ProgramStage;
 import org.hisp.dhis.program.ProgramStageService;
@@ -105,6 +108,7 @@ import com.google.common.base.MoreObjects;
  * @author Lars Helge Overland
  */
 @Service( "org.hisp.dhis.analytics.event.EventDataQueryService" )
+@RequiredArgsConstructor
 public class DefaultEventDataQueryService
     implements EventDataQueryService
 {
@@ -120,43 +124,21 @@ public class DefaultEventDataQueryService
 
     private static final String COL_NAME_INCIDENTDATE = "incidentdate";
 
+    private static final String COL_NAME_DUEDATE = "duedate";
+
     private final ProgramService programService;
 
     private final ProgramStageService programStageService;
 
     private final DataElementService dataElementService;
 
+    private final EventCoordinateService eventCoordinateService;
+
     private final QueryItemLocator queryItemLocator;
 
     private final TrackedEntityAttributeService attributeService;
 
     private final DataQueryService dataQueryService;
-
-    private final I18nManager i18nManager;
-
-    public DefaultEventDataQueryService( ProgramService programService, ProgramStageService programStageService,
-        DataElementService dataElementService, QueryItemLocator queryItemLocator,
-        TrackedEntityAttributeService attributeService, ProgramIndicatorService programIndicatorService,
-        LegendSetService legendSetService, DataQueryService dataQueryService, I18nManager i18nManager )
-    {
-        checkNotNull( programService );
-        checkNotNull( programStageService );
-        checkNotNull( dataElementService );
-        checkNotNull( attributeService );
-        checkNotNull( programIndicatorService );
-        checkNotNull( queryItemLocator );
-        checkNotNull( legendSetService );
-        checkNotNull( dataQueryService );
-        checkNotNull( i18nManager );
-
-        this.programService = programService;
-        this.programStageService = programStageService;
-        this.dataElementService = dataElementService;
-        this.attributeService = attributeService;
-        this.queryItemLocator = queryItemLocator;
-        this.dataQueryService = dataQueryService;
-        this.i18nManager = i18nManager;
-    }
 
     @Override
     public EventQueryParams getFromRequest( EventDataQueryRequest request )
@@ -167,8 +149,6 @@ public class DefaultEventDataQueryService
     @Override
     public EventQueryParams getFromRequest( EventDataQueryRequest request, boolean analyzeOnly )
     {
-        I18nFormat format = i18nManager.getI18nFormat();
-
         EventQueryParams.Builder params = new EventQueryParams.Builder();
 
         IdScheme idScheme = IdScheme.UID;
@@ -189,9 +169,9 @@ public class DefaultEventDataQueryService
             throwIllegalQueryEx( ErrorCode.E7130, request.getStage() );
         }
 
-        addDimensionsIntoParams( params, request, userOrgUnits, format, pr, idScheme );
+        addDimensionsIntoParams( params, request, userOrgUnits, pr, idScheme );
 
-        addFiltersIntoParams( params, request, userOrgUnits, format, pr, idScheme );
+        addFiltersIntoParams( params, request, userOrgUnits, pr, idScheme );
 
         addSortIntoParams( params, request, pr );
 
@@ -219,16 +199,15 @@ public class DefaultEventDataQueryService
             .withCompletedOnly( request.isCompletedOnly() )
             .withHierarchyMeta( request.isHierarchyMeta() )
             .withCoordinatesOnly( request.isCoordinatesOnly() )
-            .withCoordinateOuFallback( request.isCoordinateOuFallback() )
             .withIncludeMetadataDetails( request.isIncludeMetadataDetails() )
             .withDataIdScheme( request.getDataIdScheme() )
             .withOutputIdScheme( request.getOutputIdScheme() )
             .withEventStatuses( request.getEventStatus() )
             .withDisplayProperty( request.getDisplayProperty() )
             .withTimeField( request.getTimeField() )
-            .withOrgUnitField( request.getOrgUnitField() )
-            .withCoordinateField( getCoordinateField( request.getCoordinateField() ) )
-            .withFallbackCoordinateField( getFallbackCoordinateField( request.getFallbackCoordinateField() ) )
+            .withOrgUnitField( new OrgUnitField( request.getOrgUnitField() ) )
+            .withCoordinateFields( getCoordinateFields( request.getProgram(), request.getCoordinateField(),
+                request.getFallbackCoordinateField(), request.isDefaultCoordinateFallback() ) )
             .withHeaders( request.getHeaders() )
             .withPage( request.getPage() )
             .withPageSize( request.getPageSize() )
@@ -303,8 +282,7 @@ public class DefaultEventDataQueryService
     }
 
     private void addFiltersIntoParams( EventQueryParams.Builder params, EventDataQueryRequest request,
-        List<OrganisationUnit> userOrgUnits,
-        I18nFormat format, Program pr, IdScheme idScheme )
+        List<OrganisationUnit> userOrgUnits, Program pr, IdScheme idScheme )
     {
         if ( request.getFilter() != null )
         {
@@ -318,7 +296,7 @@ public class DefaultEventDataQueryService
                     List<String> items = getDimensionItemsFromParam( dim );
 
                     GroupableItem groupableItem = dataQueryService.getDimension( dimensionId,
-                        items, request.getRelativePeriodDate(), userOrgUnits, format, true, idScheme );
+                        items, request.getRelativePeriodDate(), userOrgUnits, true, idScheme );
 
                     if ( groupableItem != null )
                     {
@@ -338,8 +316,7 @@ public class DefaultEventDataQueryService
     }
 
     private void addDimensionsIntoParams( EventQueryParams.Builder params, EventDataQueryRequest request,
-        List<OrganisationUnit> userOrgUnits,
-        I18nFormat format, Program pr, IdScheme idScheme )
+        List<OrganisationUnit> userOrgUnits, Program pr, IdScheme idScheme )
     {
         if ( request.getDimension() != null )
         {
@@ -354,7 +331,7 @@ public class DefaultEventDataQueryService
                     List<String> items = getDimensionItemsFromParam( dim );
 
                     GroupableItem groupableItem = dataQueryService.getDimension( dimensionId,
-                        items, request, userOrgUnits, format, true, idScheme );
+                        items, request, userOrgUnits, true, idScheme );
 
                     if ( groupableItem != null )
                     {
@@ -380,7 +357,6 @@ public class DefaultEventDataQueryService
 
         EventQueryParams.Builder params = new EventQueryParams.Builder();
 
-        I18nFormat format = i18nManager.getI18nFormat();
         IdScheme idScheme = IdScheme.UID;
         Date date = object.getRelativePeriodDate();
 
@@ -389,7 +365,7 @@ public class DefaultEventDataQueryService
         for ( DimensionalObject dimension : ListUtils.union( object.getColumns(), object.getRows() ) )
         {
             DimensionalObject dimObj = dataQueryService.getDimension( dimension.getDimension(),
-                getDimensionalItemIds( dimension.getItems() ), date, null, format, true, idScheme );
+                getDimensionalItemIds( dimension.getItems() ), date, null, true, idScheme );
 
             if ( dimObj != null )
             {
@@ -405,7 +381,7 @@ public class DefaultEventDataQueryService
         for ( DimensionalObject filter : object.getFilters() )
         {
             DimensionalObject dimObj = dataQueryService.getDimension( filter.getDimension(),
-                getDimensionalItemIds( filter.getItems() ), date, null, format, true, idScheme );
+                getDimensionalItemIds( filter.getItems() ), date, null, true, idScheme );
 
             if ( dimObj != null )
             {
@@ -428,50 +404,90 @@ public class DefaultEventDataQueryService
             .build();
     }
 
+    /**
+     * Returns list of coordinateFields.
+     *
+     * All possible coordinate fields are collected. The order defines the
+     * priority of geometries and is used as a paramaters in sql coalesce
+     * function
+     *
+     * @param program dhis program instance.
+     * @param coordinateField the coordinate field.
+     * @param fallbackCoordinateField the fallback coordinate field applied if
+     *        coordinate field in result set is null.
+     * @param defaultCoordinateFallback flag for cascade fallback, first not
+     *        null geometry (coalesce) will be applied.
+     * @return the coordinate column list.
+     */
     @Override
-    public String getCoordinateField( String coordinateField )
+    public List<String> getCoordinateFields( String program, String coordinateField,
+        String fallbackCoordinateField, boolean defaultCoordinateFallback )
     {
-        return getCoordinateField( coordinateField, "psigeometry" );
-    }
+        // despite the fact it is nice to have no duplications, it can't be Set
+        // cause the order inside the collection (set add existing value and
+        // remove the old one)
+        List<String> coordinateFields = new ArrayList<>();
 
-    @Override
-    public String getFallbackCoordinateField( String fallbackCoordinateField )
-    {
-        return fallbackCoordinateField == null ? "ougeometry" : fallbackCoordinateField;
-    }
-
-    // -------------------------------------------------------------------------
-    // Supportive methods
-    // -------------------------------------------------------------------------
-
-    private String getCoordinateField( String coordinateField, String defaultEventCoordinateField )
-    {
-        if ( coordinateField == null || EventQueryParams.EVENT_COORDINATE_FIELD.equals( coordinateField ) )
+        if ( coordinateField == null )
         {
-            return defaultEventCoordinateField;
+            coordinateFields.add( StringUtils.EMPTY );
         }
-
-        if ( EventQueryParams.ENROLLMENT_COORDINATE_FIELD.equals( coordinateField ) )
+        else if ( COL_NAME_GEOMETRY_LIST.contains( coordinateField ) )
         {
-            return "pigeometry";
+            coordinateFields
+                .add( eventCoordinateService.getCoordinateFieldOrFail( program, coordinateField, ErrorCode.E7221 ) );
+        }
+        else if ( EventQueryParams.EVENT_COORDINATE_FIELD.equals( coordinateField ) )
+        {
+            coordinateFields.add(
+                eventCoordinateService.getCoordinateFieldOrFail( program, COL_NAME_PSI_GEOMETRY, ErrorCode.E7221 ) );
+        }
+        else if ( EventQueryParams.ENROLLMENT_COORDINATE_FIELD.equals( coordinateField ) )
+        {
+            coordinateFields.add(
+                eventCoordinateService.getCoordinateFieldOrFail( program, COL_NAME_PI_GEOMETRY, ErrorCode.E7221 ) );
+        }
+        else if ( EventQueryParams.TRACKER_COORDINATE_FIELD.equals( coordinateField ) )
+        {
+            coordinateFields.add(
+                eventCoordinateService.getCoordinateFieldOrFail( program, COL_NAME_TEI_GEOMETRY, ErrorCode.E7221 ) );
         }
 
         DataElement dataElement = dataElementService.getDataElement( coordinateField );
 
         if ( dataElement != null )
         {
-            return getCoordinateFieldOrFail( dataElement.getValueType(), coordinateField, ErrorCode.E7219 );
+            coordinateFields
+                .add( eventCoordinateService.getCoordinateFieldOrFail( dataElement.getValueType(), coordinateField,
+                    ErrorCode.E7219 ) );
         }
 
         TrackedEntityAttribute attribute = attributeService.getTrackedEntityAttribute( coordinateField );
 
         if ( attribute != null )
         {
-            return getCoordinateFieldOrFail( attribute.getValueType(), coordinateField, ErrorCode.E7220 );
+            coordinateFields
+                .add( eventCoordinateService.getCoordinateFieldOrFail( attribute.getValueType(), coordinateField,
+                    ErrorCode.E7220 ) );
         }
 
-        throw new IllegalQueryException( new ErrorMessage( ErrorCode.E7221, coordinateField ) );
+        if ( coordinateFields.isEmpty() )
+        {
+            throw new IllegalQueryException( new ErrorMessage( ErrorCode.E7221, coordinateField ) );
+        }
+
+        coordinateFields.remove( StringUtils.EMPTY );
+
+        coordinateFields
+            .addAll( eventCoordinateService.getFallbackCoordinateFields( program, fallbackCoordinateField,
+                defaultCoordinateFallback ) );
+
+        return coordinateFields.stream().distinct().collect( Collectors.toList() );
     }
+
+    // -------------------------------------------------------------------------
+    // Supportive methods
+    // -------------------------------------------------------------------------
 
     private QueryItem getQueryItem( String dimension, String filter, Program program, EventOutputType type )
     {
@@ -555,15 +571,6 @@ public class DefaultEventDataQueryService
         throw new IllegalQueryException( new ErrorMessage( ErrorCode.E7223, value ) );
     }
 
-    private String getCoordinateFieldOrFail( ValueType valueType, String field, ErrorCode errorCode )
-    {
-        if ( ValueType.COORDINATE != valueType && ValueType.ORGANISATION_UNIT != valueType )
-        {
-            throwIllegalQueryEx( errorCode, field );
-        }
-        return field;
-    }
-
     @Getter
     @RequiredArgsConstructor
     enum SortableItems
@@ -571,6 +578,7 @@ public class DefaultEventDataQueryService
         ENROLLMENT_DATE( ITEM_ENROLLMENT_DATE, COL_NAME_ENROLLMENTDATE ),
         INCIDENT_DATE( ITEM_INCIDENT_DATE, COL_NAME_INCIDENTDATE ),
         EVENT_DATE( ITEM_EVENT_DATE, COL_NAME_EVENTDATE ),
+        SCHEDULED_DATE( ITEM_SCHEDULED_DATE, COL_NAME_DUEDATE ),
         ORG_UNIT_NAME( ITEM_ORG_UNIT_NAME ),
         ORG_UNIT_CODE( ITEM_ORG_UNIT_CODE ),
         PROGRAM_STATUS( ITEM_PROGRAM_STATUS, COL_NAME_PROGRAM_STATUS_EVENTS, COL_NAME_PROGRAM_STATUS_ENROLLMENTS ),
@@ -619,6 +627,5 @@ public class DefaultEventDataQueryService
         {
             return type == RequestTypeAware.EndpointItem.EVENT ? eventColumnName : enrollmentColumnName;
         }
-
     }
 }

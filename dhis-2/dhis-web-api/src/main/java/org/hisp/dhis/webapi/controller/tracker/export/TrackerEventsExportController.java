@@ -39,13 +39,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
+import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import org.hisp.dhis.common.DhisApiVersion;
+import org.hisp.dhis.common.OpenApi;
 import org.hisp.dhis.commons.collection.CollectionUtils;
 import org.hisp.dhis.dxf2.events.event.Event;
 import org.hisp.dhis.dxf2.events.event.EventSearchParams;
@@ -56,14 +57,13 @@ import org.hisp.dhis.dxf2.webmessage.WebMessageException;
 import org.hisp.dhis.fieldfiltering.FieldFilterService;
 import org.hisp.dhis.node.Preset;
 import org.hisp.dhis.program.ProgramStageInstanceService;
-import org.hisp.dhis.webapi.controller.event.mapper.RequestToSearchParamsMapper;
 import org.hisp.dhis.webapi.controller.event.webrequest.PagingWrapper;
-import org.hisp.dhis.webapi.controller.event.webrequest.tracker.TrackerEventCriteria;
 import org.hisp.dhis.webapi.controller.exception.NotFoundException;
 import org.hisp.dhis.webapi.mvc.annotation.ApiVersion;
 import org.hisp.dhis.webapi.service.ContextService;
 import org.hisp.dhis.webapi.utils.ContextUtils;
 import org.mapstruct.factory.Mappers;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -75,6 +75,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 
+@OpenApi.Tags( "tracker" )
 @RestController
 @RequestMapping( value = RESOURCE_PATH + "/" + TrackerEventsExportController.EVENTS )
 @ApiVersion( { DhisApiVersion.DEFAULT, DhisApiVersion.ALL } )
@@ -87,22 +88,22 @@ public class TrackerEventsExportController
 
     private static final EventMapper EVENTS_MAPPER = Mappers.getMapper( EventMapper.class );
 
-    @NonNull
+    @Nonnull
     private final EventService eventService;
 
-    @NonNull
+    @Nonnull
     private final ContextService contextService;
 
-    @NonNull
-    private final RequestToSearchParamsMapper requestToSearchParamsMapper;
+    @Nonnull
+    private final TrackerEventCriteriaMapper requestToSearchParams;
 
-    @NonNull
+    @Nonnull
     private final ProgramStageInstanceService programStageInstanceService;
 
-    @NonNull
+    @Nonnull
     private final CsvEventService<org.hisp.dhis.webapi.controller.tracker.view.Event> csvEventService;
 
-    @NonNull
+    @Nonnull
     private final FieldFilterService fieldFilterService;
 
     @GetMapping( produces = APPLICATION_JSON_VALUE )
@@ -112,7 +113,7 @@ public class TrackerEventsExportController
         throws WebMessageException
     {
 
-        EventSearchParams eventSearchParams = requestToSearchParamsMapper.map( eventCriteria );
+        EventSearchParams eventSearchParams = requestToSearchParams.map( eventCriteria );
 
         if ( areAllEnrollmentsInvalid( eventCriteria, eventSearchParams ) )
         {
@@ -155,7 +156,7 @@ public class TrackerEventsExportController
             fields.addAll( Preset.ALL.getFields() );
         }
 
-        EventSearchParams eventSearchParams = requestToSearchParamsMapper.map( eventCriteria );
+        EventSearchParams eventSearchParams = requestToSearchParams.map( eventCriteria );
 
         if ( areAllEnrollmentsInvalid( eventCriteria, eventSearchParams ) )
         {
@@ -171,12 +172,14 @@ public class TrackerEventsExportController
 
         OutputStream outputStream = response.getOutputStream();
         response.setContentType( CONTENT_TYPE_CSV );
+        response.setHeader( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"events.csv\"" );
 
         if ( ContextUtils.isAcceptCsvGzip( request ) )
         {
             response.addHeader( ContextUtils.HEADER_CONTENT_TRANSFER_ENCODING, "binary" );
             outputStream = new GZIPOutputStream( outputStream );
             response.setContentType( CONTENT_TYPE_CSV_GZIP );
+            response.setHeader( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"events.csv.gz\"" );
         }
 
         csvEventService.writeEvents( outputStream, EVENTS_MAPPER.fromCollection( events.getEvents() ), !skipHeader );

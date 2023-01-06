@@ -27,8 +27,6 @@
  */
 package org.hisp.dhis.dataapproval;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -37,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -49,7 +48,6 @@ import org.hisp.dhis.organisationunit.OrganisationUnitLevel;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.security.acl.AclService;
 import org.hisp.dhis.user.CurrentUserService;
-import org.hisp.dhis.user.CurrentUserServiceTarget;
 import org.hisp.dhis.user.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,46 +59,21 @@ import com.google.common.collect.Maps;
  * @author Jim Grace
  */
 @Slf4j
+@RequiredArgsConstructor
 @Service( "org.hisp.dhis.dataapproval.DataApprovalLevelService" )
 public class DefaultDataApprovalLevelService
-    implements DataApprovalLevelService, CurrentUserServiceTarget
+    implements DataApprovalLevelService
 {
-    // -------------------------------------------------------------------------
-    // Dependencies
-    // -------------------------------------------------------------------------
-
     private final DataApprovalLevelStore dataApprovalLevelStore;
 
     private final OrganisationUnitService organisationUnitService;
 
     private final CategoryService categoryService;
 
-    private CurrentUserService currentUserService;
+    private final CurrentUserService currentUserService;
 
     private final AclService aclService;
 
-    public DefaultDataApprovalLevelService( DataApprovalLevelStore dataApprovalLevelStore,
-        OrganisationUnitService organisationUnitService, CategoryService categoryService,
-        CurrentUserService currentUserService, AclService aclService )
-    {
-        checkNotNull( dataApprovalLevelStore );
-        checkNotNull( organisationUnitService );
-        checkNotNull( categoryService );
-        checkNotNull( currentUserService );
-        checkNotNull( aclService );
-
-        this.dataApprovalLevelStore = dataApprovalLevelStore;
-        this.organisationUnitService = organisationUnitService;
-        this.categoryService = categoryService;
-        this.currentUserService = currentUserService;
-        this.aclService = aclService;
-    }
-
-    @Override
-    public void setCurrentUserService( CurrentUserService currentUserService )
-    {
-        this.currentUserService = currentUserService;
-    }
     // -------------------------------------------------------------------------
     // DataApprovalLevel
     // -------------------------------------------------------------------------
@@ -165,7 +138,7 @@ public class DefaultDataApprovalLevelService
             else if ( level.getOrgUnitLevel() > levelAboveOrgUnitLevel )
             {
                 levelAbove = level; // Must be first matching approval level for
-                                    // this org unit level.
+                                   // this org unit level.
 
                 levelAboveOrgUnitLevel = level.getOrgUnitLevel();
             }

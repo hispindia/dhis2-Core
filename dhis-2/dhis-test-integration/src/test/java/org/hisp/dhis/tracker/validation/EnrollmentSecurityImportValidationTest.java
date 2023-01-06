@@ -27,13 +27,10 @@
  */
 package org.hisp.dhis.tracker.validation;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hisp.dhis.tracker.Assertions.assertNoImportErrors;
+import static org.hisp.dhis.tracker.Assertions.assertHasErrors;
+import static org.hisp.dhis.tracker.Assertions.assertHasOnlyErrors;
+import static org.hisp.dhis.tracker.Assertions.assertNoErrors;
 import static org.hisp.dhis.tracker.validation.Users.USER_2;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -55,8 +52,7 @@ import org.hisp.dhis.tracker.TrackerImportParams;
 import org.hisp.dhis.tracker.TrackerImportService;
 import org.hisp.dhis.tracker.TrackerImportStrategy;
 import org.hisp.dhis.tracker.TrackerTest;
-import org.hisp.dhis.tracker.report.TrackerErrorCode;
-import org.hisp.dhis.tracker.report.TrackerImportReport;
+import org.hisp.dhis.tracker.report.ImportReport;
 import org.hisp.dhis.user.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -170,7 +166,7 @@ class EnrollmentSecurityImportValidationTest extends TrackerTest
     {
         setUpMetadata( "tracker/tracker_basic_metadata.json" );
         injectAdminUser();
-        assertNoImportErrors(
+        assertNoErrors(
             trackerImportService.importTracker( fromJson( "tracker/validations/enrollments_te_te-data.json" ) ) );
     }
 
@@ -183,10 +179,10 @@ class EnrollmentSecurityImportValidationTest extends TrackerTest
         injectSecurityContext( user );
         params.setUser( user );
         params.setImportStrategy( TrackerImportStrategy.CREATE );
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
-        assertEquals( 4, trackerImportReport.getValidationReport().getErrors().size() );
-        assertThat( trackerImportReport.getValidationReport().getErrors(),
-            hasItem( hasProperty( "errorCode", equalTo( TrackerErrorCode.E1000 ) ) ) );
+
+        ImportReport importReport = trackerImportService.importTracker( params );
+
+        assertHasErrors( importReport, 4, ValidationCode.E1000 );
     }
 
     @Test
@@ -206,10 +202,10 @@ class EnrollmentSecurityImportValidationTest extends TrackerTest
         TrackerImportParams params = fromJson( "tracker/validations/enrollments_no-access-tei.json" );
         params.setUser( user );
         params.setImportStrategy( TrackerImportStrategy.CREATE );
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
-        assertEquals( 1, trackerImportReport.getValidationReport().getErrors().size() );
-        assertThat( trackerImportReport.getValidationReport().getErrors(),
-            hasItem( hasProperty( "errorCode", equalTo( TrackerErrorCode.E1104 ) ) ) );
+
+        ImportReport importReport = trackerImportService.importTracker( params );
+
+        assertHasOnlyErrors( importReport, ValidationCode.E1104 );
     }
 
     @Test
@@ -229,10 +225,10 @@ class EnrollmentSecurityImportValidationTest extends TrackerTest
         TrackerImportParams params = fromJson( "tracker/validations/enrollments_no-access-program.json" );
         params.setUser( user );
         params.setImportStrategy( TrackerImportStrategy.CREATE );
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
-        assertEquals( 1, trackerImportReport.getValidationReport().getErrors().size() );
-        assertThat( trackerImportReport.getValidationReport().getErrors(),
-            hasItem( hasProperty( "errorCode", equalTo( TrackerErrorCode.E1091 ) ) ) );
+
+        ImportReport importReport = trackerImportService.importTracker( params );
+
+        assertHasOnlyErrors( importReport, ValidationCode.E1091 );
     }
 
     @Test
@@ -252,8 +248,10 @@ class EnrollmentSecurityImportValidationTest extends TrackerTest
         TrackerImportParams params = fromJson( "tracker/validations/enrollments_no-access-program.json" );
         params.setUser( user );
         params.setImportStrategy( TrackerImportStrategy.CREATE );
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
-        assertEquals( 0, trackerImportReport.getValidationReport().getErrors().size() );
+
+        ImportReport importReport = trackerImportService.importTracker( params );
+
+        assertNoErrors( importReport );
     }
 
     @Test
@@ -273,9 +271,9 @@ class EnrollmentSecurityImportValidationTest extends TrackerTest
             "tracker/validations/enrollments_program-teitype-missmatch.json" );
         params.setUser( user );
         params.setImportStrategy( TrackerImportStrategy.CREATE );
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
-        assertEquals( 1, trackerImportReport.getValidationReport().getErrors().size() );
-        assertThat( trackerImportReport.getValidationReport().getErrors(),
-            hasItem( hasProperty( "errorCode", equalTo( TrackerErrorCode.E1104 ) ) ) );
+
+        ImportReport importReport = trackerImportService.importTracker( params );
+
+        assertHasOnlyErrors( importReport, ValidationCode.E1104 );
     }
 }

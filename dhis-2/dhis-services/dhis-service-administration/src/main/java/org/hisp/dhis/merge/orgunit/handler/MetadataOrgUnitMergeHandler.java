@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import org.hisp.dhis.category.CategoryOption;
 import org.hisp.dhis.configuration.Configuration;
@@ -53,7 +53,7 @@ import org.springframework.stereotype.Service;
  * @author Lars Helge Overland
  */
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class MetadataOrgUnitMergeHandler
 {
     private final UserService userService;
@@ -126,7 +126,7 @@ public class MetadataOrgUnitMergeHandler
     public void mergeUsers( OrgUnitMergeRequest request )
     {
         List<User> dataCaptureUsers = userService.getUsers( new UserQueryParams()
-            .setCanSeeOwnUserRoles( true )
+            .setCanSeeOwnRoles( true )
             .setOrganisationUnits( request.getSources() ) );
 
         dataCaptureUsers.forEach( u -> {
@@ -135,7 +135,7 @@ public class MetadataOrgUnitMergeHandler
         } );
 
         List<User> dataViewUsers = userService.getUsers( new UserQueryParams()
-            .setCanSeeOwnUserRoles( true )
+            .setCanSeeOwnRoles( true )
             .setDataViewOrganisationUnits( request.getSources() ) );
 
         dataViewUsers.forEach( u -> {
@@ -144,7 +144,7 @@ public class MetadataOrgUnitMergeHandler
         } );
 
         List<User> teiSearchOrgUnits = userService.getUsers( new UserQueryParams()
-            .setCanSeeOwnUserRoles( true )
+            .setCanSeeOwnRoles( true )
             .setTeiSearchOrganisationUnits( request.getSources() ) );
 
         teiSearchOrgUnits.forEach( u -> {

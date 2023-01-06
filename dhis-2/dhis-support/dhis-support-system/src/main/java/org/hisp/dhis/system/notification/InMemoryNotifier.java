@@ -31,6 +31,8 @@ import java.util.Date;
 import java.util.Deque;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -48,21 +50,9 @@ public class InMemoryNotifier implements Notifier
     private final NotificationMap notificationMap = new NotificationMap( MAX_POOL_TYPE_SIZE );
 
     @Override
-    public Notifier notify( JobConfiguration id, String message )
+    public Notifier notify( JobConfiguration id, @Nonnull NotificationLevel level, String message, boolean completed )
     {
-        return notify( id, NotificationLevel.INFO, message, false );
-    }
-
-    @Override
-    public Notifier notify( JobConfiguration id, NotificationLevel level, String message )
-    {
-        return notify( id, level, message, false );
-    }
-
-    @Override
-    public Notifier notify( JobConfiguration id, NotificationLevel level, String message, boolean completed )
-    {
-        if ( id != null && !(level != null && level.isOff()) )
+        if ( id != null && !level.isOff() )
         {
             Notification notification = new Notification( level, id.getJobType(), new Date(), message, completed );
 
@@ -74,35 +64,6 @@ public class InMemoryNotifier implements Notifier
             notificationMap.add( id, notification );
 
             NotificationLoggerUtil.log( log, level, message );
-        }
-
-        return this;
-    }
-
-    @Override
-    public Notifier update( JobConfiguration id, String message )
-    {
-        return update( id, NotificationLevel.INFO, message, false );
-    }
-
-    @Override
-    public Notifier update( JobConfiguration id, String message, boolean completed )
-    {
-        return update( id, NotificationLevel.INFO, message, completed );
-    }
-
-    @Override
-    public Notifier update( JobConfiguration id, NotificationLevel level, String message )
-    {
-        return update( id, level, message, false );
-    }
-
-    @Override
-    public Notifier update( JobConfiguration id, NotificationLevel level, String message, boolean completed )
-    {
-        if ( id != null && !(level != null && level.isOff()) )
-        {
-            notify( id, level, message, completed );
         }
 
         return this;
@@ -138,14 +99,8 @@ public class InMemoryNotifier implements Notifier
     }
 
     @Override
-    public Notifier addJobSummary( JobConfiguration id, Object jobSummary, Class<?> jobSummaryType )
-    {
-        return addJobSummary( id, NotificationLevel.INFO, jobSummary, jobSummaryType );
-    }
-
-    @Override
-    public Notifier addJobSummary( JobConfiguration id, NotificationLevel level, Object jobSummary,
-        Class<?> jobSummaryType )
+    public <T> Notifier addJobSummary( JobConfiguration id, NotificationLevel level, T jobSummary,
+        Class<T> jobSummaryType )
     {
         if ( id != null && !(level != null && level.isOff()) )
         {

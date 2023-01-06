@@ -30,10 +30,9 @@ package org.hisp.dhis.predictor;
 import static org.hisp.dhis.system.deletion.DeletionVeto.ACCEPT;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import org.hisp.dhis.category.CategoryCombo;
 import org.hisp.dhis.category.CategoryOptionCombo;
@@ -47,7 +46,7 @@ import org.springframework.stereotype.Component;
  * @author Ken Haase
  */
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PredictorDeletionHandler extends JdbcDeletionHandler
 {
     private static final DeletionVeto VETO = new DeletionVeto( Predictor.class );
@@ -95,30 +94,22 @@ public class PredictorDeletionHandler extends JdbcDeletionHandler
 
     private DeletionVeto allowDeleteDataElement( DataElement dataElement )
     {
-        List<Predictor> predictors = predictorService.getAllPredictors();
-
-        for ( Predictor predictor : predictors )
-        {
-            if ( dataElement.typedEquals( predictor.getOutput() ) )
-            {
-                return new DeletionVeto( Predictor.class, predictor.getName() );
-            }
-        }
-
-        return ACCEPT;
+        String predictorName = firstMatch( "select p.name from predictor p where p.generatoroutput = :dataElementId",
+            Map.of( "dataElementId", dataElement.getId() ) );
+        return predictorName == null ? ACCEPT : new DeletionVeto( Predictor.class, predictorName );
     }
 
     private DeletionVeto allowDeleteCategoryOptionCombo( CategoryOptionCombo optionCombo )
     {
-        return vetoIfExists( VETO, "select count(*) from predictor where generatoroutputcombo=:id",
+        return vetoIfExists( VETO, "select 1 from predictor where generatoroutputcombo=:id limit 1",
             Map.of( "id", optionCombo.getId() ) );
     }
 
     private DeletionVeto allowDeleteCategoryCombo( CategoryCombo categoryCombo )
     {
-        return vetoIfExists( VETO, "select count(*) from predictor p where exists ("
+        return vetoIfExists( VETO, "select 1 from predictor p where exists ("
             + "select 1 from categorycombos_optioncombos co"
-            + " where co.categorycomboid=:id and co.categoryoptioncomboid=p.generatoroutputcombo"
+            + " where co.categorycomboid=:id and co.categoryoptioncomboid=p.generatoroutputcombo limit 1"
             + ")", Map.of( "id", categoryCombo.getId() ) );
     }
 }

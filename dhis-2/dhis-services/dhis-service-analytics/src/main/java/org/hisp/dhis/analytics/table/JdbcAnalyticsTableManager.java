@@ -27,7 +27,6 @@
  */
 package org.hisp.dhis.analytics.table;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.hisp.dhis.analytics.ColumnDataType.CHARACTER_11;
 import static org.hisp.dhis.analytics.ColumnDataType.DOUBLE;
 import static org.hisp.dhis.analytics.ColumnDataType.INTEGER;
@@ -50,6 +49,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.analytics.AggregationType;
+import org.hisp.dhis.analytics.AnalyticsExportSettings;
 import org.hisp.dhis.analytics.AnalyticsTable;
 import org.hisp.dhis.analytics.AnalyticsTableColumn;
 import org.hisp.dhis.analytics.AnalyticsTableHookService;
@@ -84,8 +84,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -110,30 +108,30 @@ import com.google.common.collect.Sets;
 public class JdbcAnalyticsTableManager
     extends AbstractJdbcTableManager
 {
-    public JdbcAnalyticsTableManager( IdentifiableObjectManager idObjectManager,
-        OrganisationUnitService organisationUnitService, CategoryService categoryService,
-        SystemSettingManager systemSettingManager, DataApprovalLevelService dataApprovalLevelService,
-        ResourceTableService resourceTableService, AnalyticsTableHookService tableHookService,
-        StatementBuilder statementBuilder, PartitionManager partitionManager, DatabaseInfo databaseInfo,
-        JdbcTemplate jdbcTemplate )
-    {
-        super( idObjectManager, organisationUnitService, categoryService, systemSettingManager,
-            dataApprovalLevelService, resourceTableService, tableHookService, statementBuilder, partitionManager,
-            databaseInfo, jdbcTemplate );
-    }
-
-    private static final List<AnalyticsTableColumn> FIXED_COLS = ImmutableList.of(
+    private static final List<AnalyticsTableColumn> FIXED_COLS = List.of(
         new AnalyticsTableColumn( quote( "dx" ), CHARACTER_11, NOT_NULL, "de.uid" ),
         new AnalyticsTableColumn( quote( "co" ), CHARACTER_11, NOT_NULL, "co.uid" )
-            .withIndexColumns( newArrayList( quote( "dx" ), quote( "co" ) ) ),
+            .withIndexColumns( List.of( quote( "dx" ), quote( "co" ) ) ),
         new AnalyticsTableColumn( quote( "ao" ), CHARACTER_11, NOT_NULL, "ao.uid" )
-            .withIndexColumns( newArrayList( quote( "dx" ), quote( "ao" ) ) ),
+            .withIndexColumns( List.of( quote( "dx" ), quote( "ao" ) ) ),
         new AnalyticsTableColumn( quote( "pestartdate" ), TIMESTAMP, "pe.startdate" ),
         new AnalyticsTableColumn( quote( "peenddate" ), TIMESTAMP, "pe.enddate" ),
         new AnalyticsTableColumn( quote( "year" ), INTEGER, NOT_NULL, "ps.year" ),
         new AnalyticsTableColumn( quote( "pe" ), TEXT, NOT_NULL, "ps.iso" ),
         new AnalyticsTableColumn( quote( "ou" ), CHARACTER_11, NOT_NULL, "ou.uid" ),
         new AnalyticsTableColumn( quote( "oulevel" ), INTEGER, "ous.level" ) );
+
+    public JdbcAnalyticsTableManager( IdentifiableObjectManager idObjectManager,
+        OrganisationUnitService organisationUnitService, CategoryService categoryService,
+        SystemSettingManager systemSettingManager, DataApprovalLevelService dataApprovalLevelService,
+        ResourceTableService resourceTableService, AnalyticsTableHookService tableHookService,
+        StatementBuilder statementBuilder, PartitionManager partitionManager, DatabaseInfo databaseInfo,
+        JdbcTemplate jdbcTemplate, AnalyticsExportSettings analyticsExportSettings )
+    {
+        super( idObjectManager, organisationUnitService, categoryService, systemSettingManager,
+            dataApprovalLevelService, resourceTableService, tableHookService, statementBuilder, partitionManager,
+            databaseInfo, jdbcTemplate, analyticsExportSettings );
+    }
 
     // -------------------------------------------------------------------------
     // Implementation
@@ -153,7 +151,7 @@ public class JdbcAnalyticsTableManager
             ? getLatestAnalyticsTable( params, getDimensionColumns(), getValueColumns() )
             : getRegularAnalyticsTable( params, getDataYears( params ), getDimensionColumns(), getValueColumns() );
 
-        return table.hasPartitionTables() ? newArrayList( table ) : newArrayList();
+        return table.hasPartitionTables() ? List.of( table ) : List.of();
     }
 
     @Override
@@ -221,33 +219,26 @@ public class JdbcAnalyticsTableManager
     @Override
     protected List<String> getPartitionChecks( AnalyticsTablePartition partition )
     {
-        return partition.isLatestPartition() ? newArrayList()
-            : newArrayList(
-                "year = " + partition.getYear() + "",
+        return partition.isLatestPartition() ? List.of()
+            : List.of( "year = " + partition.getYear() + "",
                 "pestartdate < '" + DateUtils.getMediumDateString( partition.getEndDate() ) + "'" );
-    }
-
-    @Override
-    protected String getPartitionColumn()
-    {
-        return "year";
     }
 
     @Override
     protected void populateTable( AnalyticsTableUpdateParams params, AnalyticsTablePartition partition )
     {
-        final String dbl = statementBuilder.getDoubleColumnType();
-        final boolean skipDataTypeValidation = systemSettingManager
+        String dbl = statementBuilder.getDoubleColumnType();
+        boolean skipDataTypeValidation = systemSettingManager
             .getBoolSetting( SettingKey.SKIP_DATA_TYPE_VALIDATION_IN_ANALYTICS_TABLE_EXPORT );
-        final boolean includeZeroValues = systemSettingManager
+        boolean includeZeroValues = systemSettingManager
             .getBoolSetting( SettingKey.INCLUDE_ZERO_VALUES_IN_ANALYTICS );
 
-        final String numericClause = skipDataTypeValidation ? ""
+        String numericClause = skipDataTypeValidation ? ""
             : ("and dv.value " + statementBuilder.getRegexpMatch() + " '" + MathUtils.NUMERIC_LENIENT_REGEXP + "' ");
-        final String zeroValueCondition = includeZeroValues ? " or de.zeroissignificant = true" : "";
-        final String zeroValueClause = "(dv.value != '0' or de.aggregationtype in ('" + AggregationType.AVERAGE + "','"
+        String zeroValueCondition = includeZeroValues ? " or de.zeroissignificant = true" : "";
+        String zeroValueClause = "(dv.value != '0' or de.aggregationtype in ('" + AggregationType.AVERAGE + "','"
             + AggregationType.AVERAGE_SUM_ORG_UNIT + "')" + zeroValueCondition + ") ";
-        final String intClause = zeroValueClause + numericClause;
+        String intClause = zeroValueClause + numericClause;
 
         populateTable( params, partition, "cast(dv.value as " + dbl + ")", "null", ValueType.NUMERIC_TYPES, intClause );
         populateTable( params, partition, "1", "null", Sets.newHashSet( ValueType.BOOLEAN, ValueType.TRUE_ONLY ),
@@ -268,12 +259,12 @@ public class JdbcAnalyticsTableManager
     private void populateTable( AnalyticsTableUpdateParams params, AnalyticsTablePartition partition,
         String valueExpression, String textValueExpression, Set<ValueType> valueTypes, String whereClause )
     {
-        final String tableName = partition.getTempTableName();
-        final String valTypes = TextUtils.getQuotedCommaDelimitedString( ObjectUtils.asStringList( valueTypes ) );
-        final boolean respectStartEndDates = systemSettingManager
+        String tableName = partition.getTempTableName();
+        String valTypes = TextUtils.getQuotedCommaDelimitedString( ObjectUtils.asStringList( valueTypes ) );
+        boolean respectStartEndDates = systemSettingManager
             .getBoolSetting( SettingKey.RESPECT_META_DATA_START_END_DATES_IN_ANALYTICS_TABLE_EXPORT );
-        final String approvalClause = getApprovalJoinClause( partition.getYear() );
-        final String partitionClause = partition.isLatestPartition()
+        String approvalClause = getApprovalJoinClause( partition.getYear() );
+        String partitionClause = partition.isLatestPartition()
             ? "and dv.lastupdated >= '" + getLongDateString( partition.getStartDate() ) + "' "
             : "and ps.year = " + partition.getYear() + " ";
 
@@ -463,7 +454,7 @@ public class JdbcAnalyticsTableManager
      */
     private List<AnalyticsTableColumn> getValueColumns()
     {
-        return Lists.newArrayList(
+        return List.of(
             new AnalyticsTableColumn( quote( "daysxvalue" ), DOUBLE, "daysxvalue" ),
             new AnalyticsTableColumn( quote( "daysno" ), INTEGER, NOT_NULL, "daysno" ),
             new AnalyticsTableColumn( quote( "value" ), DOUBLE, "value" ),
@@ -521,7 +512,7 @@ public class JdbcAnalyticsTableManager
     @Override
     public void vacuumTables( AnalyticsTablePartition partition )
     {
-        final String sql = statementBuilder.getVacuum( partition.getTempTableName() );
+        String sql = statementBuilder.getVacuum( partition.getTempTableName() );
 
         log.debug( "Vacuum SQL: " + sql );
 

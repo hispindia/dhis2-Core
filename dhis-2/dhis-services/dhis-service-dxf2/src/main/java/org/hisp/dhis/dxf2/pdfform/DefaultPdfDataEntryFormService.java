@@ -27,12 +27,14 @@
  */
 package org.hisp.dhis.dxf2.pdfform;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 
 import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.common.ValueType;
@@ -45,16 +47,9 @@ import org.hisp.dhis.option.Option;
 import org.hisp.dhis.option.OptionService;
 import org.hisp.dhis.option.OptionSet;
 import org.hisp.dhis.period.CalendarPeriodType;
-import org.hisp.dhis.period.FinancialAprilPeriodType;
-import org.hisp.dhis.period.FinancialJulyPeriodType;
-import org.hisp.dhis.period.FinancialOctoberPeriodType;
-import org.hisp.dhis.period.MonthlyPeriodType;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodType;
-import org.hisp.dhis.period.QuarterlyPeriodType;
-import org.hisp.dhis.period.SixMonthlyAprilPeriodType;
-import org.hisp.dhis.period.SixMonthlyPeriodType;
-import org.hisp.dhis.period.YearlyPeriodType;
+import org.hisp.dhis.period.PeriodTypeEnum;
 import org.hisp.dhis.program.ProgramStage;
 import org.hisp.dhis.program.ProgramStageSection;
 import org.hisp.dhis.program.ProgramStageService;
@@ -62,7 +57,6 @@ import org.hisp.dhis.util.DateUtils;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import com.google.common.base.Preconditions;
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -85,6 +79,7 @@ import com.lowagie.text.pdf.TextField;
 /**
  * @author James Chang
  */
+@RequiredArgsConstructor
 @Service( "pdfDataEntryFormService" )
 @Scope( "prototype" )
 public class DefaultPdfDataEntryFormService
@@ -116,22 +111,11 @@ public class DefaultPdfDataEntryFormService
     // TODO this variable should not have class scope
     private I18nFormat format;
 
-    private DataSetService dataSetService;
+    private final DataSetService dataSetService;
 
-    private ProgramStageService programStageService;
+    private final ProgramStageService programStageService;
 
-    private OptionService optionService;
-
-    public DefaultPdfDataEntryFormService( DataSetService dataSetService, ProgramStageService programStageService,
-        OptionService optionService )
-    {
-        this.dataSetService = dataSetService;
-        this.programStageService = programStageService;
-        this.optionService = optionService;
-        Preconditions.checkNotNull( dataSetService );
-        Preconditions.checkNotNull( programStageService );
-        Preconditions.checkNotNull( optionService );
-    }
+    private final OptionService optionService;
 
     // -------------------------------------------------------------------------
     // PdfDataEntryFormService implementation
@@ -499,7 +483,7 @@ public class DefaultPdfDataEntryFormService
     private List<Period> getProgramStagePeriodList()
         throws ParseException
     {
-        PeriodType periodType = PeriodType.getPeriodTypeByName( MonthlyPeriodType.NAME );
+        PeriodType periodType = PeriodType.getPeriodType( PeriodTypeEnum.MONTHLY );
 
         Period period = setPeriodDateRange( periodType );
 
@@ -813,13 +797,14 @@ public class DefaultPdfDataEntryFormService
         int startYear = currYear - PERIODRANGE_PREVYEARS;
         int endYear = currYear + PERIODRANGE_FUTUREYEARS;
 
-        if ( periodType.getName().equals( QuarterlyPeriodType.NAME )
-            || periodType.getName().equals( SixMonthlyPeriodType.NAME )
-            || periodType.getName().equals( SixMonthlyAprilPeriodType.NAME )
-            || periodType.getName().equals( YearlyPeriodType.NAME )
-            || periodType.getName().equals( FinancialAprilPeriodType.NAME )
-            || periodType.getName().equals( FinancialJulyPeriodType.NAME )
-            || periodType.getName().equals( FinancialOctoberPeriodType.NAME ) )
+        if ( periodType.getName().equals( PeriodTypeEnum.QUARTERLY.getName() )
+            || periodType.getName().equals( PeriodTypeEnum.SIX_MONTHLY.getName() )
+            || periodType.getName().equals( PeriodTypeEnum.SIX_MONTHLY_APRIL.getName() )
+            || periodType.getName().equals( PeriodTypeEnum.YEARLY.getName() )
+            || periodType.getName().equals( PeriodTypeEnum.FINANCIAL_APRIL.getName() )
+            || periodType.getName().equals( PeriodTypeEnum.FINANCIAL_JULY.getName() )
+            || periodType.getName().equals( PeriodTypeEnum.FINANCIAL_OCT.getName() )
+            || periodType.getName().equals( PeriodTypeEnum.FINANCIAL_NOV.getName() ) )
         {
             startYear = currYear - PERIODRANGE_PREVYEARS_YEARLY;
             endYear = currYear + PERIODRANGE_FUTUREYEARS_YEARLY;

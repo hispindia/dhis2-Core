@@ -33,6 +33,8 @@ import java.util.Date;
 import org.hibernate.SessionFactory;
 import org.hisp.dhis.commons.jackson.config.geometry.GeometrySerializer;
 import org.hisp.dhis.commons.jackson.config.geometry.JtsXmlModule;
+import org.hisp.dhis.dataexchange.aggregate.Api;
+import org.hisp.dhis.dataexchange.aggregate.ApiSerializer;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
@@ -42,6 +44,7 @@ import org.springframework.context.annotation.Primary;
 
 import com.bedatadriven.jackson.datatype.jts.JtsModule;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -117,6 +120,12 @@ public class JacksonObjectMapperConfig
         return xmlMapper;
     }
 
+    @Bean
+    public CsvMapper csvMapper()
+    {
+        return csvMapper;
+    }
+
     public static ObjectMapper staticJsonMapper()
     {
         return jsonMapper;
@@ -142,7 +151,7 @@ public class JacksonObjectMapperConfig
     }
 
     /**
-     * Shared configuration for all Jackson mappers
+     * Provides shared configuration for all Jackson mappers.
      *
      * @param objectMapper an {@see ObjectMapper}
      * @param autoDetectGetters if true, enable `autoDetectGetters`
@@ -156,9 +165,9 @@ public class JacksonObjectMapperConfig
         module.addDeserializer( JsonPointer.class, new JsonPointerStdDeserializer() );
         module.addSerializer( Date.class, new WriteDateStdSerializer() );
         module.addSerializer( JsonPointer.class, new JsonPointerStdSerializer() );
+        module.addSerializer( Api.class, new ApiSerializer() );
 
-        // Registering a custom Instant serializer/deserializer for DTOs using
-        // Instant
+        // Registering a custom Instant serializer/deserializer for DTOs
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         javaTimeModule.addSerializer( Instant.class, new WriteInstantStdSerializer() );
         javaTimeModule.addDeserializer( Instant.class, new ParseInstantStdDeserializer() );
@@ -198,6 +207,14 @@ public class JacksonObjectMapperConfig
     private static CsvMapper configureCsvMapper( CsvMapper mapper )
     {
         mapper.disable( CsvParser.Feature.FAIL_ON_MISSING_COLUMNS );
+        mapper.configure( JsonGenerator.Feature.IGNORE_UNKNOWN, true );
+
+        mapper.registerModule( new SimpleModule()
+            .addSerializer( Date.class, new WriteDateStdSerializer() )
+            .addSerializer( Instant.class, new WriteInstantStdSerializer() ) );
+
+        mapper.registerModule( new Jdk8Module() );
+
         return mapper;
     }
 }

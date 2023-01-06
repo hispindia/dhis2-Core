@@ -27,7 +27,6 @@
  */
 package org.hisp.dhis.analytics.data;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.hisp.dhis.analytics.DataQueryParams.COMPLETENESS_DIMENSION_TYPES;
 import static org.hisp.dhis.common.DimensionalObject.CATEGORYOPTIONCOMBO_DIM_ID;
 import static org.hisp.dhis.common.DimensionalObject.DATA_X_DIM_ID;
@@ -39,6 +38,7 @@ import static org.hisp.dhis.common.IdentifiableObjectUtils.getUids;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.hisp.dhis.analytics.DataQueryParams;
@@ -47,14 +47,10 @@ import org.hisp.dhis.analytics.QueryValidator;
 import org.hisp.dhis.common.BaseDimensionalObject;
 import org.hisp.dhis.common.DimensionalItemObject;
 import org.hisp.dhis.common.IllegalQueryException;
-import org.hisp.dhis.common.MaintenanceModeException;
 import org.hisp.dhis.commons.filter.FilterUtils;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.feedback.ErrorCode;
 import org.hisp.dhis.feedback.ErrorMessage;
-import org.hisp.dhis.program.ProgramDataElementDimensionItem;
-import org.hisp.dhis.setting.SettingKey;
-import org.hisp.dhis.setting.SystemSettingManager;
 import org.hisp.dhis.system.filter.AggregatableDataElementFilter;
 import org.springframework.stereotype.Component;
 
@@ -65,22 +61,10 @@ import com.google.common.collect.Lists;
  */
 @Slf4j
 @Component( "org.hisp.dhis.analytics.QueryValidator" )
+@RequiredArgsConstructor
 public class DefaultQueryValidator
     implements QueryValidator
 {
-    private final SystemSettingManager systemSettingManager;
-
-    public DefaultQueryValidator( SystemSettingManager systemSettingManager )
-    {
-        checkNotNull( systemSettingManager );
-
-        this.systemSettingManager = systemSettingManager;
-    }
-
-    // -------------------------------------------------------------------------
-    // QueryValidator implementation
-    // -------------------------------------------------------------------------
-
     @Override
     public void validate( DataQueryParams params )
         throws IllegalQueryException
@@ -107,10 +91,9 @@ public class DefaultQueryValidator
             throw new IllegalQueryException( ErrorCode.E7100 );
         }
 
-        final List<DimensionalItemObject> dataElements = Lists.newArrayList( params.getDataElements() );
-        params.getProgramDataElements()
-            .forEach( pde -> dataElements.add( ((ProgramDataElementDimensionItem) pde).getDataElement() ) );
-        final List<DataElement> nonAggDataElements = FilterUtils.inverseFilter( asTypedList( dataElements ),
+        List<DimensionalItemObject> dataElements = Lists
+            .newArrayList( params.getDataElementsOperandsProgramDataElements() );
+        List<DataElement> nonAggDataElements = FilterUtils.inverseFilter( asTypedList( dataElements ),
             AggregatableDataElementFilter.INSTANCE );
 
         if ( !params.isSkipDataDimensionValidation() )
@@ -239,17 +222,4 @@ public class DefaultQueryValidator
             throw new IllegalQueryException( violation );
         }
     }
-
-    @Override
-    public void validateMaintenanceMode()
-        throws MaintenanceModeException
-    {
-        boolean maintenance = systemSettingManager.getBoolSetting( SettingKey.ANALYTICS_MAINTENANCE_MODE );
-
-        if ( maintenance )
-        {
-            throw new MaintenanceModeException( "Analytics engine is in maintenance mode, try again later" );
-        }
-    }
-
 }

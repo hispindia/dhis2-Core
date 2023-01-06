@@ -57,7 +57,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -108,7 +108,7 @@ import com.google.common.collect.Sets;
  * @author bobj
  */
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service( "org.hisp.dhis.dxf2.AdxDataService" )
 public class DefaultAdxDataService
     implements AdxDataService
@@ -147,7 +147,10 @@ public class DefaultAdxDataService
         {
             params.getDataSets().addAll( getByUidOrCode( DataSet.class, urlParams.getDataSet() ) );
         }
-
+        if ( !isEmpty( urlParams.getDataElement() ) )
+        {
+            params.getDataElements().addAll( getByUidOrCode( DataElement.class, urlParams.getDataElement() ) );
+        }
         if ( !isEmpty( urlParams.getPeriod() ) )
         {
             params.getPeriods().addAll( periodService.reloadIsoPeriods( new ArrayList<>( urlParams.getPeriod() ) ) );

@@ -92,7 +92,7 @@ public class DefaultSchemaService
 
     private void init()
     {
-        register( new AnalyticsDataExchangeSchemaDescriptor() );
+        register( new AggregateDataExchangeSchemaDescriptor() );
         register( new AnalyticsTableHookSchemaDescriptor() );
         register( new AttributeSchemaDescriptor() );
         register( new AttributeValueSchemaDescriptor() );
@@ -120,6 +120,7 @@ public class DefaultSchemaService
         register( new EventReportSchemaDescriptor() );
         register( new EventVisualizationSchemaDescriptor() );
         register( new ExpressionSchemaDescriptor() );
+        register( new ExpressionDimensionItemSchemaDescriptor() );
         register( new FileResourceSchemaDescriptor() );
         register( new IconSchemaDescriptor() );
         register( new IndicatorGroupSchemaDescriptor() );

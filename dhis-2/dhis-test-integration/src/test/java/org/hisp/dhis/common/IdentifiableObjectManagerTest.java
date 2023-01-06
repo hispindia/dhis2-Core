@@ -100,9 +100,9 @@ class IdentifiableObjectManagerTest extends TransactionalIntegrationTest
     {
         DataElement dataElementA = createDataElement( 'A' );
         dataElementService.addDataElement( dataElementA );
-        assertEquals( dataElementA, idObjectManager.get( DataDimensionItem.DATA_DIMENSION_CLASSES,
+        assertEquals( dataElementA, idObjectManager.get( DataDimensionItem.DATA_DIM_CLASSES,
             IdScheme.CODE, dataElementA.getCode() ) );
-        assertEquals( dataElementA, idObjectManager.get( DataDimensionItem.DATA_DIMENSION_CLASSES,
+        assertEquals( dataElementA, idObjectManager.get( DataDimensionItem.DATA_DIM_CLASSES,
             IdScheme.UID, dataElementA.getUid() ) );
     }
 
@@ -409,29 +409,35 @@ class IdentifiableObjectManagerTest extends TransactionalIntegrationTest
             "F_USERGROUP_PUBLIC_ADD" );
         User user = makeUser( "B" );
         idObjectManager.save( user );
+        idObjectManager.save( loginUser );
+
+        // Create userGroupA contains loginUser
         UserGroup userGroup = createUserGroup( 'A', Sets.newHashSet( loginUser ) );
         idObjectManager.save( userGroup );
-        user.getGroups().add( userGroup );
-        loginUser.getGroups().add( userGroup );
-        idObjectManager.save( loginUser );
-        idObjectManager.save( user );
-        idObjectManager.save( createDataElement( 'A' ) );
-        idObjectManager.save( createDataElement( 'B' ) );
-        idObjectManager.save( createDataElement( 'C' ) );
-        idObjectManager.save( createDataElement( 'D' ) );
+
+        // Create sharing with publicAccess = '--------' and shared to
+        // userGroupA
+        Sharing sharing = Sharing.builder().owner( user.getUid() ).publicAccess( AccessStringHelper.DEFAULT ).build();
+        sharing.addUserGroupAccess( new UserGroupAccess( userGroup, AccessStringHelper.READ ) );
+
+        DataElement dataElementA = createDataElement( 'A' );
+        dataElementA.setSharing( sharing );
+        DataElement dataElementB = createDataElement( 'B' );
+        dataElementA.setSharing( sharing );
+        DataElement dataElementC = createDataElement( 'C' );
+        dataElementA.setSharing( sharing );
+        DataElement dataElementD = createDataElement( 'D' );
+        dataElementA.setSharing( sharing );
+
+        idObjectManager.save( dataElementA );
+        idObjectManager.save( dataElementB );
+        idObjectManager.save( dataElementC );
+        idObjectManager.save( dataElementD );
+
+        // query with loginUser
         assertEquals( 4, idObjectManager.getCount( DataElement.class ) );
         assertEquals( 4, idObjectManager.getAll( DataElement.class ).size() );
-        List<DataElement> dataElements = new ArrayList<>( idObjectManager.getAll( DataElement.class ) );
-        for ( DataElement dataElement : dataElements )
-        {
-            dataElement.getSharing().setOwner( user );
-            dataElement.getSharing().setPublicAccess( AccessStringHelper.newInstance().build() );
-            dataElement.getSharing().addUserGroupAccess( new UserGroupAccess( userGroup, AccessStringHelper.READ ) );
-            sessionFactory.getCurrentSession().update( dataElement );
-        }
-        idObjectManager.flush();
-        assertEquals( 4, idObjectManager.getCount( DataElement.class ) );
-        assertEquals( 4, idObjectManager.getAll( DataElement.class ).size() );
+
     }
 
     @Test
@@ -460,9 +466,9 @@ class IdentifiableObjectManagerTest extends TransactionalIntegrationTest
     }
 
     @Test
-    void getByUidWithNull()
+    void getByUidWithEmpty()
     {
-        assertIsEmpty( idObjectManager.getByUid( DataElement.class, null ) );
+        assertIsEmpty( idObjectManager.getByUid( DataElement.class, List.of() ) );
     }
 
     @Test
@@ -482,9 +488,9 @@ class IdentifiableObjectManagerTest extends TransactionalIntegrationTest
     }
 
     @Test
-    void loadByUidNullTest()
+    void loadByUidWithEmpty()
     {
-        assertIsEmpty( idObjectManager.loadByUid( DataElement.class, null ) );
+        assertIsEmpty( idObjectManager.loadByUid( DataElement.class, List.of() ) );
     }
 
     @Test
@@ -665,12 +671,12 @@ class IdentifiableObjectManagerTest extends TransactionalIntegrationTest
         sharing.setUserGroupAccess( Set.of( new UserGroupAccess( "rw------", userGroupA.getUid() ) ) );
         de.setSharing( sharing );
         idObjectManager.save( de, false );
-        de = idObjectManager.get( de.getUid() );
+        de = idObjectManager.get( DataElement.class, de.getUid() );
         assertEquals( 1, de.getSharing().getUserGroups().size() );
         idObjectManager.delete( userGroupA );
         idObjectManager.removeUserGroupFromSharing( userGroupUid );
         dbmsManager.clearSession();
-        de = idObjectManager.get( de.getUid() );
+        de = idObjectManager.get( DataElement.class, de.getUid() );
         assertEquals( 0, de.getSharing().getUserGroups().size() );
     }
 

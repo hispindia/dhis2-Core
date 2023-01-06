@@ -49,6 +49,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.common.AsyncTaskExecutor;
 import org.hisp.dhis.common.DhisApiVersion;
 import org.hisp.dhis.common.IdentifiableObject;
+import org.hisp.dhis.common.OpenApi;
 import org.hisp.dhis.commons.util.StreamUtils;
 import org.hisp.dhis.dxf2.common.TranslateParams;
 import org.hisp.dhis.dxf2.csv.CsvImportClass;
@@ -89,13 +90,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * @author Morten Olav Hansen <mortenoh@gmail.com>
  */
+@OpenApi.Tags( "metadata" )
 @Controller
 @RequestMapping( "/metadata" )
 @ApiVersion( { DhisApiVersion.DEFAULT, DhisApiVersion.ALL } )
@@ -218,30 +218,11 @@ public class MetadataImportExportController
         return Arrays.asList( CsvImportClass.values() );
     }
 
-    @GetMapping( value = "", params = "download" )
-    public ResponseEntity<JsonNode> getMetadataDownload(
-        @RequestParam( required = false, defaultValue = "false" ) boolean translate,
-        @RequestParam( required = false ) String locale,
-        @RequestParam( defaultValue = "false" ) boolean download )
-    {
-        if ( translate )
-        {
-            TranslateParams translateParams = new TranslateParams( true, locale );
-            setTranslationParams( translateParams );
-        }
-
-        MetadataExportParams params = metadataExportService.getParamsFromMap( contextService.getParameterValuesMap() );
-        metadataExportService.validate( params );
-
-        ObjectNode rootNode = metadataExportService.getMetadataAsObjectNode( params );
-
-        return MetadataExportControllerUtils.createJsonNodeResponseEntity( rootNode, download );
-    }
-
     @GetMapping
     public ResponseEntity<MetadataExportParams> getMetadata(
         @RequestParam( required = false, defaultValue = "false" ) boolean translate,
-        @RequestParam( required = false ) String locale )
+        @RequestParam( required = false ) String locale,
+        @RequestParam( defaultValue = "false" ) boolean download )
     {
         if ( translate )
         {

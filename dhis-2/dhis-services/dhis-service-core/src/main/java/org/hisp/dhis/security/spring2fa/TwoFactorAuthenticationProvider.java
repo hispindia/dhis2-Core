@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.LongValidator;
 import org.hisp.dhis.security.SecurityService;
-import org.hisp.dhis.security.SecurityUtils;
+import org.hisp.dhis.security.TwoFactoryAuthenticationUtils;
 import org.hisp.dhis.user.CurrentUserDetails;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserService;
@@ -84,6 +84,14 @@ public class TwoFactorAuthenticationProvider extends DaoAuthenticationProvider
             throw new BadCredentialsException( "Invalid username or password" );
         }
 
+        if ( user.isExternalAuth() )
+        {
+            log.info(
+                String.format( "User '%s' is using external authentication, password login attempt aborted",
+                    username ) );
+            throw new BadCredentialsException( "Invalid login method, user is using external authentication." );
+        }
+
         // -------------------------------------------------------------------------
         // Check two-factor authentication
         // -------------------------------------------------------------------------
@@ -130,7 +138,7 @@ public class TwoFactorAuthenticationProvider extends DaoAuthenticationProvider
             throw new LockedException( String.format( "IP is temporarily locked: %s", ip ) );
         }
 
-        if ( !LongValidator.getInstance().isValid( code ) || !SecurityUtils.verify( user, code ) )
+        if ( !LongValidator.getInstance().isValid( code ) || !TwoFactoryAuthenticationUtils.verify( user, code ) )
         {
             log.debug(
                 String.format( "Two-factor authentication failure for user: %s", user.getUsername() ) );

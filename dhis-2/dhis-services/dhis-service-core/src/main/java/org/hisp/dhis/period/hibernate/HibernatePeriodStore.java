@@ -60,7 +60,6 @@ import org.springframework.stereotype.Repository;
  * Implements the PeriodStore interface.
  *
  * @author Torgeir Lorange Ostby
- * @version $Id: HibernatePeriodStore.java 5983 2008-10-17 17:42:44Z larshelg $
  */
 @Repository( "org.hisp.dhis.period.PeriodStore" )
 @Slf4j
@@ -68,7 +67,6 @@ public class HibernatePeriodStore
     extends HibernateIdentifiableObjectStore<Period>
     implements PeriodStore
 {
-
     private final Cache<Long> periodIdCache;
 
     public HibernatePeriodStore( SessionFactory sessionFactory, JdbcTemplate jdbcTemplate,

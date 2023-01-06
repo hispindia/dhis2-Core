@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import org.hisp.dhis.common.DimensionalItemId;
 import org.hisp.dhis.dataelement.DataElementGroup;
@@ -46,9 +46,8 @@ import com.google.common.base.Joiner;
 /**
  * @author Dusan Bernat
  */
-
 @Service( "org.hisp.dhis.analytics.resolver.DataElementGroupResolver" )
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class DataElementGroupResolver implements ExpressionResolver
 {
     private final ExpressionService expressionService;

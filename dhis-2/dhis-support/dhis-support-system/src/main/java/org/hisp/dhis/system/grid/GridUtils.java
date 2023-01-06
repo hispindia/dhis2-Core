@@ -64,6 +64,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -71,8 +72,11 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.velocity.VelocityContext;
 import org.hisp.dhis.common.DimensionalItemObject;
 import org.hisp.dhis.common.DimensionalObjectUtils;
+import org.hisp.dhis.common.DxfNamespaces;
 import org.hisp.dhis.common.Grid;
 import org.hisp.dhis.common.GridHeader;
+import org.hisp.dhis.common.GridResponse;
+import org.hisp.dhis.common.Pager;
 import org.hisp.dhis.common.Reference;
 import org.hisp.dhis.commons.collection.ListUtils;
 import org.hisp.dhis.commons.util.Encoder;
@@ -134,7 +138,7 @@ public class GridUtils
 
     private static final String HTML_INLINE_CSS_TEMPLATE = "grid-html-inline-css.vm";
 
-    private static final String ATTR_GRID = "grid";
+    private static final String TAG_GRID = "grid";
 
     private static final String ATTR_TITLE = "title";
 
@@ -167,6 +171,8 @@ public class GridUtils
     private static final String ATTR_REF = "ref";
 
     private static final String ATTR_FIELD = "field";
+
+    private static final String DECIMAL_DIGITS_MASK = "#.##########";
 
     /**
      * Writes a PDF representation of the given Grid to the given OutputStream.
@@ -346,6 +352,8 @@ public class GridUtils
 
         rowNumber++;
 
+        CellStyle numberCellStyle = getNumberCellStyle( sheet );
+
         for ( List<Object> row : grid.getVisibleRows() )
         {
             Row xlsRow = sheet.createRow( rowNumber );
@@ -358,8 +366,9 @@ public class GridUtils
             {
                 if ( column != null && Number.class.isAssignableFrom( column.getClass() ) )
                 {
-                    xlsRow.createCell( columnIndex++, CellType.STRING )
-                        .setCellValue( String.valueOf( maybeFormat( column ) ) );
+                    Cell cell = xlsRow.createCell( columnIndex++, CellType.NUMERIC );
+                    cell.setCellStyle( numberCellStyle );
+                    cell.setCellValue( ((Number) column).doubleValue() );
                 }
                 else
                 {
@@ -370,6 +379,23 @@ public class GridUtils
 
             rowNumber++;
         }
+    }
+
+    /**
+     * Returns a {@CellStyle} object with a default number format/mask.
+     *
+     * @param sheet the {@link Sheet}
+     * @return the cell style object
+     */
+    private static CellStyle getNumberCellStyle( Sheet sheet )
+    {
+        Workbook wb = sheet.getWorkbook();
+        DataFormat format = wb.createDataFormat();
+
+        CellStyle cs = wb.createCellStyle();
+        cs.setDataFormat( format.getFormat( DECIMAL_DIGITS_MASK ) );
+
+        return cs;
     }
 
     /**
@@ -467,15 +493,58 @@ public class GridUtils
         render( grid, null, writer, HTML_INLINE_CSS_TEMPLATE );
     }
 
+    public static void toXml( GridResponse response, OutputStream out )
+    {
+        XMLWriter writer = XMLFactory.getXMLWriter( out );
+        writer.openDocument();
+
+        writer.openElement( "metadata", "xmlns", DxfNamespaces.DXF_2_0 );
+        Pager pager = response.getPager();
+        if ( pager != null )
+        {
+            writer.openElement( "pager" );
+            writer.writeElement( "page", "" + pager.getPage() );
+            writer.writeElement( "pageCount", "" + pager.getPageCount() );
+            writer.writeElement( "total", "" + pager.getTotal() );
+            writer.writeElement( "pageSize", "" + pager.getPageSize() );
+            String nextPage = pager.getNextPage();
+            if ( nextPage != null )
+            {
+                writer.writeElement( "nextPage", nextPage );
+            }
+            String prevPage = pager.getPrevPage();
+            if ( prevPage != null )
+            {
+                writer.writeElement( "prevPage", prevPage );
+            }
+            writer.closeElement(); // pager
+        }
+        toXml( response.getListGrid(), writer, "listGrid" );
+
+        writer.closeElement(); // metadata
+        writer.closeDocument();
+
+    }
+
     /**
      * Writes an XML representation of the given Grid to the given OutputStream.
      */
     public static void toXml( Grid grid, OutputStream out )
     {
         XMLWriter writer = XMLFactory.getXMLWriter( out );
-
         writer.openDocument();
-        writer.openElement( ATTR_GRID, ATTR_TITLE, grid.getTitle(), ATTR_SUBTITLE, grid.getSubtitle(),
+
+        toXml( grid, writer, TAG_GRID );
+
+        writer.closeDocument();
+    }
+
+    /**
+     * Writes an XML representation of the given Grid to the given OutputStream.
+     */
+    private static void toXml( Grid grid, XMLWriter writer, String gridRootTag )
+    {
+        writer.openElement( gridRootTag, ATTR_TITLE, grid.getTitle(), ATTR_SUBTITLE, grid.getSubtitle(),
             ATTR_WIDTH, String.valueOf( grid.getWidth() ), ATTR_HEIGHT, String.valueOf( grid.getHeight() ) );
 
         writer.openElement( ATTR_HEADERS );
@@ -535,8 +604,6 @@ public class GridUtils
 
         // rows
         writer.closeElement();
-
-        writer.closeDocument();
     }
 
     /**

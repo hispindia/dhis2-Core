@@ -27,28 +27,239 @@
  */
 package org.hisp.dhis.tracker;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.function.Supplier;
 
-import org.hisp.dhis.tracker.report.TrackerImportReport;
-import org.hisp.dhis.tracker.report.TrackerStatus;
+import org.hisp.dhis.tracker.report.ImportReport;
+import org.hisp.dhis.tracker.report.Status;
+import org.hisp.dhis.tracker.report.ValidationReport;
+import org.hisp.dhis.tracker.report.Warning;
+import org.hisp.dhis.tracker.validation.ValidationCode;
+import org.junit.jupiter.api.function.Executable;
 
+/**
+ * Collection of tracker specific assertions to help in asserting for example
+ * validation errors.
+ *
+ * While it might work to compose assertions that already use JUnit 5 assertAll
+ * <a href=
+ * "https://junit.org/junit5/docs/5.8.2/api/org.junit.jupiter.api/org/junit/jupiter/api/Assertions.html#assertAll(java.lang.String,java.util.Collection)">...</a>
+ * using assertAll its documentation does not mention that it is designed for
+ * this use. Keep that in mind when using the assertions in this class in tests.
+ *
+ * Note: some assertions are duplicates of AssertValidations. This is due to a
+ * constraint in our dependencies. dhis-test-integration cannot use test scope
+ * dependency on dhis-service-tracker otherwise it would not report coverage for
+ * tracker code. This means we do not have access to test code within
+ * dhis-service-tracker. Moving the assertions into dhis-support-test would need
+ * a dependency on tracker, which would make it not a generic test module. We
+ * will have to live with the duplicated assertion code until we have a better
+ * solution.
+ */
 public class Assertions
 {
-
-    public static void assertNoImportErrors( TrackerImportReport report )
+    /**
+     * assertHasErrors asserts the report contains only errors of given codes in
+     * any order.
+     *
+     * @param report import report to be asserted on
+     * @param codes expected error codes
+     */
+    public static void assertHasOnlyErrors( ImportReport report, ValidationCode... codes )
     {
-        assertNotNull( report );
-        assertEquals( TrackerStatus.OK, report.getStatus(), errorMessage( report ) );
+        assertHasOnlyErrors( report.getValidationReport(), codes );
     }
 
-    private static Supplier<String> errorMessage( TrackerImportReport report )
+    /**
+     * assertHasErrors asserts the report contains only errors of given codes in
+     * any order.
+     *
+     * @param report validation report to be asserted on
+     * @param codes expected error codes
+     */
+    public static void assertHasOnlyErrors( ValidationReport report, ValidationCode... codes )
+    {
+        assertHasErrors( report, codes.length, codes );
+    }
+
+    /**
+     * assertHasWarnings asserts the report contains only given warnings in any
+     * order.
+     *
+     * @param report validation report to be asserted on
+     * @param warnings expected warnings
+     */
+    public static void assertHasOnlyWarnings( ValidationReport report, Warning... warnings )
+    {
+        assertHasWarnings( report, warnings.length, warnings );
+    }
+
+    /**
+     * assertHasErrors asserts the report contains given count of errors and
+     * errors contain given codes in any order.<br>
+     * <em>NOTE:</em> prefer
+     * {@link #assertHasOnlyErrors(ImportReport, ValidationCode...)} or
+     * {@link #assertHasErrors(ValidationReport, ValidationCode...)}. Rethink
+     * your test if you need this assertion. If you want to make sure a certain
+     * number of errors are present, why do you not care about what errors are
+     * present? The intention of an assertion like
+     * <code>assertHasErrors(report, 13, ValidationCode.E1000);</code> is not
+     * clear.
+     *
+     * @param report import report to be asserted on
+     * @param codes expected error codes
+     */
+    public static void assertHasErrors( ImportReport report, int count, ValidationCode... codes )
+    {
+        assertHasErrors( report.getValidationReport(), count, codes );
+    }
+
+    /**
+     * assertHasErrors asserts the report contains given count of errors and
+     * errors contain given codes in any order. <em>NOTE:</em> prefer
+     * {@link #assertHasOnlyErrors(ImportReport, ValidationCode...)} or
+     * {@link #assertHasErrors(ValidationReport, ValidationCode...)}. Rethink
+     * your test if you need this assertion. If you want to make sure a certain
+     * number of errors are present, why do you not care about what errors are
+     * present? The intention of an assertion like
+     * <code>assertHasErrors(report, 13, ValidationCode.E1000);</code> is not
+     * clear.
+     *
+     * @param report validation report to be asserted on
+     * @param codes expected error codes
+     */
+    public static void assertHasErrors( ValidationReport report, int count, ValidationCode... codes )
+    {
+        assertTrue( report.hasErrors(), "error not found since report has no errors" );
+        ArrayList<Executable> executables = new ArrayList<>();
+        executables.add( () -> assertEquals( count, report.getErrors().size(),
+            String.format( "mismatch in number of expected error(s), got %s", report.getErrors() ) ) );
+        Arrays.stream( codes ).map( c -> ((Executable) () -> assertHasError( report, c )) ).forEach( executables::add );
+        assertAll( "assertHasErrors", executables );
+    }
+
+    /**
+     * assertHasWarnings asserts the report contains given count of warnings and
+     * warnings that contain given code and that are linked to given tracker
+     * object in any order. <em>NOTE:</em> prefer
+     * {@link #assertHasOnlyWarnings(ValidationReport, Warning...)}
+     * (ImportReport, Warning...)}.Rethink your test if you need this assertion.
+     * If you want to make sure a certain number of warnings are present, why do
+     * you not care about what warnings are present? The intention of an
+     * assertion like
+     * <code>assertHasWarnings(report, 13, ValidationCode.E1000);</code> is not
+     * clear.
+     *
+     * @param report validation report to be asserted on
+     * @param warnings expected warnings
+     */
+    public static void assertHasWarnings( ValidationReport report, int count, Warning... warnings )
+    {
+        assertTrue( report.hasWarnings(), "warning not found since report has no warnings" );
+        ArrayList<Executable> executables = new ArrayList<>();
+        executables.add( () -> assertEquals( count, report.getWarnings().size(),
+            String.format( "mismatch in number of expected warning(s), got %s", report.getWarnings() ) ) );
+        Arrays.stream( warnings ).map( c -> ((Executable) () -> assertHasWarning( report, c )) )
+            .forEach( executables::add );
+        assertAll( "assertHasWarnings", executables );
+    }
+
+    /**
+     * assertHasErrors asserts the report contains errors of given codes in any
+     * order.
+     *
+     * @param report validation report to be asserted on
+     * @param codes expected error codes
+     */
+    public static void assertHasErrors( ValidationReport report, ValidationCode... codes )
+    {
+        assertTrue( report.hasErrors(), "error not found since report has no errors" );
+        ArrayList<Executable> executables = new ArrayList<>();
+        Arrays.stream( codes ).map( c -> ((Executable) () -> assertHasError( report, c )) ).forEach( executables::add );
+        assertAll( "assertHasErrors", executables );
+    }
+
+    public static void assertHasError( ImportReport report, ValidationCode code )
+    {
+        assertNotNull( report );
+        assertAll(
+            () -> assertEquals( Status.ERROR, report.getStatus(),
+                errorMessage( "Expected import with status OK, instead got:\n", report.getValidationReport() ) ),
+            () -> assertHasError( report.getValidationReport(), code ) );
+    }
+
+    public static void assertHasError( ImportReport report, ValidationCode code, String entityUid )
+    {
+        assertNotNull( report );
+        assertAll(
+            () -> assertEquals( Status.ERROR, report.getStatus(),
+                errorMessage( "Expected import with status OK, instead got:\n", report.getValidationReport() ) ),
+            () -> assertHasError( report.getValidationReport(), code, entityUid ) );
+    }
+
+    public static void assertHasWarning( ValidationReport report, Warning warning )
+    {
+        assertTrue( report.hasWarnings(), "warning not found since report has no warnings" );
+        assertTrue( report.hasWarning( w -> Objects.equals( warning.getWarningCode(), w.getWarningCode() ) &&
+            Objects.equals( warning.getUid(), w.getUid() ) ),
+            String.format( "warning with code %s for object %s not found in report with warning(s) %s",
+                warning.getWarningCode(), warning.getUid(), report.getWarnings() ) );
+    }
+
+    public static void assertHasError( ValidationReport report, ValidationCode code )
+    {
+        assertTrue( report.hasErrors(), "error not found since report has no errors" );
+        assertTrue( report.hasError( err -> Objects.equals( code.name(), err.getErrorCode() ) ),
+            String.format( "error with code %s not found in report with error(s) %s", code, report.getErrors() ) );
+    }
+
+    public static void assertHasError( ValidationReport report, ValidationCode code, String entityUid )
+    {
+        assertTrue( report.hasErrors(), "error not found since report has no errors" );
+        assertTrue(
+            report.hasError(
+                err -> Objects.equals( code.name(), err.getErrorCode() ) && Objects.equals( entityUid, err.getUid() ) ),
+            String.format( "error with code %s for entity %s not found in report with error(s) %s", code, entityUid,
+                report.getErrors() ) );
+    }
+
+    public static void assertNoErrors( ImportReport report )
+    {
+        assertNotNull( report );
+        assertEquals( Status.OK, report.getStatus(),
+            errorMessage( "Expected import with status OK, instead got:\n", report.getValidationReport() ) );
+    }
+
+    public static void assertNoErrorsAndNoWarnings( ImportReport report )
+    {
+        assertNotNull( report );
+        assertAll(
+            () -> assertEquals( Status.OK, report.getStatus(),
+                errorMessage( "Expected import with status OK, instead got:\n", report.getValidationReport() ) ),
+            () -> assertEquals( Collections.emptyList(), report.getValidationReport().getWarnings(),
+                "Expected import without warnings, instead got:\n" + report.getValidationReport().getWarnings() ) );
+    }
+
+    public static void assertNoErrors( ValidationReport report )
+    {
+        assertNotNull( report );
+        assertFalse( report.hasErrors(), errorMessage( "Expected no validation errors, instead got:\n", report ) );
+    }
+
+    private static Supplier<String> errorMessage( String errorTitle, ValidationReport report )
     {
         return () -> {
-            StringBuilder msg = new StringBuilder( "Expected import with status OK, instead got:\n" );
-            report.getValidationReport().getErrors()
+            StringBuilder msg = new StringBuilder( errorTitle );
+            report.getErrors()
                 .forEach( e -> {
                     msg.append( e.getErrorCode() );
                     msg.append( ": " );

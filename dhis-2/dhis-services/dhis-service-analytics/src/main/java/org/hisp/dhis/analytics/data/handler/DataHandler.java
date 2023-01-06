@@ -27,10 +27,10 @@
  */
 package org.hisp.dhis.analytics.data.handler;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Math.min;
-import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.ArrayUtils.remove;
@@ -62,10 +62,13 @@ import static org.hisp.dhis.analytics.util.AnalyticsUtils.getRoundedValue;
 import static org.hisp.dhis.analytics.util.AnalyticsUtils.getRoundedValueObject;
 import static org.hisp.dhis.analytics.util.AnalyticsUtils.hasPeriod;
 import static org.hisp.dhis.analytics.util.AnalyticsUtils.isPeriodInPeriods;
+import static org.hisp.dhis.analytics.util.PeriodOffsetUtils.buildYearToDateRows;
 import static org.hisp.dhis.analytics.util.PeriodOffsetUtils.getPeriodOffsetRow;
+import static org.hisp.dhis.analytics.util.PeriodOffsetUtils.isYearToDate;
 import static org.hisp.dhis.analytics.util.ReportRatesHelper.getCalculatedTarget;
 import static org.hisp.dhis.common.DataDimensionItemType.DATA_ELEMENT;
 import static org.hisp.dhis.common.DataDimensionItemType.DATA_ELEMENT_OPERAND;
+import static org.hisp.dhis.common.DataDimensionItemType.EXPRESSION_DIMENSION_ITEM;
 import static org.hisp.dhis.common.DataDimensionItemType.INDICATOR;
 import static org.hisp.dhis.common.DataDimensionItemType.PROGRAM_ATTRIBUTE;
 import static org.hisp.dhis.common.DataDimensionItemType.PROGRAM_DATA_ELEMENT;
@@ -99,7 +102,6 @@ import static org.hisp.dhis.period.PeriodType.getPeriodTypeFromIsoString;
 import static org.hisp.dhis.setting.SettingKey.ANALYTICS_MAX_LIMIT;
 import static org.hisp.dhis.setting.SettingKey.DATABASE_SERVER_CPUS;
 import static org.hisp.dhis.system.grid.GridUtils.getGridIndexByDimensionItem;
-import static org.hisp.dhis.system.util.MathUtils.getRounded;
 import static org.hisp.dhis.system.util.MathUtils.getWithin;
 import static org.hisp.dhis.system.util.MathUtils.isZero;
 import static org.hisp.dhis.util.ObjectUtils.firstNonNull;
@@ -109,10 +111,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MultiValuedMap;
@@ -124,13 +128,13 @@ import org.hisp.dhis.analytics.DataQueryParams;
 import org.hisp.dhis.analytics.DimensionItem;
 import org.hisp.dhis.analytics.QueryPlanner;
 import org.hisp.dhis.analytics.QueryPlannerParams;
-import org.hisp.dhis.analytics.QueryValidator;
 import org.hisp.dhis.analytics.RawAnalyticsManager;
 import org.hisp.dhis.analytics.analyze.ExecutionPlanStore;
 import org.hisp.dhis.analytics.event.EventAnalyticsService;
 import org.hisp.dhis.analytics.event.EventQueryParams;
 import org.hisp.dhis.analytics.resolver.ExpressionResolver;
 import org.hisp.dhis.analytics.resolver.ExpressionResolvers;
+import org.hisp.dhis.analytics.util.PeriodOffsetUtils;
 import org.hisp.dhis.common.BaseDimensionalObject;
 import org.hisp.dhis.common.DimensionItemObjectValue;
 import org.hisp.dhis.common.DimensionalItemId;
@@ -143,7 +147,9 @@ import org.hisp.dhis.constant.ConstantService;
 import org.hisp.dhis.dataelement.DataElementOperand;
 import org.hisp.dhis.dataelement.DataElementOperand.TotalType;
 import org.hisp.dhis.expression.ExpressionService;
+import org.hisp.dhis.expressiondimensionitem.ExpressionDimensionItem;
 import org.hisp.dhis.indicator.Indicator;
+import org.hisp.dhis.indicator.IndicatorType;
 import org.hisp.dhis.indicator.IndicatorValue;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.organisationunit.OrganisationUnitGroup;
@@ -161,6 +167,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class DataHandler
 {
     private static final int MAX_QUERIES = 8;
@@ -177,8 +184,6 @@ public class DataHandler
 
     private final QueryPlanner queryPlanner;
 
-    private final QueryValidator queryValidator;
-
     private final SystemSettingManager systemSettingManager;
 
     private final AnalyticsManager analyticsManager;
@@ -189,35 +194,12 @@ public class DataHandler
 
     private final ExecutionPlanStore executionPlanStore;
 
-    public DataHandler( EventAnalyticsService eventAnalyticsService, RawAnalyticsManager rawAnalyticsManager,
-        ExpressionResolvers resolvers, ExpressionService expressionService,
-        QueryPlanner queryPlanner, QueryValidator queryValidator, SystemSettingManager systemSettingManager,
-        AnalyticsManager analyticsManager, OrganisationUnitService organisationUnitService,
-        ExecutionPlanStore executionPlanStore )
-    {
-        checkNotNull( eventAnalyticsService );
-        checkNotNull( rawAnalyticsManager );
-        checkNotNull( resolvers );
-        checkNotNull( expressionService );
-        checkNotNull( queryPlanner );
-        checkNotNull( queryValidator );
-        checkNotNull( systemSettingManager );
-        checkNotNull( analyticsManager );
-        checkNotNull( organisationUnitService );
-        checkNotNull( executionPlanStore );
-
-        this.eventAnalyticsService = eventAnalyticsService;
-        this.rawAnalyticsManager = rawAnalyticsManager;
-        this.resolvers = resolvers;
-        this.expressionService = expressionService;
-        this.queryPlanner = queryPlanner;
-        this.queryValidator = queryValidator;
-        this.systemSettingManager = systemSettingManager;
-        this.analyticsManager = analyticsManager;
-        this.organisationUnitService = organisationUnitService;
-        this.executionPlanStore = executionPlanStore;
-    }
-
+    /**
+     * Adds performance metrics.
+     *
+     * @param params the {@link DataQueryParams}.
+     * @param grid the {@link Grid} to add performance metrics to.
+     */
     void addPerformanceMetrics( DataQueryParams params, Grid grid )
     {
         if ( params.analyzeOnly() )
@@ -237,7 +219,7 @@ public class DataHandler
      * parameters.
      *
      * @param params the {@link DataQueryParams}.
-     * @param grid the grid.
+     * @param grid the {@link Grid}.
      */
     void addIndicatorValues( DataQueryParams params, Grid grid )
     {
@@ -249,49 +231,109 @@ public class DataHandler
 
             List<Indicator> indicators = resolveIndicatorExpressions( dataSourceParams );
 
-            // Try to get filters periods from dimension (pe), or else fall back
-            // to "startDate/endDate" periods
+            addIndicatorValues( params, dataSourceParams, indicators, grid );
+        }
+    }
 
-            List<Period> filterPeriods = isNotEmpty( dataSourceParams.getTypedFilterPeriods() )
-                ? dataSourceParams.getTypedFilterPeriods()
-                : dataSourceParams.getStartEndDatesToSingleList();
+    /**
+     * Adds expressions values to the given grid based on the given data query
+     * parameters.
+     *
+     * @param params the {@link DataQueryParams}.
+     * @param grid the {@link Grid}.
+     */
+    void addExpressionDimensionItemValues( DataQueryParams params, Grid grid )
+    {
+        if ( !params.getExpressionDimensionItems().isEmpty() && !params.isSkipData() )
+        {
+            DataQueryParams dataSourceParams = newBuilder( params )
+                .retainDataDimension( EXPRESSION_DIMENSION_ITEM )
+                .withIncludeNumDen( false ).build();
 
-            // -----------------------------------------------------------------
-            // Get indicator values
-            // -----------------------------------------------------------------
+            List<ExpressionDimensionItem> expressionDimensionItems = resolveExpressionDimensionItemExpressions(
+                dataSourceParams );
 
-            Map<String, Map<String, Integer>> permutationOrgUnitTargetMap = getOrgUnitTargetMap( dataSourceParams,
-                indicators );
+            List<Indicator> indicators = expressionDimensionItemsToIndicators( expressionDimensionItems );
 
-            List<List<DimensionItem>> dimensionItemPermutations = dataSourceParams.getDimensionItemPermutations();
+            addIndicatorValues( params, dataSourceParams, indicators, grid );
+        }
+    }
 
-            Map<DimensionalItemId, DimensionalItemObject> itemMap = expressionService
-                .getIndicatorDimensionalItemMap( indicators );
+    /**
+     * Transform expression dimension item object in the indicator object with
+     * some default values missing in expression dimension item
+     *
+     * @param expressionDimensionItems
+     * @return
+     */
+    private List<Indicator> expressionDimensionItemsToIndicators(
+        List<ExpressionDimensionItem> expressionDimensionItems )
+    {
+        return expressionDimensionItems.stream()
+            .map( edi -> {
+                IndicatorType indicatorType = new IndicatorType();
+                indicatorType.setNumber( true );
+                indicatorType.setFactor( 1 );
 
-            Map<String, List<DimensionItemObjectValue>> permutationDimensionItemValueMap = getPermutationDimensionItemValueMap(
-                params, new ArrayList<>( itemMap.values() ) );
+                Indicator indicator = new Indicator();
+                indicator.setUid( edi.getUid() );
+                indicator.setName( edi.getName() );
+                indicator.setCode( edi.getCode() );
+                indicator.setIndicatorType( indicatorType );
+                indicator.setNumerator( edi.getExpression() );
+                indicator.setNumeratorDescription( edi.getDescription() );
+                indicator.setDenominator( "1" );
+                indicator.setDecimals( 1 );
+                indicator.setAnnualized( false );
 
-            handleEmptyDimensionItemPermutations( dimensionItemPermutations );
+                return indicator;
+            } ).collect( toList() );
+    }
 
-            for ( Indicator indicator : indicators )
+    private void addIndicatorValues( DataQueryParams dataQueryParams, DataQueryParams dataSourceParams,
+        List<Indicator> indicators, Grid grid )
+    {
+        // Try to get filters periods from dimension (pe), or else fall back
+        // to "startDate/endDate" periods
+        List<Period> filterPeriods = isNotEmpty( dataSourceParams.getTypedFilterPeriods() )
+            ? dataSourceParams.getTypedFilterPeriods()
+            : dataSourceParams.getStartEndDatesToSingleList();
+
+        // -----------------------------------------------------------------
+        // Get indicator values
+        // -----------------------------------------------------------------
+
+        Map<String, Map<String, Integer>> permutationOrgUnitTargetMap = getOrgUnitTargetMap( dataSourceParams,
+            indicators );
+
+        List<List<DimensionItem>> dimensionItemPermutations = dataSourceParams.getDimensionItemPermutations();
+
+        Map<DimensionalItemId, DimensionalItemObject> itemMap = expressionService
+            .getIndicatorDimensionalItemMap( indicators );
+
+        Map<String, List<DimensionItemObjectValue>> permutationDimensionItemValueMap = getPermutationDimensionItemValueMap(
+            dataQueryParams, new ArrayList<>( itemMap.values() ) );
+
+        handleEmptyDimensionItemPermutations( dimensionItemPermutations );
+
+        for ( Indicator indicator : indicators )
+        {
+            for ( List<DimensionItem> dimensionItems : dimensionItemPermutations )
             {
-                for ( List<DimensionItem> dimensionItems : dimensionItemPermutations )
-                {
-                    IndicatorValue value = getIndicatorValue( filterPeriods, itemMap,
-                        permutationOrgUnitTargetMap, permutationDimensionItemValueMap, indicator, dimensionItems );
+                IndicatorValue value = getIndicatorValue( filterPeriods, itemMap,
+                    permutationOrgUnitTargetMap, permutationDimensionItemValueMap, indicator, dimensionItems );
 
-                    addIndicatorValuesToGrid( params, grid, dataSourceParams, indicator, dimensionItems, value );
-                }
+                addIndicatorValuesToGrid( dataQueryParams, grid, dataSourceParams, indicator, dimensionItems, value );
             }
         }
     }
 
     /**
-     * Based on the given Indicator plus additional parameters, this method will
+     * Based on the given indicator plus additional parameters, this method will
      * find the respective IndicatorValue.
      *
-     * @param filterPeriods the filter periods.
-     *        See @{{@link ConstantService#getConstantMap()}}.
+     * @param filterPeriods the filter periods. See
+     *        {@link ConstantService#getConstantMap()}.
      * @param permutationOrgUnitTargetMap the org unit permutation map. See
      *        {@link #getOrgUnitTargetMap(DataQueryParams, Collection)}.
      * @param itemMap Every dimensional item to process.
@@ -313,11 +355,11 @@ public class DataHandler
     {
         String permKey = asItemKey( dimensionItems );
 
-        final List<DimensionItemObjectValue> values = permutationDimensionItemValueMap
+        List<DimensionItemObjectValue> values = permutationDimensionItemValueMap
             .getOrDefault( permKey, new ArrayList<>() );
 
         List<Period> periods = !filterPeriods.isEmpty() ? filterPeriods
-            : singletonList( (Period) getPeriodItem( dimensionItems ) );
+            : List.of( (Period) getPeriodItem( dimensionItems ) );
 
         OrganisationUnit unit = (OrganisationUnit) getOrganisationUnitItem( dimensionItems );
 
@@ -398,10 +440,10 @@ public class DataHandler
      * @param grid the current/actual grid
      * @param eventGrid the event grid
      */
-    private void replaceGridIfNeeded( final Grid grid, final Grid eventGrid )
+    private void replaceGridIfNeeded( Grid grid, Grid eventGrid )
     {
-        final boolean eventGridHasAdditionalHeaders = grid.getHeaderWidth() < eventGrid.getHeaderWidth();
-        final boolean eventHeaderSizeIsSameAsGridColumns = eventGrid.getHeaderWidth() == eventGrid.getWidth();
+        boolean eventGridHasAdditionalHeaders = grid.getHeaderWidth() < eventGrid.getHeaderWidth();
+        boolean eventHeaderSizeIsSameAsGridColumns = eventGrid.getHeaderWidth() == eventGrid.getWidth();
 
         // Replacing the current grid headers by the actual event grid headers.
         if ( eventGridHasAdditionalHeaders && eventHeaderSizeIsSameAsGridColumns )
@@ -558,7 +600,8 @@ public class DataHandler
     {
         for ( Map.Entry<String, Double> entry : aggregatedDataMap.entrySet() )
         {
-            Double value = params.isSkipRounding() ? entry.getValue() : getRounded( entry.getValue() );
+            Number value = params.isSkipRounding() ? entry.getValue()
+                : (Number) getRoundedValueObject( params, entry.getValue() );
 
             grid.addRow()
                 .addValues( entry.getKey().split( DIMENSION_SEP ) )
@@ -576,7 +619,7 @@ public class DataHandler
      * parameters and reporting rate metric.
      *
      * @param params the {@link DataQueryParams}.
-     * @param grid the grid.
+     * @param grid the {@link Grid}.
      * @param metric the reporting rate metric.
      */
     private void addReportingRates( DataQueryParams params, Grid grid, ReportingRateMetric metric )
@@ -634,36 +677,42 @@ public class DataHandler
         }
     }
 
+    /**
+     * Returns the number of filter periods, or 1 if no filter periods exist.
+     *
+     * @param params the {@link DataQueryParams}.
+     * @return the number of filter periods, or 1 if no filter periods exist.
+     */
     private int getTimeUnits( DataQueryParams params )
     {
         return params.hasFilter( PERIOD_DIM_ID ) ? params.getFilterPeriods().size() : 1;
     }
 
     /**
-     * Calculate reporting rate and replace data set with rate and add the rate
+     * Calculates reporting rate and replace data set with rate and add the rate
      * to the Grid.
      *
      * @param params the {@link DataQueryParams}.
-     * @param grid the current Grid to be manipulated.
+     * @param grid the {@link Grid} to be manipulated.
      * @param metric the object to assist with the report rate calculation.
      * @param dataRow the current dataRow, based on the key map built by
      *        {@link #getAggregatedCompletenessTargetMap(DataQueryParams)).
      * @param target the current value of the respective key ("dataRow"). See
      * @param actual the current actual value from
      *        {@link #getAggregatedCompletenessValueMap(DataQueryParams)} or
-     *        zero (default)
+     *        zero (default).
      */
     private void addReportRateToGrid( DataQueryParams params, Grid grid, ReportingRateMetric metric,
         List<String> dataRow, Double target, Double actual )
     {
-        Double value = getReportRate( metric, target, actual );
+        Double value = getReportingRate( metric, target, actual );
 
         String reportingRate = getDimensionItem( dataRow.get( DX_INDEX ), metric );
         dataRow.set( DX_INDEX, reportingRate );
 
         grid.addRow()
             .addValues( dataRow.toArray() )
-            .addValue( params.isSkipRounding() ? value : getRounded( value ) );
+            .addValue( params.isSkipRounding() ? value : getRoundedValueObject( params, value ) );
 
         if ( params.isIncludeNumDen() )
         {
@@ -674,7 +723,15 @@ public class DataHandler
         }
     }
 
-    private Double getReportRate( ReportingRateMetric metric, Double target, Double actual )
+    /**
+     * Calculates the reporting rate based on the given parameters.
+     *
+     * @param metric the {@link ReportingRateMetric}.
+     * @param target the target value.
+     * @param actual the actual value.
+     * @return the reporting rate.
+     */
+    private Double getReportingRate( ReportingRateMetric metric, Double target, Double actual )
     {
         Double value = 0d;
 
@@ -728,7 +785,7 @@ public class DataHandler
      * Adds data element operand values to the given grid.
      *
      * @param params the {@link DataQueryParams}.
-     * @param grid the grid.
+     * @param grid the {@link Grid}.
      * @param totalType the operand {@link TotalType}.
      */
     private void addDataElementOperandValues( DataQueryParams params, Grid grid, TotalType totalType )
@@ -815,9 +872,9 @@ public class DataHandler
      * Checks whether the measure criteria in query parameters is satisfied for
      * the given indicator value.
      *
-     * @param params the query parameters.
-     * @param value the indicator value.
-     * @param indicator the indicator.
+     * @param params the {@link DataQueryParams}.
+     * @param value the {@link IndicatorValue}.
+     * @param indicator the {@link Indicator}.
      * @return true if all the measure criteria are satisfied for this indicator
      *         value, false otherwise.
      */
@@ -841,7 +898,8 @@ public class DataHandler
      * an empty dimension item list to the permutations list. This state occurs
      * where there are only data or category option combo dimensions specified.
      *
-     * @param dimensionItemPermutations list of dimension item permutations.
+     * @param dimensionItemPermutations list of {@link DimensionItem}
+     *        permutations.
      */
     private void handleEmptyDimensionItemPermutations( List<List<DimensionItem>> dimensionItemPermutations )
     {
@@ -852,8 +910,8 @@ public class DataHandler
     }
 
     /**
-     * Generates a mapping of permutations keys (organisation unit id or null)
-     * and mappings of organisation unit group and counts.
+     * Generates a mapping of permutations keys and mappings of organisation
+     * unit group and counts.
      *
      * @param params the {@link DataQueryParams}.
      * @param indicators the indicators for which formulas to scan for
@@ -884,9 +942,9 @@ public class DataHandler
     }
 
     /**
-     * Generates a mapping between the the organisation unit dimension key and
-     * the count of organisation units inside the subtree of the given
-     * organisation units and members of the given organisation unit groups.
+     * Generates a mapping between the organisation unit dimension key and the
+     * count of organisation units inside the subtree of the given organisation
+     * units and members of the given organisation unit groups.
      *
      * @param params the {@link DataQueryParams}.
      * @return a mapping between the the data set dimension key and the count of
@@ -922,6 +980,27 @@ public class DataHandler
     }
 
     /**
+     * Resolves expressions of expression dimension items in the data query.
+     *
+     * @param params the {@link DataQueryParams}.
+     * @return the resolved list of expression dimension items.
+     */
+    private List<ExpressionDimensionItem> resolveExpressionDimensionItemExpressions( DataQueryParams params )
+    {
+        List<ExpressionDimensionItem> expressionDimensionItems = asTypedList( params.getExpressionDimensionItems() );
+
+        for ( ExpressionDimensionItem item : expressionDimensionItems )
+        {
+            for ( ExpressionResolver resolver : resolvers.getExpressionResolvers() )
+            {
+                item.setExpression( resolver.resolve( item.getExpression() ) );
+            }
+        }
+
+        return expressionDimensionItems;
+    }
+
+    /**
      * Returns a mapping between dimension items and values for the given data
      * query and list of indicators. The dimensional items part of the indicator
      * numerators and denominators are used as dimensional item for the
@@ -932,8 +1011,8 @@ public class DataHandler
      * @param items the list of {@link DimensionalItemObject}.
      * @return a dimensional items to aggregate values map.
      */
-    private MultiValuedMap<String, DimensionItemObjectValue> getAggregatedDataValueMap( DataQueryParams params,
-        List<DimensionalItemObject> items )
+    private MultiValuedMap<String, DimensionItemObjectValue> getAggregatedDataValueMap(
+        DataQueryParams params, List<DimensionalItemObject> items )
     {
         if ( items.isEmpty() )
         {
@@ -953,57 +1032,120 @@ public class DataHandler
             .build();
 
         Grid grid = dataAggregator.getAggregatedDataValueGrid( dataSourceParams );
-        MultiValuedMap<String, DimensionItemObjectValue> result = new ArrayListValuedHashMap<>();
 
         if ( isEmpty( grid.getRows() ) )
         {
-            return result;
+            return new ArrayListValuedHashMap<>();
         }
 
+        return getAggregatedValueMapFromGrid( params, items, grid );
+    }
+
+    /**
+     * Gets a mapping between dimension items and values from a grid.
+     *
+     * @param params the {@link DataQueryParams}.
+     * @param items the list of {@link DimensionalItemObject}.
+     * @param grid the {@link Grid}.
+     * @return a dimensional items to aggregate values map.
+     */
+    private MultiValuedMap<String, DimensionItemObjectValue> getAggregatedValueMapFromGrid(
+        DataQueryParams params, List<DimensionalItemObject> items, Grid grid )
+    {
         // Derive the Grid indexes for data, value and period based on the first
         // row of the Grid
 
-        final int dataIndex = getGridIndexByDimensionItem( grid.getRow( 0 ), items, 0 );
-        final int periodIndex = getGridIndexByDimensionItem( grid.getRow( 0 ), params.getPeriods(), 1 );
-        final int valueIndex = grid.getWidth() - 1;
+        int dataIndex = getGridIndexByDimensionItem( grid.getRow( 0 ), items, 0 );
+        int periodIndex = getGridIndexByDimensionItem( grid.getRow( 0 ), params.getPeriods(), 1 );
+        int valueIndex = grid.getWidth() - 1;
 
-        final List<DimensionalItemObject> basePeriods = params.getPeriods();
+        List<DimensionalItemObject> basePeriods = params.getPeriods();
+
+        MultiValuedMap<String, DimensionItemObjectValue> valueMap = new ArrayListValuedHashMap<>();
+
+        Map<String, List<Object>> yearToDateRows = new HashMap<>();
+
+        // Process the grid rows. If yearToDate, build any yearToDate rows for
+        // adding later. Otherwise, add the row to the result.
+
+        List<DimensionalItemObject> nonYearToDateItems = items.stream()
+            .filter( i -> !isYearToDate( i ) )
+            .collect( toList() );
+
+        Map<String, List<DimensionalItemObject>> yearToDateItemsById = items.stream()
+            .filter( PeriodOffsetUtils::isYearToDate )
+            .collect( groupingBy( DimensionalItemObject::getDimensionItemWithQueryModsId ) );
 
         for ( List<Object> row : grid.getRows() )
         {
             for ( DimensionalItemObject dimensionalItem : findDimensionalItems(
-                (String) row.get( dataIndex ), items ) )
+                (String) row.get( dataIndex ), nonYearToDateItems ) )
             {
-                // Check if the current row's Period belongs to the list of
-                // periods from the original Analytics request. The row may
-                // not have a Period if Period is used as filter.
+                addRowToValueMap( periodIndex, valueIndex, row, dimensionalItem, basePeriods, valueMap );
+            }
 
-                if ( hasPeriod( row, periodIndex ) )
-                {
-                    addItemBasedOnPeriodOffset( result, periodIndex, valueIndex, row, dimensionalItem, basePeriods );
-                }
-                else
-                {
-                    result.put( join( remove( row.toArray( new Object[0] ), valueIndex ), DIMENSION_SEP ),
-                        new DimensionItemObjectValue(
-                            dimensionalItem, ((Number) row.get( valueIndex )).doubleValue() ) );
-                }
+            List<DimensionalItemObject> yearToDateItems = yearToDateItemsById.get( row.get( dataIndex ) );
+
+            if ( yearToDateItems != null )
+            {
+                buildYearToDateRows( periodIndex, valueIndex, row, yearToDateItems, basePeriods, yearToDateRows );
             }
         }
 
-        return result;
+        if ( !yearToDateRows.isEmpty() )
+        {
+            addYearToDateRowsToValueMap( dataIndex, periodIndex, valueIndex, items, basePeriods, yearToDateRows,
+                valueMap );
+        }
+
+        return valueMap;
+    }
+
+    private void addYearToDateRowsToValueMap( int dataIndex, int periodIndex, int valueIndex,
+        List<DimensionalItemObject> items, List<DimensionalItemObject> basePeriods,
+        Map<String, List<Object>> yearToDateRows, MultiValuedMap<String, DimensionItemObjectValue> valueMap )
+    {
+        List<DimensionalItemObject> yearToDateItems = items.stream()
+            .filter( PeriodOffsetUtils::isYearToDate )
+            .collect( toList() );
+
+        for ( List<Object> row : yearToDateRows.values() )
+        {
+            for ( DimensionalItemObject dimensionalItem : findDimensionalItems(
+                (String) row.get( dataIndex ), yearToDateItems ) )
+            {
+                addRowToValueMap( periodIndex, valueIndex, row, dimensionalItem, basePeriods, valueMap );
+            }
+        }
+    }
+
+    private void addRowToValueMap( int periodIndex, int valueIndex, List<Object> row,
+        DimensionalItemObject dimensionalItem, List<DimensionalItemObject> basePeriods,
+        MultiValuedMap<String, DimensionItemObjectValue> valueMap )
+    {
+        Optional<List<Object>> adjustedRow = getAdjustedRow( periodIndex, valueIndex, row, dimensionalItem,
+            basePeriods );
+
+        if ( adjustedRow.isPresent() )
+        {
+            List<Object> aRow = adjustedRow.get();
+            String key = join( remove( aRow.toArray( new Object[0] ), valueIndex ), DIMENSION_SEP );
+            Double value = ((Number) aRow.get( valueIndex )).doubleValue();
+
+            valueMap.put( key, new DimensionItemObjectValue( dimensionalItem, value ) );
+        }
     }
 
     /**
-     * Add the given Indicator values to the Grid.
+     * Add the given Indicator values to the given grid.
      *
      * @param params the current DataQueryParams.
      * @param grid the current Grid.
      * @param dataSourceParams the DataQueryParams built for Indicators.
      * @param indicator the Indicator which the values will be extracted from,
      *        and added to be added to the Grid.
-     * @param dimensionItems the dimensional items permutation. See @{link
-     *        {@link DataQueryParams#getDimensionItemPermutations()}}.
+     * @param dimensionItems the dimensional items permutation. See
+     *        {@link DataQueryParams#getDimensionItemPermutations()}.
      * @param value the IndicatorValue which the values will be extracted from.
      */
     private void addIndicatorValuesToGrid( DataQueryParams params, Grid grid, DataQueryParams dataSourceParams,
@@ -1034,48 +1176,37 @@ public class DataHandler
         }
     }
 
-    /**
-     * Calculate the dimensional item offset and adds to the give result map.
-     *
-     * @param result the map where the values will be added to.
-     * @param periodIndex the current grid row period index.
-     * @param valueIndex the current grid row value index.
-     * @param row the current grid row.
-     * @param dimensionalItemObject a dimensional item for the current grid row,
-     *        see
-     *        {@link org.hisp.dhis.analytics.util.AnalyticsUtils#findDimensionalItems(String, List)}
-     * @param basePeriods the periods from the parameters.
-     *
-     * @return the DimensionalItemObject
-     */
-    private void addItemBasedOnPeriodOffset( MultiValuedMap<String, DimensionItemObjectValue> result,
-        int periodIndex, int valueIndex, List<Object> row, DimensionalItemObject dimensionalItemObject,
-        List<DimensionalItemObject> basePeriods )
+    private Optional<List<Object>> getAdjustedRow( int periodIndex, int valueIndex, List<Object> row,
+        DimensionalItemObject dimensionalItemObject, List<DimensionalItemObject> basePeriods )
     {
+        if ( !hasPeriod( row, periodIndex ) )
+        {
+            return Optional.of( row );
+        }
+
         if ( row.get( valueIndex ) == null )
         {
-            return;
+            return Optional.empty();
         }
 
         int periodOffset = (dimensionalItemObject.getQueryMods() == null)
             ? 0
             : dimensionalItemObject.getQueryMods().getPeriodOffset();
 
-        final List<Object> adjustedRow = (periodOffset != 0)
+        List<Object> adjustedRow = (periodOffset != 0)
             ? getPeriodOffsetRow( row, periodIndex, periodOffset )
             : row;
 
+        // Check if the current row's Period belongs to the list of
+        // periods from the original Analytics request. The row may
+        // not have a Period if Period is used as filter.
+
         if ( !isPeriodInPeriods( (String) adjustedRow.get( periodIndex ), basePeriods ) )
         {
-            return;
+            return Optional.empty();
         }
 
-        // Key is composed of [uid-period]
-        final String key = join( remove( adjustedRow.toArray( new Object[0] ), valueIndex ), DIMENSION_SEP );
-
-        final Double value = ((Number) adjustedRow.get( valueIndex )).doubleValue();
-
-        result.put( key, new DimensionItemObjectValue( dimensionalItemObject, value ) );
+        return Optional.of( adjustedRow );
     }
 
     /**
@@ -1092,8 +1223,6 @@ public class DataHandler
     private Map<String, Object> getAggregatedValueMap( DataQueryParams params, AnalyticsTableType tableType,
         List<Function<DataQueryParams, List<DataQueryParams>>> queryGroupers )
     {
-        queryValidator.validateMaintenanceMode();
-
         int optimalQueries = getWithin( getProcessNo(), 1, MAX_QUERIES );
 
         int maxLimit = params.isIgnoreLimit() ? 0
@@ -1123,6 +1252,14 @@ public class DataHandler
         return map;
     }
 
+    /**
+     * Executes the given list of queries in parallel.
+     *
+     * @param tableType the {@link AnalyticsTableType}.
+     * @param maxLimit the max limit of records to retrieve.
+     * @param map the map of metadata identifiers to data values.
+     * @param queries the list of {@link DataQueryParams} to execute.
+     */
     private void executeQueries( AnalyticsTableType tableType, int maxLimit, Map<String, Object> map,
         List<DataQueryParams> queries )
     {

@@ -27,15 +27,11 @@
  */
 package org.hisp.dhis.tracker.validation;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hisp.dhis.tracker.Assertions.assertNoImportErrors;
+import static org.hisp.dhis.tracker.Assertions.assertHasOnlyErrors;
+import static org.hisp.dhis.tracker.Assertions.assertNoErrors;
 import static org.hisp.dhis.tracker.validation.Users.USER_3;
 import static org.hisp.dhis.tracker.validation.Users.USER_4;
 import static org.hisp.dhis.tracker.validation.Users.USER_5;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -67,8 +63,7 @@ import org.hisp.dhis.tracker.TrackerImportParams;
 import org.hisp.dhis.tracker.TrackerImportService;
 import org.hisp.dhis.tracker.TrackerImportStrategy;
 import org.hisp.dhis.tracker.TrackerTest;
-import org.hisp.dhis.tracker.report.TrackerErrorCode;
-import org.hisp.dhis.tracker.report.TrackerImportReport;
+import org.hisp.dhis.tracker.report.ImportReport;
 import org.hisp.dhis.user.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,9 +134,9 @@ class EventSecurityImportValidationTest extends TrackerTest
     {
         setUpMetadata( "tracker/tracker_basic_metadata.json" );
         injectAdminUser();
-        assertNoImportErrors( trackerImportService.importTracker( fromJson(
+        assertNoErrors( trackerImportService.importTracker( fromJson(
             "tracker/validations/enrollments_te_te-data.json" ) ) );
-        assertNoImportErrors( trackerImportService
+        assertNoErrors( trackerImportService
             .importTracker( fromJson( "tracker/validations/enrollments_te_enrollments-data.json" ) ) );
         manager.flush();
     }
@@ -237,12 +232,10 @@ class EventSecurityImportValidationTest extends TrackerTest
         trackerBundleParams.setUser( user );
         user.addOrganisationUnit( organisationUnitA );
         manager.update( user );
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( trackerBundleParams );
-        assertEquals( 2, trackerImportReport.getValidationReport().getErrors().size() );
-        assertThat( trackerImportReport.getValidationReport().getErrors(),
-            hasItem( hasProperty( "errorCode", equalTo( TrackerErrorCode.E1095 ) ) ) );
-        assertThat( trackerImportReport.getValidationReport().getErrors(),
-            hasItem( hasProperty( "errorCode", equalTo( TrackerErrorCode.E1096 ) ) ) );
+
+        ImportReport importReport = trackerImportService.importTracker( trackerBundleParams );
+
+        assertHasOnlyErrors( importReport, ValidationCode.E1095, ValidationCode.E1096 );
     }
 
     @Test
@@ -252,8 +245,8 @@ class EventSecurityImportValidationTest extends TrackerTest
         setupMetadata();
         TrackerImportParams params = fromJson( "tracker/validations/events_error-no-uncomplete.json" );
         params.setImportStrategy( TrackerImportStrategy.CREATE );
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
-        assertNoImportErrors( trackerImportReport );
+        ImportReport importReport = trackerImportService.importTracker( params );
+        assertNoErrors( importReport );
         // Change just inserted Event to status COMPLETED...
         ProgramStageInstance zwwuwNp6gVd = programStageServiceInstance.getProgramStageInstance( "ZwwuwNp6gVd" );
         zwwuwNp6gVd.setStatus( EventStatus.COMPLETED );
@@ -273,9 +266,7 @@ class EventSecurityImportValidationTest extends TrackerTest
         manager.clear();
         trackerBundleParams.setUserId( user.getUid() );
         trackerBundleParams.setImportStrategy( TrackerImportStrategy.UPDATE );
-        trackerImportReport = trackerImportService.importTracker( trackerBundleParams );
-        assertEquals( 1, trackerImportReport.getValidationReport().getErrors().size() );
-        assertThat( trackerImportReport.getValidationReport().getErrors(),
-            hasItem( hasProperty( "errorCode", equalTo( TrackerErrorCode.E1083 ) ) ) );
+        importReport = trackerImportService.importTracker( trackerBundleParams );
+        assertHasOnlyErrors( importReport, ValidationCode.E1083 );
     }
 }

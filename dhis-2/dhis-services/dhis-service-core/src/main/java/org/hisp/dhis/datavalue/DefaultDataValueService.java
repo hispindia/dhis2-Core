@@ -34,10 +34,12 @@ import static org.hisp.dhis.system.util.ValidationUtils.dataValueIsZeroAndInsign
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.hisp.dhis.category.CategoryCombo;
 import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.category.CategoryService;
 import org.hisp.dhis.common.AuditType;
@@ -67,10 +69,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class DefaultDataValueService
     implements DataValueService
 {
-    // -------------------------------------------------------------------------
-    // Dependencies
-    // -------------------------------------------------------------------------
-
     private final DataValueStore dataValueStore;
 
     private final DataValueAuditService dataValueAuditService;
@@ -129,25 +127,38 @@ public class DefaultDataValueService
             dataValue.setAttributeOptionCombo( categoryService.getDefaultCategoryOptionCombo() );
         }
 
-        dataValue.setCreated( new Date() );
-        dataValue.setLastUpdated( new Date() );
-
         // ---------------------------------------------------------------------
         // Check and restore soft deleted value
         // ---------------------------------------------------------------------
 
         DataValue softDelete = dataValueStore.getSoftDeletedDataValue( dataValue );
 
-        if ( softDelete != null )
-        {
-            softDelete.mergeWith( dataValue );
-            softDelete.setDeleted( false );
+        Date currentDate = new Date();
 
-            dataValueStore.updateDataValue( softDelete );
+        if ( softDelete == null )
+        {
+            dataValue.setCreated( currentDate );
+            dataValue.setLastUpdated( currentDate );
+            dataValueStore.addDataValue( dataValue );
         }
         else
         {
-            dataValueStore.addDataValue( dataValue );
+            // don't let original created date be overwritten
+            Date created = softDelete.getCreated();
+            softDelete.mergeWith( dataValue );
+            softDelete.setDeleted( false );
+            softDelete.setCreated( created );
+            softDelete.setLastUpdated( currentDate );
+
+            dataValueStore.updateDataValue( softDelete );
+
+            if ( config.isEnabled( CHANGELOG_AGGREGATE ) )
+            {
+                DataValueAudit dataValueAudit = new DataValueAudit( dataValue, dataValue.getValue(),
+                    dataValue.getStoredBy(), AuditType.CREATE );
+
+                dataValueAuditService.addDataValueAudit( dataValueAudit );
+            }
         }
 
         return true;
@@ -166,11 +177,12 @@ public class DefaultDataValueService
         {
             dataValue.setLastUpdated( new Date() );
 
-            DataValueAudit dataValueAudit = new DataValueAudit( dataValue, dataValue.getAuditValue(),
-                dataValue.getStoredBy(), AuditType.UPDATE );
-
-            if ( config.isEnabled( CHANGELOG_AGGREGATE ) )
+            if ( config.isEnabled( CHANGELOG_AGGREGATE )
+                && !Objects.equals( dataValue.getAuditValue(), dataValue.getValue() ) )
             {
+                DataValueAudit dataValueAudit = new DataValueAudit( dataValue, dataValue.getAuditValue(),
+                    dataValue.getStoredBy(), AuditType.UPDATE );
+
                 dataValueAuditService.addDataValueAudit( dataValueAudit );
             }
 
@@ -195,11 +207,11 @@ public class DefaultDataValueService
     @Transactional
     public void deleteDataValue( DataValue dataValue )
     {
-        DataValueAudit dataValueAudit = new DataValueAudit( dataValue, dataValue.getAuditValue(),
-            currentUserService.getCurrentUsername(), AuditType.DELETE );
-
         if ( config.isEnabled( CHANGELOG_AGGREGATE ) )
         {
+            DataValueAudit dataValueAudit = new DataValueAudit( dataValue, dataValue.getAuditValue(),
+                currentUserService.getCurrentUsername(), AuditType.DELETE );
+
             dataValueAuditService.addDataValueAudit( dataValueAudit );
         }
 
@@ -355,5 +367,12 @@ public class DefaultDataValueService
     public int getDataValueCountLastUpdatedBetween( Date startDate, Date endDate, boolean includeDeleted )
     {
         return dataValueStore.getDataValueCountLastUpdatedBetween( startDate, endDate, includeDeleted );
+    }
+
+    @Override
+    @Transactional( readOnly = true )
+    public boolean dataValueExists( CategoryCombo combo )
+    {
+        return dataValueStore.dataValueExists( combo );
     }
 }

@@ -68,11 +68,9 @@ import org.springframework.transaction.annotation.Transactional;
  * Created by zubair@dhis2.org on 11.08.17.
  */
 @Transactional
-public abstract class CommandSMSListener
-    extends
-    BaseSMSListener
+public abstract class CommandSMSListener extends BaseSMSListener
 {
-    private static final String DEFAULT_PATTERN = "([^\\s|=]+)\\s*\\=\\s*([^|=]+)\\s*(\\=|$)*\\s*";
+    private static final String DEFAULT_PATTERN = "([^\\s|=]+)\\s*\\=\\s*([^|=]+)\\s*(\\=|$)*+\\s*";
 
     protected static final int INFO = 1;
 

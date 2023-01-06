@@ -27,6 +27,7 @@
  */
 package org.hisp.dhis.analytics.table;
 
+import static java.util.Collections.emptyList;
 import static org.hisp.dhis.analytics.ColumnDataType.CHARACTER_11;
 import static org.hisp.dhis.analytics.ColumnDataType.DATE;
 import static org.hisp.dhis.analytics.ColumnDataType.DOUBLE;
@@ -38,6 +39,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.hisp.dhis.analytics.AnalyticsExportSettings;
 import org.hisp.dhis.analytics.AnalyticsTable;
 import org.hisp.dhis.analytics.AnalyticsTableColumn;
 import org.hisp.dhis.analytics.AnalyticsTableHookService;
@@ -63,8 +65,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -74,25 +74,25 @@ import com.google.common.collect.Sets;
 public class JdbcCompletenessTargetTableManager
     extends AbstractJdbcTableManager
 {
-    public JdbcCompletenessTargetTableManager( IdentifiableObjectManager idObjectManager,
-        OrganisationUnitService organisationUnitService, CategoryService categoryService,
-        SystemSettingManager systemSettingManager, DataApprovalLevelService dataApprovalLevelService,
-        ResourceTableService resourceTableService, AnalyticsTableHookService tableHookService,
-        StatementBuilder statementBuilder, PartitionManager partitionManager, DatabaseInfo databaseInfo,
-        JdbcTemplate jdbcTemplate )
-    {
-        super( idObjectManager, organisationUnitService, categoryService, systemSettingManager,
-            dataApprovalLevelService, resourceTableService, tableHookService, statementBuilder, partitionManager,
-            databaseInfo, jdbcTemplate );
-    }
-
-    private static final List<AnalyticsTableColumn> FIXED_COLS = ImmutableList.of(
+    private static final List<AnalyticsTableColumn> FIXED_COLS = List.of(
         new AnalyticsTableColumn( quote( "ouopeningdate" ), DATE, "ou.openingdate" ),
         new AnalyticsTableColumn( quote( "oucloseddate" ), DATE, "ou.closeddate" ),
         new AnalyticsTableColumn( quote( "costartdate" ), DATE, "doc.costartdate" ),
         new AnalyticsTableColumn( quote( "coenddate" ), DATE, "doc.coenddate" ),
         new AnalyticsTableColumn( quote( "dx" ), CHARACTER_11, NOT_NULL, "ds.uid" ),
         new AnalyticsTableColumn( quote( "ao" ), CHARACTER_11, NOT_NULL, "ao.uid" ) );
+
+    public JdbcCompletenessTargetTableManager( IdentifiableObjectManager idObjectManager,
+        OrganisationUnitService organisationUnitService, CategoryService categoryService,
+        SystemSettingManager systemSettingManager, DataApprovalLevelService dataApprovalLevelService,
+        ResourceTableService resourceTableService, AnalyticsTableHookService tableHookService,
+        StatementBuilder statementBuilder, PartitionManager partitionManager, DatabaseInfo databaseInfo,
+        JdbcTemplate jdbcTemplate, AnalyticsExportSettings analyticsExportSettings )
+    {
+        super( idObjectManager, organisationUnitService, categoryService, systemSettingManager,
+            dataApprovalLevelService, resourceTableService, tableHookService, statementBuilder, partitionManager,
+            databaseInfo, jdbcTemplate, analyticsExportSettings );
+    }
 
     @Override
     public AnalyticsTableType getAnalyticsTableType()
@@ -104,9 +104,8 @@ public class JdbcCompletenessTargetTableManager
     @Transactional
     public List<AnalyticsTable> getAnalyticsTables( AnalyticsTableUpdateParams params )
     {
-        return params.isLatestUpdate() ? Lists.newArrayList()
-            : Lists.newArrayList(
-                new AnalyticsTable( getAnalyticsTableType(), getDimensionColumns(), getValueColumns() ) );
+        return params.isLatestUpdate() ? List.of()
+            : List.of( new AnalyticsTable( getAnalyticsTableType(), getDimensionColumns(), getValueColumns() ) );
     }
 
     @Override
@@ -130,19 +129,13 @@ public class JdbcCompletenessTargetTableManager
     @Override
     protected List<String> getPartitionChecks( AnalyticsTablePartition partition )
     {
-        return Lists.newArrayList();
-    }
-
-    @Override
-    protected String getPartitionColumn()
-    {
-        return null;
+        return emptyList();
     }
 
     @Override
     protected void populateTable( AnalyticsTableUpdateParams params, AnalyticsTablePartition partition )
     {
-        final String tableName = partition.getTempTableName();
+        String tableName = partition.getTempTableName();
 
         String sql = "insert into " + tableName + " (";
 
@@ -221,7 +214,7 @@ public class JdbcCompletenessTargetTableManager
 
     private List<AnalyticsTableColumn> getValueColumns()
     {
-        return Lists.newArrayList( new AnalyticsTableColumn( quote( "value" ), DOUBLE, "value" ) );
+        return List.of( new AnalyticsTableColumn( quote( "value" ), DOUBLE, "value" ) );
     }
 
     @Override

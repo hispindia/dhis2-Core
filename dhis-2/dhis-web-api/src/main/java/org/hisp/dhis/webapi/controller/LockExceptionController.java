@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.hisp.dhis.common.DhisApiVersion;
+import org.hisp.dhis.common.OpenApi;
 import org.hisp.dhis.common.Pager;
 import org.hisp.dhis.common.PagerUtils;
 import org.hisp.dhis.dataset.DataSet;
@@ -87,6 +88,7 @@ import com.google.common.collect.Lists;
 /**
  * @author Viet Nguyen <viet@dhis2.org>
  */
+@OpenApi.Tags( "data" )
 @Controller
 @RequestMapping( LockExceptionController.RESOURCE_PATH )
 @ApiVersion( { DhisApiVersion.DEFAULT, DhisApiVersion.ALL } )
@@ -220,14 +222,14 @@ public class LockExceptionController extends AbstractGistReadOnlyController<Lock
     @PostMapping
     @ResponseBody
     public WebMessage addLockException( @RequestParam( "ou" ) String organisationUnitId,
-        @RequestParam( "pe" ) String periodId,
-        @RequestParam( "ds" ) String dataSetId )
+        @RequestParam( "pe" ) String pe,
+        @RequestParam( "ds" ) String ds )
     {
         User user = userService.getCurrentUser();
 
-        DataSet dataSet = dataSetService.getDataSet( dataSetId );
+        DataSet dataSet = dataSetService.getDataSet( ds );
 
-        Period period = periodService.reloadPeriod( PeriodType.getPeriodFromIsoString( periodId ) );
+        Period period = periodService.reloadPeriod( PeriodType.getPeriodFromIsoString( pe ) );
 
         if ( dataSet == null || period == null )
         {
@@ -281,7 +283,7 @@ public class LockExceptionController extends AbstractGistReadOnlyController<Lock
         {
             return conflict( String.format(
                 "None of the target organisation unit(s) %s is linked to the specified data set: %s",
-                String.join( ",", listOrgUnitIds ), dataSetId ) );
+                String.join( ",", listOrgUnitIds ), ds ) );
         }
         return created( "LockException created successfully." );
     }

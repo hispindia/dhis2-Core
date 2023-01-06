@@ -27,6 +27,8 @@
  */
 package org.hisp.dhis.analytics.event;
 
+import java.util.List;
+
 import org.hisp.dhis.analytics.EventOutputType;
 import org.hisp.dhis.common.EventAnalyticalObject;
 import org.hisp.dhis.common.EventDataQueryRequest;
@@ -71,30 +73,26 @@ public interface EventDataQueryService
      * field. Coordinate field must match EVENT, a data element identifier or an
      * attribute identifier.
      *
-     * @param coordinate the coordinate field.
-     * @return the coordinate column field.
-     * @throws IllegalQueryException if the coordinate field is not valid.
+     * @param program the program instance.
+     * @param coordinateField the coordinate field.
+     * @param fallbackCoordinateField the fallback coordinate field applied if
+     *        coordinate field in result set is null.
+     * @param defaultCoordinateFallback flag for cascade fallback, first not
+     *        null geometry (coalesce) will be applied.
+     * @return the coordinate column list.
+     * @throws IllegalQueryException if one of the given coordinates is not
+     *         valid.
      */
-    String getCoordinateField( String coordinate );
+    List<String> getCoordinateFields( String program, String coordinateField,
+        String fallbackCoordinateField, boolean defaultCoordinateFallback );
 
     /**
-     * Returns the coordinate column field to use for the given coordinate
-     * field. Coordinate field must match EVENT, a data element identifier or an
-     * attribute identifier.
+     * Returns a {@link QueryItem}.
      *
-     * @param coordinate the coordinate field.
-     * @return the coordinate column field.
-     * @throws IllegalQueryException if the coordinate field is not valid.
-     */
-    String getFallbackCoordinateField( String coordinate );
-
-    /**
-     * Returns a QueryItem
-     *
-     * @param dimensionString
-     * @param program
-     * @param type
-     * @return
+     * @param dimensionString the dimension string.
+     * @param program the {@link Program}.
+     * @param type the {@link EventOutputType}.
+     * @return a {@link QueryItem}.
      */
     QueryItem getQueryItem( String dimensionString, Program program, EventOutputType type );
 }

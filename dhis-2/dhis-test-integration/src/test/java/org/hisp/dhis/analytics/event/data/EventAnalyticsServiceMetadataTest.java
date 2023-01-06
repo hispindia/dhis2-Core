@@ -31,6 +31,7 @@ import static org.hisp.dhis.common.QueryFilter.OPTION_SEP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -76,6 +77,9 @@ import com.google.common.collect.Sets;
 class EventAnalyticsServiceMetadataTest extends SingleSetupIntegrationTestBase
 {
 
+    @Autowired
+    private UserService _userService;
+
     private LegendSet lsA;
 
     private Legend leA;
@@ -120,7 +124,7 @@ class EventAnalyticsServiceMetadataTest extends SingleSetupIntegrationTestBase
     @Override
     public void setUpTest()
     {
-        userService = (UserService) getBean( UserService.ID );
+        userService = _userService;
         leA = createLegend( 'A', 0d, 10d );
         leB = createLegend( 'B', 11d, 20d );
         leC = createLegend( 'C', 21d, 30d );
@@ -233,7 +237,9 @@ class EventAnalyticsServiceMetadataTest extends SingleSetupIntegrationTestBase
         }
         for ( Option option : deE.getOptionSet().getOptions() )
         {
-            assertNotNull( itemMap.get( option.getUid() ) );
+            // Because skipData is set to "true" and no option code is specified
+            // as filter.
+            assertNull( itemMap.get( option.getUid() ) );
         }
         assertNotNull( itemMap.get( deA.getUid() ) );
         assertNotNull( itemMap.get( deE.getUid() ) );

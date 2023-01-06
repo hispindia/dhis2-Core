@@ -38,6 +38,9 @@ import static org.hisp.dhis.common.ValueType.TEXT;
 import static org.hisp.dhis.expression.Operator.equal_to;
 import static org.hisp.dhis.utils.Assertions.assertMapEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -88,6 +91,8 @@ import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodService;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.scheduling.NoopJobProgress;
+import org.hisp.dhis.setting.SettingKey;
+import org.hisp.dhis.setting.SystemSettingManager;
 import org.hisp.dhis.system.util.CsvUtils;
 import org.hisp.dhis.test.integration.SingleSetupIntegrationTestBase;
 import org.hisp.dhis.validation.ValidationResult;
@@ -106,7 +111,7 @@ import com.google.common.collect.Lists;
  * Tests aggregation of data in analytics tables.
  *
  * @author Henning Haakonsen (original)
- * @author Jim Grace (break cases into indidual tests)
+ * @author Jim Grace (break cases into individual tests)
  */
 class AnalyticsServiceTest
     extends SingleSetupIntegrationTestBase
@@ -121,13 +126,17 @@ class AnalyticsServiceTest
 
     private Period peMar;
 
-    private Period peApril;
+    private Period peApr;
 
     private Period peMay;
 
-    private Period peJune;
+    private Period peJun;
 
-    private Period peJuly;
+    private Period peJul;
+
+    private Period peAug;
+
+    private Period peSep;
 
     private Period quarter;
 
@@ -163,7 +172,9 @@ class AnalyticsServiceTest
 
     private DataSet dataSetB;
 
-    private Indicator indicatorA;
+    private Indicator inA;
+
+    private Indicator inB;
 
     private ReportingRate reportingRateA;
 
@@ -219,6 +230,11 @@ class AnalyticsServiceTest
     private CompleteDataSetRegistrationService completeDataSetRegistrationService;
 
     @Autowired
+    private SystemSettingManager systemSettingManager;
+
+    private Date processStartTime;
+
+    @Autowired
     @Qualifier( "readOnlyJdbcTemplate" )
     private JdbcTemplate jdbcTemplate;
 
@@ -257,6 +273,11 @@ class AnalyticsServiceTest
         Date oneSecondFromNow = Date
             .from( LocalDateTime.now().plusSeconds( 1 ).atZone( ZoneId.systemDefault() ).toInstant() );
 
+        assertNull(
+            systemSettingManager.getSystemSetting( SettingKey.LAST_SUCCESSFUL_RESOURCE_TABLES_UPDATE, Date.class ) );
+        assertNull(
+            systemSettingManager.getSystemSetting( SettingKey.LAST_SUCCESSFUL_ANALYTICS_TABLES_UPDATE, Date.class ) );
+        processStartTime = new Date();
         // Generate analytics tables
         analyticsTableGenerator.generateTables( AnalyticsTableUpdateParams.newBuilder()
             .withStartTime( oneSecondFromNow )
@@ -277,10 +298,12 @@ class AnalyticsServiceTest
         peJan = createPeriod( "2017-01" );
         peFeb = createPeriod( "2017-02" );
         peMar = createPeriod( "2017-03" );
-        peApril = createPeriod( "2017-04" );
+        peApr = createPeriod( "2017-04" );
         peMay = createPeriod( "2017-05" );
-        peJune = createPeriod( "2017-06" );
-        peJuly = createPeriod( "2017-07" );
+        peJun = createPeriod( "2017-06" );
+        peJul = createPeriod( "2017-07" );
+        peAug = createPeriod( "2017-08" );
+        peSep = createPeriod( "2017-09" );
 
         // These periods don't need to be persisted:
         quarter = createPeriod( "2017Q1" );
@@ -289,10 +312,12 @@ class AnalyticsServiceTest
         periodService.addPeriod( peJan );
         periodService.addPeriod( peFeb );
         periodService.addPeriod( peMar );
-        periodService.addPeriod( peApril );
+        periodService.addPeriod( peApr );
         periodService.addPeriod( peMay );
-        periodService.addPeriod( peJune );
-        periodService.addPeriod( peJuly );
+        periodService.addPeriod( peJun );
+        periodService.addPeriod( peJul );
+        periodService.addPeriod( peAug );
+        periodService.addPeriod( peSep );
 
         deA = createDataElement( 'A' );
         deB = createDataElement( 'B' );
@@ -390,9 +415,14 @@ class AnalyticsServiceTest
         indicatorTypeA.setFactor( 1 );
         indicatorService.addIndicatorType( indicatorTypeA );
 
-        indicatorA = createIndicator( 'A', indicatorTypeA );
-        indicatorA.setUid( "indicatorId" );
-        indicatorService.addIndicator( indicatorA );
+        inA = createIndicator( 'A', indicatorTypeA );
+        inB = createIndicator( 'B', indicatorTypeA );
+
+        inA.setUid( "indicatorAA" );
+        inB.setUid( "indicatorBB" );
+
+        indicatorService.addIndicator( inA );
+        indicatorService.addIndicator( inB );
 
         reportingRateA = new ReportingRate( dataSetA );
         reportingRateB = new ReportingRate( dataSetB );
@@ -547,17 +577,17 @@ class AnalyticsServiceTest
     // Test helpers
     // --------------------------------------------------------------------------
 
-    private void withIndicator( String numerator )
+    private void withIndicator( Indicator indicator, String numerator )
     {
-        withIndicator( numerator, "1" );
+        withIndicator( indicator, numerator, "1" );
     }
 
-    private void withIndicator( String numerator, String denominator )
+    private void withIndicator( Indicator indicator, String numerator, String denominator )
     {
-        indicatorA.setNumerator( numerator );
-        indicatorA.setDenominator( denominator );
+        indicator.setNumerator( numerator );
+        indicator.setDenominator( denominator );
 
-        indicatorService.updateIndicator( indicatorA );
+        indicatorService.updateIndicator( indicator );
     }
 
     private void assertDataValues( Map<String, Object> expected, DataQueryParams params )
@@ -615,15 +645,15 @@ class AnalyticsServiceTest
             .withOutputFormat( OutputFormat.ANALYTICS ).build();
 
         assertDataValues(
-            Map.of( "deabcdefghC-ouabcdefghB-201703", 6.0 ),
+            Map.of( "deabcdefghC-ouabcdefghB-201703", 6L ),
             params );
 
         AnalyticsTestUtils.assertResultSet(
-            Map.of( "deabcdefghC-ouabcdefghB-201703", 6.0 ),
+            Map.of( "deabcdefghC-ouabcdefghB-201703", 6L ),
             getDataValueSet( params ) );
 
         assertMapEquals(
-            Map.of( "deabcdefghC-201703-ouabcdefghB", 6.0 ),
+            Map.of( "deabcdefghC-201703-ouabcdefghB", 6L ),
             getDataValueMapping( new Visualization( "deC_ouB_2017_03",
                 List.of( deC ), emptyList(), emptyList(), List.of( peMar ), List.of( ouB ),
                 false, true, true ) ) );
@@ -640,15 +670,15 @@ class AnalyticsServiceTest
             .withOutputFormat( OutputFormat.ANALYTICS ).build();
 
         assertDataValues(
-            Map.of( "deabcdefghA-ouabcdefghA-2017Q1", 308.0 ),
+            Map.of( "deabcdefghA-ouabcdefghA-2017Q1", 308L ),
             params );
 
         AnalyticsTestUtils.assertResultSet(
-            Map.of( "deabcdefghA-ouabcdefghA-2017Q1", 308.0 ),
+            Map.of( "deabcdefghA-ouabcdefghA-2017Q1", 308L ),
             getDataValueSet( params ) );
 
         assertMapEquals(
-            Map.of( "deabcdefghA-2017Q1-ouabcdefghA", 308.0 ),
+            Map.of( "deabcdefghA-2017Q1-ouabcdefghA", 308L ),
             getDataValueMapping( new Visualization( "deA_ouA_2017_Q01",
                 List.of( deA ), emptyList(), emptyList(), List.of( quarter ), List.of( ouA ),
                 false, true, true ) ) );
@@ -657,12 +687,12 @@ class AnalyticsServiceTest
     @Test
     void testIndicatorWithDataElementOperand()
     {
-        withIndicator( "#{" + deA.getUid() + "." + ocDef.getUid() + "}" );
+        withIndicator( inA, "#{" + deA.getUid() + "." + ocDef.getUid() + "}" );
 
         assertDataValues(
-            Map.of( "indicatorId-2017", 308.0 ),
+            Map.of( "indicatorAA-2017", 308.0 ),
             DataQueryParams.newBuilder()
-                .withIndicators( List.of( indicatorA ) )
+                .withIndicators( List.of( inA ) )
                 .withAggregationType( AnalyticsAggregationType.SUM )
                 .withPeriod( year )
                 .withOutputFormat( OutputFormat.ANALYTICS ).build() );
@@ -671,13 +701,13 @@ class AnalyticsServiceTest
     @Test
     void testIndicatorWithTwoDataElementOperands()
     {
-        withIndicator(
+        withIndicator( inA,
             "#{" + deB.getUid() + "." + ocDef.getUid() + "}" + "+#{" + deC.getUid() + "." + ocDef.getUid() + "}" );
 
         assertDataValues(
-            Map.of( "indicatorId-2017Q1", 567.0 ),
+            Map.of( "indicatorAA-2017Q1", 567.0 ),
             DataQueryParams.newBuilder()
-                .withIndicators( List.of( indicatorA ) )
+                .withIndicators( List.of( inA ) )
                 .withAggregationType( AnalyticsAggregationType.SUM )
                 .withPeriod( quarter )
                 .withOutputFormat( OutputFormat.ANALYTICS ).build() );
@@ -686,36 +716,36 @@ class AnalyticsServiceTest
     @Test
     void testIndicatorDividingByConstantDenominator()
     {
-        withIndicator(
+        withIndicator( inA,
             "#{" + deB.getUid() + "." + ocDef.getUid() + "}" + "*#{" + deC.getUid() + "." + ocDef.getUid() + "}",
             "100" );
 
         assertDataValues(
-            Map.of( "indicatorId-2017Q1", 258.50 ),
+            Map.of( "indicatorAA-2017Q1", 258.50 ),
             DataQueryParams.newBuilder()
-                .withIndicators( List.of( indicatorA ) )
+                .withIndicators( List.of( inA ) )
                 .withAggregationType( AnalyticsAggregationType.SUM )
                 .withPeriod( quarter )
                 .withOutputFormat( OutputFormat.ANALYTICS ).build() );
 
         assertMapEquals(
-            Map.of( "indicatorId-2017Q1-ouabcdefghA", 258.50 ),
+            Map.of( "indicatorAA-2017Q1-ouabcdefghA", 258.50 ),
             getDataValueMapping( new Visualization( "deA_ouA_2017_Q01", emptyList(),
-                List.of( indicatorA ), emptyList(), List.of( quarter ), List.of( ouA ),
+                List.of( inA ), emptyList(), List.of( quarter ), List.of( ouA ),
                 true, true, true ) ) );
     }
 
     @Test
     void testIndicatorDividingByDeoDenominator()
     {
-        withIndicator(
+        withIndicator( inA,
             "#{" + deA.getUid() + "." + ocDef.getUid() + "}" + "*#{" + deC.getUid() + "." + ocDef.getUid() + "}",
             "#{" + deB.getUid() + "." + ocDef.getUid() + "}" );
 
         assertDataValues(
-            Map.of( "indicatorId-2017Q1", 29.8 ),
+            Map.of( "indicatorAA-2017Q1", 29.8 ),
             DataQueryParams.newBuilder()
-                .withIndicators( List.of( indicatorA ) )
+                .withIndicators( List.of( inA ) )
                 .withAggregationType( AnalyticsAggregationType.SUM )
                 .withPeriod( quarter )
                 .withOutputFormat( OutputFormat.ANALYTICS ).build() );
@@ -724,14 +754,14 @@ class AnalyticsServiceTest
     @Test
     void testIndicatorWithReportingRateA()
     {
-        withIndicator( "#{" + deA.getUid() + "." + ocDef.getUid() + "}"
+        withIndicator( inA, "#{" + deA.getUid() + "." + ocDef.getUid() + "}"
             + "*(R{" + reportingRateA.getUid() + ".REPORTING_RATE} / 100)" );
 
         assertDataValues(
-            Map.of( "indicatorId-ouabcdefghD-2017Q1", 199.4 ),
+            Map.of( "indicatorAA-ouabcdefghD-2017Q1", 199.4 ),
             DataQueryParams.newBuilder()
                 .withOrganisationUnit( ouD )
-                .withIndicators( List.of( indicatorA ) )
+                .withIndicators( List.of( inA ) )
                 .withAggregationType( AnalyticsAggregationType.SUM )
                 .withPeriod( quarter )
                 .withOutputFormat( OutputFormat.ANALYTICS ).build() );
@@ -740,14 +770,14 @@ class AnalyticsServiceTest
     @Test
     void testIndicatorWithReportingRateB()
     {
-        withIndicator( "#{" + deA.getUid() + "." + ocDef.getUid() + "}"
+        withIndicator( inA, "#{" + deA.getUid() + "." + ocDef.getUid() + "}"
             + "*(R{" + reportingRateB.getUid() + ".REPORTING_RATE} / 100)" );
 
         assertDataValues(
-            Map.of( "indicatorId-ouabcdefghD-2017Q1", 99.6 ),
+            Map.of( "indicatorAA-ouabcdefghD-2017Q1", 99.6 ),
             DataQueryParams.newBuilder()
                 .withOrganisationUnit( ouD )
-                .withIndicators( List.of( indicatorA ) )
+                .withIndicators( List.of( inA ) )
                 .withAggregationType( AnalyticsAggregationType.SUM )
                 .withPeriod( quarter )
                 .withOutputFormat( OutputFormat.ANALYTICS ).build() );
@@ -756,28 +786,143 @@ class AnalyticsServiceTest
     @Test
     void testIndicatorWithPeriodOffsets()
     {
-        withIndicator( "#{" + deE.getUid() + "}.periodOffset(-1) + #{" + deE.getUid() + "}.periodOffset(-2)" );
+        withIndicator( inA, "#{" + deE.getUid() + "}.periodOffset(-1) + #{" + deE.getUid() + "}.periodOffset(-2)" );
 
         assertDataValues(
-            Map.of( "indicatorId-ouabcdefghA-201707", 3.0 ),
+            Map.of( "indicatorAA-ouabcdefghA-201707", 3.0 ),
             DataQueryParams.newBuilder()
                 .withOrganisationUnit( ouA )
-                .withIndicators( Lists.newArrayList( indicatorA ) )
+                .withIndicators( Lists.newArrayList( inA ) )
                 .withAggregationType( AnalyticsAggregationType.SUM )
-                .withPeriod( peJuly )
+                .withPeriod( peJul )
+                .withOutputFormat( OutputFormat.ANALYTICS ).build() );
+    }
+
+    @Test
+    void testIndicatorWithYearToDate()
+    {
+        withIndicator( inA, "#{" + deE.getUid() + "}.yearToDate()" );
+
+        assertDataValues(
+            Map.of( "indicatorAA-ouabcdefghA-201705", 1.0,
+                "indicatorAA-ouabcdefghA-201706", 3.0,
+                "indicatorAA-ouabcdefghA-201707", 7.0,
+                "indicatorAA-ouabcdefghA-201708", 7.0,
+                "indicatorAA-ouabcdefghA-201709", 7.0 ),
+            DataQueryParams.newBuilder()
+                .withOrganisationUnit( ouA )
+                .withIndicators( Lists.newArrayList( inA ) )
+                .withAggregationType( AnalyticsAggregationType.SUM )
+                .withPeriods( List.of( peApr, peMay, peJun, peJul, peAug, peSep ) )
+                .withOutputFormat( OutputFormat.ANALYTICS ).build() );
+    }
+
+    @Test
+    void testIndicatorWithPeriodOffsetAndYearToDate()
+    {
+        withIndicator( inA, "#{" + deE.getUid() + "}.periodOffset(-1).yearToDate()" );
+
+        assertDataValues(
+            Map.of( "indicatorAA-ouabcdefghA-201706", 1.0,
+                "indicatorAA-ouabcdefghA-201707", 3.0,
+                "indicatorAA-ouabcdefghA-201708", 7.0,
+                "indicatorAA-ouabcdefghA-201709", 7.0 ),
+            DataQueryParams.newBuilder()
+                .withOrganisationUnit( ouA )
+                .withIndicators( Lists.newArrayList( inA ) )
+                .withAggregationType( AnalyticsAggregationType.SUM )
+                .withPeriods( List.of( peApr, peMay, peJun, peJul, peAug, peSep ) )
+                .withOutputFormat( OutputFormat.ANALYTICS ).build() );
+    }
+
+    @Test
+    void testIndicatorWithPeriodInYear()
+    {
+        withIndicator( inA, "#{" + deE.getUid() + "}.yearToDate() + [periodInYear]" );
+
+        assertDataValues(
+            Map.of( "indicatorAA-ouabcdefghA-201705", 1.0 + 5,
+                "indicatorAA-ouabcdefghA-201706", 3.0 + 6,
+                "indicatorAA-ouabcdefghA-201707", 7.0 + 7,
+                "indicatorAA-ouabcdefghA-201708", 7.0 + 8,
+                "indicatorAA-ouabcdefghA-201709", 7.0 + 9 ),
+            DataQueryParams.newBuilder()
+                .withOrganisationUnit( ouA )
+                .withIndicators( Lists.newArrayList( inA ) )
+                .withAggregationType( AnalyticsAggregationType.SUM )
+                .withPeriods( List.of( peApr, peMay, peJun, peJul, peAug, peSep ) )
+                .withOutputFormat( OutputFormat.ANALYTICS ).build() );
+    }
+
+    @Test
+    void testIndicatorWithPeriodOffsetAndPeriodInYear()
+    {
+        withIndicator( inA, "( #{" + deE.getUid() + "}.yearToDate() + [periodInYear] ).periodOffset(-1)" );
+
+        assertDataValues(
+            Map.of( "indicatorAA-ouabcdefghA-201706", 1.0 + 5,
+                "indicatorAA-ouabcdefghA-201707", 3.0 + 6,
+                "indicatorAA-ouabcdefghA-201708", 7.0 + 7,
+                "indicatorAA-ouabcdefghA-201709", 7.0 + 8 ),
+            DataQueryParams.newBuilder()
+                .withOrganisationUnit( ouA )
+                .withIndicators( Lists.newArrayList( inA ) )
+                .withAggregationType( AnalyticsAggregationType.SUM )
+                .withPeriods( List.of( peApr, peMay, peJun, peJul, peAug, peSep ) )
+                .withOutputFormat( OutputFormat.ANALYTICS ).build() );
+    }
+
+    @Test
+    void testTwoIndicatorsWithPeriodOffsetAndPeriodInYear()
+    {
+        withIndicator( inA, "( #{" + deE.getUid() + "}.yearToDate() + [periodInYear] ).periodOffset(-1)" );
+        withIndicator( inB, "( #{" + deE.getUid() + "}.yearToDate() + [periodInYear] ).periodOffset(-2)" );
+
+        assertDataValues(
+            Map.of( "indicatorAA-ouabcdefghA-201706", 1.0 + 5,
+                "indicatorAA-ouabcdefghA-201707", 3.0 + 6,
+                "indicatorAA-ouabcdefghA-201708", 7.0 + 7,
+                "indicatorAA-ouabcdefghA-201709", 7.0 + 8,
+                "indicatorBB-ouabcdefghA-201707", 1.0 + 5,
+                "indicatorBB-ouabcdefghA-201708", 3.0 + 6,
+                "indicatorBB-ouabcdefghA-201709", 7.0 + 7 ),
+            DataQueryParams.newBuilder()
+                .withOrganisationUnit( ouA )
+                .withIndicators( List.of( inA, inB ) )
+                .withAggregationType( AnalyticsAggregationType.SUM )
+                .withPeriods( List.of( peApr, peMay, peJun, peJul, peAug, peSep ) )
+                .withOutputFormat( OutputFormat.ANALYTICS ).build() );
+    }
+
+    @Test
+    void testIndicatorWithYearlyPeriodCount()
+    {
+        withIndicator( inA, "#{" + deE.getUid() + "}.yearToDate() + [yearlyPeriodCount]" );
+
+        assertDataValues(
+            Map.of( "indicatorAA-ouabcdefghA-201705", 1.0 + 12,
+                "indicatorAA-ouabcdefghA-201706", 3.0 + 12,
+                "indicatorAA-ouabcdefghA-201707", 7.0 + 12,
+                "indicatorAA-ouabcdefghA-201708", 7.0 + 12,
+                "indicatorAA-ouabcdefghA-201709", 7.0 + 12 ),
+            DataQueryParams.newBuilder()
+                .withOrganisationUnit( ouA )
+                .withIndicators( Lists.newArrayList( inA ) )
+                .withAggregationType( AnalyticsAggregationType.SUM )
+                .withPeriods( List.of( peApr, peMay, peJun, peJul, peAug, peSep ) )
                 .withOutputFormat( OutputFormat.ANALYTICS ).build() );
     }
 
     @Test
     void testIndicatorSummingBooleans()
     {
-        withIndicator( "#{" + deF.getUid() + "}" );
+        withIndicator( inA, "#{" + deF.getUid() + "}" );
 
         assertDataValues(
-            Map.of( "indicatorId-ouabcdefghA-201701", 1.0 ),
+            Map.of( "indicatorAA-ouabcdefghA-201701", 1.0 ),
             DataQueryParams.newBuilder()
                 .withOrganisationUnit( ouA )
-                .withIndicators( Lists.newArrayList( indicatorA ) )
+                .withIndicators( Lists.newArrayList( inA ) )
                 .withAggregationType( AnalyticsAggregationType.SUM )
                 .withPeriods( List.of( peJan, peFeb ) )
                 .withOutputFormat( OutputFormat.ANALYTICS ).build() );
@@ -786,13 +931,13 @@ class AnalyticsServiceTest
     @Test
     void testIndicatorSubexpressionBoolean()
     {
-        withIndicator( "subExpression( if( #{" + deF.getUid() + "}, 3, 4 ) )" );
+        withIndicator( inA, "subExpression( if( #{" + deF.getUid() + "}, 3, 4 ) )" );
 
         assertDataValues(
-            Map.of( "indicatorId-ouabcdefghA-201701", 3.0 ),
+            Map.of( "indicatorAA-ouabcdefghA-201701", 3.0 ),
             DataQueryParams.newBuilder()
                 .withOrganisationUnit( ouA )
-                .withIndicators( Lists.newArrayList( indicatorA ) )
+                .withIndicators( Lists.newArrayList( inA ) )
                 .withAggregationType( AnalyticsAggregationType.SUM )
                 .withPeriods( List.of( peJan, peFeb ) )
                 .withOutputFormat( OutputFormat.ANALYTICS ).build() );
@@ -801,13 +946,13 @@ class AnalyticsServiceTest
     @Test
     void testIndicatorSubexpressionText()
     {
-        withIndicator( "subExpression( if( #{" + deG.getUid() + "} == 'abc', 5, 6 ) )" );
+        withIndicator( inA, "subExpression( if( #{" + deG.getUid() + "} == 'abc', 5, 6 ) )" );
 
         assertDataValues(
-            Map.of( "indicatorId-ouabcdefghA-201701", 5.0 ),
+            Map.of( "indicatorAA-ouabcdefghA-201701", 5.0 ),
             DataQueryParams.newBuilder()
                 .withOrganisationUnit( ouA )
-                .withIndicators( Lists.newArrayList( indicatorA ) )
+                .withIndicators( Lists.newArrayList( inA ) )
                 .withAggregationType( AnalyticsAggregationType.SUM )
                 .withPeriods( List.of( peJan, peFeb ) )
                 .withOutputFormat( OutputFormat.ANALYTICS ).build() );
@@ -816,13 +961,13 @@ class AnalyticsServiceTest
     @Test
     void testIndicatorSubexpressionDate()
     {
-        withIndicator( "subExpression( if( #{" + deH.getUid() + "} >= '2017-01-01', 7, 8 ) )" );
+        withIndicator( inA, "subExpression( if( #{" + deH.getUid() + "} >= '2017-01-01', 7, 8 ) )" );
 
         assertDataValues(
-            Map.of( "indicatorId-ouabcdefghA-201701", 7.0 ),
+            Map.of( "indicatorAA-ouabcdefghA-201701", 7.0 ),
             DataQueryParams.newBuilder()
                 .withOrganisationUnit( ouA )
-                .withIndicators( Lists.newArrayList( indicatorA ) )
+                .withIndicators( Lists.newArrayList( inA ) )
                 .withAggregationType( AnalyticsAggregationType.SUM )
                 .withPeriods( List.of( peJan, peFeb ) )
                 .withOutputFormat( OutputFormat.ANALYTICS ).build() );
@@ -832,7 +977,7 @@ class AnalyticsServiceTest
     void test_deA_ouB_ouC_2017_02()
     {
         assertDataValues(
-            Map.of( "deabcdefghA-201702", 233.0 ),
+            Map.of( "deabcdefghA-201702", 233L ),
             DataQueryParams.newBuilder()
                 .withFilterOrganisationUnits( List.of( ouB, ouC ) )
                 .withDataElements( List.of( deA ) )
@@ -850,7 +995,7 @@ class AnalyticsServiceTest
                 .withFilterOrganisationUnits( Lists.newArrayList( ouC, ouE ) )
                 .withDataElements( Lists.newArrayList( deA, deB, deD ) )
                 .withAggregationType( AnalyticsAggregationType.AVERAGE )
-                .withPeriod( peApril )
+                .withPeriod( peApr )
                 .withOutputFormat( OutputFormat.ANALYTICS ).build() );
     }
 
@@ -858,7 +1003,7 @@ class AnalyticsServiceTest
     void test_ouB_2017_01_01_2017_02_20()
     {
         assertDataValues(
-            Map.of( "deabcdefghA-ouabcdefghB", 68.0 ),
+            Map.of( "deabcdefghA-ouabcdefghB", 68L ),
             DataQueryParams.newBuilder()
                 .withDataElements( Lists.newArrayList( deA, deB ) )
                 .withOrganisationUnit( ouB )
@@ -872,7 +1017,7 @@ class AnalyticsServiceTest
     void test_reRate_2017_Q01_ouC()
     {
         assertDataValues(
-            Map.of( "a23dataSetA.REPORTING_RATE-ouabcdefghC-2017Q1", 100.0 ),
+            Map.of( "a23dataSetA.REPORTING_RATE-ouabcdefghC-2017Q1", 100L ),
             DataQueryParams.newBuilder()
                 .withOrganisationUnit( ouC )
                 .withReportingRates( List.of( reportingRateA ) )
@@ -898,8 +1043,8 @@ class AnalyticsServiceTest
     void test_ou_2017_validationruleA()
     {
         assertDataValues(
-            Map.of( "a234567vruA-ouabcdefghA-2017", 4.0,
-                "a234567vruA-ouabcdefghB-2017", 2.0 ),
+            Map.of( "a234567vruA-ouabcdefghA-2017", 4L,
+                "a234567vruA-ouabcdefghB-2017", 2L ),
             DataQueryParams.newBuilder()
                 .withValidationRules( List.of( validationRuleA ) )
                 .withOrganisationUnits( organisationUnitService.getAllOrganisationUnits() )
@@ -912,8 +1057,8 @@ class AnalyticsServiceTest
     void test_ou_2017_validationruleB()
     {
         assertDataValues(
-            Map.of( "a234567vruB-ouabcdefghA-2017", 3.0,
-                "a234567vruB-ouabcdefghB-2017", 2.0 ),
+            Map.of( "a234567vruB-ouabcdefghA-2017", 3L,
+                "a234567vruB-ouabcdefghB-2017", 2L ),
             DataQueryParams.newBuilder()
                 .withValidationRules( List.of( validationRuleB ) )
                 .withOrganisationUnits( organisationUnitService.getAllOrganisationUnits() )
@@ -926,10 +1071,10 @@ class AnalyticsServiceTest
     void test_ou_2017_validationruleAB()
     {
         assertDataValues(
-            Map.of( "a234567vruA-ouabcdefghA-2017", 4.0,
-                "a234567vruA-ouabcdefghB-2017", 2.0,
-                "a234567vruB-ouabcdefghA-2017", 3.0,
-                "a234567vruB-ouabcdefghB-2017", 2.0 ),
+            Map.of( "a234567vruA-ouabcdefghA-2017", 4L,
+                "a234567vruA-ouabcdefghB-2017", 2L,
+                "a234567vruB-ouabcdefghA-2017", 3L,
+                "a234567vruB-ouabcdefghB-2017", 2L ),
             DataQueryParams.newBuilder()
                 .withValidationRules( List.of( validationRuleA, validationRuleB ) )
                 .withOrganisationUnits( organisationUnitService.getAllOrganisationUnits() )
@@ -937,4 +1082,19 @@ class AnalyticsServiceTest
                 .withAggregationType( AnalyticsAggregationType.COUNT )
                 .withOutputFormat( OutputFormat.ANALYTICS ).build() );
     }
+
+    @Test
+    void resourceTablesTimestampUpdated()
+    {
+
+        Date tableLastUpdated = systemSettingManager
+            .getSystemSetting( SettingKey.LAST_SUCCESSFUL_ANALYTICS_TABLES_UPDATE, Date.class );
+        assertNotEquals( null, tableLastUpdated );
+        Date resourceTablesUpdated = systemSettingManager
+            .getSystemSetting( SettingKey.LAST_SUCCESSFUL_RESOURCE_TABLES_UPDATE, Date.class );
+        assertNotEquals( null, resourceTablesUpdated );
+        assertTrue( tableLastUpdated.compareTo( processStartTime ) > 0 );
+        assertTrue( resourceTablesUpdated.compareTo( processStartTime ) > 0 );
+    }
+
 }

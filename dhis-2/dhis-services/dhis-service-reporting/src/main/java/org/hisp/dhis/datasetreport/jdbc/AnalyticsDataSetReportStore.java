@@ -27,11 +27,15 @@
  */
 package org.hisp.dhis.datasetreport.jdbc;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.hisp.dhis.analytics.AnalyticsService;
@@ -57,6 +61,7 @@ import com.google.common.collect.Lists;
  * @author Lars Helge Overland
  */
 @Slf4j
+@RequiredArgsConstructor
 @Repository( "org.hisp.dhis.datasetreport.DataSetReportStore" )
 public class AnalyticsDataSetReportStore
     implements DataSetReportStore
@@ -64,14 +69,6 @@ public class AnalyticsDataSetReportStore
     private final DataQueryService dataQueryService;
 
     private final AnalyticsService analyticsService;
-
-    public AnalyticsDataSetReportStore( DataQueryService dataQueryService, AnalyticsService analyticsService )
-    {
-        checkNotNull( dataQueryService );
-        checkNotNull( analyticsService );
-        this.dataQueryService = dataQueryService;
-        this.analyticsService = analyticsService;
-    }
 
     // -------------------------------------------------------------------------
     // DataSetReportStore implementation
@@ -99,7 +96,7 @@ public class AnalyticsDataSetReportStore
         if ( filters != null )
         {
             params
-                .addFilters( dataQueryService.getDimensionalObjects( filters, null, null, null, IdScheme.UID ) );
+                .addFilters( dataQueryService.getDimensionalObjects( filters, null, null, IdScheme.UID ) );
         }
 
         Map<String, Object> map = analyticsService.getAggregatedDataValueMapping( params.build() );
@@ -161,7 +158,7 @@ public class AnalyticsDataSetReportStore
                 if ( filters != null )
                 {
                     params.addFilters(
-                        dataQueryService.getDimensionalObjects( filters, null, null, null, IdScheme.UID ) );
+                        dataQueryService.getDimensionalObjects( filters, null, null, IdScheme.UID ) );
                 }
 
                 Map<String, Object> map = analyticsService.getAggregatedDataValueMapping( params.build() );
@@ -198,7 +195,7 @@ public class AnalyticsDataSetReportStore
         if ( filters != null )
         {
             params
-                .addFilters( dataQueryService.getDimensionalObjects( filters, null, null, null, IdScheme.UID ) );
+                .addFilters( dataQueryService.getDimensionalObjects( filters, null, null, IdScheme.UID ) );
         }
 
         Map<String, Object> map = analyticsService.getAggregatedDataValueMapping( params.build() );
@@ -233,7 +230,7 @@ public class AnalyticsDataSetReportStore
         if ( filters != null )
         {
             params
-                .addFilters( dataQueryService.getDimensionalObjects( filters, null, null, null, IdScheme.UID ) );
+                .addFilters( dataQueryService.getDimensionalObjects( filters, null, null, IdScheme.UID ) );
         }
 
         Map<String, Object> map = analyticsService.getAggregatedDataValueMapping( params.build() );

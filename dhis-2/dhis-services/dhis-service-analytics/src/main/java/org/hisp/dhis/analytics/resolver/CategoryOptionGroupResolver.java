@@ -27,8 +27,10 @@
  */
 package org.hisp.dhis.analytics.resolver;
 
+import static org.hisp.dhis.commons.collection.CollectionUtils.isEmpty;
 import static org.hisp.dhis.expression.ParseType.INDICATOR_EXPRESSION;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -49,7 +51,6 @@ import com.google.common.base.Joiner;
 /**
  * @author Dusan Bernat
  */
-
 @Service( "org.hisp.dhis.analytics.resolver.CategoryOptionGroupResolver" )
 @AllArgsConstructor
 public class CategoryOptionGroupResolver implements ExpressionResolver
@@ -73,8 +74,8 @@ public class CategoryOptionGroupResolver implements ExpressionResolver
     @Override
     public String resolve( String expression )
     {
-        Set<DimensionalItemId> dimItemIds = expressionService.getExpressionDimensionalItemIds( expression,
-            INDICATOR_EXPRESSION );
+        Set<DimensionalItemId> dimItemIds = expressionService.getExpressionDimensionalItemIds(
+            expression, INDICATOR_EXPRESSION );
 
         for ( DimensionalItemId id : dimItemIds )
         {
@@ -96,13 +97,12 @@ public class CategoryOptionGroupResolver implements ExpressionResolver
     {
         List<String> cocUidIntersection = getCategoryOptionCombosIntersection( cogUidList, dataElementId );
 
-        if ( cocUidIntersection == null || cocUidIntersection.isEmpty() )
+        if ( isEmpty( cocUidIntersection ) )
         {
             return expression;
         }
 
-        List<String> resolved = cocUidIntersection
-            .stream()
+        List<String> resolved = cocUidIntersection.stream()
             .map( cocUid -> id.getItem().replace( id.getId1(), cocUid ) )
             .collect( Collectors.toList() );
 
@@ -114,22 +114,19 @@ public class CategoryOptionGroupResolver implements ExpressionResolver
 
     private List<String> getCategoryOptionCombosIntersection( List<String> cogUidList, String dataElementId )
     {
-        List<String> cocUidIntersection = null;
+        List<String> cocUidIntersection = new ArrayList<>();
 
         for ( String cogUid : cogUidList )
         {
-            CategoryOptionGroup cog = categoryOptionGroupStore
-                .getByUid( cogUid );
-
+            CategoryOptionGroup cog = categoryOptionGroupStore.loadByUid( cogUid );
             List<String> cocUids = categoryOptionComboStore
-                .getCategoryOptionCombosByGroupUid( cog.getUid(), dataElementId )
-                .stream()
+                .getCategoryOptionCombosByGroupUid( cog.getUid(), dataElementId ).stream()
                 .map( BaseIdentifiableObject::getUid )
                 .collect( Collectors.toList() );
 
-            if ( cocUidIntersection == null )
+            if ( cocUidIntersection.isEmpty() )
             {
-                cocUidIntersection = cocUids;
+                cocUidIntersection.addAll( cocUids );
             }
             else
             {

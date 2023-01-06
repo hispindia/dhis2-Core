@@ -45,6 +45,7 @@ import org.hisp.dhis.common.OrganisationUnitSelectionMode;
 import org.hisp.dhis.common.ValueType;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dxf2.common.ImportOptions;
+import org.hisp.dhis.dxf2.events.EnrollmentParams;
 import org.hisp.dhis.dxf2.events.enrollment.Enrollment;
 import org.hisp.dhis.dxf2.events.enrollment.EnrollmentService;
 import org.hisp.dhis.dxf2.events.enrollment.Enrollments;
@@ -109,12 +110,6 @@ class EnrollmentSecurityTest extends TransactionalIntegrationTest
     private ProgramStage programStageA;
 
     private ProgramStage programStageB;
-
-    @Override
-    public boolean emptyDatabaseAfterTest()
-    {
-        return true;
-    }
 
     @Override
     protected void setUpTest()
@@ -279,7 +274,8 @@ class EnrollmentSecurityTest extends TransactionalIntegrationTest
         manager.updateNoAcl( programA );
         User user = createUserWithAuth( "user1" ).setOrganisationUnits( Sets.newHashSet( organisationUnitA ) );
         injectSecurityContext( user );
-        Enrollment enrollment = enrollmentService.getEnrollment( importSummary.getReference() );
+        Enrollment enrollment = enrollmentService.getEnrollment( importSummary.getReference(),
+            EnrollmentParams.FALSE );
         assertNotNull( enrollment );
         assertEquals( enrollment.getEnrollment(), importSummary.getReference() );
     }
@@ -297,7 +293,8 @@ class EnrollmentSecurityTest extends TransactionalIntegrationTest
         manager.updateNoAcl( programA );
         User user = createUserWithAuth( "user1" ).setOrganisationUnits( Sets.newHashSet( organisationUnitA ) );
         injectSecurityContext( user );
-        Enrollment enrollment = enrollmentService.getEnrollment( importSummary.getReference() );
+        Enrollment enrollment = enrollmentService.getEnrollment( importSummary.getReference(),
+            EnrollmentParams.FALSE );
         assertNotNull( enrollment );
         assertEquals( enrollment.getEnrollment(), importSummary.getReference() );
     }
@@ -343,7 +340,7 @@ class EnrollmentSecurityTest extends TransactionalIntegrationTest
         User user = createUserWithAuth( "user1" );
         injectSecurityContext( user );
         assertThrows( IllegalQueryException.class,
-            () -> enrollmentService.getEnrollment( importSummary.getReference() ) );
+            () -> enrollmentService.getEnrollment( importSummary.getReference(), EnrollmentParams.FALSE ) );
     }
 
     /**
@@ -360,7 +357,7 @@ class EnrollmentSecurityTest extends TransactionalIntegrationTest
         User user = createUserWithAuth( "user1" );
         injectSecurityContext( user );
         assertThrows( IllegalQueryException.class,
-            () -> enrollmentService.getEnrollment( importSummary.getReference() ) );
+            () -> enrollmentService.getEnrollment( importSummary.getReference(), EnrollmentParams.FALSE ) );
     }
 
     /**
@@ -377,7 +374,7 @@ class EnrollmentSecurityTest extends TransactionalIntegrationTest
         User user = createUserWithAuth( "user1" ).setOrganisationUnits( Sets.newHashSet( organisationUnitA ) );
         injectSecurityContext( user );
         assertThrows( IllegalQueryException.class,
-            () -> enrollmentService.getEnrollment( importSummary.getReference() ) );
+            () -> enrollmentService.getEnrollment( importSummary.getReference(), EnrollmentParams.FALSE ) );
     }
 
     @Test

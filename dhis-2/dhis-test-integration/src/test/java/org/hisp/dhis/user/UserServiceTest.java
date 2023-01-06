@@ -33,6 +33,7 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toSet;
 import static org.hisp.dhis.setting.SettingKey.CAN_GRANT_OWN_USER_ROLES;
 import static org.hisp.dhis.utils.Assertions.assertContainsOnly;
+import static org.hisp.dhis.utils.Assertions.assertIsEmpty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -40,6 +41,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -48,12 +51,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.hisp.dhis.feedback.ErrorReport;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.setting.SystemSettingManager;
 import org.hisp.dhis.test.integration.SingleSetupIntegrationTestBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.collect.Sets;
 
 /**
  * @author Lars Helge Overland
@@ -124,7 +130,7 @@ class UserServiceTest extends SingleSetupIntegrationTestBase
 
     private UserQueryParams getDefaultParams()
     {
-        return new UserQueryParams().setCanSeeOwnUserRoles( true );
+        return new UserQueryParams().setCanSeeOwnRoles( true );
     }
 
     @Test
@@ -178,13 +184,15 @@ class UserServiceTest extends SingleSetupIntegrationTestBase
     {
         User userA = addUser( "A", user -> user.setFirstName( "Chris" ) );
         User userB = addUser( "B", user -> user.setFirstName( "Chris" ) );
-        assertContainsOnly( userService.getUsers( getDefaultParams().setQuery( "Chris" ) ), userA, userB );
-        assertContainsOnly( userService.getUsers( getDefaultParams().setQuery( "hris SURNAM" ) ), userA, userB );
-        assertContainsOnly( userService.getUsers( getDefaultParams().setQuery( "hris SurnameA" ) ), userA );
-        assertContainsOnly( userService.getUsers( getDefaultParams().setQuery( "urnameB" ) ), userB );
-        assertContainsOnly( userService.getUsers( getDefaultParams().setQuery( "MAilA" ) ), userA );
-        assertContainsOnly( userService.getUsers( getDefaultParams().setQuery( "userNAME" ) ), userA, userB );
-        assertContainsOnly( userService.getUsers( getDefaultParams().setQuery( "ernameA" ) ), userA );
+        assertContainsOnly( List.of( userA, userB ), userService.getUsers( getDefaultParams().setQuery( "Chris" ) ) );
+        assertContainsOnly( List.of( userA, userB ),
+            userService.getUsers( getDefaultParams().setQuery( "hris SURNAM" ) ) );
+        assertContainsOnly( List.of( userA ), userService.getUsers( getDefaultParams().setQuery( "hris SurnameA" ) ) );
+        assertContainsOnly( List.of( userB ), userService.getUsers( getDefaultParams().setQuery( "urnameB" ) ) );
+        assertContainsOnly( List.of( userA ), userService.getUsers( getDefaultParams().setQuery( "MAilA" ) ) );
+        assertContainsOnly( List.of( userA, userB ),
+            userService.getUsers( getDefaultParams().setQuery( "userNAME" ) ) );
+        assertContainsOnly( List.of( userA ), userService.getUsers( getDefaultParams().setQuery( "ernameA" ) ) );
     }
 
     @Test
@@ -195,9 +203,9 @@ class UserServiceTest extends SingleSetupIntegrationTestBase
         User userC = addUser( "C", unitC );
         addUser( "D", unitD );
         UserQueryParams params = getDefaultParams().addOrganisationUnit( unitA ).setUser( userA );
-        assertContainsOnly( userService.getUsers( params ), userA );
+        assertContainsOnly( List.of( userA ), userService.getUsers( params ) );
         params = getDefaultParams().addOrganisationUnit( unitA ).setIncludeOrgUnitChildren( true ).setUser( userA );
-        assertContainsOnly( userService.getUsers( params ), userA, userC );
+        assertContainsOnly( List.of( userA, userC ), userService.getUsers( params ) );
     }
 
     @Test
@@ -216,10 +224,10 @@ class UserServiceTest extends SingleSetupIntegrationTestBase
         userD.getDataViewOrganisationUnits().add( unitD );
         userService.updateUser( userD );
         UserQueryParams params = getDefaultParams().addDataViewOrganisationUnit( unitA ).setUser( userA );
-        assertContainsOnly( userService.getUsers( params ), userA, userB );
+        assertContainsOnly( List.of( userA, userB ), userService.getUsers( params ) );
         params = getDefaultParams().addDataViewOrganisationUnit( unitA ).setIncludeOrgUnitChildren( true )
             .setUser( userA );
-        assertContainsOnly( userService.getUsers( params ), userA, userB, userC );
+        assertContainsOnly( List.of( userA, userB, userC ), userService.getUsers( params ) );
     }
 
     @Test
@@ -238,10 +246,10 @@ class UserServiceTest extends SingleSetupIntegrationTestBase
         userD.getTeiSearchOrganisationUnits().add( unitD );
         userService.updateUser( userD );
         UserQueryParams params = getDefaultParams().addTeiSearchOrganisationUnit( unitA ).setUser( userA );
-        assertContainsOnly( userService.getUsers( params ), userA, userB );
+        assertContainsOnly( List.of( userA, userB ), userService.getUsers( params ) );
         params = getDefaultParams().addTeiSearchOrganisationUnit( unitA ).setIncludeOrgUnitChildren( true )
             .setUser( userA );
-        assertContainsOnly( userService.getUsers( params ), userA, userB, userC );
+        assertContainsOnly( List.of( userA, userB, userC ), userService.getUsers( params ) );
     }
 
     @Test
@@ -257,12 +265,12 @@ class UserServiceTest extends SingleSetupIntegrationTestBase
         userGroupService.addUserGroup( ugA );
         userGroupService.addUserGroup( ugB );
         userGroupService.addUserGroup( ugC );
-        assertContainsOnly( userService.getUsers( getDefaultParams().setUserGroups( newHashSet( ugA ) ) ), userA,
-            userB );
-        assertContainsOnly( userService.getUsers( getDefaultParams().setUserGroups( newHashSet( ugA, ugB ) ) ), userA,
-            userB, userC );
-        assertContainsOnly( userService.getUsers( getDefaultParams().setUserGroups( newHashSet( ugA, ugC ) ) ), userA,
-            userB, userD );
+        assertContainsOnly( List.of( userA,
+            userB ), userService.getUsers( getDefaultParams().setUserGroups( newHashSet( ugA ) ) ) );
+        assertContainsOnly( List.of( userA,
+            userB, userC ), userService.getUsers( getDefaultParams().setUserGroups( newHashSet( ugA, ugB ) ) ) );
+        assertContainsOnly( List.of( userA,
+            userB, userD ), userService.getUsers( getDefaultParams().setUserGroups( newHashSet( ugA, ugC ) ) ) );
     }
 
     @Test
@@ -275,9 +283,9 @@ class UserServiceTest extends SingleSetupIntegrationTestBase
         User userD = addUser( "D", unitD );
         addUser( "E", unitE );
         UserQueryParams params = getDefaultParams().setUser( currentUser ).setUserOrgUnits( true );
-        assertContainsOnly( userService.getUsers( params ), currentUser, userA, userB );
+        assertContainsOnly( List.of( currentUser, userA, userB ), userService.getUsers( params ) );
         params = getDefaultParams().setUser( currentUser ).setUserOrgUnits( true ).setIncludeOrgUnitChildren( true );
-        assertContainsOnly( userService.getUsers( params ), currentUser, userA, userB, userC, userD );
+        assertContainsOnly( List.of( currentUser, userA, userB, userC, userD ), userService.getUsers( params ) );
     }
 
     @Test
@@ -414,13 +422,13 @@ class UserServiceTest extends SingleSetupIntegrationTestBase
         userGroupService.addUserGroup( userGroup1 );
         userGroupService.addUserGroup( userGroup2 );
         UserQueryParams params = new UserQueryParams().setCanManage( true ).setAuthSubset( true ).setUser( userA );
-        assertContainsOnly( userService.getUsers( params ), userD, userF );
+        assertContainsOnly( List.of( userD, userF ), userService.getUsers( params ) );
         assertEquals( 2, userService.getUserCount( params ) );
         params.setUser( userB );
-        assertContainsOnly( userService.getUsers( params ) );
+        assertIsEmpty( userService.getUsers( params ) );
         assertEquals( 0, userService.getUserCount( params ) );
         params.setUser( userC );
-        assertContainsOnly( userService.getUsers( params ) );
+        assertIsEmpty( userService.getUsers( params ) );
         assertEquals( 0, userService.getUserCount( params ) );
     }
 
@@ -434,7 +442,7 @@ class UserServiceTest extends SingleSetupIntegrationTestBase
         addUser( "E" );
         addUser( "F" );
         UserQueryParams params = getDefaultParams().setQuery( "rstnameA" );
-        assertContainsOnly( userService.getUsers( params ), userA );
+        assertContainsOnly( List.of( userA ), userService.getUsers( params ) );
         assertEquals( 1, userService.getUserCount( params ) );
     }
 
@@ -446,7 +454,7 @@ class UserServiceTest extends SingleSetupIntegrationTestBase
         User userC = addUser( "C", User::setSelfRegistered, true );
         addUser( "D" );
         UserQueryParams params = getDefaultParams().setSelfRegistered( true );
-        assertContainsOnly( userService.getUsers( params ), userA, userC );
+        assertContainsOnly( List.of( userA, userC ), userService.getUsers( params ) );
         assertEquals( 2, userService.getUserCount( params ) );
     }
 
@@ -458,7 +466,7 @@ class UserServiceTest extends SingleSetupIntegrationTestBase
         User userC = addUser( "C", unitA );
         addUser( "D", unitB );
         UserQueryParams params = getDefaultParams().addOrganisationUnit( unitA );
-        assertContainsOnly( userService.getUsers( params ), userA, userC );
+        assertContainsOnly( List.of( userA, userC ), userService.getUsers( params ) );
         assertEquals( 2, userService.getUserCount( params ) );
     }
 
@@ -470,21 +478,11 @@ class UserServiceTest extends SingleSetupIntegrationTestBase
         addUser( "C" );
         User userD = addUser( "D", User::setInvitation, true );
         UserQueryParams params = getDefaultParams().setInvitationStatus( UserInvitationStatus.ALL );
-        assertContainsOnly( userService.getUsers( params ), userB, userD );
+        assertContainsOnly( List.of( userB, userD ), userService.getUsers( params ) );
         assertEquals( 2, userService.getUserCount( params ) );
         params.setInvitationStatus( UserInvitationStatus.EXPIRED );
-        assertContainsOnly( userService.getUsers( params ) );
+        assertIsEmpty( userService.getUsers( params ) );
         assertEquals( 0, userService.getUserCount( params ) );
-    }
-
-    @Test
-    void testGetExpiringUser()
-    {
-        User userA = addUser( "A" );
-        addUser( "B", User::setDisabled, true );
-        User userC = addUser( "C" );
-        addUser( "D", User::setDisabled, true );
-        assertContainsOnly( userService.getExpiringUsers(), userA, userC );
     }
 
     @Test
@@ -572,5 +570,52 @@ class UserServiceTest extends SingleSetupIntegrationTestBase
         assertEquals( Set.of( "emaila", "emailc" ),
             userService.findNotifiableUsersWithLastLoginBetween( fourMonthAgo, Date.from( now.toInstant() ) )
                 .keySet() );
+    }
+
+    @Test
+    void testDisableTwoFAWithAdminUser()
+    {
+        User userToModify = createAndAddUser( "A" );
+        userService.generateTwoFactorSecret( userToModify );
+        userToModify.setTwoFA( true );
+        userService.updateUser( userToModify );
+
+        User admin = createAndAddAdminUser( "ALL" );
+        List<ErrorReport> errors = new ArrayList<>();
+        userService.disableTwoFA( admin, userToModify.getUid(), errors::add );
+        assertTrue( errors.isEmpty() );
+    }
+
+    @Test
+    void testDisableTwoFAWithManageUser()
+    {
+        User userToModify = createAndAddUser( "A" );
+        userService.generateTwoFactorSecret( userToModify );
+        userToModify.setTwoFA( true );
+
+        UserGroup userGroupA = createUserGroup( 'A', Sets.newHashSet( userToModify ) );
+        userGroupService.addUserGroup( userGroupA );
+
+        userToModify.getGroups().add( userGroupA );
+        userService.updateUser( userToModify );
+
+        User currentUser = createAndAddUser( "B", unitA, "F_USER_ADD_WITHIN_MANAGED_GROUP" );
+        UserGroup userGroupB = createUserGroup( 'B', Collections.emptySet() );
+        userGroupB.addManagedGroup( userGroupA );
+        userGroupService.addUserGroup( userGroupB );
+        userGroupService.updateUserGroup( userGroupA );
+
+        currentUser.getGroups().add( userGroupB );
+        userService.updateUser( currentUser );
+
+        List<ErrorReport> errors = new ArrayList<>();
+        userService.disableTwoFA( currentUser, userToModify.getUid(), errors::add );
+        assertTrue( errors.isEmpty() );
+    }
+
+    @Test
+    void testGetDisplayNameNull()
+    {
+        assertNull( userService.getDisplayName( "notExist" ) );
     }
 }

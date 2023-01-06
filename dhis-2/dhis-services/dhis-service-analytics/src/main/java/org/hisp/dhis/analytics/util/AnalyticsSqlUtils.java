@@ -27,6 +27,10 @@
  */
 package org.hisp.dhis.analytics.util;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
@@ -44,9 +48,13 @@ public class AnalyticsSqlUtils
 
     public static final String ANALYTICS_TBL_ALIAS = "ax";
 
+    public static final String OWNERSHIP_TBL_ALIAS = "own";
+
     public static final String DATE_PERIOD_STRUCT_ALIAS = "ps";
 
     public static final String ORG_UNIT_STRUCT_ALIAS = "ous";
+
+    public static final String ORG_UNIT_GROUPSET_STRUCT_ALIAS = "ougs";
 
     private static final String SEPARATOR = ".";
 
@@ -103,6 +111,20 @@ public class AnalyticsSqlUtils
         Assert.notNull( relation, "Relation must be specified" );
 
         return relation.replaceAll( AnalyticsSqlUtils.QUOTE, StringUtils.EMPTY );
+    }
+
+    /**
+     * Returns a concatenated string of the given collection items separated by
+     * comma where each item is quoted and aliased.
+     *
+     * @param items the collection of items.
+     * @return a string.
+     */
+    public static String quoteAliasCommaSeparate( Collection<String> items )
+    {
+        return items.stream()
+            .map( AnalyticsSqlUtils::quoteAlias )
+            .collect( Collectors.joining( "," ) );
     }
 
     /**
@@ -163,5 +185,21 @@ public class AnalyticsSqlUtils
         }
 
         return StringUtils.repeat( ")", open );
+    }
+
+    public static String getCoalesce( List<String> fields )
+    {
+        if ( fields == null )
+        {
+            return StringUtils.EMPTY;
+        }
+
+        String args = fields.stream()
+            .filter( f -> f != null && !f.isBlank() )
+            .map( AnalyticsSqlUtils::quoteAlias )
+            .collect( Collectors.joining( "," ) );
+
+        return args.isEmpty() ? "null"
+            : "coalesce(" + args + ")";
     }
 }

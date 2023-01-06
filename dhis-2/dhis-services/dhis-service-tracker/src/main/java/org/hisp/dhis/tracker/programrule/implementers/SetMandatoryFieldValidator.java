@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.program.ProgramStage;
-import org.hisp.dhis.rules.models.AttributeType;
 import org.hisp.dhis.rules.models.RuleActionSetMandatoryField;
 import org.hisp.dhis.trackedentity.TrackedEntityAttribute;
 import org.hisp.dhis.tracker.TrackerIdSchemeParams;
@@ -51,8 +50,8 @@ import org.hisp.dhis.tracker.programrule.EventActionRule;
 import org.hisp.dhis.tracker.programrule.IssueType;
 import org.hisp.dhis.tracker.programrule.ProgramRuleIssue;
 import org.hisp.dhis.tracker.programrule.RuleActionImplementer;
-import org.hisp.dhis.tracker.report.TrackerErrorCode;
-import org.hisp.dhis.tracker.validation.hooks.ValidationUtils;
+import org.hisp.dhis.tracker.validation.ValidationCode;
+import org.hisp.dhis.tracker.validation.validator.ValidationUtils;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -80,10 +79,9 @@ public class SetMandatoryFieldValidator
     }
 
     @Override
-    List<ProgramRuleIssue> applyToEvents( Map.Entry<String, List<EventActionRule>> eventClasses, TrackerBundle bundle )
+    List<ProgramRuleIssue> applyToEvents( Event event, List<EventActionRule> eventActions, TrackerBundle bundle )
     {
-        return checkMandatoryDataElement( getEvent( bundle, eventClasses.getKey() ).get(), eventClasses.getValue(),
-            bundle );
+        return checkMandatoryDataElement( event, eventActions, bundle );
     }
 
     private List<ProgramRuleIssue> checkMandatoryDataElement( Event event, List<EventActionRule> actionRules,
@@ -94,7 +92,6 @@ public class SetMandatoryFieldValidator
         TrackerIdSchemeParams idSchemes = preheat.getIdSchemes();
 
         Map<MetadataIdentifier, EventActionRule> mandatoryDataElementsByActionRule = actionRules.stream()
-            .filter( r -> r.getAttributeType() == AttributeType.DATA_ELEMENT )
             .collect( Collectors.toMap( r -> idSchemes.toMetadataIdentifier( preheat.getDataElement( r.getField() ) ),
                 Function.identity() ) );
 
@@ -102,19 +99,18 @@ public class SetMandatoryFieldValidator
             Lists.newArrayList( mandatoryDataElementsByActionRule.keySet() ) )
             .stream()
             .map( e -> new ProgramRuleIssue( mandatoryDataElementsByActionRule.get( e ).getRuleUid(),
-                TrackerErrorCode.E1301,
+                ValidationCode.E1301,
                 Lists.newArrayList( e.getIdentifierOrAttributeValue() ), IssueType.ERROR ) )
             .collect( Collectors.toList() );
     }
 
     @Override
-    List<ProgramRuleIssue> applyToEnrollments( Map.Entry<String, List<EnrollmentActionRule>> enrollmentActionRules,
+    List<ProgramRuleIssue> applyToEnrollments( Enrollment enrollment, List<EnrollmentActionRule> enrollmentActionRules,
         TrackerBundle bundle )
     {
-        return enrollmentActionRules.getValue().stream()
+        return enrollmentActionRules.stream()
             .flatMap( actionRule -> checkMandatoryEnrollmentAttribute(
-                bundle.getEnrollment( actionRule.getEnrollment() ).get(),
-                enrollmentActionRules.getValue(), bundle.getPreheat() ).stream() )
+                enrollment, enrollmentActionRules, bundle.getPreheat() ).stream() )
             .collect( Collectors.toList() );
     }
 
@@ -131,7 +127,7 @@ public class SetMandatoryFieldValidator
                 if ( any.isEmpty() || StringUtils.isEmpty( any.get().getValue() ) )
                 {
                     return new ProgramRuleIssue( action.getRuleUid(),
-                        TrackerErrorCode.E1306,
+                        ValidationCode.E1306,
                         Lists.newArrayList(
                             idSchemes.toMetadataIdentifier( ruleAttribute ).getIdentifierOrAttributeValue() ),
                         IssueType.ERROR );

@@ -27,8 +27,6 @@
  */
 package org.hisp.dhis.preheat;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,8 +36,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.attribute.Attribute;
 import org.hisp.dhis.attribute.AttributeService;
@@ -91,6 +91,7 @@ import com.google.common.collect.Sets;
  * @author Morten Olav Hansen <mortenoh@gmail.com>
  */
 @Slf4j
+@RequiredArgsConstructor
 @Service( "org.hisp.dhis.preheat.PreheatService" )
 @Scope( value = "prototype", proxyMode = ScopedProxyMode.INTERFACES )
 public class DefaultPreheatService implements PreheatService
@@ -112,31 +113,6 @@ public class DefaultPreheatService implements PreheatService
     private final MergeService mergeService;
 
     private final SchemaToDataFetcher schemaToDataFetcher;
-
-    public DefaultPreheatService( SchemaService schemaService, QueryService queryService,
-        IdentifiableObjectManager manager, CurrentUserService currentUserService, PeriodStore periodStore,
-        PeriodService periodService, AttributeService attributeService, MergeService mergeService,
-        SchemaToDataFetcher schemaToDataFetcher )
-    {
-        checkNotNull( schemaService );
-        checkNotNull( queryService );
-        checkNotNull( manager );
-        checkNotNull( currentUserService );
-        checkNotNull( periodStore );
-        checkNotNull( periodService );
-        checkNotNull( attributeService );
-        checkNotNull( mergeService );
-
-        this.schemaService = schemaService;
-        this.queryService = queryService;
-        this.manager = manager;
-        this.currentUserService = currentUserService;
-        this.periodStore = periodStore;
-        this.periodService = periodService;
-        this.attributeService = attributeService;
-        this.mergeService = mergeService;
-        this.schemaToDataFetcher = schemaToDataFetcher;
-    }
 
     @Override
     @Transactional( readOnly = true )
@@ -385,7 +361,7 @@ public class DefaultPreheatService implements PreheatService
         List<Attribute> attributes = attributeService.getAttributes( klass );
 
         if ( CollectionUtils.isEmpty( attributes )
-            || !CollectionUtils.isEmpty( preheat.getAttributesByClass( klass ) ) )
+            || !MapUtils.isEmpty( preheat.getAttributesByClass( klass ) ) )
         {
             return;
         }
@@ -504,6 +480,8 @@ public class DefaultPreheatService implements PreheatService
 
             for ( Object object : targets.get( klass ) )
             {
+                handleLegacyUserCredentials( klass, object );
+
                 if ( schema.isIdentifiableObject() )
                 {
                     IdentifiableObject identifiableObject = (IdentifiableObject) object;
@@ -1021,5 +999,20 @@ public class DefaultPreheatService implements PreheatService
     private boolean isOnlyUID( Class<?> klass )
     {
         return UserGroup.class.isAssignableFrom( klass ) || User.class.isAssignableFrom( klass );
+    }
+
+    // TODO: To remove when we remove old UserCredentials compatibility layer
+    /**
+     * This is a temporary fix to maintain backwards compatibility with the old
+     * UserCredentials class
+     */
+    private void handleLegacyUserCredentials( Class<?> klass, Object object )
+    {
+        if ( !User.class.isAssignableFrom( klass ) || object == null )
+        {
+            return;
+        }
+
+        User.populateUserCredentialsDtoFields( (User) object );
     }
 }
