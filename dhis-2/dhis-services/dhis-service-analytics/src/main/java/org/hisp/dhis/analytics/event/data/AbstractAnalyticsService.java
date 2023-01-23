@@ -27,6 +27,7 @@
  */
 package org.hisp.dhis.analytics.event.data;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.joinWith;
@@ -61,6 +62,7 @@ import org.hisp.dhis.analytics.AnalyticsSecurityManager;
 import org.hisp.dhis.analytics.data.handler.SchemaIdResponseMapper;
 import org.hisp.dhis.analytics.event.EventQueryParams;
 import org.hisp.dhis.analytics.event.EventQueryValidator;
+import org.hisp.dhis.analytics.orgunit.OrgUnitHelper;
 import org.hisp.dhis.analytics.util.AnalyticsUtils;
 import org.hisp.dhis.calendar.Calendar;
 import org.hisp.dhis.common.DimensionItemKeywords;
@@ -95,6 +97,12 @@ public abstract class AbstractAnalyticsService
 
     protected final SchemaIdResponseMapper schemaIdResponseMapper;
 
+    /**
+     * Returns a grid based on the given query.
+     *
+     * @param params the {@link EventQueryParams}.
+     * @return a {@link Grid}.
+     */
     protected Grid getGrid( EventQueryParams params )
     {
         // ---------------------------------------------------------------------
@@ -144,7 +152,7 @@ public abstract class AbstractAnalyticsService
                     item.getItem().getDisplayProperty( params.getDisplayProperty() ), COORDINATE,
                     false, true, item.getOptionSet(), item.getLegendSet() ) );
             }
-            else if ( hasNonDefaultRepeatableProgramStageOffset( item ) )
+            else if ( item.hasNonDefaultRepeatableProgramStageOffset() )
             {
                 String column = item.getItem().getDisplayProperty( params.getDisplayProperty() );
 
@@ -186,7 +194,7 @@ public abstract class AbstractAnalyticsService
         addMetadata( params, periodKeywords, grid );
 
         // ---------------------------------------------------------------------
-        // Data ID scheme
+        // ID scheme
         // ---------------------------------------------------------------------
 
         if ( params.hasDataIdScheme() )
@@ -194,42 +202,52 @@ public abstract class AbstractAnalyticsService
             substituteData( grid );
         }
 
-        maybeApplyIdScheme( params, grid );
+        applyIdScheme( params, grid );
 
         // ---------------------------------------------------------------------
         // Paging
         // ---------------------------------------------------------------------
 
-        maybeApplyPaging( params, count, grid );
+        addPaging( params, count, grid );
 
-        maybeApplyHeaders( params, grid );
+        // ---------------------------------------------------------------------
+        // Headers
+        // ---------------------------------------------------------------------
+
+        addHeaders( params, grid );
 
         return grid;
     }
 
     /**
      * Substitutes the meta data of the grid with the identifier scheme meta
-     * data property indicated in the query. This happens only when a custom ID
-     * Schema is set.
+     * data property indicated in the query. This happens only when a custom
+     * identifier scheme is specified.
      *
      * @param params the {@link EventQueryParams}.
-     * @param grid the grid.
+     * @param grid the {@link Grid}.
      */
-    void maybeApplyIdScheme( EventQueryParams params, Grid grid )
+    void applyIdScheme( EventQueryParams params, Grid grid )
     {
         if ( !params.isSkipMeta() && params.hasCustomIdSchemaSet() )
         {
-            // Apply ID schemes mapped to the grid.
             grid.substituteMetaData( schemaIdResponseMapper.getSchemeIdResponseMap( params ) );
         }
     }
 
-    private void maybeApplyPaging( EventQueryParams params, long count, Grid grid )
+    /**
+     * Applies paging to the given grid if the given query specifies paging.
+     *
+     * @param params the {@link EventQueryParams}.
+     * @param totalCount the total count.
+     * @param grid the {@link Grid}.
+     */
+    private void addPaging( EventQueryParams params, long totalCount, Grid grid )
     {
         if ( params.isPaging() )
         {
             Pager pager = params.isTotalPages()
-                ? new Pager( params.getPageWithDefault(), count, params.getPageSizeWithDefault() )
+                ? new Pager( params.getPageWithDefault(), totalCount, params.getPageSizeWithDefault() )
                 : new SlimPager( params.getPageWithDefault(), params.getPageSizeWithDefault(), grid.hasLastDataRow() );
 
             grid.getMetaData().put( PAGER.getKey(), pager );
@@ -238,10 +256,10 @@ public abstract class AbstractAnalyticsService
 
     /**
      * Based on the given item this method returns the correct UID based on
-     * internal rules/requirements.
+     * internal rules.
      *
-     * @param item the current QueryItem
-     * @return the correct uid based on the item type
+     * @param item the current QueryItem.
+     * @return the correct UID based on the item type.
      */
     private String getItemUid( QueryItem item )
     {
@@ -259,7 +277,13 @@ public abstract class AbstractAnalyticsService
 
     protected abstract long addEventData( Grid grid, EventQueryParams params );
 
-    private void maybeApplyHeaders( EventQueryParams params, Grid grid )
+    /**
+     * Applies headers to the given if the given query specifies headers.
+     *
+     * @param params the {@link EventQueryParams}.
+     * @param grid the {@link Grid}.
+     */
+    private void addHeaders( EventQueryParams params, Grid grid )
     {
         if ( params.hasHeaders() )
         {
@@ -272,8 +296,8 @@ public abstract class AbstractAnalyticsService
      * Adds meta data values to the given grid based on the given data query
      * parameters.
      *
-     * @param params the data query parameters.
-     * @param grid the grid.
+     * @param params the {@link EventQueryParams}.
+     * @param grid the {@link Grid}.
      */
     protected void addMetadata( EventQueryParams params, Grid grid )
     {
@@ -284,8 +308,9 @@ public abstract class AbstractAnalyticsService
      * Adds meta data values to the given grid based on the given data query
      * parameters.
      *
-     * @param params the data query parameters.
-     * @param grid the grid.
+     * @param params the {@link EventQueryParams}.
+     * @param periodKeywords the list of period keywords.
+     * @param grid the {@link Grid}.
      */
     protected void addMetadata( EventQueryParams params, List<DimensionItemKeywords.Keyword> periodKeywords, Grid grid )
     {
@@ -306,9 +331,9 @@ public abstract class AbstractAnalyticsService
                 optionItems.addAll( getItemOptions( params.getItemOptions(), params.getItems() ) );
             }
 
-            metadata.put( ITEMS.getKey(), getMetadataItems( params, periodKeywords, optionItems ) );
+            metadata.put( ITEMS.getKey(), getMetadataItems( params, periodKeywords, optionItems, grid ) );
             metadata.put( DIMENSIONS.getKey(), getDimensionItems( params, optionsPresentInGrid ) );
-            maybeAddOrgUnitHierarchyInfo( params, metadata );
+            maybeAddOrgUnitHierarchyInfo( params, metadata, grid );
 
             grid.setMetaData( metadata );
         }
@@ -319,26 +344,30 @@ public abstract class AbstractAnalyticsService
      * may append (or not) Org. Unit data into the given metadata map.
      *
      * @param params the {@link EventQueryParams}.
-     * @param metadata map.
+     * @param metadata the metadata map.
      */
-    private void maybeAddOrgUnitHierarchyInfo( EventQueryParams params, Map<String, Object> metadata )
+    private void maybeAddOrgUnitHierarchyInfo( EventQueryParams params, Map<String, Object> metadata, Grid grid )
     {
         if ( params.isHierarchyMeta() || params.isShowHierarchy() )
         {
             User user = securityManager.getCurrentUser( params );
+
             List<OrganisationUnit> organisationUnits = asTypedList(
                 params.getDimensionOrFilterItems( ORGUNIT_DIM_ID ) );
+
             Collection<OrganisationUnit> roots = user != null ? user.getOrganisationUnits() : null;
+
+            List<OrganisationUnit> activeOrgUnits = OrgUnitHelper.getActiveOrganisationUnits( grid, organisationUnits );
 
             if ( params.isHierarchyMeta() )
             {
-                metadata.put( ORG_UNIT_HIERARCHY.getKey(), getParentGraphMap( organisationUnits, roots ) );
+                metadata.put( ORG_UNIT_HIERARCHY.getKey(), getParentGraphMap( activeOrgUnits, roots ) );
             }
 
             if ( params.isShowHierarchy() )
             {
                 metadata.put( ORG_UNIT_NAME_HIERARCHY.getKey(),
-                    getParentNameGraphMap( organisationUnits, roots, true ) );
+                    getParentNameGraphMap( activeOrgUnits, roots, true ) );
             }
         }
     }
@@ -346,13 +375,16 @@ public abstract class AbstractAnalyticsService
     /**
      * Returns a map of metadata item identifiers and {@link MetadataItem}.
      *
-     * @param params the data query parameters.
+     * @param params the {@link EventQueryParams}.
+     * @param periodKeywords the period keywords.
+     * @param itemOptions the set of item {@link Option}.
+     * @param grid the grid instance {@link Grid}.
      * @return a map.
      */
     private Map<String, MetadataItem> getMetadataItems( EventQueryParams params,
-        List<DimensionItemKeywords.Keyword> periodKeywords, Set<Option> itemOptions )
+        List<DimensionItemKeywords.Keyword> periodKeywords, Set<Option> itemOptions, Grid grid )
     {
-        Map<String, MetadataItem> metadataItemMap = AnalyticsUtils.getDimensionMetadataItemMap( params );
+        Map<String, MetadataItem> metadataItemMap = AnalyticsUtils.getDimensionMetadataItemMap( params, grid );
 
         boolean includeDetails = params.isIncludeMetadataDetails();
 
@@ -391,6 +423,14 @@ public abstract class AbstractAnalyticsService
         return metadataItemMap;
     }
 
+    /**
+     * Adds the given item to the given metadata item map.
+     *
+     * @param metadataItemMap the metadata item map.
+     * @param item the {@link QueryItem}.
+     * @param includeDetails whether to include metadata details.
+     * @param displayProperty the {@link DisplayProperty}.
+     */
     private void addItemToMetadata( Map<String, MetadataItem> metadataItemMap, QueryItem item,
         boolean includeDetails, DisplayProperty displayProperty )
     {
@@ -452,7 +492,7 @@ public abstract class AbstractAnalyticsService
      * Returns a map between dimension identifiers and lists of dimension item
      * identifiers.
      *
-     * @param params the data query parameters.
+     * @param params the {@link EventQueryParams}.
      * @param itemOptions the data query parameters.
      * @return a map.
      */
@@ -480,8 +520,7 @@ public abstract class AbstractAnalyticsService
             if ( item.hasOptionSet() )
             {
                 // The call itemOptions.get( itemUid ) can return null.
-                // This should be ok, the query item can't have both legends and
-                // options.
+                // The query item can't have both legends and options.
                 dimensionItems.put( itemUid,
                     getDimensionItemUidsFrom( itemOptions.get( itemUid ), item.getOptionSetFilterItemsOrAll() ) );
             }
@@ -507,7 +546,10 @@ public abstract class AbstractAnalyticsService
             }
             else
             {
-                dimensionItems.put( item.getItemId(), List.of( item.getFiltersAsString() ) );
+                dimensionItems.put( item.getItemId(),
+                    item.getFiltersAsString() != null
+                        ? List.of( item.getFiltersAsString() )
+                        : emptyList() );
             }
         }
 
@@ -515,14 +557,14 @@ public abstract class AbstractAnalyticsService
     }
 
     /**
-     * Based on the given arguments, this method will extract a list of uids of
+     * Based on the given arguments, this method will extract a list of UIDs of
      * {@link Option}. If itemOptions is null, it returns the default list of
-     * uids (defaultOptionUids). Otherwise, it will return the list of uids from
+     * UIDs (defaultOptionUids). Otherwise, it will return the list of UIDs from
      * itemOptions.
      *
      * @param itemOptions a list of {@link Option} objects
-     * @param defaultOptionUids a list of default {@link Option} uids
-     * @return a list of uids
+     * @param defaultOptionUids a list of default {@link Option} UIDs.
+     * @return a list of UIDs.
      */
     private List<String> getDimensionItemUidsFrom( List<Option> itemOptions, List<String> defaultOptionUids )
     {
@@ -562,11 +604,5 @@ public abstract class AbstractAnalyticsService
                 grid.substituteMetaData( i, i, legendMap );
             }
         }
-    }
-
-    private boolean hasNonDefaultRepeatableProgramStageOffset( QueryItem item )
-    {
-        return item != null && item.getProgramStage() != null && item.getRepeatableStageParams() != null
-            && !item.getRepeatableStageParams().isDefaultObject();
     }
 }

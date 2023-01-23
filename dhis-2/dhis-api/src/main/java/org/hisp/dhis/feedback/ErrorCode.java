@@ -171,13 +171,18 @@ public enum ErrorCode
     E3019( "Sharing is not enabled for this object `{0}`" ),
     E3020( "You must have permissions to create user, or ability to manage at least one user group for the user" ),
     E3021( "Not allowed to disable 2FA for current user" ),
-    E3022( "User already has two factor authentication enabled, disable 2FA before you create a new QR code" ),
+    E3022( "User has two factor authentication enabled, disable 2FA before you create a new QR code" ),
     E3023( "Invalid 2FA code" ),
     E3024( "Not allowed to disable 2FA" ),
-    E3025( "User must have a secret" ),
+    E3025( "No current user" ),
     E3026( "Could not generate QR code" ),
     E3027( "No currentUser available" ),
-    E3028( "User `{0}` does not have access to user role" ),
+    E3028( "User must have a secret" ),
+    E3029( "User must call /qr endpoint before you can call enable" ),
+    E3030(
+        "User cannot update their own user's 2FA settings via this API endpoint, must use /2fa/enable or disable API" ),
+    E3031( "Two factor authentication is not enabled" ),
+    E3032( "User `{0}` does not have access to user role" ),
 
     /* Metadata Validation */
     E4000( "Missing required property `{0}`" ),
@@ -245,6 +250,8 @@ public enum ErrorCode
 
     /* Metadata Validation (continued) */
     E4060( "Object could not be deleted: {0}" ),
+    E4061(
+        "DashboardItem `{0}` object reference `{1}` with id `{2}` not found or not accessible" ),
 
     /* SQL views */
     E4300( "SQL query is null" ),
@@ -328,10 +335,15 @@ public enum ErrorCode
     E7000( "Job of same type already scheduled with cron expression: `{0}`" ),
     E7003( "Only interval property can be configured for non configurable job type: `{0}`" ),
     E7004( "Cron expression must be not null for job with scheduling type CRON: `{0}`" ),
-    E7005( "Cron expression is invalid for job: `{0}` " ),
+    E7005( "Cron expression is invalid: `{0}`" ),
     E7006( "Failed to execute job: `{0}`" ),
     E7007( "Delay must be not null for job with scheduling type FIXED_DELAY: `{0}`" ),
     E7010( "Failed to validate job runtime: `{0}`" ),
+    E7020( "Job queue does not exist: `{0}`" ),
+    E7021( "Job queue already exist: `{0}`" ),
+    E7022( "Job `{0}` is already used in another queue: `{1}`" ),
+    E7023( "Job `{0}` is a system job and as such cannot be added to a queue.`" ),
+    E7024( "Job queue must have at least two jobs." ),
 
     /* Aggregate analytics */
     E7100( "Query parameters cannot be null" ),
@@ -401,10 +413,11 @@ public enum ErrorCode
     E7226( "Dimension is not a valid query item: `{0}`" ),
     E7227( "Relationship entity type not supported: `{0}`" ),
     E7228( "Fallback coordinate field is invalid: `{0}` " ),
-    E7229( "Operator `{0}` does not allow missing value" ),
+    E7229( "Query operator `{0}` does not allow missing values" ),
     E7230( "Header param `{0}` does not exist" ),
     E7231( "Legacy `{0}` can be updated only through event visualizations" ),
     E7232( "Fallback coordinate field is invalid: `{0}`" ),
+    E7234( "Query filter: `{0}` not valid for query item value type: `{1}`" ),
 
     /* Org unit analytics */
     E7300( "At least one organisation unit must be specified" ),

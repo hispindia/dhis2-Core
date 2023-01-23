@@ -235,7 +235,7 @@ public class MeController
 
         merge( currentUser, user );
 
-        if ( user.getWhatsApp() != null && !ValidationUtils.validateWhatsapp( user.getWhatsApp() ) )
+        if ( user.getWhatsApp() != null && !ValidationUtils.validateWhatsApp( user.getWhatsApp() ) )
         {
             throw new WebMessageException(
                 conflict( "Invalid format for WhatsApp value '" + user.getWhatsApp() + "'" ) );
@@ -433,7 +433,6 @@ public class MeController
     }
 
     private void merge( User currentUser, User user )
-        throws WebMessageException
     {
         currentUser.setFirstName( stringWithDefault( user.getFirstName(), currentUser.getFirstName() ) );
         currentUser.setSurname( stringWithDefault( user.getSurname(), currentUser.getSurname() ) );
@@ -462,10 +461,6 @@ public class MeController
         currentUser.setEducation( stringWithDefault( user.getEducation(), currentUser.getEducation() ) );
         currentUser.setInterests( stringWithDefault( user.getInterests(), currentUser.getInterests() ) );
         currentUser.setLanguages( stringWithDefault( user.getLanguages(), currentUser.getLanguages() ) );
-
-        // TODO: This needs to be reversed when DHIS2-13333 gets merged.
-        currentUser.setTwoFA( user.isTwoFA() );
-
     }
 
     private void updatePassword( User currentUser, String password )

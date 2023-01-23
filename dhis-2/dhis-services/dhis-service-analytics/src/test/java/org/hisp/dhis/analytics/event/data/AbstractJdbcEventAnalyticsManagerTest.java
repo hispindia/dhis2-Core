@@ -35,6 +35,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hisp.dhis.DhisConvenienceTest.createDataElement;
 import static org.hisp.dhis.DhisConvenienceTest.createOrganisationUnit;
+import static org.hisp.dhis.DhisConvenienceTest.createPeriod;
 import static org.hisp.dhis.DhisConvenienceTest.createProgram;
 import static org.hisp.dhis.DhisConvenienceTest.createProgramIndicator;
 import static org.hisp.dhis.DhisConvenienceTest.getDate;
@@ -88,6 +89,8 @@ import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.jdbc.StatementBuilder;
 import org.hisp.dhis.jdbc.statementbuilder.PostgreSQLStatementBuilder;
 import org.hisp.dhis.period.MonthlyPeriodType;
+import org.hisp.dhis.period.Period;
+import org.hisp.dhis.period.PeriodTypeEnum;
 import org.hisp.dhis.program.AnalyticsType;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramIndicator;
@@ -106,8 +109,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
  * @author Luciano Fiandesio
  */
 @ExtendWith( MockitoExtension.class )
-class AbstractJdbcEventAnalyticsManagerTest extends
-    EventAnalyticsTest
+class AbstractJdbcEventAnalyticsManagerTest extends EventAnalyticsTest
 {
     @Mock
     private JdbcTemplate jdbcTemplate;
@@ -136,7 +138,7 @@ class AbstractJdbcEventAnalyticsManagerTest extends
         DefaultProgramIndicatorSubqueryBuilder programIndicatorSubqueryBuilder = new DefaultProgramIndicatorSubqueryBuilder(
             programIndicatorService );
 
-        eventSubject = new JdbcEventAnalyticsManager( jdbcTemplate, statementBuilder, programIndicatorService,
+        eventSubject = new JdbcEventAnalyticsManager( jdbcTemplate, programIndicatorService,
             programIndicatorSubqueryBuilder, new EventTimeFieldSqlRenderer( statementBuilder ), executionPlanStore );
 
         programA = createProgram( 'A' );
@@ -239,9 +241,7 @@ class AbstractJdbcEventAnalyticsManagerTest extends
         DataElement de = new DataElement();
 
         de.setUid( dataElementA.getUid() );
-
         de.setAggregationType( AggregationType.SUM );
-
         de.setValueType( NUMBER );
 
         EventQueryParams params = new EventQueryParams.Builder( createRequestParams() )
@@ -260,7 +260,6 @@ class AbstractJdbcEventAnalyticsManagerTest extends
         DataElement de = new DataElement();
 
         de.setAggregationType( AggregationType.CUSTOM );
-
         de.setValueType( NUMBER );
 
         EventQueryParams params = new EventQueryParams.Builder( createRequestParams() )
@@ -277,7 +276,6 @@ class AbstractJdbcEventAnalyticsManagerTest extends
         DataElement de = new DataElement();
 
         de.setAggregationType( AggregationType.NONE );
-
         de.setValueType( TEXT );
 
         EventQueryParams params = new EventQueryParams.Builder( createRequestParams() )
@@ -297,7 +295,6 @@ class AbstractJdbcEventAnalyticsManagerTest extends
         DataElement de = new DataElement();
 
         de.setAggregationType( AggregationType.SUM );
-
         de.setValueType( TEXT );
 
         EventQueryParams params = new EventQueryParams.Builder( createRequestParams() )
@@ -491,7 +488,7 @@ class AbstractJdbcEventAnalyticsManagerTest extends
         EventQueryParams queryParams = new EventQueryParams.Builder()
             .addItem( buildQueryItemWithGroupAndFilters( "item", UUID.randomUUID(), Collections.emptyList() ) )
             .build();
-        assertEquals( "", eventSubject.getStatementForDimensionsAndFilters( queryParams, new SqlHelper() ) );
+        assertEquals( "", eventSubject.getQueryItemsAndFiltersWhereClause( queryParams, new SqlHelper() ) );
     }
 
     @Test
@@ -503,7 +500,7 @@ class AbstractJdbcEventAnalyticsManagerTest extends
                 UUID.randomUUID(),
                 List.of( buildQueryFilter( EQ, "A" ) ) ) )
             .build();
-        String result = eventSubject.getStatementForDimensionsAndFilters( queryParams, new SqlHelper() );
+        String result = eventSubject.getQueryItemsAndFiltersWhereClause( queryParams, new SqlHelper() );
         assertEquals( "where ax.\"item\" = 'A' ", result );
     }
 
@@ -516,7 +513,7 @@ class AbstractJdbcEventAnalyticsManagerTest extends
                 UUID.randomUUID(),
                 List.of( buildQueryFilter( NEQ, "12" ) ), NUMBER ) )
             .build();
-        String result = eventSubject.getStatementForDimensionsAndFilters( queryParams, new SqlHelper() );
+        String result = eventSubject.getQueryItemsAndFiltersWhereClause( queryParams, new SqlHelper() );
         assertEquals( "where (ax.\"item\" is null or ax.\"item\" != '12') ", result );
     }
 
@@ -529,7 +526,7 @@ class AbstractJdbcEventAnalyticsManagerTest extends
                 UUID.randomUUID(),
                 List.of( buildQueryFilter( NILIKE, "A" ) ) ) )
             .build();
-        String result = eventSubject.getStatementForDimensionsAndFilters( queryParams, new SqlHelper() );
+        String result = eventSubject.getQueryItemsAndFiltersWhereClause( queryParams, new SqlHelper() );
         assertEquals( "where (ax.\"item\" is null or ax.\"item\" not ilike '%A%') ", result );
     }
 
@@ -542,7 +539,7 @@ class AbstractJdbcEventAnalyticsManagerTest extends
                 UUID.randomUUID(),
                 List.of( buildQueryFilter( NEQ, "A" ) ), TEXT ) )
             .build();
-        String result = eventSubject.getStatementForDimensionsAndFilters( queryParams, new SqlHelper() );
+        String result = eventSubject.getQueryItemsAndFiltersWhereClause( queryParams, new SqlHelper() );
         assertEquals( "where (coalesce(ax.\"item\", '') = '' or ax.\"item\" != 'A') ", result );
 
         queryParams = new EventQueryParams.Builder()
@@ -551,7 +548,7 @@ class AbstractJdbcEventAnalyticsManagerTest extends
                 UUID.randomUUID(),
                 List.of( buildQueryFilter( NE, "A" ) ), TEXT ) )
             .build();
-        result = eventSubject.getStatementForDimensionsAndFilters( queryParams, new SqlHelper() );
+        result = eventSubject.getQueryItemsAndFiltersWhereClause( queryParams, new SqlHelper() );
         assertEquals( "where (coalesce(ax.\"item\", '') = '' or ax.\"item\" != 'A') ", result );
     }
 
@@ -564,7 +561,7 @@ class AbstractJdbcEventAnalyticsManagerTest extends
                 UUID.randomUUID(),
                 List.of( buildQueryFilter( NIEQ, "A" ) ), TEXT ) )
             .build();
-        String result = eventSubject.getStatementForDimensionsAndFilters( queryParams, new SqlHelper() );
+        String result = eventSubject.getQueryItemsAndFiltersWhereClause( queryParams, new SqlHelper() );
         assertEquals( "where (coalesce(lower(ax.\"item\"), '') = '' or lower(ax.\"item\") != 'a') ", result );
     }
 
@@ -579,7 +576,7 @@ class AbstractJdbcEventAnalyticsManagerTest extends
                     buildQueryFilter( EQ, "A" ),
                     buildQueryFilter( EQ, "B" ) ) ) )
             .build();
-        String result = eventSubject.getStatementForDimensionsAndFilters( queryParams, new SqlHelper() );
+        String result = eventSubject.getQueryItemsAndFiltersWhereClause( queryParams, new SqlHelper() );
         assertEquals( "where ax.\"item\" = 'A'  and ax.\"item\" = 'B' ", result );
     }
 
@@ -596,7 +593,7 @@ class AbstractJdbcEventAnalyticsManagerTest extends
             .withEnhancedConditions( true )
             .build();
 
-        String result = eventSubject.getStatementForDimensionsAndFilters( queryParams, new SqlHelper() );
+        String result = eventSubject.getQueryItemsAndFiltersWhereClause( queryParams, new SqlHelper() );
         assertEquals( "where (ax.\"item\" = 'A'  and ax.\"item\" = 'B' )", result );
     }
 
@@ -618,7 +615,7 @@ class AbstractJdbcEventAnalyticsManagerTest extends
             .withEnhancedConditions( true )
             .build();
 
-        String result = eventSubject.getStatementForDimensionsAndFilters( queryParams, new SqlHelper() );
+        String result = eventSubject.getQueryItemsAndFiltersWhereClause( queryParams, new SqlHelper() );
         assertEquals( "where (ax.\"item1\" = 'A'  or ax.\"item2\" = 'B' )", result );
     }
 
@@ -647,7 +644,7 @@ class AbstractJdbcEventAnalyticsManagerTest extends
             .withEnhancedConditions( true )
             .build();
 
-        String result = eventSubject.getStatementForDimensionsAndFilters( queryParams, new SqlHelper() );
+        String result = eventSubject.getQueryItemsAndFiltersWhereClause( queryParams, new SqlHelper() );
         assertTrue( result.contains( "(ax.\"item1\" = 'A'  or ax.\"item2\" = 'B' )" ) );
         assertTrue( result.contains( "(ax.\"item3\" = 'C'  or ax.\"item4\" = 'D' )" ) );
     }
@@ -744,20 +741,13 @@ class AbstractJdbcEventAnalyticsManagerTest extends
     private EventQueryParams getEventQueryParamsForCoordinateFieldsTest( List<String> coordinateFields )
     {
         DataElement deA = createDataElement( 'A', TEXT, AggregationType.NONE );
-
-        DimensionalObject periods = new BaseDimensionalObject( DimensionalObject.PERIOD_DIM_ID, DimensionType.PERIOD,
-            List.of( MonthlyPeriodType.getPeriodFromIsoString( "202201" ) ) );
-
-        DimensionalObject orgUnits = new BaseDimensionalObject( DimensionalObject.ORGUNIT_DIM_ID,
-            DimensionType.ORGANISATION_UNIT, "ouA", List.of( createOrganisationUnit( 'A' ) ) );
-
+        Period peA = createPeriod( "202201" );
         QueryItem qiA = new QueryItem( deA, null, deA.getValueType(), deA.getAggregationType(), null );
-
         Program program = createProgram( 'A' );
 
         return new EventQueryParams.Builder()
-            .addDimension( periods )
-            .addDimension( orgUnits )
+            .withPeriods( List.of( peA ), PeriodTypeEnum.MONTHLY.getName() )
+            .withOrganisationUnits( List.of( createOrganisationUnit( 'A' ) ) )
             .addItem( qiA )
             .withProgram( program )
             .withStartDate( new Date() )
