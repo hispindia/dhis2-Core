@@ -277,14 +277,29 @@ public class EventManager
             // for send in System Message
             Set<User> useRrecipients = new HashSet<>();
             //useRrecipients.add( currentUserService.getCurrentUser() );
+            
+            if( orgUnit.getParent().getUsers() != null && orgUnit.getParent().getUsers().size() > 0 )
+            {
+                if( orgUnit.getParent().getUsers().stream().findFirst().get().getName() != null )
+                {
+                    useRrecipients.add( orgUnit.getParent().getUsers().stream().findFirst().get() );
+                    System.out.println( "parent org user-name " + orgUnit.getParent().getUsers().stream().findFirst().get().getName() );
+                }
+                //useRrecipients.add( orgUnit.getParent().getUsers().stream().findFirst().get() );
+                useRrecipients.addAll( orgUnit.getParent().getUsers() );
+                messageService.sendSystemMessage( useRrecipients, emailSubject, emailText );
+                System.out.println( "System message send to " + orgUnit.getParent().getName() + " to user " + orgUnit.getParent().getUsers().stream().findFirst().get().getName() );
+            }
+            
+            /*
             useRrecipients.add( orgUnit.getParent().getUsers().stream().findFirst().get() );
+            
             useRrecipients.addAll( orgUnit.getParent().getUsers() );
             messageService.sendSystemMessage( useRrecipients, emailSubject, emailText );
-            
+            */
             //System.out.println( "parent user-name " + orgUnit.getParent().getUsers().stream().findFirst().get().getName()  );
             
-            System.out.println( "System message send to " + orgUnit.getParent().getName() + " to user " + orgUnit.getParent().getUsers().stream().findFirst().get().getName() );
-            
+            //System.out.println( "System message send to " + orgUnit.getParent().getName() + " to user " + orgUnit.getParent().getUsers().stream().findFirst().get().getName() );
         }
         
         //Set<User> recipients, String subject, String text
