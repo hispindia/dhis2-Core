@@ -178,11 +178,12 @@ public enum ErrorCode
     E3026( "Could not generate QR code" ),
     E3027( "No currentUser available" ),
     E3028( "User must have a secret" ),
-    E3029( "User must call /qr endpoint before you can call enable" ),
+    E3029( "User must call the /qrCode endpoint first" ),
     E3030(
         "User cannot update their own user's 2FA settings via this API endpoint, must use /2fa/enable or disable API" ),
     E3031( "Two factor authentication is not enabled" ),
     E3032( "User `{0}` does not have access to user role" ),
+    E3040( "Could not resolve JwsAlgorithm from the JWK. Can not write a valid JWKSet" ),
 
     /* Metadata Validation */
     E4000( "Missing required property `{0}`" ),
@@ -279,6 +280,7 @@ public enum ErrorCode
     E5004( "Id `{0}` for type `{1}` exists on more than 1 object in the payload, removing all but the first found" ),
     E5005( "Properties `{0}` in objects `{1}` must be unique within the payload" ),
     E5006( "Non-owner reference {0} on object {1} for association `{2}` disallowed for payload for ERRORS_NOT_OWNER" ),
+    E5007( "Duplicate reference {0} on object {1} for association `{2}`" ),
 
     /* Metadata import */
     E6000( "Program `{0}` has more than one program instance" ),
