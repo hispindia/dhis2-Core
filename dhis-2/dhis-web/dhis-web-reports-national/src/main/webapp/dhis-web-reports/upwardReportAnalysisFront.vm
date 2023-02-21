@@ -112,20 +112,42 @@
                     <option  value="usecaptureddata">$i18n.getString( "use_captured_data" )</option>
                 </select>
             </td>
+			
+            <td class="NormalB">
+                6. $i18n.getString( "OrganisationUnit Group" ):<br />
+                <select id="orgUnitGroup" name="orgUnitGroup" style="width:200px">
+					<option value="NA">$i18n.getString( "Select OrganisationUnit Group" )</option>
+					#foreach( $orgUnitGroup in $orgUnitGroups )
+						<option value="$orgUnitGroup.id">$orgUnitGroup.name</option>
+					#end
+                </select>
+            </td>				
+			
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>		
+		<tr>
             <td class="NormalB">
 			<br />
                 <input type="submit" id= "generate" name="generate" style="width:200px" value='$i18n.getString( "generate_report" )' disabled="disabled">
             </td>				
-			
-        <tr>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
+			<td>&nbsp;</td>
         </tr>
 		
         <tr>
             <td>&nbsp;</td>
             <td>&nbsp;</td>
-        </tr>		
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>	
 		
         <tr>
             <td>&nbsp;</td>

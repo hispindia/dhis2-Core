@@ -83,7 +83,7 @@ public class GenerateUpwardReportAnalyserFormAction
             }
         }
 
-        List<OrganisationUnitGroupSet> organisationUnitGroupSet1List = new ArrayList<OrganisationUnitGroupSet>( organisationUnitGroupService.getOrganisationUnitGroupSetByName( "Private GOI Report" ) );
+        List<OrganisationUnitGroupSet> organisationUnitGroupSet1List = new ArrayList<OrganisationUnitGroupSet>( organisationUnitGroupService.getOrganisationUnitGroupSetByName( "Accredited Private Reporting" ) );
         OrganisationUnitGroupSet organisationUnitGroupSet = organisationUnitGroupSet1List.get( 0 );
         orgUnitGroups = new ArrayList<OrganisationUnitGroup>( organisationUnitGroupSet.getOrganisationUnitGroups() );
         

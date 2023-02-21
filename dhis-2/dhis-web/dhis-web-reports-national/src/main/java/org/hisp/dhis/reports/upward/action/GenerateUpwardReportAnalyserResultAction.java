@@ -8,8 +8,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -88,7 +86,7 @@ public class GenerateUpwardReportAnalyserResultAction
     {
         this.organisationUnitService = organisationUnitService;
     }
-
+    
     @Autowired
     private DataElementService dataElementService;
     
@@ -187,10 +185,18 @@ public class GenerateUpwardReportAnalyserResultAction
         this.aggData = aggData;
     }
 
+    private String orgUnitGroup;
+    
+    public void setOrgUnitGroup( String orgUnitGroup )
+    {
+        this.orgUnitGroup = orgUnitGroup;
+    }
+
     private SimpleDateFormat yearFormat;
     private SimpleDateFormat simpleDateMonthYearFormat;
     
     private List<OrganisationUnit> reportOrgUnitGrpMember = new ArrayList<OrganisationUnit>();
+    private List<OrganisationUnit> orgUnitGrpMember = new ArrayList<OrganisationUnit>();
     
     // -------------------------------------------------------------------------
     // Action Implementation
@@ -211,6 +217,14 @@ public class GenerateUpwardReportAnalyserResultAction
         String parentUnit = "";
         
         Report_in selReportObj =  reportService.getReport( Integer.parseInt( reportList ) );
+        
+        OrganisationUnitGroup orgUnitGrp = new OrganisationUnitGroup();
+        if ( orgUnitGroup != null && !orgUnitGroup.equalsIgnoreCase( "NA" ) )
+        {
+            orgUnitGrp = organisationUnitGroupService.getOrganisationUnitGroup( Integer.parseInt( orgUnitGroup ) );
+        }
+        
+        
         
         deCodesXMLFileName = selReportObj.getXmlTemplateName();
 
@@ -256,12 +270,21 @@ public class GenerateUpwardReportAnalyserResultAction
             parentUnit = orgUnit.getName();
         }
 
-        
+        /*
         if ( selReportObj.getOrgunitGroup() != null )
         {
             reportOrgUnitGrpMember = new ArrayList<OrganisationUnit>( selReportObj.getOrgunitGroup().getMembers() );
         }
+        */
         
+        if ( orgUnitGrp != null )
+        {
+            reportOrgUnitGrpMember = new ArrayList<OrganisationUnit>( orgUnitGrp.getMembers() );
+        }
+        else if( selReportObj.getOrgunitGroup() != null )
+        {
+            reportOrgUnitGrpMember = new ArrayList<OrganisationUnit>( selReportObj.getOrgunitGroup().getMembers() );
+        }
         
         System.out.println( orgUnitList.get( 0 ).getName()+ " : " + selReportObj.getName()+" : Report Generation Start Time is : " + new Date() );
 
@@ -359,6 +382,18 @@ public class GenerateUpwardReportAnalyserResultAction
                 if ( deCodeString.equalsIgnoreCase( "FACILITY" ) )
                 {
                     tempStr = currentOrgUnit.getName();
+                }
+                if ( deCodeString.equalsIgnoreCase( "FACILITY-ORGGRP" ) )
+                {
+                    tempStr = currentOrgUnit.getName();
+                    if( orgUnitGrp != null )
+                    {
+                        tempStr = currentOrgUnit.getName() +" - " + orgUnitGrp.getName();
+                    }
+                    else
+                    {
+                        tempStr = "";
+                    }
                 }
                 else if ( deCodeString.equalsIgnoreCase( "FACILITY-NOREPEAT" ) )
                 {
