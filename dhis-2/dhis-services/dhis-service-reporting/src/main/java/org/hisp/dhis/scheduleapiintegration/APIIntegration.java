@@ -1,31 +1,17 @@
 package org.hisp.dhis.scheduleapiintegration;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodService;
-import org.hisp.dhis.period.PeriodType;
-import org.json.JSONException;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 /**
  * @author Mithilesh Kumar Thakur
@@ -79,16 +65,17 @@ public class APIIntegration implements Runnable
     @Override
     public void run()
     {
-        System.out.println( " API Integration Scheduler Started at : " + new Date() );
+        //System.out.println( " API Integration Scheduler Started at : " + new Date() );
         
-        initializeDataElementMap();
-        initializeOrgUnitMap();
-        initializeOrgUnitHLLMap();
+        //initializeDataElementMap();
+        //initializeOrgUnitMap();
+        //initializeOrgUnitHLLMap();
         dataValueList = new ArrayList<String>( );
         dataValueBioList = new ArrayList<String>();
         dataValueListHLL = new ArrayList<String>();
         
         simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
+        /*
         Date date = new Date();
         todayDate = simpleDateFormat.format( date );
         currentDate = simpleDateFormat.format( date ).split( "-" )[2];
@@ -96,12 +83,14 @@ public class APIIntegration implements Runnable
         currentYear = simpleDateFormat.format( date ).split( "-" )[0];
         nextYear = ""+Integer.parseInt(currentYear) + 1;
         currentFinancialYear = currentYear + "-" + nextYear;
+        */
         
         //JSONObject json = readJsonFromUrl("http://182.156.208.43:85/faber_maharashtra/services/service_phd2");
+        /*
         try
         {
             // for bioMedical
-            dataValueBioList = new ArrayList<String>( readJsonFromUrl("http://182.156.208.43:85/faber_maharashtra/services/service_phd2") );
+            //dataValueBioList = new ArrayList<String>( readJsonFromUrl("http://182.156.208.43:85/faber_maharashtra/services/service_phd2") );
             //insertUpdateDataValue( dataValueBioList );
             
             //System.out.println( " API Integration Done for bioMedical -- " + dataValueList.size());
@@ -119,7 +108,7 @@ public class APIIntegration implements Runnable
             }
             
             System.out.println( " period id for HLL -- " + periodId );
-            dataValueListHLL = new ArrayList<String>( readJsonFromUrlHLL( apiUrlForHLL, periodId ) );
+            //dataValueListHLL = new ArrayList<String>( readJsonFromUrlHLL( apiUrlForHLL, periodId ) );
             
             //dataValueList.addAll( dataValueListHLL );
             //dataValueList.addAll( dataValueBioList );
@@ -135,14 +124,16 @@ public class APIIntegration implements Runnable
         catch ( JSONException | IOException | ParseException e1 )
         {
             // TODO Auto-generated catch block
-            e1.printStackTrace();
+            ((Throwable) e1).printStackTrace();
         }
 
         System.out.println( " API Integration Scheduler Ended at : " + new Date() );
-        
+       */ 
     }
     
+        
     // read JsonFrom URL
+    /*
     public List<String> readJsonFromUrl(String url) throws IOException, JSONException, ParseException 
     {
         dataValueBioList = new ArrayList<String>();
@@ -232,7 +223,7 @@ public class APIIntegration implements Runnable
         return dataValueBioList;
        
     }
-    
+    */
     private  String readAll(Reader rd) throws IOException 
     {
         StringBuilder sb = new StringBuilder();
@@ -244,6 +235,7 @@ public class APIIntegration implements Runnable
         return sb.toString();
     }
     
+    /*
     private void jsonResponseList(JSONObject employee)
     {
         //Get employee object within list
@@ -584,6 +576,6 @@ public class APIIntegration implements Runnable
         System.out.println("Insert Count : " + insertCount + "  Update Count -- " + updateCount);
     }
     
-    
+ */   
     
 }

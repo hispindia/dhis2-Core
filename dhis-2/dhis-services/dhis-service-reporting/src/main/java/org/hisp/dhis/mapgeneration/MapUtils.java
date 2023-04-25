@@ -34,15 +34,18 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
-import org.geotools.feature.DefaultFeatureCollection;
-import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.geometry.jts.ReferencedEnvelope;
+import java.util.ArrayList;
+import java.util.List;
+
+//import org.geotools.feature.DefaultFeatureCollection;
+//import org.geotools.feature.simple.SimpleFeatureBuilder;
+//import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.Layer;
 import org.geotools.map.MapContent;
 import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.lite.StreamingRenderer;
-import org.geotools.styling.Style;
+//import org.geotools.styling.Style;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -162,6 +165,7 @@ public class MapUtils
 
         // Convert map objects to features, and add them to the map
         
+        /*
         for ( InternalMapLayer mapLayer : map.getLayers() )
         {
             for ( InternalMapObject mapObject : mapLayer.getMapObjects() )
@@ -169,24 +173,28 @@ public class MapUtils
                 mapContent.addLayer( createFeatureLayerFromMapObject( mapObject ) );
             }
         }
-
+        */
+        
         // Create a renderer for this map
         
         GTRenderer renderer = new StreamingRenderer();
         renderer.setMapContent( mapContent );
-
+        List<String> periodNameList = new ArrayList<>();
         // Calculate image height
         
+        /*
         ReferencedEnvelope mapBounds = mapContent.getMaxBounds();
         double widthToHeightFactor = mapBounds.getSpan( 0 ) / mapBounds.getSpan( 1 );
         int[] widthHeight = getWidthHeight( maxWidth, maxHeight, LegendSet.LEGEND_TOTAL_WIDTH, TITLE_HEIGHT, widthToHeightFactor );
+        */
         
         //LegendSet.LEGEND_TOTAL_WIDTH;
         
-        Rectangle imageBounds = new Rectangle( 0, 0, widthHeight[0], widthHeight[1] );
+        //Rectangle imageBounds = new Rectangle( 0, 0, widthHeight[0], widthHeight[1] );
 
         // Create an image and get the graphics context from it
         
+        /*
         BufferedImage image = new BufferedImage( imageBounds.width, imageBounds.height, BufferedImage.TYPE_INT_ARGB );
         Graphics2D graphics = (Graphics2D) image.getGraphics();
 
@@ -195,7 +203,9 @@ public class MapUtils
         renderer.paint( graphics, imageBounds, mapBounds );
 
         mapContent.dispose();
+        */
         
+        BufferedImage image = new BufferedImage(maxHeight, maxWidth, 0);
         return image;
     }
 
@@ -270,6 +280,7 @@ public class MapUtils
     /**
      * Creates a feature layer based on a map object.
      */
+    /*
     public static Layer createFeatureLayerFromMapObject( InternalMapObject mapObject )
     {
         Style style = mapObject.getStyle();
@@ -285,6 +296,8 @@ public class MapUtils
 
         return new FeatureLayer( featureCollection, style );
     }
+    */
+    
 
     /**
      * Creates an image with text indicating an error.

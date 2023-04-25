@@ -28,6 +28,15 @@ package org.hisp.dhis.mapgeneration;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import java.awt.Color;
+import java.io.IOException;
+
+import org.geotools.referencing.factory.gridshift.DataUtilities;
+import org.hisp.dhis.organisationunit.FeatureType;
+import org.hisp.dhis.organisationunit.OrganisationUnit;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.style.Style;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,16 +44,6 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import org.geotools.data.DataUtilities;
-import org.geotools.feature.SchemaException;
-import org.geotools.styling.SLD;
-import org.geotools.styling.Style;
-import org.hisp.dhis.organisationunit.FeatureType;
-import org.hisp.dhis.organisationunit.OrganisationUnit;
-import org.opengis.feature.simple.SimpleFeatureType;
-
-import java.awt.*;
-import java.io.IOException;
 
 /**
  * An internal representation of a map object (feature) in a map layer.
@@ -169,15 +168,15 @@ public class InternalMapObject
         // Polygon is treated similarly as MultiPolygon        
         if ( orgUnit.getFeatureType() == FeatureType.POINT )
         {
-            primitive = GeoToolsPrimitiveFromJsonFactory.createPointFromJson( root );
+            //primitive = GeoToolsPrimitiveFromJsonFactory.createPointFromJson( root );
         }
         else if ( orgUnit.getFeatureType() == FeatureType.POLYGON )
         {
-            primitive = GeoToolsPrimitiveFromJsonFactory.createMultiPolygonFromJson( root );
+            //primitive = GeoToolsPrimitiveFromJsonFactory.createMultiPolygonFromJson( root );
         }
         else if ( orgUnit.getFeatureType() == FeatureType.MULTI_POLYGON )
         {
-            primitive = GeoToolsPrimitiveFromJsonFactory.createMultiPolygonFromJson( root );
+            //primitive = GeoToolsPrimitiveFromJsonFactory.createMultiPolygonFromJson( root );
         }
         else
         {
@@ -187,6 +186,7 @@ public class InternalMapObject
         this.geometry = primitive;
     }
 
+    /*
     public Style getStyle()
     {
         Style style = null;
@@ -214,10 +214,13 @@ public class InternalMapObject
 
         return style;
     }
+    */
 
     /**
      * Creates a feature type for a GeoTools geometric primitive.
      */
+    
+    /*
     public SimpleFeatureType getFeatureType()
     {
         String type = "";
@@ -248,7 +251,7 @@ public class InternalMapObject
             throw new RuntimeException( "failed to create geometry", ex );
         }
     }
-
+    */
 
     // -------------------------------------------------------------------------
     // Getters and setters

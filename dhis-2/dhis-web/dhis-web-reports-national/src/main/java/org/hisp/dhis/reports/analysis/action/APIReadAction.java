@@ -17,10 +17,10 @@ import org.hisp.dhis.period.Period;
 import org.hisp.dhis.period.PeriodService;
 import org.hisp.dhis.period.PeriodType;
 import org.json.JSONException;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+//import org.json.simple.JSONArray;
+//import org.json.simple.JSONObject;
+//import org.json.simple.parser.JSONParser;
+//import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -68,14 +68,14 @@ public class APIReadAction implements Action
         int attributeoptioncomboid = 15;
         
         
-        initializeDataElementMap();
-        initializeOrgUnitMap();
+        //initializeDataElementMap();
+        //initializeOrgUnitMap();
         dataValueList = new ArrayList<String>();
         
         //JSONObject json = readJsonFromUrl("http://182.156.208.43:85/faber_maharashtra/services/service_phd2");
         //readJsonFromUrl("http://182.156.208.43:85/faber_maharashtra/services/service_phd2");
         
-        readJsonFromUrlPatient("https://mahahindlabs.com/api/data_districtwise_patientdetails.php?month=05&year=2019");
+        //readJsonFromUrlPatient("https://mahahindlabs.com/api/data_districtwise_patientdetails.php?month=05&year=2019");
         
         //System.out.println(json.toString());
         
@@ -185,27 +185,28 @@ public class APIReadAction implements Action
     }
     
     
-    public void readJsonFromUrl(String url) throws IOException, JSONException, ParseException 
-    {
-        InputStream is = new URL(url).openStream();
-        try 
-        {
+   // public void readJsonFromUrl(String url) throws IOException, JSONException, ParseException 
+    //{
+        //InputStream is = new URL(url).openStream();
+        //try 
+        //{
           //JSON parser object to parse read file
-          JSONParser jsonParser = new JSONParser();
-          BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+          //JSONParser jsonParser = new JSONParser();
+          //BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
           
           //FileReader reader = new FileReader("employees.json");
           
-          Object obj = jsonParser.parse(rd);
+          //Object obj = jsonParser.parse(rd);
           
-          JSONArray jsonResponseList = (JSONArray) obj;
+          //JSONArray jsonResponseList = (JSONArray) obj;
           //System.out.println(jsonResponseList);
-          System.out.println(jsonResponseList.size());
+          //System.out.println(jsonResponseList.size());
           
           
-          JSONArray outerArray = new JSONArray();
+          //JSONArray outerArray = new JSONArray();
           
-          outerArray = jsonResponseList;
+          //outerArray = jsonResponseList;
+          /*
           for (int i = 0; i < outerArray.size(); i++)
           {
               //System.out.println(outerArray.get(i));
@@ -299,8 +300,8 @@ public class APIReadAction implements Action
                   
                   //System.out.println(innerArray.get(j));
               //}
-          }
-          
+          //}
+         
           /*
           String jsonText = readAll(rd);
           JSONObject json = new JSONObject(jsonText);
@@ -348,7 +349,8 @@ public class APIReadAction implements Action
           */
           
 
-      } 
+      //} 
+    /*
       catch (FileNotFoundException e) 
       {
           e.printStackTrace();
@@ -361,15 +363,9 @@ public class APIReadAction implements Action
       {
           e.printStackTrace();
       }
-       /*   
-        } 
-        finally 
-        {
-          is.close();
-        }
-        */
+
       }
-    
+    */
     private  String readAll(Reader rd) throws IOException 
     {
         StringBuilder sb = new StringBuilder();
@@ -380,7 +376,7 @@ public class APIReadAction implements Action
         }
         return sb.toString();
     }
-    
+    /*
     private void jsonResponseList(JSONObject employee)
     {
         //Get employee object within list
@@ -398,7 +394,8 @@ public class APIReadAction implements Action
         String website = (String) employeeObject.get("website");   
         System.out.println(website);
     }
-    
+    */
+    /*
     
     private  Integer getPeriodId( String financialYear, String month)
     {
@@ -463,15 +460,16 @@ public class APIReadAction implements Action
             period = periodService.reloadPeriod( period );
             periodId = period.getId();
         }
-
+*/
         /*
 SELECT attrValue.value, orgUnitAttrValue.organisationunitid from attributevalue attrValue
 INNER JOIN organisationunitattributevalues orgUnitAttrValue ON orgUnitAttrValue.attributevalueid = attrValue.attributevalueid
 WHERE attrValue.attributeid = 64992555;
 */
         
-        return periodId;
-    }
+        //return periodId;
+    //}
+    /*
     
     public void initializeDataElementMap()
     {
@@ -640,7 +638,7 @@ WHERE attrValue.attributeid = 64992555;
           }
           */
           
-
+/*
       } 
       catch (FileNotFoundException e) 
       {
@@ -654,16 +652,10 @@ WHERE attrValue.attributeid = 64992555;
       {
           e.printStackTrace();
       }
-       /*   
-        } 
-        finally 
-        {
-          is.close();
-        }
-        */
+       
       }
     
-    
+    */
     
     
     
