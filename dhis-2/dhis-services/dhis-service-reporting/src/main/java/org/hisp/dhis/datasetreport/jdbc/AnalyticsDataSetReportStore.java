@@ -45,9 +45,12 @@ import org.hisp.dhis.common.IdScheme;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementCategory;
 import org.hisp.dhis.dataelement.DataElementCategoryCombo;
+import org.hisp.dhis.dataelement.DataElementCategoryOptionCombo;
 import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.dataset.Section;
 import org.hisp.dhis.datasetreport.DataSetReportStore;
+import org.hisp.dhis.datavalue.DataValue;
+import org.hisp.dhis.datavalue.DataValueService;
 import org.hisp.dhis.indicator.Indicator;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.period.Period;
@@ -71,14 +74,17 @@ public class AnalyticsDataSetReportStore
     
     @Autowired
     private AnalyticsService analyticsService;
-        
+    
+    @Autowired
+    private DataValueService dataValueService;
+
     // -------------------------------------------------------------------------
     // DataSetReportStore implementation
     // -------------------------------------------------------------------------
 
     @Override
     public Map<String, Object> getAggregatedValues( DataSet dataSet, Period period, OrganisationUnit unit, 
-        Set<String> dimensions )
+        Set<String> dimensions, boolean selectedUnitOnly )
     {
         List<DataElement> dataElements = new ArrayList<>( dataSet.getDataElements() );
         
@@ -102,12 +108,54 @@ public class AnalyticsDataSetReportStore
         
         Map<String, Object> map = analyticsService.getAggregatedDataValueMapping( params.build() );
         
+        //System.out.println( " unit -- " + unit);
+        
+        //System.out.println( " params -- " + params );
+        
+       // System.out.println( " params.build() -- " + params.build() );
+        
         Map<String, Object> dataMap = new HashMap<>();
         
-        for ( Entry<String, Object> entry : map.entrySet() )
+        if ( selectedUnitOnly )
         {
-            String[] split = entry.getKey().split( SEPARATOR );            
-            dataMap.put( split[0] + SEPARATOR + split[3], entry.getValue() );
+            System.out.println( " inside selectedUnitOnly -- " + selectedUnitOnly );
+            //List<DataElementCategoryOptionCombo> optionCombos = categoryCombo.getSortedOptionCombos();
+            
+            for ( DataElement dataElement : dataElements )
+            {
+                //dataElement.getCategoryCombos();
+                
+                for( DataElementCategoryCombo categoryCombo : dataElement.getCategoryCombos() )
+                {
+                    //List<DataElementCategoryOptionCombo> optionCombos = categoryCombo.getSortedOptionCombos();
+                    
+                    for ( DataElementCategoryOptionCombo optionCombo : categoryCombo.getSortedOptionCombos() )
+                    {
+                        Object value = null;
+                        
+                        DataValue dataValue = dataValueService.getDataValue( dataElement, period, unit, optionCombo );
+                        value = dataValue != null && dataValue.getValue() != null ? Double.parseDouble( dataValue
+                            .getValue() ) : null;
+                        
+                        dataMap.put( dataElement.getUid() + SEPARATOR + optionCombo.getUid() , value );
+                    }
+                }
+            }
+        }
+        
+        else
+        {
+            System.out.println( " selectedUnitOnly -- " + selectedUnitOnly );
+            for ( Entry<String, Object> entry : map.entrySet() )
+            {
+                String[] split = entry.getKey().split( SEPARATOR );            
+                dataMap.put( split[0] + SEPARATOR + split[3], entry.getValue() );
+                
+                //System.out.println( " split -- " + split );
+                
+                //System.out.println( " split[0] -- " + split[0] + " split[3] -- " + split[3] + "entry.getValue() -- " + entry.getValue() );
+            }
+            
         }
         
         return dataMap;
@@ -173,7 +221,7 @@ public class AnalyticsDataSetReportStore
     }
 
     @Override
-    public Map<String, Object> getAggregatedTotals( DataSet dataSet, Period period, OrganisationUnit unit, Set<String> dimensions )
+    public Map<String, Object> getAggregatedTotals( DataSet dataSet, Period period, OrganisationUnit unit, Set<String> dimensions, boolean selectedUnitOnly  )
     {
         List<DataElement> dataElements = new ArrayList<>( dataSet.getDataElements() );
 
@@ -197,6 +245,33 @@ public class AnalyticsDataSetReportStore
         Map<String, Object> map = analyticsService.getAggregatedDataValueMapping( params.build() );
 
         Map<String, Object> dataMap = new HashMap<>();
+        
+        if ( selectedUnitOnly )
+        {
+            //List<DataElementCategoryOptionCombo> optionCombos = categoryCombo.getSortedOptionCombos();
+            
+            for ( DataElement dataElement : dataElements )
+            {
+                //dataElement.getCategoryCombos();
+                
+                for( DataElementCategoryCombo categoryCombo : dataElement.getCategoryCombos() )
+                {
+                    //List<DataElementCategoryOptionCombo> optionCombos = categoryCombo.getSortedOptionCombos();
+                    
+                    for ( DataElementCategoryOptionCombo optionCombo : categoryCombo.getSortedOptionCombos() )
+                    {
+                        Object value = null;
+                        
+                        DataValue dataValue = dataValueService.getDataValue( dataElement, period, unit, optionCombo );
+                        value = dataValue != null && dataValue.getValue() != null ? Double.parseDouble( dataValue
+                            .getValue() ) : null;
+                        
+                        dataMap.put( dataElement.getUid() + SEPARATOR + optionCombo.getUid() , value );
+                    }
+                }
+            }
+        }
+        
         
         for ( Entry<String, Object> entry : map.entrySet() )
         {

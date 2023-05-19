@@ -52,7 +52,7 @@ public interface DataSetReportStore
      *        <dim-id>:<dim-item>;<dim-item>
      * @return a mapping from dimensional identifiers to aggregated values.
      */
-    Map<String, Object> getAggregatedValues( DataSet dataSet, Period period, OrganisationUnit unit, Set<String> dimensions );
+    Map<String, Object> getAggregatedValues( DataSet dataSet, Period period, OrganisationUnit unit, Set<String> dimensions, boolean selectedUnitOnly );
 
     /**
      * Get a mapping from dimensional identifiers to aggregated sub-total values.
@@ -76,7 +76,7 @@ public interface DataSetReportStore
      *        <dim-id>:<dim-item>;<dim-item>
      * @return a mapping from dimensional identifiers to aggregated total values.
      */
-    Map<String, Object> getAggregatedTotals( DataSet dataSet, Period period, OrganisationUnit unit, Set<String> dimensions );
+    Map<String, Object> getAggregatedTotals( DataSet dataSet, Period period, OrganisationUnit unit, Set<String> dimensions, boolean selectedUnitOnly );
 
     /**
      * Get a mapping from dimensional identifiers to aggregated indicator values.
