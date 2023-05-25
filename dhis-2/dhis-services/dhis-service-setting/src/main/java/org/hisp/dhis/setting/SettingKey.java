@@ -169,8 +169,9 @@ public enum SettingKey
     LAST_SUCCESSFUL_SCHEDULED_PROGRAM_NOTIFICATIONS( "keyLastSuccessfulScheduledProgramNotifications", Date.class ),
     LAST_SUCCESSFUL_SCHEDULED_DATASET_NOTIFICATIONS( "keyLastSuccessfulScheduledDataSetNotifications", Date.class ),
     
-    // custom change for schedule SMS tracker-data for save-child HIV tracker
+    // custom change for schedule SMS tracker-data and PUSH_TO_AGGREGATE_DATAELEMENT for save-child HIV tracker
     CUSTOM_SMS_TASK( "customSMSJob", true, Boolean.class ),
+    PUSH_TO_AGGREGATE_DATAELEMENT( "pushToAggregateDataElementJob", true, Boolean.class ),
     // end
     
     REMOTE_METADATA_VERSION( "keyRemoteMetadataVersion", String.class ),

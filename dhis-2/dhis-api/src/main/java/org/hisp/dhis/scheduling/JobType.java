@@ -91,8 +91,9 @@ public enum JobType
     // Testing purposes
     MOCK( "mockJob", false, SchedulingType.CRON, MockJobParameters.class, null ),
 
-    // custom change for schedule SMS tracker-data for save-child HIV tracker
+    // custom change for schedule SMS tracker-data and PUSH_TO_AGGREGATE_DATAELEMENT for save-child HIV tracker
     CUSTOM_SMS_TASK( "customSMSJob", true ),
+    PUSH_TO_AGGREGATE_DATAELEMENT( "pushToAggregateDataElementJob", true ),
     //end
 
     // Deprecated, present to satisfy code using the old enumeration
