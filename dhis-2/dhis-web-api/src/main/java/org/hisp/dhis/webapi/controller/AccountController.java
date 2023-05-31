@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -194,11 +195,6 @@ public class AccountController
         if ( !systemSettingManager.accountRecoveryEnabled() )
         {
             return conflict( "Account recovery is not enabled" );
-        }
-
-        if ( !ValidationUtils.passwordIsValid( password ) )
-        {
-            return badRequest( "Password is not specified or invalid" );
         }
 
         if ( password.trim().equals( user.getUsername() ) )
@@ -558,6 +554,12 @@ public class AccountController
         result.put( "message", "Account was updated." );
 
         return ResponseEntity.ok().cacheControl( noStore() ).body( result );
+    }
+
+    @GetMapping( "/linkedAccounts" )
+    public @ResponseBody List<User> getLinkedAccounts( @CurrentUser User currentUser )
+    {
+        return userService.getLinkedUserAccounts( currentUser );
     }
 
     @GetMapping( "/username" )

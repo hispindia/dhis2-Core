@@ -39,15 +39,18 @@ import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 
 import org.hisp.dhis.analytics.SortOrder;
+import org.hisp.dhis.common.Dhis2Info;
 import org.hisp.dhis.common.IdentifiableObjectManager;
 import org.hisp.dhis.dashboard.Dashboard;
 import org.hisp.dhis.datasummary.DataSummary;
 import org.hisp.dhis.datavalue.DataValueService;
 import org.hisp.dhis.eventvisualization.EventVisualizationStore;
 import org.hisp.dhis.indicator.Indicator;
-import org.hisp.dhis.program.ProgramStageInstanceService;
+import org.hisp.dhis.program.EventService;
 import org.hisp.dhis.scheduling.JobProgress;
 import org.hisp.dhis.statistics.StatisticsProvider;
+import org.hisp.dhis.system.SystemInfo;
+import org.hisp.dhis.system.SystemService;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserInvitationStatus;
 import org.hisp.dhis.user.UserQueryParams;
@@ -79,9 +82,11 @@ public class DefaultDataStatisticsService
 
     private final StatisticsProvider statisticsProvider;
 
-    private final ProgramStageInstanceService programStageInstanceService;
+    private final EventService eventService;
 
     private final EventVisualizationStore eventVisualizationStore;
+
+    private final SystemService systemService;
 
     // -------------------------------------------------------------------------
     // DataStatisticsService implementation
@@ -103,13 +108,8 @@ public class DefaultDataStatisticsService
 
     private DataStatistics getDataStatisticsSnapshot( Date day, JobProgress progress )
     {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime( day );
-        cal.add( Calendar.DATE, -1 );
-        Date startDate = cal.getTime();
-        Date now = new Date();
-        long diff = now.getTime() - startDate.getTime();
-        int days = (int) TimeUnit.DAYS.convert( diff, TimeUnit.MILLISECONDS );
+        Date startDate = getStartDate( day );
+        int days = getDays( startDate );
 
         // when counting fails we use null so the count does not appear in the
         // stats
@@ -161,11 +161,6 @@ public class DefaultDataStatisticsService
             asDouble( savedMaps ), asDouble( savedVisualizations ), asDouble( savedEventReports ),
             asDouble( savedEventCharts ), asDouble( savedEventVisualizations ), asDouble( savedDashboards ),
             asDouble( savedIndicators ), asDouble( savedDataValues ), activeUsers, users );
-    }
-
-    private Double asDouble( Integer count )
-    {
-        return count == null ? null : count.doubleValue();
     }
 
     @Override
@@ -246,13 +241,47 @@ public class DefaultDataStatisticsService
         // Events
         Map<Integer, Long> eventCount = new HashMap<>();
 
-        eventCount.put( 0, programStageInstanceService.getProgramStageInstanceCount( 0 ) );
-        eventCount.put( 1, programStageInstanceService.getProgramStageInstanceCount( 1 ) );
-        eventCount.put( 7, programStageInstanceService.getProgramStageInstanceCount( 7 ) );
-        eventCount.put( 30, programStageInstanceService.getProgramStageInstanceCount( 30 ) );
+        eventCount.put( 0, eventService.getEventCount( 0 ) );
+        eventCount.put( 1, eventService.getEventCount( 1 ) );
+        eventCount.put( 7, eventService.getEventCount( 7 ) );
+        eventCount.put( 30, eventService.getEventCount( 30 ) );
 
         statistics.setEventCount( eventCount );
 
+        statistics.setSystem( getDhis2Info() );
+
         return statistics;
+    }
+
+    private Date getStartDate( Date day )
+    {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime( day );
+        cal.add( Calendar.DATE, -1 );
+        return cal.getTime();
+    }
+
+    private int getDays( Date startDate )
+    {
+        Date now = new Date();
+        long diff = now.getTime() - startDate.getTime();
+        return (int) TimeUnit.DAYS.convert( diff, TimeUnit.MILLISECONDS );
+    }
+
+    private Double asDouble( Integer count )
+    {
+        return count == null ? null : count.doubleValue();
+    }
+
+    private Dhis2Info getDhis2Info()
+    {
+        SystemInfo system = systemService.getSystemInfo();
+
+        return new Dhis2Info()
+            .setVersion( system.getVersion() )
+            .setRevision( system.getRevision() )
+            .setBuildTime( system.getBuildTime() )
+            .setSystemId( system.getSystemId() )
+            .setServerDate( system.getServerDate() );
     }
 }

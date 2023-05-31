@@ -27,6 +27,9 @@
  */
 package org.hisp.dhis.preheat;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,7 +37,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -78,7 +80,6 @@ import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserGroup;
 import org.hisp.dhis.user.UserRole;
-import org.hisp.dhis.util.SharingUtils;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
@@ -279,9 +280,6 @@ public class DefaultPreheatService implements PreheatService
                 return;
             }
 
-            ((BaseIdentifiableObject) object)
-                .setSharing( SharingUtils.generateSharingFromIdentifiableObject( object ) );
-
             preheat.put( params.getPreheatIdentifier(), object );
         } ) );
     }
@@ -289,33 +287,33 @@ public class DefaultPreheatService implements PreheatService
     private void handleAttributes( Map<Class<? extends IdentifiableObject>, List<IdentifiableObject>> objects,
         Preheat preheat )
     {
+        Map<Class<? extends IdentifiableObject>, List<Attribute>> attributesByObjectType = new HashMap<>();
+        for ( Attribute a : attributeService.getAllAttributes() )
+        {
+            a.getSupportedClasses().forEach(
+                type -> attributesByObjectType.computeIfAbsent( type, key -> new ArrayList<>() ).add( a ) );
+        }
         for ( Class<? extends IdentifiableObject> klass : objects.keySet() )
         {
-            List<Attribute> mandatoryAttributes = attributeService.getMandatoryAttributes( klass );
+            List<Attribute> mandatoryAttributes = attributesByObjectType.getOrDefault( klass, List.of() ).stream()
+                .filter( Attribute::isMandatory )
+                .collect( toUnmodifiableList() );
 
-            if ( !mandatoryAttributes.isEmpty() )
-            {
-                preheat.getMandatoryAttributes().put( klass, new HashSet<>() );
-            }
+            mandatoryAttributes.forEach( attribute -> preheat.getMandatoryAttributes()
+                .computeIfAbsent( klass, key -> new HashSet<>() ).add( attribute.getUid() ) );
 
-            mandatoryAttributes
-                .forEach( attribute -> preheat.getMandatoryAttributes().get( klass ).add( attribute.getUid() ) );
+            List<Attribute> uniqueAttributes = attributesByObjectType.getOrDefault( klass, List.of() ).stream()
+                .filter( Attribute::isUnique )
+                .collect( toUnmodifiableList() );
 
-            List<Attribute> uniqueAttributes = attributeService.getUniqueAttributes( klass );
-
-            if ( !uniqueAttributes.isEmpty() )
-            {
-                preheat.getUniqueAttributes().put( klass, new HashSet<>() );
-            }
-
-            uniqueAttributes
-                .forEach( attribute -> preheat.getUniqueAttributes().get( klass ).add( attribute.getUid() ) );
+            uniqueAttributes.forEach( attribute -> preheat.getUniqueAttributes()
+                .computeIfAbsent( klass, key -> new HashSet<>() ).add( attribute.getUid() ) );
 
             List<? extends IdentifiableObject> uniqueAttributeValues = manager.getAllByAttributes( klass,
                 uniqueAttributes );
             handleUniqueAttributeValues( klass, uniqueAttributeValues, preheat );
 
-            loadAllClassesAttributes( klass, preheat );
+            addAllClassesAttributes( klass, preheat, attributesByObjectType.getOrDefault( klass, List.of() ) );
         }
 
         if ( objects.containsKey( Attribute.class ) )
@@ -328,20 +326,14 @@ public class DefaultPreheatService implements PreheatService
 
                 if ( attribute.isMandatory() )
                 {
-                    attribute.getSupportedClasses().forEach( klass -> {
-                        if ( !preheat.getMandatoryAttributes().containsKey( klass ) )
-                            preheat.getMandatoryAttributes().put( klass, new HashSet<>() );
-                        preheat.getMandatoryAttributes().get( klass ).add( attribute.getUid() );
-                    } );
+                    attribute.getSupportedClasses().forEach( klass -> preheat.getMandatoryAttributes()
+                        .computeIfAbsent( klass, key -> new HashSet<>() ).add( attribute.getUid() ) );
                 }
 
                 if ( attribute.isUnique() )
                 {
-                    attribute.getSupportedClasses().forEach( klass -> {
-                        if ( !preheat.getUniqueAttributes().containsKey( klass ) )
-                            preheat.getUniqueAttributes().put( klass, new HashSet<>() );
-                        preheat.getUniqueAttributes().get( klass ).add( attribute.getUid() );
-                    } );
+                    attribute.getSupportedClasses().forEach( klass -> preheat.getUniqueAttributes()
+                        .computeIfAbsent( klass, key -> new HashSet<>() ).add( attribute.getUid() ) );
                 }
 
                 attribute.getSupportedClasses().forEach( klass -> preheat.addClassAttribute( klass, attribute ) );
@@ -356,10 +348,9 @@ public class DefaultPreheatService implements PreheatService
      * @param klass Class used for querying {@link Attribute}
      * @param preheat {@link Preheat} to store all queried attributes
      */
-    private void loadAllClassesAttributes( Class<? extends IdentifiableObject> klass, Preheat preheat )
+    private void addAllClassesAttributes( Class<? extends IdentifiableObject> klass, Preheat preheat,
+        List<Attribute> attributes )
     {
-        List<Attribute> attributes = attributeService.getAttributes( klass );
-
         if ( CollectionUtils.isEmpty( attributes )
             || !MapUtils.isEmpty( preheat.getAttributesByClass( klass ) ) )
         {
@@ -476,7 +467,7 @@ public class DefaultPreheatService implements PreheatService
                 .filter( p -> p.isPersisted() && p.isOwner()
                     && (PropertyType.REFERENCE == p.getPropertyType()
                         || PropertyType.REFERENCE == p.getItemPropertyType()) )
-                .collect( Collectors.toList() );
+                .collect( toList() );
 
             for ( Object object : targets.get( klass ) )
             {
@@ -487,9 +478,9 @@ public class DefaultPreheatService implements PreheatService
                     IdentifiableObject identifiableObject = (IdentifiableObject) object;
                     identifiableObject.getAttributeValues().forEach( av -> addIdentifiers( map, av.getAttribute() ) );
                     identifiableObject.getSharing().getUserGroups().values()
-                        .forEach( uga -> addIdentifiers( map, uga.toDtoObject().getUserGroup() ) );
+                        .forEach( uga -> addIdentifiers( map, uga.getUserGroup() ) );
                     identifiableObject.getSharing().getUsers().values()
-                        .forEach( ua -> addIdentifiers( map, ua.toDtoObject().getUser() ) );
+                        .forEach( ua -> addIdentifiers( map, ua.getUser() ) );
 
                     if ( identifiableObject.getCreatedBy() != null )
                     {
@@ -684,7 +675,7 @@ public class DefaultPreheatService implements PreheatService
                 .filter( p -> p.isPersisted() && p.isOwner()
                     && (PropertyType.REFERENCE == p.getPropertyType()
                         || PropertyType.REFERENCE == p.getItemPropertyType()) )
-                .collect( Collectors.toList() );
+                .collect( toList() );
 
             List<IdentifiableObject> identifiableObjects = (List<IdentifiableObject>) targets.get( objectClass );
             Map<String, Map<String, Object>> refMap = new HashMap<>();
@@ -750,7 +741,6 @@ public class DefaultPreheatService implements PreheatService
         return map;
     }
 
-    @SuppressWarnings( "unchecked" )
     private void collectScanTargets( Map<Class<?>, List<?>> targets )
     {
         for ( Map.Entry<Class<?>, List<?>> entry : new HashMap<>( targets ).entrySet() )
@@ -833,7 +823,7 @@ public class DefaultPreheatService implements PreheatService
             .filter( p -> p.isPersisted() && p.isOwner()
                 && (PropertyType.REFERENCE == p.getPropertyType()
                     || PropertyType.REFERENCE == p.getItemPropertyType()) )
-            .collect( Collectors.toList() );
+            .collect( toList() );
 
         for ( Property property : properties )
         {
@@ -950,7 +940,7 @@ public class DefaultPreheatService implements PreheatService
     {
         List<Property> uniqueProperties = schema.getProperties().stream()
             .filter( p -> p.isPersisted() && p.isOwner() && p.isUnique() && p.isSimple() )
-            .collect( Collectors.toList() );
+            .collect( toList() );
 
         Map<String, Map<Object, String>> map = new HashMap<>();
 

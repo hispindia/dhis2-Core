@@ -308,11 +308,10 @@ public class DefaultCascadeSharingService
         Set<IdentifiableObject> listUpdateObjects, CascadeSharingParameters parameters )
     {
         handleIdentifiableObjects( sourceSharing, DataElement.class, analyticalObject.getDataElements(),
-            listUpdateObjects,
-            parameters );
+            listUpdateObjects, parameters );
 
-        handleIdentifiableObjects( sourceSharing, Indicator.class, analyticalObject.getIndicators(), listUpdateObjects,
-            parameters );
+        handleIdentifiableObjects( sourceSharing, Indicator.class, analyticalObject.getIndicators(),
+            listUpdateObjects, parameters );
 
         handleCategoryDimension( sourceSharing, analyticalObject, listUpdateObjects, parameters );
 
@@ -524,9 +523,8 @@ public class DefaultCascadeSharingService
      * @param listUpdateObjects Set of objects need to be updated.
      * @param parameters {@link CascadeSharingParameters}
      */
-    private <T extends IdentifiableObject> void handleIdentifiableObjects( final Sharing sourceSharing, Class type,
-        Collection<T> targetObjects,
-        Collection<IdentifiableObject> listUpdateObjects,
+    private <T extends IdentifiableObject> void handleIdentifiableObjects( final Sharing sourceSharing, Class<T> type,
+        Collection<T> targetObjects, Collection<IdentifiableObject> listUpdateObjects,
         CascadeSharingParameters parameters )
     {
         if ( CollectionUtils.isEmpty( targetObjects ) )
@@ -546,10 +544,8 @@ public class DefaultCascadeSharingService
      * @param listUpdateObjects Set of objects need to be updated.
      * @return TRUE if target object should be updated, otherwise return FALSE.
      */
-    private <T extends IdentifiableObject> boolean handleIdentifiableObject( final Sharing sourceSharing, Class<T> type,
-        T target,
-        Collection<IdentifiableObject> listUpdateObjects,
-        CascadeSharingParameters parameters )
+    private <T extends IdentifiableObject> boolean handleIdentifiableObject( Sharing sourceSharing, Class<T> type,
+        T target, Collection<IdentifiableObject> listUpdateObjects, CascadeSharingParameters parameters )
     {
         if ( target == null )
         {
@@ -612,6 +608,11 @@ public class DefaultCascadeSharingService
             return false;
         }
 
+        if ( MapUtils.isEmpty( target ) )
+        {
+            return true;
+        }
+
         boolean shouldUpdate = false;
 
         for ( final T sourceAccess : source.values() )
@@ -642,6 +643,16 @@ public class DefaultCascadeSharingService
     private <T extends IdentifiableObject> boolean mergeSharing( final Sharing source, T target,
         CascadeSharingParameters parameters )
     {
+        if ( target == null )
+        {
+            return false;
+        }
+
+        if ( target.getSharing() == null )
+        {
+            target.setSharing( Sharing.builder().build() );
+        }
+
         if ( mergeAccessObject( UserAccess.class, source.getUsers(), target.getSharing().getUsers() )
             || mergeAccessObject( UserGroupAccess.class, source.getUserGroups(), target.getSharing().getUserGroups() ) )
         {

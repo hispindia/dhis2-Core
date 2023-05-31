@@ -28,9 +28,13 @@
 package org.hisp.dhis.common;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.hisp.dhis.analytics.AnalyticsFinancialYearStartKey.FINANCIAL_YEAR_OCTOBER;
+import static org.hisp.dhis.common.DimensionType.PROGRAM_ATTRIBUTE;
+import static org.hisp.dhis.common.DimensionType.PROGRAM_DATA_ELEMENT;
 import static org.hisp.dhis.common.DimensionalObject.CATEGORYOPTIONCOMBO_DIM_ID;
 import static org.hisp.dhis.common.DimensionalObject.DATA_COLLAPSED_DIM_ID;
 import static org.hisp.dhis.common.DimensionalObject.DATA_X_DIM_ID;
@@ -53,6 +57,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.CheckForNull;
@@ -204,6 +209,13 @@ public abstract class BaseAnalyticalObject
     protected transient List<DimensionalObject> filters = new ArrayList<>();
 
     protected transient Map<String, String> parentGraphMap = new HashMap<>();
+
+    /**
+     * Keeps the uids of element + program stage, so we are able to return the
+     * correct elements in cases of repeated elements with distinct program
+     * stages.
+     */
+    private Set<String> addedElementsProgramStages = new HashSet<>();
 
     // -------------------------------------------------------------------------
     // Transient properties
@@ -517,11 +529,12 @@ public abstract class BaseAnalyticalObject
         }
         else
         {
-            Optional<DimensionalObject> trackedEntityDimension = getTrackedEntityDimension( dimension );
+            Optional<DimensionalObject> dimensionalObject = getDimensionFromEmbeddedObjects( dimension )
+                .or( () -> getTrackedEntityDimension( dimension ) );
 
-            if ( trackedEntityDimension.isPresent() )
+            if ( dimensionalObject.isPresent() )
             {
-                return trackedEntityDimension.get();
+                return dimensionalObject.get();
             }
         }
 
@@ -743,51 +756,34 @@ public abstract class BaseAnalyticalObject
         }
         else
         {
-            // Embedded dimensions
+            Optional<DimensionalObject> dimensionalObject = getDimensionFromEmbeddedObjects( dimension )
+                .or( () -> getTrackedEntityDimension( dimension ) );
 
-            Optional<DimensionalObject> object;
-
-            if ( (object = getDimensionFromEmbeddedObjects( dimension, DimensionType.DATA_ELEMENT_GROUP_SET,
-                dataElementGroupSetDimensions )).isPresent() )
+            if ( dimensionalObject.isPresent() )
             {
-                return Optional.of( object.get() );
-            }
-
-            if ( (object = getDimensionFromEmbeddedObjects( dimension, DimensionType.ORGANISATION_UNIT_GROUP_SET,
-                organisationUnitGroupSetDimensions )).isPresent() )
-            {
-                return Optional.of( object.get() );
-            }
-
-            if ( (object = getDimensionFromEmbeddedObjects( dimension, DimensionType.CATEGORY, categoryDimensions ))
-                .isPresent() )
-            {
-                return Optional.of( object.get() );
-            }
-
-            if ( (object = getDimensionFromEmbeddedObjects( dimension, DimensionType.CATEGORY_OPTION_GROUP_SET,
-                categoryOptionGroupSetDimensions )).isPresent() )
-            {
-                return Optional.of( object.get() );
-            }
-
-            Optional<DimensionalObject> trackedEntityDimension = getTrackedEntityDimension( dimension );
-
-            if ( trackedEntityDimension.isPresent() )
-            {
-                return trackedEntityDimension;
+                return dimensionalObject;
             }
         }
 
         return Optional.empty();
     }
 
+    private Optional<DimensionalObject> getDimensionFromEmbeddedObjects( String dimension )
+    {
+        return getDimensionFromEmbeddedObjects( dimension, DimensionType.DATA_ELEMENT_GROUP_SET,
+            dataElementGroupSetDimensions )
+            .or( () -> getDimensionFromEmbeddedObjects( dimension, DimensionType.ORGANISATION_UNIT_GROUP_SET,
+                organisationUnitGroupSetDimensions ) )
+            .or( () -> getDimensionFromEmbeddedObjects( dimension, DimensionType.CATEGORY, categoryDimensions ) )
+            .or( () -> getDimensionFromEmbeddedObjects( dimension, DimensionType.CATEGORY_OPTION_GROUP_SET,
+                categoryOptionGroupSetDimensions ) );
+    }
+
     private Optional<DimensionalObject> getTrackedEntityDimension( String dimension )
     {
-        // Tracked entity attribute
-
-        Map<String, TrackedEntityAttributeDimension> attributes = Maps.uniqueIndex( attributeDimensions,
-            TrackedEntityAttributeDimension::getUid );
+        // Tracked entity attribute.
+        Map<String, TrackedEntityAttributeDimension> attributes = attributeDimensions.stream()
+            .collect( toMap( TrackedEntityAttributeDimension::getUid, Function.identity() ) );
 
         if ( attributes.containsKey( dimension ) )
         {
@@ -797,42 +793,49 @@ public abstract class BaseAnalyticalObject
             {
                 ValueType valueType = tead.getAttribute() != null ? tead.getAttribute().getValueType()
                     : null;
+
                 OptionSet optionSet = tead.getAttribute() != null ? tead.getAttribute().getOptionSet()
                     : null;
 
-                return Optional.of( new BaseDimensionalObject( dimension, DimensionType.PROGRAM_ATTRIBUTE, null,
+                return Optional.of( new BaseDimensionalObject( dimension, PROGRAM_ATTRIBUTE, null,
                     tead.getDisplayName(), tead.getLegendSet(), null, tead.getFilter(), valueType, optionSet ) );
             }
         }
 
-        // Tracked entity data element
-
-        Map<String, TrackedEntityDataElementDimension> dataElements = Maps.uniqueIndex( dataElementDimensions,
-            TrackedEntityDataElementDimension::getUid );
-
-        if ( dataElements.containsKey( dimension ) )
+        // Tracked entity data element.
+        for ( TrackedEntityDataElementDimension tedd : dataElementDimensions )
         {
-            TrackedEntityDataElementDimension tedd = dataElements.get( dimension );
-
-            if ( tedd != null )
+            if ( tedd != null && dimension.equals( tedd.getUid() ) )
             {
                 ValueType valueType = tedd.getDataElement() != null
                     ? tedd.getDataElement().getValueType()
                     : null;
+
                 OptionSet optionSet = tedd.getDataElement() != null
                     ? tedd.getDataElement().getOptionSet()
                     : null;
 
-                return Optional.of( new BaseDimensionalObject( dimension, DimensionType.PROGRAM_DATA_ELEMENT, null,
-                    tedd.getDisplayName(), tedd.getLegendSet(), tedd.getProgramStage(), tedd.getFilter(), valueType,
-                    optionSet ) );
+                String elementProgramStage = dimension + (tedd.getProgramStage() != null
+                    ? tedd.getProgramStage().getUid()
+                    : EMPTY);
+
+                // Return dimensions with distinct program stages.
+                if ( !addedElementsProgramStages.contains( elementProgramStage ) )
+                {
+                    addedElementsProgramStages.add( elementProgramStage );
+
+                    return Optional.of( new BaseDimensionalObject( dimension, PROGRAM_DATA_ELEMENT, null,
+                        tedd.getDisplayName(), tedd.getLegendSet(), tedd.getProgramStage(), tedd.getFilter(),
+                        valueType,
+                        optionSet ) );
+                }
             }
         }
 
         // Tracked entity program indicator
 
-        Map<String, TrackedEntityProgramIndicatorDimension> programIndicators = Maps
-            .uniqueIndex( programIndicatorDimensions, TrackedEntityProgramIndicatorDimension::getUid );
+        Map<String, TrackedEntityProgramIndicatorDimension> programIndicators = programIndicatorDimensions.stream()
+            .collect( toMap( TrackedEntityProgramIndicatorDimension::getUid, Function.identity() ) );
 
         if ( programIndicators.containsKey( dimension ) )
         {

@@ -39,16 +39,17 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hisp.dhis.common.BaseIdentifiableObject;
+import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.common.adapter.BaseIdentifiableObject_;
 import org.hisp.dhis.dxf2.metadata.objectbundle.ObjectBundle;
+import org.hisp.dhis.external.conf.ConfigurationKey;
+import org.hisp.dhis.external.conf.DhisConfigurationProvider;
 import org.hisp.dhis.feedback.ErrorCode;
 import org.hisp.dhis.feedback.ErrorReport;
 import org.hisp.dhis.fileresource.FileResource;
 import org.hisp.dhis.fileresource.FileResourceService;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.preheat.PreheatIdentifier;
-import org.hisp.dhis.security.SecurityService;
 import org.hisp.dhis.security.acl.AclService;
 import org.hisp.dhis.system.util.ValidationUtils;
 import org.hisp.dhis.user.CurrentUserService;
@@ -75,9 +76,9 @@ public class UserObjectBundleHook extends AbstractObjectBundleHook<User>
 
     private final AclService aclService;
 
-    private final SecurityService securityService;
-
     private final UserSettingService userSettingService;
+
+    private final DhisConfigurationProvider dhisConfig;
 
     @Override
     public void validate( User user, ObjectBundle bundle,
@@ -85,6 +86,13 @@ public class UserObjectBundleHook extends AbstractObjectBundleHook<User>
     {
         // TODO: To remove when we remove old UserCredentials compatibility
         populateUserCredentialsDtoFields( user );
+
+        if ( bundle.getImportMode().isCreate() && !ValidationUtils.isValidUid( user.getUid() ) )
+        {
+            addReports.accept(
+                new ErrorReport( User.class, ErrorCode.E4014, user.getUid(), "uid" )
+                    .setErrorProperty( "uid" ) );
+        }
 
         if ( bundle.getImportMode().isCreate() && !ValidationUtils.usernameIsValid( user.getUsername(),
             user.isInvitation() ) )
@@ -95,7 +103,6 @@ public class UserObjectBundleHook extends AbstractObjectBundleHook<User>
         }
 
         boolean usernameExists = userService.getUserByUsername( user.getUsername() ) != null;
-
         if ( (bundle.getImportMode().isCreate() && usernameExists) )
         {
             addReports.accept(
@@ -104,12 +111,19 @@ public class UserObjectBundleHook extends AbstractObjectBundleHook<User>
         }
 
         User existingUser = userService.getUser( user.getUid() );
-
         if ( bundle.getImportMode().isUpdate() && existingUser != null && user.getUsername() != null &&
             !user.getUsername().equals( existingUser.getUsername() ) )
         {
             addReports.accept(
                 new ErrorReport( User.class, ErrorCode.E4056, USERNAME, user.getUsername() )
+                    .setErrorProperty( USERNAME ) );
+        }
+
+        boolean openIdMappingExists = userService.getUserByOpenId( user.getOpenId() ) != null;
+        if ( (dhisConfig.isDisabled( ConfigurationKey.LINKED_ACCOUNTS_ENABLED ) && openIdMappingExists) )
+        {
+            addReports.accept(
+                new ErrorReport( User.class, ErrorCode.E4054, "OIDC mapping value", user.getOpenId() )
                     .setErrorProperty( USERNAME ) );
         }
 
@@ -187,9 +201,6 @@ public class UserObjectBundleHook extends AbstractObjectBundleHook<User>
                 fileResourceService.updateFileResource( fileResource );
             }
         }
-
-        //        userService.validateTwoFactorUpdate( persisted.isTwoFactorEnabled(), user.isTwoFactorEnabled(),
-        //            persisted );
     }
 
     @Override
@@ -276,7 +287,7 @@ public class UserObjectBundleHook extends AbstractObjectBundleHook<User>
     {
         Set<UserRole> roles = user
             .getUserRoles();
-        Set<String> currentRoles = roles.stream().map( BaseIdentifiableObject::getUid )
+        Set<String> currentRoles = roles.stream().map( IdentifiableObject::getUid )
             .collect( Collectors.toSet() );
 
         if ( userRoles != null )

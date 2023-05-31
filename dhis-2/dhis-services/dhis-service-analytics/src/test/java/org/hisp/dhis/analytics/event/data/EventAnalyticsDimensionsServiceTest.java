@@ -27,10 +27,10 @@
  */
 package org.hisp.dhis.analytics.event.data;
 
-import static org.hisp.dhis.analytics.event.data.AnalyticsDimensionsTestSupport.allValueTypeDataElements;
-import static org.hisp.dhis.analytics.event.data.AnalyticsDimensionsTestSupport.allValueTypeTEAs;
-import static org.hisp.dhis.analytics.event.data.DimensionsServiceCommon.AGGREGATE_ALLOWED_VALUE_TYPES;
-import static org.hisp.dhis.analytics.event.data.DimensionsServiceCommon.QUERY_DISALLOWED_VALUE_TYPES;
+import static org.hisp.dhis.analytics.common.AnalyticsDimensionsTestSupport.allValueTypeDataElements;
+import static org.hisp.dhis.analytics.common.AnalyticsDimensionsTestSupport.allValueTypeTEAs;
+import static org.hisp.dhis.analytics.common.DimensionServiceCommonTest.aggregateAllowedValueTypesPredicate;
+import static org.hisp.dhis.analytics.common.DimensionServiceCommonTest.queryDisallowedValueTypesPredicate;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -38,15 +38,19 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 import org.hisp.dhis.analytics.event.EventAnalyticsDimensionsService;
 import org.hisp.dhis.category.CategoryService;
 import org.hisp.dhis.common.BaseIdentifiableObject;
+import org.hisp.dhis.common.PrefixedDimension;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramStage;
 import org.hisp.dhis.program.ProgramStageService;
+import org.hisp.dhis.security.acl.AclService;
 import org.hisp.dhis.trackedentity.TrackedEntityAttribute;
+import org.hisp.dhis.user.CurrentUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -70,50 +74,50 @@ class EventAnalyticsDimensionsServiceTest
         when( program.getTrackedEntityAttributes() ).thenReturn( allValueTypeTEAs() );
 
         eventAnalyticsDimensionsService = new DefaultEventAnalyticsDimensionsService( programStageService,
-            categoryService );
+            categoryService, mock( AclService.class ), mock( CurrentUserService.class ) );
     }
 
     @Test
     void testQueryDoesntContainDisallowedValueTypes()
     {
         Collection<BaseIdentifiableObject> analyticsDimensions = eventAnalyticsDimensionsService
-            .getQueryDimensionsByProgramStageId( "anUid" );
+            .getQueryDimensionsByProgramStageId( "anUid" ).stream()
+            .map( PrefixedDimension::getItem )
+            .collect( Collectors.toList() );
 
         assertTrue(
             analyticsDimensions
                 .stream()
                 .filter( b -> b instanceof DataElement )
                 .map( de -> ((DataElement) de).getValueType() )
-                .noneMatch(
-                    QUERY_DISALLOWED_VALUE_TYPES::contains ) );
+                .noneMatch( queryDisallowedValueTypesPredicate() ) );
         assertTrue(
             analyticsDimensions
                 .stream()
                 .filter( b -> b instanceof TrackedEntityAttribute )
                 .map( tea -> ((TrackedEntityAttribute) tea).getValueType() )
-                .noneMatch(
-                    QUERY_DISALLOWED_VALUE_TYPES::contains ) );
+                .noneMatch( queryDisallowedValueTypesPredicate() ) );
     }
 
     @Test
     void testAggregateOnlyContainsAllowedValueTypes()
     {
         Collection<BaseIdentifiableObject> analyticsDimensions = eventAnalyticsDimensionsService
-            .getAggregateDimensionsByProgramStageId( "anUid" );
+            .getAggregateDimensionsByProgramStageId( "anUid" ).stream()
+            .map( PrefixedDimension::getItem )
+            .collect( Collectors.toList() );
 
         assertTrue(
             analyticsDimensions
                 .stream()
                 .filter( b -> b instanceof DataElement )
                 .map( de -> ((DataElement) de).getValueType() )
-                .allMatch(
-                    AGGREGATE_ALLOWED_VALUE_TYPES::contains ) );
+                .allMatch( aggregateAllowedValueTypesPredicate() ) );
         assertTrue(
             analyticsDimensions
                 .stream()
                 .filter( b -> b instanceof TrackedEntityAttribute )
                 .map( tea -> ((TrackedEntityAttribute) tea).getValueType() )
-                .allMatch(
-                    AGGREGATE_ALLOWED_VALUE_TYPES::contains ) );
+                .allMatch( aggregateAllowedValueTypesPredicate() ) );
     }
 }

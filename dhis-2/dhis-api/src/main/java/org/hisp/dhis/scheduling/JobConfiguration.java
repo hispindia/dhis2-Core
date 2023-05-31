@@ -31,6 +31,7 @@ import static org.hisp.dhis.scheduling.JobStatus.DISABLED;
 import static org.hisp.dhis.scheduling.JobStatus.SCHEDULED;
 import static org.hisp.dhis.schema.annotation.Property.Value.FALSE;
 
+import java.time.Clock;
 import java.util.Date;
 
 import javax.annotation.Nonnull;
@@ -50,10 +51,10 @@ import org.hisp.dhis.scheduling.parameters.MonitoringJobParameters;
 import org.hisp.dhis.scheduling.parameters.PredictorJobParameters;
 import org.hisp.dhis.scheduling.parameters.PushAnalysisJobParameters;
 import org.hisp.dhis.scheduling.parameters.SmsJobParameters;
+import org.hisp.dhis.scheduling.parameters.SqlViewUpdateParameters;
 import org.hisp.dhis.scheduling.parameters.TestJobParameters;
 import org.hisp.dhis.scheduling.parameters.TrackerProgramsDataSynchronizationJobParameters;
 import org.hisp.dhis.scheduling.parameters.TrackerTrigramIndexJobParameters;
-import org.hisp.dhis.scheduling.parameters.jackson.JobConfigurationSanitizer;
 import org.hisp.dhis.schema.PropertyType;
 import org.hisp.dhis.schema.annotation.Property;
 import org.springframework.scheduling.support.CronTrigger;
@@ -62,7 +63,6 @@ import org.springframework.scheduling.support.SimpleTriggerContext;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
@@ -77,15 +77,10 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
  * The class uses a custom deserializer to handle several potential
  * {@link JobParameters}.
  *
- * Note that this class uses {@link JobConfigurationSanitizer} for serialization
- * which needs to be update when new properties are added.
- *
  * @author Henning Håkonsen
  */
 @JacksonXmlRootElement( localName = "jobConfiguration", namespace = DxfNamespaces.DXF_2_0 )
-@JsonDeserialize( converter = JobConfigurationSanitizer.class )
-public class JobConfiguration
-    extends BaseIdentifiableObject implements SecondaryMetadataObject
+public class JobConfiguration extends BaseIdentifiableObject implements SecondaryMetadataObject
 {
     // -------------------------------------------------------------------------
     // Externally configurable properties
@@ -126,7 +121,7 @@ public class JobConfiguration
 
     private JobStatus jobStatus;
 
-    private Date nextExecutionTime;
+    private transient Date nextExecutionTime;
 
     private JobStatus lastExecutedStatus = JobStatus.NOT_STARTED;
 
@@ -136,7 +131,11 @@ public class JobConfiguration
 
     private boolean inMemoryJob = false;
 
-    private String userUid;
+    /**
+     * Optional UID of the user that executes the job. (The user's
+     * authentication is set in the security context for the execution scope)
+     */
+    private String executedBy;
 
     private boolean leaderOnlyJob = false;
 
@@ -153,14 +152,14 @@ public class JobConfiguration
      *
      * @param name the job name.
      * @param jobType the {@link JobType}.
-     * @param userUid the user UID.
+     * @param executedBy the user UID.
      * @param inMemoryJob whether this is an in-memory job.
      */
-    public JobConfiguration( String name, JobType jobType, String userUid, boolean inMemoryJob )
+    public JobConfiguration( String name, JobType jobType, String executedBy, boolean inMemoryJob )
     {
         this.name = name;
         this.jobType = jobType;
-        this.userUid = userUid;
+        this.executedBy = executedBy;
         this.inMemoryJob = inMemoryJob;
         init();
     }
@@ -197,7 +196,6 @@ public class JobConfiguration
         this.jobParameters = jobParameters;
         this.enabled = enabled;
         this.inMemoryJob = inMemoryJob;
-        setJobStatus( enabled ? SCHEDULED : DISABLED );
         init();
     }
 
@@ -228,7 +226,7 @@ public class JobConfiguration
         {
             return true;
         }
-        if ( this.jobStatus != other.getJobStatus() )
+        if ( this.getJobStatus() != other.getJobStatus() )
         {
             return true;
         }
@@ -271,7 +269,7 @@ public class JobConfiguration
             ", enabled=" + enabled +
             ", inMemoryJob=" + inMemoryJob +
             ", lastRuntimeExecution='" + lastRuntimeExecution + '\'' +
-            ", userUid='" + userUid + '\'' +
+            ", executedBy='" + executedBy + '\'' +
             ", leaderOnlyJob=" + leaderOnlyJob +
             ", jobStatus=" + jobStatus +
             ", nextExecutionTime=" + nextExecutionTime +
@@ -305,6 +303,7 @@ public class JobConfiguration
     public void setCronExpression( String cronExpression )
     {
         this.cronExpression = cronExpression;
+        this.nextExecutionTime = null; // invalidate
     }
 
     @JacksonXmlProperty
@@ -342,6 +341,7 @@ public class JobConfiguration
         @JsonSubTypes.Type( value = TrackerTrigramIndexJobParameters.class, name = "TRACKER_SEARCH_OPTIMIZATION" ),
         @JsonSubTypes.Type( value = DataIntegrityJobParameters.class, name = "DATA_INTEGRITY" ),
         @JsonSubTypes.Type( value = AggregateDataExchangeJobParameters.class, name = "AGGREGATE_DATA_EXCHANGE" ),
+        @JsonSubTypes.Type( value = SqlViewUpdateParameters.class, name = "SQL_VIEW_UPDATE" ),
         @JsonSubTypes.Type( value = TestJobParameters.class, name = "TEST" )
     } )
     public JobParameters getJobParameters()
@@ -370,6 +370,10 @@ public class JobConfiguration
     @JsonProperty( access = JsonProperty.Access.READ_ONLY )
     public JobStatus getJobStatus()
     {
+        if ( jobStatus == null )
+        {
+            jobStatus = enabled ? SCHEDULED : DISABLED;
+        }
         return jobStatus;
     }
 
@@ -382,27 +386,22 @@ public class JobConfiguration
     @JsonProperty( access = JsonProperty.Access.READ_ONLY )
     public Date getNextExecutionTime()
     {
-        return nextExecutionTime;
+        return nextExecutionTimeAfter( Clock.systemDefaultZone() );
     }
 
-    /**
-     * Only set next execution time if the job is not continuous.
-     */
-    public void setNextExecutionTime( Date nextExecutionTime )
+    public Date nextExecutionTimeAfter( Clock time )
     {
-        if ( cronExpression == null || cronExpression.equals( "" ) || cronExpression.equals( "* * * * * ?" ) )
+        if ( time == null || cronExpression == null || cronExpression.equals( "" )
+            || cronExpression.equals( "* * * * * ?" ) )
         {
-            return;
+            return null;
         }
-
-        if ( nextExecutionTime != null )
+        if ( nextExecutionTime == null || !nextExecutionTime.toInstant().isAfter( time.instant() ) )
         {
-            this.nextExecutionTime = nextExecutionTime;
+            this.nextExecutionTime = new CronTrigger( cronExpression )
+                .nextExecutionTime( new SimpleTriggerContext( time ) );
         }
-        else
-        {
-            this.nextExecutionTime = new CronTrigger( cronExpression ).nextExecutionTime( new SimpleTriggerContext() );
-        }
+        return nextExecutionTime;
     }
 
     @JacksonXmlProperty
@@ -463,16 +462,27 @@ public class JobConfiguration
         this.inMemoryJob = inMemoryJob;
     }
 
+    /**
+     * Kept for backwards compatibility
+     *
+     * @see #getExecutedBy()
+     */
     @JacksonXmlProperty
     @JsonProperty( access = JsonProperty.Access.READ_ONLY )
     public String getUserUid()
     {
-        return userUid;
+        return executedBy;
     }
 
-    public void setUserUid( String userUid )
+    @JsonProperty
+    public String getExecutedBy()
     {
-        this.userUid = userUid;
+        return executedBy;
+    }
+
+    public void setExecutedBy( String executedBy )
+    {
+        this.executedBy = executedBy;
     }
 
     public String getQueueIdentifier()

@@ -27,6 +27,8 @@
  */
 package org.hisp.dhis.interpretation;
 
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -52,8 +54,8 @@ import org.hisp.dhis.security.acl.AccessStringHelper;
 import org.hisp.dhis.security.acl.AclService;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
-import org.hisp.dhis.user.UserAccess;
 import org.hisp.dhis.user.UserService;
+import org.hisp.dhis.user.sharing.UserAccess;
 import org.hisp.dhis.visualization.Visualization;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
@@ -263,12 +265,17 @@ public class DefaultInterpretationService
         if ( interpretableObjectSchema.isSubscribable() )
         {
             SubscribableObject object = (SubscribableObject) interpretableObject;
-            Set<User> subscribers = new HashSet<>( userService.getUsers( object.getSubscribers() ) );
-            subscribers.remove( currentUserService.getCurrentUser() );
+            Set<String> subscribersUid = object.getSubscribers();
 
-            if ( !subscribers.isEmpty() )
+            if ( isNotEmpty( subscribersUid ) )
             {
-                sendNotificationMessage( subscribers, interpretation, comment, notificationType );
+                Set<User> subscribers = new HashSet<>( userService.getUsers( subscribersUid ) );
+                subscribers.remove( currentUserService.getCurrentUser() );
+
+                if ( !subscribers.isEmpty() )
+                {
+                    sendNotificationMessage( subscribers, interpretation, comment, notificationType );
+                }
             }
         }
     }
@@ -347,7 +354,7 @@ public class DefaultInterpretationService
         {
             if ( !aclService.canRead( user, interpretationObject ) )
             {
-                interpretationObject.getSharing().addDtoUserAccess( new UserAccess( user, AccessStringHelper.READ ) );
+                interpretationObject.getSharing().addUserAccess( new UserAccess( user, AccessStringHelper.READ ) );
                 modified = true;
             }
         }

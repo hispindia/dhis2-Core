@@ -29,36 +29,36 @@ package org.hisp.dhis.trackedentitycomment;
 
 import lombok.RequiredArgsConstructor;
 
-import org.hisp.dhis.program.ProgramInstance;
-import org.hisp.dhis.program.ProgramStageInstance;
-import org.hisp.dhis.system.deletion.DeletionHandler;
+import org.hisp.dhis.program.Enrollment;
+import org.hisp.dhis.program.Event;
+import org.hisp.dhis.system.deletion.IdObjectDeletionHandler;
 
 /**
  * @author Abyot Asalefew Gizaw <abyota@gmail.com>
  */
 @RequiredArgsConstructor
-public class TrackedEntityCommentDeletionHandler extends DeletionHandler
+public class TrackedEntityCommentDeletionHandler extends IdObjectDeletionHandler<TrackedEntityComment>
 {
     private final TrackedEntityCommentService commentService;
 
     @Override
-    protected void register()
+    protected void registerHandler()
     {
-        whenDeleting( ProgramInstance.class, this::deleteProgramInstance );
-        whenDeleting( ProgramStageInstance.class, this::deleteProgramStageInstance );
+        whenDeleting( Enrollment.class, this::deleteEnrollment );
+        whenDeleting( Event.class, this::deleteEvent );
     }
 
-    private void deleteProgramInstance( ProgramInstance programInstance )
+    private void deleteEnrollment( Enrollment enrollment )
     {
-        for ( TrackedEntityComment comment : programInstance.getComments() )
+        for ( TrackedEntityComment comment : enrollment.getComments() )
         {
             commentService.deleteTrackedEntityComment( comment );
         }
     }
 
-    private void deleteProgramStageInstance( ProgramStageInstance programStageInstance )
+    private void deleteEvent( Event event )
     {
-        for ( TrackedEntityComment comment : programStageInstance.getComments() )
+        for ( TrackedEntityComment comment : event.getComments() )
         {
             commentService.deleteTrackedEntityComment( comment );
         }

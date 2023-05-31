@@ -29,11 +29,17 @@ package org.hisp.dhis.fieldfiltering;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hisp.dhis.common.auth.ApiTokenAuth;
+import org.hisp.dhis.common.auth.HttpBasicAuth;
+import org.hisp.dhis.eventhook.targets.JmsTarget;
+import org.hisp.dhis.eventhook.targets.KafkaTarget;
 import org.hisp.dhis.scheduling.JobParameters;
 import org.hisp.dhis.system.util.AnnotationUtils;
 
@@ -48,17 +54,37 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 /**
  * PropertyFilter that supports filtering using FieldPaths, also supports
  * skipping of all fields related to sharing.
- *
+ * <p>
  * The filter _must_ be set on the ObjectMapper before serialising an object.
  *
  * @author Morten Olav Hansen
  */
+@Slf4j
 @RequiredArgsConstructor
 public class FieldFilterSimpleBeanPropertyFilter extends SimpleBeanPropertyFilter
 {
     private final List<FieldPath> fieldPaths;
 
     private final boolean skipSharing;
+
+    /**
+     * Field filtering ignore list. This is mainly because we don't want to
+     * inject custom serializers into the ObjectMapper, and we don't want to
+     * expose sensitive information. This is useful for when you are using JSONB
+     * to store the data but still want secrets hidden when doing field
+     * filtering.
+     */
+    private static final Map<Class<?>, List<String>> IGNORE_LIST = Map.of(
+        HttpBasicAuth.class, List.of( "auth.password", "targets.auth.password" ),
+        ApiTokenAuth.class, List.of( "auth.token", "targets.auth.token" ),
+        JmsTarget.class, List.of( "targets.password" ),
+        KafkaTarget.class, List.of( "targets.password" ) );
+
+    /**
+     * Cache that contains true/false for classes that should always be
+     * expanded.
+     */
+    private final Map<Class<?>, Boolean> alwaysExpandCache = new ConcurrentHashMap<>();
 
     @Override
     protected boolean include( final BeanPropertyWriter writer )
@@ -77,6 +103,18 @@ public class FieldFilterSimpleBeanPropertyFilter extends SimpleBeanPropertyFilte
         PathContext ctx = getPath( writer, jgen );
 
         if ( ctx.getCurrentValue() == null )
+        {
+            return false;
+        }
+
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( ctx.getCurrentValue().getClass().getSimpleName() + ": " + ctx.getFullPath() );
+        }
+
+        if ( IGNORE_LIST.containsKey( ctx.getCurrentValue().getClass() ) &&
+            StringUtils.equalsAny( ctx.getFullPath(),
+                IGNORE_LIST.get( ctx.getCurrentValue().getClass() ).toArray( new String[] {} ) ) )
         {
             return false;
         }
@@ -120,17 +158,17 @@ public class FieldFilterSimpleBeanPropertyFilter extends SimpleBeanPropertyFilte
 
         while ( sc != null )
         {
+            if ( sc.getCurrentName() != null && sc.getCurrentValue() != null )
+            {
+                nestedPath.insert( 0, "." );
+                nestedPath.insert( 0, sc.getCurrentName() );
+            }
+
             if ( isAlwaysExpandType( sc.getCurrentValue() ) )
             {
                 sc = sc.getParent();
                 alwaysExpand = true;
                 continue;
-            }
-
-            if ( sc.getCurrentName() != null && sc.getCurrentValue() != null )
-            {
-                nestedPath.insert( 0, "." );
-                nestedPath.insert( 0, sc.getCurrentName() );
             }
 
             sc = sc.getParent();
@@ -167,8 +205,14 @@ public class FieldFilterSimpleBeanPropertyFilter extends SimpleBeanPropertyFilte
 
         Class<?> klass = object.getClass();
 
-        return Map.class.isAssignableFrom( klass ) || JobParameters.class.isAssignableFrom( klass )
-            || AnnotationUtils.isAnnotationPresent( klass, JsonTypeInfo.class );
+        if ( !alwaysExpandCache.containsKey( klass ) )
+        {
+            alwaysExpandCache.put( klass,
+                Map.class.isAssignableFrom( klass ) || JobParameters.class.isAssignableFrom( klass )
+                    || AnnotationUtils.isAnnotationPresent( klass, JsonTypeInfo.class ) );
+        }
+
+        return alwaysExpandCache.get( klass );
     }
 }
 

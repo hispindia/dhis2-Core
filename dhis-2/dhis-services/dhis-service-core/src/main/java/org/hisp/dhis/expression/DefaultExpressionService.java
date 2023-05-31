@@ -58,6 +58,8 @@ import static org.hisp.dhis.parser.expression.antlr.ExpressionParser.MAX_DATE;
 import static org.hisp.dhis.parser.expression.antlr.ExpressionParser.MEDIAN;
 import static org.hisp.dhis.parser.expression.antlr.ExpressionParser.MIN;
 import static org.hisp.dhis.parser.expression.antlr.ExpressionParser.MIN_DATE;
+import static org.hisp.dhis.parser.expression.antlr.ExpressionParser.NORM_DIST_CUM;
+import static org.hisp.dhis.parser.expression.antlr.ExpressionParser.NORM_DIST_DEN;
 import static org.hisp.dhis.parser.expression.antlr.ExpressionParser.N_BRACE;
 import static org.hisp.dhis.parser.expression.antlr.ExpressionParser.ORGUNIT_ANCESTOR;
 import static org.hisp.dhis.parser.expression.antlr.ExpressionParser.ORGUNIT_DATASET;
@@ -97,7 +99,6 @@ import org.hisp.dhis.antlr.Parser;
 import org.hisp.dhis.antlr.ParserException;
 import org.hisp.dhis.cache.Cache;
 import org.hisp.dhis.cache.CacheProvider;
-import org.hisp.dhis.common.BaseIdentifiableObject;
 import org.hisp.dhis.common.DimensionService;
 import org.hisp.dhis.common.DimensionalItemId;
 import org.hisp.dhis.common.DimensionalItemObject;
@@ -124,7 +125,7 @@ import org.hisp.dhis.expression.function.FunctionOrgUnitAncestor;
 import org.hisp.dhis.expression.function.FunctionOrgUnitDataSet;
 import org.hisp.dhis.expression.function.FunctionOrgUnitGroup;
 import org.hisp.dhis.expression.function.FunctionOrgUnitProgram;
-import org.hisp.dhis.expression.function.FunctionSubExpression;
+import org.hisp.dhis.expression.function.FunctionSubexpression;
 import org.hisp.dhis.hibernate.HibernateGenericStore;
 import org.hisp.dhis.i18n.I18nManager;
 import org.hisp.dhis.indicator.Indicator;
@@ -138,6 +139,8 @@ import org.hisp.dhis.parser.expression.ExpressionState;
 import org.hisp.dhis.parser.expression.function.FunctionAggregationType;
 import org.hisp.dhis.parser.expression.function.FunctionMaxDate;
 import org.hisp.dhis.parser.expression.function.FunctionMinDate;
+import org.hisp.dhis.parser.expression.function.FunctionNormDistCum;
+import org.hisp.dhis.parser.expression.function.FunctionNormDistDen;
 import org.hisp.dhis.parser.expression.function.FunctionYearToDate;
 import org.hisp.dhis.parser.expression.function.PeriodOffset;
 import org.hisp.dhis.parser.expression.function.VectorAvg;
@@ -156,6 +159,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -219,6 +223,8 @@ public class DefaultExpressionService
         .put( MEDIAN, new VectorMedian() )
         .put( MIN, new VectorMin() )
         .put( MIN_DATE, new FunctionMinDate() )
+        .put( NORM_DIST_CUM, new FunctionNormDistCum() )
+        .put( NORM_DIST_DEN, new FunctionNormDistDen() )
         .put( PERCENTILE_CONT, new VectorPercentileCont() )
         .put( STDDEV, new VectorStddevSamp() )
         .put( STDDEV_POP, new VectorStddevPop() )
@@ -235,7 +241,7 @@ public class DefaultExpressionService
         .put( MIN_DATE, new FunctionMinDate() )
         .put( PERIOD_IN_YEAR, new ItemPeriodInYear() )
         .put( PERIOD_OFFSET, new PeriodOffset() )
-        .put( SUB_EXPRESSION, new FunctionSubExpression() )
+        .put( SUB_EXPRESSION, new FunctionSubexpression() )
         .put( YEARLY_PERIOD_COUNT, new ItemYearlyPeriodCount() )
         .put( YEAR_TO_DATE, new FunctionYearToDate() )
         .build();
@@ -300,13 +306,6 @@ public class DefaultExpressionService
         this.statementBuilder = statementBuilder;
         this.i18nManager = i18nManager;
         this.constantMapCache = cacheProvider.createAllConstantsCache();
-
-        FunctionSubExpression fn = (FunctionSubExpression) INDICATOR_EXPRESSION_ITEMS.get( SUB_EXPRESSION );
-
-        if ( fn != null )
-        {
-            fn.init( cacheProvider );
-        }
     }
 
     // -------------------------------------------------------------------------
@@ -355,6 +354,7 @@ public class DefaultExpressionService
     // -------------------------------------------------------------------------
 
     @Override
+    @Transactional( readOnly = true )
     public Map<DimensionalItemId, DimensionalItemObject> getIndicatorDimensionalItemMap(
         Collection<Indicator> indicators )
     {
@@ -368,6 +368,7 @@ public class DefaultExpressionService
     }
 
     @Override
+    @Transactional( readOnly = true )
     public List<OrganisationUnitGroup> getOrgUnitGroupCountGroups( Collection<Indicator> indicators )
     {
         if ( indicators == null )
@@ -449,10 +450,10 @@ public class DefaultExpressionService
         }
 
         Map<String, Constant> constants = new CachingMap<String, Constant>()
-            .load( idObjectManager.getAllNoAcl( Constant.class ), BaseIdentifiableObject::getUid );
+            .load( idObjectManager.getAllNoAcl( Constant.class ), IdentifiableObject::getUid );
 
         Map<String, OrganisationUnitGroup> orgUnitGroups = new CachingMap<String, OrganisationUnitGroup>()
-            .load( idObjectManager.getAllNoAcl( OrganisationUnitGroup.class ), BaseIdentifiableObject::getUid );
+            .load( idObjectManager.getAllNoAcl( OrganisationUnitGroup.class ), IdentifiableObject::getUid );
 
         for ( Indicator indicator : indicators )
         {
@@ -468,7 +469,7 @@ public class DefaultExpressionService
     // -------------------------------------------------------------------------
 
     @Override
-    @Transactional
+    @Transactional( readOnly = true )
     public ExpressionValidationOutcome expressionIsValid( String expression, ParseType parseType )
     {
         try
@@ -497,16 +498,7 @@ public class DefaultExpressionService
             return "";
         }
 
-        CommonExpressionVisitor visitor = newVisitor( ITEM_GET_DESCRIPTIONS, ExpressionParams.builder()
-            .expression( expression )
-            .parseType( parseType )
-            .dataType( dataType )
-            .missingValueStrategy( NEVER_SKIP )
-            .build() );
-
-        visit( expression, dataType, visitor, false );
-
-        Map<String, String> itemDescriptions = visitor.getItemDescriptions();
+        Map<String, String> itemDescriptions = getExpressionItemDescriptions( expression, parseType, dataType );
 
         String description = expression;
 
@@ -516,6 +508,28 @@ public class DefaultExpressionService
         }
 
         return description;
+    }
+
+    @Override
+    public Map<String, String> getExpressionItemDescriptions( String expression, ParseType parseType )
+    {
+        return getExpressionItemDescriptions( expression, parseType, parseType.getDataType() );
+    }
+
+    @Override
+    public Map<String, String> getExpressionItemDescriptions( String expression, ParseType parseType,
+        DataType dataType )
+    {
+        CommonExpressionVisitor visitor = newVisitor( ITEM_GET_DESCRIPTIONS, ExpressionParams.builder()
+            .expression( expression )
+            .parseType( parseType )
+            .dataType( dataType )
+            .missingValueStrategy( NEVER_SKIP )
+            .build() );
+
+        visit( expression, dataType, visitor, false );
+
+        return visitor.getItemDescriptions();
     }
 
     @Override
@@ -680,6 +694,7 @@ public class DefaultExpressionService
     // -------------------------------------------------------------------------
 
     @Override
+    @Transactional( readOnly = true )
     public Map<String, Constant> getConstantMap()
     {
         return constantMapCache.get( "x", key -> constantService.getConstantMap() );
@@ -753,7 +768,7 @@ public class DefaultExpressionService
             .idObjectManager( idObjectManager )
             .dimensionService( dimensionService )
             .statementBuilder( statementBuilder )
-            .i18n( i18nManager.getI18n() )
+            .i18nSupplier( Suppliers.memoize( i18nManager::getI18n ) )
             .constantMap( getConstantMap() )
             .itemMap( PARSE_TYPE_EXPRESSION_ITEMS.get( params.getParseType() ) )
             .itemMethod( itemMethod )

@@ -49,6 +49,7 @@ import java.util.function.Supplier;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.Value;
 
@@ -69,7 +70,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * @author Jan Bernitt
  */
 @Value
-class Api
+public class Api
 {
     /**
      * Can be used in {@link OpenApi.Param#value()} to point not to the type to
@@ -82,6 +83,17 @@ class Api
     interface SchemaGenerator
     {
         Schema generate( Endpoint endpoint, Type source, Class<?>... args );
+    }
+
+    /**
+     * A "virtual" property name enumeration type. It creates an OpenAPI
+     * {@code enum} string schema containing all valid property names for the
+     * target type. The target type is either the actual type substitute for the
+     * {@link OpenApi.EntityType} or the first argument type.
+     */
+    @NoArgsConstructor
+    public static final class PropertyNames
+    {
     }
 
     List<Controller> controllers = new ArrayList<>();
@@ -153,10 +165,8 @@ class Api
         @EqualsAndHashCode.Include
         String name;
 
-        @EqualsAndHashCode.Exclude
         Maybe<String> description = new Maybe<>();
 
-        @EqualsAndHashCode.Exclude
         Maybe<String> externalDocsUrl = new Maybe<>();
 
         Maybe<String> externalDocsDescription = new Maybe<>();
@@ -338,6 +348,12 @@ class Api
 
         Boolean required;
 
+        /**
+         * OBS! This cannot be included in {@link #toString()} because it might
+         * be a circular with the {@link Schema} containing the
+         * {@link Property}.
+         */
+        @ToString.Exclude
         Schema type;
     }
 

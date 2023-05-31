@@ -42,20 +42,19 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.common.hibernate.SoftDeleteHibernateObjectStore;
 import org.hisp.dhis.hibernate.JpaQueryParameters;
-import org.hisp.dhis.program.ProgramInstance;
-import org.hisp.dhis.program.ProgramStageInstance;
+import org.hisp.dhis.program.Enrollment;
+import org.hisp.dhis.program.Event;
 import org.hisp.dhis.relationship.Relationship;
 import org.hisp.dhis.relationship.RelationshipItem;
 import org.hisp.dhis.relationship.RelationshipStore;
 import org.hisp.dhis.relationship.RelationshipType;
 import org.hisp.dhis.security.acl.AclService;
-import org.hisp.dhis.trackedentity.TrackedEntityInstance;
+import org.hisp.dhis.trackedentity.TrackedEntity;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.webapi.controller.event.webrequest.OrderCriteria;
 import org.hisp.dhis.webapi.controller.event.webrequest.PagingAndSortingCriteriaAdapter;
@@ -70,11 +69,11 @@ import org.springframework.stereotype.Repository;
 public class HibernateRelationshipStore extends SoftDeleteHibernateObjectStore<Relationship>
     implements RelationshipStore
 {
-    private static final String TRACKED_ENTITY_INSTANCE = "trackedEntityInstance";
+    private static final String TRACKED_ENTITY = "trackedEntity";
 
-    private static final String PROGRAM_INSTANCE = "programInstance";
+    private static final String PROGRAM_INSTANCE = "enrollment";
 
-    private static final String PROGRAM_STAGE_INSTANCE = "programStageInstance";
+    private static final String EVENT = "event";
 
     public HibernateRelationshipStore( SessionFactory sessionFactory, JdbcTemplate jdbcTemplate,
         ApplicationEventPublisher publisher, CurrentUserService currentUserService, AclService aclService )
@@ -83,30 +82,30 @@ public class HibernateRelationshipStore extends SoftDeleteHibernateObjectStore<R
     }
 
     @Override
-    public List<Relationship> getByTrackedEntityInstance( TrackedEntityInstance tei,
+    public List<Relationship> getByTrackedEntity( TrackedEntity trackedEntity,
         PagingAndSortingCriteriaAdapter pagingAndSortingCriteriaAdapter )
     {
-        TypedQuery<Relationship> relationshipTypedQuery = getRelationshipTypedQuery( tei,
+        TypedQuery<Relationship> relationshipTypedQuery = getRelationshipTypedQuery( trackedEntity,
             pagingAndSortingCriteriaAdapter );
 
         return getList( relationshipTypedQuery );
     }
 
     @Override
-    public List<Relationship> getByProgramInstance( ProgramInstance pi,
+    public List<Relationship> getByEnrollment( Enrollment enrollment,
         PagingAndSortingCriteriaAdapter pagingAndSortingCriteriaAdapter )
     {
-        TypedQuery<Relationship> relationshipTypedQuery = getRelationshipTypedQuery( pi,
+        TypedQuery<Relationship> relationshipTypedQuery = getRelationshipTypedQuery( enrollment,
             pagingAndSortingCriteriaAdapter );
 
         return getList( relationshipTypedQuery );
     }
 
     @Override
-    public List<Relationship> getByProgramStageInstance( ProgramStageInstance psi,
+    public List<Relationship> getByEvent( Event event,
         PagingAndSortingCriteriaAdapter pagingAndSortingCriteriaAdapter )
     {
-        TypedQuery<Relationship> relationshipTypedQuery = getRelationshipTypedQuery( psi,
+        TypedQuery<Relationship> relationshipTypedQuery = getRelationshipTypedQuery( event,
             pagingAndSortingCriteriaAdapter );
 
         return getList( relationshipTypedQuery );
@@ -157,12 +156,12 @@ public class HibernateRelationshipStore extends SoftDeleteHibernateObjectStore<R
 
     private <T extends IdentifiableObject> String getRelationshipEntityType( T entity )
     {
-        if ( entity instanceof TrackedEntityInstance )
-            return TRACKED_ENTITY_INSTANCE;
-        else if ( entity instanceof ProgramInstance )
+        if ( entity instanceof TrackedEntity )
+            return TRACKED_ENTITY;
+        else if ( entity instanceof Enrollment )
             return PROGRAM_INSTANCE;
-        else if ( entity instanceof ProgramStageInstance )
-            return PROGRAM_STAGE_INSTANCE;
+        else if ( entity instanceof Event )
+            return EVENT;
         else
             throw new IllegalArgumentException( entity.getClass()
                 .getSimpleName() + " not supported in relationship" );
@@ -206,6 +205,7 @@ public class HibernateRelationshipStore extends SoftDeleteHibernateObjectStore<R
     }
 
     @Override
+    @SuppressWarnings( "unchecked" )
     public boolean existsIncludingDeleted( String uid )
     {
         Query<String> query = getSession().createNativeQuery( "select uid from relationship where uid=:uid limit 1;" );
@@ -272,6 +272,7 @@ public class HibernateRelationshipStore extends SoftDeleteHibernateObjectStore<R
     }
 
     @Override
+    @SuppressWarnings( "unchecked" )
     public List<String> getUidsByRelationshipKeys( List<String> relationshipKeyList )
     {
         if ( CollectionUtils.isEmpty( relationshipKeyList ) )
@@ -330,55 +331,25 @@ public class HibernateRelationshipStore extends SoftDeleteHibernateObjectStore<R
         return (relationship == null || relationship.isDeleted()) ? null : relationship;
     }
 
-    private Predicate bidirectionalCriteria( CriteriaBuilder criteriaBuilder, Root<Relationship> root,
-        Pair<String, String> fromFieldValuePair, Pair<String, String> toFieldValuePair )
-    {
-        return criteriaBuilder.and( criteriaBuilder.equal( root.join( "relationshipType" )
-            .get( "bidirectional" ), true ),
-            criteriaBuilder.or(
-                criteriaBuilder.and( getRelatedEntityCriteria( criteriaBuilder, root, fromFieldValuePair, "from" ),
-                    getRelatedEntityCriteria( criteriaBuilder, root, toFieldValuePair, "to" ) ),
-                criteriaBuilder.and( getRelatedEntityCriteria( criteriaBuilder, root, fromFieldValuePair, "to" ),
-                    getRelatedEntityCriteria( criteriaBuilder, root, toFieldValuePair, "from" ) ) ) );
-    }
-
-    private Predicate getRelatedEntityCriteria( CriteriaBuilder criteriaBuilder, Root<Relationship> root,
-        Pair<String, String> fromFieldValuePair, String from )
-    {
-        return criteriaBuilder.equal( root.join( from )
-            .join( fromFieldValuePair.getKey() )
-            .get( "uid" ), fromFieldValuePair.getValue() );
-    }
-
-    private Predicate nonBidirectionalCriteria( CriteriaBuilder criteriaBuilder, Root<Relationship> root,
-        Pair<String, String> fromFieldValuePair, Pair<String, String> toFieldValuePair )
-    {
-        return criteriaBuilder.and( criteriaBuilder.equal( root.join( "relationshipType" )
-            .get( "bidirectional" ), false ),
-            criteriaBuilder.and( getRelatedEntityCriteria( criteriaBuilder, root, fromFieldValuePair, "from" ),
-                getRelatedEntityCriteria( criteriaBuilder, root, toFieldValuePair, "to" ) ) );
-    }
-
     private Predicate getFromOrToPredicate( String direction, CriteriaBuilder builder, Root<Relationship> root,
         Relationship relationship )
     {
-
         RelationshipItem relationshipItemDirection = getItem( direction, relationship );
 
-        if ( relationshipItemDirection.getTrackedEntityInstance() != null )
+        if ( relationshipItemDirection.getTrackedEntity() != null )
         {
             return builder.equal( root.join( direction )
-                .get( TRACKED_ENTITY_INSTANCE ), getItem( direction, relationship ).getTrackedEntityInstance() );
+                .get( TRACKED_ENTITY ), getItem( direction, relationship ).getTrackedEntity() );
         }
-        else if ( relationshipItemDirection.getProgramInstance() != null )
+        else if ( relationshipItemDirection.getEnrollment() != null )
         {
             return builder.equal( root.join( direction )
-                .get( PROGRAM_INSTANCE ), getItem( direction, relationship ).getProgramInstance() );
+                .get( PROGRAM_INSTANCE ), getItem( direction, relationship ).getEnrollment() );
         }
-        else if ( relationshipItemDirection.getProgramStageInstance() != null )
+        else if ( relationshipItemDirection.getEvent() != null )
         {
             return builder.equal( root.join( direction )
-                .get( PROGRAM_STAGE_INSTANCE ), getItem( direction, relationship ).getProgramStageInstance() );
+                .get( EVENT ), getItem( direction, relationship ).getEvent() );
         }
         else
         {

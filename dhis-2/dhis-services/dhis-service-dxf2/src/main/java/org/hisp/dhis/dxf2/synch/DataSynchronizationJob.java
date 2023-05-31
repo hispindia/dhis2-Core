@@ -27,12 +27,10 @@
  */
 package org.hisp.dhis.dxf2.synch;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import org.hisp.dhis.dxf2.sync.CompleteDataSetRegistrationSynchronization;
 import org.hisp.dhis.dxf2.sync.DataValueSynchronization;
-import org.hisp.dhis.dxf2.sync.SyncUtils;
-import org.hisp.dhis.feedback.ErrorReport;
 import org.hisp.dhis.scheduling.Job;
 import org.hisp.dhis.scheduling.JobConfiguration;
 import org.hisp.dhis.scheduling.JobProgress;
@@ -46,11 +44,9 @@ import org.springframework.stereotype.Component;
  * @author Jan Bernitt (job progress tracking)
  */
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class DataSynchronizationJob implements Job
 {
-    private final SynchronizationManager syncManager;
-
     private final DataValueSynchronization dataValueSync;
 
     private final CompleteDataSetRegistrationSynchronization completenessSync;
@@ -69,12 +65,5 @@ public class DataSynchronizationJob implements Job
 
         dataValueSync.synchronizeData( params.getPageSize(), progress );
         completenessSync.synchronizeData( progress );
-    }
-
-    @Override
-    public ErrorReport validate()
-    {
-        return SyncUtils.validateRemoteServerAvailability( syncManager, DataSynchronizationJob.class )
-            .orElse( null );
     }
 }

@@ -29,22 +29,20 @@ package org.hisp.dhis.common;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
- * Common interface for objects that have a unique ID used in RESTful APIs but
- * that might not have use for a name and other fundamentals that come with
+ * Common interface for objects that have a ID used in RESTful APIs but that
+ * might not have use for a name and other fundamentals that come with
  * {@link IdentifiableObject}s.
  *
  * @author Jan Bernitt
  */
-public interface PrimaryKeyObject extends Serializable
+public interface PrimaryKeyObject extends UidObject, Serializable
 {
     /**
      * @return internal unique ID of the object as used in the database
      */
+    @JsonIgnore
     long getId();
-
-    /**
-     * @return external unique ID of the object as used in the RESTful API
-     */
-    String getUid();
 }

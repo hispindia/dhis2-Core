@@ -221,6 +221,7 @@ public class DefaultEventQueryPlanner
                     .removeItemProgramIndicators()
                     .withProgramIndicator( programIndicator )
                     .withProgram( programIndicator.getProgram() )
+                    .withAggregationType( fromAggregationType( programIndicator.getAggregationTypeFallback() ) )
                     .withOrgUnitField( new OrgUnitField( programIndicator.getOrgUnitField() ) )
                     .build();
 
@@ -267,8 +268,8 @@ public class DefaultEventQueryPlanner
     {
         List<EventQueryParams> queries = new ArrayList<>();
 
-        if ( (params.isFirstOrLastPeriodAggregationType() || params.useIndividualQuery()) &&
-            !params.getPeriods().isEmpty() )
+        if ( (params.isFirstOrLastPeriodAggregationType() || params.getOrgUnitField().getType().isOwnership() ||
+            params.useIndividualQuery()) && !params.getPeriods().isEmpty() )
         {
             for ( DimensionalItemObject period : params.getPeriods() )
             {

@@ -76,6 +76,11 @@ public interface TrackedEntityAttributeService
     void updateTrackedEntityAttribute( TrackedEntityAttribute attribute );
 
     /**
+     * returns all programAttributes
+     */
+    List<TrackedEntityAttribute> getProgramTrackedEntityAttributes( List<Program> programs );
+
+    /**
      * Returns a {@link TrackedEntityAttribute}.
      *
      * @param id the id of the TrackedEntityAttribute to return.
@@ -180,14 +185,13 @@ public interface TrackedEntityAttributeService
      *
      * @param trackedEntityAttribute TrackedEntityAttribute
      * @param value Value
-     * @param trackedEntityInstance TrackedEntityInstance - required if updating
-     *        TEI
+     * @param trackedEntity TrackedEntity - required if updating TEI
      * @param organisationUnit OrganisationUnit - only required if org unit
      *        scoped
      * @return null if valid, a message if not
      */
     String validateAttributeUniquenessWithinScope( TrackedEntityAttribute trackedEntityAttribute,
-        String value, TrackedEntityInstance trackedEntityInstance, OrganisationUnit organisationUnit );
+        String value, TrackedEntity trackedEntity, OrganisationUnit organisationUnit );
 
     /**
      * Validate value against tracked entity attribute value type.

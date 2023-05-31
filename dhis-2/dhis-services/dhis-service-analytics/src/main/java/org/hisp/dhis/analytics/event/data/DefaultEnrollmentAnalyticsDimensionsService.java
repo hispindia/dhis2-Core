@@ -27,8 +27,12 @@
  */
 package org.hisp.dhis.analytics.event.data;
 
-import static org.hisp.dhis.analytics.event.data.DimensionsServiceCommon.OperationType.AGGREGATE;
-import static org.hisp.dhis.analytics.event.data.DimensionsServiceCommon.OperationType.QUERY;
+import static org.hisp.dhis.analytics.common.DimensionsServiceCommon.OperationType.AGGREGATE;
+import static org.hisp.dhis.analytics.common.DimensionsServiceCommon.OperationType.QUERY;
+import static org.hisp.dhis.analytics.common.DimensionsServiceCommon.collectDimensions;
+import static org.hisp.dhis.analytics.common.DimensionsServiceCommon.filterByValueType;
+import static org.hisp.dhis.common.PrefixedDimensions.ofItemsWithProgram;
+import static org.hisp.dhis.common.PrefixedDimensions.ofProgramStageDataElements;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -38,51 +42,62 @@ import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 
+import org.hisp.dhis.analytics.common.DimensionsServiceCommon;
 import org.hisp.dhis.analytics.event.EnrollmentAnalyticsDimensionsService;
-import org.hisp.dhis.common.BaseIdentifiableObject;
+import org.hisp.dhis.common.PrefixedDimension;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramService;
 import org.hisp.dhis.program.ProgramStage;
-import org.hisp.dhis.program.ProgramStageDataElement;
+import org.hisp.dhis.security.acl.AclService;
 import org.hisp.dhis.trackedentity.TrackedEntityAttribute;
+import org.hisp.dhis.user.CurrentUserService;
+import org.hisp.dhis.user.User;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-class DefaultEnrollmentAnalyticsDimensionsService implements EnrollmentAnalyticsDimensionsService
+public class DefaultEnrollmentAnalyticsDimensionsService implements EnrollmentAnalyticsDimensionsService
 {
     private final ProgramService programService;
 
+    private final AclService aclService;
+
+    private final CurrentUserService currentUserService;
+
     @Override
-    public List<BaseIdentifiableObject> getQueryDimensionsByProgramStageId( String programId )
+    public List<PrefixedDimension> getQueryDimensionsByProgramId( String programId )
     {
+        User user = currentUserService.getCurrentUser();
+
         return Optional.of( programId )
             .map( programService::getProgram )
             .filter( Program::isRegistration )
             .map( program -> collectDimensions(
                 List.of(
-                    program.getProgramIndicators(),
+                    ofItemsWithProgram( program, program.getProgramIndicators().stream()
+                        .filter( pi -> aclService.canRead( user, pi ) )
+                        .collect( Collectors.toSet() ) ),
                     getProgramStageDataElements( QUERY, program ),
-                    filterByValueType( QUERY, getTeasIfRegistrationAndNotConfidential( program ),
-                        TrackedEntityAttribute::getValueType ) ) ) )
+                    filterByValueType(
+                        QUERY,
+                        ofItemsWithProgram( program, getTeasIfRegistrationAndNotConfidential( program ) ) ) ) ) )
             .orElse( Collections.emptyList() );
     }
 
-    private Collection<ProgramStageDataElement> getProgramStageDataElements(
+    private Collection<PrefixedDimension> getProgramStageDataElements(
         DimensionsServiceCommon.OperationType operationType, Program program )
     {
         return program.getProgramStages().stream()
             .map( ProgramStage::getProgramStageDataElements )
             .map( programStageDataElements -> filterByValueType(
                 operationType,
-                programStageDataElements,
-                a -> a.getDataElement().getValueType() ) )
+                ofProgramStageDataElements( programStageDataElements ) ) )
             .flatMap( Collection::stream )
             .collect( Collectors.toList() );
     }
 
     @Override
-    public List<BaseIdentifiableObject> getAggregateDimensionsByProgramStageId( String programId )
+    public List<PrefixedDimension> getAggregateDimensionsByProgramStageId( String programId )
     {
         return Optional.of( programId )
             .map( programService::getProgram )
@@ -90,8 +105,7 @@ class DefaultEnrollmentAnalyticsDimensionsService implements EnrollmentAnalytics
                 List.of(
                     getProgramStageDataElements( AGGREGATE, program ),
                     filterByValueType( AGGREGATE,
-                        program.getTrackedEntityAttributes(),
-                        TrackedEntityAttribute::getValueType ) ) ) )
+                        ofItemsWithProgram( program, program.getTrackedEntityAttributes() ) ) ) ) )
             .orElse( Collections.emptyList() );
     }
 
@@ -110,5 +124,4 @@ class DefaultEnrollmentAnalyticsDimensionsService implements EnrollmentAnalytics
     {
         return !trackedEntityAttribute.isConfidentialBool();
     }
-
 }

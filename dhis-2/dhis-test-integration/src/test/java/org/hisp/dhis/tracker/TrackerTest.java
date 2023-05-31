@@ -27,7 +27,7 @@
  */
 package org.hisp.dhis.tracker;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hisp.dhis.feedback.Assertions.assertNoErrors;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,21 +42,23 @@ import org.hisp.dhis.dxf2.metadata.objectbundle.ObjectBundleMode;
 import org.hisp.dhis.dxf2.metadata.objectbundle.ObjectBundleParams;
 import org.hisp.dhis.dxf2.metadata.objectbundle.ObjectBundleService;
 import org.hisp.dhis.dxf2.metadata.objectbundle.ObjectBundleValidationService;
-import org.hisp.dhis.dxf2.metadata.objectbundle.feedback.ObjectBundleValidationReport;
 import org.hisp.dhis.importexport.ImportStrategy;
 import org.hisp.dhis.render.RenderFormat;
 import org.hisp.dhis.render.RenderService;
 import org.hisp.dhis.test.integration.SingleSetupIntegrationTestBase;
+import org.hisp.dhis.tracker.imports.TrackerImportParams;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Luciano Fiandesio
  */
 @Slf4j
+@Transactional
 public abstract class TrackerTest extends SingleSetupIntegrationTestBase
 {
     @Autowired
@@ -83,7 +85,6 @@ public abstract class TrackerTest extends SingleSetupIntegrationTestBase
     {
         userService = _userService;
         preCreateInjectAdminUser();
-        //
         renderService = _renderService;
         initTest();
     }
@@ -101,13 +102,7 @@ public abstract class TrackerTest extends SingleSetupIntegrationTestBase
         params.setImportStrategy( ImportStrategy.CREATE );
         params.setObjects( metadata );
         ObjectBundle bundle = objectBundleService.create( params );
-        ObjectBundleValidationReport validationReport = objectBundleValidationService.validate( bundle );
-        validationReport.forEachErrorReport( errorReport -> {
-            String s = errorReport.toString();
-            log.error( s );
-        } );
-        boolean condition = validationReport.hasErrorReports();
-        assertFalse( condition );
+        assertNoErrors( objectBundleValidationService.validate( bundle ) );
         objectBundleService.commit( bundle );
         return bundle;
     }
@@ -123,13 +118,7 @@ public abstract class TrackerTest extends SingleSetupIntegrationTestBase
         params.setObjects( metadata );
         params.setUser( user );
         ObjectBundle bundle = objectBundleService.create( params );
-        ObjectBundleValidationReport validationReport = objectBundleValidationService.validate( bundle );
-        validationReport.forEachErrorReport( errorReport -> {
-            String s = errorReport.toString();
-            log.error( s );
-        } );
-        boolean condition = validationReport.hasErrorReports();
-        assertFalse( condition );
+        assertNoErrors( objectBundleValidationService.validate( bundle ) );
         objectBundleService.commit( bundle );
         return bundle;
     }

@@ -47,12 +47,12 @@ import java.util.stream.Stream;
 
 import org.hisp.dhis.analytics.AnalyticsSecurityManager;
 import org.hisp.dhis.analytics.DataQueryParams;
-import org.hisp.dhis.common.BaseIdentifiableObject;
 import org.hisp.dhis.common.CodeGenerator;
 import org.hisp.dhis.common.DataQueryRequest;
 import org.hisp.dhis.common.DimensionItemKeywords;
 import org.hisp.dhis.common.DimensionService;
 import org.hisp.dhis.common.DimensionalObject;
+import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.common.IdentifiableObjectManager;
 import org.hisp.dhis.common.UserOrgUnitType;
 import org.hisp.dhis.dataelement.DataElement;
@@ -376,7 +376,7 @@ class DataQueryServiceDimensionItemKeywordTest
 
         when( organisationUnitService.getOrganisationUnits( Lists.newArrayList( groupOu ),
             Lists.newArrayList( rootOu ) ) )
-                .thenReturn( Lists.newArrayList( ou1Group, ou2Group ) );
+            .thenReturn( Lists.newArrayList( ou1Group, ou2Group ) );
 
         rb.addOuFilter( "LEVEL-wjP19dkFeIk;OU_GROUP-tDZVQ1WtwpA;ImspTQPwCqd" );
         rb.addDimension( concatenateUuid( DATA_ELEMENT_1, DATA_ELEMENT_2, DATA_ELEMENT_3 ) );
@@ -644,7 +644,7 @@ class DataQueryServiceDimensionItemKeywordTest
             builder.add( s );
         }
 
-        return builder.build().map( BaseIdentifiableObject::getUid ).collect( Collectors.joining( ";" ) );
+        return builder.build().map( IdentifiableObject::getUid ).collect( Collectors.joining( ";" ) );
     }
 
     class RequestBuilder

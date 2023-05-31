@@ -27,8 +27,6 @@
  */
 package org.hisp.dhis.webapi.webdomain.datavalue;
 
-import javax.validation.constraints.NotBlank;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,10 +38,10 @@ import org.hisp.dhis.category.CategoryCombo;
 import org.hisp.dhis.category.CategoryOption;
 import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.common.OpenApi;
+import org.hisp.dhis.common.UID;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.period.Period;
-import org.hisp.dhis.webapi.openapi.SchemaGenerators.UID;
 
 /**
  * Object which encapsulates parameters for a data value query.
@@ -58,15 +56,12 @@ import org.hisp.dhis.webapi.openapi.SchemaGenerators.UID;
 @AllArgsConstructor( access = AccessLevel.PRIVATE )
 public class DataValueQueryParams
 {
-    @NotBlank
     @OpenApi.Property( { UID.class, DataElement.class } )
     private String de;
 
-    @NotBlank
     @OpenApi.Property( { Period.class } )
     private String pe;
 
-    @NotBlank
     @OpenApi.Property( { UID.class, OrganisationUnit.class } )
     private String ou;
 

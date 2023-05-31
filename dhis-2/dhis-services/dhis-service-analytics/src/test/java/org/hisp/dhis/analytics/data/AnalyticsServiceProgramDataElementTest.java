@@ -63,7 +63,8 @@ import org.mockito.ArgumentCaptor;
 /**
  * @author Luciano Fiandesio
  */
-class AnalyticsServiceProgramDataElementTest extends
+class AnalyticsServiceProgramDataElementTest
+    extends
     AnalyticsServiceBaseTest
 {
     /**
@@ -93,7 +94,7 @@ class AnalyticsServiceProgramDataElementTest extends
 
         when( analyticsManager.getAggregatedDataValues( any( DataQueryParams.class ),
             eq( AnalyticsTableType.DATA_VALUE ), eq( 0 ) ) )
-                .thenReturn( CompletableFuture.completedFuture( emptyData ) );
+            .thenReturn( CompletableFuture.completedFuture( emptyData ) );
 
         when( eventAnalyticsService.getAggregatedEventData( any( EventQueryParams.class ) ) )
             .thenReturn( new ListGrid() );

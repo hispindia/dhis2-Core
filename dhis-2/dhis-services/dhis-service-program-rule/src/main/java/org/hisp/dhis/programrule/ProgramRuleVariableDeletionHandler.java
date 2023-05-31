@@ -32,10 +32,10 @@ import static org.hisp.dhis.system.deletion.DeletionVeto.ACCEPT;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hisp.dhis.common.BaseIdentifiableObject;
+import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramStage;
 import org.hisp.dhis.system.deletion.DeletionHandler;
@@ -46,7 +46,7 @@ import org.springframework.stereotype.Component;
  * @author markusbekken
  */
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ProgramRuleVariableDeletionHandler extends DeletionHandler
 {
     private final ProgramRuleVariableService programRuleVariableService;
@@ -64,7 +64,7 @@ public class ProgramRuleVariableDeletionHandler extends DeletionHandler
             .getProgramRuleVariable( programStage.getProgram() )
             .stream()
             .filter( prv -> Objects.equals( prv.getProgramStage(), programStage ) )
-            .map( BaseIdentifiableObject::getName )
+            .map( IdentifiableObject::getName )
             .collect( Collectors.joining( ", " ) );
 
         return StringUtils.isBlank( programRuleVariables )

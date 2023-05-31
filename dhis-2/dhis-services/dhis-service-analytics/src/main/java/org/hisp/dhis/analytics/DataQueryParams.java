@@ -98,6 +98,7 @@ import org.hisp.dhis.dataelement.DataElementGroup;
 import org.hisp.dhis.dataelement.DataElementGroupSet;
 import org.hisp.dhis.dataelement.DataElementOperand;
 import org.hisp.dhis.dataset.DataSet;
+import org.hisp.dhis.expressiondimensionitem.ExpressionDimensionItem;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.organisationunit.OrganisationUnitGroupSet;
 import org.hisp.dhis.organisationunit.OrganisationUnitLevel;
@@ -108,6 +109,7 @@ import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramDataElementDimensionItem;
 import org.hisp.dhis.program.ProgramStage;
 import org.hisp.dhis.program.ProgramTrackedEntityAttributeDimensionItem;
+import org.hisp.dhis.subexpression.SubexpressionDimensionItem;
 import org.hisp.dhis.system.util.MathUtils;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.util.DateUtils;
@@ -519,6 +521,8 @@ public class DataQueryParams
      */
     protected transient boolean skipDataDimensionValidation = false;
 
+    protected transient String serverBaseUrl;
+
     protected String explainOrderId;
 
     // -------------------------------------------------------------------------
@@ -624,6 +628,7 @@ public class DataQueryParams
         params.skipDataDimensionValidation = this.skipDataDimensionValidation;
         params.userOrgUnitType = this.userOrgUnitType;
         params.explainOrderId = this.explainOrderId;
+        params.serverBaseUrl = this.serverBaseUrl;
 
         return params;
     }
@@ -690,8 +695,15 @@ public class DataQueryParams
             .add( "order", order )
             .add( "timeField", timeField )
             .add( "orgUnitField", orgUnitField )
+            .add( "expressiondimensionitems", getExpressionDimensionItemsExpressions() )
             .addIgnoreNull( "apiVersion", apiVersion )
             .addIgnoreNull( "locale", locale );
+    }
+
+    private String getExpressionDimensionItemsExpressions()
+    {
+        return this.getExpressionDimensionItems().stream()
+            .map( edi -> ((ExpressionDimensionItem) edi).getExpression() ).collect( Collectors.joining() );
     }
 
     private String getDimensionalItemKeywords( DimensionItemKeywords keywords )
@@ -1195,6 +1207,16 @@ public class DataQueryParams
     }
 
     /**
+     * Returns all dimensions except any organisation unit dimension.
+     */
+    public List<DimensionalObject> getNonOrgUnitDimensions()
+    {
+        List<DimensionalObject> dims = new ArrayList<>( dimensions );
+        dims.remove( new BaseDimensionalObject( ORGUNIT_DIM_ID ) );
+        return List.copyOf( dims );
+    }
+
+    /**
      * Indicates whether all dimensions and filters have value types among the
      * given set of value types.
      */
@@ -1608,6 +1630,15 @@ public class DataQueryParams
     public boolean hasSingleIndicatorAsDataFilter()
     {
         return getFilterIndicators().size() == 1 && getFilterOptions( DATA_X_DIM_ID ).size() == 1;
+    }
+
+    /**
+     * Indicates whether this query has a single expression dimension item
+     * specified as dimension option for the data dimension.
+     */
+    public boolean hasSingleExpressionDimensionItemAsDataFilter()
+    {
+        return getFilterExpressionDimensionItems().size() == 1 && getFilterOptions( DATA_X_DIM_ID ).size() == 1;
     }
 
     /**
@@ -2390,6 +2421,11 @@ public class DataQueryParams
         return apiVersion;
     }
 
+    public String getServerBaseUrl()
+    {
+        return serverBaseUrl;
+    }
+
     public Program getProgram()
     {
         return program;
@@ -2765,6 +2801,32 @@ public class DataQueryParams
     }
 
     /**
+     * Returns all subexpression dimension items part of the data dimension.
+     */
+    public List<DimensionalItemObject> getSubexpressions()
+    {
+        return ImmutableList
+            .copyOf( AnalyticsUtils.getByDataDimensionItemType( DataDimensionItemType.SUBEXPRESSION_DIMENSION_ITEM,
+                getDimensionOptions( DATA_X_DIM_ID ) ) );
+    }
+
+    /**
+     * Returns the first (or only) subexpression dimension item.
+     */
+    public SubexpressionDimensionItem getSubexpression()
+    {
+        return (SubexpressionDimensionItem) getSubexpressions().get( 0 );
+    }
+
+    /**
+     * Indicates whether subexpressions are present.
+     */
+    public boolean hasSubexpressions()
+    {
+        return !getSubexpressions().isEmpty();
+    }
+
+    /**
      * Returns all periods part of the period dimension.
      */
     public List<DimensionalItemObject> getPeriods()
@@ -3128,6 +3190,12 @@ public class DataQueryParams
         public Builder withValidationRules( List<? extends DimensionalItemObject> validationRules )
         {
             this.params.setDataDimensionOptions( DataDimensionItemType.VALIDATION_RULE, validationRules );
+            return this;
+        }
+
+        public Builder withServerBaseUrl( String serverBaseUrl )
+        {
+            params.serverBaseUrl = serverBaseUrl;
             return this;
         }
 

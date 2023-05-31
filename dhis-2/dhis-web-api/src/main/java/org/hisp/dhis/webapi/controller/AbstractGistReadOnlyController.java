@@ -46,6 +46,7 @@ import org.hisp.dhis.common.DhisApiVersion;
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.common.OpenApi;
 import org.hisp.dhis.common.PrimaryKeyObject;
+import org.hisp.dhis.common.UID;
 import org.hisp.dhis.feedback.BadRequestException;
 import org.hisp.dhis.feedback.NotFoundException;
 import org.hisp.dhis.gist.GistAutoType;
@@ -64,8 +65,7 @@ import org.hisp.dhis.user.UserSettingKey;
 import org.hisp.dhis.webapi.CsvBuilder;
 import org.hisp.dhis.webapi.JsonBuilder;
 import org.hisp.dhis.webapi.mvc.annotation.ApiVersion;
-import org.hisp.dhis.webapi.openapi.SchemaGenerators.PropertyNames;
-import org.hisp.dhis.webapi.openapi.SchemaGenerators.UID;
+import org.hisp.dhis.webapi.openapi.Api.PropertyNames;
 import org.hisp.dhis.webapi.utils.ContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -168,7 +168,7 @@ public abstract class AbstractGistReadOnlyController<T extends PrimaryKeyObject>
             throw new BadRequestException( "No such property: " + property );
         }
 
-        if ( !objProperty.isCollection() )
+        if ( !objProperty.isCollection() || !PrimaryKeyObject.class.isAssignableFrom( objProperty.getItemKlass() ) )
         {
             return gistToJsonObjectResponse( uid, createGistQuery( params, getEntityClass(), GistAutoType.L )
                 .withFilter( new Filter( "id", Comparison.EQ, uid ) )

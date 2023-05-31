@@ -51,14 +51,14 @@ public class VisualizationDeletionHandler
     GenericAnalyticalObjectDeletionHandler<Visualization, VisualizationService>
 {
 
-    public VisualizationDeletionHandler( final VisualizationService visualizationService )
+    public VisualizationDeletionHandler( VisualizationService visualizationService )
     {
         super( new DeletionVeto( Visualization.class ), visualizationService );
         checkNotNull( visualizationService );
     }
 
     @Override
-    protected void register()
+    protected void registerHandler()
     {
         // generic
         whenDeleting( Indicator.class, this::deleteIndicator );
@@ -75,11 +75,11 @@ public class VisualizationDeletionHandler
         whenDeleting( ExpressionDimensionItem.class, this::deleteExpressionDimensionItem );
     }
 
-    private void deleteLegendSet( final LegendSet legendSet )
+    private void deleteLegendSet( LegendSet legendSet )
     {
-        final List<Visualization> visualizations = service.getAnalyticalObjects( legendSet );
+        List<Visualization> visualizations = service.getAnalyticalObjects( legendSet );
 
-        for ( final Visualization visualization : visualizations )
+        for ( Visualization visualization : visualizations )
         {
             if ( visualization.getLegendDefinitions() != null )
             {

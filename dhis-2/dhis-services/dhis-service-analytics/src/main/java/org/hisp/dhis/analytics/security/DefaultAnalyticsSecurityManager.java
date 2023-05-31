@@ -27,6 +27,7 @@
  */
 package org.hisp.dhis.analytics.security;
 
+import static org.hisp.dhis.analytics.security.CategorySecurityUtils.getConstrainedCategories;
 import static org.hisp.dhis.analytics.util.AnalyticsUtils.throwIllegalQueryEx;
 
 import java.util.ArrayList;
@@ -34,6 +35,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +45,7 @@ import org.hisp.dhis.analytics.AnalyticsSecurityManager;
 import org.hisp.dhis.analytics.DataQueryParams;
 import org.hisp.dhis.analytics.QueryParamsBuilder;
 import org.hisp.dhis.analytics.event.EventQueryParams;
+import org.hisp.dhis.category.Category;
 import org.hisp.dhis.common.BaseDimensionalObject;
 import org.hisp.dhis.common.DimensionService;
 import org.hisp.dhis.common.DimensionType;
@@ -55,12 +59,12 @@ import org.hisp.dhis.dataapproval.DataApprovalLevel;
 import org.hisp.dhis.dataapproval.DataApprovalLevelService;
 import org.hisp.dhis.feedback.ErrorCode;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
-import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.security.acl.AclService;
 import org.hisp.dhis.setting.SystemSettingManager;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Lars Helge Overland
@@ -71,7 +75,7 @@ import org.springframework.stereotype.Service;
 public class DefaultAnalyticsSecurityManager
     implements AnalyticsSecurityManager
 {
-    private static final String AUTH_VIEW_EVENT_ANALYTICS = "F_VIEW_EVENT_ANALYTICS";
+    public static final String AUTH_VIEW_EVENT_ANALYTICS = "F_VIEW_EVENT_ANALYTICS";
 
     private final DataApprovalLevelService approvalLevelService;
 
@@ -83,19 +87,28 @@ public class DefaultAnalyticsSecurityManager
 
     private final CurrentUserService currentUserService;
 
-    private final OrganisationUnitService organisationUnitService;
-
     // -------------------------------------------------------------------------
     // AnalyticsSecurityManager implementation
     // -------------------------------------------------------------------------
 
     @Override
+    @Transactional( readOnly = true )
     public void decideAccess( DataQueryParams params )
     {
         User user = currentUserService.getCurrentUser();
 
         decideAccessDataViewOrganisationUnits( params, user );
         decideAccessDataReadObjects( params, user );
+    }
+
+    @Override
+    @Transactional( readOnly = true )
+    public void decideAccess( List<OrganisationUnit> queryOrgUnits, Set<IdentifiableObject> readObjects )
+    {
+        User user = currentUserService.getCurrentUser();
+
+        decideAccessDataViewOrganisationUnits( queryOrgUnits, user );
+        decideAccessDataReadObjects( readObjects, user );
     }
 
     /**
@@ -108,8 +121,19 @@ public class DefaultAnalyticsSecurityManager
     private void decideAccessDataViewOrganisationUnits( DataQueryParams params, User user )
         throws IllegalQueryException
     {
-        List<OrganisationUnit> queryOrgUnits = params.getAllTypedOrganisationUnits();
+        decideAccessDataViewOrganisationUnits( params.getAllTypedOrganisationUnits(), user );
+    }
 
+    /**
+     * Checks whether the given user has data view access to organisation units.
+     *
+     * @param queryOrgUnits the organisation units to check.
+     * @param user the user to check.
+     * @throws IllegalQueryException if user does not have access.
+     */
+    private void decideAccessDataViewOrganisationUnits( List<OrganisationUnit> queryOrgUnits, User user )
+        throws IllegalQueryException
+    {
         if ( queryOrgUnits.isEmpty() || user == null || !user.hasDataViewOrganisationUnit() )
         {
             return; // Allow if no
@@ -121,9 +145,9 @@ public class DefaultAnalyticsSecurityManager
 
         for ( OrganisationUnit queryOrgUnit : queryOrgUnits )
         {
-            boolean notDescendant = !organisationUnitService.isDescendant( queryOrgUnit, viewOrgUnits );
+            boolean descendant = queryOrgUnit.isDescendant( viewOrgUnits );
 
-            if ( notDescendant )
+            if ( !descendant )
             {
                 throwIllegalQueryEx( ErrorCode.E7120, user.getUsername(), queryOrgUnit.getUid() );
             }
@@ -143,7 +167,8 @@ public class DefaultAnalyticsSecurityManager
      * @param user the user to check.
      * @throws IllegalQueryException if user does not have access.
      */
-    void decideAccessDataReadObjects( DataQueryParams params, User user )
+    @Transactional( readOnly = true )
+    public void decideAccessDataReadObjects( DataQueryParams params, User user )
         throws IllegalQueryException
     {
         Set<IdentifiableObject> objects = new HashSet<>();
@@ -160,7 +185,21 @@ public class DefaultAnalyticsSecurityManager
         {
             objects.add( params.getProgramStage() );
         }
+        decideAccessDataReadObjects( objects, user );
+    }
 
+    /**
+     * Checks whether the given user has data read access to all programs,
+     * program stages, data sets and category options in the request.
+     *
+     * @param objects the objects to check.
+     * @param user the user to check.
+     * @throws IllegalQueryException if user does not have access.
+     */
+    @Transactional( readOnly = true )
+    public void decideAccessDataReadObjects( Set<IdentifiableObject> objects, User user )
+        throws IllegalQueryException
+    {
         for ( IdentifiableObject object : objects )
         {
             if ( !aclService.canDataRead( user, object ) )
@@ -172,19 +211,22 @@ public class DefaultAnalyticsSecurityManager
     }
 
     @Override
+    @Transactional( readOnly = true )
     public void decideAccessEventQuery( EventQueryParams params )
     {
         decideAccess( params );
-        decideAccessEventAnalyticsAuthority( params );
+        decideAccessEventAnalyticsAuthority();
     }
 
     /**
      * Checks whether the current user has the {@code F_VIEW_EVENT_ANALYTICS}
      * authority.
      *
-     * @param params the {@link {@link DataQueryParams}.
+     * @throws IllegalQueryException if user does not have access.
      */
-    private void decideAccessEventAnalyticsAuthority( EventQueryParams params )
+    @Override
+    @Transactional( readOnly = true )
+    public void decideAccessEventAnalyticsAuthority()
     {
         User user = currentUserService.getCurrentUser();
 
@@ -199,6 +241,7 @@ public class DefaultAnalyticsSecurityManager
     }
 
     @Override
+    @Transactional( readOnly = true )
     public User getCurrentUser( DataQueryParams params )
     {
         return params != null && params.hasCurrentUser() ? params.getCurrentUser()
@@ -206,6 +249,7 @@ public class DefaultAnalyticsSecurityManager
     }
 
     @Override
+    @Transactional( readOnly = true )
     public DataQueryParams withDataApprovalConstraints( DataQueryParams params )
     {
         DataQueryParams.Builder paramsBuilder = DataQueryParams.newBuilder( params );
@@ -254,6 +298,7 @@ public class DefaultAnalyticsSecurityManager
     }
 
     @Override
+    @Transactional( readOnly = true )
     public DataQueryParams withUserConstraints( DataQueryParams params )
     {
         DataQueryParams.Builder builder = DataQueryParams.newBuilder( params );
@@ -265,6 +310,7 @@ public class DefaultAnalyticsSecurityManager
     }
 
     @Override
+    @Transactional( readOnly = true )
     public EventQueryParams withUserConstraints( EventQueryParams params )
     {
         EventQueryParams.Builder builder = new EventQueryParams.Builder( params );
@@ -333,12 +379,31 @@ public class DefaultAnalyticsSecurityManager
         // Check if current user has dimension constraints
         // ---------------------------------------------------------------------
 
-        if ( params == null || user == null || !user.hasDimensionConstraints() )
+        if ( params == null || user == null )
         {
             return;
         }
 
-        Set<DimensionalObject> dimensionConstraints = user.getDimensionConstraints();
+        // DimensionalObjects from the params.
+        List<DimensionalObject> dimensionalObjects = Stream.concat(
+            params.getDimensions().stream(),
+            params.getFilters().stream() )
+            .collect( Collectors.toList() );
+
+        // Categories the user is constrained to.
+        List<Category> categories = currentUserService.currentUserIsSuper() ? List.of()
+            : getConstrainedCategories( params.getProgram(), dimensionalObjects );
+
+        // Union of user and category constraints.
+        Set<DimensionalObject> dimensionConstraints = Stream.concat(
+            user.getDimensionConstraints().stream(),
+            categories.stream() )
+            .collect( Collectors.toSet() );
+
+        if ( dimensionConstraints.isEmpty() ) // if no constraints
+        {
+            return; // nothing to do - no filters added to query
+        }
 
         for ( DimensionalObject dimension : dimensionConstraints )
         {

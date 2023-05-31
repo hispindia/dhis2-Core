@@ -27,7 +27,6 @@
  */
 package org.hisp.dhis.dxf2.datavalueset;
 
-import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toUnmodifiableList;
 
 import java.util.ArrayList;
@@ -52,6 +51,7 @@ import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.datavalue.DataValueAudit;
 import org.hisp.dhis.datavalue.DataValueService;
 import org.hisp.dhis.dxf2.common.ImportOptions;
+import org.hisp.dhis.dxf2.deprecated.tracker.event.DataValue;
 import org.hisp.dhis.dxf2.importsummary.ImportConflict;
 import org.hisp.dhis.dxf2.importsummary.ImportConflictDescriptor;
 import org.hisp.dhis.dxf2.importsummary.ImportStatus;
@@ -213,6 +213,11 @@ public final class ImportContext
         return this;
     }
 
+    public void addRejected( int index )
+    {
+        summary.addRejected( index );
+    }
+
     public void addConflict( String object, String value )
     {
         summary.addConflict( object, value );
@@ -324,17 +329,11 @@ public final class ImportContext
         private final CategoryOptionCombo outerAttrOptionCombo;
 
         private final CategoryOptionCombo fallbackCategoryOptionCombo;
-
-        public Set<DataElement> getDataSetDataElements()
-        {
-            return dataSet != null ? dataSet.getDataElements() : emptySet();
-        }
-
     }
 
     /**
-     * Context for a single {@link org.hisp.dhis.dxf2.events.event.DataValue} of
-     * a {@link DataValueSet} during the import.
+     * Context for a single {@link DataValue} of a {@link DataValueSet} during
+     * the import.
      *
      * @author Jan Bernitt
      */

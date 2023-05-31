@@ -42,24 +42,30 @@ import static org.hisp.dhis.common.IdentifiableObjectUtils.getUids;
 import static org.hisp.dhis.commons.util.TextUtils.getQuotedCommaDelimitedString;
 import static org.hisp.dhis.commons.util.TextUtils.removeLastOr;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.analytics.analyze.ExecutionPlanStore;
+import org.hisp.dhis.analytics.common.ProgramIndicatorSubqueryBuilder;
 import org.hisp.dhis.analytics.event.EnrollmentAnalyticsManager;
 import org.hisp.dhis.analytics.event.EventQueryParams;
-import org.hisp.dhis.analytics.event.ProgramIndicatorSubqueryBuilder;
 import org.hisp.dhis.analytics.util.AnalyticsUtils;
 import org.hisp.dhis.common.DimensionType;
 import org.hisp.dhis.common.DimensionalItemObject;
 import org.hisp.dhis.common.DimensionalObject;
+import org.hisp.dhis.common.FallbackCoordinateFieldType;
 import org.hisp.dhis.common.Grid;
 import org.hisp.dhis.common.OrganisationUnitSelectionMode;
 import org.hisp.dhis.common.QueryItem;
 import org.hisp.dhis.common.QueryRuntimeException;
+import org.hisp.dhis.common.ValueStatus;
 import org.hisp.dhis.common.ValueType;
 import org.hisp.dhis.commons.collection.ListUtils;
 import org.hisp.dhis.commons.util.ExpressionUtils;
@@ -73,6 +79,7 @@ import org.hisp.dhis.util.DateUtils;
 import org.locationtech.jts.util.Assert;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.jdbc.BadSqlGrammarException;
+import org.springframework.jdbc.InvalidResultSetAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
@@ -101,7 +108,7 @@ public class JdbcEnrollmentAnalyticsManager
     private static final List<String> COLUMNS = List.of( "pi", "tei", "enrollmentdate", "incidentdate",
         "storedby", "createdbydisplayname", "lastupdatedbydisplayname", "lastupdated",
         "ST_AsGeoJSON(pigeometry)", "longitude", "latitude",
-        "ouname", "oucode", "enrollmentstatus" );
+        "ouname", "ounamehierarchy", "oucode", "enrollmentstatus" );
 
     public JdbcEnrollmentAnalyticsManager( JdbcTemplate jdbcTemplate, ProgramIndicatorService programIndicatorService,
         ProgramIndicatorSubqueryBuilder programIndicatorSubqueryBuilder,
@@ -122,7 +129,7 @@ public class JdbcEnrollmentAnalyticsManager
         }
         else
         {
-            withExceptionHandling( () -> getEnrollments( params, grid, sql ) );
+            withExceptionHandling( () -> getEnrollments( params, grid, sql, maxLimit == 0 ) );
         }
     }
 
@@ -134,7 +141,7 @@ public class JdbcEnrollmentAnalyticsManager
      * @param grid the {@link Grid}.
      * @param sql the SQL statement used to retrieve events.
      */
-    private void getEnrollments( EventQueryParams params, Grid grid, String sql )
+    private void getEnrollments( EventQueryParams params, Grid grid, String sql, boolean unlimitedPaging )
     {
         log.debug( String.format( "Analytics enrollment query SQL: %s", sql ) );
 
@@ -146,7 +153,7 @@ public class JdbcEnrollmentAnalyticsManager
 
         while ( rowSet.next() )
         {
-            if ( ++rowsRed > params.getPageSizeWithDefault() && !params.isTotalPages() )
+            if ( ++rowsRed > params.getPageSizeWithDefault() && !params.isTotalPages() && !unlimitedPaging )
             {
                 grid.setLastDataRow( false );
 
@@ -155,11 +162,82 @@ public class JdbcEnrollmentAnalyticsManager
 
             grid.addRow();
 
+            // columnOffset is synchronization aid for <<grid headers>> and <<rowSet columns>> indexes.
+            // The amount of headers must not match to amount of columns due the additional ones
+            // describing the repeating of repeatable stage.
+            int columnOffset = 0;
+
             for ( int i = 0; i < grid.getHeaders().size(); ++i )
             {
-                addGridValue( grid, grid.getHeaders().get( i ), i + 1, rowSet, params );
+                addGridValue( grid, grid.getHeaders().get( i ), i + 1 + columnOffset, rowSet, params );
+
+                if ( params.isRowContext() && addValueMetaInfo( grid, rowSet, grid.getHeaders().get( i ).getName() ) )
+                {
+                    ++columnOffset;
+                }
             }
         }
+    }
+
+    /**
+     * Add value meta info into the grid. Value meta info is information about
+     * origin of the repeatable stage value.
+     *
+     * @param grid the {@link Grid}.
+     * @param rowSet the {@link SqlRowSet}.
+     * @param columnName the {@link String}.
+     * @return true when ValueMetaInfo added
+     */
+    private boolean addValueMetaInfo( Grid grid, SqlRowSet rowSet, String columnName )
+    {
+        int gridRowIndex = grid.getRows().size() - 1;
+
+        Optional<String> valueMetaInfoColumnName = Arrays.stream( rowSet.getMetaData().getColumnNames() )
+            .filter( (columnName + ".exists")::equalsIgnoreCase )
+            .findFirst();
+
+        if ( valueMetaInfoColumnName.isPresent() )
+        {
+            try
+            {
+                boolean isDefined = rowSet.getBoolean( valueMetaInfoColumnName.get() );
+
+                boolean isSet = rowSet.getObject( columnName ) != null;
+
+                ValueStatus valueStatus = ValueStatus.of( isDefined, isSet );
+
+                if ( valueStatus != ValueStatus.NOT_DEFINED )
+                {
+                    return true;
+                }
+
+                Map<Integer, Map<String, Object>> rowContext = grid.getRowContext();
+
+                Map<String, Object> row = rowContext.get( gridRowIndex );
+
+                if ( row == null )
+                {
+                    row = new HashMap<>();
+                }
+
+                Map<String, String> colValueType = new HashMap<>();
+
+                colValueType.put( "valueStatus", valueStatus.getValue() );
+
+                row.put( columnName, colValueType );
+
+                rowContext.put( gridRowIndex, row );
+
+                return true;
+            }
+            catch ( InvalidResultSetAccessException ignored )
+            {
+                // when .exists extension of column name does not indicate boolean flag,
+                // value will not be added and method returns false
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -337,7 +415,9 @@ public class JdbcEnrollmentAnalyticsManager
 
         if ( params.isGeometryOnly() )
         {
-            sql += "and " + getCoalesce( params.getCoordinateFields() ) + IS_NOT_NULL;
+            sql += "and "
+                + getCoalesce( params.getCoordinateFields(), FallbackCoordinateFieldType.PI_GEOMETRY.getValue() )
+                + IS_NOT_NULL;
         }
 
         if ( params.isCompletedOnly() )
@@ -347,7 +427,9 @@ public class JdbcEnrollmentAnalyticsManager
 
         if ( params.hasBbox() )
         {
-            sql += "and " + getCoalesce( params.getCoordinateFields() ) + " && ST_MakeEnvelope(" + params.getBbox()
+            sql += "and "
+                + getCoalesce( params.getCoordinateFields(), FallbackCoordinateFieldType.PI_GEOMETRY.getValue() )
+                + " && ST_MakeEnvelope(" + params.getBbox()
                 + ",4326) ";
         }
 

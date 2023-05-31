@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections4.MapUtils;
 import org.hisp.dhis.category.CategoryOption;
 import org.hisp.dhis.category.CategoryOptionGroupSet;
 import org.hisp.dhis.common.IdentifiableObjectManager;
@@ -339,9 +340,9 @@ class AclServiceTest extends TransactionalIntegrationTest
         assertFalse( aclService.verifySharing( visualization, user ).isEmpty() );
         aclService.resetSharing( visualization, user );
         assertTrue( AccessStringHelper.DEFAULT.equals( visualization.getPublicAccess() ) );
-        assertFalse( visualization.getExternalAccess() );
-        assertTrue( visualization.getUserAccesses().isEmpty() );
-        assertTrue( visualization.getUserGroupAccesses().isEmpty() );
+        assertFalse( visualization.getSharing().isExternal() );
+        assertTrue( visualization.getSharing().getUsers().isEmpty() );
+        assertTrue( visualization.getSharing().getUserGroups().isEmpty() );
     }
 
     @Test
@@ -359,9 +360,9 @@ class AclServiceTest extends TransactionalIntegrationTest
         aclService.resetSharing( eventVisualization, user );
         // Then
         assertEquals( AccessStringHelper.DEFAULT, eventVisualization.getPublicAccess() );
-        assertFalse( eventVisualization.getExternalAccess() );
-        assertTrue( eventVisualization.getUserAccesses().isEmpty() );
-        assertTrue( eventVisualization.getUserGroupAccesses().isEmpty() );
+        assertFalse( eventVisualization.getSharing().isExternal() );
+        assertTrue( eventVisualization.getSharing().getUsers().isEmpty() );
+        assertTrue( eventVisualization.getSharing().getUserGroups().isEmpty() );
     }
 
     @Test
@@ -376,9 +377,9 @@ class AclServiceTest extends TransactionalIntegrationTest
         assertFalse( aclService.verifySharing( visualization, user ).isEmpty() );
         aclService.resetSharing( visualization, user );
         assertTrue( AccessStringHelper.READ_WRITE.equals( visualization.getPublicAccess() ) );
-        assertFalse( visualization.getExternalAccess() );
-        assertTrue( visualization.getUserAccesses().isEmpty() );
-        assertTrue( visualization.getUserGroupAccesses().isEmpty() );
+        assertFalse( visualization.getSharing().isExternal() );
+        assertTrue( visualization.getSharing().getUsers().isEmpty() );
+        assertTrue( visualization.getSharing().getUserGroups().isEmpty() );
     }
 
     @Test
@@ -396,9 +397,9 @@ class AclServiceTest extends TransactionalIntegrationTest
         aclService.resetSharing( eventVisualization, user );
         // Then
         assertEquals( AccessStringHelper.READ_WRITE, eventVisualization.getPublicAccess() );
-        assertFalse( eventVisualization.getExternalAccess() );
-        assertTrue( eventVisualization.getUserAccesses().isEmpty() );
-        assertTrue( eventVisualization.getUserGroupAccesses().isEmpty() );
+        assertFalse( eventVisualization.getSharing().isExternal() );
+        assertTrue( eventVisualization.getSharing().getUsers().isEmpty() );
+        assertTrue( eventVisualization.getSharing().getUserGroups().isEmpty() );
     }
 
     @Test
@@ -1150,6 +1151,7 @@ class AclServiceTest extends TransactionalIntegrationTest
         CategoryOption categoryOption = new CategoryOption();
         categoryOption.setAutoFields();
         categoryOption.setName( "coA" );
+        categoryOption.setShortName( "coA" );
         categoryOption.setPublicAccess( AccessStringHelper.DATA_READ );
         categoryOption.setCreatedBy( user1 );
         categoryOption.getSharing().setOwner( user1 );
@@ -1171,12 +1173,66 @@ class AclServiceTest extends TransactionalIntegrationTest
         de = manager.get( DataElement.class, de.getUid() );
         assertEquals( AccessStringHelper.DEFAULT, de.getPublicAccess() );
         assertEquals( null, de.getSharing().getOwner() );
-        assertTrue( de.getSharing().getUsers().isEmpty() );
+        assertTrue( MapUtils.isEmpty( de.getSharing().getUsers() ) );
         assertTrue( aclService.canRead( userA, de ) );
         String sql = "select uid as uid from dataelement where "
             + JpaQueryUtils.generateSQlQueryForSharingCheck( "sharing", userA, AccessStringHelper.READ );
         SqlRowSet row = jdbcTemplate.queryForRowSet( sql );
         assertEquals( true, row.next() );
         assertEquals( de.getUid(), row.getString( "uid" ) );
+    }
+
+    @Test
+    void testOwnerDataRead()
+    {
+        User userA = makeUser( "A" );
+        manager.save( userA );
+        CategoryOption categoryOption = createCategoryOption( 'A' );
+        categoryOption.getSharing().setPublicAccess( AccessStringHelper.DEFAULT );
+        categoryOption.getSharing().setOwner( userA );
+        manager.save( categoryOption );
+
+        assertFalse( aclService.canDataRead( userA, categoryOption ) );
+    }
+
+    @Test
+    void testOwnerDataReadFail()
+    {
+        User admin = createAndAddAdminUser( "ALL" );
+        CategoryOption categoryOption = createCategoryOption( 'A' );
+        categoryOption.getSharing().setPublicAccess( AccessStringHelper.DEFAULT );
+        categoryOption.getSharing().setOwner( admin );
+        manager.save( categoryOption );
+        User userA = makeUser( "A" );
+        manager.save( userA );
+
+        assertFalse( aclService.canDataRead( userA, categoryOption ) );
+    }
+
+    @Test
+    void testOwnerMetadataRead()
+    {
+        User userA = makeUser( "A" );
+        manager.save( userA );
+        CategoryOption categoryOption = createCategoryOption( 'A' );
+        categoryOption.getSharing().setPublicAccess( AccessStringHelper.DEFAULT );
+        categoryOption.getSharing().setOwner( userA );
+        manager.save( categoryOption );
+
+        assertTrue( aclService.canRead( userA, categoryOption ) );
+    }
+
+    @Test
+    void testOwnerMetadataReadFail()
+    {
+        User admin = createAndAddAdminUser( "ALL" );
+        CategoryOption categoryOption = createCategoryOption( 'A' );
+        categoryOption.getSharing().setPublicAccess( AccessStringHelper.DEFAULT );
+        categoryOption.getSharing().setOwner( admin );
+        manager.save( categoryOption );
+        User userA = makeUser( "A" );
+        manager.save( userA );
+
+        assertFalse( aclService.canRead( userA, categoryOption ) );
     }
 }

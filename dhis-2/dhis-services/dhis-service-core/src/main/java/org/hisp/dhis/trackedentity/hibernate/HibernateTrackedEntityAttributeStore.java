@@ -52,7 +52,7 @@ import org.hisp.dhis.program.ProgramTrackedEntityAttribute;
 import org.hisp.dhis.security.acl.AclService;
 import org.hisp.dhis.trackedentity.TrackedEntityAttribute;
 import org.hisp.dhis.trackedentity.TrackedEntityAttributeStore;
-import org.hisp.dhis.trackedentity.TrackedEntityInstanceQueryParams;
+import org.hisp.dhis.trackedentity.TrackedEntityQueryParams;
 import org.hisp.dhis.trackedentity.TrackedEntityTypeAttribute;
 import org.hisp.dhis.user.CurrentUserService;
 import org.springframework.context.ApplicationEventPublisher;
@@ -103,8 +103,8 @@ public class HibernateTrackedEntityAttributeStore
     }
 
     @Override
-    public Optional<String> getTrackedEntityInstanceUidWithUniqueAttributeValue(
-        TrackedEntityInstanceQueryParams params )
+    public Optional<String> getTrackedEntityUidWithUniqueAttributeValue(
+        TrackedEntityQueryParams params )
     {
         // ---------------------------------------------------------------------
         // Select clause
@@ -112,7 +112,7 @@ public class HibernateTrackedEntityAttributeStore
 
         SqlHelper hlp = new SqlHelper( true );
 
-        String hql = "select tei.uid from TrackedEntityInstance tei ";
+        String hql = "select tei.uid from TrackedEntity tei ";
 
         if ( params.hasOrganisationUnits() )
         {
@@ -131,7 +131,7 @@ public class HibernateTrackedEntityAttributeStore
                 final String encodedFilter = filter
                     .getSqlFilter( statementBuilder.encode( StringUtils.lowerCase( filter.getFilter() ), false ) );
 
-                hql += hlp.whereAnd() + " exists (from TrackedEntityAttributeValue teav where teav.entityInstance=tei";
+                hql += hlp.whereAnd() + " exists (from TrackedEntityAttributeValue teav where teav.trackedEntity=tei";
                 hql += " and teav.attribute.uid='" + item.getItemId() + "'";
 
                 if ( item.isNumeric() )
@@ -177,18 +177,17 @@ public class HibernateTrackedEntityAttributeStore
     }
 
     @Override
+    @SuppressWarnings( "unchecked" )
     public Set<TrackedEntityAttribute> getAllSearchableAndUniqueTrackedEntityAttributes()
     {
         Set<TrackedEntityAttribute> result = new HashSet<>();
 
-        Query programTeaQuery = sessionFactory.getCurrentSession()
-            .createQuery(
-                "select attribute from ProgramTrackedEntityAttribute ptea where ptea.searchable=true and ptea.attribute.valueType in ('TEXT','LONG_TEXT','PHONE_NUMBER','EMAIL','USERNAME','URL')" );
-        Query tetypeAttributeQuery = sessionFactory.getCurrentSession()
-            .createQuery(
-                "select trackedEntityAttribute from TrackedEntityTypeAttribute teta where teta.searchable=true and teta.trackedEntityAttribute.valueType in ('TEXT','LONG_TEXT','PHONE_NUMBER','EMAIL','USERNAME','URL')" );
-        Query uniqueAttributeQuery = sessionFactory.getCurrentSession()
-            .createQuery( "from TrackedEntityAttribute tea where tea.unique=true" );
+        Query<TrackedEntityAttribute> programTeaQuery = sessionFactory.getCurrentSession().createQuery(
+            "select attribute from ProgramTrackedEntityAttribute ptea where ptea.searchable=true and ptea.attribute.valueType in ('TEXT','LONG_TEXT','PHONE_NUMBER','EMAIL','USERNAME','URL')" );
+        Query<TrackedEntityAttribute> tetypeAttributeQuery = sessionFactory.getCurrentSession().createQuery(
+            "select trackedEntityAttribute from TrackedEntityTypeAttribute teta where teta.searchable=true and teta.trackedEntityAttribute.valueType in ('TEXT','LONG_TEXT','PHONE_NUMBER','EMAIL','USERNAME','URL')" );
+        Query<TrackedEntityAttribute> uniqueAttributeQuery = sessionFactory.getCurrentSession().createQuery(
+            "from TrackedEntityAttribute tea where tea.unique=true" );
 
         List<TrackedEntityAttribute> programSearchableTrackedEntityAttributes = programTeaQuery.list();
         List<TrackedEntityAttribute> trackedEntityTypeSearchableAttributes = tetypeAttributeQuery.list();

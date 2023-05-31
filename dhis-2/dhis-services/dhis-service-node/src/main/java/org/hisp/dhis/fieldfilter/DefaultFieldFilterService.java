@@ -36,7 +36,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -77,10 +76,9 @@ import org.hisp.dhis.security.acl.AclService;
 import org.hisp.dhis.system.util.ReflectionUtils;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
-import org.hisp.dhis.user.UserAccess;
-import org.hisp.dhis.user.UserGroupAccess;
 import org.hisp.dhis.user.UserGroupService;
 import org.hisp.dhis.user.UserService;
+import org.hisp.dhis.user.sharing.Sharing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -114,9 +112,9 @@ public class DefaultFieldFilterService implements FieldFilterService
 
     private final Set<NodeTransformer> nodeTransformers;
 
-    private Map<String, Preset> presets = Map.of();
+    private ImmutableMap<String, Preset> presets = ImmutableMap.of();
 
-    private Map<String, NodeTransformer> transformers = Map.of();
+    private ImmutableMap<String, NodeTransformer> transformers = ImmutableMap.of();
 
     private Property baseIdentifiableIdProperty;
 
@@ -387,23 +385,12 @@ public class DefaultFieldFilterService implements FieldFilterService
             ((BaseIdentifiableObject) object).setAccess( access );
         }
 
-        if ( fieldMap.containsKey( "attribute" ) && AttributeValue.class.isAssignableFrom( object.getClass() ) )
+        if ( Sharing.class.isAssignableFrom( object.getClass() ) )
         {
-            AttributeValue attributeValue = (AttributeValue) object;
-            attributeValue.setAttribute( attributeService.getAttribute( attributeValue.getAttribute().getUid() ) );
-        }
-
-        if ( UserGroupAccess.class.isAssignableFrom( object.getClass() ) )
-        {
-            UserGroupAccess userGroupAccess = (UserGroupAccess) object;
-            userGroupAccess
-                .setDisplayName( userGroupService.getDisplayName( userGroupAccess.getUserGroupUid() ) );
-        }
-
-        if ( UserAccess.class.isAssignableFrom( object.getClass() ) )
-        {
-            UserAccess userAccess = (UserAccess) object;
-            userAccess.setDisplayName( userService.getDisplayName( userAccess.getUserUid() ) );
+            Sharing sharing = (Sharing) object;
+            sharing.getUsers().values().forEach( u -> u.setDisplayName( userService.getDisplayName( u.getId() ) ) );
+            sharing.getUserGroups().values()
+                .forEach( ug -> ug.setDisplayName( userGroupService.getDisplayName( ug.getId() ) ) );
         }
 
         for ( String fieldKey : fieldMap.keySet() )

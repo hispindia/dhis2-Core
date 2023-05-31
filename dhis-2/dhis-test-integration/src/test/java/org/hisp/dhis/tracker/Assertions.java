@@ -39,10 +39,10 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import org.hisp.dhis.tracker.report.ImportReport;
-import org.hisp.dhis.tracker.report.Status;
-import org.hisp.dhis.tracker.report.ValidationReport;
-import org.hisp.dhis.tracker.validation.ValidationCode;
+import org.hisp.dhis.tracker.imports.report.ImportReport;
+import org.hisp.dhis.tracker.imports.report.Status;
+import org.hisp.dhis.tracker.imports.report.ValidationReport;
+import org.hisp.dhis.tracker.imports.validation.ValidationCode;
 import org.junit.jupiter.api.function.Executable;
 
 /**
@@ -243,13 +243,6 @@ public class Assertions
                 report.getErrors() ) );
     }
 
-    public static void assertNoErrors( ImportReport report )
-    {
-        assertNotNull( report );
-        assertEquals( Status.OK, report.getStatus(),
-            errorMessage( "Expected import with status OK, instead got:\n", report.getValidationReport() ) );
-    }
-
     public static void assertNoErrorsAndNoWarnings( ImportReport report )
     {
         assertNotNull( report );
@@ -258,6 +251,13 @@ public class Assertions
                 errorMessage( "Expected import with status OK, instead got:\n", report.getValidationReport() ) ),
             () -> assertEquals( Collections.emptyList(), report.getValidationReport().getWarnings(),
                 "Expected import without warnings, instead got:\n" + report.getValidationReport().getWarnings() ) );
+    }
+
+    public static void assertNoErrors( ImportReport report )
+    {
+        assertNotNull( report );
+        assertEquals( Status.OK, report.getStatus(),
+            errorMessage( "Expected import with status OK, instead got:\n", report.getValidationReport() ) );
     }
 
     public static void assertNoErrors( ValidationReport report )

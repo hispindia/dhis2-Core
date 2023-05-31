@@ -54,7 +54,7 @@ public class EventReportDeletionHandler
     }
 
     @Override
-    protected void register()
+    protected void registerHandler()
     {
         // generic
         whenDeleting( Period.class, this::deletePeriod );
@@ -86,11 +86,11 @@ public class EventReportDeletionHandler
     {
         Collection<EventReport> charts = service.getAllEventReports();
 
-        for ( EventReport chart : charts )
+        for ( EventReport report : charts )
         {
-            if ( chart.getProgramStage().equals( programStage ) )
+            if ( report.getProgramStage() != null && report.getProgramStage().equals( programStage ) )
             {
-                service.deleteEventReport( chart );
+                service.deleteEventReport( report );
             }
         }
     }
@@ -99,11 +99,11 @@ public class EventReportDeletionHandler
     {
         Collection<EventReport> charts = service.getAllEventReports();
 
-        for ( EventReport chart : charts )
+        for ( EventReport report : charts )
         {
-            if ( chart.getProgram().equals( program ) )
+            if ( report.getProgram() != null && report.getProgram().equals( program ) )
             {
-                service.deleteEventReport( chart );
+                service.deleteEventReport( report );
             }
         }
     }

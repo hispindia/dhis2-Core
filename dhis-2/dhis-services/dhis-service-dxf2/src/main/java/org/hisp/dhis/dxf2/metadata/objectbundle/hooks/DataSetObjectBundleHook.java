@@ -33,8 +33,9 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.hibernate.Session;
-import org.hisp.dhis.common.BaseIdentifiableObject;
+import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.dataelement.DataElement;
+import org.hisp.dhis.dataelement.DataElementOperand;
 import org.hisp.dhis.dataset.DataInputPeriod;
 import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.dataset.Section;
@@ -75,6 +76,25 @@ public class DataSetObjectBundleHook extends AbstractObjectBundleHook<DataSet>
 
         deleteRemovedDataElementFromSection( persistedObject, object );
         deleteRemovedSection( persistedObject, object, bundle );
+        deleteCompulsoryDataElementOperands( object );
+    }
+
+    /**
+     * Remove the {@link DataSet#getCompulsoryDataElementOperands()} if the
+     * referenced {@link DataElementOperand#getDataElement()} is being removed
+     * from DataSet.
+     *
+     * @param importDataSet the {@link DataSet} from import payload.
+     */
+    private void deleteCompulsoryDataElementOperands( DataSet importDataSet )
+    {
+        Set<String> dataElementIds = importDataSet.getDataElements().stream().map( IdentifiableObject::getUid )
+            .collect( Collectors.toSet() );
+
+        importDataSet.setCompulsoryDataElementOperands(
+            importDataSet.getCompulsoryDataElementOperands().stream()
+                .filter( dop -> dataElementIds.contains( dop.getDataElement().getUid() ) )
+                .collect( Collectors.toSet() ) );
     }
 
     private void deleteRemovedSection( DataSet persistedDataSet, DataSet importDataSet, ObjectBundle bundle )
@@ -84,7 +104,7 @@ public class DataSetObjectBundleHook extends AbstractObjectBundleHook<DataSet>
 
         Session session = sessionFactory.getCurrentSession();
 
-        List<String> importIds = importDataSet.getSections().stream().map( BaseIdentifiableObject::getUid )
+        List<String> importIds = importDataSet.getSections().stream().map( IdentifiableObject::getUid )
             .collect( Collectors.toList() );
 
         persistedDataSet.getSections().stream().filter( section -> !importIds.contains( section.getUid() ) )
@@ -104,7 +124,7 @@ public class DataSetObjectBundleHook extends AbstractObjectBundleHook<DataSet>
     {
         return section.getDataElements().stream().filter( de -> {
             Set<String> dataElements = importDataSet.getDataElements().stream()
-                .map( BaseIdentifiableObject::getUid ).collect( Collectors.toSet() );
+                .map( IdentifiableObject::getUid ).collect( Collectors.toSet() );
             return dataElements.contains( de.getUid() );
         } ).collect( Collectors.toList() );
     }

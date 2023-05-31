@@ -36,7 +36,13 @@ import static org.hisp.dhis.system.util.MathUtils.roundSignificant;
 import static org.hisp.dhis.system.util.MathUtils.zeroIfNull;
 import static org.hisp.dhis.system.util.ValidationUtils.getObjectValue;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -52,7 +58,13 @@ import org.hisp.dhis.analytics.AnalyticsService;
 import org.hisp.dhis.analytics.DataQueryParams;
 import org.hisp.dhis.category.CategoryOptionCombo;
 import org.hisp.dhis.category.CategoryService;
-import org.hisp.dhis.common.*;
+import org.hisp.dhis.common.DimensionalItemId;
+import org.hisp.dhis.common.DimensionalItemObject;
+import org.hisp.dhis.common.DimensionalObject;
+import org.hisp.dhis.common.Grid;
+import org.hisp.dhis.common.IdentifiableObject;
+import org.hisp.dhis.common.MapMap;
+import org.hisp.dhis.common.MapMapMap;
 import org.hisp.dhis.commons.util.DebugUtils;
 import org.hisp.dhis.dataanalysis.ValidationRuleExpressionDetails;
 import org.hisp.dhis.dataelement.DataElement;
@@ -688,7 +700,7 @@ public class DataValidationRunner
             int vlInx = grid.getWidth() - 1;
 
             Map<String, OrganisationUnit> ouLookup = orgUnits.stream()
-                .collect( Collectors.toMap( BaseIdentifiableObject::getUid, o -> o ) );
+                .collect( Collectors.toMap( IdentifiableObject::getUid, o -> o ) );
             Map<String, DimensionalItemObject> dxLookup = periodTypeX.getEventItems().stream()
                 .collect( Collectors.toMap( DimensionalItemObject::getDimensionItem, d -> d ) );
             dxLookup.putAll( periodTypeX.getIndicators().stream()

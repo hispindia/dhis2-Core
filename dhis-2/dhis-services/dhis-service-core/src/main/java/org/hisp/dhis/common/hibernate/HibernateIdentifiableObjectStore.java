@@ -66,7 +66,6 @@ import org.hisp.dhis.security.acl.AccessStringHelper;
 import org.hisp.dhis.security.acl.AclService;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
-import org.hisp.dhis.util.SharingUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -135,8 +134,9 @@ public class HibernateIdentifiableObjectStore<T extends BaseIdentifiableObject>
 
         if ( clearSharing )
         {
-            object.setPublicAccess( AccessStringHelper.DEFAULT );
-            SharingUtils.resetAccessCollections( object );
+            object.getSharing().setPublicAccess( AccessStringHelper.DEFAULT );
+            object.getSharing().resetUserAccesses();
+            object.getSharing().resetUserGroupAccesses();
         }
 
         if ( object.getCreatedBy() == null )
@@ -157,12 +157,12 @@ public class HibernateIdentifiableObjectStore<T extends BaseIdentifiableObject>
                 {
                     if ( aclService.defaultPublic( (BaseIdentifiableObject) object ) )
                     {
-                        object.setPublicAccess( AccessStringHelper.READ_WRITE );
+                        object.getSharing().setPublicAccess( AccessStringHelper.READ_WRITE );
                     }
                 }
                 else if ( aclService.canMakePrivate( user, (BaseIdentifiableObject) object ) )
                 {
-                    object.setPublicAccess( AccessStringHelper.newInstance().build() );
+                    object.getSharing().setPublicAccess( AccessStringHelper.newInstance().build() );
                 }
             }
 
@@ -302,6 +302,22 @@ public class HibernateIdentifiableObjectStore<T extends BaseIdentifiableObject>
 
         JpaQueryParameters<T> param = new JpaQueryParameters<T>()
             .addPredicate( root -> builder.equal( root.get( "uid" ), uid ) );
+
+        return getSingleResult( builder, param );
+    }
+
+    @Override
+    public final T getByCodeNoAcl( @Nonnull String code )
+    {
+        if ( isTransientIdentifiableProperties() )
+        {
+            return null;
+        }
+
+        CriteriaBuilder builder = getCriteriaBuilder();
+
+        JpaQueryParameters<T> param = new JpaQueryParameters<T>()
+            .addPredicate( root -> builder.equal( root.get( "code" ), code ) );
 
         return getSingleResult( builder, param );
     }
@@ -871,6 +887,57 @@ public class HibernateIdentifiableObjectStore<T extends BaseIdentifiableObject>
         log.debug( "Executing query: " + sql );
 
         jdbcTemplate.execute( sql );
+    }
+
+    /**
+     * Look up list objects which have property createdBy or lastUpdatedBy
+     * linked to given {@link User}
+     *
+     * @param user the {@link User} for filtering
+     * @return List of objects found.
+     */
+    @Override
+    public List<T> findByUser( @Nonnull User user )
+    {
+        CriteriaBuilder builder = getCriteriaBuilder();
+
+        return getListFromPartitions( builder, List.of( user ), 10000,
+            partition -> newJpaParameters()
+                .addPredicate( root -> builder.or( builder.equal( root.get( "createdBy" ), user ),
+                    builder.equal( root.get( "lastUpdatedBy" ), user ) ) ) );
+    }
+
+    /**
+     * Look up list objects which have property lastUpdatedBy linked to given
+     * {@link User}
+     *
+     * @param user the {@link User} for filtering
+     * @return List of objects found.
+     */
+    @Override
+    public List<T> findByLastUpdatedBy( @Nonnull User user )
+    {
+        CriteriaBuilder builder = getCriteriaBuilder();
+
+        return getListFromPartitions( builder, List.of( user ), 10000,
+            partition -> newJpaParameters()
+                .addPredicate( root -> builder.equal( root.get( "lastUpdatedBy" ), user ) ) );
+    }
+
+    /**
+     * Look up list objects which have property createdBy linked to given
+     * {@link User}
+     *
+     * @param user the {@link User} for filtering
+     * @return List of objects found.
+     */
+    @Override
+    public List<T> findByCreatedBy( @Nonnull User user )
+    {
+        CriteriaBuilder builder = getCriteriaBuilder();
+
+        return getListFromPartitions( builder, List.of( user ), 10000,
+            partition -> newJpaParameters().addPredicate( root -> builder.equal( root.get( "createdBy" ), user ) ) );
     }
 
     /**

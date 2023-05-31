@@ -58,7 +58,6 @@ import org.hisp.dhis.dataset.DataInputPeriod;
 import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.dataset.DataSetElement;
 import org.hisp.dhis.dataset.LockExceptionStore;
-import org.hisp.dhis.datavalue.AggregateAccessManager;
 import org.hisp.dhis.datavalue.DataValueService;
 import org.hisp.dhis.dxf2.common.ImportOptions;
 import org.hisp.dhis.dxf2.datavalue.DataValue;
@@ -90,10 +89,7 @@ import org.junit.jupiter.api.Test;
  */
 class DataValueSetImportValidatorTest
 {
-
     private AclService aclService;
-
-    private AggregateAccessManager accessManager;
 
     private LockExceptionStore lockExceptionStore;
 
@@ -113,7 +109,6 @@ class DataValueSetImportValidatorTest
     void setUp()
     {
         aclService = mock( AclService.class );
-        accessManager = mock( AggregateAccessManager.class );
         lockExceptionStore = mock( LockExceptionStore.class );
         approvalService = mock( DataApprovalService.class );
         dataValueService = mock( DataValueService.class );
@@ -124,7 +119,7 @@ class DataValueSetImportValidatorTest
             .thenReturn( true );
 
         i18n = mock( I18n.class );
-        validator = new DataValueSetImportValidator( aclService, accessManager, lockExceptionStore, approvalService,
+        validator = new DataValueSetImportValidator( aclService, lockExceptionStore, approvalService,
             dataValueService, organisationUnitService );
         validator.init();
         setupUserCanWriteCategoryOptions( true );
@@ -159,17 +154,6 @@ class DataValueSetImportValidatorTest
         assertTrue( validator.abortDataSetImport( dataValueSet, context, dataSetContext ) );
         assertConflict( ErrorCode.E7601, "User does not have write access for DataSet: `<object1>`", context,
             dataValueSet.getDataSet() );
-    }
-
-    @Test
-    void testValidateDataSetExistsStrictDataElements()
-    {
-        when( aclService.canDataRead( any(), any() ) ).thenReturn( true );
-        DataValueSet dataValueSet = new DataValueSet();
-        ImportContext context = createMinimalImportContext( null ).strictDataElements( true ).build();
-        DataSetContext dataSetContext = createMinimalDataSetContext( dataValueSet ).build();
-        assertTrue( validator.abortDataSetImport( dataValueSet, context, dataSetContext ) );
-        assertConflict( ErrorCode.E7602, "A valid dataset is required", context );
     }
 
     @Test
@@ -415,7 +399,7 @@ class DataValueSetImportValidatorTest
         DataSetContext dataSetContext = createMinimalDataSetContext( dataValueSet ).build();
         ImportContext context = createMinimalImportContext( valueContext ).strictDataElements( true ).build();
         assertTrue( validator.skipDataValue( dataValue, context, dataSetContext, valueContext ) );
-        assertConflict( ErrorCode.E7633, "Data element: `<object1>` is not part of dataset: `<object2>`", context,
+        assertConflict( ErrorCode.E7633, "Data element: `<object1>` is not part of dataset(s): `<object2>`", context,
             dataValue.getDataElement(), dataValueSet.getDataSet() );
     }
 
@@ -652,7 +636,7 @@ class DataValueSetImportValidatorTest
             .strategy( ImportStrategy.DELETE ).build();
         when( dataValueService.getDataValue( any( DataElement.class ), any( Period.class ),
             any( OrganisationUnit.class ), any( CategoryOptionCombo.class ), any( CategoryOptionCombo.class ) ) )
-                .thenReturn( null );
+            .thenReturn( null );
         assertTrue( validator.skipDataValue( dataValue, context, dataSetContext, valueContext ) );
         assertConflict( ErrorCode.E7645,
             "No data value for file resource exist for the given combination for data element: `<object1>`", context,

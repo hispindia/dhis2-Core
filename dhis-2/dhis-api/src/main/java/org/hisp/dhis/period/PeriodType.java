@@ -144,6 +144,7 @@ public abstract class PeriodType
         new MonthlyPeriodType(),
         new BiMonthlyPeriodType(),
         new QuarterlyPeriodType(),
+        new QuarterlyNovemberPeriodType(),
         new SixMonthlyPeriodType(),
         new SixMonthlyAprilPeriodType(),
         new SixMonthlyNovemberPeriodType(),
@@ -349,7 +350,7 @@ public abstract class PeriodType
      */
     public Period createPeriod( final Date date )
     {
-        return PERIOD_CACHE.get( getCacheKey( date ), s -> createPeriod( createCalendarInstance( date ) ) );
+        return PERIOD_CACHE.get( getCacheKey( date ), s -> createPeriod( date, getCalendar() ) );
     }
 
     public Period createPeriod( Calendar cal )

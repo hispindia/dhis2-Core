@@ -28,6 +28,7 @@
 package org.hisp.dhis.analytics.data;
 
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.collections4.CollectionUtils.addIgnoreNull;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
@@ -87,6 +88,7 @@ import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserSettingKey;
 import org.hisp.dhis.user.UserSettingService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Lars Helge Overland
@@ -109,6 +111,7 @@ public class DefaultDataQueryService
     // -------------------------------------------------------------------------
 
     @Override
+    @Transactional( readOnly = true )
     public DataQueryParams getFromRequest( DataQueryRequest request )
     {
         DataQueryParams.Builder params = DataQueryParams.newBuilder();
@@ -175,6 +178,7 @@ public class DefaultDataQueryService
     }
 
     @Override
+    @Transactional( readOnly = true )
     public DataQueryParams getFromAnalyticalObject( AnalyticalObject object )
     {
         notNull( object );
@@ -224,6 +228,7 @@ public class DefaultDataQueryService
     // instead of fetching all org units one by one.
 
     @Override
+    @Transactional( readOnly = true )
     public DimensionalObject getDimension( String dimension, List<String> items, EventDataQueryRequest request,
         List<OrganisationUnit> userOrgUnits, boolean allowNull, IdScheme inputIdScheme )
     {
@@ -232,6 +237,7 @@ public class DefaultDataQueryService
     }
 
     @Override
+    @Transactional( readOnly = true )
     public DimensionalObject getDimension( String dimension, List<String> items, Date relativePeriodDate,
         List<OrganisationUnit> userOrgUnits, boolean allowNull, DisplayProperty displayProperty,
         IdScheme inputIdScheme )
@@ -241,6 +247,7 @@ public class DefaultDataQueryService
     }
 
     @Override
+    @Transactional( readOnly = true )
     public List<OrganisationUnit> getUserOrgUnits( DataQueryParams params, String userOrgUnit )
     {
         List<OrganisationUnit> units = new ArrayList<>();
@@ -292,7 +299,7 @@ public class DefaultDataQueryService
 
                 if ( dimension != null && items != null )
                 {
-                    list.add( getDimension(
+                    addIgnoreNull( list, getDimension(
                         dimension, items, request.getRelativePeriodDate(), request.getDisplayProperty(),
                         userOrgUnits, false, firstNonNull( request.getInputIdScheme(), UID ) ) );
                 }

@@ -46,6 +46,8 @@ import org.hisp.dhis.user.UserCredentialsDto;
 import org.hisp.dhis.user.UserGroup;
 import org.hisp.dhis.user.UserRole;
 import org.hisp.dhis.user.sharing.Sharing;
+import org.hisp.dhis.user.sharing.UserAccess;
+import org.hisp.dhis.user.sharing.UserGroupAccess;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -68,14 +70,10 @@ public class MeDto
         this.lastUpdated = user.getLastUpdated();
         this.dataViewOrganisationUnits = user.getDataViewOrganisationUnits();
         this.favorites = user.getFavorites();
-        this.sharing = user.getSharing();
-        this.userGroupAccesses = user.getUserGroupAccesses();
-        this.userAccesses = user.getUserAccesses();
         this.userGroups = user.getGroups();
         this.translations = user.getTranslations();
         this.teiSearchOrganisationUnits = user.getTeiSearchOrganisationUnits();
         this.organisationUnits = user.getOrganisationUnits();
-        this.externalAccess = user.getExternalAccess();
         this.displayName = user.getDisplayName();
         this.access = user.getAccess();
         this.name = user.getName();
@@ -84,7 +82,7 @@ public class MeDto
         this.introduction = user.getIntroduction();
         this.birthday = user.getBirthday();
         this.nationality = user.getNationality();
-        this.education = user.getNationality();
+        this.education = user.getEducation();
         this.interests = user.getInterests();
         this.whatsApp = user.getWhatsApp();
         this.facebookMessenger = user.getFacebookMessenger();
@@ -145,10 +143,10 @@ public class MeDto
     protected Sharing sharing;
 
     @JsonProperty( )
-    private Set<org.hisp.dhis.user.UserGroupAccess> userGroupAccesses;
+    private Set<UserGroupAccess> userGroupAccesses;
 
     @JsonProperty( )
-    private Set<org.hisp.dhis.user.UserAccess> userAccesses;
+    private Set<UserAccess> userAccesses;
 
     @JsonProperty( )
     private Set<UserGroup> userGroups;
@@ -224,6 +222,9 @@ public class MeDto
 
     @JsonProperty( )
     private List<String> dataSets;
+
+    @JsonProperty( )
+    private String impersonation;
 
     @JsonProperty( )
     private UserCredentialsDto userCredentials;

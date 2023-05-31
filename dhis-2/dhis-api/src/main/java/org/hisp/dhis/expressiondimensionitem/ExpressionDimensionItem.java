@@ -32,6 +32,8 @@ import org.hisp.dhis.common.DimensionItemType;
 import org.hisp.dhis.common.DxfNamespaces;
 import org.hisp.dhis.common.MetadataObject;
 import org.hisp.dhis.expression.MissingValueStrategy;
+import org.hisp.dhis.indicator.Indicator;
+import org.hisp.dhis.indicator.IndicatorType;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
@@ -118,63 +120,6 @@ public class ExpressionDimensionItem
         this.missingValueStrategy = missingValueStrategy;
     }
 
-    // -------------------------------------------------------------------------
-    // Equals and hashCode
-    // -------------------------------------------------------------------------
-
-    @Override
-    public boolean equals( Object obj )
-    {
-        if ( this == obj )
-        {
-            return true;
-        }
-
-        if ( obj == null )
-        {
-            return false;
-        }
-
-        if ( getClass() != obj.getClass() )
-        {
-            return false;
-        }
-
-        final ExpressionDimensionItem other = (ExpressionDimensionItem) obj;
-
-        if ( description == null )
-        {
-            if ( other.description != null )
-            {
-                return false;
-            }
-        }
-        else if ( !description.equals( other.description ) )
-        {
-            return false;
-        }
-
-        if ( expression == null )
-        {
-            return other.expression == null;
-        }
-        else
-        {
-            return expression.equals( other.expression );
-        }
-    }
-
-    @Override
-    public int hashCode()
-    {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((description == null) ? 0 : description.hashCode());
-        result = prime * result + ((expression == null) ? 0 : expression.hashCode());
-
-        return result;
-    }
-
     @Override
     public String toString()
     {
@@ -226,5 +171,29 @@ public class ExpressionDimensionItem
     public DimensionItemType getDimensionItemType()
     {
         return DimensionItemType.EXPRESSION_DIMENSION_ITEM;
+    }
+
+    /**
+     * Converts the current object to {@link Indicator}.
+     *
+     * @return the {@link Indicator} object.
+     */
+    public Indicator toIndicator()
+    {
+        IndicatorType indicatorType = new IndicatorType();
+        indicatorType.setNumber( true );
+        indicatorType.setFactor( 1 );
+
+        Indicator indicator = new Indicator();
+        indicator.setUid( getUid() );
+        indicator.setName( getName() );
+        indicator.setCode( getCode() );
+        indicator.setIndicatorType( indicatorType );
+        indicator.setNumerator( getExpression() );
+        indicator.setNumeratorDescription( getDescription() );
+        indicator.setDenominator( "1" );
+        indicator.setAnnualized( false );
+
+        return indicator;
     }
 }

@@ -52,6 +52,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
+
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -291,7 +292,7 @@ public class GridUtils
      * given OutputStream.
      */
     public static void toXls( Grid grid, OutputStream out )
-        throws Exception
+        throws IOException
     {
         Workbook workbook = new HSSFWorkbook();
 

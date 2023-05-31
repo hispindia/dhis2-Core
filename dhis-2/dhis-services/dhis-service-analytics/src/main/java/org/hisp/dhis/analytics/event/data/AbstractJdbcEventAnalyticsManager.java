@@ -37,6 +37,8 @@ import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.SPACE;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.hisp.dhis.analytics.AggregationType.CUSTOM;
+import static org.hisp.dhis.analytics.AggregationType.NONE;
 import static org.hisp.dhis.analytics.DataQueryParams.NUMERATOR_DENOMINATOR_PROPERTIES_COUNT;
 import static org.hisp.dhis.analytics.DataType.NUMERIC;
 import static org.hisp.dhis.analytics.QueryKey.NV;
@@ -58,6 +60,7 @@ import static org.hisp.dhis.common.RequestTypeAware.EndpointItem.ENROLLMENT;
 import static org.hisp.dhis.commons.util.TextUtils.getCommaDelimitedString;
 import static org.hisp.dhis.system.util.MathUtils.getRounded;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -83,10 +86,9 @@ import org.hisp.dhis.analytics.AggregationType;
 import org.hisp.dhis.analytics.EventOutputType;
 import org.hisp.dhis.analytics.SortOrder;
 import org.hisp.dhis.analytics.analyze.ExecutionPlanStore;
+import org.hisp.dhis.analytics.common.ProgramIndicatorSubqueryBuilder;
 import org.hisp.dhis.analytics.event.EventQueryParams;
-import org.hisp.dhis.analytics.event.ProgramIndicatorSubqueryBuilder;
 import org.hisp.dhis.analytics.util.AnalyticsUtils;
-import org.hisp.dhis.common.BaseIdentifiableObject;
 import org.hisp.dhis.common.DimensionType;
 import org.hisp.dhis.common.DimensionalItemObject;
 import org.hisp.dhis.common.DimensionalObject;
@@ -94,6 +96,7 @@ import org.hisp.dhis.common.DisplayProperty;
 import org.hisp.dhis.common.Grid;
 import org.hisp.dhis.common.GridHeader;
 import org.hisp.dhis.common.IdScheme;
+import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.common.InQueryFilter;
 import org.hisp.dhis.common.QueryFilter;
 import org.hisp.dhis.common.QueryItem;
@@ -101,6 +104,7 @@ import org.hisp.dhis.common.QueryRuntimeException;
 import org.hisp.dhis.common.Reference;
 import org.hisp.dhis.common.RepeatableStageParams;
 import org.hisp.dhis.common.ValueType;
+import org.hisp.dhis.commons.collection.ListUtils;
 import org.hisp.dhis.commons.util.SqlHelper;
 import org.hisp.dhis.commons.util.TextUtils;
 import org.hisp.dhis.feedback.ErrorCode;
@@ -220,11 +224,11 @@ public abstract class AbstractJdbcEventAnalyticsManager
                 sql += Optional.ofNullable( extract( params.getDimensions(), item.getItem() ) )
                     .filter( this::isSupported )
                     .filter( DimensionalObject::hasItems )
-                    .map( dim -> toCase( dim, quoteAlias( item.getItem().getUid() ), params.getDisplayProperty() ) )
-                    .orElse( quoteAlias( item.getItem().getUid() ) );
+                    .map( dim -> toCase( dim, quote( item.getItem().getUid() ), params.getDisplayProperty() ) )
+                    .orElse( quote( item.getItem().getUid() ) );
             }
 
-            sql += order == ASC ? " asc," : " desc,";
+            sql += order == ASC ? " asc nulls last," : " desc nulls last,";
         }
 
         return sql;
@@ -314,10 +318,7 @@ public abstract class AbstractJdbcEventAnalyticsManager
 
     /**
      * Returns the dynamic select columns. Dimensions come first and query items
-     * second. Program indicator expressions are converted to SQL expressions.
-     * In the case of non-default boundaries
-     * {@link EventQueryParams#hasNonDefaultBoundaries}, the period is
-     * hard-coded into the select statement with "(isoPeriod) as (periodType)".
+     * second.
      *
      * @param params the {@link EventQueryParams}.
      * @param isGroupByClause used to avoid grouping by period when using
@@ -328,15 +329,41 @@ public abstract class AbstractJdbcEventAnalyticsManager
     {
         List<String> columns = new ArrayList<>();
 
-        for ( DimensionalObject dimension : params.getDimensions() )
-        {
+        addDimensionSelectColumns( columns, params, isGroupByClause );
+        addItemSelectColumns( columns, params, isGroupByClause, isAggregated );
+
+        return columns;
+    }
+
+    /**
+     * Adds the dynamic dimension select columns. Program indicator expressions
+     * are converted to SQL expressions. In the case of non-default boundaries
+     * {@link EventQueryParams#hasNonDefaultBoundaries}, the period is
+     * hard-coded into the select statement with "(isoPeriod) as (periodType)".
+     * <p>
+     * If the first/last subquery is used then one query will be done for each
+     * period, and the period will not be present in the query, so add it to the
+     * select columns and skip it in the group by columns.
+     */
+    private void addDimensionSelectColumns( List<String> columns, EventQueryParams params, boolean isGroupByClause )
+    {
+        params.getDimensions().forEach( dimension -> {
             if ( isGroupByClause && dimension.getDimensionType() == DimensionType.PERIOD
                 && params.hasNonDefaultBoundaries() )
             {
-                continue;
+                return;
             }
 
-            if ( !params.hasNonDefaultBoundaries() || dimension.getDimensionType() != DimensionType.PERIOD )
+            if ( dimension.getDimensionType() == DimensionType.PERIOD &&
+                params.getAggregationTypeFallback().isFirstOrLastPeriodAggregationType() )
+            {
+                if ( !isGroupByClause )
+                {
+                    String alias = quote( dimension.getDimensionName() );
+                    columns.add( "cast('" + params.getLatestPeriod().getDimensionItem() + "' as text) as " + alias );
+                }
+            }
+            else if ( !params.hasNonDefaultBoundaries() || dimension.getDimensionType() != DimensionType.PERIOD )
             {
                 columns.add( getTableAndColumn( params, dimension, isGroupByClause ) );
             }
@@ -360,14 +387,40 @@ public abstract class AbstractJdbcEventAnalyticsManager
                 throw new IllegalStateException( "Program indicator non-default boundary query must have " +
                     "exactly one period, or no periods and a period filter" );
             }
-        }
+        } );
+    }
 
+    private void addItemSelectColumns( List<String> columns, EventQueryParams params, boolean isGroupByClause,
+        boolean isAggregated )
+    {
         for ( QueryItem queryItem : params.getItems() )
         {
-            columns.add( getColumnAndAlias( queryItem, params, isGroupByClause, isAggregated ).asSql() );
-        }
+            ColumnAndAlias columnAndAlias = getColumnAndAlias( queryItem, params, isGroupByClause, isAggregated );
 
-        return columns;
+            columns.add( columnAndAlias.asSql() );
+
+            // asked for row context if allowed and needed
+            if ( rowContextAllowedAndNeeded( params, queryItem ) )
+            {
+                String column = " exists (" + columnAndAlias.column + ")";
+                String alias = columnAndAlias.alias + ".exists";
+                columns.add( (new ColumnAndAlias( column, alias )).asSql() );
+            }
+        }
+    }
+
+    /**
+     * Eligibility of enrollment request for grid row context
+     *
+     * @param params
+     * @param queryItem
+     * @return true when eligible for row context
+     */
+    private boolean rowContextAllowedAndNeeded( EventQueryParams params, QueryItem queryItem )
+    {
+        return params.getEndpointItem() == ENROLLMENT && params.isRowContext() && queryItem.hasProgramStage()
+            && queryItem.getProgramStage().getRepeatable()
+            && queryItem.hasRepeatableStageParams();
     }
 
     private ColumnAndAlias getColumnAndAlias( QueryItem queryItem, EventQueryParams params, boolean isGroupByClause,
@@ -392,17 +445,7 @@ public abstract class AbstractJdbcEventAnalyticsManager
                     getAnalyticsType(), params.getEarliestStartDate(), params.getLatestEndDate() );
             }
 
-            if ( queryItem.getValueType() == ValueType.NUMBER )
-            {
-                return ColumnAndAlias.ofColumnAndAlias(
-                    coalesceAsDoubleNan( programIndicatorSubquery ),
-                    asClause );
-            }
-            else
-            {
-                return ColumnAndAlias.ofColumnAndAlias( programIndicatorSubquery, asClause );
-            }
-
+            return ColumnAndAlias.ofColumnAndAlias( programIndicatorSubquery, asClause );
         }
         else if ( ValueType.COORDINATE == queryItem.getValueType() )
         {
@@ -424,8 +467,12 @@ public abstract class AbstractJdbcEventAnalyticsManager
             ColumnAndAlias columnAndAlias = getColumnAndAlias( queryItem, isAggregated, queryItem.getItemName() );
 
             return ColumnAndAlias.ofColumnAndAlias(
-                coalesceAsDoubleNan( columnAndAlias.getColumn() ),
+                columnAndAlias.getColumn(),
                 defaultIfNull( columnAndAlias.getAlias(), queryItem.getItemName() ) );
+        }
+        else if ( queryItem.isText() && !isGroupByClause && hasOrderByClauseForQueryItem( queryItem, params ) )
+        {
+            return getColumnAndAliasWithNullIfFunction( queryItem );
         }
         else
         {
@@ -433,9 +480,32 @@ public abstract class AbstractJdbcEventAnalyticsManager
         }
     }
 
-    protected String coalesceAsDoubleNan( String column )
+    /**
+     * The method create a ColumnAndAlias object with nullif sql function. toSql
+     * function of class will return f.e. nullif(select 'w75KJ2mc4zz' from...,
+     * '') as 'w75KJ2mc4zz'
+     *
+     * @param queryItem the {@link QueryItem}.
+     * @return the {@link ColumnAndAlias} {@link ColumnWithNullIfAndAlias}
+     */
+    private ColumnAndAlias getColumnAndAliasWithNullIfFunction( QueryItem queryItem )
     {
-        return "coalesce(" + column + ", double precision 'NaN')";
+        String column = getColumn( queryItem );
+
+        if ( queryItem.hasProgramStage() && queryItem.getItem().getDimensionItemType() == DATA_ELEMENT )
+        {
+            return ColumnWithNullIfAndAlias.ofColumnWithNullIfAndAlias( column,
+                queryItem.getProgramStage().getUid() + "." + queryItem.getItem().getUid() );
+        }
+
+        return ColumnWithNullIfAndAlias.ofColumnWithNullIfAndAlias( column, queryItem.getItem().getUid() );
+    }
+
+    private boolean hasOrderByClauseForQueryItem( QueryItem queryItem, EventQueryParams params )
+    {
+        List<QueryItem> orderByColumns = getDistinctOrderByColumns( params );
+
+        return orderByColumns.contains( queryItem );
     }
 
     private ColumnAndAlias getColumnAndAlias( QueryItem queryItem, boolean isGroupByClause, String aliasIfMissing )
@@ -668,24 +738,29 @@ public abstract class AbstractJdbcEventAnalyticsManager
 
         EventOutputType outputType = params.getOutputType();
 
+        AggregationType aggregationType = params.getAggregationTypeFallback().getAggregationType();
+
+        String function = (aggregationType == NONE || aggregationType == CUSTOM)
+            ? ""
+            : aggregationType.getValue();
+
         if ( !params.isAggregation() )
         {
             return quoteAlias( params.getValue().getUid() );
         }
+        else if ( params.getAggregationTypeFallback().isFirstOrLastPeriodAggregationType()
+            && params.hasEventProgramIndicatorDimension() )
+        {
+            return function + "(value)";
+        }
         else if ( params.hasNumericValueDimension() )
         {
-            String function = params.getAggregationTypeFallback().getAggregationType().getValue();
-
             String expression = quoteAlias( params.getValue().getUid() );
 
             return function + "(" + expression + ")";
         }
         else if ( params.hasProgramIndicatorDimension() )
         {
-            String function = params.getProgramIndicator().getAggregationTypeFallback().getValue();
-
-            function = TextUtils.emptyIfEqual( function, AggregationType.CUSTOM.getValue() );
-
             String expression = programIndicatorService.getAnalyticsSql( params.getProgramIndicator().getExpression(),
                 NUMERIC, params.getProgramIndicator(), params.getEarliestStartDate(), params.getLatestEndDate() );
 
@@ -973,6 +1048,25 @@ public abstract class AbstractJdbcEventAnalyticsManager
             {
                 addGridDoubleTypeValue( (Double) value, grid, header, params );
             }
+            else if ( value instanceof BigDecimal )
+            {
+                Optional<QueryItem> queryItem = params.getItems()
+                    .stream()
+                    .filter( item -> item.isProgramIndicator() && header.getName().equals( item.getItemName() ) )
+                    .findFirst();
+
+                if ( queryItem.isPresent() )
+                {
+                    grid.addValue( AnalyticsUtils.getRoundedValue( params,
+                        ((ProgramIndicator) queryItem.get().getItem()).getDecimals(),
+                        ((BigDecimal) value).doubleValue() ) );
+                }
+                else
+                {
+                    // toPlainString method prevents scientific notation (3E+2)
+                    grid.addValue( ((BigDecimal) value).stripTrailingZeros().toPlainString() );
+                }
+            }
             else
             {
                 grid.addValue( StringUtils.trimToNull( sqlRowSet.getString( index ) ) );
@@ -1070,7 +1164,7 @@ public abstract class AbstractJdbcEventAnalyticsManager
         // Groups repeatable conditions based on PSI.DEID
         Map<String, List<String>> repeatableConditionsByIdentifier = asSqlCollection( itemsByRepeatableFlag.get( true ),
             params )
-                .collect( groupingBy( IdentifiableSql::getIdentifier, mapping( IdentifiableSql::getSql, toList() ) ) );
+            .collect( groupingBy( IdentifiableSql::getIdentifier, mapping( IdentifiableSql::getSql, toList() ) ) );
 
         // Joins each group with OR
         Collection<String> orConditions = repeatableConditionsByIdentifier.values()
@@ -1172,7 +1266,7 @@ public abstract class AbstractJdbcEventAnalyticsManager
     {
         String programStageId = Optional.of( queryItem )
             .map( QueryItem::getProgramStage )
-            .map( BaseIdentifiableObject::getUid )
+            .map( IdentifiableObject::getUid )
             .orElse( "" );
         return programStageId + "." + queryItem.getItem().getUid();
     }
@@ -1250,6 +1344,32 @@ public abstract class AbstractJdbcEventAnalyticsManager
             return "(" + field + " is null or " + field + SPACE + filter.getSqlOperator( true ) + SPACE
                 + getSqlFilter( filter, item ) + ") ";
         }
+    }
+
+    /**
+     * Method responsible for merging query items based on sorting parameters
+     *
+     * @param params the {@link EventQueryParams} to drive the query item list
+     *        generation.
+     * @return the distinct {@link List<QueryItem>} relevant for order by DML.
+     */
+    private List<QueryItem> getDistinctOrderByColumns( EventQueryParams params )
+    {
+        List<QueryItem> orderByAscColumns = new ArrayList<>();
+
+        List<QueryItem> orderByDescColumns = new ArrayList<>();
+
+        if ( params.getAsc() != null && !params.getAsc().isEmpty() )
+        {
+            orderByAscColumns.addAll( params.getAsc() );
+        }
+
+        if ( params.getDesc() != null && !params.getDesc().isEmpty() )
+        {
+            orderByDescColumns.addAll( params.getDesc() );
+        }
+
+        return ListUtils.distinctUnion( orderByAscColumns, orderByDescColumns );
     }
 
     /**

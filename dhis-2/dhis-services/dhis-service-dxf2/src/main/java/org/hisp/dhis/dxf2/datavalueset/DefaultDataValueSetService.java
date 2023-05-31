@@ -72,7 +72,6 @@ import org.hisp.dhis.dataset.LockExceptionStore;
 import org.hisp.dhis.datavalue.DataExportParams;
 import org.hisp.dhis.datavalue.DataValue;
 import org.hisp.dhis.datavalue.DataValueAudit;
-import org.hisp.dhis.datavalue.DataValueService;
 import org.hisp.dhis.dxf2.common.ImportOptions;
 import org.hisp.dhis.dxf2.datavalueset.ImportContext.DataSetContext;
 import org.hisp.dhis.dxf2.importsummary.ImportCount;
@@ -165,8 +164,6 @@ public class DefaultDataValueSetService
     private final InputUtils inputUtils;
 
     private final CalendarService calendarService;
-
-    private final DataValueService dataValueService;
 
     private final FileResourceService fileResourceService;
 
@@ -772,6 +769,7 @@ public class DefaultDataValueSetService
         if ( importValidator.skipDataValue( dataValue, context, dataSetContext, valueContext ) )
         {
             importCount.incrementIgnored();
+            context.addRejected( valueContext.getIndex() );
             return;
         }
 
@@ -821,6 +819,7 @@ public class DefaultDataValueSetService
             else
             {
                 importCount.incrementIgnored();
+                context.addRejected( valueContext.getIndex() );
             }
         }
         else
@@ -832,6 +831,7 @@ public class DefaultDataValueSetService
             else
             {
                 importCount.incrementIgnored();
+                context.addRejected( valueContext.getIndex() );
             }
         }
     }
@@ -897,13 +897,11 @@ public class DefaultDataValueSetService
         {
             if ( valueContext.getDataElement().isFileType() )
             {
-                DataValue actualDataValue = valueContext.getActualDataValue( dataValueService );
+                FileResource fr = fileResourceService.getFileResource( existingValue.getValue() );
 
-                if ( actualDataValue != null )
+                if ( fr != null )
                 {
-                    FileResource fr = fileResourceService.getFileResource( actualDataValue.getValue() );
-
-                    fileResourceService.updateFileResource( fr );
+                    fileResourceService.deleteFileResource( fr );
                 }
             }
 
@@ -958,13 +956,21 @@ public class DefaultDataValueSetService
 
             if ( valueContext.getDataElement().isFileType() )
             {
-                FileResource fr = fileResourceService.getFileResource( internalValue.getValue() );
+                FileResource fr = fileResourceService.getFileResource( existingValue.getValue() );
+                if ( auditType == AuditType.DELETE )
+                {
+                    fileResourceService.deleteFileResource( fr );
+                }
+                else
+                {
+                    if ( fr != null && !fr.isAssigned() )
+                    {
+                        fr.setAssigned( true );
 
-                fr.setAssigned( true );
-
-                fileResourceService.updateFileResource( fr );
+                        fileResourceService.updateFileResource( fr );
+                    }
+                }
             }
-
         }
     }
 

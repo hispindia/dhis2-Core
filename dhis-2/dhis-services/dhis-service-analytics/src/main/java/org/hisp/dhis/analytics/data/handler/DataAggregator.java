@@ -87,6 +87,8 @@ public class DataAggregator
 
         dataHandler.addExpressionDimensionItemValues( params, grid );
 
+        dataHandler.addSubexpressionDimensionItemValues( params, grid );
+
         dataHandler.addDataElementOperandValues( params, grid );
 
         dataHandler.addReportingRates( params, grid );
@@ -148,7 +150,7 @@ public class DataAggregator
     private DataQueryParams preHandleQuery( DataQueryParams params )
     {
         if ( params.hasSingleIndicatorAsDataFilter() || params.hasSingleProgramIndicatorAsDataFilter()
-            || params.hasSingleReportingRateAsDataFilter() )
+            || params.hasSingleReportingRateAsDataFilter() || params.hasSingleExpressionDimensionItemAsDataFilter() )
         {
             DimensionalObject dx = params.getFilter( DATA_X_DIM_ID );
 

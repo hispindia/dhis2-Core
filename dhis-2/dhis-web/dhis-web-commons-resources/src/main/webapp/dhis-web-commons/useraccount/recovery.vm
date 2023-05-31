@@ -3,7 +3,7 @@
 <head>
     <title>$encoder.htmlEncode( $applicationTitle )</title>
     <meta name="referrer" content="no-referrer">
-    <script type="text/javascript" src="../javascripts/jQuery/jquery-3.6.2.min.js"></script>
+    <script type="text/javascript" src="../javascripts/jQuery/jquery-3.6.3.min.js"></script>
     <script type="text/javascript" src="../javascripts/useraccount/recovery.js"></script>
     <link type="text/css" rel="stylesheet" href="../css/account.css">
 </head>
@@ -13,7 +13,7 @@
 
 <div id="accountContainer">
 
-<div id="bannerArea"><a href="http://dhis2.org"><img src="../security/logo_front.png" style="border:none"></a></div>
+<div id="bannerArea"><a href="https://dhis2.org"><img src="../security/logo_front.png" style="border:none"></a></div>
 
 <div id="accountInput">
 
@@ -28,7 +28,7 @@
     </tr>
     <tr>
         <td></td>
-        <td><input id="recoveryButton" type="button" value="$i18n.getString( 'recover' )" style="width:10em" onclick="recoverAccount()"></td>
+        <td><input id="recoveryButton" type="button" value="$i18n.getString( 'recover' )" style="width:10em"></td>
     </tr>
 </table>
 

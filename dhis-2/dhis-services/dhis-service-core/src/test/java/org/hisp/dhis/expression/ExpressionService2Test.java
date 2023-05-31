@@ -38,7 +38,6 @@ import static org.hisp.dhis.category.CategoryCombo.DEFAULT_CATEGORY_COMBO_NAME;
 import static org.hisp.dhis.common.DimensionItemType.DATA_ELEMENT;
 import static org.hisp.dhis.expression.Expression.SEPARATOR;
 import static org.hisp.dhis.expression.ExpressionService.SYMBOL_DAYS;
-import static org.hisp.dhis.expression.ExpressionService.SYMBOL_WILDCARD;
 import static org.hisp.dhis.expression.MissingValueStrategy.NEVER_SKIP;
 import static org.hisp.dhis.expression.ParseType.INDICATOR_EXPRESSION;
 import static org.hisp.dhis.expression.ParseType.PREDICTOR_EXPRESSION;
@@ -362,7 +361,7 @@ class ExpressionService2Test extends DhisConvenienceTest
         expressionJ = "#{" + opA.getDimensionItem() + "}+#{" + opB.getDimensionItem() + "}";
         expressionK = "1.5*avg(" + expressionJ + ")";
         expressionL = expressionA + "+avg(" + expressionJ + ")+1.5*stddev(" + expressionJ + ")+" + expressionB;
-        expressionM = "#{" + deA.getUid() + SEPARATOR + SYMBOL_WILDCARD + "}-#{" + deB.getUid() + SEPARATOR
+        expressionM = "#{" + deA.getUid() + "}-#{" + deB.getUid() + SEPARATOR
             + coc.getUid() + "}";
         expressionN = "#{" + deA.getUid() + SEPARATOR + cocA.getUid() + SEPARATOR + cocB.getUid() + "}-#{"
             + deB.getUid() + SEPARATOR + cocA.getUid() + "}";
@@ -379,15 +378,32 @@ class ExpressionService2Test extends DhisConvenienceTest
         switch ( type )
         {
         case DATA_ELEMENT:
-            return new DimensionalItemId( type, o.getUid(), null, null, o.getDimensionItem() );
+            String deItem = "#{" + o.getUid() + "}";
+            return new DimensionalItemId( type, o.getUid(), null, null, deItem );
 
         case DATA_ELEMENT_OPERAND:
             DataElementOperand deo = (DataElementOperand) o;
 
+            String deoItem = "#{" + deo.getDataElement().getUid() +
+                ((deo.getCategoryOptionCombo() != null)
+                    ? "." + deo.getCategoryOptionCombo().getUid()
+                    : "")
+                +
+                ((deo.getCategoryOptionCombo() == null && deo.getAttributeOptionCombo() != null)
+                    ? ".*"
+                    : "")
+                +
+                ((deo.getAttributeOptionCombo() != null)
+                    ? "." + deo.getAttributeOptionCombo().getUid()
+                    : "")
+                +
+                "}";
+
             return new DimensionalItemId( type,
                 deo.getDataElement().getUid(),
                 deo.getCategoryOptionCombo() == null ? null : deo.getCategoryOptionCombo().getUid(),
-                deo.getAttributeOptionCombo() == null ? null : deo.getAttributeOptionCombo().getUid() );
+                deo.getAttributeOptionCombo() == null ? null : deo.getAttributeOptionCombo().getUid(),
+                deoItem );
 
         case REPORTING_RATE:
             ReportingRate rr = (ReportingRate) o;
@@ -604,23 +620,23 @@ class ExpressionService2Test extends DhisConvenienceTest
 
         when( dimensionService.getNoAclDataDimensionalItemObjectMap( (Set<DimensionalItemId>) argThat(
             containsInAnyOrder( getId( opA ), getId( deB ), getId( reportingRate ), getId( pdeA ) ) ) ) )
-                .thenReturn( Map.of(
-                    getId( opA ), opA,
-                    getId( deB ), deB,
-                    getId( reportingRate ), reportingRate,
-                    getId( pdeA ), pdeA ) );
+            .thenReturn( Map.of(
+                getId( opA ), opA,
+                getId( deB ), deB,
+                getId( reportingRate ), reportingRate,
+                getId( pdeA ), pdeA ) );
 
         when( idObjectManager.getNoAcl( eq( OrganisationUnitGroup.class ), (java.util.Collection<String>) argThat(
             containsInAnyOrder( groupA.getUid(), groupB.getUid() ) ) ) )
-                .thenReturn( List.of( groupA, groupB ) );
+            .thenReturn( List.of( groupA, groupB ) );
 
         when( idObjectManager.getNoAcl( eq( DataSet.class ), (java.util.Collection<String>) argThat(
             containsInAnyOrder( dataSetA.getUid(), dataSetB.getUid() ) ) ) )
-                .thenReturn( List.of( dataSetA, dataSetB ) );
+            .thenReturn( List.of( dataSetA, dataSetB ) );
 
         when( idObjectManager.getNoAcl( eq( Program.class ), (java.util.Collection<String>) argThat(
             containsInAnyOrder( programA.getUid(), programB.getUid() ) ) ) )
-                .thenReturn( List.of( programA, programB ) );
+            .thenReturn( List.of( programA, programB ) );
 
         ExpressionParams baseParams = target.getBaseExpressionParams( info );
 

@@ -38,10 +38,10 @@ import org.hisp.dhis.artemis.MessageManager;
 import org.hisp.dhis.artemis.Topics;
 import org.hisp.dhis.scheduling.JobConfiguration;
 import org.hisp.dhis.scheduling.JobType;
-import org.hisp.dhis.tracker.TrackerBundleReportMode;
-import org.hisp.dhis.tracker.TrackerImportParams;
-import org.hisp.dhis.tracker.TrackerImportService;
-import org.hisp.dhis.tracker.job.TrackerMessage;
+import org.hisp.dhis.tracker.imports.TrackerBundleReportMode;
+import org.hisp.dhis.tracker.imports.TrackerImportParams;
+import org.hisp.dhis.tracker.imports.TrackerImportService;
+import org.hisp.dhis.tracker.imports.job.TrackerMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -73,9 +73,10 @@ class TrackerImporterImplTest
                 JobType.TRACKER_IMPORT_JOB,
                 "userId",
                 false ) )
+            .reportMode( TrackerBundleReportMode.FULL )
             .build();
 
-        syncImporter.importTracker( params, TrackerBundleReportMode.FULL );
+        syncImporter.importTracker( params );
 
         verify( trackerImportService ).importTracker( params );
         verify( trackerImportService ).buildImportReport( any(), eq( TrackerBundleReportMode.FULL ) );

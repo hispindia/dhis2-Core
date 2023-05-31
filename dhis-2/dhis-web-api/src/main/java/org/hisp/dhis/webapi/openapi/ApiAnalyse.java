@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -62,8 +63,10 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 
+import org.hisp.dhis.common.EmbeddedObject;
 import org.hisp.dhis.common.IdentifiableObject;
 import org.hisp.dhis.common.OpenApi;
+import org.hisp.dhis.common.UID;
 import org.hisp.dhis.dxf2.webmessage.WebMessage;
 import org.hisp.dhis.period.Period;
 import org.hisp.dhis.webmessage.WebMessageResponse;
@@ -124,6 +127,20 @@ final class ApiAnalyse
         Set<String> tags;
     }
 
+    private static final Map<Class<?>, Api.SchemaGenerator> GENERATORS = new ConcurrentHashMap<>();
+
+    public static void register( Class<?> type, Api.SchemaGenerator generator )
+    {
+        GENERATORS.put( type, generator );
+    }
+
+    static
+    {
+        register( UID.class, SchemaGenerators.UID );
+        register( org.hisp.dhis.webapi.common.UID.class, SchemaGenerators.UID );
+        register( Api.PropertyNames.class, SchemaGenerators.PROPERTY_NAMES );
+    }
+
     /**
      * A mapping annotation might have an empty array for the paths which is
      * identical to just the root path o the controller. This array is used to
@@ -171,13 +188,20 @@ final class ApiAnalyse
         whenAnnotated( source, RequestMapping.class, a -> controller.getPaths().addAll( List.of( a.value() ) ) );
         whenAnnotated( source, OpenApi.Tags.class, a -> controller.getTags().addAll( List.of( a.value() ) ) );
 
-        stream( source.getMethods() )
+        methodsIn( source )
             .map( ApiAnalyse::getMapping )
             .filter( Objects::nonNull )
             .map( mapping -> analyseEndpoint( controller, mapping ) )
             .forEach( endpoint -> controller.getEndpoints().add( endpoint ) );
 
         return controller;
+    }
+
+    private static Stream<Method> methodsIn( Class<?> source )
+    {
+        return source == null || source == Object.class
+            ? Stream.empty()
+            : Stream.concat( stream( source.getDeclaredMethods() ), methodsIn( source.getSuperclass() ) );
     }
 
     private static Api.Endpoint analyseEndpoint( Api.Controller controller, Mapping mapping )
@@ -325,11 +349,9 @@ final class ApiAnalyse
             else if ( p.isAnnotationPresent( RequestParam.class ) && p.getType() != Map.class )
             {
                 RequestParam a = p.getAnnotation( RequestParam.class );
-                boolean required = a.required()
-                    && a.defaultValue().equals( "\n\t\t\n\t\t\n\ue000\ue001\ue002\n\t\t\t\t\n" );
                 String name = firstNonEmpty( a.name(), a.value(), p.getName() );
                 endpoint.getParameters().computeIfAbsent( name,
-                    key -> new Api.Parameter( p, null, key, Api.Parameter.In.QUERY, required,
+                    key -> new Api.Parameter( p, null, key, Api.Parameter.In.QUERY, a.required(),
                         analyseInputSchema( endpoint, p.getParameterizedType() ) ) );
             }
             else if ( p.isAnnotationPresent( RequestBody.class ) )
@@ -337,7 +359,7 @@ final class ApiAnalyse
                 RequestBody a = p.getAnnotation( RequestBody.class );
                 Api.RequestBody requestBody = endpoint.getRequestBody()
                     .init( () -> new Api.RequestBody( p, a.required() ) );
-                Api.Schema type = analyseParamSchema( endpoint, p.getParameterizedType(), p.getType() );
+                Api.Schema type = analyseParamSchema( endpoint, p.getParameterizedType() );
                 consumes.forEach( mediaType -> requestBody.getConsumes().putIfAbsent( mediaType, type ) );
             }
             else if ( isParams( p ) )
@@ -377,12 +399,14 @@ final class ApiAnalyse
         Collection<Property> properties = getProperties( paramsObject );
         if ( isSharable( paramsObject, false ) )
         {
-            Map<String, Api.Parameter> globalParameters = endpoint.getIn().getIn().getParameters();
-            Function<Property, String> toName = property -> paramsObject.getSimpleName() + "." + property.getName();
-            properties.forEach( property -> globalParameters
+            OpenApi.Shared shared = paramsObject.getAnnotation( OpenApi.Shared.class );
+            Map<String, Api.Parameter> sharedParameters = endpoint.getIn().getIn().getParameters();
+            String baseName = shared.name().isEmpty() ? paramsObject.getSimpleName() : shared.name();
+            Function<Property, String> toName = property -> baseName + "." + property.getName();
+            properties.forEach( property -> sharedParameters
                 .computeIfAbsent( toName.apply( property ), name -> analyseParameter( endpoint, property, name ) ) );
             properties.forEach( property -> endpoint.getParameters()
-                .computeIfAbsent( toName.apply( property ), globalParameters::get ) );
+                .computeIfAbsent( toName.apply( property ), sharedParameters::get ) );
         }
         else
         {
@@ -432,7 +456,8 @@ final class ApiAnalyse
     private static boolean isGeneratorType( Class<?> type )
     {
         return Api.SchemaGenerator.class.isAssignableFrom( type )
-            || Api.SchemaGenerator[].class.isAssignableFrom( type );
+            || Api.SchemaGenerator[].class.isAssignableFrom( type )
+            || GENERATORS.containsKey( type );
     }
 
     private static Api.Schema analyseGeneratorSchema( Api.Endpoint endpoint, Type source, Class<?>... oneOf )
@@ -551,11 +576,11 @@ final class ApiAnalyse
         if ( source instanceof Class<?> )
         {
             Class<?> type = (Class<?>) source;
-            if ( useRefs && IdentifiableObject.class.isAssignableFrom( type ) && type != Period.class )
+            if ( useRefs && isReferencableType( type ) )
             {
                 return Api.Schema.ref( type );
             }
-            if ( useRefs && IdentifiableObject[].class.isAssignableFrom( type ) && type != Period[].class )
+            if ( useRefs && isReferencableArrayType( type ) )
             {
                 return new Api.Schema( Api.Schema.Type.ARRAY, type, type )
                     .withElements( Api.Schema.ref( type.getComponentType() ) );
@@ -602,6 +627,20 @@ final class ApiAnalyse
             return analyseTypeSchema( endpoint, wt.getUpperBounds()[0], useRefs, resolving );
         }
         return Api.Schema.unknown( source );
+    }
+
+    private static boolean isReferencableType( Class<?> type )
+    {
+        return IdentifiableObject.class.isAssignableFrom( type )
+            && type != Period.class
+            && !EmbeddedObject.class.isAssignableFrom( type );
+    }
+
+    private static boolean isReferencableArrayType( Class<?> type )
+    {
+        return IdentifiableObject[].class.isAssignableFrom( type )
+            && type != Period[].class
+            && !EmbeddedObject[].class.isAssignableFrom( type );
     }
 
     /*
@@ -760,7 +799,9 @@ final class ApiAnalyse
         if ( source.isAnnotationPresent( RequestParam.class ) )
         {
             RequestParam a = source.getAnnotation( RequestParam.class );
-            return new Param( Api.Parameter.In.QUERY, firstNonEmpty( a.name(), a.value() ), a.required() );
+            boolean required = a.required()
+                && a.defaultValue().equals( "\n\t\t\n\t\t\n\ue000\ue001\ue002\n\t\t\t\t\n" );
+            return new Param( Api.Parameter.In.QUERY, firstNonEmpty( a.name(), a.value() ), required );
         }
         if ( source.isAnnotationPresent( RequestBody.class ) )
         {
@@ -776,14 +817,12 @@ final class ApiAnalyse
 
     private static Api.SchemaGenerator newGenerator( Class<?> type )
     {
-        try
+        Api.SchemaGenerator generator = GENERATORS.get( type );
+        if ( generator == null )
         {
-            return (Api.SchemaGenerator) type.getConstructor().newInstance();
+            throw new IllegalStateException( "No generator for type: " + type );
         }
-        catch ( Exception ex )
-        {
-            throw new RuntimeException( ex );
-        }
+        return generator;
     }
 
     private static String[] firstNonEmpty( String[] a, String[] b, String[] c )

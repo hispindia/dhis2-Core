@@ -138,7 +138,7 @@ public enum ErrorCode
     E2200( "At least one data element must be specified" ),
     E2201( "Start date and end date must be specified" ),
     E2202( "Start date must be before end date" ),
-    E2203( "At least one organisation unit must be specified" ),
+    E2203( Constants.AT_LEAST_ONE_ORGANISATION_UNIT_MUST_BE_SPECIFIED ),
     E2204( "Threshold must be a positive number" ),
     E2205( "Max results must be a positive number" ),
     E2206( "Max results exceeds the allowed max limit: `{0}`" ),
@@ -249,10 +249,19 @@ public enum ErrorCode
     E4053( "Program stage `{0}` must reference a program" ),
     E4057( "The Program Rule name {0} already exist in Program {1}" ),
 
+    E4058( "Program Rule `{0}` with Action Type `{1}` has irrelevant reference objects" ),
+
     /* Metadata Validation (continued) */
     E4060( "Object could not be deleted: {0}" ),
     E4061(
         "DashboardItem `{0}` object reference `{1}` with id `{2}` not found or not accessible" ),
+    E4062( "Start date or end date have to be specified when date period type is set to ABSOLUTE for item `{0}`" ),
+    E4063( "Assigned users cannot be empty when assigned user mode is set to PROVIDED" ),
+    E4064( "Organisation unit cannot be empty with `{0}` org unit mode" ),
+    E4065( "Data item UID is missing in filter" ),
+    E4066( "No data element found for item: `{0}`" ),
+    E4067( "Attribute UID is missing in filter" ),
+    E4068( "No tracked entity attribute found for attribute: `{0}`" ),
 
     /* SQL views */
     E4300( "SQL query is null" ),
@@ -276,14 +285,14 @@ public enum ErrorCode
     E5000( "Found matching object for reference, but import mode is CREATE. Identifier was {0}, and object was {1}." ),
     E5001( "No matching object for reference. Identifier was {0}, and object was {1}." ),
     E5002( "Invalid reference {0} on object {1} for association `{2}`" ),
-    E5003( "Property `{0}` with value `{1}` on object {2} already exists on object {3}" ),
+    E5003( "Property `{0}` with value `{1}` on object {2} already exists on object {3}" ),
     E5004( "Id `{0}` for type `{1}` exists on more than 1 object in the payload, removing all but the first found" ),
     E5005( "Properties `{0}` in objects `{1}` must be unique within the payload" ),
     E5006( "Non-owner reference {0} on object {1} for association `{2}` disallowed for payload for ERRORS_NOT_OWNER" ),
     E5007( "Duplicate reference {0} on object {1} for association `{2}`" ),
 
     /* Metadata import */
-    E6000( "Program `{0}` has more than one program instance" ),
+    E6000( "Program `{0}` has more than one Enrollment" ),
     E6001( "Program stage `{0}` has invalid next event scheduling property `{1}`" +
         "This property need to be data element of value type date and belong the program stage" ),
     E6002( "Class name {0} is not supported" ),
@@ -384,9 +393,16 @@ public enum ErrorCode
     E7133( "Query cannot be executed, possibly because of invalid types or invalid operation" ),
     E7134( "Cannot retrieve total value for data elements with skip total category combination" ),
     E7135( "Date time is not parsable: `{0}`" ),
+    E7136( "Program is not specified" ),
+    E7137( "Expression is not parsable: `{0}`" ),
+    E7138( "Invalid offset: `{0}`" ),
+    E7139( "programStatus and enrollmentStatus cannot be used together." ),
+    E7140( "parameters programStatus/enrollmentStatus must be of the form: [programUid].[ENROLLMENT_STATUS]" ),
+    E7141( "parameter eventStatus must be of the form: [programUid].[programStageUid].[EVENT_STATUS]" ),
+    E7142( "Program(s) `{0}` are not defined on Tracked Entity Type `{1}`" ),
 
     /* Event analytics */
-    E7200( "At least one organisation unit must be specified" ),
+    E7200( Constants.AT_LEAST_ONE_ORGANISATION_UNIT_MUST_BE_SPECIFIED ),
     E7201( "Dimensions cannot be specified more than once: `{0}`" ),
     E7202( "Query items cannot be specified more than once: `{0}`" ),
     E7203( "Value dimension cannot also be specified as an item or item filter" ),
@@ -421,8 +437,11 @@ public enum ErrorCode
     E7232( "Fallback coordinate field is invalid: `{0}`" ),
     E7234( "Query filter: `{0}` not valid for query item value type: `{1}`" ),
 
+    /* TEI analytics */
+    E7250( "Dimension is not a fully qualified: `{0}`" ),
+
     /* Org unit analytics */
-    E7300( "At least one organisation unit must be specified" ),
+    E7300( Constants.AT_LEAST_ONE_ORGANISATION_UNIT_MUST_BE_SPECIFIED ),
     E7301( "At least one organisation unit group set must be specified" ),
 
     /* Debug analytics */
@@ -458,7 +477,7 @@ public enum ErrorCode
     E7630( "Category option combo is required but is not specified" ),
     E7631( "Attribute option combo is required but is not specified" ),
     E7632( "Period type of period: `{0}` not valid for data element: `{1}`" ),
-    E7633( "Data element: `{0}` is not part of dataset: `{1}`" ),
+    E7633( "Data element: `{0}` is not part of dataset(s): `{1}`" ),
     E7634( "Category option combo: `{0}` must be part of category combo of data element: `{1}`" ),
     E7635( "Attribute option combo: `{0}` must be part of category combo of data sets of data element: `{1}`" ),
     E7636( "Data element: `{1}` must be assigned through data sets to organisation unit: `{0}`" ),
@@ -490,7 +509,8 @@ public enum ErrorCode
     E7708( "GeoJSON target organisation unit does not exist" ),
     E7709( "Organisation unit could not be updated with new GeoJSON geometry" ),
     E7710( "User is not allowed to update the target organisation unit" ),
-    E7711( "Organisation unit cannot be uniquely identified by its name" );
+    E7711( "Organisation unit cannot be uniquely identified by its name" ),
+    E7712( "GeoJSON geometry coordinates must be non empty but was: `{0}`" );
 
     private String message;
 
@@ -502,5 +522,10 @@ public enum ErrorCode
     public String getMessage()
     {
         return message;
+    }
+
+    private static class Constants
+    {
+        public static final String AT_LEAST_ONE_ORGANISATION_UNIT_MUST_BE_SPECIFIED = "At least one organisation unit must be specified";
     }
 }
