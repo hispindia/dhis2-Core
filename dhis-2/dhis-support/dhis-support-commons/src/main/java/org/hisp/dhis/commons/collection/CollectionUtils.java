@@ -27,6 +27,8 @@
  */
 package org.hisp.dhis.commons.collection;
 
+import static lombok.AccessLevel.PRIVATE;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,11 +43,14 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import lombok.NoArgsConstructor;
+
 /**
  * Utility methods for operations on various collections.
  *
  * @author Morten Olav Hansen
  */
+@NoArgsConstructor( access = PRIVATE )
 public class CollectionUtils
 {
     public static final String[] STRING_ARR = new String[0];
@@ -272,23 +277,46 @@ public class CollectionUtils
     }
 
     /**
-     * Returns a map of 11 key/value pairs.
+     * Returns a map of 1 or more key/value pairs.
      */
-    public static <K, V> Map<K, V> mapOf(
-        K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4, K k5, V v5, K k6, V v6,
-        K k7, V v7, K k8, V v8, K k9, V v9, K k10, V v10, K k11, V v11 )
+    public static <K, V> Map<K, V> mapOf( K key, V value, Object... keysAndValues )
     {
-        return Map.ofEntries(
-            Map.entry( k1, v1 ),
-            Map.entry( k2, v2 ),
-            Map.entry( k3, v3 ),
-            Map.entry( k4, v4 ),
-            Map.entry( k5, v5 ),
-            Map.entry( k6, v6 ),
-            Map.entry( k7, v7 ),
-            Map.entry( k8, v8 ),
-            Map.entry( k9, v9 ),
-            Map.entry( k10, v10 ),
-            Map.entry( k11, v11 ) );
+        List<Map.Entry<K, V>> entries = new ArrayList<>( 1 + keysAndValues.length / 2 );
+
+        entries.add( Map.entry( key, value ) );
+
+        for ( int i = 1; i < keysAndValues.length; i += 2 )
+        {
+            entries.add( Map.entry( (K) keysAndValues[i - 1], (V) keysAndValues[i] ) );
+        }
+
+        return Map.ofEntries( entries.toArray( new Map.Entry[entries.size()] ) );
+    }
+
+    /**
+     * Find duplicate item in given collection.
+     *
+     * @param collection the collection to be checked.
+     * @param <T> The object type of the collection item.
+     * @return Set of duplicate items.
+     */
+    public static <T> Set<T> findDuplicates( Collection<T> collection )
+    {
+        if ( CollectionUtils.isEmpty( collection ) )
+        {
+            return Set.of();
+        }
+        Set<T> duplicates = new HashSet<>();
+        Set<T> uniques = new HashSet<>();
+
+        for ( T t : collection )
+        {
+            if ( !uniques.add( t ) )
+            {
+                duplicates.add( t );
+            }
+        }
+
+        return duplicates;
     }
 }

@@ -86,7 +86,6 @@ import com.google.common.collect.Sets;
  */
 class PredictionServiceTest extends IntegrationTestBase
 {
-
     private final JobProgress progress = NoopJobProgress.INSTANCE;
 
     @Autowired
@@ -500,6 +499,21 @@ class PredictionServiceTest extends IntegrationTestBase
         assertEquals( "33.0", getDataValue( dataElementX, defaultCombo, sourceA, makeMonth( 2010, 8 ) ) );
     }
 
+    /**
+     * Tests an expression in October 2001 with samples from 4 months prior,
+     * returning the values for orgUnits A and B.
+     */
+    private String testOctober( String expr )
+    {
+        Expression ex = createExpression2( 'A', expr );
+        Predictor p = createPredictor( dataElementX, defaultCombo, "p", ex, null,
+            periodTypeMonthly, orgUnitLevel1, 4, 0, 0 );
+        predictionService.predict( p, monthStart( 2001, 10 ), monthStart( 2001, 11 ), summary );
+        String a = getDataValue( dataElementX, defaultCombo, sourceA, makeMonth( 2001, 10 ) );
+        String b = getDataValue( dataElementX, defaultCombo, sourceB, makeMonth( 2001, 10 ) );
+        return a + ", " + b;
+    }
+
     // -------------------------------------------------------------------------
     // Prediction tests
     // -------------------------------------------------------------------------
@@ -619,6 +633,55 @@ class PredictionServiceTest extends IntegrationTestBase
         summary = new PredictionSummary();
         predictionService.predict( p, monthStart( 2001, 7 ), monthStart( 2001, 12 ), summary );
         assertEquals( "Pred 1 Ins 0 Upd 0 Del 0 Unch 4", shortSummary( summary ) );
+    }
+
+    @Test
+    void testPredictNormalizedDistribution()
+    {
+        setupTestData();
+        String uidA = dataElementA.getUid();
+
+        // For reference below, current period values:
+        assertEquals( "7.0, 10.0", testOctober( "#{" + uidA + "}" ) );
+
+        // Averages of past period values:
+        assertEquals( "5.0, 10.25", testOctober( "avg(#{" + uidA + "})" ) );
+
+        // Standard deviations of past period values:
+        assertEquals( "2.16, 2.986", testOctober( "stddev(#{" + uidA + "})" ) );
+
+        // Note that one of the standard deviation values used to verify the
+        // following in Excel is taken from the debugger at greater precision
+        // before final rounding to the values returned above. Internally, the
+        // normal distribution calculations are done before the final rounding.
+
+        // Excel: NORM.DIST(7,5,2.1602,TRUE) returns 0.8227
+        // Excel: NORM.DIST(10,10.25,2.986,TRUE) returns 0.4666
+        assertEquals( "0.8227, 0.4666", testOctober( "normDistCum(#{" + uidA + "})" ) );
+
+        // Excel: NORM.DIST(7,5,2.1602,FALSE) returns 0.1203
+        // Excel: NORM.DIST(10,10.25,2.986,FALSE) returns 0.1331
+        assertEquals( "0.1203, 0.1331", testOctober( "normDistDen(#{" + uidA + "})" ) );
+
+        // Test with an argument that overrides the mean
+
+        // Excel: NORM.DIST(7,1,2.1602,TRUE) returns 0.9973
+        // Excel: NORM.DIST(10,1,2.986,TRUE) returns 0.9987
+        assertEquals( "0.9973, 0.9987", testOctober( "normDistCum(#{" + uidA + "},1)" ) );
+
+        // Excel: NORM.DIST(7,6,2.1602,FALSE) returns 0.1659
+        // Excel: NORM.DIST(10,6,2.986,FALSE) returns 0.05447
+        assertEquals( "0.1659, 0.05447", testOctober( "normDistDen(#{" + uidA + "},6)" ) );
+
+        // Test with arguments that override the mean and standard deviation
+
+        // Excel: NORM.DIST(7,5,22,TRUE) returns 0.5362
+        // Excel: NORM.DIST(10,5,22,TRUE) returns 0.5899
+        assertEquals( "0.5362, 0.5899", testOctober( "normDistCum(#{" + uidA + "},5,22)" ) );
+
+        // Excel: NORM.DIST(7,11,22,FALSE) returns 0.01784
+        // Excel: NORM.DIST(10,11,22,FALSE) returns 0.01812
+        assertEquals( "0.01784, 0.01812", testOctober( "normDistDen(#{" + uidA + "},11,22)" ) );
     }
 
     @Test
@@ -1513,8 +1576,8 @@ class PredictionServiceTest extends IntegrationTestBase
         dataValueBatchHandler.addObject( createDataValue( deS, per, sourceA, cocCc, defaultCombo, "32" ) );
         dataValueBatchHandler.flush();
 
-        String expectedA = String.valueOf( 1 + 4 + (16 + 32) );
-        String expectedB = String.valueOf( 2 + 8 + (16 + 32) );
+        String expectedA = String.valueOf( 1 + 4 + 16 );
+        String expectedB = String.valueOf( 2 + 8 );
 
         String expr = "#{" + deQ.getUid() + "} + #{" + deR.getUid() + "} + #{" + deS.getUid() + "}";
         Expression expression = new Expression( expr, "description", MissingValueStrategy.SKIP_IF_ALL_VALUES_MISSING );
@@ -1526,6 +1589,19 @@ class PredictionServiceTest extends IntegrationTestBase
         assertEquals( "Pred 1 Ins 2 Upd 0 Del 0 Unch 0", shortSummary( summary ) );
         assertEquals( expectedA, getDataValue( deP, cocAa, sourceA, makeMonth( 2022, 1 ) ) );
         assertEquals( expectedB, getDataValue( deP, cocAb, sourceA, makeMonth( 2022, 1 ) ) );
+
+        // Test prediction disaggregation with and without query modifiers
+
+        expr = "#{" + deQ.getUid() + "} + 3 * #{" + deQ.getUid() + "}.minDate(2022-01-01)";
+        expression = new Expression( expr, "description", MissingValueStrategy.SKIP_IF_ALL_VALUES_MISSING );
+        p = createPredictor( deP, null, "Disags", expression, null, periodTypeMonthly,
+            orgUnitLevel1, 0, 0, 0 );
+
+        summary = new PredictionSummary();
+        predictionService.predict( p, monthStart( 2022, 1 ), monthStart( 2022, 2 ), summary );
+        assertEquals( "Pred 1 Ins 0 Upd 2 Del 0 Unch 0", shortSummary( summary ) );
+        assertEquals( "4", getDataValue( deP, cocAa, sourceA, makeMonth( 2022, 1 ) ) );
+        assertEquals( "8", getDataValue( deP, cocAb, sourceA, makeMonth( 2022, 1 ) ) );
     }
 
     @Test
@@ -1552,6 +1628,21 @@ class PredictionServiceTest extends IntegrationTestBase
 
         predictionService.predict( p, monthStart( 2022, 10 ), monthStart( 2022, 11 ), summary );
         assertEquals( "Pred 1 Ins 1 Upd 0 Del 0 Unch 0", shortSummary( summary ) );
+        assertEquals( expectedValue, getDataValue( dataElementC, defaultCombo, sourceA, makeMonth( 2022, 10 ) ) );
+
+        // Now try with one data element both without and with modifiers:
+        expectedValue = String.valueOf( 8 + 16 + (2 * 16) + 32 );
+
+        expr = "sum( #{" + dataElementB.getUid() + "} + 2 * #{" +
+            dataElementB.getUid() + "}.minDate(2022-8-1).maxDate(2022-9-1) )";
+
+        expression = new Expression( expr, "description" );
+        p = createPredictor( dataElementC, null, "P", expression, null, periodTypeMonthly,
+            orgUnitLevel1, 3, 0, 0 );
+
+        summary = new PredictionSummary();
+        predictionService.predict( p, monthStart( 2022, 10 ), monthStart( 2022, 11 ), summary );
+        assertEquals( "Pred 1 Ins 0 Upd 1 Del 0 Unch 0", shortSummary( summary ) );
         assertEquals( expectedValue, getDataValue( dataElementC, defaultCombo, sourceA, makeMonth( 2022, 10 ) ) );
     }
 

@@ -146,8 +146,8 @@ public class DefaultAclService implements AclService
                 return checkOptionComboSharingPermission( user, object, Permission.READ );
             }
 
-            if ( !schema.isShareable() || object.getPublicAccess() == null || checkUser( user, object )
-                || checkSharingPermission( user, object, Permission.READ ) )
+            if ( !schema.isShareable() || object.getPublicAccess() == null
+                || checkMetadataSharingPermission( user, object, Permission.READ ) )
             {
                 return true;
             }
@@ -310,7 +310,7 @@ public class DefaultAclService implements AclService
             return writeCommonCheck( schema, user, object, objType );
         }
         else if ( schema.isImplicitPrivateAuthority() && checkSharingAccess( user, object, objType )
-            && (checkUser( user, object ) || checkSharingPermission( user, object, Permission.WRITE )) )
+            && (checkMetadataSharingPermission( user, object, Permission.WRITE )) )
         {
             return true;
         }
@@ -351,13 +351,13 @@ public class DefaultAclService implements AclService
             }
 
             if ( checkSharingAccess( user, object, objType ) &&
-                (checkUser( user, object ) || checkSharingPermission( user, object, Permission.WRITE )) )
+                (checkMetadataSharingPermission( user, object, Permission.WRITE )) )
             {
                 return true;
             }
         }
         else if ( schema.isImplicitPrivateAuthority()
-            && (checkUser( user, object ) || checkSharingPermission( user, object, Permission.WRITE )) )
+            && (checkMetadataSharingPermission( user, object, Permission.WRITE )) )
         {
             return true;
         }
@@ -663,8 +663,7 @@ public class DefaultAclService implements AclService
         List<ErrorReport> errorReports = new ArrayList<>();
         Schema schema = schemaService.getSchema( HibernateProxyUtils.getRealClass( object ) );
 
-        if ( !schema.isImplicitPrivateAuthority() || checkUser( user, object )
-            || checkSharingPermission( user, object, Permission.WRITE ) )
+        if ( !schema.isImplicitPrivateAuthority() || checkMetadataSharingPermission( user, object, Permission.WRITE ) )
         {
             return errorReports;
         }
@@ -694,13 +693,13 @@ public class DefaultAclService implements AclService
     }
 
     /**
-     * Should user be allowed access to this object.
+     * Should user be allowed access to this object as the owner.
      *
      * @param user User to check against
      * @param object Object to check against
      * @return true/false depending on if access should be allowed
      */
-    private boolean checkUser( User user, IdentifiableObject object )
+    private boolean checkOwner( User user, IdentifiableObject object )
     {
         return user == null || object.getSharing().getOwner() == null ||
             user.getUid().equals( object.getSharing().getOwner() );
@@ -743,6 +742,21 @@ public class DefaultAclService implements AclService
         }
 
         return true;
+    }
+
+    /**
+     * Check if given user allowed to access given object using the permission
+     * given. If user is the owner of the given metadata object then user has
+     * both READ and WRITE permission by default.
+     *
+     * @param user
+     * @param object
+     * @param permission
+     * @return
+     */
+    private boolean checkMetadataSharingPermission( User user, IdentifiableObject object, Permission permission )
+    {
+        return checkOwner( user, object ) || checkSharingPermission( user, object, permission );
     }
 
     /**
@@ -834,8 +848,8 @@ public class DefaultAclService implements AclService
             return true;
         }
 
-        return checkSharingAccess( user, object, objType ) &&
-            (checkUser( user, object ) || checkSharingPermission( user, object, Permission.WRITE ));
+        return checkSharingAccess( user, object, objType )
+            && (checkMetadataSharingPermission( user, object, Permission.WRITE ));
     }
 
     private boolean hasUserGroupAccess( Set<UserGroup> userGroups, String userGroupUid )

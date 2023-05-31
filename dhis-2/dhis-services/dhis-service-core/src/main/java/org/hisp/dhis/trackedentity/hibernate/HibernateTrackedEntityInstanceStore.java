@@ -559,7 +559,7 @@ public class HibernateTrackedEntityInstanceStore
 
     /**
      * Get a set of QueryItem that contains sortable attributes also defined as
-     * filers
+     * filters
      *
      * @param params
      * @return List of QueryItem
@@ -630,6 +630,17 @@ public class HibernateTrackedEntityInstanceStore
             {
                 trackedEntity.append( whereAnd.whereAnd() ).append( " TEI.lastupdated < '" )
                     .append( getMediumDateString( addDays( params.getLastUpdatedEndDate(), 1 ) ) )
+                    .append( SINGLE_QUOTE );
+            }
+        }
+        if ( params.isSynchronizationQuery() )
+        {
+            trackedEntity.append( whereAnd.whereAnd() )
+                .append( " TEI.lastupdated >= TEI.lastsynchronized " );
+            if ( params.getSkipChangedBefore() != null )
+            {
+                trackedEntity.append( " AND TEI.lastupdated >= '" )
+                    .append( getMediumDateString( params.getSkipChangedBefore() ) )
                     .append( SINGLE_QUOTE );
             }
         }
@@ -1264,9 +1275,9 @@ public class HibernateTrackedEntityInstanceStore
      */
     private String getQueryOrderBy( boolean innerOrder, TrackedEntityInstanceQueryParams params, boolean isGridQuery )
     {
-        Set<QueryItem> sortableAttributesAndFilters = sortableAttributesAndFilters( params );
-        if ( !isGridQuery || !sortableAttributesAndFilters.isEmpty() )
+        if ( !isGridQuery || !params.getAttributes().isEmpty() )
         {
+            Set<QueryItem> sortableAttributesAndFilters = sortableAttributesAndFilters( params );
             List<String> orderFields = params.getOrders().stream()
                 .map( orderParam -> buildOrderByStatement( orderParam, innerOrder, sortableAttributesAndFilters ) )
                 .filter( Optional::isPresent )

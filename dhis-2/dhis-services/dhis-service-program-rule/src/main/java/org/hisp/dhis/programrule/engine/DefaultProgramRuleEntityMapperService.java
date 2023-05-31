@@ -39,17 +39,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.common.ValueType;
-import org.hisp.dhis.commons.collection.CachingMap;
 import org.hisp.dhis.constant.ConstantService;
 import org.hisp.dhis.dataelement.DataElement;
-import org.hisp.dhis.dataelement.DataElementService;
-import org.hisp.dhis.eventdatavalue.EventDataValue;
 import org.hisp.dhis.i18n.I18nManager;
 import org.hisp.dhis.program.ProgramInstance;
 import org.hisp.dhis.program.ProgramStageInstance;
 import org.hisp.dhis.programrule.*;
 import org.hisp.dhis.rules.DataItem;
 import org.hisp.dhis.rules.ItemValueType;
+import org.hisp.dhis.rules.Option;
 import org.hisp.dhis.rules.models.*;
 import org.hisp.dhis.rules.utils.RuleEngineUtils;
 import org.hisp.dhis.trackedentity.TrackedEntityAttribute;
@@ -109,22 +107,24 @@ public class DefaultProgramRuleEntityMapperService implements ProgramRuleEntityM
 
     private final ImmutableMap<ProgramRuleVariableSourceType, Function<ProgramRuleVariable, RuleVariable>> VARIABLE_MAPPER = new ImmutableMap.Builder<ProgramRuleVariableSourceType, Function<ProgramRuleVariable, RuleVariable>>()
         .put( ProgramRuleVariableSourceType.CALCULATED_VALUE,
-            prv -> RuleVariableCalculatedValue.create( prv.getName(), prv.getUid(), toMappedValueType( prv ) ) )
+            prv -> RuleVariableCalculatedValue.create( prv.getName(), prv.getUid(), toMappedValueType( prv ),
+                prv.getUseCodeForOptionSet(), List.of() ) )
         .put( ProgramRuleVariableSourceType.TEI_ATTRIBUTE,
             prv -> RuleVariableAttribute.create( prv.getName(), prv.getAttribute().getUid(),
-                toMappedValueType( prv ) ) )
+                toMappedValueType( prv ), prv.getUseCodeForOptionSet(), getOptions( prv ) ) )
         .put( ProgramRuleVariableSourceType.DATAELEMENT_CURRENT_EVENT,
             prv -> RuleVariableCurrentEvent.create( prv.getName(), prv.getDataElement().getUid(),
-                toMappedValueType( prv ) ) )
+                toMappedValueType( prv ), prv.getUseCodeForOptionSet(), getOptions( prv ) ) )
         .put( ProgramRuleVariableSourceType.DATAELEMENT_PREVIOUS_EVENT,
             prv -> RuleVariablePreviousEvent.create( prv.getName(), prv.getDataElement().getUid(),
-                toMappedValueType( prv ) ) )
+                toMappedValueType( prv ), prv.getUseCodeForOptionSet(), getOptions( prv ) ) )
         .put( ProgramRuleVariableSourceType.DATAELEMENT_NEWEST_EVENT_PROGRAM,
             prv -> RuleVariableNewestEvent.create( prv.getName(), prv.getDataElement().getUid(),
-                toMappedValueType( prv ) ) )
+                toMappedValueType( prv ), prv.getUseCodeForOptionSet(), getOptions( prv ) ) )
         .put( ProgramRuleVariableSourceType.DATAELEMENT_NEWEST_EVENT_PROGRAM_STAGE,
             prv -> RuleVariableNewestStageEvent.create( prv.getName(), prv.getDataElement().getUid(),
-                prv.getProgramStage().getUid(), toMappedValueType( prv ) ) )
+                prv.getProgramStage().getUid(), toMappedValueType( prv ), prv.getUseCodeForOptionSet(),
+                getOptions( prv ) ) )
         .build();
 
     private final ImmutableMap<ProgramRuleVariableSourceType, Function<ProgramRuleVariable, ValueType>> VALUE_TYPE_MAPPER = new ImmutableMap.Builder<ProgramRuleVariableSourceType, Function<ProgramRuleVariable, ValueType>>()
@@ -158,8 +158,6 @@ public class DefaultProgramRuleEntityMapperService implements ProgramRuleEntityM
         .put( ProgramRuleVariableSourceType.DATAELEMENT_NEWEST_EVENT_PROGRAM_STAGE, this::getDisplayName )
         .build();
 
-    private final CachingMap<String, ValueType> dataElementToValueTypeCache = new CachingMap<>();
-
     // -------------------------------------------------------------------------
     // Dependencies
     // -------------------------------------------------------------------------
@@ -168,25 +166,21 @@ public class DefaultProgramRuleEntityMapperService implements ProgramRuleEntityM
 
     private final ProgramRuleVariableService programRuleVariableService;
 
-    private final DataElementService dataElementService;
-
     private final ConstantService constantService;
 
     private final I18nManager i18nManager;
 
     public DefaultProgramRuleEntityMapperService( ProgramRuleService programRuleService,
-        ProgramRuleVariableService programRuleVariableService, DataElementService dataElementService,
+        ProgramRuleVariableService programRuleVariableService,
         ConstantService constantService, I18nManager i18nManager )
     {
         checkNotNull( programRuleService );
         checkNotNull( programRuleVariableService );
-        checkNotNull( dataElementService );
         checkNotNull( constantService );
         checkNotNull( i18nManager );
 
         this.programRuleService = programRuleService;
         this.programRuleVariableService = programRuleVariableService;
-        this.dataElementService = dataElementService;
         this.constantService = constantService;
         this.i18nManager = i18nManager;
     }
@@ -324,8 +318,9 @@ public class DefaultProgramRuleEntityMapperService implements ProgramRuleEntityM
             psi.getEventDataValues()
                 .stream()
                 .filter( Objects::nonNull )
+                .filter( dv -> dv.getValue() != null )
                 .map( dv -> RuleDataValue.create( ObjectUtils.defaultIfNull( psi.getExecutionDate(), psi.getDueDate() ),
-                    psi.getProgramStage().getUid(), dv.getDataElement(), getEventDataValue( dv ) ) )
+                    psi.getProgramStage().getUid(), dv.getDataElement(), dv.getValue() ) )
                 .collect( Collectors.toList() ),
             psi.getProgramStage().getName(), ObjectUtils.defaultIfNull( psi.getCompletedDate(), null ) );
     }
@@ -528,38 +523,6 @@ public class DefaultProgramRuleEntityMapperService implements ProgramRuleEntityM
         return attributeValue.getValue() != null ? attributeValue.getValue() : "";
     }
 
-    private String getEventDataValue( EventDataValue dataValue )
-    {
-        ValueType valueType = getValueTypeForDataElement( dataValue.getDataElement() );
-
-        if ( valueType.isBoolean() )
-        {
-            return dataValue.getValue() != null ? dataValue.getValue() : "false";
-        }
-
-        if ( valueType.isNumeric() )
-        {
-            return dataValue.getValue() != null ? dataValue.getValue() : "0";
-        }
-
-        return dataValue.getValue() != null ? dataValue.getValue() : "";
-    }
-
-    private ValueType getValueTypeForDataElement( String dataElementUid )
-    {
-        return dataElementToValueTypeCache.get( dataElementUid, () -> {
-            DataElement dataElement = dataElementService.getDataElement( dataElementUid );
-
-            if ( dataElement == null )
-            {
-                log.error( "DataElement " + dataElementUid + " was not found." );
-                throw new IllegalStateException( "Required DataElement(" + dataElementUid + ") was not found." );
-            }
-
-            return dataElement.getValueType();
-        } );
-    }
-
     private ItemValueType getItemValueType( ValueType valueType )
     {
         if ( valueType.isDate() )
@@ -590,5 +553,28 @@ public class DefaultProgramRuleEntityMapperService implements ProgramRuleEntityM
                 dataElement.getName() ) )
             .valueType( getItemValueType( dataElement.getValueType() ) )
             .build();
+    }
+
+    private List<Option> getOptions( ProgramRuleVariable prv )
+    {
+        if ( prv.getUseCodeForOptionSet() )
+        {
+            return List.of();
+        }
+
+        if ( prv.hasDataElement() && prv.getDataElement().hasOptionSet() )
+        {
+            return prv.getDataElement().getOptionSet().getOptions().stream()
+                .map( op -> new Option( op.getName(), op.getCode() ) )
+                .collect( Collectors.toList() );
+        }
+        else if ( prv.hasTrackedEntityAttribute() && prv.getAttribute().hasOptionSet() )
+        {
+            return prv.getAttribute().getOptionSet().getOptions().stream()
+                .map( op -> new Option( op.getName(), op.getCode() ) )
+                .collect( Collectors.toList() );
+        }
+
+        return List.of();
     }
 }

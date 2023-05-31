@@ -47,10 +47,11 @@ import org.hisp.dhis.commons.collection.ListUtils;
 import org.hisp.dhis.constant.Constant;
 import org.hisp.dhis.constant.ConstantService;
 import org.hisp.dhis.dataelement.DataElement;
-import org.hisp.dhis.dataelement.DataElementService;
 import org.hisp.dhis.eventdatavalue.EventDataValue;
 import org.hisp.dhis.i18n.I18n;
 import org.hisp.dhis.i18n.I18nManager;
+import org.hisp.dhis.option.Option;
+import org.hisp.dhis.option.OptionSet;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramInstance;
@@ -123,6 +124,8 @@ class ProgramRuleEntityMapperServiceTest extends DhisConvenienceTest
 
     private ProgramRuleVariable programRuleVariableC = null;
 
+    private ProgramRuleVariable programRuleVariableD = null;
+
     private OrganisationUnit organisationUnit;
 
     private TrackedEntityAttribute trackedEntityAttribute;
@@ -162,16 +165,13 @@ class ProgramRuleEntityMapperServiceTest extends DhisConvenienceTest
     @Mock
     private I18n i18n;
 
-    @Mock
-    private DataElementService dataElementService;
-
     private DefaultProgramRuleEntityMapperService subject;
 
     @BeforeEach
     public void initTest()
     {
         subject = new DefaultProgramRuleEntityMapperService( programRuleService, programRuleVariableService,
-            dataElementService, constantService, i18nManager );
+            constantService, i18nManager );
 
         setUpProgramRules();
     }
@@ -223,7 +223,7 @@ class ProgramRuleEntityMapperServiceTest extends DhisConvenienceTest
 
         List<RuleVariable> ruleVariables = subject.toMappedProgramRuleVariables();
 
-        assertEquals( ruleVariables.size(), 3 );
+        assertEquals( ruleVariables.size(), programRuleVariables.size() );
 
         for ( RuleVariable variable : ruleVariables )
         {
@@ -250,20 +250,8 @@ class ProgramRuleEntityMapperServiceTest extends DhisConvenienceTest
     }
 
     @Test
-    void testExceptionIfDataElementIsNull()
-    {
-        when( dataElementService.getDataElement( anyString() ) ).thenReturn( null );
-
-        assertThrows( RuntimeException.class, () -> subject.toMappedRuleEvent( programStageInstanceA ),
-            "Required DataElement(" + dataElement.getUid() + ") was not found." );
-
-    }
-
-    @Test
     void testMappedRuleEvent()
     {
-        when( dataElementService.getDataElement( anyString() ) ).thenReturn( dataElement );
-
         RuleEvent ruleEvent = subject.toMappedRuleEvent( programStageInstanceA );
 
         assertEquals( ruleEvent.event(), programStageInstanceA.getUid() );
@@ -284,8 +272,6 @@ class ProgramRuleEntityMapperServiceTest extends DhisConvenienceTest
     @Test
     void testMappedRuleEventsWithFilter()
     {
-        when( dataElementService.getDataElement( anyString() ) ).thenReturn( dataElement );
-
         List<RuleEvent> ruleEvents = subject.toMappedRuleEvents(
             Sets.newHashSet( programStageInstanceA, programStageInstanceB ), programStageInstanceA );
 
@@ -310,8 +296,6 @@ class ProgramRuleEntityMapperServiceTest extends DhisConvenienceTest
     @Test
     void testMappedRuleEvents()
     {
-        when( dataElementService.getDataElement( anyString() ) ).thenReturn( dataElement );
-
         List<RuleEvent> ruleEvents = subject
             .toMappedRuleEvents( Sets.newHashSet( programStageInstanceA, programStageInstanceB ), null );
 
@@ -386,9 +370,21 @@ class ProgramRuleEntityMapperServiceTest extends DhisConvenienceTest
         DataElement dataElement1 = createDataElement( 'E' );
         dataElement1.setFormName( "DateElement_E" );
 
+        OptionSet optionSet = new OptionSet();
+        Option option = new Option();
+        option.setName( "optionName" );
+        option.setCode( "optionCode" );
+
+        optionSet.setOptions( List.of( option ) );
+
+        DataElement dataElementWithOptionSet = createDataElement( 'F' );
+        dataElementWithOptionSet.setFormName( "dataElementWithOptionSet" );
+        dataElementWithOptionSet.setOptionSet( optionSet );
+
         programRuleVariableA = createProgramRuleVariable( 'A', program );
         programRuleVariableB = createProgramRuleVariable( 'B', program );
         programRuleVariableC = createProgramRuleVariable( 'C', program );
+        programRuleVariableD = createProgramRuleVariable( 'D', program );
 
         programRuleVariableA = setProgramRuleVariable( programRuleVariableA,
             ProgramRuleVariableSourceType.CALCULATED_VALUE, program, null, createDataElement( 'D' ), null );
@@ -399,9 +395,13 @@ class ProgramRuleEntityMapperServiceTest extends DhisConvenienceTest
         programRuleVariableC = setProgramRuleVariable( programRuleVariableC,
             ProgramRuleVariableSourceType.DATAELEMENT_CURRENT_EVENT, program, null, dataElement1, null );
 
+        programRuleVariableD = setProgramRuleVariable( programRuleVariableC,
+            ProgramRuleVariableSourceType.DATAELEMENT_CURRENT_EVENT, program, null, dataElementWithOptionSet, null );
+
         programRuleVariables.add( programRuleVariableA );
         programRuleVariables.add( programRuleVariableB );
         programRuleVariables.add( programRuleVariableC );
+        programRuleVariables.add( programRuleVariableD );
 
         programRuleA = createProgramRule( 'A', program );
         programRuleB = createProgramRule( 'B', program );
