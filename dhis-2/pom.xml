@@ -4,16 +4,16 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.hisp.dhis</groupId>
   <artifactId>dhis</artifactId>
-  <version>2.39.3-SNAPSHOT</version>
+  <version>2.41-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>DHIS 2</name>
   <url>http://dhis2.org</url>
 
   <description>
-    The District Health Information System 2 deals with
-    aggregating and reporting statistical health data. The goal is to allow users to analyze
-    and use this data to guide local action. The system is based around an goals of empowering
-    users, by allowing them to decide what to register and report data for.
+    DHIS 2 is a system for aggregation and reporting statistical data. The 
+    goal is to allow users to analyze and use this data to guide local 
+    action. The system is based around an goals of empowering users, by 
+    allowing them to decide what to register and report data for.
   </description>
 
   <organization>
@@ -50,12 +50,12 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
     <minimum-maven.version>3.6.0</minimum-maven.version>
-    <minimum-java.version>11</minimum-java.version>
+    <minimum-java.version>17</minimum-java.version>
 
     <snippetsDirectory>${project.build.directory}/generated-snippets</snippetsDirectory>
     <sonar.organization>dhis2</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-    <surefireArgLine>-Xmx2024m --illegal-access=permit</surefireArgLine>
+    <surefireArgLine>-Xmx2024m</surefireArgLine>
 
     <!-- Needed so we can disable running tests when the default profile 
       is used (activated by default). It does not honor -DskipTests otherwise https://maven.apache.org/surefire/maven-surefire-plugin/examples/skipping-tests.html -->
@@ -69,31 +69,31 @@
     <!-- HISP Quick and Staxwax -->
     <dhis-hisp-quick.version>1.4.1</dhis-hisp-quick.version>
     <dhis-hisp-staxwax.version>2.0.0</dhis-hisp-staxwax.version>
-    <dhis-json-tree.version>0.4.0</dhis-json-tree.version>
+    <dhis-json-tree.version>0.8.0</dhis-json-tree.version>
 
     <!-- Security -->
     <spring-security.version>5.8.3</spring-security.version>
-    <spring-security-oauth2.version>2.5.2.RELEASE</spring-security-oauth2.version>
+
     <spring-security-jwt.version>1.1.1.RELEASE</spring-security-jwt.version>
     <bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
     <jasypt.version>1.9.3</jasypt.version>
-    <nimbus.jose.jwt.version>9.24.4</nimbus.jose.jwt.version>
-    <com.google.zxing.core.version>3.5.0</com.google.zxing.core.version>
-    <com.google.zxing.javase.version>3.5.0</com.google.zxing.javase.version>
+    <nimbus.jose.jwt.version>9.31</nimbus.jose.jwt.version>
+    <com.google.zxing.core.version>3.5.1</com.google.zxing.core.version>
+    <com.google.zxing.javase.version>3.5.1</com.google.zxing.javase.version>
 
     <!-- Spring -->
     <spring.version>5.3.27</spring.version>
-    <spring-data-redis.version>2.7.2</spring-data-redis.version>
-    <spring-session-data-redis.version>2.7.0</spring-session-data-redis.version>
+    <spring-data-redis.version>2.7.12</spring-data-redis.version>
+    <spring-session-data-redis.version>2.7.1</spring-session-data-redis.version>
     <spring-mobile-device.version>1.1.5.RELEASE</spring-mobile-device.version>
     <spring-retry.version>1.3.4</spring-retry.version>
     <spring-restdocs.version>2.0.7.RELEASE</spring-restdocs.version>
     <spring-ldap.version>2.4.1</spring-ldap.version>
     <cache2k-api.version>1.6.0.Final</cache2k-api.version>
-    <lettuce.version>6.2.2.RELEASE</lettuce.version>
+    <lettuce.version>6.2.4.RELEASE</lettuce.version>
 
     <!--DBMS -->
-    <flyway-core.version>9.17.0</flyway-core.version>
+    <flyway-core.version>9.19.1</flyway-core.version>
     <hibernate.version>5.6.15.Final</hibernate.version>
     <hibernate-types.version>2.21.1</hibernate-types.version>
     <!-- Data sources,db pools and db drivers -->
@@ -112,8 +112,8 @@
     <velocity-tools.version>2.0</velocity-tools.version>
 
     <!-- Jackson -->
-    <jackson.version>2.14.2</jackson.version>
-    <jackson-datatype-jts.version>1.0-2.7</jackson-datatype-jts.version>
+    <jackson.version>2.15.1</jackson.version>
+    <jackson-datatype-jts.version>2.14</jackson-datatype-jts.version>
     <geojson-jackson.version>1.14</geojson-jackson.version>
 
     <!-- JAXB -->
@@ -127,11 +127,11 @@
     <jclouds.version>2.5.0</jclouds.version>
 
     <!-- Reporting -->
-    <jasperreports.version>6.20.0</jasperreports.version>
-    <jfreechart.version>1.5.3</jfreechart.version>
+    <jasperreports.version>6.20.5</jasperreports.version>
+    <jfreechart.version>1.5.4</jfreechart.version>
     <htmlparser.version>2.1</htmlparser.version>
     <htmllexer.version>2.1</htmllexer.version>
-    <poi.version>5.2.2</poi.version>
+    <poi.version>5.2.3</poi.version>
     <itext.version>2.1.7</itext.version>
 
     <!-- GIS -->
@@ -143,8 +143,8 @@
 
     <!-- Apache Artemis -->
     <artemis.version>2.28.0</artemis.version>
-    <netty-all.version>4.1.85.Final</netty-all.version>
-    <classgraph.version>4.8.157</classgraph.version>
+    <netty-all.version>4.1.93.Final</netty-all.version>
+    <classgraph.version>4.8.160</classgraph.version>
 
     <!-- SMS/SMPP -->
     <sms-compression.version>0.2.1.1</sms-compression.version>
@@ -152,34 +152,33 @@
     <aerogear-otp-java.version>1.0.0</aerogear-otp-java.version>
     <jsmpp.version>3.0.0</jsmpp.version>
     <json-path.version>2.8.0</json-path.version>
-    <jsoup.version>1.15.4</jsoup.version>
+    <jsoup.version>1.16.1</jsoup.version>
     <jetty.version>10.0.15</jetty.version>
 
     <!-- Div. utils -->
-    <version.debezium>2.2.0.Final</version.debezium>
-    <guava.version>31.1-jre</guava.version>
+    <version.debezium>2.2.1.Final</version.debezium>
+    <guava.version>32.0.0-jre</guava.version>
     <jsr305.version>3.0.2</jsr305.version>
     <imgscalr-lib.version>4.2</imgscalr-lib.version>
     <google-api-client.version>2.2.0</google-api-client.version>
-    <lombok.version>1.18.24</lombok.version>
+    <lombok.version>1.18.28</lombok.version>
     <lombok-maven-plugin.version>1.18.20.0</lombok-maven-plugin.version>
     <joda-time.version>2.12.5</joda-time.version>
-    <cron-utils.version>9.2.0</cron-utils.version>
-    <validation-api.version>2.0.1.Final</validation-api.version>
-    <hibernate-validator.version>6.2.0.Final</hibernate-validator.version>
+    <cron-utils.version>9.2.1</cron-utils.version>
     <commons-collections4.version>4.4</commons-collections4.version>
     <commons-beanutils.version>1.9.4</commons-beanutils.version>
     <commons-lang3.version>3.12.0</commons-lang3.version>
     <commons-text.version>1.10.0</commons-text.version>
-    <commons-fileupload.version>1.4</commons-fileupload.version>
+    <commons-fileupload.version>1.5</commons-fileupload.version>
     <commons-math3.version>3.6.1</commons-math3.version>
     <commons-validator.version>1.7</commons-validator.version>
     <commons-io.version>2.12.0</commons-io.version>
     <commons-codec.version>1.15</commons-codec.version>
     <commons-jexl.version>2.1.1</commons-jexl.version>
     <commons-email.version>1.5</commons-email.version>
-    <httpcomponents-core.version>4.4.15</httpcomponents-core.version>
-    <httpcomponents-client.version>4.5.13</httpcomponents-client.version>
+    <httpcomponents-core.version>4.4.16</httpcomponents-core.version>
+    <httpcomponents-client.version>4.5.14</httpcomponents-client.version>
+    <kafka.version>3.4.0</kafka.version>
 
     <!-- Monitoring -->
     <micrometer-spring-legacy.version>1.3.20</micrometer-spring-legacy.version>
@@ -190,7 +189,7 @@
     <slf4j.version>1.7.36</slf4j.version>
 
     <!-- Test -->
-    <junit.version>5.9.0</junit.version>
+    <junit.version>5.9.3</junit.version>
     <mockito.version>5.2.0</mockito.version>
     <powermock.version>2.0.9</powermock.version>
     <hamcrest.version>2.2</hamcrest.version>
@@ -207,19 +206,19 @@
     <maven-surefire-plugin.version>3.1.0</maven-surefire-plugin.version>
     <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-    <maven-failsafe-plugin.version>3.0.0-M7</maven-failsafe-plugin.version>
+    <maven-failsafe-plugin.version>3.1.0</maven-failsafe-plugin.version>
     <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
     <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
     <maven-enforcer-plugin.version>3.3.0</maven-enforcer-plugin.version>
     <maven-dependency-plugin.version>3.5.0</maven-dependency-plugin.version>
     <restrict-imports-enforcer.version>2.2.0</restrict-imports-enforcer.version>
     <versions-maven-plugin.version>2.15.0</versions-maven-plugin.version>
-    <dependency-check-maven.version>8.1.2</dependency-check-maven.version>
+    <dependency-check-maven.version>8.2.1</dependency-check-maven.version>
     <spotbugs-maven-plugin.version>4.7.3.4</spotbugs-maven-plugin.version>
-    <speedy-spotless-maven-plugin.version>0.1.3</speedy-spotless-maven-plugin.version>
-    <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
+    <spotless.version>2.37.0</spotless.version>
+    <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
     <jrebel-x-maven-plugin.version>1.1.11</jrebel-x-maven-plugin.version>
-    <dhis-antlr-expression-parser.version>1.0.33</dhis-antlr-expression-parser.version>
+    <dhis-antlr-expression-parser.version>1.0.34</dhis-antlr-expression-parser.version>
     <jai-imageio.version>1.1.1</jai-imageio.version>
     <gson.version>2.8.9</gson.version>
     <semver4j.version>3.1.0</semver4j.version>
@@ -235,8 +234,19 @@
 
   <repositories>
     <repository>
-      <id>central</id>
+      <id>central-mirror</id>
       <url>https://maven-central.storage-download.googleapis.com/maven2/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+        <updatePolicy>daily</updatePolicy>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>central</id>
+      <url>https://repo1.maven.org/maven2</url>
       <releases>
         <enabled>true</enabled>
       </releases>
@@ -336,7 +346,7 @@
 
   <profiles>
 
-    <!-- Default profile will run all unit tests, not integration tests -->
+    <!-- Default profile, runs all unit tests, not integration tests -->
     <profile>
       <id>default</id>
       <activation>
@@ -392,8 +402,8 @@
       </build>
     </profile>
 
-    <!-- IntegrationH2 test profile, this runs all the integrations tests 
-      with H2, but not the unit tests -->
+    <!-- IntegrationH2 test profile, runs all integrations tests with H2, 
+      not unit tests -->
     <profile>
       <id>integrationH2</id>
       <build>
@@ -466,6 +476,13 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok-maven-plugin</artifactId>
             <version>${lombok-maven-plugin.version}</version>
+            <dependencies>
+              <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+              </dependency>
+            </dependencies>
             <configuration>
               <addOutputDirectory>false</addOutputDirectory>
               <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
@@ -487,7 +504,8 @@
 
   <build>
     <!-- <build><sourceDirectory> cannot be set in a profile, so it needs 
-      a custom property for overwriting it, see https://github.com/awhitford/lombok.maven/issues/17#issuecomment-136606104 -->
+      a custom property for overwriting it, see 
+      https://github.com/awhitford/lombok.maven/issues/17#issuecomment-136606104 -->
     <sourceDirectory>${sourceDir}</sourceDirectory>
 
     <pluginManagement>
@@ -541,9 +559,6 @@
           <artifactId>maven-failsafe-plugin</artifactId>
           <version>${maven-failsafe-plugin.version}</version>
           <configuration>
-            <argLine>
-              --illegal-access=permit
-            </argLine>
             <encoding>${project.build.sourceEncoding}</encoding>
           </configuration>
         </plugin>
@@ -633,35 +648,30 @@
           <version>${lombok-maven-plugin.version}</version>
         </plugin>
         <plugin>
-          <groupId>io.committed</groupId>
-          <artifactId>speedy-spotless-maven-plugin</artifactId>
-          <version>${speedy-spotless-maven-plugin.version}</version>
-          <executions>
-            <execution>
-              <id>install-formatter-hook</id>
-              <goals>
-                <goal>install-hooks</goal>
-              </goals>
-            </execution>
-          </executions>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>${spotless.version}</version>
           <configuration>
-            <java>
-              <eclipse>
-                <file>${rootDir}/DHISFormatter.xml</file>
-                <version>4.9.0</version>
-              </eclipse>
-              <trimTrailingWhitespace />
-              <removeUnusedImports />
-              <importOrder>
-                <order>
-                  java,javax,org,com
-                </order>
-              </importOrder>
-              <licenseHeader>
-                <file>${rootDir}/license-header</file>
-              </licenseHeader>
-            </java>
-            <lineEndings>UNIX</lineEndings>
+              <upToDateChecking>
+                  <enabled>true</enabled>
+              </upToDateChecking>
+              <java>
+                  <eclipse>
+                      <file>${rootDir}/DHISFormatter.xml</file>
+                      <version>4.27</version>
+                  </eclipse>
+                  <trimTrailingWhitespace />
+                  <removeUnusedImports />
+                  <importOrder>
+                      <order>
+                          java,javax,lombok,net,org,com
+                      </order>
+                  </importOrder>
+                  <licenseHeader>
+                      <file>${rootDir}/license-header</file>
+                  </licenseHeader>
+              </java>
+              <lineEndings>UNIX</lineEndings>
           </configuration>
         </plugin>
         <plugin>
@@ -671,30 +681,23 @@
           <configuration>
             <failOnWarning>true</failOnWarning>
             <ignoredUnusedDeclaredDependencies>
-              <ignoredUnusedDeclaredDependency>org.projectlombok:lombok</ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>org.junit.jupiter:junit-jupiter</ignoredUnusedDeclaredDependency>
-              <ignoredUnusedDeclaredDependency>org.springframework.security:spring-security-core</ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>net.sf.jasperreports:jasperreports</ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>org.mockito:mockito-inline</ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>org.apache.logging.log4j:log4j-slf4j-impl</ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>javax.servlet:javax.servlet-api</ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>org.apache.jclouds.provider:aws-s3</ignoredUnusedDeclaredDependency>
+              <!-- Needed by dhis-web modules -->
+              <ignoredUnusedDeclaredDependency>io.lettuce:lettuce-core</ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>org.apache.struts:struts2-spring-plugin</ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>org.apache.velocity:velocity-tools</ignoredUnusedDeclaredDependency>
-              <ignoredUnusedDeclaredDependency>io.lettuce:lettuce-core</ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>org.springframework:spring-context-support</ignoredUnusedDeclaredDependency>
-              <ignoredUnusedDeclaredDependency>javax.servlet:javax.servlet-api</ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>org.apache.xmlgraphics:batik-codec</ignoredUnusedDeclaredDependency>
-              <ignoredUnusedDeclaredDependency>org.apache.jclouds.provider:aws-s3</ignoredUnusedDeclaredDependency>
-              <ignoredUnusedDeclaredDependency>org.testcontainers:postgresql</ignoredUnusedDeclaredDependency>
-              <ignoredUnusedDeclaredDependency>org.testcontainers:jdbc</ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>commons-fileupload:commons-fileupload</ignoredUnusedDeclaredDependency>
               <!-- Removing makes some tests fail -->
               <ignoredUnusedDeclaredDependency>io.netty:netty-all</ignoredUnusedDeclaredDependency>
-              <ignoredUnusedDeclaredDependency>org.hibernate.validator:hibernate-validator</ignoredUnusedDeclaredDependency>
-              <ignoredUnusedDeclaredDependency>com.cronutils:cron-utils</ignoredUnusedDeclaredDependency>
-              <ignoredUnusedDeclaredDependency>com.h2database:h2</ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>org.cache2k:cache2k-core</ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>org.springframework.security:spring-security-aspects</ignoredUnusedDeclaredDependency>
-              <ignoredUnusedDeclaredDependency>org.skyscreamer:jsonassert</ignoredUnusedDeclaredDependency>
-              <ignoredUnusedDeclaredDependency>commons-fileupload:commons-fileupload</ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>org.apache.jclouds.api:filesystem</ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>org.apache.jclouds.api:s3</ignoredUnusedDeclaredDependency>
               <!-- Removing makes the startup fail -->
@@ -706,10 +709,7 @@
               <ignoredUnusedDeclaredDependency>org.hisp.dhis:dhis-support-db-migration</ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>org.hisp.dhis:dhis-support-audit</ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>org.hisp.dhis:dhis-service-audit-consumer</ignoredUnusedDeclaredDependency>
-              <ignoredUnusedDeclaredDependency>org.hisp.dhis:dhis-service-validation</ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>org.hisp.dhis:dhis-service-administration</ignoredUnusedDeclaredDependency>
-              <ignoredUnusedDeclaredDependency>org.hisp.dhis:dhis-service-program-rule</ignoredUnusedDeclaredDependency>
-              <ignoredUnusedDeclaredDependency>org.hisp.dhis:dhis-service-core</ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>org.hisp.dhis:dhis-web-api</ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>org.hisp.dhis:dhis-service-dxf2</ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>org.hisp.dhis:dhis-service-reporting</ignoredUnusedDeclaredDependency>
@@ -732,6 +732,7 @@
               <ignoredUsedUndeclaredDependency>org.springframework:spring-jcl</ignoredUsedUndeclaredDependency>
               <ignoredUsedUndeclaredDependency>ognl:ognl</ignoredUsedUndeclaredDependency>
               <ignoredUsedUndeclaredDependency>org.springframework.session:spring-session-core</ignoredUsedUndeclaredDependency>
+              <ignoredUsedUndeclaredDependency>org.eclipse.jetty.toolchain:jetty-servlet-api</ignoredUsedUndeclaredDependency>
             </ignoredUsedUndeclaredDependencies>
             <ignoredNonTestScopedDependencies>
               <!-- Setting the scope to test makes the build fail -->
@@ -787,6 +788,7 @@
                     https://github.com/testcontainers/testcontainers-java/issues/970</reason>
                   <bannedImports>
                     <bannedImport>org.junit.Test</bannedImport>
+                    <bannedImport>org.junit.Ignore</bannedImport>
                     <bannedImport>org.junit.Assert.**</bannedImport>
                   </bannedImports>
                 </RestrictImports>
@@ -834,6 +836,18 @@
                     instead</reason>
                   <bannedImports>
                     <bannedImport>javax.transaction.Transactional</bannedImport>
+                  </bannedImports>
+                </RestrictImports>
+                <RestrictImports>
+                  <reason>Use javax.annotation.Nonnull and javax.annotation.CheckForNull instead</reason>
+                  <bannedImports>
+                    <bannedImport>lombok.NonNull</bannedImport>
+                  </bannedImports>
+                </RestrictImports>
+                <RestrictImports>
+                  <reason>Use org.junit.jupiter.api.Assertions.assertInstanceOf instead</reason>
+                  <bannedImports>
+                    <bannedImport>org.hamcrest.Matchers.instanceOf</bannedImport>
                   </bannedImports>
                 </RestrictImports>
               </rules>
@@ -964,6 +978,11 @@
       </dependency>
       <dependency>
         <groupId>org.hisp.dhis</groupId>
+        <artifactId>dhis-service-event-hook</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hisp.dhis</groupId>
         <artifactId>dhis-service-tracker</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -1033,13 +1052,11 @@
         <artifactId>dhis-web-api</artifactId>
         <version>${project.version}</version>
       </dependency>
-
       <dependency>
         <groupId>org.hisp.dhis</groupId>
         <artifactId>json-tree</artifactId>
         <version>${dhis-json-tree.version}</version>
       </dependency>
-
       <dependency>
         <groupId>org.hisp.dhis.rules</groupId>
         <artifactId>rule-engine</artifactId>
@@ -1203,13 +1220,11 @@
         <artifactId>spring-security-crypto</artifactId>
         <version>${spring-security.version}</version>
       </dependency>
-
       <dependency>
         <groupId>com.google.zxing</groupId>
         <artifactId>core</artifactId>
         <version>${com.google.zxing.core.version}</version>
       </dependency>
-
       <dependency>
         <groupId>com.google.zxing</groupId>
         <artifactId>javase</artifactId>
@@ -1217,11 +1232,6 @@
       </dependency>
 
       <!-- OAuth 2.0 -->
-      <dependency>
-        <groupId>org.springframework.security.oauth</groupId>
-        <artifactId>spring-security-oauth2</artifactId>
-        <version>${spring-security-oauth2.version}</version>
-      </dependency>
       <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-oauth2-core</artifactId>
@@ -1299,6 +1309,13 @@
         <groupId>javax.servlet</groupId>
         <artifactId>javax.servlet-api</artifactId>
         <version>${javax.servlet-api.version}</version>
+      </dependency>
+
+      <!-- Kafka -->
+      <dependency>
+        <groupId>org.apache.kafka</groupId>
+        <artifactId>kafka-clients</artifactId>
+        <version>${kafka.version}</version>
       </dependency>
 
       <!-- Struts -->
@@ -1604,17 +1621,6 @@
         <version>${hibernate.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.hibernate.validator</groupId>
-        <artifactId>hibernate-validator</artifactId>
-        <version>${hibernate-validator.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>jakarta.validation</groupId>
-            <artifactId>jakarta.validation-api</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-ehcache</artifactId>
         <version>${hibernate.version}</version>
@@ -1729,6 +1735,10 @@
         <artifactId>jasperreports</artifactId>
         <version>${jasperreports.version}</version>
         <exclusions>
+          <exclusion>
+            <groupId>com.github.librepdf</groupId>
+            <artifactId>openpdf</artifactId>
+          </exclusion>
           <exclusion>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
@@ -2152,8 +2162,11 @@
         <artifactId>semver4j</artifactId>
         <version>${semver4j.version}</version>
       </dependency>
-
-
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-rewrite</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-util</artifactId>
@@ -2183,8 +2196,6 @@
         <version>${lombok.version}</version>
         <scope>provided</scope>
       </dependency>
-
-
       <dependency>
         <groupId>io.debezium</groupId>
         <artifactId>debezium-api</artifactId>
@@ -2305,12 +2316,16 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-core</artifactId>
           </exclusion>
-          <!-- Junit 4 cannot be excluded yet, because of this issue -->
-          <!-- https://github.com/testcontainers/testcontainers-java/issues/970 -->
-          <!-- <exclusion> -->
-          <!-- <groupId>junit</groupId> -->
-          <!-- <artifactId>junit</artifactId> -->
-          <!-- </exclusion> -->
+          <!-- 
+            Junit 4 cannot be excluded yet, because of this issue
+            https://github.com/testcontainers/testcontainers-java/issues/970 
+          -->
+          <!--
+          <exclusion>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+          </exclusion>
+          -->
         </exclusions>
       </dependency>
       <dependency>
@@ -2340,13 +2355,11 @@
         <artifactId>micrometer-core</artifactId>
         <version>${micrometer.version}</version>
       </dependency>
-
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcprov-jdk15on</artifactId>
         <version>${bcprov-jdk15on.version}</version>
       </dependency>
-
       <dependency>
         <groupId>xerces</groupId>
         <artifactId>xercesImpl</artifactId>
@@ -2358,19 +2371,11 @@
           </exclusion>
         </exclusions>
       </dependency>
-
       <dependency>
         <groupId>org.mapstruct</groupId>
         <artifactId>mapstruct</artifactId>
         <version>${mapstruct.version}</version>
       </dependency>
-
-      <dependency>
-        <groupId>javax.validation</groupId>
-        <artifactId>validation-api</artifactId>
-        <version>${validation-api.version}</version>
-      </dependency>
-
     </dependencies>
   </dependencyManagement>
 
