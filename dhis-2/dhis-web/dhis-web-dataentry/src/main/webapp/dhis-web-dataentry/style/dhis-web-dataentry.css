@@ -36,7 +36,7 @@
 #completenessDiv
 {
   display: none;
-  width: 399px;
+  width: 800px; /* add for display approval buttons */
 }
 
 #infoDiv

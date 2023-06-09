@@ -228,6 +228,12 @@ $(document).bind('dhis2.offline', function() {
  */
 $( document ).ready( function()
 {
+	/* hide approval div */
+	$( '#dHTApprovedDiv' ).hide();
+	$( '#sHTApprovedDiv' ).hide();
+	$( '#pMUAccountApprovedDiv' ).hide();
+	/* hide approval div end */
+	
     /**
      * Cache false necessary to prevent IE from caching by default.
      */
@@ -707,6 +713,13 @@ dhis2.de.clearEntryForm = function()
 
     $( '#completenessDiv' ).hide();
     $( '#infoDiv' ).hide();
+	
+	/* hide approval div */
+	$( '#dHTApprovedDiv' ).hide();
+	$( '#sHTApprovedDiv' ).hide();
+	$( '#pMUAccountApprovedDiv' ).hide();
+	/* hide approval div end */
+	
 }
 
 dhis2.de.loadForm = function()
@@ -1333,6 +1346,22 @@ function dataSetSelected()
  */
 function periodSelected()
 {
+	/* add for show approval div based on dataset selection */
+	//alert( $( '#selectedDataSetId' ).val());
+	/*
+	if( $( '#selectedDataSetId' ).val() == 'wwcxotLHZGY' || $( '#selectedDataSetId' ).val() == 'XV12eKZar28')
+	{
+		$( '#approvalButtonDiv' ).show();
+	    //$( '#infoDiv' ).hide();
+	}
+	else
+	{
+		$( '#approvalButtonDiv' ).hide();
+		$( '#approvalButtonDiv' ).hide();
+	}
+	*/
+	
+	/* add for show approval div based on dataset selection end*/
     var periodName = $( '#selectedPeriodId :selected' ).text();
 
     $( '#currentPeriod' ).html( periodName );
@@ -2055,6 +2084,14 @@ function insertDataValues( json )
     {
         $( '#completeButton' ).attr( 'disabled', 'disabled' );
         $( '#undoButton' ).removeAttr( 'disabled' );
+		
+				
+		$( '#dHTApprovedButton' ).removeAttr( 'disabled' );
+		$( '#sHTApprovedButton' ).removeAttr( 'disabled' );
+		$( '#pMUAccountApprovedButton' ).removeAttr( 'disabled' );
+		
+		//$( '#sHTApprovedButton' ).attr( 'disabled', 'disabled' );
+		//$( '#pMUAccountApprovedButton' ).attr( 'disabled', 'disabled' );
 
         if ( json.lastUpdatedBy )
         {
@@ -2070,6 +2107,10 @@ function insertDataValues( json )
         $( '#completeButton' ).removeAttr( 'disabled' );
         $( '#undoButton' ).attr( 'disabled', 'disabled' );
         $( '#infoDiv' ).hide();
+		
+		$( '#dHTApprovedButton' ).attr( 'disabled', 'disabled' );
+		$( '#sHTApprovedButton' ).attr( 'disabled', 'disabled' );
+		$( '#pMUAccountApprovedButton' ).attr( 'disabled', 'disabled' );
     }
 }
 
@@ -2328,6 +2369,11 @@ function disableUndoButton()
 {
     $( '#completeButton' ).removeAttr( 'disabled' );
     $( '#undoButton' ).attr( 'disabled', 'disabled' );
+	
+	$( '#dHTApprovedButton' ).attr( 'disabled', 'disabled' );
+	$( '#sHTApprovedButton' ).attr( 'disabled', 'disabled' );
+	$( '#pMUAccountApprovedButton' ).attr( 'disabled', 'disabled' );
+	
 }
 
 function disableCompleteButton( status )
@@ -2336,6 +2382,10 @@ function disableCompleteButton( status )
     {
         $( '#completeButton' ).attr( 'disabled', 'disabled' );
         $( '#undoButton' ).removeAttr( 'disabled' );
+		
+		$( '#dHTApprovedButton' ).removeAttr( 'disabled' );
+		$( '#sHTApprovedButton' ).removeAttr( 'disabled' );
+		$( '#pMUAccountApprovedButton' ).removeAttr( 'disabled' );
     }
     else
 	{
@@ -3894,4 +3944,280 @@ function getTimeDelta()
     );
 
     return def;
+}
+
+/*add 3 dialog for approval and save comment dataset-wise in dataElement in dataEntry for mizoram-ipa */
+
+function dHTApproved()
+{
+	//sel["ds"] = $( '#selectedDataSetId' ).val(),
+	//sel["pe"] = $( '#selectedPeriodId').val(),
+	//sel["ou"] = dhis2.de.currentOrganisationUnitId;	
+	$( '#dhtApprovalCommentText' ).html( '' );
+	var url = "";
+	
+	if( $( '#selectedDataSetId' ).val() == 'XV12eKZar28')
+	{
+		url = '../api/dataValues.json?de=wLKGbYJXIKt&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+	}
+	else if( $( '#selectedDataSetId' ).val() == 'wwcxotLHZGY')
+	{
+		url = '../api/dataValues.json?de=eeeeee&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+	}
+	//ipa/api/dataValues.json?de=wLKGbYJXIKt&pe=2023Q1&ou=s00pgmqXHcB
+	$.getJSON( url, function( json )
+	{
+		
+		if(json[0] != "")
+		{
+			$( '#dhtApprovalCommentText' ).html( json[0] );
+			$( '#dhtApprovalComment' ).attr( 'disabled', 'disabled' );
+		}
+		else
+		{
+			$( '#dhtApprovalComment' ).removeAttr( 'disabled' );
+			//$( '#sHTApprovedButton' ).attr( 'disabled', 'disabled' );
+		}
+
+	} );	
+		
+	$( '#dHTApprovedDiv' ).dialog( {
+		modal : true,
+		width : 350,
+		height : 300,
+		title : 'DHT Approval'
+	} );
+	/*
+	if ( dhis2.de.currentCompletedByUser )
+	{
+		var url = '../api/35/userLookup';
+
+		$.getJSON( url, { query: dhis2.de.currentCompletedByUser }, function( json )
+		{
+			$( '#userFullName' ).html( json.users[0].displayName );
+			$( '#userUsername' ).html( dhis2.de.currentCompletedByUser );
+			$( '#firstName' ).html( json.users[0].firstName );
+			$( '#surname' ).html( json.users[0].surname );
+
+			$( '#completedByDiv' ).dialog( {
+	        	modal : true,
+	        	width : 350,
+	        	height : 350,
+	        	title : 'User'
+	    	} );
+		} );
+	}
+*/
+	
+}
+
+function sHTApproved()
+{
+	//sel["ds"] = $( '#selectedDataSetId' ).val(),
+	//sel["pe"] = $( '#selectedPeriodId').val(),
+	//sel["ou"] = dhis2.de.currentOrganisationUnitId;	
+	
+	$( '#shtApprovalCommentText' ).html( '' );
+	var url = "";
+	
+	if( $( '#selectedDataSetId' ).val() == 'XV12eKZar28')
+	{
+		url = '../api/dataValues?de=UjFfCQfJuti&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+	}
+	else if( $( '#selectedDataSetId' ).val() == 'wwcxotLHZGY')
+	{
+		url = '../api/dataValues.json?de=eeeeee&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+	}
+	
+	//var url = '../api/dataValues?de=UjFfCQfJuti&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+	//ipa/api/dataValues.json?de=wLKGbYJXIKt&pe=2023Q1&ou=s00pgmqXHcB
+	$.getJSON( url, function( json )
+	{
+		if(json[0] != "")
+		{
+			$( '#shtApprovalCommentText' ).html( json[0] );
+			$( '#shtApprovalComment' ).attr( 'disabled', 'disabled' );
+		}
+		else
+		{
+			$( '#shtApprovalComment' ).removeAttr( 'disabled' );
+			//$( '#sHTApprovedButton' ).attr( 'disabled', 'disabled' );
+		}
+		
+	} );	
+	
+	$( '#sHTApprovedDiv' ).dialog( {
+		modal : true,
+		width : 350,
+		height : 300,
+		title : 'SHT Approval'
+	} );
+	
+}
+
+
+function pMUAccountApproved()
+{
+	//sel["ds"] = $( '#selectedDataSetId' ).val(),
+	//sel["pe"] = $( '#selectedPeriodId').val(),
+	//sel["ou"] = dhis2.de.currentOrganisationUnitId;	
+	
+	$( '#pMUAccountApprovalCommentText' ).html( '' );
+	var url = "";
+	
+	if( $( '#selectedDataSetId' ).val() == 'XV12eKZar28')
+	{
+		url = '../api/dataValues?de=gi6F0xlOeeX&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+	}
+	else if( $( '#selectedDataSetId' ).val() == 'wwcxotLHZGY')
+	{
+		url = '../api/dataValues.json?de=eeeeee&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+	}
+	
+	//var url = '../api/dataValues.json?de=gi6F0xlOeeX&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+	//ipa/api/dataValues.json?de=wLKGbYJXIKt&pe=2023Q1&ou=s00pgmqXHcB
+	$.getJSON( url, function( json )
+	{
+		
+		if(json[0] != "")
+		{
+			$( '#pMUAccountApprovalCommentText' ).html( json[0] );
+			$( '#pMUAccountApprovalComment' ).attr( 'disabled', 'disabled' );
+		}
+		else
+		{
+			$( '#pMUAccountApprovalComment' ).removeAttr( 'disabled' );
+			//$( '#sHTApprovedButton' ).attr( 'disabled', 'disabled' );
+		}
+
+	} );
+	
+	$( '#pMUAccountApprovedDiv' ).dialog( {
+		modal : true,
+		width : 350,
+		height : 300,
+		title : 'PMU/Accounts Approval'
+	} );	
+	
+	
+}
+
+
+function closeDialog()
+{
+	$('#dHTApprovedDiv').dialog('close');
+}
+
+
+
+function submitApprovalComment( selectedInputId,dialogDivID )
+{
+	var divID = '#' +dialogDivID;
+	
+	if($("#"+selectedInputId).val() != "")
+	{
+		var de = "";
+		if( $( '#selectedDataSetId' ).val() == 'XV12eKZar28')
+		{
+			if( selectedInputId == 'dhtApprovalCommentText')
+			{
+				de = "wLKGbYJXIKt";
+			}
+			else if( selectedInputId == 'shtApprovalCommentText')
+			{
+				de = "UjFfCQfJuti";
+			}
+			else if( selectedInputId == 'pMUAccountApprovalCommentText')
+			{
+				de = "gi6F0xlOeeX";
+			}
+			
+			//url = '../api/dataValues?de=gi6F0xlOeeX&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+		}
+		else if( $( '#selectedDataSetId' ).val() == 'wwcxotLHZGY')
+		{
+			if( selectedInputId == 'dhtApprovalCommentText')
+			{
+				de = "eeeeee&pe";
+			}
+			else if( selectedInputId == 'shtApprovalCommentText')
+			{
+				de = "eeeeee&pe";
+			}
+			else if( selectedInputId == 'pMUAccountApprovalCommentText')
+			{
+				de = "eeeeee&pe";
+			}
+		}		
+		
+		var co = "HllvX50cXC0";
+		
+		//var de = selectedInputId.split("-")[0];
+		//var co = selectedInputId.split("-")[1];
+		var co = "HllvX50cXC0";
+		var ou = dhis2.de.getCurrentOrganisationUnit();
+		var pe = $( '#selectedPeriodId').val();
+			
+		var dataValue = {
+			'de' : de,
+			'co' : co,
+			'ou' : ou,
+			'pe' : pe,
+			'value' : $("#"+selectedInputId).val()
+		};
+
+		var cc = dhis2.de.getCurrentCategoryCombo();
+		var cp = dhis2.de.getCurrentCategoryOptionsQueryValue();
+		
+		if ( cc && cp )
+		{
+			dataValue.cc = cc;
+			dataValue.cp = cp;
+		}
+		//console.log( " dataValue - " + dataValue );
+		
+		   $.ajax( {
+			url: '../api/dataValues',
+			data: dataValue,
+			type: 'post',
+			success: handleSuccess,
+			error: handleError
+		} );
+		
+		
+	   function handleSuccess()
+		{
+			console.log( " SUCESS - " + $("#"+selectedInputId).val() );
+			alert( " Data Approved " );
+			//$('#form-dialog').dialog('close');
+			//$('dHTApprovedDiv').dialog({modal : false});
+			//$( 'dHTApprovedDiv' ).hide();
+			
+			$(divID).dialog('close');
+			//$('#dHTApprovedDiv').dialog('close');
+			//$('#sHTApprovedDiv').dialog('close');
+			//$('#pMUAccountApprovedDiv').dialog('close');
+		}
+
+		function handleError( xhr, textStatus, errorThrown )
+		{
+			
+			if ( 409 == xhr.status || 500 == xhr.status ) // Invalid value or locked
+			{
+				console.log( " ERROR - " + $("#"+selectedInputId).val() );
+				alert( " error to save" );
+				$(divID).dialog('close');
+			}
+			else // Offline, keep local value
+			{
+				console.log( " ERROR - " + $("#"+selectedInputId).val() );
+				alert( " error to save" );
+			}
+		}	
+	}
+	else
+	{
+		alert( " Please enter comment " );
+	}
+
 }

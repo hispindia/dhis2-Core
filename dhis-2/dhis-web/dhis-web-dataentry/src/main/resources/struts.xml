@@ -73,5 +73,18 @@
       <result name="input" type="velocity">/dhis-web-dataentry/validationResult.vm</result>
     </action>
 
+	<!-- add 3 level AUTHORITIES in dataEntry for mizoram-ipa based on assign to users role -->
+    <action name="dHTApproved" class="org.hisp.dhis.commons.action.NoAction">
+      <param name="requiredAuthorities">F_DHT_APPROVED</param>
+    </action>
+
+    <action name="sHTApproved" class="org.hisp.dhis.commons.action.NoAction">
+      <param name="requiredAuthorities">F_SHT_APPROVED</param>
+    </action>
+	
+    <action name="pMUAccountApproved" class="org.hisp.dhis.commons.action.NoAction">
+      <param name="requiredAuthorities">F_PMU_ACCOUNTS_APPROVED</param>
+    </action>	
+	<!-- add 3 level AUTHORITIES in dataEntry for mizoram-ipa based on assign to users end -->
   </package>
 </struts>

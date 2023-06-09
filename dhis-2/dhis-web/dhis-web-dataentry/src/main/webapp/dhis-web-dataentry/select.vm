@@ -121,9 +121,26 @@ var i18n_saving_comment_failed_error_code = '$encoder.jsEscape( $i18n.getString(
 <div id="completenessDiv" class="page inputCriteria">
     <input type="button" id="completeButton" name="completeButton" value="$i18n.getString( 'complete' )" onclick="registerCompleteDataSet(true)" style="width:120px">
     <input type="button" id="undoButton" name="undoButton" value="$i18n.getString( 'incomplete' )" onclick="registerCompleteDataSet(false)" style="width:120px">
-<span class="separator">&#124;</span>
-<input type="button" id="validateButton" value="$i18n.getString( 'run_validation' )" onclick="dhis2.de.validate( false )" style="width:120px">
+	<span class="separator">&#124;</span>
+	<input type="button" id="validateButton" value="$i18n.getString( 'run_validation' )" onclick="dhis2.de.validate( false )" style="width:120px">
+
+	<!-- add 3 level approval button in dataEntry for mizoram-ipa -->
+	<span class="separator">&#124;</span>
+	#if( $auth.hasAccess( "dhis-web-dataentry", "dHTApproved") )
+		<input type="button" id="dHTApprovedButton" name="dHTApprovedButton" value="$i18n.getString( 'DHT Approved' )" onclick="dHTApproved()" style="width:120px" disabled="disabled">
+	#end
+	
+	#if( $auth.hasAccess( "dhis-web-dataentry", "sHTApproved") )
+		<input type="button" id="sHTApprovedButton" name="sHTApprovedButton" value="$i18n.getString( 'SHT Approved' )" onclick="sHTApproved()" style="width:120px" disabled="disabled">
+	#end
+	
+	#if( $auth.hasAccess( "dhis-web-dataentry", "pMUAccountApproved") )
+		<input type="button" id="pMUAccountApprovedButton" name="pMUAccountApprovedButton" value="$i18n.getString( 'PMU/Accounts Approved' )" onclick="pMUAccountApproved()" style="width:150px" disabled="disabled">
+	#end
+	<!-- end -->
 </div>
+
+
 
 <div id="infoDiv" class="page inputCriteria">
 <span class="tipText">$i18n.getString( "completed_by" ): </span><span id="completedBy"></span>
@@ -155,3 +172,46 @@ var i18n_saving_comment_failed_error_code = '$encoder.jsEscape( $i18n.getString(
         <span class="fa fa-exclamation-triangle fa-lg"></span><span>$i18n.getString( "are_you_sure_you_want_to_delete_this_file" )</span>
     </div>
 </div>
+
+<!-- add 3 dialog for approval and save comment dataset-wise in dataElement in dataEntry for mizoram-ipa -->
+<div id="dHTApprovedDiv" class="page" >
+<h3><span id="dHTApproval">DHT Approval</span></h3>
+<table>
+    <tr>
+        <td><label>$i18n.getString( "DHT Approval Comments" ):</label></td>
+        <td><textarea id="dhtApprovalCommentText" name="dhtApprovalCommentText" rows="2" cols="22"></textarea></td>
+    </tr>
+    <tr>
+        <td><input type="button" id="dhtApprovalComment" name="dhtApprovalComment" value="$i18n.getString( 'Approved' )" onclick="submitApprovalComment('dhtApprovalCommentText','dHTApprovedDiv')" style="width:120px"></td>
+        <!--<td><input type="button" id="closeDialog" name="closeDialog" value="$i18n.getString( 'Close' )" onclick="closeDialog()" style="width:120px"></td>-->
+    </tr>
+</table>
+</div>
+
+<div id="sHTApprovedDiv" class="page" >
+<h3><span id="sHTApproval">SHT Approval</span></h3>
+<table>
+    <tr>
+        <td><label>$i18n.getString( "SHT Approval Comments" ):</label></td>
+        <td><textarea id="shtApprovalCommentText" name="shtApprovalCommentText" rows="2" cols="22"></textarea></td>
+    </tr>
+    <tr>
+        <td><input type="button" id="shtApprovalComment" name="shtApprovalComment" value="$i18n.getString( 'Approved' )" onclick="submitApprovalComment('shtApprovalCommentText','sHTApprovedDiv')" style="width:120px"></td>
+       
+    </tr>
+</table>
+</div>
+
+<div id="pMUAccountApprovedDiv" class="page" >
+<h3><span id="pMUAccountApproval">PMU/Accounts Approval</span></h3>
+<table>
+    <tr>
+        <td><label>$i18n.getString( "PMU/Accounts Approval Comments" ):</label></td>
+        <td><textarea id="pMUAccountApprovalCommentText" name="pMUAccountApprovalCommentText" rows="2" cols="22"></textarea></td>
+    </tr>
+    <tr>
+        <td><input type="button" id="pMUAccountApprovalComment" name="pMUAccountApprovalComment" value="$i18n.getString( 'Approved' )" onclick="submitApprovalComment('pMUAccountApprovalCommentText','pMUAccountApprovedDiv')" style="width:120px"></td>
+    </tr>
+</table>
+</div>
+<!-- end -->
