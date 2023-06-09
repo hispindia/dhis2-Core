@@ -91,7 +91,11 @@ public class DefaultAdminUserPopulator
         "F_ORG_UNIT_PROFILE_ADD",
         "F_TRACKED_ENTITY_MERGE",
         "F_DATAVALUE_ADD",
-        "F_DATAVALUE_DELETE" );
+        "F_DATAVALUE_DELETE",
+		
+		"F_DHT_APPROVED",
+        "F_SHT_APPROVED",
+        "F_PMU_ACCOUNTS_APPROVED" );
 
     private final UserService userService;
 
