@@ -3962,7 +3962,7 @@ function dHTApproved()
 	}
 	else if( $( '#selectedDataSetId' ).val() == 'wwcxotLHZGY')
 	{
-		url = '../api/dataValues.json?de=eeeeee&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+		url = '../api/dataValues.json?de=kxPDBQIDg9e&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
 	}
 	//ipa/api/dataValues.json?de=wLKGbYJXIKt&pe=2023Q1&ou=s00pgmqXHcB
 	$.getJSON( url, function( json )
@@ -4026,7 +4026,7 @@ function sHTApproved()
 	}
 	else if( $( '#selectedDataSetId' ).val() == 'wwcxotLHZGY')
 	{
-		url = '../api/dataValues.json?de=eeeeee&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+		url = '../api/dataValues.json?de=xvkraRAS9AE&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
 	}
 	
 	//var url = '../api/dataValues?de=UjFfCQfJuti&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
@@ -4071,7 +4071,7 @@ function pMUAccountApproved()
 	}
 	else if( $( '#selectedDataSetId' ).val() == 'wwcxotLHZGY')
 	{
-		url = '../api/dataValues.json?de=eeeeee&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+		url = '../api/dataValues.json?de=fByaGToLvi9&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
 	}
 	
 	//var url = '../api/dataValues.json?de=gi6F0xlOeeX&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
@@ -4138,15 +4138,15 @@ function submitApprovalComment( selectedInputId,dialogDivID )
 		{
 			if( selectedInputId == 'dhtApprovalCommentText')
 			{
-				de = "eeeeee&pe";
+				de = "kxPDBQIDg9e";
 			}
 			else if( selectedInputId == 'shtApprovalCommentText')
 			{
-				de = "eeeeee&pe";
+				de = "xvkraRAS9AE";
 			}
 			else if( selectedInputId == 'pMUAccountApprovalCommentText')
 			{
-				de = "eeeeee&pe";
+				de = "fByaGToLvi9";
 			}
 		}		
 		
