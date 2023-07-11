@@ -108,7 +108,7 @@ public class DhisWebCommonsWebSecurityConfig
     {
         @Autowired
         private DhisConfigurationProvider dhisConfig;
-
+        
         @Override
         protected void configure( HttpSecurity http )
             throws Exception
@@ -241,7 +241,13 @@ public class DhisWebCommonsWebSecurityConfig
                 .antMatchers( "/dhis-web-sms-configuration/**" )
                 .hasAnyAuthority( "ALL", "M_dhis-web-sms-configuration" )
                 .antMatchers( "/dhis-web-user/**" ).hasAnyAuthority( "ALL", "M_dhis-web-user" )
-
+                
+                .antMatchers( "/dhis-web-import-export/**" ).hasAnyAuthority( "ALL", "M_dhis-web-import-export" )
+                .antMatchers( "/dhis-web-translations/**" ).hasAnyAuthority( "ALL", "M_dhis-web-translations" )
+                .antMatchers( "/dhis-web-reports/**" ).hasAnyAuthority( "ALL", "M_dhis-web-reports" )
+                .antMatchers( "/dhis-web-capture/**" ).hasAnyAuthority( "ALL", "M_dhis-web-capture" )
+                
+                
                 .antMatchers( "/**" ).authenticated()
                 .and()
 
@@ -276,6 +282,9 @@ public class DhisWebCommonsWebSecurityConfig
 
                 .addFilterBefore( CorsFilter.get(), BasicAuthenticationFilter.class )
                 .addFilterBefore( CustomAuthenticationFilter.get(), UsernamePasswordAuthenticationFilter.class );
+				//http.sessionManagement().maximumSessions( 1 ).expiredUrl( "/dhis-web-commons-security/logout.action" );
+				http.sessionManagement().maximumSessions( Integer.parseInt( dhisConfig.getProperty( ConfigurationKey.MAX_SESSIONS_PER_USER ) ) ).expiredUrl( "/dhis-web-commons-security/logout.action" );
+				
 
             setHttpHeaders( http );
         }

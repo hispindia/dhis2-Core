@@ -46,9 +46,10 @@ public enum ConfigurationKey
     SYSTEM_READ_ONLY_MODE( "system.read_only_mode", Constants.OFF, false ),
 
     /**
-     * Session timeout in seconds. (default: 3600).
+     * Session timeout in seconds. (default: 3600). // set 900 for security audit
      */
-    SYSTEM_SESSION_TIMEOUT( "system.session.timeout", "3600", false ),
+    //SYSTEM_SESSION_TIMEOUT( "system.session.timeout", "3600", false ),
+	SYSTEM_SESSION_TIMEOUT( "system.session.timeout", "900", false ),
 
     /**
      * System monitoring URL.
@@ -708,7 +709,9 @@ public enum ConfigurationKey
      * for each user. If configured to 1, the user will be logged out from any
      * other session when a new session is started.
      */
-    MAX_SESSIONS_PER_USER( "max.sessions.per_user", "10", false ),
+	 
+	//MAX_SESSIONS_PER_USER( "max.sessions.per_user", "10", false ), // Concurrent Login
+    MAX_SESSIONS_PER_USER( "max.sessions.per_user", "1", false ),
 
     /**
      * Redis based cache invalidation feature. Enable or disable.
