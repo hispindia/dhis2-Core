@@ -1354,7 +1354,7 @@ function periodSelected()
 		//alert("hshsh");
 		
 		$("#validateButton").hide();
-		$("#undoButton").hide();
+		//$("#undoButton").hide();
 		
 		//$( '#approvalButtonDiv' ).show();
 	    //$( '#infoDiv' ).hide();
@@ -1362,7 +1362,7 @@ function periodSelected()
 	else
 	{
 		$( '#validateButton' ).show();
-		$( '#undoButton' ).show();
+		//$( '#undoButton' ).show();
 		//$( '#approvalButtonDiv' ).hide();
 		//$( '#approvalButtonDiv' ).hide();
 	}
@@ -4260,6 +4260,217 @@ function submitApprovalComment( selectedInputId,dialogDivID )
 
 }
 
+
+function submitReturnComment( selectedInputId,dialogDivID )
+{
+	var divID = '#' +dialogDivID;
+	
+	if($("#"+selectedInputId).val() != "")
+	{
+		$( "#"+selectedInputId ).attr( 'disabled', 'disabled' );
+		
+		var de = "";
+		if( $( '#selectedDataSetId' ).val() == 'XV12eKZar28')
+		{
+			if( selectedInputId == 'dhtApprovalCommentText')
+			{
+				de = "wLKGbYJXIKt";
+			}
+			else if( selectedInputId == 'shtApprovalCommentText')
+			{
+				de = "UjFfCQfJuti";
+			}
+			else if( selectedInputId == 'pMUAccountApprovalCommentText')
+			{
+				de = "gi6F0xlOeeX";
+			}
+			
+			//url = '../api/dataValues?de=gi6F0xlOeeX&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+		}
+		else if( $( '#selectedDataSetId' ).val() == 'wwcxotLHZGY')
+		{
+			if( selectedInputId == 'dhtApprovalCommentText')
+			{
+				de = "kxPDBQIDg9e";
+			}
+			else if( selectedInputId == 'shtApprovalCommentText')
+			{
+				de = "xvkraRAS9AE";
+			}
+			else if( selectedInputId == 'pMUAccountApprovalCommentText')
+			{
+				de = "fByaGToLvi9";
+			}
+		}		
+		
+		var co = "HllvX50cXC0";
+		
+		//var de = selectedInputId.split("-")[0];
+		//var co = selectedInputId.split("-")[1];
+		var co = "HllvX50cXC0";
+		var ou = dhis2.de.getCurrentOrganisationUnit();
+		var pe = $( '#selectedPeriodId').val();
+			
+		var dataValue = {
+			'de' : de,
+			'co' : co,
+			'ou' : ou,
+			'pe' : pe,
+			'value' : $("#"+selectedInputId).val()
+		};
+
+		var cc = dhis2.de.getCurrentCategoryCombo();
+		var cp = dhis2.de.getCurrentCategoryOptionsQueryValue();
+		
+		if ( cc && cp )
+		{
+			dataValue.cc = cc;
+			dataValue.cp = cp;
+		}
+		//console.log( " dataValue - " + dataValue );
+		
+		   $.ajax( {
+			url: '../api/dataValues',
+			data: dataValue,
+			type: 'post',
+			success: handleSuccess,
+			error: handleError
+		} );
+		
+		
+	   function handleSuccess()
+		{
+			console.log( " SUCESS - " + $("#"+selectedInputId).val() );
+			//alert( " Data Return " );
+			
+			registerCompleteDataSet(false);
+			//var dataSetId = $( '#selectedDataSetId' );
+			//var periodId = $( '#selectedPeriodId');
+			//alert( $( "#selectedDataSetId option:selected" ).text() + " -- " + $( "#selectedPeriodId option:selected" ).text() );
+			
+			//$( "#selectedDataSetId option:selected" ).text();
+			
+			sendEmailForReturn(  $("#"+selectedInputId).val() )
+			
+			//$('#form-dialog').dialog('close');
+			//$('dHTApprovedDiv').dialog({modal : false});
+			//$( 'dHTApprovedDiv' ).hide();
+			
+			$(divID).dialog('close');
+			//$('#dHTApprovedDiv').dialog('close');
+			//$('#sHTApprovedDiv').dialog('close');
+			//$('#pMUAccountApprovedDiv').dialog('close');
+		}
+
+		function handleError( xhr, textStatus, errorThrown )
+		{
+			
+			if ( 409 == xhr.status || 500 == xhr.status ) // Invalid value or locked
+			{
+				console.log( " ERROR - " + $("#"+selectedInputId).val() );
+				registerCompleteDataSet(true)
+				alert( " error to save" );
+				$(divID).dialog('close');
+			}
+			else // Offline, keep local value
+			{
+				console.log( " ERROR - " + $("#"+selectedInputId).val() );
+				alert( " error to save" );
+			}
+		}	
+	}
+	else
+	{
+		alert( " Please enter comment " );
+	}
+
+}
+
+
+function sendEmailForReturn(  emailText ){
+
+	// cmoaizawleast@gmail.com -- Aizawl East
+	// dhtazlwest@gmail.com -- Aizawl West
+	//alert(" inside send e-mail ");
+	//var tempARVDrugStock = document.getElementById("SGdBfj0GEMJ-kdsirVNKdhm-val").value;
+	var ou = dhis2.de.getCurrentOrganisationUnit();
+	//alert(tempARVDrugStock + " -- " + ou);
+	//console.log(" ou " + ou.name);
+	//if(tempARVDrugStock === "true"){
+		$.ajax({
+			type: "GET",
+			async: false,
+			dataType: "json",
+			contentType: "application/json",
+			url: '../api/organisationUnits/' +ou + '.json?fields=id,name,parent[id,name,parent[id,name,email]]',
+	
+			success: function (orgUnitResponse) {
+
+				var tempOrgUnitParentParentEmail = orgUnitResponse.parent.parent.email;
+				//alert( " email -- " + tempOrgUnitParentParentEmail );
+				
+				var orgUnitName = document.getElementById("selectedOrganisationUnit").value;
+				var completeEmailText = emailText + " for OrganisationUnit " + orgUnitName + " and Data Set " + $( "#selectedDataSetId option:selected" ).text() + " and period " + $( "#selectedPeriodId option:selected" ).text()
+				
+				//alert( $( "#selectedDataSetId option:selected" ).text() + " -- " + $( "#selectedPeriodId option:selected" ).text() );
+				
+				var tempURL = "email/notification?recipients=" + tempOrgUnitParentParentEmail + "&message=" + completeEmailText + "&subject=" + orgUnitName;
+				
+						
+				$.ajax({
+					url: '../api/' + tempURL,
+					type: 'POST',
+					success: handleSuccess,
+					error: handleError
+				});
+	
+			   function handleSuccess()
+			   {
+					console.log(" email send to " + tempOrgUnitParentParentEmail );
+			   }
+
+			   function handleError( xhr, textStatus, errorThrown )
+			   {
+					if ( 409 == xhr.status || 500 == xhr.status ) // Invalid value or locked
+					{
+						console.log( " ERROR to email send " );
+					}
+					else // Offline, keep local value
+					{
+						console.log( " ERROR - to email send" );
+					}
+				}
+				
+			},
+			error: function (orgUnitResponse) {
+				console.log(  " response: " + JSON.stringify(orgUnitResponse) );
+				deferred.resolve(orgUnitResponse);
+			},
+			warning: function (orgUnitResponse) {
+				console.log(  " response: " + JSON.stringify(orgUnitResponse) );
+				deferred.resolve(orgUnitResponse);
+			}
+		});
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
     $( '#contentDiv input').attr( 'readonly', 'readonly' );
     $( '#contentDiv textarea').attr( 'readonly', 'readonly' );
@@ -4275,4 +4486,6 @@ $('#contentDiv input').attr('disabled','disabled');
         $( '#contentDiv input' ).removeAttr( 'readonly' );
         $( '#contentDiv textarea' ).removeAttr( 'readonly' );
 		$( '#completenessDiv' ).show();
+		
+		 "#selectedDataSetId option:selected" ).text() + " -- " + $( "#selectedPeriodId option:selected" ).text()
 */		
