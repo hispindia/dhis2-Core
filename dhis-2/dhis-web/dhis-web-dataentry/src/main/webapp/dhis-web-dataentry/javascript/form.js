@@ -4453,24 +4453,6 @@ function sendEmailForReturn(  emailText ){
 		});
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*
     $( '#contentDiv input').attr( 'readonly', 'readonly' );
     $( '#contentDiv textarea').attr( 'readonly', 'readonly' );
