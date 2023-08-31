@@ -40,6 +40,15 @@ public enum Icon
     _2G( "2g", "", new String[] {} ),
     _3G( "3g", "", new String[] {} ),
     _4X4( "4x4", "", new String[] {} ),
+	
+	/* add custom icons for maintenance app */
+	LANDSSLIDE1( "landslide1" ,"", new String[] { "landslide1" }),
+	FIRE1( "fire1" ,"", new String[] { "fire1" }),
+	EARTHQUAKE1( "earthquake1" ,"", new String[] { "earthquake1" }),
+	FLOOD1( "flood1" ,"", new String[] { "flood1" }),
+	STORM1( "storm1" ,"", new String[] { "storm1" }),
+	/* add custom icons for maintenance app */
+	
     AGRICULTURE( "agriculture", "", new String[] { "agriculture" } ),
     AGRICULTURE_WORKER( "agriculture_worker", "", new String[] { "agriculture", "worker" } ),
     ALERT( "alert", "", new String[] {} ),
