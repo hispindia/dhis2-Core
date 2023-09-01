@@ -2231,6 +2231,15 @@ function getPreviousEntryField( field )
 function registerCompleteDataSet( completedStatus )
 {
 	
+    if (completedStatus && $("#selectedDataSetId").val() == "XV12eKZar28") {
+        const promptValue = validateIds();
+        if (promptValue) {
+          alert(`Please fill compulsary data elements!${promptValue}`);
+          return false;
+        }
+        pushDEValues();
+    }
+
 	if ( !confirm( completedStatus ? i18n_confirm_complete : i18n_confirm_undo ) )
 	{
 		return false;
@@ -2321,6 +2330,220 @@ function registerCompleteDataSet( completedStatus )
 		    }
 	    } );
 	} );
+}
+// -----------------------------------------------------------------------------
+// Validation With data element
+// -----------------------------------------------------------------------------
+
+function validateIds() {
+  var emptyValues = [];
+  var result = "";
+  var hasValue = true;
+  var ids = {
+    indicatorhZP3yMW6DrW: "Current quarter payments (utilised)",
+    "pruqL3yxefO-HllvX50cXC0-val": "Opening balance project bank A/c",
+    "PerpmFri8RS-HllvX50cXC0-val": "Opening balance cash (in hand)",
+    "f0a2dQQiU1s-HllvX50cXC0-val": "Activity-wise IPA fund received - Bank",
+    "sdoMh3e7puX-HllvX50cXC0-val": "Activity wise IPA fund utilized - Bank",
+    "HSkhJ8tcjM7-HllvX50cXC0-val": "Activity wise IPA fund utilized - Cash",
+    "ul7BDdSk6TL-HllvX50cXC0-val": "Other receipts - Fund Utilised - Bank",
+    "xOgrzAWA7n5-HllvX50cXC0-val": "Other receipts - Fund Utilised - Cash",
+  };
+  var balanceIds = `PXHOGLuZzFk;spakGSjnoJz;Pl3oBvJtbkF;YDfRZ3VSW7o;txsnETYuLQu;GRFIQXGw4z9;QR9jYaPsO7D;qjzZgvOSilI;P1Hcm32Olaw;oGaYG2sfAJY`;
+  for (let id in ids) {
+    let de = document.getElementById(id);
+    if (de && !de.value) {
+      emptyValues.push(ids[id]);
+    }
+  }
+  balanceIds.split(";").forEach((id) => {
+    let de = document.getElementById(`${id}-HllvX50cXC0-val`);
+    if (hasValue && de && !de.value) {
+      hasValue = false;
+    }
+  });
+  if (!hasValue)
+    emptyValues.push("Funds received under Different Schemes table: Reciept/Payments column");
+  emptyValues.forEach((val, index) => {
+    result += `\n${index + 1}: ${val}`;
+  });
+  return result;
+}
+
+// -----------------------------------------------------------------------------
+// pushed values to specific ids.
+// -----------------------------------------------------------------------------
+
+function pushDEValues() {
+  var activityExpenditure = [
+    ["vG8QKhAyRhT", "ukiRq2gleA9", "iDZNTrtvLFJ"],
+    ["YKFEKXk4Aig", "mQBEQiXgCUX", "IxbYVGZ1ERo"],
+    ["zQV9DTso2bN", "WAVUVCtgQkg", "V6pn1XiwWmZ"],
+    ["ps4OBkuYE47", "yfrbWCdH02Z", "t2Z6dXifJ6N"],
+    ["lbQsVwe61tI", "AOAqXrjm8sI", "fD8feI290wX"],
+    ["ONADcVTlZtj", "vSGHAtD4np0", "dKhRKgdJ4qK"],
+    ["xcBtxPUYQAN", "wdhNBKRp928", "GmOHVjX5RyD"],
+    ["sNBdm2p4dko", "V0sDvcWZchC", "KcOepDJ2I6P"],
+    ["jacGn6QIDyu", "mry3YXmsu04", "VmMx8RLlBbL"],
+    ["gyCvqVkcyuf", "jDbWR4imXOJ", "B494KumJqJy"],
+    ["G6l6F1Hjrig", "BJQ3sDnzqJk", "TAZeubDI3wq"],
+    ["S7DtErytP5n", "f3XiosaJdGb", "PWQ2YifF82d"],
+    ["X4JrI7jEj7X", "tk3BP3q9xUo", "wxhlz7x6mQN"],
+    ["U8W8FZzOkcv", "yyx4AADIMlk", "n0ntNNHQxQN"],
+    ["v4ZPSG5eIhu", "aDxy5n0hHKa", "jPc2i2OYq28"],
+    ["U4SBmJsURjp", "OCkzjuz1U1b", "JiQFAUodWcb"],
+    ["cZTxcz3qVLv", "MgVXfCweZDf", "loW0eBKEpQR"],
+    ["NCvv7N3nJw2", "LqYgQd08nDi", "himz7qbGy7x"],
+    ["TuOZ6Xd0ccY", "UNp4wMVeeZe", "bhcB0DhF1uu"],
+    ["go8w36rvyzT", "p1SEMifOaiZ", "QRup2BDgZ8s"],
+    ["c9aSocO2A5k", "UkDT3plut99", "obEv73ewbr5"],
+    ["GKGo7J8OdLo", "vL5YhuF8tDI", "WZ5MJg1mxAg"],
+    ["gv7ypAMglHn", "oOZl0EgyS5U", "vqn7yxUFA06"],
+    ["eaNZpI7sdgh", "fFmADEj0xil", "YjLf2Ama5A0"],
+    ["ocbVzbFPJaU", "b5Em3xwExJh", "FCCuxVdiuK5"],
+    ["K0QTe3FbZQW", "BBVHK38qD0m", "b4fLSxZeWmS"],
+    ["vK5dhkpYtFZ", "F9k85AXbT8Y", "bPWrMqoIZTL"],
+    ["gTlDMAxLrVe", "L9whtHr0jof", "uDpAWx5NtEG"],
+    ["zrYNrRnHUJ9", "NCsmmPDj9IB", "pysR1rHYLIs"],
+    ["PQKG80KWWQ1", "tkLu3RVQK2O", "eZyAFioXcK0"],
+    ["qxT7OdXpezK", "JJj2NIo4RaU", "U18vROet3YU"],
+    ["ORc3lnnrri0", "hKAN3h5JYyB", "BzoAsbJ1LCU"],
+    ["J7y3Gdgi5OI", "cymlOzmo39B", "D7qGWnLxw7g"],
+    ["wReWf7GZlVG", "Re5VTzeapjL", "hbAWWo5PkwW"],
+    ["w0QcN9uqxVh", "YoYX8Qy6aVK", "ovfwqkf92vm"],
+    ["YDy3J1C58JA", "w4QZZmOlM2h", "BJxJKG5rOLG"],
+    ["KgCofHptkMz", "gjaPDkL87vD", "btDndI3ObMv"],
+    ["liPwyy6bwkV", "sJ43C2eJdIi", "fZlYQeJpgru"],
+    ["eHEQG8WybwC", "fbG5Fs8PIBe", "iwpSYLXsZCZ"],
+    ["cDkodEeb96U", "tgVRUjRej4g", "olNNhEzCLMj"],
+    ["iSiUxRZPtZC", "fQwILCxgbAr", "fSGwtbWEUva"],
+    ["N1RrNNkbees", "jdCQcGaavDR", "bowWm1K3EvE"],
+    ["yDMkzwDkVsu", "OIimnDslZJE", "a1zSkTFtPdD"],
+    ["ECTkJxBzdqt", "XIuQt690cvw", "VDPVx9Zrdpn"],
+    ["Nyvg2Cp1jwe", "X9Igb1uSwzh", "M7ZwNaCmaBx"],
+    ["uc8RwdtR8pC", "SdK8WgD57RE", "rUYjJZlpLF3"],
+    ["MT3n06zYSnc", "EiAQQwCuP30", "p3xIOj5y3PL"],
+    ["fUIo7poz1Ha", "niqK6viUgGF", "FPIu0E8w1xk"],
+    ["Hz4hc2oFInO", "UD8X8XKmWJs", "EiGYY8OXIjY"],
+    ["kaK9Bya4Vs3", "EH0zDYpDdVc", "XCs39Wx4p3Q"],
+  ];
+  var fundsReceived = {
+    "Goods - E": "",
+    "Goods - DC": "",
+    "Goods - ME": "",
+    "Goods - F": "",
+    "Goods - BPS": "",
+    Works: "",
+    "Works - RC": "",
+    Services: "",
+    "Services - C": "",
+    "Services - M": "",
+  };
+  var fundsUtilized = {
+    "Goods - E": "",
+    "Goods - DC": "",
+    "Goods - ME": "",
+    "Goods - F": "",
+    "Goods - BPS": "",
+    Works: "",
+    "Works - RC": "",
+    Services: "",
+    "Services - C": "",
+    "Services - M": "",
+  };
+  var fundsrec = {
+    "Goods - E": "w8wv57QPWww-XnHmxw4QWAR",
+    "Goods - ME": "w8wv57QPWww-XDqTSxjtTRU",
+    "Goods - DC": "w8wv57QPWww-YrT6udvuOUU",
+    "Goods - BPS": "w8wv57QPWww-huR6MbBAtO4",
+    "Goods - F": "w8wv57QPWww-AWpgyF3XivS",
+    Works: "GiI9u9gcAZW-QnWan7CJDeF",
+    "Works - RC": "GiI9u9gcAZW-eWeOuVZm3dh",
+    Services: "e5Crg54YYNb-Mdyc7ZWpxvN",
+    "Services - C": "e5Crg54YYNb-jjXxNmzLTNi",
+    "Services - M": "e5Crg54YYNb-IEi4W3S4GcG",
+  };
+  var fundsUtil = {
+    "Goods - E": "ZK742qo5ZQj-XnHmxw4QWAR",
+    "Goods - ME": "ZK742qo5ZQj-XDqTSxjtTRU",
+    "Goods - DC": "ZK742qo5ZQj-YrT6udvuOUU",
+    "Goods - BPS": "ZK742qo5ZQj-huR6MbBAtO4",
+    "Goods - F": "ZK742qo5ZQj-AWpgyF3XivS",
+    Works: "WPxpVXGts6v-QnWan7CJDeF",
+    "Works - RC": "WPxpVXGts6v-eWeOuVZm3dh",
+    Services: "ZN54RXxSYjl-Mdyc7ZWpxvN",
+    "Services - C": "ZN54RXxSYjl-jjXxNmzLTNi",
+    "Services - M": "ZN54RXxSYjl-IEi4W3S4GcG",
+  };
+
+  activityExpenditure.forEach((ids) => {
+    let activityDetails = document.getElementById(
+      `${ids[0]}-HllvX50cXC0-val`
+    ).value;
+    let receiptReceived = document.getElementById(
+      `${ids[1]}-HllvX50cXC0-val`
+    ).value;
+    let receiptPaid = document.getElementById(
+      `${ids[2]}-HllvX50cXC0-val`
+    ).value;
+    if (receiptReceived !== "")
+      fundsReceived[activityDetails] =
+        Number(receiptReceived) + Number(fundsReceived[activityDetails]);
+    if (receiptPaid !== "")
+      fundsUtilized[activityDetails] =
+        Number(receiptPaid) + Number(fundsUtilized[activityDetails]);
+  });
+
+  for (let id in fundsrec) {
+    for (let activityDetails in fundsReceived) {
+      if (activityDetails == id && fundsReceived[activityDetails] !== "") {
+        let dataValue = {
+          de: fundsrec[id].split("-")[0],
+          co: fundsrec[id].split("-")[1],
+          ou: dhis2.de.getCurrentOrganisationUnit(),
+          pe: $("#selectedPeriodId").val(),
+          value: fundsReceived[activityDetails],
+        };
+        pushValue(dataValue);
+        debugger;
+        document.getElementById(`${fundsrec[id]}-val`).value =
+          fundsReceived[activityDetails];
+      }
+    }
+  }
+
+  for (let id in fundsUtil) {
+    for (let activityDetails in fundsUtilized) {
+      if (activityDetails == id && fundsUtilized[activityDetails] !== "") {
+        let dataValue = {
+          de: fundsUtil[id].split("-")[0],
+          co: fundsUtil[id].split("-")[1],
+          ou: dhis2.de.getCurrentOrganisationUnit(),
+          pe: $("#selectedPeriodId").val(),
+          value: fundsUtilized[activityDetails],
+        };
+        pushValue(dataValue);
+        document.getElementById(`${fundsUtil[id]}-val`).value =
+          fundsUtilized[activityDetails];
+      }
+    }
+  }
+
+  function pushValue(dataValue) {
+    $.ajax({
+      url: "../api/dataValues",
+      data: dataValue,
+      type: "post",
+      error: handleError,
+    });
+  }
+
+  function handleError(xhr, textStatus, errorThrown) {
+    if (409 == xhr.status || 500 == xhr.status) {
+      // Invalid value or locked
+      alert(" error to save");
+    }
+  }
 }
 
 function handleDataSetCompletenessResponse( data ){
