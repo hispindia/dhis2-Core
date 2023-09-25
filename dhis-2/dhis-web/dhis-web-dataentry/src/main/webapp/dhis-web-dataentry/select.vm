@@ -175,43 +175,95 @@ var i18n_saving_comment_failed_error_code = '$encoder.jsEscape( $i18n.getString(
 
 <!-- add 3 dialog for approval and save comment dataset-wise in dataElement in dataEntry for mizoram-ipa -->
 <div id="dHTApprovedDiv" class="page" >
-<h3><span id="dHTApproval">DHT Approval</span></h3>
+<h3><span id="dHTApproval">DHT Approval / Return</span></h3>
 <table>
     <tr>
         <td><label>$i18n.getString( "DHT Approval Comments" ):</label></td>
-        <td><textarea id="dhtApprovalCommentText" name="dhtApprovalCommentText" rows="2" cols="22"></textarea></td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+        <td><label>$i18n.getString( "DHT Return Comments" ):</label></td>
     </tr>
+	</br>
     <tr>
-        <td><input type="button" id="dhtApprovalComment" name="dhtApprovalComment" value="$i18n.getString( 'Approved' )" onclick="submitApprovalComment('dhtApprovalCommentText','dHTApprovedDiv')" style="width:120px"></td>
-        <td><input type="button" id="dhtReturnComment" name="dhtReturnComment" value="$i18n.getString( 'Return' )" onclick="submitReturnComment('dhtApprovalCommentText','dHTApprovedDiv')" style="width:120px"></td>
+        <td><textarea id="dhtApprovalCommentText" name="dhtApprovalCommentText" rows="2" cols="22"></textarea></td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td><textarea id="dhtReturnCommentText" name="dhtReturnCommentText" rows="2" cols="22"></textarea></td>
+    </tr>	
+    <tr>
+        <td><input type="button" id="dhtApprovalCommentButton" name="dhtApprovalCommentButton" value="$i18n.getString( 'Approved' )" onclick="submitApprovalComment('dhtApprovalCommentText','dHTApprovedDiv')" style="width:120px"></td>
+        <td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td><input type="button" id="dhtReturnCommentButton" name="dhtReturnCommentButton" value="$i18n.getString( 'Return' )" onclick="submitReturnComment('dhtReturnCommentText','dHTApprovedDiv')" style="width:120px"></td>
     </tr>
 </table>
 </div>
 
 <div id="sHTApprovedDiv" class="page" >
-<h3><span id="sHTApproval">SHT Approval</span></h3>
+<h3><span id="sHTApproval">SHT Approval / Return</span></h3>
 <table>
     <tr>
         <td><label>$i18n.getString( "SHT Approval Comments" ):</label></td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+        <td><label>$i18n.getString( "SHT Return Comments" ):</label></td>
+    </tr>
+	</br>	
+    <tr>
         <td><textarea id="shtApprovalCommentText" name="shtApprovalCommentText" rows="2" cols="22"></textarea></td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td><textarea id="shtReturnCommentText" name="shtReturnCommentText" rows="2" cols="22"></textarea></td>
     </tr>
     <tr>
-        <td><input type="button" id="shtApprovalComment" name="shtApprovalComment" value="$i18n.getString( 'Approved' )" onclick="submitApprovalComment('shtApprovalCommentText','sHTApprovedDiv')" style="width:120px"></td>
-        <td><input type="button" id="shtReturnComment" name="shtReturnComment" value="$i18n.getString( 'Return' )" onclick="submitReturnComment('shtApprovalCommentText','sHTApprovedDiv')" style="width:120px"></td>
-    </tr>
+        <td><input type="button" id="shtApprovalCommentButton" name="shtApprovalCommentButton" value="$i18n.getString( 'Approved' )" onclick="submitApprovalComment('shtApprovalCommentText','sHTApprovedDiv')" style="width:120px"></td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td><input type="button" id="shtReturnCommentButton" name="shtReturnCommentButton" value="$i18n.getString( 'Return' )" onclick="submitReturnComment('shtReturnCommentText','sHTApprovedDiv')" style="width:120px"></td>
+    </tr>	
 </table>
 </div>
 
 <div id="pMUAccountApprovedDiv" class="page" >
-<h3><span id="pMUAccountApproval">PMU/Accounts Approval</span></h3>
+<h3><span id="pMUAccountApproval">PMU/Accounts Approval / Return</span></h3>
 <table>
+
     <tr>
         <td><label>$i18n.getString( "PMU/Accounts Approval Comments" ):</label></td>
-        <td><textarea id="pMUAccountApprovalCommentText" name="pMUAccountApprovalCommentText" rows="2" cols="22"></textarea></td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+        <td><label>$i18n.getString( "PMU/Accounts Return Comments" ):</label></td>
     </tr>
+	</br>
     <tr>
-        <td><input type="button" id="pMUAccountApprovalComment" name="pMUAccountApprovalComment" value="$i18n.getString( 'Approved' )" onclick="submitApprovalComment('pMUAccountApprovalCommentText','pMUAccountApprovedDiv')" style="width:120px"></td>
-		<td><input type="button" id="pMUAccountReturnComment" name="pMUAccountReturnComment" value="$i18n.getString( 'Return' )" onclick="submitReturnComment('pMUAccountApprovalCommentText','pMUAccountApprovedDiv')" style="width:120px"></td>
+        <td><textarea id="pMUAccountApprovalCommentText" name="pMUAccountApprovalCommentText" rows="2" cols="22"></textarea></td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td><textarea id="pMUAccountReturnCommentText" name="pMUAccountReturnCommentText" rows="2" cols="22"></textarea></td>
+    </tr>	
+    <tr>
+        <td><input type="button" id="pMUAccountApprovalCommentButton" name="pMUAccountApprovalCommentButton" value="$i18n.getString( 'Approved' )" onclick="submitApprovalComment('pMUAccountApprovalCommentText','pMUAccountApprovedDiv')" style="width:120px"></td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td><input type="button" id="pMUAccountReturnCommentButton" name="pMUAccountReturnCommentButton" value="$i18n.getString( 'Return' )" onclick="submitReturnComment('pMUAccountReturnCommentText','pMUAccountApprovedDiv')" style="width:120px"></td>
     </tr>
 </table>
 </div>

@@ -4202,45 +4202,67 @@ function getTimeDelta()
 
 function dHTApproved()
 {
+	
 	//sel["ds"] = $( '#selectedDataSetId' ).val(),
 	//sel["pe"] = $( '#selectedPeriodId').val(),
 	//sel["ou"] = dhis2.de.currentOrganisationUnitId;	
 	$( '#dhtApprovalCommentText' ).html( '' );
-	var url = "";
+	$( '#dhtReturnCommentText' ).html( '' );
+	var approvalURL = "";
+	var returnURL = "";
 	
 	if( $( '#selectedDataSetId' ).val() == 'XV12eKZar28')
 	{
-		url = '../api/dataValues.json?de=wLKGbYJXIKt&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+		approvalURL = '../api/dataValues.json?de=wLKGbYJXIKt&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+		returnURL = '../api/dataValues.json?de=wvdLqBPTxc7&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
 	}
-	else if( $( '#selectedDataSetId' ).val() == 'wwcxotLHZGY')
+	else if( $( '#selectedDataSetId' ).val() == 'wwcxotLHZGY') // action plan dataset
 	{
-		url = '../api/dataValues.json?de=kxPDBQIDg9e&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+		approvalURL = '../api/dataValues.json?de=kxPDBQIDg9e&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+		returnURL = '../api/dataValues.json?de=gtOLCmylDgQ&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
 	}
 	//ipa/api/dataValues.json?de=wLKGbYJXIKt&pe=2023Q1&ou=s00pgmqXHcB
-	$.getJSON( url, function( json )
+	$.getJSON( approvalURL, function( json )
 	{
-		
 		if(json[0] != "")
 		{
 			$( '#dhtApprovalCommentText' ).html( json[0] );
 			
 			$( '#dhtApprovalCommentText' ).attr( 'disabled', 'disabled' );
-			$( '#dhtApprovalComment' ).attr( 'disabled', 'disabled' );
+			$( '#dhtApprovalCommentButton' ).attr( 'disabled', 'disabled' );
 		}
 		else
 		{
-			$( '#dhtApprovalComment' ).removeAttr( 'disabled' );
+			$( '#dhtApprovalCommentButton' ).removeAttr( 'disabled' );
 			$( '#dhtApprovalCommentText' ).removeAttr( 'disabled' );
 			//$( '#sHTApprovedButton' ).attr( 'disabled', 'disabled' );
 		}
 
-	} );	
+	} );
+		
+	$.getJSON( returnURL, function( json )
+	{
+		if(json[0] != "")
+		{
+			$( '#dhtReturnCommentText' ).html( json[0] );
+			
+			$( '#dhtReturnCommentText' ).attr( 'disabled', 'disabled' );
+			$( '#dhtReturnCommentButton' ).attr( 'disabled', 'disabled' );
+		}
+		else
+		{
+			$( '#dhtApprovalComment' ).removeAttr( 'disabled' );
+			$( '#dhtReturnCommentButton' ).removeAttr( 'disabled' );
+			//$( '#sHTApprovedButton' ).attr( 'disabled', 'disabled' );
+		}
+
+	} );
 		
 	$( '#dHTApprovedDiv' ).dialog( {
 		modal : true,
-		width : 350,
-		height : 300,
-		title : 'DHT Approval'
+		width : 400,
+		height : 250,
+		title : 'DHT Approval / Return'
 	} );
 	/*
 	if ( dhis2.de.currentCompletedByUser )
@@ -4273,41 +4295,63 @@ function sHTApproved()
 	//sel["ou"] = dhis2.de.currentOrganisationUnitId;	
 	
 	$( '#shtApprovalCommentText' ).html( '' );
-	var url = "";
+	$( '#shtReturnCommentText' ).html( '' );
+	var approvalURL = "";
+	var returnURL = "";
 	
 	if( $( '#selectedDataSetId' ).val() == 'XV12eKZar28')
 	{
-		url = '../api/dataValues?de=UjFfCQfJuti&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+		approvalURL = '../api/dataValues?de=UjFfCQfJuti&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+		returnURL = '../api/dataValues?de=KvAzOkhB4j4&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
 	}
 	else if( $( '#selectedDataSetId' ).val() == 'wwcxotLHZGY')
 	{
-		url = '../api/dataValues.json?de=xvkraRAS9AE&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+		approvalURL = '../api/dataValues.json?de=xvkraRAS9AE&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+		returnURL = '../api/dataValues?de=Bh3BFeqo3ug&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
 	}
 	
 	//var url = '../api/dataValues?de=UjFfCQfJuti&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
 	//ipa/api/dataValues.json?de=wLKGbYJXIKt&pe=2023Q1&ou=s00pgmqXHcB
-	$.getJSON( url, function( json )
+	$.getJSON( approvalURL, function( json )
 	{
 		if(json[0] != "")
 		{
 			$( '#shtApprovalCommentText' ).html( json[0] );
-			$( '#shtApprovalComment' ).attr( 'disabled', 'disabled' );
+			//alert( json[0] );
+			$( '#shtApprovalCommentButton' ).attr( 'disabled', 'disabled' );
 			$( '#shtApprovalCommentText' ).attr( 'disabled', 'disabled' );
 		}
 		else
 		{
-			$( '#shtApprovalComment' ).removeAttr( 'disabled' );
+			$( '#shtApprovalCommentButton' ).removeAttr( 'disabled' );
 			$( '#shtApprovalCommentText' ).removeAttr( 'disabled' );
 			//$( '#sHTApprovedButton' ).attr( 'disabled', 'disabled' );
 		}
 		
 	} );	
+
+	$.getJSON( returnURL, function( json )
+	{
+		if(json[0] != "")
+		{
+			$( '#shtReturnCommentText' ).html( json[0] );
+			$( '#shtReturnCommentButton' ).attr( 'disabled', 'disabled' );
+			$( '#shtApprovalCommentText' ).attr( 'disabled', 'disabled' );
+		}
+		else
+		{
+			$( '#shtReturnCommentButton' ).removeAttr( 'disabled' );
+			$( '#shtReturnCommentText' ).removeAttr( 'disabled' );
+			//$( '#sHTApprovedButton' ).attr( 'disabled', 'disabled' );
+		}
+		
+	} );
 	
 	$( '#sHTApprovedDiv' ).dialog( {
 		modal : true,
-		width : 350,
-		height : 300,
-		title : 'SHT Approval'
+		width : 400,
+		height : 250,
+		title : 'SHT Approval / Return'
 	} );
 	
 }
@@ -4320,32 +4364,52 @@ function pMUAccountApproved()
 	//sel["ou"] = dhis2.de.currentOrganisationUnitId;	
 	
 	$( '#pMUAccountApprovalCommentText' ).html( '' );
-	var url = "";
+	$( '#pMUAccountReturnCommentText' ).html( '' );
+	var approvalURL = "";
+	var returnURL = "";
 	
 	if( $( '#selectedDataSetId' ).val() == 'XV12eKZar28')
 	{
-		url = '../api/dataValues?de=gi6F0xlOeeX&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+		approvalURL = '../api/dataValues?de=gi6F0xlOeeX&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+		returnURL = '../api/dataValues?de=Beyw9vymtEN&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
 	}
 	else if( $( '#selectedDataSetId' ).val() == 'wwcxotLHZGY')
 	{
-		url = '../api/dataValues.json?de=fByaGToLvi9&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+		approvalURL = '../api/dataValues.json?de=fByaGToLvi9&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
+		returnURL = '../api/dataValues.json?de=U8obBdkP2uh&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
 	}
 	
 	//var url = '../api/dataValues.json?de=gi6F0xlOeeX&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
 	//ipa/api/dataValues.json?de=wLKGbYJXIKt&pe=2023Q1&ou=s00pgmqXHcB
-	$.getJSON( url, function( json )
+	$.getJSON( approvalURL, function( json )
 	{
-		
 		if(json[0] != "")
 		{
 			$( '#pMUAccountApprovalCommentText' ).html( json[0] );
-			$( '#pMUAccountApprovalComment' ).attr( 'disabled', 'disabled' );
+			$( '#pMUAccountApprovalCommentButton' ).attr( 'disabled', 'disabled' );
 			$( '#pMUAccountApprovalCommentText' ).attr( 'disabled', 'disabled' );
 		}
 		else
 		{
-			$( '#pMUAccountApprovalComment' ).removeAttr( 'disabled' );
+			$( '#pMUAccountApprovalCommentButton' ).removeAttr( 'disabled' );
 			$( '#pMUAccountApprovalCommentText' ).removeAttr( 'disabled' );
+			//$( '#sHTApprovedButton' ).attr( 'disabled', 'disabled' );
+		}
+
+	} );
+
+	$.getJSON( returnURL, function( json )
+	{
+		if(json[0] != "")
+		{
+			$( '#pMUAccountReturnCommentText' ).html( json[0] );
+			$( '#pMUAccountReturnCommentButton' ).attr( 'disabled', 'disabled' );
+			$( '#pMUAccountReturnCommentText' ).attr( 'disabled', 'disabled' );
+		}
+		else
+		{
+			$( '#pMUAccountReturnCommentButton' ).removeAttr( 'disabled' );
+			$( '#pMUAccountReturnCommentText' ).removeAttr( 'disabled' );
 			//$( '#sHTApprovedButton' ).attr( 'disabled', 'disabled' );
 		}
 
@@ -4353,9 +4417,9 @@ function pMUAccountApproved()
 	
 	$( '#pMUAccountApprovedDiv' ).dialog( {
 		modal : true,
-		width : 350,
-		height : 300,
-		title : 'PMU/Accounts Approval'
+		width : 400,
+		height : 250,
+		title : 'PMU/Accounts Approval / Return '
 	} );	
 	
 	
@@ -4495,34 +4559,34 @@ function submitReturnComment( selectedInputId,dialogDivID )
 		var de = "";
 		if( $( '#selectedDataSetId' ).val() == 'XV12eKZar28')
 		{
-			if( selectedInputId == 'dhtApprovalCommentText')
+			if( selectedInputId == 'dhtReturnCommentText')
 			{
-				de = "wLKGbYJXIKt";
+				de = "wvdLqBPTxc7";
 			}
-			else if( selectedInputId == 'shtApprovalCommentText')
+			else if( selectedInputId == 'shtReturnCommentText')
 			{
-				de = "UjFfCQfJuti";
+				de = "KvAzOkhB4j4";
 			}
-			else if( selectedInputId == 'pMUAccountApprovalCommentText')
+			else if( selectedInputId == 'pMUAccountReturnCommentText')
 			{
-				de = "gi6F0xlOeeX";
+				de = "Beyw9vymtEN";
 			}
 			
 			//url = '../api/dataValues?de=gi6F0xlOeeX&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId;
 		}
 		else if( $( '#selectedDataSetId' ).val() == 'wwcxotLHZGY')
 		{
-			if( selectedInputId == 'dhtApprovalCommentText')
+			if( selectedInputId == 'dhtReturnCommentText')
 			{
-				de = "kxPDBQIDg9e";
+				de = "gtOLCmylDgQ";
 			}
-			else if( selectedInputId == 'shtApprovalCommentText')
+			else if( selectedInputId == 'shtReturnCommentText')
 			{
-				de = "xvkraRAS9AE";
+				de = "Bh3BFeqo3ug";
 			}
-			else if( selectedInputId == 'pMUAccountApprovalCommentText')
+			else if( selectedInputId == 'pMUAccountReturnCommentText')
 			{
-				de = "fByaGToLvi9";
+				de = "U8obBdkP2uh";
 			}
 		}		
 		
@@ -4609,7 +4673,6 @@ function submitReturnComment( selectedInputId,dialogDivID )
 
 }
 
-
 function sendEmailForReturn(  emailText ){
 
 	// cmoaizawleast@gmail.com -- Aizawl East
@@ -4631,15 +4694,40 @@ function sendEmailForReturn(  emailText ){
 
 				var tempOrgUnitParentParentEmail = orgUnitResponse.parent.parent.email;
 				//alert( " email -- " + tempOrgUnitParentParentEmail );
+				var orgUnitName = document.getElementById("selectedOrganisationUnit").value;
+				
+				var completeEmailText = "Dear Data Quality Manager, \n\nThe following issues have been observed in " + $( "#selectedDataSetId option:selected" ).text() + 
+										" for the IPA Unit " + orgUnitName + " for the period " + $( "#selectedPeriodId option:selected" ).text() + " . " + 
+										" \n\nComments: " + emailText + " . \n\nWe request you to please review these with the IPA unit and make the changes reflected in the reporting forms  . " + 
+										" \n\nRegards \nIPA SHT/PMU/Accounts Team"
+
+				/*
+				Dear Data Quality Manager, 
+
+				The following issues have been observed in <Dataset Name> for the IPA Unit <Organisation Unit Name> for the period <Quarter>.
+
+				Comments: 
+
+				We request you to please review these with the IPA unit and make the changes reflected in the reporting forms.
+
+				Regards
+				IPA SHT/PMU/Accounts Team
+				*/
+				
+				
+				
+				
+				
+				
+				
 				
 				var orgUnitName = document.getElementById("selectedOrganisationUnit").value;
-				var completeEmailText = emailText + " for OrganisationUnit " + orgUnitName + " and Data Set " + $( "#selectedDataSetId option:selected" ).text() + " and period " + $( "#selectedPeriodId option:selected" ).text()
+				//var completeEmailText = emailText + " for OrganisationUnit " + orgUnitName + " and Data Set " + $( "#selectedDataSetId option:selected" ).text() + " and period " + $( "#selectedPeriodId option:selected" ).text()
 				
 				//alert( $( "#selectedDataSetId option:selected" ).text() + " -- " + $( "#selectedPeriodId option:selected" ).text() );
 				
 				var tempURL = "email/notification?recipients=" + tempOrgUnitParentParentEmail + "&message=" + completeEmailText + "&subject=" + orgUnitName;
 				
-						
 				$.ajax({
 					url: '../api/' + tempURL,
 					type: 'POST',
