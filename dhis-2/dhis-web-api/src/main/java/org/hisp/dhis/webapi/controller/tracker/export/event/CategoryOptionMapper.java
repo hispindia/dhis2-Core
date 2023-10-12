@@ -29,25 +29,23 @@ package org.hisp.dhis.webapi.controller.tracker.export.event;
 
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.hisp.dhis.category.CategoryOption;
+import org.hisp.dhis.commons.util.TextUtils;
 import org.mapstruct.Mapper;
 
 @Mapper
-public interface CategoryOptionMapper
-{
+public interface CategoryOptionMapper {
 
-    // NOTE: right now we only support categoryOptionComboIdScheme on export. If we were to add a categoryOptionIdScheme
-    // we could not simply export the UIDs.
-    default String from( Set<CategoryOption> categoryOptions )
-    {
-        if ( categoryOptions == null || categoryOptions.isEmpty() )
-        {
-            return null;
-        }
-
-        return categoryOptions.stream()
-            .map( CategoryOption::getUid )
-            .collect( Collectors.joining( ";" ) );
+  // NOTE: right now we only support categoryOptionComboIdScheme on export. If we were to add a
+  // categoryOptionIdScheme
+  // we could not simply export the UIDs.
+  default String from(Set<CategoryOption> categoryOptions) {
+    if (categoryOptions == null || categoryOptions.isEmpty()) {
+      return null;
     }
+
+    return categoryOptions.stream()
+        .map(CategoryOption::getUid)
+        .collect(Collectors.joining(TextUtils.COMMA));
+  }
 }

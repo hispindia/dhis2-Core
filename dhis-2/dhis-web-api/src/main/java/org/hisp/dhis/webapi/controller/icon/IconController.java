@@ -27,30 +27,39 @@
  */
 package org.hisp.dhis.webapi.controller.icon;
 
+import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.error;
+
+import com.google.common.net.MediaType;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
 import javax.servlet.http.HttpServletResponse;
-
 import lombok.RequiredArgsConstructor;
-
+import lombok.extern.slf4j.Slf4j;
 import org.hisp.dhis.common.DhisApiVersion;
 import org.hisp.dhis.common.OpenApi;
 import org.hisp.dhis.commons.util.StreamUtils;
 import org.hisp.dhis.dxf2.webmessage.WebMessage;
+import org.hisp.dhis.dxf2.webmessage.WebMessageException;
+import org.hisp.dhis.external.conf.ConfigurationKey;
+import org.hisp.dhis.external.conf.DhisConfigurationProvider;
 import org.hisp.dhis.feedback.BadRequestException;
 import org.hisp.dhis.feedback.NotFoundException;
 import org.hisp.dhis.feedback.Status;
+import org.hisp.dhis.fileresource.FileResource;
 import org.hisp.dhis.fileresource.FileResourceService;
+import org.hisp.dhis.icon.CustomIcon;
+import org.hisp.dhis.icon.DefaultIcon;
 import org.hisp.dhis.icon.Icon;
 import org.hisp.dhis.icon.IconResponse;
 import org.hisp.dhis.icon.IconService;
 import org.hisp.dhis.schema.descriptors.IconSchemaDescriptor;
 import org.hisp.dhis.webapi.mvc.annotation.ApiVersion;
+import org.hisp.dhis.webapi.utils.HeaderUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -63,103 +72,135 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.google.common.net.MediaType;
-
 /**
  * @author Kristian Wærstad
  */
-@OpenApi.Tags( "ui" )
+@OpenApi.Tags("ui")
 @Controller
-@RequestMapping( value = IconSchemaDescriptor.API_ENDPOINT )
+@Slf4j
+@RequestMapping(value = IconSchemaDescriptor.API_ENDPOINT)
 @RequiredArgsConstructor
-@ApiVersion( { DhisApiVersion.DEFAULT, DhisApiVersion.ALL } )
-public class IconController
-{
-    private static final int TTL = 365;
+@ApiVersion({DhisApiVersion.DEFAULT, DhisApiVersion.ALL})
+public class IconController {
+  private static final int TTL = 365;
 
-    private final IconService iconService;
+  private final IconService iconService;
 
-    private final FileResourceService fileResourceService;
+  private final FileResourceService fileResourceService;
 
-    private final IconMapper iconMapper;
+  private final IconMapper iconMapper;
 
-    @GetMapping( "/{iconKey}" )
-    public @ResponseBody IconResponse getIcon( @PathVariable String iconKey )
-        throws NotFoundException
-    {
-        Icon icon = iconService.getIcon( iconKey );
+  private final DhisConfigurationProvider dhisConfig;
 
-        return iconMapper.from( icon );
+  @GetMapping("/{iconKey}")
+  public @ResponseBody IconResponse getIcon(@PathVariable String iconKey) throws NotFoundException {
+    Icon icon = iconService.getIcon(iconKey);
+
+    return iconMapper.from(icon);
+  }
+
+  @GetMapping("/{iconKey}/icon.svg")
+  public void getIconData(HttpServletResponse response, @PathVariable String iconKey)
+      throws IOException, NotFoundException {
+    downloadDefaultIcon(iconKey, response);
+  }
+
+  @GetMapping(value = "/{key}/icon")
+  public void getIconData(@PathVariable String key, HttpServletResponse response)
+      throws NotFoundException, WebMessageException, IOException {
+
+    Icon icon = iconService.getIcon(key);
+
+    if (icon instanceof DefaultIcon) {
+      downloadDefaultIcon(icon.getKey(), response);
+    } else if (icon instanceof CustomIcon customIcon) {
+      downloadCustomIcon(customIcon.getFileResourceUid(), response);
+    }
+  }
+
+  @GetMapping
+  public @ResponseBody List<IconResponse> getAllIcons(
+      @RequestParam(required = false) String[] keywords) {
+    List<Icon> icons;
+
+    if (keywords == null) {
+      icons = iconService.getIcons();
+    } else {
+      icons = iconService.getIcons(keywords);
     }
 
-    @GetMapping( "/{iconKey}/icon.svg" )
-    public void getIconData( HttpServletResponse response, @PathVariable String iconKey )
-        throws IOException,
-        NotFoundException
-    {
-        Resource icon = iconService.getDefaultIconResource( iconKey );
+    return icons.stream().map(iconMapper::from).toList();
+  }
 
-        response.setHeader( "Cache-Control", CacheControl.maxAge( TTL, TimeUnit.DAYS ).getHeaderValue() );
-        response.setContentType( MediaType.SVG_UTF_8.toString() );
+  @GetMapping("/keywords")
+  public @ResponseBody Set<String> getKeywords() {
+    return iconService.getKeywords();
+  }
 
-        StreamUtils.copyThenCloseInputStream( icon.getInputStream(), response.getOutputStream() );
+  @PostMapping
+  public @ResponseBody WebMessage addCustomIcon(@RequestBody IconDto iconDto)
+      throws BadRequestException, NotFoundException {
+    iconService.addCustomIcon(iconMapper.to(iconDto));
+    WebMessage webMessage = new WebMessage(Status.OK, HttpStatus.CREATED);
+    webMessage.setMessage(String.format("Icon %s created", iconDto.getKey()));
+    return webMessage;
+  }
+
+  @PutMapping
+  public @ResponseBody WebMessage updateCustomIcon(@RequestBody IconDto iconDto)
+      throws BadRequestException, NotFoundException {
+    iconService.updateCustomIcon(iconDto.getKey(), iconDto.getDescription(), iconDto.getKeywords());
+
+    WebMessage webMessage = new WebMessage(Status.OK, HttpStatus.OK);
+    webMessage.setMessage(String.format("Icon %s updated", iconDto.getKey()));
+    return webMessage;
+  }
+
+  @DeleteMapping("/{iconKey}")
+  public @ResponseBody WebMessage deleteCustomIcon(@PathVariable String iconKey)
+      throws BadRequestException, NotFoundException {
+    iconService.deleteCustomIcon(iconKey);
+
+    WebMessage webMessage = new WebMessage(Status.OK, HttpStatus.OK);
+    webMessage.setMessage(String.format("Icon %s deleted", iconKey));
+    return webMessage;
+  }
+
+  private void downloadDefaultIcon(String key, HttpServletResponse response)
+      throws IOException, NotFoundException {
+    Resource icon = iconService.getDefaultIconResource(key);
+
+    response.setHeader("Cache-Control", CacheControl.maxAge(TTL, TimeUnit.DAYS).getHeaderValue());
+    response.setContentType(MediaType.SVG_UTF_8.toString());
+
+    StreamUtils.copyThenCloseInputStream(icon.getInputStream(), response.getOutputStream());
+  }
+
+  private void downloadCustomIcon(String fileResourceUid, HttpServletResponse response)
+      throws NotFoundException, WebMessageException {
+    FileResource fileResource = fileResourceService.getFileResource(fileResourceUid);
+
+    if (fileResource == null) {
+      throw new NotFoundException(FileResource.class, fileResourceUid);
     }
 
-    @GetMapping
-    public @ResponseBody List<IconResponse> getAllIcons( @RequestParam( required = false ) String[] keywords )
-    {
-        List<Icon> icons;
+    response.setContentType(fileResource.getContentType());
+    response.setHeader(
+        HttpHeaders.CONTENT_LENGTH,
+        String.valueOf(fileResourceService.getFileResourceContentLength(fileResource)));
+    response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "filename=" + fileResource.getName());
+    HeaderUtils.setSecurityHeaders(
+        response, dhisConfig.getProperty(ConfigurationKey.CSP_HEADER_VALUE));
 
-        if ( keywords == null )
-        {
-            icons = iconService.getIcons();
-        }
-        else
-        {
-            icons = iconService.getIcons( keywords );
-        }
-
-        return icons.stream().map( iconMapper::from ).toList();
+    try {
+      fileResourceService.copyFileResourceContent(fileResource, response.getOutputStream());
+    } catch (IOException e) {
+      log.error("Could not retrieve file.", e);
+      throw new WebMessageException(
+          error(
+              "Failed fetching the file from storage",
+              "There was an exception when trying to fetch the file from the storage backend. "
+                  + "Depending on the provider the root cause could be network or file system related."));
     }
-
-    @GetMapping( "/keywords" )
-    public @ResponseBody Set<String> getKeywords()
-    {
-        return iconService.getKeywords();
-    }
-
-    @PostMapping
-    public @ResponseBody WebMessage addCustomIcon( @RequestBody IconDto iconDto )
-        throws BadRequestException,
-        NotFoundException
-    {
-        iconService.addCustomIcon( iconMapper.to( iconDto ) );
-        WebMessage webMessage = new WebMessage( Status.OK, HttpStatus.CREATED );
-        webMessage.setMessage( String.format( "Icon %s created", iconDto.getKey() ) );
-        return webMessage;
-    }
-
-    @PutMapping
-    public @ResponseBody WebMessage updateCustomIcon( @RequestBody IconDto iconDto )
-        throws BadRequestException,
-        NotFoundException
-    {
-        iconService.updateCustomIcon( iconDto.getKey(), iconDto.getDescription(), iconDto.getKeywords() );
-
-        WebMessage webMessage = new WebMessage( Status.OK, HttpStatus.OK );
-        webMessage.setMessage( String.format( "Icon %s updated", iconDto.getKey() ) );
-        return webMessage;
-    }
-
-    @DeleteMapping( "/{iconKey}" )
-    public @ResponseBody WebMessage deleteCustomIcon( @PathVariable String iconKey )
-        throws BadRequestException,
-        NotFoundException
-    {
-        iconService.deleteCustomIcon( iconKey );
-
-        WebMessage webMessage = new WebMessage( Status.OK, HttpStatus.OK );
-        webMessage.setMessage( String.format( "Icon %s deleted", iconKey ) );
-        return webMessage;
-    }
+  }
 }

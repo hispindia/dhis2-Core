@@ -39,9 +39,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.hisp.dhis.random.BeanRandomizer;
-import org.hisp.dhis.trackedentitycomment.TrackedEntityComment;
 import org.hisp.dhis.tracker.imports.TrackerIdSchemeParams;
 import org.hisp.dhis.tracker.imports.bundle.TrackerBundle;
 import org.hisp.dhis.tracker.imports.domain.Enrollment;
@@ -56,83 +54,77 @@ import org.mockito.junit.jupiter.MockitoExtension;
 /**
  * @author Enrico Colasante
  */
-@ExtendWith( MockitoExtension.class )
-class NoteValidatorTest
-{
-    private NoteValidator validator;
+@ExtendWith(MockitoExtension.class)
+class NoteValidatorTest {
+  private NoteValidator validator;
 
-    private Enrollment enrollment;
+  private Enrollment enrollment;
 
-    private final BeanRandomizer rnd = BeanRandomizer.create();
+  private final BeanRandomizer rnd = BeanRandomizer.create();
 
-    private TrackerPreheat preheat;
+  private TrackerPreheat preheat;
 
-    private TrackerBundle bundle;
+  private TrackerBundle bundle;
 
-    private Reporter reporter;
+  private Reporter reporter;
 
-    @BeforeEach
-    public void setUp()
-    {
-        this.validator = new NoteValidator();
-        enrollment = rnd.nextObject( Enrollment.class );
+  @BeforeEach
+  public void setUp() {
+    this.validator = new NoteValidator();
+    enrollment = rnd.nextObject(Enrollment.class);
 
-        preheat = mock( TrackerPreheat.class );
-        bundle = mock( TrackerBundle.class );
-        when( bundle.getPreheat() ).thenReturn( preheat );
+    preheat = mock(TrackerPreheat.class);
+    bundle = mock(TrackerBundle.class);
+    when(bundle.getPreheat()).thenReturn(preheat);
 
-        TrackerIdSchemeParams idSchemes = TrackerIdSchemeParams.builder().build();
-        reporter = new Reporter( idSchemes );
-    }
+    TrackerIdSchemeParams idSchemes = TrackerIdSchemeParams.builder().build();
+    reporter = new Reporter(idSchemes);
+  }
 
-    @Test
-    void testNoteWithExistingUidWarnings()
-    {
-        // Given
-        final Note note = rnd.nextObject( Note.class );
+  @Test
+  void testNoteWithExistingUidWarnings() {
+    // Given
+    final Note note = rnd.nextObject(Note.class);
 
-        when( preheat.getNote( note.getNote() ) ).thenReturn( Optional.of( new TrackedEntityComment() ) );
-        enrollment.setNotes( Collections.singletonList( note ) );
+    when(preheat.getNote(note.getNote())).thenReturn(Optional.of(new org.hisp.dhis.note.Note()));
+    enrollment.setNotes(Collections.singletonList(note));
 
-        // When
-        validator.validate( reporter, bundle, enrollment );
+    // When
+    validator.validate(reporter, bundle, enrollment);
 
-        // Then
-        assertHasWarning( reporter, enrollment, E1119 );
-        assertThat( enrollment.getNotes(), hasSize( 0 ) );
-    }
+    // Then
+    assertHasWarning(reporter, enrollment, E1119);
+    assertThat(enrollment.getNotes(), hasSize(0));
+  }
 
-    @Test
-    void testNoteWithExistingUidAndNoTextIsIgnored()
-    {
-        // Given
-        final Note note = rnd.nextObject( Note.class );
-        note.setValue( null );
+  @Test
+  void testNoteWithExistingUidAndNoTextIsIgnored() {
+    // Given
+    final Note note = rnd.nextObject(Note.class);
+    note.setValue(null);
 
-        enrollment.setNotes( Collections.singletonList( note ) );
+    enrollment.setNotes(Collections.singletonList(note));
 
-        // When
-        validator.validate( reporter, bundle, enrollment );
+    // When
+    validator.validate(reporter, bundle, enrollment);
 
-        // Then
-        assertIsEmpty( reporter.getErrors() );
-        assertThat( enrollment.getNotes(), hasSize( 0 ) );
-    }
+    // Then
+    assertIsEmpty(reporter.getErrors());
+    assertThat(enrollment.getNotes(), hasSize(0));
+  }
 
-    @Test
-    void testNotesAreValidWhenUidDoesNotExist()
-    {
-        // Given
-        final List<Note> notes = rnd.objects( Note.class, 5 ).collect( Collectors.toList() );
+  @Test
+  void testNotesAreValidWhenUidDoesNotExist() {
+    // Given
+    final List<Note> notes = rnd.objects(Note.class, 5).collect(Collectors.toList());
 
-        enrollment.setNotes( notes );
+    enrollment.setNotes(notes);
 
-        // When
-        validator.validate( reporter, bundle, enrollment );
+    // When
+    validator.validate(reporter, bundle, enrollment);
 
-        // Then
-        assertIsEmpty( reporter.getErrors() );
-        assertThat( enrollment.getNotes(), hasSize( 5 ) );
-    }
-
+    // Then
+    assertIsEmpty(reporter.getErrors());
+    assertThat(enrollment.getNotes(), hasSize(5));
+  }
 }

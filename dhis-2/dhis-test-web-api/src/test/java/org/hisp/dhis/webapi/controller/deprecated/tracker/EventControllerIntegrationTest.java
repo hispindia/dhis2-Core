@@ -27,6 +27,7 @@
  */
 package org.hisp.dhis.webapi.controller.deprecated.tracker;
 
+import static org.hisp.dhis.security.Authorities.F_TRACKED_ENTITY_INSTANCE_SEARCH_IN_ALL_ORGUNITS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -35,6 +36,7 @@ import org.hisp.dhis.jsontree.JsonObject;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramStage;
+import org.hisp.dhis.user.User;
 import org.hisp.dhis.web.HttpStatus;
 import org.hisp.dhis.webapi.DhisControllerIntegrationTest;
 import org.hisp.dhis.webapi.utils.ContextUtils;
@@ -44,80 +46,89 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Viet Nguyen
  */
-class EventControllerIntegrationTest extends DhisControllerIntegrationTest
-{
-    @BeforeEach
-    public void setUp()
-    {
-        OrganisationUnit organisationUnit = createOrganisationUnit( "a" );
-        organisationUnit.setUid( "ZiMBqH865GV" );
-        manager.save( organisationUnit );
-        Program program = createProgram( 'A' );
-        program.getOrganisationUnits().add( organisationUnit );
-        program.setUid( "q04UBOqq3rp" );
-        manager.save( program );
-        ProgramStage programStage = createProgramStage( 'A', program );
-        programStage.setUid( "pSllsjpfLH2" );
-        program.getProgramStages().add( programStage );
-        manager.save( programStage );
-    }
+class EventControllerIntegrationTest extends DhisControllerIntegrationTest {
 
-    @Test
-    void testQueryCsv()
-    {
-        HttpResponse res = GET(
-            "/events/query.csv?format=csv&orgUnit=ZiMBqH865GV&program=q04UBOqq3rp&programStage=pSllsjpfLH2" );
-        assertEquals( HttpStatus.OK, res.status() );
-        assertEquals( ContextUtils.CONTENT_TYPE_TEXT_CSV, res.header( "Content-Type" ) );
-    }
+  private User user;
 
-    @Test
-    void testGetCsvZip()
-    {
-        HttpResponse res = GET(
-            "/events.csv.zip?attachment=events.csv.zip&orgUnit=ZiMBqH865GV&program=q04UBOqq3rp&programStage=pSllsjpfLH2" );
-        assertEquals( HttpStatus.OK, res.status() );
-        assertEquals( "application/csv+zip", res.header( "Content-Type" ) );
-        assertEquals( "attachment; filename=events.csv.zip", res.header( "Content-Disposition" ) );
-    }
+  @BeforeEach
+  public void setUp() {
+    OrganisationUnit organisationUnit = createOrganisationUnit("a");
+    organisationUnit.setUid("ZiMBqH865GV");
+    manager.save(organisationUnit);
+    Program program = createProgram('A');
+    program.getOrganisationUnits().add(organisationUnit);
+    program.setUid("q04UBOqq3rp");
+    manager.save(program);
+    ProgramStage programStage = createProgramStage('A', program);
+    programStage.setUid("pSllsjpfLH2");
+    program.getProgramStages().add(programStage);
+    manager.save(programStage);
+    user =
+        createAndAddUser(
+            "username", organisationUnit, F_TRACKED_ENTITY_INSTANCE_SEARCH_IN_ALL_ORGUNITS.name());
+  }
 
-    @Test
-    void testGetXml()
-    {
-        HttpResponse res = GET(
-            "/events.xml?attachment=events.xml&orgUnit=ZiMBqH865GV&program=q04UBOqq3rp&programStage=pSllsjpfLH2" );
-        assertEquals( HttpStatus.OK, res.status() );
-        assertEquals( "application/xml", res.header( "Content-Type" ) );
-        assertEquals( "attachment; filename=events.xml", res.header( "Content-Disposition" ) );
-    }
+  @Test
+  void testQueryCsv() {
+    injectSecurityContext(user);
+    HttpResponse res =
+        GET(
+            "/events/query.csv?format=csv&orgUnit=ZiMBqH865GV&program=q04UBOqq3rp&programStage=pSllsjpfLH2");
+    assertEquals(HttpStatus.OK, res.status());
+    assertEquals(ContextUtils.CONTENT_TYPE_TEXT_CSV, res.header("Content-Type"));
+  }
 
-    @Test
-    void testGetXmlZip()
-    {
-        HttpResponse res = GET(
-            "/events.xml.zip?attachment=events.xml.zip&orgUnit=ZiMBqH865GV&program=q04UBOqq3rp&programStage=pSllsjpfLH2" );
-        assertEquals( HttpStatus.OK, res.status() );
-        assertEquals( "application/xml+zip", res.header( "Content-Type" ) );
-        assertEquals( "attachment; filename=events.xml.zip", res.header( "Content-Disposition" ) );
-    }
+  @Test
+  void testGetCsvZip() {
+    injectSecurityContext(user);
+    HttpResponse res =
+        GET(
+            "/events.csv.zip?attachment=events.csv.zip&orgUnit=ZiMBqH865GV&program=q04UBOqq3rp&programStage=pSllsjpfLH2");
+    assertEquals(HttpStatus.OK, res.status());
+    assertEquals("application/csv+zip", res.header("Content-Type"));
+    assertEquals("attachment; filename=events.csv.zip", res.header("Content-Disposition"));
+  }
 
-    @Test
-    void testGetJsonZip()
-    {
-        HttpResponse res = GET(
-            "/events.json.zip?attachment=events.json.zip&orgUnit=ZiMBqH865GV&program=q04UBOqq3rp&programStage=pSllsjpfLH2" );
-        assertEquals( HttpStatus.OK, res.status() );
-        assertEquals( "application/json+zip", res.header( "Content-Type" ) );
-        assertEquals( "attachment; filename=events.json.zip", res.header( "Content-Disposition" ) );
-    }
+  @Test
+  void testGetXml() {
+    injectSecurityContext(user);
+    HttpResponse res =
+        GET(
+            "/events.xml?attachment=events.xml&orgUnit=ZiMBqH865GV&program=q04UBOqq3rp&programStage=pSllsjpfLH2");
+    assertEquals(HttpStatus.OK, res.status());
+    assertEquals("application/xml", res.header("Content-Type"));
+    assertEquals("attachment; filename=events.xml", res.header("Content-Disposition"));
+  }
 
-    @Test
-    void testSkipPaging()
-    {
-        JsonObject res = GET( "/events.json?ouMode=ALL&skipPaging=true" ).content( HttpStatus.OK );
-        assertFalse( res.get( "pager" ).exists() );
+  @Test
+  void testGetXmlZip() {
+    injectSecurityContext(user);
+    HttpResponse res =
+        GET(
+            "/events.xml.zip?attachment=events.xml.zip&orgUnit=ZiMBqH865GV&program=q04UBOqq3rp&programStage=pSllsjpfLH2");
+    assertEquals(HttpStatus.OK, res.status());
+    assertEquals("application/xml+zip", res.header("Content-Type"));
+    assertEquals("attachment; filename=events.xml.zip", res.header("Content-Disposition"));
+  }
 
-        res = GET( "/events.json?ouMode=ALL&skipPaging=false" ).content( HttpStatus.OK );
-        assertTrue( res.get( "pager" ).exists() );
-    }
+  @Test
+  void testGetJsonZip() {
+    injectSecurityContext(user);
+
+    HttpResponse res =
+        GET(
+            "/events.json.zip?attachment=events.json.zip&orgUnit=ZiMBqH865GV&program=q04UBOqq3rp&programStage=pSllsjpfLH2");
+    assertEquals(HttpStatus.OK, res.status());
+    assertEquals("application/json+zip", res.header("Content-Type"));
+    assertEquals("attachment; filename=events.json.zip", res.header("Content-Disposition"));
+  }
+
+  @Test
+  void testSkipPaging() {
+    JsonObject res = GET("/events.json?ouMode=ALL&skipPaging=true").content(HttpStatus.OK);
+    assertFalse(res.get("pager").exists());
+
+    res = GET("/events.json?ouMode=ALL&skipPaging=false").content(HttpStatus.OK);
+    assertTrue(res.get("pager").exists());
+  }
 }

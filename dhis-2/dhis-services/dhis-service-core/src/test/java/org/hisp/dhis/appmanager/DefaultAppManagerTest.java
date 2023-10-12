@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.stream.Stream;
-
+import org.hisp.dhis.apphub.AppHubService;
 import org.hisp.dhis.cache.Cache;
 import org.hisp.dhis.cache.CacheBuilder;
 import org.hisp.dhis.cache.DefaultCacheBuilderProvider;
@@ -52,114 +52,97 @@ import org.mockito.junit.jupiter.MockitoExtension;
  *
  * @author maikel arabori
  */
-@ExtendWith( MockitoExtension.class )
-class DefaultAppManagerTest
-{
-    @Mock
-    private DhisConfigurationProvider dhisConfigurationProvider;
+@ExtendWith(MockitoExtension.class)
+class DefaultAppManagerTest {
 
-    @Mock
-    private AppStorageService localAppStorageService;
+  @Mock private DhisConfigurationProvider dhisConfigurationProvider;
+  @Mock private AppHubService appHubService;
+  @Mock private AppStorageService localAppStorageService;
+  @Mock private AppStorageService jCloudsAppStorageService;
+  @Mock private DatastoreService datastoreService;
+  @Mock private Cache<App> appCache;
+  @Mock private DefaultCacheBuilderProvider cacheBuilderProvider;
+  @Mock private CacheBuilder cacheBuilder;
 
-    @Mock
-    private AppStorageService jCloudsAppStorageService;
+  private AppManager appManager;
 
-    @Mock
-    private DatastoreService datastoreService;
+  @BeforeEach
+  void beforeEach() {
+    requiredByAllTests();
+  }
 
-    @Mock
-    private Cache<App> appCache;
+  @Test
+  void testGetDashboardPlugins() {
+    // Given
+    String contextPath = "anyPath";
 
-    @Mock
-    private DefaultCacheBuilderProvider cacheBuilderProvider;
+    appManager = Mockito.spy(appManager);
+    doReturn(true).when(appManager).isAccessible(any());
 
-    @Mock
-    private CacheBuilder cacheBuilder;
+    // Then
+    stubAppsStream();
+    List<App> apps = appManager.getDashboardPlugins(contextPath, 2, false);
+    assertEquals(2, apps.size());
 
-    private AppManager appManager;
+    stubAppsStream();
+    apps = appManager.getDashboardPlugins(contextPath, 3, false);
+    assertEquals(3, apps.size());
 
-    @BeforeEach
-    void beforeEach()
-    {
-        requiredByAllTests();
-    }
+    stubAppsStream();
+    apps = appManager.getDashboardPlugins(contextPath, 5, false);
+    assertEquals(3, apps.size());
 
-    @Test
-    void testGetDashboardPlugins()
-    {
-        // Given
-        String contextPath = "anyPath";
+    stubAppsStream();
+    apps = appManager.getDashboardPlugins(contextPath, 5, true);
+    assertEquals(1, apps.size());
+    assertEquals("App 3", apps.get(0).getName());
 
-        appManager = Mockito.spy( appManager );
-        doReturn( true ).when( appManager ).isAccessible( any() );
+    stubAppsStream();
+    apps = appManager.getDashboardPlugins(contextPath, 1, true);
+    assertEquals(1, apps.size());
+    assertEquals("App 3", apps.get(0).getName());
 
-        // Then
-        stubAppsStream();
-        List<App> apps = appManager.getDashboardPlugins( contextPath, 2, false );
-        assertEquals( 2, apps.size() );
+    stubAppsStream();
+    apps = appManager.getDashboardPlugins(contextPath, 0, true);
+    assertEquals(0, apps.size());
+  }
 
-        stubAppsStream();
-        apps = appManager.getDashboardPlugins( contextPath, 3, false );
-        assertEquals( 3, apps.size() );
+  /** Required by all tests to work. */
+  private void requiredByAllTests() {
+    doReturn(cacheBuilder).when(cacheBuilderProvider).newCacheBuilder();
+    doReturn(cacheBuilder).when(cacheBuilder).forRegion("appCache");
+    doReturn(appCache).when(cacheBuilder).build();
 
-        stubAppsStream();
-        apps = appManager.getDashboardPlugins( contextPath, 5, false );
-        assertEquals( 3, apps.size() );
+    appManager =
+        new DefaultAppManager(
+            dhisConfigurationProvider,
+            appHubService,
+            localAppStorageService,
+            jCloudsAppStorageService,
+            datastoreService,
+            cacheBuilderProvider);
+  }
 
-        stubAppsStream();
-        apps = appManager.getDashboardPlugins( contextPath, 5, true );
-        assertEquals( 1, apps.size() );
-        assertEquals( "App 3", apps.get( 0 ).getName() );
+  /**
+   * Used multiple times before each test (if applicable). Needed because streams can be used only
+   * once.
+   */
+  private void stubAppsStream() {
+    when(appCache.getAll()).thenReturn(stubApps());
+  }
 
-        stubAppsStream();
-        apps = appManager.getDashboardPlugins( contextPath, 1, true );
-        assertEquals( 1, apps.size() );
-        assertEquals( "App 3", apps.get( 0 ).getName() );
+  private Stream<App> stubApps() {
+    return List.of(
+        stubApp("Line Listing", false), stubApp("Data Visualizer", true), stubApp("App 3", false))
+        .stream();
+  }
 
-        stubAppsStream();
-        apps = appManager.getDashboardPlugins( contextPath, 0, true );
-        assertEquals( 0, apps.size() );
-    }
+  private App stubApp(String name, boolean isCoreApp) {
+    App app = new App();
+    app.setName(name);
+    app.setCoreApp(isCoreApp);
+    app.setAppType(AppType.DASHBOARD_WIDGET);
 
-    /**
-     * Required by all tests to work.
-     */
-    private void requiredByAllTests()
-    {
-        doReturn( cacheBuilder ).when( cacheBuilderProvider ).newCacheBuilder();
-        doReturn( cacheBuilder ).when( cacheBuilder ).forRegion( "appCache" );
-        doReturn( appCache ).when( cacheBuilder ).build();
-
-        appManager = new DefaultAppManager( dhisConfigurationProvider, localAppStorageService, jCloudsAppStorageService,
-            datastoreService, cacheBuilderProvider );
-    }
-
-    /**
-     * Used multiple times before each test (if applicable). Needed because
-     * streams can be used only once.
-     */
-    private void stubAppsStream()
-    {
-        when( appCache.getAll() ).thenReturn( stubApps() );
-    }
-
-    private Stream<App> stubApps()
-    {
-        return List
-            .of(
-                stubApp( "Line Listing", false ),
-                stubApp( "Data Visualizer", true ),
-                stubApp( "App 3", false ) )
-            .stream();
-    }
-
-    private App stubApp( String name, boolean isCoreApp )
-    {
-        App app = new App();
-        app.setName( name );
-        app.setCoreApp( isCoreApp );
-        app.setAppType( AppType.DASHBOARD_WIDGET );
-
-        return app;
-    }
+    return app;
+  }
 }

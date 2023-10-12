@@ -29,55 +29,116 @@ package org.hisp.dhis.webapi.controller;
 
 import static org.hisp.dhis.utils.Assertions.assertGreaterOrEqual;
 import static org.hisp.dhis.utils.Assertions.assertLessOrEqual;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.swagger.parser.OpenAPIParser;
+import io.swagger.v3.parser.core.models.SwaggerParseResult;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import org.hisp.dhis.jsontree.JsonMixed;
 import org.hisp.dhis.jsontree.JsonObject;
 import org.hisp.dhis.webapi.DhisControllerConvenienceTest;
 import org.junit.jupiter.api.Test;
+import org.openapitools.codegen.DefaultGenerator;
+import org.openapitools.codegen.config.CodegenConfigurator;
 
 /**
- * Tests the {@link org.hisp.dhis.webapi.openapi.OpenApiController} with Mock
- * MVC tests.
+ * Tests the {@link org.hisp.dhis.webapi.openapi.OpenApiController} with Mock MVC tests.
  *
- * The documents returned by the controller are generated "on-the-fly" and are
- * not dependent on any database input.
+ * <p>The documents returned by the controller are generated "on-the-fly" and are not dependent on
+ * any database input.
  *
  * @author Jan Bernitt
  */
-class OpenApiControllerTest extends DhisControllerConvenienceTest
-{
-    @Test
-    void testGetOpenApiDocument()
-    {
-        JsonObject doc = GET( "/openapi/openapi.json" ).content();
-        assertTrue( doc.isObject() );
-        assertGreaterOrEqual( 150, doc.getObject( "paths" ).size() );
-        assertGreaterOrEqual( 0, doc.getObject( "security[0].basicAuth" ).size() );
-        assertGreaterOrEqual( 1, doc.getObject( "components.securitySchemes" ).size() );
-        assertGreaterOrEqual( 200, doc.getObject( "components.schemas" ).size() );
-        assertGreaterOrEqual( 200, doc.getObject( "components.schemas" ).size() );
-    }
+class OpenApiControllerTest extends DhisControllerConvenienceTest {
+  @Test
+  void testGetOpenApiDocumentJson() {
+    JsonObject doc =
+        GET("/openapi/openapi.json?failOnNameClash=true&failOnInconsistency=true").content();
+    assertTrue(doc.isObject());
+    assertTrue(doc.getObject("components.schemas.PropertyNames_OrganisationUnit").isObject());
+    assertGreaterOrEqual(150, doc.getObject("paths").size());
+    assertGreaterOrEqual(0, doc.getObject("security[0].basicAuth").size());
+    assertGreaterOrEqual(1, doc.getObject("components.securitySchemes").size());
+    assertGreaterOrEqual(200, doc.getObject("components.schemas").size());
+    assertGreaterOrEqual(200, doc.getObject("components.schemas").size());
 
-    @Test
-    void testGetOpenApiDocument_PathFilter()
-    {
-        JsonObject doc = GET( "/openapi/openapi.json?path=/users" ).content();
-        assertTrue( doc.isObject() );
-        assertTrue(
-            doc.getObject( "paths" ).has( "/users/gist", "/users/invite", "/users/invites", "/users/sharing" ) );
-        assertLessOrEqual( 25, doc.getObject( "paths" ).size() );
-        assertLessOrEqual( 35, doc.getObject( "components.schemas" ).size() );
-    }
+    SwaggerParseResult result =
+        new OpenAPIParser().readContents(doc.node().getDeclaration(), null, null);
+    assertEquals(List.of(), result.getMessages(), "There should not be any errors");
+  }
 
-    @Test
-    void testGetOpenApiDocument_TagFilter()
-    {
-        JsonObject doc = GET( "/openapi/openapi.json?tag=user" ).content();
-        assertTrue( doc.isObject() );
-        assertTrue(
-            doc.getObject( "paths" ).has( "/users/gist", "/users/invite", "/users/invites", "/users/sharing" ) );
-        assertLessOrEqual( 130, doc.getObject( "paths" ).size() );
-        assertLessOrEqual( 60, doc.getObject( "components.schemas" ).size() );
-    }
+  @Test
+  void testGetOpenApiDocument_PathFilter() {
+    JsonObject doc = GET("/openapi/openapi.json?path=/users").content();
+    assertTrue(doc.isObject());
+    assertTrue(
+        doc.getObject("paths")
+            .has("/users/gist", "/users/invite", "/users/invites", "/users/sharing"));
+    assertLessOrEqual(26, doc.getObject("paths").size());
+    assertLessOrEqual(22, doc.getObject("components.schemas").size());
+  }
 
+  @Test
+  void testGetOpenApiDocument_TagFilter() {
+    JsonObject doc = GET("/openapi/openapi.json?tag=user").content();
+    assertTrue(doc.isObject());
+    assertTrue(
+        doc.getObject("paths")
+            .has("/users/gist", "/users/invite", "/users/invites", "/users/sharing"));
+    assertLessOrEqual(130, doc.getObject("paths").size());
+    assertLessOrEqual(60, doc.getObject("components.schemas").size());
+  }
+
+  @Test
+  void testGetOpenApiDocument_DefaultValue() {
+    // defaults in parameter objects (from Property analysis)
+    JsonObject users = GET("/openapi/openapi.json?path=/users").content();
+    JsonObject sharedParams = users.getObject("components.parameters");
+    assertEquals(50, sharedParams.getNumber("{GistParams.pageSize}.schema.default").integer());
+    assertEquals(
+        "AND", sharedParams.getString("{GistParams.rootJunction}.schema.default").string());
+    assertTrue(sharedParams.getBoolean("{GistParams.translate}.schema.default").booleanValue());
+
+    // defaults in individual parameters (from endpoint method parameter analysis)
+    JsonObject fileResources = GET("/openapi/openapi.json?path=/fileResources").content();
+    JsonObject domain =
+        fileResources.get("paths./fileResources/.post.parameters").asList(JsonObject.class).stream()
+            .filter(p -> "domain".equals(p.getString("name").string()))
+            .findFirst()
+            .orElse(JsonMixed.of("{}"));
+    assertEquals("DATA_VALUE", domain.getString("schema.default").string());
+
+    JsonObject audits = GET("/openapi/openapi.json?path=/audits").content();
+    JsonObject pageSize =
+        audits
+            .getArray("paths./audits/trackedEntityAttributeValue.get.parameters")
+            .asList(JsonObject.class)
+            .stream()
+            .filter(p -> "pageSize".equals(p.getString("name").string()))
+            .findFirst()
+            .orElse(JsonMixed.of("{}"));
+    assertEquals(50, pageSize.getNumber("schema.default").integer());
+  }
+
+  @Test
+  void testGetOpenApiDocument_CodeGeneration() throws IOException {
+    JsonObject doc = GET("/openapi/openapi.json?failOnNameClash=true").content();
+
+    Path tmpFile = Files.createTempFile("openapi", ".json");
+    Files.writeString(tmpFile, doc.node().getDeclaration());
+
+    CodegenConfigurator configurator =
+        new CodegenConfigurator()
+            .setInputSpec(tmpFile.toAbsolutePath().toString())
+            .setGeneratorName("r");
+
+    assertNotNull(
+        new DefaultGenerator(true).opts(configurator.toClientOptInput()).generate(),
+        "Like due to a query parameter which is complex, needs debugging to find out, insert breakpoint at RClientCodegen.constructExampleCode(RClientCodegen.java:950)");
+  }
 }
