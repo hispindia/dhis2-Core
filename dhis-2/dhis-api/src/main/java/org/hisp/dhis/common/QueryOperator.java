@@ -28,6 +28,7 @@
 package org.hisp.dhis.common;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.replaceOnce;
 
 import lombok.Getter;
@@ -38,50 +39,48 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-public enum QueryOperator
-{
-    EQ( "=", true ),
-    GT( ">" ),
-    GE( ">=" ),
-    LT( "<" ),
-    LE( "<=" ),
-    LIKE( "like" ),
-    IN( "in", true ),
-    SW( "sw" ),
-    EW( "ew" ),
-    // Analytics specifics
-    IEQ( "==", true ),
-    @Deprecated // Prefer NEQ instead
-    NE( "!=", true ),
-    NEQ( "!=", true ),
-    NIEQ( "!==", true ),
-    NLIKE( "not like" ),
-    ILIKE( "ilike" ),
-    NILIKE( "not ilike" );
+public enum QueryOperator {
+  EQ("=", true),
+  GT(">"),
+  GE(">="),
+  LT("<"),
+  LE("<="),
+  LIKE("like"),
+  IN("in", true),
+  SW("sw"),
+  EW("ew"),
+  // Analytics specifics
+  IEQ("==", true),
+  @Deprecated // Prefer NEQ instead
+  NE("!=", true),
+  NEQ("!=", true),
+  NIEQ("!==", true),
+  NLIKE("not like"),
+  ILIKE("ilike"),
+  NILIKE("not ilike");
 
-    private final String value;
+  private final String value;
 
-    private final boolean nullAllowed;
+  private final boolean nullAllowed;
 
-    QueryOperator( String value )
-    {
-        this.value = value;
-        this.nullAllowed = false;
+  QueryOperator(String value) {
+    this.value = value;
+    this.nullAllowed = false;
+  }
+
+  public static QueryOperator fromString(String string) {
+    if (isBlank(string)) {
+      return null;
     }
 
-    public static QueryOperator fromString( String string )
-    {
-        if ( string == null || string.isEmpty() )
-        {
-            return null;
-        }
-
-        if ( string.trim().startsWith( "!" ) )
-        {
-            return valueOf( "N" + replaceOnce( string, "!", EMPTY ).toUpperCase() );
-        }
-
-        return valueOf( string.toUpperCase() );
+    if (string.trim().startsWith("!")) {
+      return valueOf("N" + replaceOnce(string, "!", EMPTY).toUpperCase());
     }
 
+    return valueOf(string.toUpperCase());
+  }
+
+  public boolean isIn() {
+    return IN == this;
+  }
 }

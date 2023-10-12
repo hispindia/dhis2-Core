@@ -34,6 +34,8 @@ import static org.hisp.dhis.common.cache.CacheStrategy.RESPECT_SYSTEM_SETTING;
 import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.notFound;
 import static org.hisp.dhis.eventvisualization.EventVisualizationType.LINE_LIST;
 import static org.hisp.dhis.eventvisualization.EventVisualizationType.PIVOT_TABLE;
+import static org.hisp.dhis.feedback.ErrorCode.E7237;
+import static org.hisp.dhis.feedback.ErrorCode.E7238;
 import static org.hisp.dhis.schema.descriptors.EventVisualizationSchemaDescriptor.API_ENDPOINT;
 import static org.hisp.dhis.system.util.CodecUtils.filenameEncode;
 import static org.hisp.dhis.webapi.utils.ContextUtils.CONTENT_TYPE_PNG;
@@ -43,16 +45,15 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import lombok.AllArgsConstructor;
-
 import org.hisp.dhis.common.DimensionService;
+import org.hisp.dhis.common.IllegalQueryException;
 import org.hisp.dhis.dxf2.webmessage.WebMessageException;
 import org.hisp.dhis.eventvisualization.EventVisualization;
 import org.hisp.dhis.eventvisualization.EventVisualizationService;
+import org.hisp.dhis.feedback.ErrorMessage;
 import org.hisp.dhis.i18n.I18nFormat;
 import org.hisp.dhis.i18n.I18nManager;
 import org.hisp.dhis.legend.LegendSetService;
@@ -63,6 +64,7 @@ import org.hisp.dhis.user.User;
 import org.hisp.dhis.visualization.ChartService;
 import org.hisp.dhis.visualization.PlotData;
 import org.hisp.dhis.webapi.controller.AbstractCrudController;
+import org.hisp.dhis.webapi.controller.exception.ConflictException;
 import org.hisp.dhis.webapi.mvc.annotation.ApiVersion;
 import org.hisp.dhis.webapi.utils.ContextUtils;
 import org.hisp.dhis.webapi.webdomain.WebOptions;
@@ -74,187 +76,203 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * Controller responsible for providing the basic CRUD endpoints for the model
- * EventVisualization.
+ * Controller responsible for providing the basic CRUD endpoints for the model EventVisualization.
  *
  * @author maikel arabori
  */
 @Controller
-@RequestMapping( value = API_ENDPOINT )
-@ApiVersion( { DEFAULT, ALL } )
+@RequestMapping(value = API_ENDPOINT)
+@ApiVersion({DEFAULT, ALL})
 @AllArgsConstructor
-public class EventVisualizationController
-    extends
-    AbstractCrudController<EventVisualization>
-{
-    private final DimensionService dimensionService;
+public class EventVisualizationController extends AbstractCrudController<EventVisualization> {
+  private final DimensionService dimensionService;
 
-    private final LegendSetService legendSetService;
+  private final LegendSetService legendSetService;
 
-    private final OrganisationUnitService organisationUnitService;
+  private final OrganisationUnitService organisationUnitService;
 
-    private final EventVisualizationService eventVisualizationService;
+  private final EventVisualizationService eventVisualizationService;
 
-    private final ChartService chartService;
+  private final ChartService chartService;
 
-    private final I18nManager i18nManager;
+  private final I18nManager i18nManager;
 
-    private final ContextUtils contextUtils;
+  private final ContextUtils contextUtils;
 
-    @GetMapping( value = { "/{uid}/data", "/{uid}/data.png" } )
-    void generateChart( @PathVariable( "uid" ) String uid, @RequestParam( value = "date", required = false ) Date date,
-        @RequestParam( value = "ou", required = false ) String ou,
-        @RequestParam( value = "width", defaultValue = "800", required = false ) int width,
-        @RequestParam( value = "height", defaultValue = "500", required = false ) int height,
-        @RequestParam( value = "attachment", required = false ) boolean attachment, HttpServletResponse response )
-        throws IOException,
-        WebMessageException
-    {
-        // TODO no acl?
-        final EventVisualization eventVisualization = eventVisualizationService.getEventVisualization( uid );
+  @GetMapping(value = {"/{uid}/data", "/{uid}/data.png"})
+  void generateChart(
+      @PathVariable("uid") String uid,
+      @RequestParam(value = "date", required = false) Date date,
+      @RequestParam(value = "ou", required = false) String ou,
+      @RequestParam(value = "width", defaultValue = "800", required = false) int width,
+      @RequestParam(value = "height", defaultValue = "500", required = false) int height,
+      @RequestParam(value = "attachment", required = false) boolean attachment,
+      HttpServletResponse response)
+      throws IOException, WebMessageException {
+    // TODO no acl?
+    final EventVisualization eventVisualization =
+        eventVisualizationService.getEventVisualization(uid);
 
-        if ( eventVisualization == null )
-        {
-            throw new WebMessageException( notFound( "Event visualization does not exist: " + uid ) );
-        }
-
-        doesNotAllowPivotAndReportChart( eventVisualization );
-
-        final OrganisationUnit unit = ou != null ? organisationUnitService.getOrganisationUnit( ou ) : null;
-
-        final JFreeChart jFreeChart = chartService.getJFreeChart( new PlotData( eventVisualization ), date, unit,
-            i18nManager.getI18nFormat() );
-
-        final String filename = filenameEncode( eventVisualization.getName() ) + ".png";
-
-        contextUtils.configureResponse( response, CONTENT_TYPE_PNG, RESPECT_SYSTEM_SETTING, filename, attachment );
-
-        writeChartAsPNG( response.getOutputStream(), jFreeChart, width, height );
+    if (eventVisualization == null) {
+      throw new WebMessageException(notFound("Event visualization does not exist: " + uid));
     }
 
-    @Override
-    protected EventVisualization deserializeJsonEntity( final HttpServletRequest request )
-        throws IOException
-    {
-        final EventVisualization eventVisualization = super.deserializeJsonEntity( request );
+    doesNotAllowPivotAndReportChart(eventVisualization);
 
-        prepare( eventVisualization );
+    final OrganisationUnit unit =
+        ou != null ? organisationUnitService.getOrganisationUnit(ou) : null;
 
-        return eventVisualization;
+    final JFreeChart jFreeChart =
+        chartService.getJFreeChart(
+            new PlotData(eventVisualization), date, unit, i18nManager.getI18nFormat());
+
+    final String filename = filenameEncode(eventVisualization.getName()) + ".png";
+
+    contextUtils.configureResponse(
+        response, CONTENT_TYPE_PNG, RESPECT_SYSTEM_SETTING, filename, attachment);
+
+    writeChartAsPNG(response.getOutputStream(), jFreeChart, width, height);
+  }
+
+  @Override
+  protected EventVisualization deserializeJsonEntity(final HttpServletRequest request)
+      throws IOException {
+    final EventVisualization eventVisualization = super.deserializeJsonEntity(request);
+
+    prepare(eventVisualization);
+
+    return eventVisualization;
+  }
+
+  @Override
+  protected EventVisualization deserializeXmlEntity(final HttpServletRequest request)
+      throws IOException {
+    final EventVisualization eventVisualization = super.deserializeXmlEntity(request);
+
+    prepare(eventVisualization);
+
+    return eventVisualization;
+  }
+
+  @Override
+  protected void postProcessResponseEntity(
+      final EventVisualization eventVisualization,
+      final WebOptions options,
+      final Map<String, String> parameters) {
+    eventVisualization.populateAnalyticalProperties();
+
+    final User currentUser = currentUserService.getCurrentUser();
+
+    if (currentUser != null) {
+      final Set<OrganisationUnit> roots = currentUser.getDataViewOrganisationUnitsWithFallback();
+
+      for (OrganisationUnit organisationUnit : eventVisualization.getOrganisationUnits()) {
+        eventVisualization
+            .getParentGraphMap()
+            .put(organisationUnit.getUid(), organisationUnit.getParentGraph(roots));
+      }
     }
 
-    @Override
-    protected EventVisualization deserializeXmlEntity( final HttpServletRequest request )
-        throws IOException
-    {
-        final EventVisualization eventVisualization = super.deserializeXmlEntity( request );
+    final I18nFormat format = i18nManager.getI18nFormat();
 
-        prepare( eventVisualization );
-
-        return eventVisualization;
+    if (eventVisualization.getPeriods() != null && !eventVisualization.getPeriods().isEmpty()) {
+      for (final Period period : eventVisualization.getPeriods()) {
+        period.setName(format.formatPeriod(period));
+      }
     }
+  }
 
-    @Override
-    protected void postProcessResponseEntity( final EventVisualization eventVisualization, final WebOptions options,
-        final Map<String, String> parameters )
-    {
-        eventVisualization.populateAnalyticalProperties();
-
-        final User currentUser = currentUserService.getCurrentUser();
-
-        if ( currentUser != null )
-        {
-            final Set<OrganisationUnit> roots = currentUser.getDataViewOrganisationUnitsWithFallback();
-
-            for ( OrganisationUnit organisationUnit : eventVisualization.getOrganisationUnits() )
-            {
-                eventVisualization.getParentGraphMap().put( organisationUnit.getUid(),
-                    organisationUnit.getParentGraph( roots ) );
-            }
-        }
-
-        final I18nFormat format = i18nManager.getI18nFormat();
-
-        if ( eventVisualization.getPeriods() != null && !eventVisualization.getPeriods().isEmpty() )
-        {
-            for ( final Period period : eventVisualization.getPeriods() )
-            {
-                period.setName( format.formatPeriod( period ) );
-            }
-        }
-    }
-
-    @Override
-    protected void preCreateEntity( final EventVisualization newEventVisualization )
-    {
-        /**
-         * Once a legacy EventVisualization is CREATED through this new
-         * endpoint, it will automatically become a non-legacy
-         * EventVisualization.
-         */
-        forceNonLegacy( newEventVisualization );
-    }
-
-    @Override
-    protected void preUpdateEntity( final EventVisualization eventVisualization,
-        final EventVisualization newEventVisualization )
-    {
-        /**
-         * Once a legacy EventVisualization is UPDATED through this new
-         * endpoint, it will automatically become a non-legacy
-         * EventVisualization.
-         */
-        forceNonLegacy( newEventVisualization );
-    }
-
-    private void forceNonLegacy( final EventVisualization eventVisualization )
-    {
-        if ( eventVisualization != null && eventVisualization.isLegacy() )
-        {
-            eventVisualization.setLegacy( false );
-        }
-    }
-
-    private void prepare( final EventVisualization eventVisualization )
-    {
-        dimensionService.mergeAnalyticalObject( eventVisualization );
-        dimensionService.mergeEventAnalyticalObject( eventVisualization );
-
-        eventVisualization.getColumnDimensions().clear();
-        eventVisualization.getRowDimensions().clear();
-        eventVisualization.getFilterDimensions().clear();
-        eventVisualization.getSimpleDimensions().clear();
-
-        eventVisualization.getColumnDimensions().addAll( getDimensions( eventVisualization.getColumns() ) );
-        eventVisualization.getRowDimensions().addAll( getDimensions( eventVisualization.getRows() ) );
-        eventVisualization.getFilterDimensions().addAll( getDimensions( eventVisualization.getFilters() ) );
-        eventVisualization.associateSimpleDimensions();
-
-        maybeLoadLegendSetInto( eventVisualization );
-    }
-
+  @Override
+  protected void preCreateEntity(final EventVisualization newEventVisualization) {
     /**
-     * Load the current/existing legendSet (if any is set) into the current
-     * visualization object, so the relationship can be persisted.
-     *
-     * @param eventVisualization
+     * Once a legacy EventVisualization is CREATED through this new endpoint, it will automatically
+     * become a non-legacy EventVisualization.
      */
-    private void maybeLoadLegendSetInto( final EventVisualization eventVisualization )
-    {
-        if ( eventVisualization.getLegendDefinitions() != null
-            && eventVisualization.getLegendDefinitions().getLegendSet() != null )
-        {
-            eventVisualization.getLegendDefinitions().setLegendSet(
-                legendSetService.getLegendSet( eventVisualization.getLegendDefinitions().getLegendSet().getUid() ) );
-        }
-    }
+    forceNonLegacy(newEventVisualization);
 
-    private void doesNotAllowPivotAndReportChart( final EventVisualization eventVisualization )
-        throws WebMessageException
-    {
-        if ( eventVisualization.getType() == PIVOT_TABLE || eventVisualization.getType() == LINE_LIST )
-        {
-            throw new WebMessageException( notFound( "Cannot generate chart for " + eventVisualization.getType() ) );
-        }
+    validateSorting(newEventVisualization);
+  }
+
+  @Override
+  protected void preUpdateEntity(
+      final EventVisualization eventVisualization, final EventVisualization newEventVisualization) {
+    /**
+     * Once a legacy EventVisualization is UPDATED through this new endpoint, it will automatically
+     * become a non-legacy EventVisualization.
+     */
+    forceNonLegacy(newEventVisualization);
+
+    validateSorting(newEventVisualization);
+  }
+
+  @Override
+  protected void prePatchEntity(
+      EventVisualization eventVisualization, EventVisualization newEventVisualization) {
+    validateSorting(newEventVisualization);
+  }
+
+  /**
+   * Simply validates the state of the {@link Sorting} attribute in the given {@link
+   * EventVisualization} object.
+   *
+   * @param eventVisualization the {@link EventVisualization}.
+   * @throws ConflictException if the {@link Sorting} attribute is not valid.
+   */
+  private void validateSorting(EventVisualization eventVisualization) {
+    try {
+      eventVisualization.validateSortingState();
+    } catch (IllegalArgumentException e) {
+      throw new IllegalQueryException(new ErrorMessage(E7237));
+    } catch (IllegalStateException e) {
+      throw new IllegalQueryException(new ErrorMessage(E7238, e.getMessage()));
     }
+  }
+
+  private void forceNonLegacy(final EventVisualization eventVisualization) {
+    if (eventVisualization != null && eventVisualization.isLegacy()) {
+      eventVisualization.setLegacy(false);
+    }
+  }
+
+  private void prepare(final EventVisualization eventVisualization) {
+    dimensionService.mergeAnalyticalObject(eventVisualization);
+    dimensionService.mergeEventAnalyticalObject(eventVisualization);
+
+    eventVisualization.getColumnDimensions().clear();
+    eventVisualization.getRowDimensions().clear();
+    eventVisualization.getFilterDimensions().clear();
+    eventVisualization.getSimpleDimensions().clear();
+
+    eventVisualization.getColumnDimensions().addAll(getDimensions(eventVisualization.getColumns()));
+    eventVisualization.getRowDimensions().addAll(getDimensions(eventVisualization.getRows()));
+    eventVisualization.getFilterDimensions().addAll(getDimensions(eventVisualization.getFilters()));
+    eventVisualization.associateSimpleDimensions();
+
+    maybeLoadLegendSetInto(eventVisualization);
+  }
+
+  /**
+   * Load the current/existing legendSet (if any is set) into the current visualization object, so
+   * the relationship can be persisted.
+   *
+   * @param eventVisualization
+   */
+  private void maybeLoadLegendSetInto(final EventVisualization eventVisualization) {
+    if (eventVisualization.getLegendDefinitions() != null
+        && eventVisualization.getLegendDefinitions().getLegendSet() != null) {
+      eventVisualization
+          .getLegendDefinitions()
+          .setLegendSet(
+              legendSetService.getLegendSet(
+                  eventVisualization.getLegendDefinitions().getLegendSet().getUid()));
+    }
+  }
+
+  private void doesNotAllowPivotAndReportChart(final EventVisualization eventVisualization)
+      throws WebMessageException {
+    if (eventVisualization.getType() == PIVOT_TABLE || eventVisualization.getType() == LINE_LIST) {
+      throw new WebMessageException(
+          notFound("Cannot generate chart for " + eventVisualization.getType()));
+    }
+  }
 }

@@ -32,6 +32,14 @@ import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.conflict;
 import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.notFound;
 import static org.springframework.http.CacheControl.noCache;
 
+import com.fasterxml.jackson.databind.SequenceWriter;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema.Builder;
+import com.fasterxml.jackson.dataformat.csv.CsvWriteException;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -43,10 +51,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.hisp.dhis.attribute.AttributeService;
 import org.hisp.dhis.attribute.AttributeValue;
 import org.hisp.dhis.common.BaseIdentifiableObject;
@@ -98,576 +104,535 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpClientErrorException;
 
-import com.fasterxml.jackson.databind.SequenceWriter;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.fasterxml.jackson.dataformat.csv.CsvWriteException;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-
 /**
- * Base controller for APIs that only want to offer read only access through
- * both Gist API and full API.
+ * Base controller for APIs that only want to offer read only access through both Gist API and full
+ * API.
  *
  * @author Jan Bernitt
  */
-@ApiVersion( { DhisApiVersion.DEFAULT, DhisApiVersion.ALL } )
+@ApiVersion({DhisApiVersion.DEFAULT, DhisApiVersion.ALL})
 public abstract class AbstractFullReadOnlyController<T extends IdentifiableObject>
-    extends AbstractGistReadOnlyController<T>
-{
-    protected static final String DEFAULTS = "INCLUDE";
+    extends AbstractGistReadOnlyController<T> {
+  protected static final String DEFAULTS = "INCLUDE";
 
-    protected static final WebOptions NO_WEB_OPTIONS = new WebOptions( new HashMap<>() );
+  protected static final WebOptions NO_WEB_OPTIONS = new WebOptions(new HashMap<>());
 
-    @Autowired
-    protected IdentifiableObjectManager manager;
+  @Autowired protected IdentifiableObjectManager manager;
 
-    @Autowired
-    protected CurrentUserService currentUserService;
+  @Autowired protected CurrentUserService currentUserService;
 
-    @Autowired
-    protected UserSettingService userSettingService;
+  @Autowired protected UserSettingService userSettingService;
 
-    @Autowired
-    protected ContextService contextService;
+  @Autowired protected ContextService contextService;
 
-    @Autowired
-    protected QueryService queryService;
+  @Autowired protected QueryService queryService;
 
-    @Autowired
-    protected FieldFilterService oldFieldFilterService;
+  @Autowired protected FieldFilterService oldFieldFilterService;
 
-    @Autowired
-    protected org.hisp.dhis.fieldfiltering.FieldFilterService fieldFilterService;
+  @Autowired protected org.hisp.dhis.fieldfiltering.FieldFilterService fieldFilterService;
 
-    @Autowired
-    protected LinkService linkService;
+  @Autowired protected LinkService linkService;
 
-    @Autowired
-    protected AclService aclService;
+  @Autowired protected AclService aclService;
 
-    @Autowired
-    protected AttributeService attributeService;
+  @Autowired protected AttributeService attributeService;
 
-    @Autowired
-    protected CsvMapper csvMapper;
+  @Autowired protected CsvMapper csvMapper;
 
-    // --------------------------------------------------------------------------
-    // Hooks
-    // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  // Hooks
+  // --------------------------------------------------------------------------
 
-    /**
-     * Override to process entities after it has been retrieved from storage and
-     * before it is returned to the view. Entities is null-safe.
-     */
-    protected void postProcessResponseEntities( List<T> entityList, WebOptions options, Map<String, String> parameters )
-    {
+  /**
+   * Override to process entities after it has been retrieved from storage and before it is returned
+   * to the view. Entities is null-safe.
+   */
+  protected void postProcessResponseEntities(
+      List<T> entityList, WebOptions options, Map<String, String> parameters) {}
+
+  /**
+   * Override to process a single entity after it has been retrieved from storage and before it is
+   * returned to the view. Entity is null-safe.
+   */
+  protected void postProcessResponseEntity(
+      T entity, WebOptions options, Map<String, String> parameters) throws Exception {}
+
+  /**
+   * Allows to append new filters to the incoming ones. Recommended only on very specific cases
+   * where forcing a new filter, programmatically, make sense.
+   */
+  protected void forceFiltering(final WebOptions webOptions, final List<String> filters) {}
+
+  // --------------------------------------------------------------------------
+  // GET Full
+  // --------------------------------------------------------------------------
+
+  @GetMapping
+  public @ResponseBody ResponseEntity<StreamingJsonRoot<T>> getObjectList(
+      @RequestParam Map<String, String> rpParameters,
+      OrderParams orderParams,
+      HttpServletResponse response,
+      @CurrentUser User currentUser)
+      throws QueryParserException {
+    List<Order> orders = orderParams.getOrders(getSchema());
+    List<String> fields = Lists.newArrayList(contextService.getParameterValues("fields"));
+    List<String> filters = Lists.newArrayList(contextService.getParameterValues("filter"));
+
+    if (fields.isEmpty()) {
+      fields.addAll(Preset.defaultPreset().getFields());
     }
 
-    /**
-     * Override to process a single entity after it has been retrieved from
-     * storage and before it is returned to the view. Entity is null-safe.
-     */
-    protected void postProcessResponseEntity( T entity, WebOptions options, Map<String, String> parameters )
-        throws Exception
-    {
+    WebOptions options = new WebOptions(rpParameters);
+    WebMetadata metadata = new WebMetadata();
+
+    if (!aclService.canRead(currentUser, getEntityClass())) {
+      throw new ReadAccessDeniedException(
+          "You don't have the proper permissions to read objects of this type.");
     }
 
-    /**
-     * Allows to append new filters to the incoming ones. Recommended only on
-     * very specific cases where forcing a new filter, programmatically, make
-     * sense.
-     */
-    protected void forceFiltering( final WebOptions webOptions, final List<String> filters )
-    {
+    forceFiltering(options, filters);
+
+    List<T> entities = getEntityList(metadata, options, filters, orders);
+
+    Pager pager = metadata.getPager();
+
+    if (options.hasPaging() && pager == null) {
+      long totalCount;
+
+      if (options.getOptions().containsKey("query")) {
+        totalCount = entities.size();
+
+        long skip = (long) (options.getPage() - 1) * options.getPageSize();
+        entities = entities.stream().skip(skip).limit(options.getPageSize()).collect(toList());
+      } else {
+        totalCount = countTotal(options, filters, orders);
+      }
+
+      pager = new Pager(options.getPage(), totalCount, options.getPageSize());
     }
 
-    // --------------------------------------------------------------------------
-    // GET Full
-    // --------------------------------------------------------------------------
+    postProcessResponseEntities(entities, options, rpParameters);
 
-    @GetMapping
-    public @ResponseBody ResponseEntity<StreamingJsonRoot<T>> getObjectList(
-        @RequestParam Map<String, String> rpParameters, OrderParams orderParams,
-        HttpServletResponse response, @CurrentUser User currentUser )
-        throws QueryParserException
-    {
-        List<Order> orders = orderParams.getOrders( getSchema() );
-        List<String> fields = Lists.newArrayList( contextService.getParameterValues( "fields" ) );
-        List<String> filters = Lists.newArrayList( contextService.getParameterValues( "filter" ) );
+    handleLinksAndAccess(entities, fields, false);
+    linkService.generatePagerLinks(pager, getEntityClass());
 
-        if ( fields.isEmpty() )
-        {
-            fields.addAll( Preset.defaultPreset().getFields() );
-        }
+    cachePrivate(response);
 
-        WebOptions options = new WebOptions( rpParameters );
-        WebMetadata metadata = new WebMetadata();
+    return ResponseEntity.ok(
+        new StreamingJsonRoot<>(
+            pager, getSchema().getCollectionName(), FieldFilterParams.of(entities, fields)));
+  }
 
-        if ( !aclService.canRead( currentUser, getEntityClass() ) )
-        {
-            throw new ReadAccessDeniedException(
-                "You don't have the proper permissions to read objects of this type." );
-        }
+  @GetMapping(produces = {"text/csv", "application/text"})
+  public ResponseEntity<String> getObjectListCsv(
+      @RequestParam Map<String, String> rpParameters,
+      OrderParams orderParams,
+      @CurrentUser User currentUser,
+      @RequestParam(defaultValue = ",") char separator,
+      @RequestParam(defaultValue = ";") String arraySeparator,
+      @RequestParam(defaultValue = "false") boolean skipHeader,
+      HttpServletResponse response)
+      throws IOException, WebMessageException {
+    List<Order> orders = orderParams.getOrders(getSchema());
+    List<String> fields = Lists.newArrayList(contextService.getParameterValues("fields"));
+    List<String> filters = Lists.newArrayList(contextService.getParameterValues("filter"));
 
-        forceFiltering( options, filters );
+    WebOptions options = new WebOptions(rpParameters);
+    WebMetadata metadata = new WebMetadata();
 
-        List<T> entities = getEntityList( metadata, options, filters, orders );
-
-        Pager pager = metadata.getPager();
-
-        if ( options.hasPaging() && pager == null )
-        {
-            long totalCount;
-
-            if ( options.getOptions().containsKey( "query" ) )
-            {
-                totalCount = entities.size();
-
-                long skip = (long) (options.getPage() - 1) * options.getPageSize();
-                entities = entities.stream()
-                    .skip( skip )
-                    .limit( options.getPageSize() )
-                    .collect( toList() );
-            }
-            else
-            {
-                totalCount = countTotal( options, filters, orders );
-            }
-
-            pager = new Pager( options.getPage(), totalCount, options.getPageSize() );
-        }
-
-        postProcessResponseEntities( entities, options, rpParameters );
-
-        handleLinksAndAccess( entities, fields, false );
-        linkService.generatePagerLinks( pager, getEntityClass() );
-
-        cachePrivate( response );
-
-        return ResponseEntity.ok( new StreamingJsonRoot<>( pager, getSchema().getCollectionName(),
-            FieldFilterParams.of( entities, fields ) ) );
+    if (fields.isEmpty() || fields.contains("*") || fields.contains(":all")) {
+      fields.addAll(Preset.defaultPreset().getFields());
     }
 
-    @GetMapping( produces = { "text/csv", "application/text" } )
-    public ResponseEntity<String> getObjectListCsv(
-        @RequestParam Map<String, String> rpParameters, OrderParams orderParams,
-        @CurrentUser User currentUser,
-        @RequestParam( defaultValue = "," ) char separator,
-        @RequestParam( defaultValue = ";" ) String arraySeparator,
-        @RequestParam( defaultValue = "false" ) boolean skipHeader,
-        HttpServletResponse response )
-        throws IOException,
-        WebMessageException
-    {
-        List<Order> orders = orderParams.getOrders( getSchema() );
-        List<String> fields = Lists.newArrayList( contextService.getParameterValues( "fields" ) );
-        List<String> filters = Lists.newArrayList( contextService.getParameterValues( "filter" ) );
-
-        WebOptions options = new WebOptions( rpParameters );
-        WebMetadata metadata = new WebMetadata();
-
-        if ( fields.isEmpty() || fields.contains( "*" ) || fields.contains( ":all" ) )
-        {
-            fields.addAll( Preset.defaultPreset().getFields() );
-        }
-
-        // only support metadata
-        if ( !getSchema().isMetadata() )
-        {
-            throw new HttpClientErrorException( HttpStatus.NOT_FOUND );
-        }
-
-        if ( !aclService.canRead( currentUser, getEntityClass() ) )
-        {
-            throw new ReadAccessDeniedException(
-                "You don't have the proper permissions to read objects of this type." );
-        }
-
-        List<T> entities = getEntityList( metadata, options, filters, orders );
-
-        CsvSchema schema;
-        CsvSchema.Builder schemaBuilder = CsvSchema.builder();
-        Map<String, Function<T, Object>> obj2valueByProperty = new LinkedHashMap<>();
-
-        for ( String field : fields )
-        {
-            // We just split on ',' here, we do not try and deep dive into
-            // objects using [], if the client provides id,name,group[id]
-            // then the group[id] part is simply ignored.
-            for ( String fieldName : field.split( "," ) )
-            {
-                Property property = getSchema().getProperty( fieldName );
-
-                if ( property == null )
-                {
-                    if ( CodeGenerator.isValidUid( fieldName ) )
-                    {
-                        schemaBuilder.addColumn( fieldName );
-                        obj2valueByProperty.put( fieldName, obj -> getAttributeValue( obj, fieldName ) );
-                    }
-                    continue;
-                }
-
-                if ( (property.isCollection() && property.itemIs( PropertyType.REFERENCE )) )
-                {
-                    schemaBuilder.addArrayColumn( property.getCollectionName() );
-                    obj2valueByProperty.put( property.getCollectionName(), obj -> getCollectionValue( obj, property ) );
-                }
-                else if ( property.isSimple() )
-                {
-                    schemaBuilder.addColumn( property.getName() );
-                    obj2valueByProperty.put( property.getName(),
-                        obj -> ReflectionUtils.invokeMethod( obj, property.getGetterMethod() ) );
-                }
-            }
-        }
-
-        schema = schemaBuilder.build()
-            .withColumnSeparator( separator )
-            .withArrayElementSeparator( arraySeparator );
-
-        if ( !skipHeader )
-        {
-            schema = schema.withHeader();
-        }
-
-        try ( StringWriter strW = new StringWriter() )
-        {
-            SequenceWriter seqW = csvMapper.writer( schema )
-                .writeValues( strW );
-
-            Object[] row = new Object[obj2valueByProperty.size()];
-
-            for ( T e : entities )
-            {
-                int i = 0;
-
-                for ( Function<T, Object> toValue : obj2valueByProperty.values() )
-                {
-                    Object o = toValue.apply( e );
-
-                    if ( o instanceof Collection )
-                    {
-                        row[i++] = ((Collection<?>) o).stream()
-                            .map( String::valueOf )
-                            .collect( Collectors.joining( arraySeparator ) );
-                    }
-                    else
-                    {
-                        row[i++] = o;
-                    }
-                }
-
-                seqW.write( row );
-            }
-
-            seqW.close();
-
-            return ResponseEntity.ok( strW.toString() );
-        }
-        catch ( CsvWriteException ex )
-        {
-            response.setContentType( MediaType.APPLICATION_JSON_VALUE );
-
-            throw new WebMessageException( conflict(
-                "Invalid property selected. Make sure all properties are either simple or collections of refs / simple.",
-                ex.getMessage() ) );
-        }
+    // only support metadata
+    if (!getSchema().isMetadata()) {
+      throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
     }
 
-    private static List<String> getCollectionValue( Object obj, Property property )
-    {
-        Object value = ReflectionUtils.invokeMethod( obj, property.getGetterMethod() );
-
-        @SuppressWarnings( "unchecked" )
-        Collection<IdentifiableObject> collection = (Collection<IdentifiableObject>) value;
-
-        return collection.stream().map( PrimaryKeyObject::getUid ).collect( toList() );
+    if (!aclService.canRead(currentUser, getEntityClass())) {
+      throw new ReadAccessDeniedException(
+          "You don't have the proper permissions to read objects of this type.");
     }
 
-    private static Object getAttributeValue( Object obj, String attrId )
-    {
-        if ( obj instanceof BaseIdentifiableObject )
-        {
-            AttributeValue attr = ((BaseIdentifiableObject) obj).getAttributeValue( attrId );
-            return attr == null ? null : attr.getValue();
-        }
-        return null;
+    List<T> entities = getEntityList(metadata, options, filters, orders);
+
+    try {
+      String csv = applyCsvSteps(fields, entities, separator, arraySeparator, skipHeader);
+      return ResponseEntity.ok(csv);
+    } catch (CsvWriteException ex) {
+      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+      throw new WebMessageException(
+          conflict(
+              "Invalid property selected. Make sure all properties are either simple or collections of refs / simple.",
+              ex.getMessage()));
+    }
+  }
+
+  protected String applyCsvSteps(
+      List<String> fields,
+      List<T> entities,
+      char separator,
+      String arraySeparator,
+      boolean skipHeader)
+      throws IOException {
+
+    CsvSchema schema;
+    CsvSchema.Builder schemaBuilder = CsvSchema.builder();
+    Map<String, Function<T, Object>> obj2valueByProperty = new LinkedHashMap<>();
+
+    setupSchemaAndProperties(schemaBuilder, fields, obj2valueByProperty);
+
+    schema =
+        schemaBuilder
+            .build()
+            .withColumnSeparator(separator)
+            .withArrayElementSeparator(arraySeparator);
+
+    if (!skipHeader) {
+      schema = schema.withHeader();
     }
 
-    @GetMapping( "/{uid}" )
-    @SuppressWarnings( "unchecked" )
-    public @ResponseBody ResponseEntity<?> getObject(
-        @PathVariable( "uid" ) String pvUid,
-        @RequestParam Map<String, String> rpParameters,
-        @CurrentUser User currentUser,
-        HttpServletRequest request, HttpServletResponse response )
-        throws Exception
-    {
-        if ( !aclService.canRead( currentUser, getEntityClass() ) )
-        {
-            throw new ReadAccessDeniedException(
-                "You don't have the proper permissions to read objects of this type." );
-        }
+    try (StringWriter strW = new StringWriter();
+        SequenceWriter seqW = csvMapper.writer(schema).writeValues(strW)) {
 
-        List<String> fields = Lists.newArrayList( contextService.getParameterValues( "fields" ) );
-        List<String> filters = Lists.newArrayList( contextService.getParameterValues( "filter" ) );
-        forceFiltering( new WebOptions( rpParameters ), filters );
+      Object[] row = new Object[obj2valueByProperty.size()];
 
-        if ( fields.isEmpty() )
-        {
-            fields.add( "*" );
-        }
+      for (T e : entities) {
+        int i = 0;
 
-        cachePrivate( response );
+        for (Function<T, Object> toValue : obj2valueByProperty.values()) {
+          Object o = toValue.apply(e);
 
-        WebOptions options = new WebOptions( rpParameters );
-        List<T> entities = getEntity( pvUid, options );
-
-        if ( entities.isEmpty() )
-        {
-            throw new WebMessageException( notFound( getEntityClass(), pvUid ) );
-        }
-
-        Query query = queryService.getQueryFromUrl( getEntityClass(), filters, new ArrayList<>(),
-            getPaginationData( options ), options.getRootJunction() );
-        query.setUser( currentUser );
-        query.setObjects( entities );
-        query.setDefaults( Defaults.valueOf( options.get( "defaults", DEFAULTS ) ) );
-
-        entities = (List<T>) queryService.query( query );
-
-        handleLinksAndAccess( entities, fields, true );
-        handleAttributeValues( entities, fields );
-
-        for ( T entity : entities )
-        {
-            postProcessResponseEntity( entity, options, rpParameters );
+          if (o instanceof Collection) {
+            row[i++] =
+                ((Collection<?>) o)
+                    .stream().map(String::valueOf).collect(Collectors.joining(arraySeparator));
+          } else {
+            row[i++] = o;
+          }
         }
 
-        return ResponseEntity.ok( new StreamingJsonRoot<>( null, entities.size() > 1 ? getSchema().getPlural() : null,
-            FieldFilterParams.of( entities, fields ) ) );
+        seqW.write(row);
+      }
+      return strW.toString();
     }
+  }
 
-    @GetMapping( "/{uid}/{property}" )
-    public @ResponseBody ResponseEntity<ObjectNode> getObjectProperty(
-        @PathVariable( "uid" ) String pvUid, @PathVariable( "property" ) String pvProperty,
-        @RequestParam Map<String, String> rpParameters,
-        TranslateParams translateParams,
-        @CurrentUser User currentUser,
-        HttpServletResponse response )
-        throws Exception
-    {
-        if ( !"translations".equals( pvProperty ) )
-        {
-            setTranslationParams( translateParams );
+  private void setupSchemaAndProperties(
+      Builder schemaBuilder,
+      List<String> fields,
+      Map<String, Function<T, Object>> obj2valueByProperty) {
+    for (String field : fields) {
+      // We just split on ',' here, we do not try and deep dive into
+      // objects using [], if the client provides id,name,group[id]
+      // then the group[id] part is simply ignored.
+      for (String fieldName : field.split(",")) {
+        Property property = getSchema().getProperty(fieldName);
+        if (property == null) {
+          if (CodeGenerator.isValidUid(fieldName)) {
+            schemaBuilder.addColumn(fieldName);
+            obj2valueByProperty.put(fieldName, obj -> getAttributeValue(obj, fieldName));
+          }
+          continue;
         }
-
-        if ( !aclService.canRead( currentUser, getEntityClass() ) )
-        {
-            throw new ReadAccessDeniedException(
-                "You don't have the proper permissions to read objects of this type." );
+        if ((property.isCollection() && property.itemIs(PropertyType.REFERENCE))) {
+          schemaBuilder.addArrayColumn(property.getCollectionName());
+          obj2valueByProperty.put(
+              property.getCollectionName(), obj -> getCollectionValue(obj, property));
+        } else if (property.isSimple()) {
+          schemaBuilder.addColumn(property.getName());
+          obj2valueByProperty.put(
+              property.getName(),
+              obj -> ReflectionUtils.invokeMethod(obj, property.getGetterMethod()));
         }
+      }
+    }
+  }
 
-        List<String> fields = Lists.newArrayList( contextService.getParameterValues( "fields" ) );
+  private static List<String> getCollectionValue(Object obj, Property property) {
+    Object value = ReflectionUtils.invokeMethod(obj, property.getGetterMethod());
 
-        if ( fields.isEmpty() )
-        {
-            fields.add( ":all" );
-        }
+    @SuppressWarnings("unchecked")
+    Collection<IdentifiableObject> collection = (Collection<IdentifiableObject>) value;
 
-        String fieldFilter = "[" + Joiner.on( ',' ).join( fields ) + "]";
+    return collection.stream().map(PrimaryKeyObject::getUid).collect(toList());
+  }
 
-        cachePrivate( response );
+  private static Object getAttributeValue(Object obj, String attrId) {
+    if (obj instanceof BaseIdentifiableObject) {
+      AttributeValue attr = ((BaseIdentifiableObject) obj).getAttributeValue(attrId);
+      return attr == null ? null : attr.getValue();
+    }
+    return null;
+  }
 
-        ObjectNode objectNode = getObjectInternal( pvUid, rpParameters, Lists.newArrayList(),
-            Lists.newArrayList( pvProperty + fieldFilter ), currentUser );
-
-        return ResponseEntity.ok( objectNode );
+  @GetMapping("/{uid}")
+  @SuppressWarnings("unchecked")
+  public @ResponseBody ResponseEntity<?> getObject(
+      @PathVariable("uid") String pvUid,
+      @RequestParam Map<String, String> rpParameters,
+      @CurrentUser User currentUser,
+      HttpServletRequest request,
+      HttpServletResponse response)
+      throws Exception {
+    if (!aclService.canRead(currentUser, getEntityClass())) {
+      throw new ReadAccessDeniedException(
+          "You don't have the proper permissions to read objects of this type.");
     }
 
-    @SuppressWarnings( "unchecked" )
-    private ObjectNode getObjectInternal( String uid, Map<String, String> parameters,
-        List<String> filters, List<String> fields, User currentUser )
-        throws Exception
-    {
-        WebOptions options = new WebOptions( parameters );
-        List<T> entities = getEntity( uid, options );
+    List<String> fields = Lists.newArrayList(contextService.getParameterValues("fields"));
+    List<String> filters = Lists.newArrayList(contextService.getParameterValues("filter"));
+    forceFiltering(new WebOptions(rpParameters), filters);
 
-        if ( entities.isEmpty() )
-        {
-            throw new WebMessageException( notFound( getEntityClass(), uid ) );
-        }
-
-        Query query = queryService.getQueryFromUrl( getEntityClass(), filters, new ArrayList<>(),
-            getPaginationData( options ), options.getRootJunction() );
-        query.setUser( currentUser );
-        query.setObjects( entities );
-        query.setDefaults( Defaults.valueOf( options.get( "defaults", DEFAULTS ) ) );
-
-        entities = (List<T>) queryService.query( query );
-
-        handleLinksAndAccess( entities, fields, true );
-        handleAttributeValues( entities, fields );
-
-        for ( T entity : entities )
-        {
-            postProcessResponseEntity( entity, options, parameters );
-        }
-
-        FieldFilterParams<T> filterParams = FieldFilterParams.of( entities, fields );
-        List<ObjectNode> objectNodes = fieldFilterService.toObjectNodes( filterParams );
-
-        return objectNodes.isEmpty() ? fieldFilterService.createObjectNode() : objectNodes.get( 0 );
+    if (fields.isEmpty()) {
+      fields.add("*");
     }
 
-    @SuppressWarnings( "unchecked" )
-    protected List<T> getEntityList( WebMetadata metadata, WebOptions options, List<String> filters,
-        List<Order> orders )
-        throws QueryParserException
-    {
-        List<T> entityList;
-        Query query = queryService.getQueryFromUrl( getEntityClass(), filters, orders, getPaginationData( options ),
-            options.getRootJunction() );
-        query.setDefaultOrder();
-        query.setDefaults( Defaults.valueOf( options.get( "defaults", DEFAULTS ) ) );
+    cachePrivate(response);
 
-        if ( options.getOptions().containsKey( "query" ) )
-        {
-            entityList = Lists.newArrayList( manager.filter( getEntityClass(), options.getOptions().get( "query" ) ) );
-        }
-        else
-        {
-            entityList = (List<T>) queryService.query( query );
-        }
+    WebOptions options = new WebOptions(rpParameters);
+    List<T> entities = getEntity(pvUid, options);
 
-        return entityList;
+    if (entities.isEmpty()) {
+      throw new WebMessageException(notFound(getEntityClass(), pvUid));
     }
 
-    private long countTotal( WebOptions options, List<String> filters, List<Order> orders )
-    {
-        Query query = queryService.getQueryFromUrl( getEntityClass(), filters, orders, new Pagination(),
-            options.getRootJunction() );
+    Query query =
+        queryService.getQueryFromUrl(
+            getEntityClass(),
+            filters,
+            new ArrayList<>(),
+            getPaginationData(options),
+            options.getRootJunction());
+    query.setUser(currentUser);
+    query.setObjects(entities);
+    query.setDefaults(Defaults.valueOf(options.get("defaults", DEFAULTS)));
 
-        return queryService.count( query );
+    entities = (List<T>) queryService.query(query);
+
+    handleLinksAndAccess(entities, fields, true);
+    handleAttributeValues(entities, fields);
+
+    for (T entity : entities) {
+      postProcessResponseEntity(entity, options, rpParameters);
     }
 
-    private void cachePrivate( HttpServletResponse response )
-    {
-        response.setHeader( ContextUtils.HEADER_CACHE_CONTROL,
-            noCache().cachePrivate().getHeaderValue() );
+    return ResponseEntity.ok(
+        new StreamingJsonRoot<>(
+            null,
+            entities.size() > 1 ? getSchema().getPlural() : null,
+            FieldFilterParams.of(entities, fields)));
+  }
+
+  @GetMapping("/{uid}/{property}")
+  public @ResponseBody ResponseEntity<ObjectNode> getObjectProperty(
+      @PathVariable("uid") String pvUid,
+      @PathVariable("property") String pvProperty,
+      @RequestParam Map<String, String> rpParameters,
+      TranslateParams translateParams,
+      @CurrentUser User currentUser,
+      HttpServletResponse response)
+      throws Exception {
+    if (!"translations".equals(pvProperty)) {
+      setTranslationParams(translateParams);
     }
 
-    private boolean hasHref( List<String> fields )
-    {
-        return fieldsContains( "href", fields );
+    if (!aclService.canRead(currentUser, getEntityClass())) {
+      throw new ReadAccessDeniedException(
+          "You don't have the proper permissions to read objects of this type.");
     }
 
-    private void handleLinksAndAccess( List<T> entityList, List<String> fields, boolean deep )
-    {
-        if ( hasHref( fields ) )
-        {
-            linkService.generateLinks( entityList, deep );
-        }
+    List<String> fields = Lists.newArrayList(contextService.getParameterValues("fields"));
+
+    if (fields.isEmpty()) {
+      fields.add(":all");
     }
 
-    private void handleAttributeValues( List<T> entityList, List<String> fields )
-    {
-        List<String> hasAttributeValues = fields.stream().filter( field -> field.contains( "attributeValues" ) )
-            .collect( toList() );
+    String fieldFilter = "[" + Joiner.on(',').join(fields) + "]";
 
-        if ( !hasAttributeValues.isEmpty() )
-        {
-            attributeService.generateAttributes( entityList );
-        }
+    cachePrivate(response);
+
+    ObjectNode objectNode =
+        getObjectInternal(
+            pvUid,
+            rpParameters,
+            Lists.newArrayList(),
+            Lists.newArrayList(pvProperty + fieldFilter),
+            currentUser);
+
+    return ResponseEntity.ok(objectNode);
+  }
+
+  @SuppressWarnings("unchecked")
+  private ObjectNode getObjectInternal(
+      String uid,
+      Map<String, String> parameters,
+      List<String> filters,
+      List<String> fields,
+      User currentUser)
+      throws Exception {
+    WebOptions options = new WebOptions(parameters);
+    List<T> entities = getEntity(uid, options);
+
+    if (entities.isEmpty()) {
+      throw new WebMessageException(notFound(getEntityClass(), uid));
     }
 
-    private boolean fieldsContains( String match, List<String> fields )
-    {
-        for ( String field : fields )
-        {
-            // for now assume href/access if * or preset is requested
-            if ( field.contains( match ) || field.equals( "*" ) || field.startsWith( ":" ) )
-            {
-                return true;
-            }
-        }
+    Query query =
+        queryService.getQueryFromUrl(
+            getEntityClass(),
+            filters,
+            new ArrayList<>(),
+            getPaginationData(options),
+            options.getRootJunction());
+    query.setUser(currentUser);
+    query.setObjects(entities);
+    query.setDefaults(Defaults.valueOf(options.get("defaults", DEFAULTS)));
 
-        return false;
+    entities = (List<T>) queryService.query(query);
+
+    handleLinksAndAccess(entities, fields, true);
+    handleAttributeValues(entities, fields);
+
+    for (T entity : entities) {
+      postProcessResponseEntity(entity, options, parameters);
     }
 
-    // --------------------------------------------------------------------------
-    // Reflection helpers
-    // --------------------------------------------------------------------------
+    FieldFilterParams<T> filterParams = FieldFilterParams.of(entities, fields);
+    List<ObjectNode> objectNodes = fieldFilterService.toObjectNodes(filterParams);
 
-    private String entityName;
+    return objectNodes.isEmpty() ? fieldFilterService.createObjectNode() : objectNodes.get(0);
+  }
 
-    private String entitySimpleName;
+  @SuppressWarnings("unchecked")
+  protected List<T> getEntityList(
+      WebMetadata metadata, WebOptions options, List<String> filters, List<Order> orders)
+      throws QueryParserException {
+    List<T> entityList;
+    Query query =
+        queryService.getQueryFromUrl(
+            getEntityClass(),
+            filters,
+            orders,
+            getPaginationData(options),
+            options.getRootJunction());
+    query.setDefaultOrder();
+    query.setDefaults(Defaults.valueOf(options.get("defaults", DEFAULTS)));
 
-    protected final String getEntityName()
-    {
-        if ( entityName == null )
-        {
-            entityName = getEntityClass().getName();
-        }
-
-        return entityName;
+    if (options.getOptions().containsKey("query")) {
+      entityList =
+          Lists.newArrayList(manager.filter(getEntityClass(), options.getOptions().get("query")));
+    } else {
+      entityList = (List<T>) queryService.query(query);
     }
 
-    protected final String getEntitySimpleName()
-    {
-        if ( entitySimpleName == null )
-        {
-            entitySimpleName = getEntityClass().getSimpleName();
-        }
+    return entityList;
+  }
 
-        return entitySimpleName;
+  private long countTotal(WebOptions options, List<String> filters, List<Order> orders) {
+    Query query =
+        queryService.getQueryFromUrl(
+            getEntityClass(), filters, orders, new Pagination(), options.getRootJunction());
+
+    return queryService.count(query);
+  }
+
+  private void cachePrivate(HttpServletResponse response) {
+    response.setHeader(
+        ContextUtils.HEADER_CACHE_CONTROL, noCache().cachePrivate().getHeaderValue());
+  }
+
+  private boolean hasHref(List<String> fields) {
+    return fieldsContains("href", fields);
+  }
+
+  private void handleLinksAndAccess(List<T> entityList, List<String> fields, boolean deep) {
+    if (hasHref(fields)) {
+      linkService.generateLinks(entityList, deep);
+    }
+  }
+
+  private void handleAttributeValues(List<T> entityList, List<String> fields) {
+    List<String> hasAttributeValues =
+        fields.stream().filter(field -> field.contains("attributeValues")).collect(toList());
+
+    if (!hasAttributeValues.isEmpty()) {
+      attributeService.generateAttributes(entityList);
+    }
+  }
+
+  private boolean fieldsContains(String match, List<String> fields) {
+    for (String field : fields) {
+      // for now assume href/access if * or preset is requested
+      if (field.contains(match) || field.equals("*") || field.startsWith(":")) {
+        return true;
+      }
     }
 
-    protected final List<T> getEntity( String uid )
-    {
-        return getEntity( uid, NO_WEB_OPTIONS );
+    return false;
+  }
+
+  // --------------------------------------------------------------------------
+  // Reflection helpers
+  // --------------------------------------------------------------------------
+
+  private String entityName;
+
+  private String entitySimpleName;
+
+  protected final String getEntityName() {
+    if (entityName == null) {
+      entityName = getEntityClass().getName();
     }
 
-    protected List<T> getEntity( String uid, WebOptions options )
-    {
-        ArrayList<T> list = new ArrayList<>();
-        getEntity( uid, getEntityClass() ).ifPresent( list::add );
-        return list; // TODO consider ACL
+    return entityName;
+  }
+
+  protected final String getEntitySimpleName() {
+    if (entitySimpleName == null) {
+      entitySimpleName = getEntityClass().getSimpleName();
     }
 
-    protected final <E extends IdentifiableObject> java.util.Optional<E> getEntity( String uid, Class<E> entityType )
-    {
-        return java.util.Optional.ofNullable( manager.getNoAcl( entityType, uid ) );
-    }
+    return entitySimpleName;
+  }
 
-    protected final Schema getSchema( Class<?> klass )
-    {
-        return schemaService.getDynamicSchema( klass );
-    }
+  protected final List<T> getEntity(String uid) {
+    return getEntity(uid, NO_WEB_OPTIONS);
+  }
 
-    // --------------------------------------------------------------------------
-    // Helpers
-    // --------------------------------------------------------------------------
+  protected List<T> getEntity(String uid, WebOptions options) {
+    ArrayList<T> list = new ArrayList<>();
+    getEntity(uid, getEntityClass()).ifPresent(list::add);
+    return list; // TODO consider ACL
+  }
 
-    protected final void setTranslationParams( TranslateParams translateParams )
-    {
-        Locale dbLocale = getLocaleWithDefault( translateParams );
-        CurrentUserUtil.setUserSetting( UserSettingKey.DB_LOCALE, dbLocale );
-    }
+  protected final <E extends IdentifiableObject> java.util.Optional<E> getEntity(
+      String uid, Class<E> entityType) {
+    return java.util.Optional.ofNullable(manager.getNoAcl(entityType, uid));
+  }
 
-    private Locale getLocaleWithDefault( TranslateParams translateParams )
-    {
-        return translateParams.isTranslate()
-            ? translateParams.getLocaleWithDefault(
-                (Locale) userSettingService.getUserSetting( UserSettingKey.DB_LOCALE ) )
-            : null;
-    }
+  protected final Schema getSchema(Class<?> klass) {
+    return schemaService.getDynamicSchema(klass);
+  }
 
-    protected final Pagination getPaginationData( WebOptions options )
-    {
-        return PaginationUtils.getPaginationData( options );
-    }
+  // --------------------------------------------------------------------------
+  // Helpers
+  // --------------------------------------------------------------------------
+
+  protected final void setTranslationParams(TranslateParams translateParams) {
+    Locale dbLocale = getLocaleWithDefault(translateParams);
+    CurrentUserUtil.setUserSetting(UserSettingKey.DB_LOCALE, dbLocale);
+  }
+
+  private Locale getLocaleWithDefault(TranslateParams translateParams) {
+    return translateParams.isTranslate()
+        ? translateParams.getLocaleWithDefault(
+            (Locale) userSettingService.getUserSetting(UserSettingKey.DB_LOCALE))
+        : null;
+  }
+
+  protected final Pagination getPaginationData(WebOptions options) {
+    return PaginationUtils.getPaginationData(options);
+  }
 }

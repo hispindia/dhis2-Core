@@ -27,20 +27,27 @@
  */
 package org.hisp.dhis.webapi.controller.event;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
+import static org.hisp.dhis.common.AccessLevel.CLOSED;
+import static org.hisp.dhis.common.AccessLevel.OPEN;
+import static org.hisp.dhis.common.AccessLevel.PROTECTED;
+import static org.hisp.dhis.common.OrganisationUnitSelectionMode.ACCESSIBLE;
+import static org.hisp.dhis.common.OrganisationUnitSelectionMode.CAPTURE;
+import static org.hisp.dhis.common.OrganisationUnitSelectionMode.SELECTED;
+import static org.hisp.dhis.webapi.controller.tracker.export.TrackerEventCriteriaMapperUtils.validateOrgUnitMode;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
-import java.util.HashSet;
-
+import java.util.List;
+import java.util.Set;
+import org.hisp.dhis.common.IllegalQueryException;
 import org.hisp.dhis.common.OrganisationUnitSelectionMode;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dataelement.DataElementService;
-import org.hisp.dhis.dxf2.events.event.EventSearchParams;
+import org.hisp.dhis.dxf2.events.event.EventQueryParams;
 import org.hisp.dhis.dxf2.util.InputUtils;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
@@ -48,97 +55,383 @@ import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramService;
 import org.hisp.dhis.program.ProgramStageService;
 import org.hisp.dhis.schema.SchemaService;
+import org.hisp.dhis.security.Authorities;
 import org.hisp.dhis.security.acl.AclService;
 import org.hisp.dhis.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceService;
+import org.hisp.dhis.trackedentity.TrackerAccessManager;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
+import org.hisp.dhis.user.UserRole;
+import org.hisp.dhis.webapi.controller.event.webrequest.EventCriteria;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 /**
- *
  * @author Ameen
  */
-@MockitoSettings( strictness = Strictness.LENIENT )
-@ExtendWith( MockitoExtension.class )
-class EventRequestToSearchParamsMapperTest
-{
+@MockitoSettings(strictness = Strictness.LENIENT)
+@ExtendWith(MockitoExtension.class)
+class EventRequestToSearchParamsMapperTest {
 
-    @Mock
-    private CurrentUserService currentUserService;
+  @Mock private CurrentUserService currentUserService;
 
-    @Mock
-    private ProgramService programService;
+  @Mock private ProgramService programService;
 
-    @Mock
-    private OrganisationUnitService organisationUnitService;
+  @Mock private OrganisationUnitService organisationUnitService;
 
-    @Mock
-    private ProgramStageService programStageService;
+  @Mock private ProgramStageService programStageService;
 
-    @Mock
-    private AclService aclService;
+  @Mock private AclService aclService;
 
-    @Mock
-    private TrackedEntityInstanceService entityInstanceService;
+  @Mock private TrackedEntityInstanceService entityInstanceService;
 
-    @Mock
-    private DataElementService dataElementService;
+  @Mock private DataElementService dataElementService;
 
-    @Mock
-    private InputUtils inputUtils;
+  @Mock private TrackerAccessManager trackerAccessManager;
 
-    @Mock
-    private SchemaService schemaService;
+  @Mock private InputUtils inputUtils;
 
-    private EventRequestToSearchParamsMapper requestToSearchParamsMapper;
+  @Mock private SchemaService schemaService;
 
-    @BeforeEach
-    public void setUp()
-    {
-        requestToSearchParamsMapper = new EventRequestToSearchParamsMapper( currentUserService, programService,
-            organisationUnitService, programStageService, aclService, entityInstanceService, dataElementService,
-            inputUtils, schemaService );
+  @InjectMocks private EventRequestToSearchParamsMapper mapper;
 
-        Program program = new Program();
-        User user = new User();
-        OrganisationUnit ou = new OrganisationUnit();
-        TrackedEntityInstance tei = new TrackedEntityInstance();
-        DataElement de = new DataElement();
+  private OrganisationUnit orgUnit;
 
-        when( currentUserService.getCurrentUser() ).thenReturn( user );
-        when( programService.getProgram( any() ) ).thenReturn( program );
-        when( organisationUnitService.getOrganisationUnit( any() ) ).thenReturn( ou );
+  private final String orgUnitId = "orgUnitId";
 
-        when( organisationUnitService.isInUserHierarchy( ou ) ).thenReturn( true );
-        when( aclService.canDataRead( user, program ) ).thenReturn( true );
-        when( entityInstanceService.getTrackedEntityInstance( any() ) ).thenReturn( tei );
-        when( dataElementService.getDataElement( any() ) ).thenReturn( de );
-    }
+  private static final String PROGRAM_UID = "XhBYIraw7sv";
 
-    @Test
-    void testEventRequestToSearchParamsMapperSuccess()
-    {
+  private final List<OrganisationUnit> orgUnitDescendants =
+      List.of(
+          createOrgUnit("orgUnit1", "uid1"),
+          createOrgUnit("orgUnit2", "uid2"),
+          createOrgUnit("captureScopeOrgUnit", "uid3"),
+          createOrgUnit("searchScopeOrgUnit", "uid4"));
 
-        EventSearchParams eventSearchParams = requestToSearchParamsMapper.map( "programuid",
-            null, null, null, "orgunituid", OrganisationUnitSelectionMode.ACCESSIBLE, "teiUid",
-            null, null, null, null, null,
-            null, null, null,
-            null, null, null, null,
-            false, false, Collections.emptyList(), Collections.emptyList(),
-            false,
-            new HashSet<>(), new HashSet<>(), null,
-            null,
-            new HashSet<>(), Collections.singleton( "UXz7xuGCEhU:GT:100" ), new HashSet<>(), false,
-            false );// Then
+  @BeforeEach
+  public void setUp() {
+    mapper =
+        new EventRequestToSearchParamsMapper(
+            currentUserService,
+            programService,
+            organisationUnitService,
+            programStageService,
+            aclService,
+            entityInstanceService,
+            dataElementService,
+            inputUtils,
+            schemaService);
 
-        assertThat( eventSearchParams, is( not( nullValue() ) ) );
-    }
+    Program program = new Program();
+    User user = new User();
+    OrganisationUnit ou = new OrganisationUnit();
+    user.setOrganisationUnits(Set.of(ou));
+    TrackedEntityInstance tei = new TrackedEntityInstance();
+    DataElement de = new DataElement();
 
+    when(currentUserService.getCurrentUser()).thenReturn(user);
+    when(programService.getProgram(any())).thenReturn(program);
+
+    when(organisationUnitService.isInUserHierarchy(ou)).thenReturn(true);
+    when(aclService.canDataRead(user, program)).thenReturn(true);
+    when(entityInstanceService.getTrackedEntityInstance(any())).thenReturn(tei);
+    when(dataElementService.getDataElement(any())).thenReturn(de);
+
+    orgUnit = createOrgUnit("orgUnit", orgUnitId);
+    orgUnit.setChildren(
+        Set.of(
+            createOrgUnit("captureScopeChild", "captureScopeChildUid"),
+            createOrgUnit("searchScopeChild", "searchScopeChildUid")));
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = OrganisationUnitSelectionMode.class,
+      names = {"SELECTED", "DESCENDANTS", "CHILDREN", "ACCESSIBLE", "CAPTURE"})
+  void shouldMapRequestedOrgUnitWhenProgramProtected(OrganisationUnitSelectionMode orgUnitMode) {
+    Program program = new Program();
+    program.setAccessLevel(PROTECTED);
+    program.setUid(PROGRAM_UID);
+    OrganisationUnit captureScopeOrgUnit = createOrgUnit("captureScopeOrgUnit", "uid3");
+    User user = new User();
+    user.setOrganisationUnits(Set.of(captureScopeOrgUnit));
+
+    when(programService.getProgram(PROGRAM_UID)).thenReturn(program);
+    when(aclService.canDataRead(user, program)).thenReturn(true);
+    when(currentUserService.getCurrentUser()).thenReturn(user);
+    when(organisationUnitService.getOrganisationUnit(orgUnit.getUid())).thenReturn(orgUnit);
+    when(organisationUnitService.getOrganisationUnitWithChildren(orgUnitId))
+        .thenReturn(orgUnitDescendants);
+
+    when(organisationUnitService.isInUserHierarchy(
+            orgUnitId, user.getTeiSearchOrganisationUnitsWithFallback()))
+        .thenReturn(true);
+
+    EventCriteria eventCriteria = new EventCriteria();
+    eventCriteria.setProgram(program.getUid());
+    eventCriteria.setOrgUnit(orgUnitId);
+    eventCriteria.setOuMode(orgUnitMode);
+
+    EventQueryParams queryParams = mapper.map(eventCriteria);
+
+    assertEquals(orgUnitId, queryParams.getOrgUnit().getUid());
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = OrganisationUnitSelectionMode.class,
+      names = {"SELECTED", "DESCENDANTS", "CHILDREN", "ACCESSIBLE", "CAPTURE"})
+  void shouldMapRequestedOrgUnitWhenProgramOpen(OrganisationUnitSelectionMode orgUnitMode) {
+    Program program = new Program();
+    program.setAccessLevel(OPEN);
+    OrganisationUnit searchScopeOrgUnit = createOrgUnit("searchScopeOrgUnit", "uid4");
+    User user = new User();
+    user.setTeiSearchOrganisationUnits(Set.of(searchScopeOrgUnit));
+    user.setOrganisationUnits(Set.of(searchScopeOrgUnit));
+
+    when(currentUserService.getCurrentUser()).thenReturn(user);
+    when(organisationUnitService.getOrganisationUnit(orgUnit.getUid())).thenReturn(orgUnit);
+    when(organisationUnitService.getOrganisationUnitWithChildren(orgUnitId))
+        .thenReturn(orgUnitDescendants);
+    when(organisationUnitService.isInUserHierarchy(
+            orgUnitId, user.getTeiSearchOrganisationUnitsWithFallback()))
+        .thenReturn(true);
+
+    EventCriteria eventCriteria = new EventCriteria();
+    eventCriteria.setProgram(program.getUid());
+    eventCriteria.setOrgUnit(orgUnit.getUid());
+    eventCriteria.setOuMode(orgUnitMode);
+
+    EventQueryParams queryParams = mapper.map(eventCriteria);
+
+    assertEquals(orgUnitId, queryParams.getOrgUnit().getUid());
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = OrganisationUnitSelectionMode.class,
+      names = {"SELECTED", "DESCENDANTS", "CHILDREN", "ACCESSIBLE", "CAPTURE"})
+  void shouldFailWhenProgramProtectedAndUserHasNoAccessToCaptureScopeOrgUnit(
+      OrganisationUnitSelectionMode orgUnitMode) {
+    Program program = new Program();
+    program.setUid(PROGRAM_UID);
+    program.setAccessLevel(PROTECTED);
+    OrganisationUnit captureScopeOrgUnit = createOrgUnit("made up org unit", "made up uid");
+    User user = new User();
+    user.setOrganisationUnits(Set.of(captureScopeOrgUnit));
+
+    when(programService.getProgram(PROGRAM_UID)).thenReturn(program);
+    when(currentUserService.getCurrentUser()).thenReturn(user);
+    when(organisationUnitService.getOrganisationUnit(orgUnit.getUid())).thenReturn(orgUnit);
+    when(organisationUnitService.getOrganisationUnitWithChildren(orgUnitId))
+        .thenReturn(orgUnitDescendants);
+    when(aclService.canDataRead(user, program)).thenReturn(true);
+
+    EventCriteria eventCriteria = new EventCriteria();
+    eventCriteria.setProgram(program.getUid());
+    eventCriteria.setOrgUnit(orgUnit.getUid());
+    eventCriteria.setOuMode(orgUnitMode);
+
+    IllegalQueryException exception =
+        assertThrows(IllegalQueryException.class, () -> mapper.map(eventCriteria));
+    assertEquals(
+        "Organisation unit is not part of the search scope: " + orgUnit.getUid(),
+        exception.getMessage());
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = OrganisationUnitSelectionMode.class,
+      names = {"SELECTED", "DESCENDANTS", "CHILDREN", "ACCESSIBLE", "CAPTURE"})
+  void shouldFailWhenProgramOpenAndUserHasNoAccessToSearchScopeOrgUnit(
+      OrganisationUnitSelectionMode orgUnitMode) {
+    Program program = new Program();
+    program.setAccessLevel(OPEN);
+    OrganisationUnit searchScopeOrgUnit = createOrgUnit("made up org unit", "made up uid");
+    User user = new User();
+    user.setTeiSearchOrganisationUnits(Set.of(searchScopeOrgUnit));
+    user.setOrganisationUnits(Set.of(searchScopeOrgUnit));
+
+    EventCriteria eventCriteria = new EventCriteria();
+    eventCriteria.setProgram(program.getUid());
+    eventCriteria.setOrgUnit(orgUnit.getUid());
+    eventCriteria.setOuMode(orgUnitMode);
+
+    when(currentUserService.getCurrentUser()).thenReturn(user);
+    when(organisationUnitService.getOrganisationUnit(orgUnit.getUid())).thenReturn(orgUnit);
+    when(organisationUnitService.getOrganisationUnitWithChildren(orgUnitId))
+        .thenReturn(orgUnitDescendants);
+
+    IllegalQueryException exception =
+        assertThrows(IllegalQueryException.class, () -> mapper.map(eventCriteria));
+    assertEquals(
+        "Organisation unit is not part of the search scope: " + orgUnit.getUid(),
+        exception.getMessage());
+  }
+
+  @Test
+  void shouldMapRequestedOrgUnitAsSelectedWhenOrgUnitProvidedAndNoOrgUnitModeProvided() {
+    Program program = new Program();
+    program.setUid(PROGRAM_UID);
+    User user = new User();
+    user.setOrganisationUnits(Set.of(orgUnit));
+
+    when(programService.getProgram(PROGRAM_UID)).thenReturn(program);
+    when(aclService.canDataRead(user, program)).thenReturn(true);
+    when(currentUserService.getCurrentUser()).thenReturn(user);
+    when(organisationUnitService.getOrganisationUnit(orgUnit.getUid())).thenReturn(orgUnit);
+    when(trackerAccessManager.canAccess(user, program, orgUnit)).thenReturn(true);
+    when(organisationUnitService.isInUserHierarchy(
+            orgUnitId, user.getTeiSearchOrganisationUnitsWithFallback()))
+        .thenReturn(true);
+
+    EventCriteria eventCriteria = new EventCriteria();
+    eventCriteria.setProgram(program.getUid());
+    eventCriteria.setOrgUnit(orgUnit.getUid());
+
+    EventQueryParams queryParams = mapper.map(eventCriteria);
+
+    assertEquals(SELECTED, queryParams.getOrgUnitSelectionMode());
+    assertEquals(orgUnit, queryParams.getOrgUnit());
+  }
+
+  @Test
+  void shouldMapOrgUnitModeAccessibleWhenNoOrgUnitProvidedAndNoOrgUnitModeProvided() {
+    Program program = new Program();
+    program.setAccessLevel(OPEN);
+    OrganisationUnit searchScopeOrgUnit = createOrgUnit("searchScopeOrgUnit", "uid4");
+    User user = new User();
+    user.setOrganisationUnits(Set.of(searchScopeOrgUnit));
+
+    when(currentUserService.getCurrentUser()).thenReturn(user);
+    when(organisationUnitService.getOrganisationUnit(any())).thenReturn(null);
+
+    EventCriteria eventCriteria = new EventCriteria();
+    eventCriteria.setProgram(program.getUid());
+
+    EventQueryParams queryParams = mapper.map(eventCriteria);
+
+    assertEquals(ACCESSIBLE, queryParams.getOrgUnitSelectionMode());
+    assertNull(queryParams.getOrgUnit());
+  }
+
+  @Test
+  void shouldFailWhenNoOuModeSpecifiedAndUserHasNoAccessToOrgUnit() {
+    Program program = new Program();
+    program.setAccessLevel(CLOSED);
+    OrganisationUnit searchScopeOrgUnit = createOrgUnit("made up org unit", "made up uid");
+    User user = new User();
+    user.setOrganisationUnits(Set.of(searchScopeOrgUnit));
+
+    when(currentUserService.getCurrentUser()).thenReturn(user);
+    when(organisationUnitService.getOrganisationUnit(orgUnit.getUid())).thenReturn(orgUnit);
+
+    EventCriteria eventCriteria = new EventCriteria();
+    eventCriteria.setProgram(program.getUid());
+    eventCriteria.setOrgUnit(orgUnit.getUid());
+
+    IllegalQueryException exception =
+        assertThrows(IllegalQueryException.class, () -> mapper.map(eventCriteria));
+    assertEquals(
+        "Organisation unit is not part of the search scope: " + orgUnit.getUid(),
+        exception.getMessage());
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = OrganisationUnitSelectionMode.class,
+      names = {"SELECTED", "DESCENDANTS", "CHILDREN"})
+  void shouldFailWhenOuModeNeedsOrgUnitAndNoOrgUnitProvided(OrganisationUnitSelectionMode mode) {
+    EventCriteria eventCriteria = new EventCriteria();
+    eventCriteria.setOuMode(mode);
+
+    IllegalQueryException exception =
+        assertThrows(IllegalQueryException.class, () -> mapper.map(eventCriteria));
+    assertEquals(
+        "Organisation unit is required for org unit mode: " + mode, exception.getMessage());
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = OrganisationUnitSelectionMode.class,
+      names = {"CAPTURE", "ACCESSIBLE", "ALL"})
+  void shouldPassWhenOuModeDoesNotNeedOrgUnitAndOrgUnitProvided(
+      OrganisationUnitSelectionMode mode) {
+    when(currentUserService.getCurrentUser()).thenReturn(createSearchInAllOrgUnitsUser());
+
+    EventCriteria eventCriteria = new EventCriteria();
+    eventCriteria.setOuMode(mode);
+
+    assertDoesNotThrow(() -> mapper.map(eventCriteria));
+  }
+
+  @Test
+  void shouldFailWhenModeAccessibleAndUserScopeNotSet() {
+    when(currentUserService.getCurrentUser()).thenReturn(new User());
+
+    EventCriteria eventCriteria = new EventCriteria();
+    eventCriteria.setOuMode(ACCESSIBLE);
+
+    Exception exception =
+        assertThrows(IllegalQueryException.class, () -> mapper.map(eventCriteria));
+    assertEquals(
+        "User needs to be assigned either search or data capture org units",
+        exception.getMessage());
+  }
+
+  @Test
+  void shouldFailWhenModeCaptureAndUserCaptureScopeNotSet() {
+    when(currentUserService.getCurrentUser()).thenReturn(new User());
+
+    EventCriteria eventCriteria = new EventCriteria();
+    eventCriteria.setOuMode(CAPTURE);
+
+    Exception exception =
+        assertThrows(IllegalQueryException.class, () -> mapper.map(eventCriteria));
+    assertEquals("User needs to be assigned data capture org units", exception.getMessage());
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = OrganisationUnitSelectionMode.class,
+      names = {"SELECTED", "ACCESSIBLE", "DESCENDANTS", "CHILDREN"})
+  void shouldFailWhenOuModeRequiresUserScopeOrgUnitAndUserHasNoOrgUnitsAssigned(
+      OrganisationUnitSelectionMode orgUnitMode) {
+    User user = new User();
+    Program program = new Program();
+    Exception exception =
+        assertThrows(
+            IllegalQueryException.class,
+            () -> validateOrgUnitMode(orgUnitMode, user, program, null));
+
+    assertEquals(
+        "User needs to be assigned either search or data capture org units",
+        exception.getMessage());
+  }
+
+  private OrganisationUnit createOrgUnit(String name, String uid) {
+    OrganisationUnit orgUnit = new OrganisationUnit(name);
+    orgUnit.setUid(uid);
+    return orgUnit;
+  }
+
+  private User createSearchInAllOrgUnitsUser() {
+    User user = new User();
+    UserRole userRole = new UserRole();
+    userRole.setAuthorities(
+        Set.of(Authorities.F_TRACKED_ENTITY_INSTANCE_SEARCH_IN_ALL_ORGUNITS.name()));
+    user.setUserRoles(Set.of(userRole));
+    user.setOrganisationUnits(Set.of(orgUnit));
+
+    return user;
+  }
 }

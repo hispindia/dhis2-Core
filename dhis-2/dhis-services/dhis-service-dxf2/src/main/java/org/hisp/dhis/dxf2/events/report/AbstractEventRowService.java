@@ -27,7 +27,7 @@
  */
 package org.hisp.dhis.dxf2.events.report;
 
-import org.hisp.dhis.dxf2.events.event.EventSearchParams;
+import org.hisp.dhis.dxf2.events.event.EventQueryParams;
 import org.hisp.dhis.dxf2.events.event.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,20 +35,16 @@ import org.springframework.stereotype.Service;
 /**
  * @author Abyot Asalefew Gizaw <abyota@gmail.com>
  */
-@Service( "org.hisp.dhis.dxf2.events.report.EventRowService" )
-public class AbstractEventRowService
-    implements EventRowService
-{
-    // -------------------------------------------------------------------------
-    // Dependencies
-    // -------------------------------------------------------------------------
+@Service("org.hisp.dhis.dxf2.events.report.EventRowService")
+public class AbstractEventRowService implements EventRowService {
+  // -------------------------------------------------------------------------
+  // Dependencies
+  // -------------------------------------------------------------------------
 
-    @Autowired
-    private EventService eventService;
+  @Autowired private EventService eventService;
 
-    @Override
-    public EventRows getEventRows( EventSearchParams params )
-    {
-        return eventService.getEventRows( params );
-    }
+  @Override
+  public EventRows getEventRows(EventQueryParams params) {
+    return eventService.getEventRows(params);
+  }
 }

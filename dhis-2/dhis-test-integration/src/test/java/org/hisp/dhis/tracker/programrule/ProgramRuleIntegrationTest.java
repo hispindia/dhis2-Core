@@ -31,7 +31,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasProperty;
+import static org.hisp.dhis.programrule.ProgramRuleActionType.SHOWERROR;
+import static org.hisp.dhis.tracker.Assertions.assertHasOnlyErrors;
 import static org.hisp.dhis.tracker.Assertions.assertNoErrors;
+import static org.hisp.dhis.tracker.report.TrackerErrorCode.E1300;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -39,7 +42,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-
+import org.hisp.dhis.constant.Constant;
+import org.hisp.dhis.constant.ConstantService;
 import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.dxf2.metadata.objectbundle.ObjectBundle;
 import org.hisp.dhis.preheat.PreheatIdentifier;
@@ -63,174 +67,238 @@ import org.hisp.dhis.tracker.report.TrackerWarningReport;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-class ProgramRuleIntegrationTest extends TrackerTest
-{
-    @Autowired
-    private TrackerImportService trackerImportService;
+class ProgramRuleIntegrationTest extends TrackerTest {
+  @Autowired private TrackerImportService trackerImportService;
 
-    @Autowired
-    private ProgramRuleService programRuleService;
+  @Autowired private ProgramRuleService programRuleService;
 
-    @Autowired
-    private ProgramRuleActionService programRuleActionService;
+  @Autowired private ProgramRuleActionService programRuleActionService;
 
-    @Autowired
-    private ProgramRuleVariableService programRuleVariableService;
+  @Autowired private ProgramRuleVariableService programRuleVariableService;
 
-    @Override
-    public void initTest()
-        throws IOException
-    {
-        ObjectBundle bundle = setUpMetadata( "tracker/simple_metadata.json" );
-        Program program = bundle.getPreheat().get( PreheatIdentifier.UID, Program.class, "BFcipDERJnf" );
-        Program programWithoutRegistration = bundle.getPreheat().get( PreheatIdentifier.UID, Program.class,
-            "BFcipDERJne" );
-        DataElement dataElement1 = bundle.getPreheat().get( PreheatIdentifier.UID, DataElement.class, "DATAEL00001" );
-        DataElement dataElement2 = bundle.getPreheat().get( PreheatIdentifier.UID, DataElement.class, "DATAEL00002" );
-        ProgramStage programStage = bundle.getPreheat().get( PreheatIdentifier.UID, ProgramStage.class, "NpsdDv6kKSO" );
-        ProgramRuleVariable programRuleVariable = createProgramRuleVariableWithDataElement( 'A', program,
-            dataElement2 );
-        programRuleVariableService.addProgramRuleVariable( programRuleVariable );
-        ProgramRule programRuleA = createProgramRule( 'A', program );
-        programRuleA.setUid( "ProgramRule" );
-        programRuleService.addProgramRule( programRuleA );
-        ProgramRule errorProgramRule = createProgramRule( 'E', program );
-        errorProgramRule.setCondition( "ERROR" );
-        errorProgramRule.setUid( "ProgramRulE" );
-        programRuleService.addProgramRule( errorProgramRule );
-        ProgramRule programRuleC = createProgramRule( 'C', program );
-        programRuleC.setUid( "ProgramRulC" );
-        programRuleC.setCondition( "d2:daysBetween('2019-01-28', d2:lastEventDate('ProgramRuleVariableA')) < 5" );
-        programRuleService.addProgramRule( programRuleC );
-        ProgramRule programRuleWithoutRegistration = createProgramRule( 'W', programWithoutRegistration );
-        programRuleService.addProgramRule( programRuleWithoutRegistration );
-        ProgramRule programRuleB = createProgramRule( 'B', program );
-        programRuleB.setProgramStage( programStage );
-        programRuleService.addProgramRule( programRuleB );
-        ProgramRuleAction programRuleActionShowWarning = createProgramRuleAction( 'A', programRuleA );
-        programRuleActionShowWarning.setProgramRuleActionType( ProgramRuleActionType.SHOWWARNING );
-        programRuleActionShowWarning.setContent( "WARNING" );
-        programRuleActionService.addProgramRuleAction( programRuleActionShowWarning );
-        ProgramRuleAction programRuleActionError = createProgramRuleAction( 'E', errorProgramRule );
-        programRuleActionError.setProgramRuleActionType( ProgramRuleActionType.SHOWERROR );
-        programRuleActionError.setContent( "ERROR" );
-        programRuleActionService.addProgramRuleAction( programRuleActionError );
-        ProgramRuleAction anotherProgramRuleActionShowWarning = createProgramRuleAction( 'D',
-            programRuleWithoutRegistration );
-        anotherProgramRuleActionShowWarning.setProgramRuleActionType( ProgramRuleActionType.SHOWWARNING );
-        anotherProgramRuleActionShowWarning.setContent( "WARNING" );
-        programRuleActionService.addProgramRuleAction( anotherProgramRuleActionShowWarning );
-        ProgramRuleAction programRuleActionAssign = createProgramRuleAction( 'C', programRuleC );
-        programRuleActionAssign.setProgramRuleActionType( ProgramRuleActionType.ASSIGN );
-        programRuleActionAssign.setData( "#{ProgramRuleVariableA}" );
-        programRuleActionAssign.setDataElement( dataElement1 );
-        programRuleActionService.addProgramRuleAction( programRuleActionAssign );
-        ProgramRuleAction programRuleActionShowWarningForProgramStage = createProgramRuleAction( 'B', programRuleB );
-        programRuleActionShowWarningForProgramStage.setProgramRuleActionType( ProgramRuleActionType.SHOWWARNING );
-        programRuleActionShowWarningForProgramStage.setContent( "PROGRAM STAGE WARNING" );
-        programRuleActionService.addProgramRuleAction( programRuleActionShowWarningForProgramStage );
-        programRuleA.getProgramRuleActions().add( programRuleActionShowWarning );
-        programRuleService.updateProgramRule( programRuleA );
-        errorProgramRule.getProgramRuleActions().add( programRuleActionError );
-        programRuleService.updateProgramRule( errorProgramRule );
-        programRuleC.getProgramRuleActions().add( programRuleActionAssign );
-        programRuleService.updateProgramRule( programRuleC );
-        programRuleWithoutRegistration.getProgramRuleActions().add( anotherProgramRuleActionShowWarning );
-        programRuleService.updateProgramRule( programRuleWithoutRegistration );
-        programRuleB.getProgramRuleActions().add( programRuleActionShowWarningForProgramStage );
-        programRuleService.updateProgramRule( programRuleB );
+  @Autowired private ConstantService constantService;
 
-        injectAdminUser();
-    }
+  private Program program;
 
-    @Test
-    void testImportProgramEventSuccessWithWarningRaised()
-        throws IOException
-    {
-        TrackerImportReport trackerImportReport = trackerImportService
-            .importTracker( fromJson( "tracker/program_event.json" ) );
+  private Program programWithoutRegistration;
 
-        assertNoErrors( trackerImportReport );
-        assertEquals( 1, trackerImportReport.getValidationReport().getWarnings().size() );
-    }
+  private DataElement dataElement1;
 
-    @Test
-    void testImportProgramEventWithFutureDate()
-        throws IOException
-    {
-        TrackerImportParams params = fromJson( "tracker/tei_enrollment_event.json" );
-        params.getEvents().clear();
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
+  private DataElement dataElement2;
 
-        assertNoErrors( trackerImportReport );
+  @Override
+  public void initTest() throws IOException {
+    ObjectBundle bundle = setUpMetadata("tracker/simple_metadata.json");
+    program = bundle.getPreheat().get(PreheatIdentifier.UID, Program.class, "BFcipDERJnf");
+    programWithoutRegistration =
+        bundle.getPreheat().get(PreheatIdentifier.UID, Program.class, "BFcipDERJne");
+    dataElement1 = bundle.getPreheat().get(PreheatIdentifier.UID, DataElement.class, "DATAEL00001");
+    dataElement2 = bundle.getPreheat().get(PreheatIdentifier.UID, DataElement.class, "DATAEL00002");
+    ProgramStage programStage =
+        bundle.getPreheat().get(PreheatIdentifier.UID, ProgramStage.class, "NpsdDv6kKSO");
+    ProgramRuleVariable programRuleVariable =
+        createProgramRuleVariableWithDataElement('A', program, dataElement2);
+    programRuleVariableService.addProgramRuleVariable(programRuleVariable);
+    ProgramRule programRuleA = createProgramRule('A', program);
+    programRuleA.setUid("ProgramRule");
+    programRuleService.addProgramRule(programRuleA);
+    ProgramRule errorProgramRule = createProgramRule('E', program);
+    errorProgramRule.setCondition("ERROR");
+    errorProgramRule.setUid("ProgramRulE");
+    programRuleService.addProgramRule(errorProgramRule);
+    ProgramRule programRuleC = createProgramRule('C', program);
+    programRuleC.setUid("ProgramRulC");
+    programRuleC.setCondition(
+        "d2:daysBetween('2019-01-28', d2:lastEventDate('ProgramRuleVariableA')) < 5");
+    programRuleService.addProgramRule(programRuleC);
+    ProgramRule programRuleWithoutRegistration = createProgramRule('W', programWithoutRegistration);
+    programRuleService.addProgramRule(programRuleWithoutRegistration);
+    ProgramRule programRuleB = createProgramRule('B', program);
+    programRuleB.setProgramStage(programStage);
+    programRuleService.addProgramRule(programRuleB);
+    ProgramRuleAction programRuleActionShowWarning = createProgramRuleAction('A', programRuleA);
+    programRuleActionShowWarning.setProgramRuleActionType(ProgramRuleActionType.SHOWWARNING);
+    programRuleActionShowWarning.setContent("WARNING");
+    programRuleActionService.addProgramRuleAction(programRuleActionShowWarning);
+    ProgramRuleAction programRuleActionError = createProgramRuleAction('E', errorProgramRule);
+    programRuleActionError.setProgramRuleActionType(ProgramRuleActionType.SHOWERROR);
+    programRuleActionError.setContent("ERROR");
+    programRuleActionService.addProgramRuleAction(programRuleActionError);
+    ProgramRuleAction anotherProgramRuleActionShowWarning =
+        createProgramRuleAction('D', programRuleWithoutRegistration);
+    anotherProgramRuleActionShowWarning.setProgramRuleActionType(ProgramRuleActionType.SHOWWARNING);
+    anotherProgramRuleActionShowWarning.setContent("WARNING");
+    programRuleActionService.addProgramRuleAction(anotherProgramRuleActionShowWarning);
+    ProgramRuleAction programRuleActionAssign = createProgramRuleAction('C', programRuleC);
+    programRuleActionAssign.setProgramRuleActionType(ProgramRuleActionType.ASSIGN);
+    programRuleActionAssign.setData("#{ProgramRuleVariableA}");
+    programRuleActionAssign.setDataElement(dataElement1);
+    programRuleActionService.addProgramRuleAction(programRuleActionAssign);
+    ProgramRuleAction programRuleActionShowWarningForProgramStage =
+        createProgramRuleAction('B', programRuleB);
+    programRuleActionShowWarningForProgramStage.setProgramRuleActionType(
+        ProgramRuleActionType.SHOWWARNING);
+    programRuleActionShowWarningForProgramStage.setContent("PROGRAM STAGE WARNING");
+    programRuleActionService.addProgramRuleAction(programRuleActionShowWarningForProgramStage);
+    programRuleA.getProgramRuleActions().add(programRuleActionShowWarning);
+    programRuleService.updateProgramRule(programRuleA);
+    errorProgramRule.getProgramRuleActions().add(programRuleActionError);
+    programRuleService.updateProgramRule(errorProgramRule);
+    programRuleC.getProgramRuleActions().add(programRuleActionAssign);
+    programRuleService.updateProgramRule(programRuleC);
+    programRuleWithoutRegistration.getProgramRuleActions().add(anotherProgramRuleActionShowWarning);
+    programRuleService.updateProgramRule(programRuleWithoutRegistration);
+    programRuleB.getProgramRuleActions().add(programRuleActionShowWarningForProgramStage);
+    programRuleService.updateProgramRule(programRuleB);
 
-        params = fromJson( "tracker/tei_enrollment_event.json" );
-        params.getTrackedEntities().clear();
-        params.getEnrollments().clear();
+    constantService.saveConstant(constant());
 
-        Instant oneWeekFromNow = LocalDateTime.now().plusWeeks( 1 ).toInstant( ZoneOffset.UTC );
-        params.getEvents().forEach( e -> e.setOccurredAt( oneWeekFromNow ) );
-        trackerImportReport = trackerImportService.importTracker( params );
+    injectAdminUser();
+  }
 
-        assertNoErrors( trackerImportReport );
-        assertEquals( 3, trackerImportReport.getValidationReport().getWarnings().size() );
-    }
+  @Test
+  void testImportProgramEventSuccessWithWarningRaised() throws IOException {
+    TrackerImportReport trackerImportReport =
+        trackerImportService.importTracker(fromJson("tracker/program_event.json"));
 
-    @Test
-    void testImportEnrollmentSuccessWithWarningRaised()
-        throws IOException
-    {
-        TrackerImportReport trackerImportTeiReport = trackerImportService
-            .importTracker( fromJson( "tracker/single_tei.json" ) );
-        assertNoErrors( trackerImportTeiReport );
+    assertNoErrors(trackerImportReport);
+    assertEquals(1, trackerImportReport.getValidationReport().getWarnings().size());
+  }
 
-        TrackerImportReport trackerImportEnrollmentReport = trackerImportService
-            .importTracker( fromJson( "tracker/single_enrollment.json" ) );
+  @Test
+  void testImportProgramEventWithFutureDate() throws IOException {
+    TrackerImportParams params = fromJson("tracker/tei_enrollment_event.json");
+    params.getEvents().clear();
+    TrackerImportReport trackerImportReport = trackerImportService.importTracker(params);
 
-        assertNoErrors( trackerImportEnrollmentReport );
-        assertEquals( 2, trackerImportEnrollmentReport.getValidationReport().getWarnings().size() );
-    }
+    assertNoErrors(trackerImportReport);
 
-    @Test
-    void testImportEventInProgramStageSuccessWithWarningRaised()
-        throws IOException
-    {
-        TrackerImportParams params = fromJson( "tracker/tei_enrollment_event.json" );
+    params = fromJson("tracker/tei_enrollment_event.json");
+    params.getTrackedEntities().clear();
+    params.getEnrollments().clear();
 
-        TrackerImportReport trackerImportReport = trackerImportService.importTracker( params );
+    Instant oneWeekFromNow = LocalDateTime.now().plusWeeks(1).toInstant(ZoneOffset.UTC);
+    params.getEvents().forEach(e -> e.setOccurredAt(oneWeekFromNow));
+    trackerImportReport = trackerImportService.importTracker(params);
 
-        assertNoErrors( trackerImportReport );
-        List<TrackerWarningReport> warningReports = trackerImportReport.getValidationReport().getWarnings();
-        assertEquals( 6, warningReports.size() );
-        assertEquals( 4,
-            warningReports.stream().filter( w -> w.getTrackerType().equals( TrackerType.EVENT ) ).count() );
-        assertEquals( 2,
-            warningReports.stream().filter( w -> w.getTrackerType().equals( TrackerType.ENROLLMENT ) ).count() );
+    assertNoErrors(trackerImportReport);
+    assertEquals(3, trackerImportReport.getValidationReport().getWarnings().size());
+  }
 
-        params = fromJson( "tracker/event_update_no_datavalue.json" );
-        params.setImportStrategy( TrackerImportStrategy.CREATE_AND_UPDATE );
+  @Test
+  void testImportEnrollmentSuccessWithWarningRaised() throws IOException {
+    TrackerImportReport trackerImportTeiReport =
+        trackerImportService.importTracker(fromJson("tracker/single_tei.json"));
+    assertNoErrors(trackerImportTeiReport);
 
-        trackerImportReport = trackerImportService.importTracker( params );
+    TrackerImportReport trackerImportEnrollmentReport =
+        trackerImportService.importTracker(fromJson("tracker/single_enrollment.json"));
 
-        assertNoErrors( trackerImportReport );
-        warningReports = trackerImportReport.getValidationReport().getWarnings();
-        assertEquals( 4, warningReports.size() );
-        assertThat( trackerImportReport.getValidationReport().getWarnings(),
-            hasItem( hasProperty( "warningCode", equalTo( TrackerErrorCode.E1308 ) ) ) );
-        assertThat( trackerImportReport.getValidationReport().getWarnings(), hasItem( hasProperty( "message", equalTo(
-            "Generated by program rule (`ProgramRulC`) - DataElement `DATAEL00001` is being replaced in event `EVENT123456`" ) ) ) );
+    assertNoErrors(trackerImportEnrollmentReport);
+    assertEquals(2, trackerImportEnrollmentReport.getValidationReport().getWarnings().size());
+  }
 
-        params = fromJson( "tracker/event_update_datavalue.json" );
-        params.setImportStrategy( TrackerImportStrategy.CREATE_AND_UPDATE );
+  @Test
+  void testImportEventInProgramStageSuccessWithWarningRaised() throws IOException {
+    TrackerImportParams params = fromJson("tracker/tei_enrollment_event.json");
 
-        trackerImportReport = trackerImportService.importTracker( params );
+    TrackerImportReport trackerImportReport = trackerImportService.importTracker(params);
 
-        assertNoErrors( trackerImportReport );
-        warningReports = trackerImportReport.getValidationReport().getWarnings();
-        assertEquals( 4, warningReports.size() );
-        assertThat( trackerImportReport.getValidationReport().getWarnings(),
-            hasItem( hasProperty( "warningCode", equalTo( TrackerErrorCode.E1308 ) ) ) );
-        assertThat( trackerImportReport.getValidationReport().getWarnings(), hasItem( hasProperty( "message", equalTo(
-            "Generated by program rule (`ProgramRulC`) - DataElement `DATAEL00001` is being replaced in event `EVENT123456`" ) ) ) );
-    }
+    assertNoErrors(trackerImportReport);
+    List<TrackerWarningReport> warningReports =
+        trackerImportReport.getValidationReport().getWarnings();
+    assertEquals(6, warningReports.size());
+    assertEquals(
+        4,
+        warningReports.stream().filter(w -> w.getTrackerType().equals(TrackerType.EVENT)).count());
+    assertEquals(
+        2,
+        warningReports.stream()
+            .filter(w -> w.getTrackerType().equals(TrackerType.ENROLLMENT))
+            .count());
+
+    params = fromJson("tracker/event_update_no_datavalue.json");
+    params.setImportStrategy(TrackerImportStrategy.CREATE_AND_UPDATE);
+
+    trackerImportReport = trackerImportService.importTracker(params);
+
+    assertNoErrors(trackerImportReport);
+    warningReports = trackerImportReport.getValidationReport().getWarnings();
+    assertEquals(4, warningReports.size());
+    assertThat(
+        trackerImportReport.getValidationReport().getWarnings(),
+        hasItem(hasProperty("warningCode", equalTo(TrackerErrorCode.E1308))));
+    assertThat(
+        trackerImportReport.getValidationReport().getWarnings(),
+        hasItem(
+            hasProperty(
+                "message",
+                equalTo(
+                    "Generated by program rule (`ProgramRulC`) - DataElement `DATAEL00001` is being replaced in event `EVENT123456`"))));
+
+    params = fromJson("tracker/event_update_datavalue.json");
+    params.setImportStrategy(TrackerImportStrategy.CREATE_AND_UPDATE);
+
+    trackerImportReport = trackerImportService.importTracker(params);
+
+    assertNoErrors(trackerImportReport);
+    warningReports = trackerImportReport.getValidationReport().getWarnings();
+    assertEquals(4, warningReports.size());
+    assertThat(
+        trackerImportReport.getValidationReport().getWarnings(),
+        hasItem(hasProperty("warningCode", equalTo(TrackerErrorCode.E1308))));
+    assertThat(
+        trackerImportReport.getValidationReport().getWarnings(),
+        hasItem(
+            hasProperty(
+                "message",
+                equalTo(
+                    "Generated by program rule (`ProgramRulC`) - DataElement `DATAEL00001` is being replaced in event `EVENT123456`"))));
+  }
+
+  @Test
+  void shouldNotImportProgramEventWhenAnErrorIsTriggeredBasedOnConditionEvaluatingAConstant()
+      throws IOException {
+    conditionWithConstantEvaluatesToTrue();
+    TrackerImportReport report =
+        trackerImportService.importTracker(fromJson("tracker/program_event.json"));
+
+    assertHasOnlyErrors(report, E1300);
+  }
+
+  private void conditionWithConstantEvaluatesToTrue() {
+    ProgramRule programRule = createProgramRule('L', programWithoutRegistration);
+    programRule.setCondition("C{NAgjOfWMXg6} < 10");
+    programRule.setProgramStage(null);
+
+    programRuleService.addProgramRule(programRule);
+    ProgramRuleAction programRuleAction =
+        createProgramRuleAction(programRule, SHOWERROR, null, null);
+    programRuleActionService.addProgramRuleAction(programRuleAction);
+    programRule.getProgramRuleActions().add(programRuleAction);
+    programRuleService.updateProgramRule(programRule);
+  }
+
+  private ProgramRuleAction createProgramRuleAction(
+      ProgramRule programRule,
+      ProgramRuleActionType actionType,
+      DataElement dataElement,
+      String data) {
+    ProgramRuleAction programRuleAction = createProgramRuleAction('A', programRule);
+    programRuleAction.setProgramRuleActionType(actionType);
+    programRuleAction.setContent("CONTENT");
+    programRuleAction.setDataElement(dataElement);
+    programRuleAction.setData(data);
+
+    return programRuleAction;
+  }
+
+  private Constant constant() {
+    Constant constant = new Constant();
+    constant.setValue(7.8);
+    constant.setUid("NAgjOfWMXg6");
+    constant.setName("Gravity");
+    constant.setShortName("Gravity");
+    return constant;
+  }
 }
