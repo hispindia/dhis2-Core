@@ -62,6 +62,7 @@ import static org.hisp.dhis.analytics.util.AnalyticsUtils.getRoundedValue;
 import static org.hisp.dhis.analytics.util.AnalyticsUtils.getRoundedValueObject;
 import static org.hisp.dhis.analytics.util.AnalyticsUtils.hasPeriod;
 import static org.hisp.dhis.analytics.util.AnalyticsUtils.isPeriodInPeriods;
+import static org.hisp.dhis.analytics.util.AnalyticsUtils.withExceptionHandling;
 import static org.hisp.dhis.analytics.util.PeriodOffsetUtils.buildYearToDateRows;
 import static org.hisp.dhis.analytics.util.PeriodOffsetUtils.getPeriodOffsetRow;
 import static org.hisp.dhis.analytics.util.PeriodOffsetUtils.isYearToDate;
@@ -247,6 +248,35 @@ public class DataHandler {
       List<Indicator> indicators = expressionDimensionItemsToIndicators(expressionDimensionItems);
 
       addIndicatorValues(params, dataSourceParams, indicators, grid);
+    }
+  }
+
+  /**
+   * Adds subexpressions values to the given grid based on the given data query parameters.
+   *
+   * @param params the {@link DataQueryParams}.
+   * @param grid the {@link Grid}.
+   */
+  @Transactional(readOnly = true)
+  public void addSubexpressionDimensionItemValues(DataQueryParams params, Grid grid) {
+    if (params.hasSubexpressions() && !params.isSkipData()) {
+      // Generate one query per Subexpression
+      for (DimensionalItemObject subex : params.getSubexpressions()) {
+        DataQueryParams dataSourceParams =
+            newBuilder(params)
+                .withDataDimensionItems(List.of(subex))
+                .withIncludeNumDen(false)
+                .build();
+
+        Map<String, Object> aggregatedDataMap =
+            getAggregatedDataValueMapObjectTyped(dataSourceParams);
+
+        for (Map.Entry<String, Object> entry : aggregatedDataMap.entrySet()) {
+          Object value = getRoundedValueObject(params, entry.getValue());
+
+          grid.addRow().addValues(entry.getKey().split(DIMENSION_SEP)).addValue(value);
+        }
+      }
     }
   }
 
@@ -518,7 +548,8 @@ public class DataHandler {
 
       params = queryPlanner.withTableNameAndPartitions(params, plannerParams);
 
-      rawAnalyticsManager.getRawDataValues(params, grid);
+      final DataQueryParams immutableParams = DataQueryParams.newBuilder(params).build();
+      withExceptionHandling(() -> rawAnalyticsManager.getRawDataValues(immutableParams, grid));
     }
   }
 

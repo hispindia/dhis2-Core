@@ -33,7 +33,7 @@ import org.hisp.dhis.analytics.AggregationType;
 import org.hisp.dhis.antlr.ParserExceptionWithoutContext;
 import org.hisp.dhis.common.QueryModifiers;
 import org.hisp.dhis.parser.expression.CommonExpressionVisitor;
-import org.hisp.dhis.parser.expression.ExpressionItem;
+import org.hisp.dhis.parser.expression.ExpressionItemWithSql;
 
 /**
  * Function aggregationType (for indicator expressions)
@@ -42,7 +42,7 @@ import org.hisp.dhis.parser.expression.ExpressionItem;
  *
  * @author Jim Grace
  */
-public class FunctionAggregationType implements ExpressionItem {
+public class FunctionAggregationType implements ExpressionItemWithSql {
   @Override
   public Object evaluate(ExprContext ctx, CommonExpressionVisitor visitor) {
     AggregationType aggregationType = parseAggregationType(ctx.aggregationType.getText());
@@ -53,6 +53,11 @@ public class FunctionAggregationType implements ExpressionItem {
     return visitor.visitWithQueryMods(ctx.expr(0), queryMods);
   }
 
+  // -------------------------------------------------------------------------
+  // Supportive methods
+  // -------------------------------------------------------------------------
+
+  /** Parses the aggregation type */
   private AggregationType parseAggregationType(String text) {
     try {
       return AggregationType.valueOf(text);
