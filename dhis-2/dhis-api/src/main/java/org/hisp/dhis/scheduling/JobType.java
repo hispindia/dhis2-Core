@@ -113,6 +113,14 @@ public enum JobType
     ACCOUNT_EXPIRY_ALERT( false ),
     SYSTEM_VERSION_UPDATE_CHECK( false ),
 
+    
+    // custom change for schedule SEND EMAIL to MISS APPOINTMEN tracker-data for prep_tracker
+    SEND_SCHEDULED_EMAIL_MISS_APPOINTMENT( true ),
+    // for app.cff7060b.chunk.js and map file SEND_SCHEDULED_EMAIL_MISS_APPOINTMENT:j.a.t("Send Scheduled Email Miss Appointment"),
+    //end
+    
+    
+    
     // Testing purposes
     TEST( true, SchedulingType.CRON, TestJobParameters.class, null ),
     MOCK( false, SchedulingType.CRON, MockJobParameters.class, null ),
