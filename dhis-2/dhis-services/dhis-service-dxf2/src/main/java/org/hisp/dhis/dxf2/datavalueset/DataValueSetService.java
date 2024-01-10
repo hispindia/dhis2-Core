@@ -32,6 +32,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.hisp.dhis.common.IdSchemes;
 import org.hisp.dhis.dataset.DataSet;
@@ -107,4 +108,10 @@ public interface DataValueSetService
     ImportSummary importDataValueSetCsv( InputStream in, ImportOptions importOptions, JobConfiguration id );
 
     ImportSummary importDataValueSetPdf( InputStream in, ImportOptions importOptions, JobConfiguration id );
+    
+    // for excel-import
+    ImportSummary importDataValueSetExcelImport( DataValueSet dataValueSet );
+    
+    ImportSummary importDataValueSetExcelImport( DataValueSet dataValueSet, ImportOptions importOptions, JobConfiguration id );
+    // for excel-import end
 }
