@@ -133,7 +133,7 @@ public class SystemController
         HttpServletResponse response )
     {
         setNoStore( response );
-        return generateCodeList( Math.min( limit, 10000 ), CodeGenerator::generateUid );
+        return generateCodeList( Math.min( limit, 100000 ), CodeGenerator::generateUid );
     }
 
     @GetMapping( value = { "/uid", "/id" }, produces = "application/csv" )
@@ -142,7 +142,7 @@ public class SystemController
         HttpServletResponse response )
         throws IOException
     {
-        CodeList codeList = generateCodeList( Math.min( limit, 10000 ), CodeGenerator::generateUid );
+        CodeList codeList = generateCodeList( Math.min( limit, 100000 ), CodeGenerator::generateUid );
         CsvSchema schema = CsvSchema.builder()
             .addColumn( "uid" )
             .setUseHeader( true )
