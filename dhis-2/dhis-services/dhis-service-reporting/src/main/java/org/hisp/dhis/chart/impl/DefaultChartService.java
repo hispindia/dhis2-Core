@@ -557,11 +557,32 @@ public class DefaultChartService implements ChartService
 
             return getGaugeChart( plotData, valueDataSet );
         }
+		
+		else if ( plotData.isType( VisualizationType.SINGLE_VALUE.name() ) )
+        {
+			System.out.println( " plotData -- " + plotData + " -- " + dataSet );
+            Map<String, Object> tempValueMap;
+            tempValueMap = analyticsService.getAggregatedDataValueMapping( plotData.getVisualization() );
+            
+            
+            for( String tempKey : tempValueMap.keySet() )
+            {
+                System.out.println( " 11 -- tempKey -- " + tempKey + " -- " + tempValueMap.get( tempKey ).toString() );
+            }
+			
+            Number number = dataSet.getValue( 0,0 );
+            ValueDataset valueDataSet = new DefaultValueDataset( number );
+
+            return getGaugeChart( plotData, valueDataSet );
+			
+        }
+		
         else
         {
             throw new IllegalArgumentException( "Illegal or no chart type: " + plotData.getType() );
         }
-
+		
+		
         if ( plotData.isRegression() )
         {
             plot.setDataset( 1, dataSets[1] );

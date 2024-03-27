@@ -107,4 +107,10 @@ public interface DataValueSetService
     ImportSummary importDataValueSetCsv( InputStream in, ImportOptions importOptions, JobConfiguration id );
 
     ImportSummary importDataValueSetPdf( InputStream in, ImportOptions importOptions, JobConfiguration id );
+	
+	    // for excel-import
+    ImportSummary importDataValueSetExcelImport( DataValueSet dataValueSet );
+    
+    ImportSummary importDataValueSetExcelImport( DataValueSet dataValueSet, ImportOptions importOptions, JobConfiguration id );
+    // for excel-import end
 }

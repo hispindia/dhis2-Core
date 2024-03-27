@@ -617,6 +617,41 @@ public class DefaultDataValueSetService
     {
         return importDataValueSetPdf( in, options, null );
     }
+	
+	
+    
+    // for excel-import start
+    @Override
+    @Transactional
+    public ImportSummary importDataValueSetExcelImport( DataValueSet dataValueSet  )
+    {
+        return importDataValueSetExcelImport( dataValueSet , ImportOptions.getDefaultImportOptions(), null );
+        //return importDataValueSet( options, id, () -> new PdfDataValueSetReader( in ) );
+    }   
+    
+    @Override
+    @Transactional
+    public ImportSummary importDataValueSetExcelImport( DataValueSet dataValueSet, ImportOptions importOptions, JobConfiguration id )
+    {
+        try
+        {
+            //return saveDataValueSet( importOptions, id, dataValueSet );
+            return importDataValueSet( importOptions, id, () -> new XLSXDataValueSetReader( dataValueSet ) );
+            //return importDataValueSet( importOptions, id, createReader );
+            
+        }
+        catch ( Exception ex )
+        {
+            //log.error( DebugUtils.getStackTrace( ex ) );
+            notifier.notify( id, ERROR, "Process failed: " + ex.getMessage(), true );
+            return new ImportSummary( ImportStatus.ERROR, "The import process failed: " + ex.getMessage() );
+        }
+    }    
+    // for excel-import end  	
+	
+	
+	
+	
 
     private ImportSummary importDataValueSet( ImportOptions options, JobConfiguration id,
         Callable<DataValueSetReader> createReader )
