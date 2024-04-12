@@ -1348,6 +1348,7 @@ function periodSelected()
 {
 	/* add for show approval div based on dataset selection */
 	//alert( $( '#selectedDataSetId' ).val());
+		
 	
 	if( $( '#selectedDataSetId' ).val() == 'wwcxotLHZGY' || $( '#selectedDataSetId' ).val() == 'XV12eKZar28')
 	{
@@ -1761,6 +1762,19 @@ function getAndInsertDataValues()
 {
     var periodId = $( '#selectedPeriodId').val();
     var dataSetId = $( '#selectedDataSetId' ).val();
+
+		
+	if( $( '#selectedDataSetId' ).val() == 'XV12eKZar28')
+	{
+		//var period = $( '#selectedPeriodId' ).val();
+		//var organisationUnitId = $( '#currentOrganisationUnitId' ).val();
+		//var dataSetId = $( '#selectedDataSetId' ).val();
+			
+		//alert(  + " ou -- " + dhis2.de.currentOrganisationUnitId + " -- "  + period );
+		postClosingBlanceToNextPeriod();
+		
+	}
+
 
     // Clear existing values and colors, grey disabled fields
 
@@ -4672,6 +4686,115 @@ function submitReturnComment( selectedInputId,dialogDivID )
 	}
 
 }
+
+function postClosingBlanceToNextPeriod()
+{
+	
+	var closingBlanceDataValue = "";
+
+	$.getJSON( '../api/dataValues.json?de=hIQ7ajZBPDY&pe=' + $( '#selectedPeriodId').val() + '&ou=' + dhis2.de.currentOrganisationUnitId, function( json )
+	{
+		if(json[0] != "")
+		{
+			closingBlanceDataValue = json[0];
+			
+			//var co = "HllvX50cXC0";
+		
+			var openingBalanceDe = "pruqL3yxefO";
+			var co = "HllvX50cXC0";
+			var ou = dhis2.de.getCurrentOrganisationUnit();
+			//var pe = $( '#selectedPeriodId').val();
+			//var pe = '2024Q2';
+			
+			//'2024Q1'
+			
+			//2024Q1 -- 2024Q2 - 2024Q3 - 2024Q4 - 2025Q1
+			var nextISOPeriod = "";
+			var year = $( '#selectedPeriodId' ).val().substring( 0, 4 ).trim();
+					
+			var quater = $( '#selectedPeriodId' ).val().substring( 4, 6 ).trim();
+
+			if( quater == "Q1" )
+			{               
+				var nextQuater = "Q2";
+				nextISOPeriod = year + nextQuater;
+				
+			}
+			else if( quater == "Q2"  )
+			{
+				var nextQuater = "Q3";
+				nextISOPeriod = year + nextQuater;
+			}
+			else if( quater == "Q3"  )
+			{
+				var nextQuater = "Q4";
+				nextISOPeriod = year + nextQuater;
+			}
+			else if( quater == "Q4"  )
+			{
+				var nextQuater = "Q1";
+				var nextYear = parseInt( year ) + 1;
+				nextISOPeriod = nextYear + nextQuater;
+			}
+	
+			//alert( "nextISOPeriod -- " + nextISOPeriod);
+			var dataValue = {
+				'de' : openingBalanceDe,
+				'co' : co,
+				'ou' : ou,
+				'pe' : nextISOPeriod,
+				'value' : closingBlanceDataValue
+			};
+
+			var cc = dhis2.de.getCurrentCategoryCombo();
+			var cp = dhis2.de.getCurrentCategoryOptionsQueryValue();
+		
+			if ( cc && cp )
+			{
+				dataValue.cc = cc;
+				dataValue.cp = cp;
+			}
+		
+			$.ajax( {
+				url: '../api/dataValues',
+				data: dataValue,
+				type: 'post',
+				success: handleSuccess,
+				error: handleError
+			} );
+		
+		
+		   function handleSuccess()
+			{
+				console.log( " SUCESS - push closingBlanceDataValue " + closingBlanceDataValue );
+			}
+
+			function handleError( xhr, textStatus, errorThrown )
+			{
+				
+				if ( 409 == xhr.status || 500 == xhr.status ) // Invalid value or locked
+				{
+					console.log( " ERROR - " );
+					
+				}
+				else // Offline, keep local value
+				{
+					
+					alert( " error to save" );
+				}
+			}	
+		}
+		else
+		{
+			
+		}
+
+	} );
+}
+
+
+
+
 
 function sendEmailForReturn(  emailText ){
 
