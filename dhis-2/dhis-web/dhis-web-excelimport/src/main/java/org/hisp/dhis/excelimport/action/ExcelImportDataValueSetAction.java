@@ -220,12 +220,20 @@ public class ExcelImportDataValueSetAction implements Action
         this.availablePeriods = availablePeriods;
     }
     
+    private String assessmentType;
     
+    public void setAssessmentType( String assessmentType )
+    {
+        this.assessmentType = assessmentType;
+    }
+
     private String organisationUnitName;
     private String defaultCategoryOptionComboUID;
     private OrganisationUnit selectedOrgUnit;
     
     private Map<Long, String> organisationUnitXMLFileMap = new HashMap<Long, String>();
+    
+    private String importAssementType = "";
     // -------------------------------------------------------------------------
     // Action implementation
     // -------------------------------------------------------------------------
@@ -259,6 +267,20 @@ public class ExcelImportDataValueSetAction implements Action
             return SUCCESS;
         }
      
+        System.out.println( "importAssementType " + assessmentType  );
+        
+        if( assessmentType != null )
+        {
+            
+            importAssementType = assessmentType;
+        }
+        else
+        {
+            message = "Assement Type not selected";
+            //importStatusMsgList.add( message );
+            return SUCCESS;
+        }
+        
         periodId = (int) periodService.reloadIsoPeriod( isoPeriod ).getId();
         
         System.out.println( "File name : " + fileName +  "  ISO period -- "+ isoPeriod + " periodID " + periodId + " import Start " + new Date() );
@@ -280,7 +302,11 @@ public class ExcelImportDataValueSetAction implements Action
         
         organisationUnitXMLFileMap = new HashMap<Long, String>( getXMLFileNameList() );
         
-        deCodesImportXMLFileName = organisationUnitXMLFileMap.get( selectedOrgUnit.getId() );
+        //deCodesImportXMLFileName = organisationUnitXMLFileMap.get( selectedOrgUnit.getId() );
+        
+        deCodesImportXMLFileName = getXMLFileName( importAssementType, selectedOrgUnit.getId() );
+        
+        System.out.println( " xmlMapping File Name : " + deCodesImportXMLFileName );
         
         if( deCodesImportXMLFileName.equalsIgnoreCase( "" ) )
         {
@@ -1048,6 +1074,42 @@ public class ExcelImportDataValueSetAction implements Action
         return organisationUnitXMLFileMap;
     }    
     
-    
+    public String getXMLFileName( String assementType, Long orgUnitID )
+    {
+        String xmlFileName = "";
+
+        String query = "";
+
+        try
+        {
+           
+            query = "SELECT orgGrpMember.organisationunitid, orgunitgrp.name, "
+                    + "cast(orgUnitGrpAttribute.value::json ->> 'value' AS VARCHAR) from orgunitgroup orgunitgrp "
+                    + "JOIN json_each_text(orgunitgrp.attributevalues::json) orgUnitGrpAttribute ON TRUE "
+                    + "INNER JOIN attribute attr ON attr.uid = orgUnitGrpAttribute.key "
+                    + "INNER JOIN orgunitgroupmembers orgGrpMember ON orggrpmember.orgunitgroupid = orgunitgrp.orgunitgroupid "
+                    + "WHERE attr.code = '" + assementType + "' AND orgGrpMember.organisationunitid = " + orgUnitID +" ";
+                        
+            //System.out.println( "SQL query : " + query );
+            SqlRowSet rs1 = jdbcTemplate.queryForRowSet( query );
+            
+            while ( rs1.next() )
+            {
+                Long tempOrgUnitID = rs1.getLong( 1 );
+                String tempXMLFileName = rs1.getString( 3 );
+                if( tempOrgUnitID != null && tempXMLFileName != null )
+                {
+                    xmlFileName = tempXMLFileName;
+                }
+            }
+        }
+        catch ( Exception e )
+        {
+            System.out.println( "SQL Exception : " + e.getMessage() );
+            return null;
+        }
+ 
+        return xmlFileName;
+    }    
     
 }

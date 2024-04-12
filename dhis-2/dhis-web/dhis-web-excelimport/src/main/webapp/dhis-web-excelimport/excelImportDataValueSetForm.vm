@@ -30,11 +30,20 @@
 		*/
 		
 		
-		var importDateValue = document.reportForm.importDate.value;
+		//var importDateValue = document.reportForm.importDate.value;
 		
-		if(importDateValue == null || importDateValue== "" ) {alert("Please Select Date"); return false;}
+		//if(importDateValue == null || importDateValue== "" ) {alert("Please Select Date"); return false;}
 		
         //else if(startDateValue > endDateValue) {alert("Starte Date is Greaterthan End Date"); return false;}
+		
+		var assessmentTypeIndex = document.reportForm.assessmentType.selectedIndex;
+		
+		if(document.reportForm.assessmentType.options[assessmentTypeIndex].value == "NA") 
+		{
+			alert("Please Select Assessment Type");
+			return false;
+			
+		}
 		
         return true;
     }
@@ -56,10 +65,6 @@
     	}
     }	
 	
-	
-	
-	
-	
     //-----------------------------------------------------------------------
     //init jQuery validation for reportForm
     //-----------------------------------------------------------------------
@@ -72,8 +77,10 @@
                     ,errorElement:"td"
                     ,submitHandler: function(form)
                     {
-                        formValidations();
-						submitImportDataValueForm();
+                        if(formValidations())
+						{
+							submitImportDataValueForm();
+						}
                     }
                 });
                 jQuery("#name").focus();
@@ -93,7 +100,7 @@
 		<tr>
             <td class="NormalB">
                 1. Year : <br />
-                <select id="year" name="year" style="width:220px" onchange="getQuarterlyPeriods()">
+                <select id="year" name="year" style="width:180px" onchange="getQuarterlyPeriods()">
                     <option value="NA">[ Select Year ]</option>
                     #foreach ( $year in $yearList )
                         <option value="$year">$year</option>
@@ -102,7 +109,7 @@
             </td>
 			
             <td class="NormalB">
-                3. Periods : <br />
+                2. Periods : <br />
                 <select id="availablePeriods" name="availablePeriods" style="width:220px" class="{validate:{required:true}}">
                     <option value="EMPTY_PLACEHOLDER_VALUE"></option>
                 </select>
@@ -118,14 +125,20 @@
         </tr>
         <tr>
             <td class="NormalB">
-                5. OrganisationUnit : <br />
+                3. OrganisationUnit : <br />
                 <input type="text" name="ouNameTB" id="ouNameTB" style="width:170px" class="{validate:{required:true}}" disabled >
-            	
 			</td>
-            <td class="NormalB">
-                3. Upload/Import (XLSX) File : <br/>
-                <input type="file" id="upload" name="upload" size="31" class="{validate:{required:true}}">
+			
+			<td class="NormalB">
+                4. Assessment Type : <br />
+                <select id="assessmentType" name="assessmentType" style="width:220px" class="{validate:{required:true}}">
+                    <option value="NA">[ Select Assessment Type ]</option>
+					<option value="ExAnteAssessmentXML">Ex-Ante Assessment</option>
+					<option value="ExPostAssessmentXML">Ex-Post Assessment</option>
+					<option value="SelfAssessmentXML">Self Assessment</option>					
+                </select>
             </td>
+
         </tr> 
 
         <tr>
@@ -141,8 +154,13 @@
             <td class="NormalB">
                 <input type="submit" name="importReport" value='Import Data' style="width:180px">
             </td>
+            
+
             <td class="NormalB">
-			<td>&nbsp;</td>
+                5. Upload/Import (XLSX) File : <br/>
+                <input type="file" id="upload" name="upload" size="31" class="{validate:{required:true}}">
+            </td>
+			
         </tr>                   
         
 		
