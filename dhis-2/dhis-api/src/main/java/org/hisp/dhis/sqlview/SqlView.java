@@ -50,10 +50,16 @@ import org.hisp.dhis.schema.annotation.PropertyRange;
 public class SqlView extends BaseIdentifiableObject implements Cacheable, MetadataObject {
   public static final String PREFIX_VIEWNAME = "_view";
 
+  /*
   public static final Set<String> PROTECTED_TABLES =
       Set.of(
           "users", "userinfo", "trackedentityattributevalue", "oauth_access_token", "oauth2client");
-
+   */
+  
+  public static final Set<String> PROTECTED_TABLES =
+      Set.of( "oauth_access_token", "oauth2client" );
+  
+  
   public static final Set<String> ILLEGAL_KEYWORDS =
       Set.of(
           "delete",
