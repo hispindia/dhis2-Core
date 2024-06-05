@@ -30,12 +30,18 @@ package org.hisp.dhis.webapi.controller.event;
 import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.ok;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.hisp.dhis.common.DhisApiVersion;
 import org.hisp.dhis.common.OpenApi;
 import org.hisp.dhis.dxf2.webmessage.WebMessage;
 import org.hisp.dhis.fieldfilter.FieldFilterService;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
+import org.hisp.dhis.program.ProgramInstance;
+import org.hisp.dhis.program.ProgramInstanceService;
 import org.hisp.dhis.program.ProgramService;
+import org.hisp.dhis.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceService;
 import org.hisp.dhis.trackedentity.TrackerOwnershipManager;
 import org.hisp.dhis.user.CurrentUserService;
@@ -72,6 +78,8 @@ public class TrackerOwnershipController {
   @Autowired private ProgramService programService;
 
   @Autowired private OrganisationUnitService organisationUnitService;
+  
+  @Autowired protected ProgramInstanceService programInstanceService;
 
   // -------------------------------------------------------------------------
   // 1. Transfer ownership if the logged in user is part of the owner ou.
@@ -90,6 +98,33 @@ public class TrackerOwnershipController {
         organisationUnitService.getOrganisationUnit(ou),
         false,
         false);
+    
+    
+    //System.out.println( "response -- " + response);
+    // custom change for update enrollment orgUnit when permanent refer /or program-ownership change tracked-entity-program-owner
+    TrackedEntityInstance tei = trackedEntityInstanceService.getTrackedEntityInstance( trackedEntityInstance );
+    //Set<String> teiProgramInstances = new HashSet<>( );
+    
+    if( tei != null )
+    {
+        Set<ProgramInstance> teiProgramInstances = new HashSet<ProgramInstance>( tei.getProgramInstances());
+        
+        if( teiProgramInstances != null && teiProgramInstances.size() > 0 )
+        {
+            for( ProgramInstance teiProgramInstance : teiProgramInstances )
+            {
+                if( teiProgramInstance.getProgram().getUid().equalsIgnoreCase( program ))
+                {
+                    teiProgramInstance.setOrganisationUnit( organisationUnitService.getOrganisationUnit( ou ) );
+                    programInstanceService.updateProgramInstance( teiProgramInstance );
+                    //trackedEntityInstanceService.updateTrackedEntityInstance( teiProgramInstance.getEntityInstance() );
+                }
+            }
+        }
+    }
+    // end
+    
+    
     return ok("Ownership transferred");
   }
 
