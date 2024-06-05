@@ -2251,6 +2251,11 @@ function registerCompleteDataSet( completedStatus )
           alert(`Please fill compulsary data elements!${promptValue}`);
           return false;
         }
+        const isEqual = validateEquality();
+        if(!isEqual) {
+          alert(`Table 2 Activity Funds Utilised should match the total of activity wise fund utilised in Table 1`);
+          return false;
+        }
         pushDEValues();
     }
 
@@ -2349,6 +2354,15 @@ function registerCompleteDataSet( completedStatus )
 // Validation With data element
 // -----------------------------------------------------------------------------
 
+function validateEquality() {
+var fundsCurrent = document.getElementById('indicatorhZP3yMW6DrW').value;
+var sheet2Bank = Number(document.getElementById('sdoMh3e7puX-HllvX50cXC0-val').value);
+var sheet2Cash = Number(document.getElementById('HSkhJ8tcjM7-HllvX50cXC0-val').value);
+
+if((sheet2Bank + sheet2Cash) == Number(fundsCurrent)) return true;
+return false;
+}
+
 function validateIds() {
   var emptyValues = [];
   var result = "";
@@ -2390,69 +2404,57 @@ function validateIds() {
 
 function pushDEValues() {
   var activityExpenditure = [
-    ["vG8QKhAyRhT", "ukiRq2gleA9", "iDZNTrtvLFJ"],
-    ["YKFEKXk4Aig", "mQBEQiXgCUX", "IxbYVGZ1ERo"],
-    ["zQV9DTso2bN", "WAVUVCtgQkg", "V6pn1XiwWmZ"],
-    ["ps4OBkuYE47", "yfrbWCdH02Z", "t2Z6dXifJ6N"],
-    ["lbQsVwe61tI", "AOAqXrjm8sI", "fD8feI290wX"],
-    ["ONADcVTlZtj", "vSGHAtD4np0", "dKhRKgdJ4qK"],
-    ["xcBtxPUYQAN", "wdhNBKRp928", "GmOHVjX5RyD"],
-    ["sNBdm2p4dko", "V0sDvcWZchC", "KcOepDJ2I6P"],
-    ["jacGn6QIDyu", "mry3YXmsu04", "VmMx8RLlBbL"],
-    ["gyCvqVkcyuf", "jDbWR4imXOJ", "B494KumJqJy"],
-    ["G6l6F1Hjrig", "BJQ3sDnzqJk", "TAZeubDI3wq"],
-    ["S7DtErytP5n", "f3XiosaJdGb", "PWQ2YifF82d"],
-    ["X4JrI7jEj7X", "tk3BP3q9xUo", "wxhlz7x6mQN"],
-    ["U8W8FZzOkcv", "yyx4AADIMlk", "n0ntNNHQxQN"],
-    ["v4ZPSG5eIhu", "aDxy5n0hHKa", "jPc2i2OYq28"],
-    ["U4SBmJsURjp", "OCkzjuz1U1b", "JiQFAUodWcb"],
-    ["cZTxcz3qVLv", "MgVXfCweZDf", "loW0eBKEpQR"],
-    ["NCvv7N3nJw2", "LqYgQd08nDi", "himz7qbGy7x"],
-    ["TuOZ6Xd0ccY", "UNp4wMVeeZe", "bhcB0DhF1uu"],
-    ["go8w36rvyzT", "p1SEMifOaiZ", "QRup2BDgZ8s"],
-    ["c9aSocO2A5k", "UkDT3plut99", "obEv73ewbr5"],
-    ["GKGo7J8OdLo", "vL5YhuF8tDI", "WZ5MJg1mxAg"],
-    ["gv7ypAMglHn", "oOZl0EgyS5U", "vqn7yxUFA06"],
-    ["eaNZpI7sdgh", "fFmADEj0xil", "YjLf2Ama5A0"],
-    ["ocbVzbFPJaU", "b5Em3xwExJh", "FCCuxVdiuK5"],
-    ["K0QTe3FbZQW", "BBVHK38qD0m", "b4fLSxZeWmS"],
-    ["vK5dhkpYtFZ", "F9k85AXbT8Y", "bPWrMqoIZTL"],
-    ["gTlDMAxLrVe", "L9whtHr0jof", "uDpAWx5NtEG"],
-    ["zrYNrRnHUJ9", "NCsmmPDj9IB", "pysR1rHYLIs"],
-    ["PQKG80KWWQ1", "tkLu3RVQK2O", "eZyAFioXcK0"],
-    ["qxT7OdXpezK", "JJj2NIo4RaU", "U18vROet3YU"],
-    ["ORc3lnnrri0", "hKAN3h5JYyB", "BzoAsbJ1LCU"],
-    ["J7y3Gdgi5OI", "cymlOzmo39B", "D7qGWnLxw7g"],
-    ["wReWf7GZlVG", "Re5VTzeapjL", "hbAWWo5PkwW"],
-    ["w0QcN9uqxVh", "YoYX8Qy6aVK", "ovfwqkf92vm"],
-    ["YDy3J1C58JA", "w4QZZmOlM2h", "BJxJKG5rOLG"],
-    ["KgCofHptkMz", "gjaPDkL87vD", "btDndI3ObMv"],
-    ["liPwyy6bwkV", "sJ43C2eJdIi", "fZlYQeJpgru"],
-    ["eHEQG8WybwC", "fbG5Fs8PIBe", "iwpSYLXsZCZ"],
-    ["cDkodEeb96U", "tgVRUjRej4g", "olNNhEzCLMj"],
-    ["iSiUxRZPtZC", "fQwILCxgbAr", "fSGwtbWEUva"],
-    ["N1RrNNkbees", "jdCQcGaavDR", "bowWm1K3EvE"],
-    ["yDMkzwDkVsu", "OIimnDslZJE", "a1zSkTFtPdD"],
-    ["ECTkJxBzdqt", "XIuQt690cvw", "VDPVx9Zrdpn"],
-    ["Nyvg2Cp1jwe", "X9Igb1uSwzh", "M7ZwNaCmaBx"],
-    ["uc8RwdtR8pC", "SdK8WgD57RE", "rUYjJZlpLF3"],
-    ["MT3n06zYSnc", "EiAQQwCuP30", "p3xIOj5y3PL"],
-    ["fUIo7poz1Ha", "niqK6viUgGF", "FPIu0E8w1xk"],
-    ["Hz4hc2oFInO", "UD8X8XKmWJs", "EiGYY8OXIjY"],
-    ["kaK9Bya4Vs3", "EH0zDYpDdVc", "XCs39Wx4p3Q"],
+    ["vG8QKhAyRhT", "iDZNTrtvLFJ"],
+    ["YKFEKXk4Aig", "IxbYVGZ1ERo"],
+    ["zQV9DTso2bN", "V6pn1XiwWmZ"],
+    ["ps4OBkuYE47", "t2Z6dXifJ6N"],
+    ["lbQsVwe61tI", "fD8feI290wX"],
+    ["ONADcVTlZtj", "dKhRKgdJ4qK"],
+    ["xcBtxPUYQAN", "GmOHVjX5RyD"],
+    ["sNBdm2p4dko", "KcOepDJ2I6P"],
+    ["jacGn6QIDyu", "VmMx8RLlBbL"],
+    ["gyCvqVkcyuf", "B494KumJqJy"],
+    ["G6l6F1Hjrig", "TAZeubDI3wq"],
+    ["S7DtErytP5n", "PWQ2YifF82d"],
+    ["X4JrI7jEj7X", "wxhlz7x6mQN"],
+    ["U8W8FZzOkcv", "n0ntNNHQxQN"],
+    ["v4ZPSG5eIhu", "jPc2i2OYq28"],
+    ["U4SBmJsURjp", "JiQFAUodWcb"],
+    ["cZTxcz3qVLv", "loW0eBKEpQR"],
+    ["NCvv7N3nJw2", "himz7qbGy7x"],
+    ["TuOZ6Xd0ccY", "bhcB0DhF1uu"],
+    ["go8w36rvyzT", "QRup2BDgZ8s"],
+    ["c9aSocO2A5k", "obEv73ewbr5"],
+    ["GKGo7J8OdLo", "WZ5MJg1mxAg"],
+    ["gv7ypAMglHn", "vqn7yxUFA06"],
+    ["eaNZpI7sdgh", "YjLf2Ama5A0"],
+    ["ocbVzbFPJaU", "FCCuxVdiuK5"],
+    ["K0QTe3FbZQW", "b4fLSxZeWmS"],
+    ["vK5dhkpYtFZ", "bPWrMqoIZTL"],
+    ["gTlDMAxLrVe", "uDpAWx5NtEG"],
+    ["zrYNrRnHUJ9", "pysR1rHYLIs"],
+    ["PQKG80KWWQ1", "eZyAFioXcK0"],
+    ["qxT7OdXpezK", "U18vROet3YU"],
+    ["ORc3lnnrri0", "BzoAsbJ1LCU"],
+    ["J7y3Gdgi5OI", "D7qGWnLxw7g"],
+    ["wReWf7GZlVG", "hbAWWo5PkwW"],
+    ["w0QcN9uqxVh", "ovfwqkf92vm"],
+    ["YDy3J1C58JA", "BJxJKG5rOLG"],
+    ["KgCofHptkMz", "btDndI3ObMv"],
+    ["liPwyy6bwkV", "fZlYQeJpgru"],
+    ["eHEQG8WybwC", "iwpSYLXsZCZ"],
+    ["cDkodEeb96U", "olNNhEzCLMj"],
+    ["iSiUxRZPtZC", "fSGwtbWEUva"],
+    ["N1RrNNkbees", "bowWm1K3EvE"],
+    ["yDMkzwDkVsu", "a1zSkTFtPdD"],
+    ["ECTkJxBzdqt", "VDPVx9Zrdpn"],
+    ["Nyvg2Cp1jwe", "M7ZwNaCmaBx"],
+    ["uc8RwdtR8pC", "rUYjJZlpLF3"],
+    ["MT3n06zYSnc", "p3xIOj5y3PL"],
+    ["fUIo7poz1Ha", "FPIu0E8w1xk"],
+    ["Hz4hc2oFInO", "EiGYY8OXIjY"],
+    ["kaK9Bya4Vs3", "XCs39Wx4p3Q"],
   ];
-  var fundsReceived = {
-    "Goods - E": "",
-    "Goods - DC": "",
-    "Goods - ME": "",
-    "Goods - F": "",
-    "Goods - BPS": "",
-    Works: "",
-    "Works - RC": "",
-    Services: "",
-    "Services - C": "",
-    "Services - M": "",
-  };
   var fundsUtilized = {
     "Goods - E": "",
     "Goods - DC": "",
@@ -2464,18 +2466,6 @@ function pushDEValues() {
     Services: "",
     "Services - C": "",
     "Services - M": "",
-  };
-  var fundsrec = {
-    "Goods - E": "w8wv57QPWww-XnHmxw4QWAR",
-    "Goods - ME": "w8wv57QPWww-XDqTSxjtTRU",
-    "Goods - DC": "w8wv57QPWww-YrT6udvuOUU",
-    "Goods - BPS": "w8wv57QPWww-huR6MbBAtO4",
-    "Goods - F": "w8wv57QPWww-AWpgyF3XivS",
-    Works: "GiI9u9gcAZW-QnWan7CJDeF",
-    "Works - RC": "GiI9u9gcAZW-eWeOuVZm3dh",
-    Services: "e5Crg54YYNb-Mdyc7ZWpxvN",
-    "Services - C": "e5Crg54YYNb-jjXxNmzLTNi",
-    "Services - M": "e5Crg54YYNb-IEi4W3S4GcG",
   };
   var fundsUtil = {
     "Goods - E": "ZK742qo5ZQj-XnHmxw4QWAR",
@@ -2494,37 +2484,13 @@ function pushDEValues() {
     let activityDetails = document.getElementById(
       `${ids[0]}-HllvX50cXC0-val`
     ).value;
-    let receiptReceived = document.getElementById(
+    let receiptPaid = document.getElementById(
       `${ids[1]}-HllvX50cXC0-val`
     ).value;
-    let receiptPaid = document.getElementById(
-      `${ids[2]}-HllvX50cXC0-val`
-    ).value;
-    if (receiptReceived !== "")
-      fundsReceived[activityDetails] =
-        Number(receiptReceived) + Number(fundsReceived[activityDetails]);
     if (receiptPaid !== "")
       fundsUtilized[activityDetails] =
         Number(receiptPaid) + Number(fundsUtilized[activityDetails]);
   });
-
-  for (let id in fundsrec) {
-    for (let activityDetails in fundsReceived) {
-      if (activityDetails == id && fundsReceived[activityDetails] !== "") {
-        let dataValue = {
-          de: fundsrec[id].split("-")[0],
-          co: fundsrec[id].split("-")[1],
-          ou: dhis2.de.getCurrentOrganisationUnit(),
-          pe: $("#selectedPeriodId").val(),
-          value: fundsReceived[activityDetails],
-        };
-        pushValue(dataValue);
-        debugger;
-        document.getElementById(`${fundsrec[id]}-val`).value =
-          fundsReceived[activityDetails];
-      }
-    }
-  }
 
   for (let id in fundsUtil) {
     for (let activityDetails in fundsUtilized) {
