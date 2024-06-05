@@ -131,6 +131,13 @@ public enum JobType {
   TRACKER_IMPORT_NOTIFICATION_JOB(false),
   TRACKER_IMPORT_RULE_ENGINE_JOB(false),
   MATERIALIZED_SQL_VIEW_UPDATE(true, SchedulingType.CRON, SqlViewUpdateParameters.class, null),
+  
+  // custom change for schedule SMS tracker-data for save-child HIV tracker
+  CUSTOM_SMS_TASK( true ),
+  PUSH_TO_AGGREGATE_DATAELEMENT(  true ),
+  CREATE_MISSING_EVENT( true ),
+  //end
+
 
   // Internal jobs
   LEADER_ELECTION(false),
