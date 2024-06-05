@@ -1361,6 +1361,22 @@ public abstract class AbstractEnrollmentService implements EnrollmentService {
 
       String attributeValue = attributeValueMap.get(trackedEntityAttribute.getUid());
 
+      // custom change for HIV-Tracker to skip length validation of finger-print-string attribute
+      if ( !trackedEntityAttribute.getUid().equalsIgnoreCase( "uiOMHu4LtAP" ) )
+      {
+          if (attributeValue != null && attributeValue.length() > TEA_VALUE_MAX_LENGTH) {
+              // We shorten the value to first 25 characters, since we dont
+              // want to post a 1200+ string back.
+              importConflicts.addConflict(
+                  ATTRIBUTE_VALUE,
+                  String.format(
+                      "Value exceeds the character limit of %s characters: '%s...'",
+                      TEA_VALUE_MAX_LENGTH,
+                      attributeValueMap.get(trackedEntityAttribute.getUid()).substring(0, 25)));
+            }
+      }
+      // comment existing code for HIV-Tracker
+      /*
       if (attributeValue != null && attributeValue.length() > TEA_VALUE_MAX_LENGTH) {
         // We shorten the value to first 25 characters, since we dont
         // want to post a 1200+ string back.
@@ -1371,7 +1387,8 @@ public abstract class AbstractEnrollmentService implements EnrollmentService {
                 TEA_VALUE_MAX_LENGTH,
                 attributeValueMap.get(trackedEntityAttribute.getUid()).substring(0, 25)));
       }
-
+      */ 
+      
       if (trackedEntityAttribute.isUnique()) {
         checkAttributeUniquenessWithinScope(
             trackedEntityInstance,

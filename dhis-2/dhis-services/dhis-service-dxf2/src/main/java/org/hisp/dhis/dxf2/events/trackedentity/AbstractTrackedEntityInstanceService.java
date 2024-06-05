@@ -32,6 +32,7 @@ import static org.hisp.dhis.trackedentity.TrackedEntityAttributeService.TEA_VALU
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,7 +45,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 import org.hisp.dhis.audit.payloads.TrackedEntityInstanceAudit;
 import org.hisp.dhis.common.AuditType;
@@ -1368,7 +1371,23 @@ public abstract class AbstractTrackedEntityInstanceService implements TrackedEnt
               "Attribute.attribute", "Invalid attribute " + attribute.getAttribute());
           continue;
         }
+        
+        // custom change for HIV-Tracker to skip length validation of finger-print-string attribute
+        if ( !daoEntityAttribute.getUid().equalsIgnoreCase( "uiOMHu4LtAP" ) )
+        {
+            //System.out.println(  "daoEntityAttribute - " + daoEntityAttribute.getUid() + " attribute.getValue().length() -- " + attribute.getValue().length()  );
+            if ( attribute.getValue().length() > TEA_VALUE_MAX_LENGTH )
+            {
+                // We shorten the value to first 25 characters, since we dont want to post a 1200+ string back.
+                importConflicts.addConflict( "Attribute.value",
+                    String.format( "Value exceeds the character limit of %s characters: '%s...'",
+                        TEA_VALUE_MAX_LENGTH, attribute.getValue().substring( 0, 25 ) ) );
+            }
+        }
+        //end 
 
+        // comment for HIV-Tracker
+        /*
         if (attribute.getValue() != null && attribute.getValue().length() > TEA_VALUE_MAX_LENGTH) {
           // We shorten the value to first 25 characters, since we
           // dont want to post a 1200+ string back.
@@ -1378,7 +1397,9 @@ public abstract class AbstractTrackedEntityInstanceService implements TrackedEnt
                   "Value exceeds the character limit of %s characters: '%s...'",
                   TEA_VALUE_MAX_LENGTH, attribute.getValue().substring(0, 25)));
         }
-
+        */
+        //end
+        
         if (daoEntityAttribute.isUnique()) {
           // Cache was populated in prepareCaches, so I should hit the
           // cache
