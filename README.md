@@ -116,6 +116,23 @@ To build using a custom tag run
 
 ```sh
 mvn -DskipTests -Dmaven.test.skip=true -f dhis-2/dhis-web/dhis-web-portal/pom.xml jib:dockerBuild -Djib.to.image=dhis2/core-dev:mytag
+
+
+Compiles the tests, but skips running them.
+mvn install -DskipTests=true
+mvn clean install -DskipTests=true
+
+
+Skips compiling the tests and does not run them.
+mvn install -Dmaven.test.skip=true 
+
+Check dependencies for newer versions:
+mvn versions:display-dependency-updates
+
+mvn clean install -DskipTests -U // 12/07/2024
+mvn clean install -Dskip.test=true
+
+
 ```
 
 For more configuration options related to Jib or Docker go to the
