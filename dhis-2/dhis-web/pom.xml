@@ -15,6 +15,8 @@
     <module>dhis-web-commons</module>
     <module>dhis-web-commons-resources</module>
     <module>dhis-web-dataentry</module>
+	<!-- India Module -->
+	<module>dhis-web-excelimport</module>
     <module>dhis-web-portal</module>
     <module>dhis-web-apps</module>
   </modules>

@@ -1,0 +1,225 @@
+
+<script>
+
+    //Global Variables
+	/*
+    var selriRadioButton = "overWrite";
+    var reportModels = new HashTable();
+    var reportFileNames = new HashTable();
+    var checkerFileNames = new HashTable();
+    var reportDatasets = new HashTable();
+	*/
+	
+    function formValidations()
+    {     
+		/*
+        var reportListIndex = document.reportForm.reportList.selectedIndex;
+        var periodIndex = document.reportForm.availablePeriods.selectedIndex;
+        var periodIDIndex = document.reportForm.periodTypeId.selectedIndex;
+        var orgunitIdValue = document.reportForm.ouIDTB.value;
+
+        if(reportListIndex < 0 || document.reportForm.reportList.options[reportListIndex].text == null) {alert("Please Select Report"); return false;}
+        else if(document.reportForm.availablePeriods.options[periodIndex].text == null || document.reportForm.availablePeriods.options[periodIndex].text== "") {alert("Please Select Period"); return false;}
+        else if(document.reportForm.periodTypeId.options[periodIDIndex].value == "NA") {alert("Please Select Period Type"); return false;}
+        else if(orgunitIdValue == null || orgunitIdValue=="" || orgunitIdValue==" ") {alert("Please Select OrganisationUnit"); return false;}
+
+        document.reportForm.reportModelTB.value = reportModels.get(document.reportForm.reportList.options[reportListIndex].value);
+        document.reportForm.reportFileNameTB.value = reportFileNames.get(document.reportForm.reportList.options[reportListIndex].value);
+        document.reportForm.checkerFileNameTB.value = checkerFileNames.get(document.reportForm.reportList.options[reportListIndex].value);
+        document.reportForm.dataSetId.value = reportDatasets.get(document.reportForm.reportList.options[reportListIndex].value);
+		*/
+		
+		
+		//var importDateValue = document.reportForm.importDate.value;
+		
+		//if(importDateValue == null || importDateValue== "" ) {alert("Please Select Date"); return false;}
+		
+        //else if(startDateValue > endDateValue) {alert("Starte Date is Greaterthan End Date"); return false;}
+		
+		var assessmentTypeIndex = document.reportForm.assessmentType.selectedIndex;
+		
+		if(document.reportForm.assessmentType.options[assessmentTypeIndex].value == "NA") 
+		{
+			alert("Please Select Assessment Type");
+			return false;
+			
+		}
+		
+        return true;
+    }
+
+    function vaccinesTypes()
+    {
+    		
+    	var dataImportTypeValue = document.getElementById( "dataImportType" ).value;
+    	
+    	//alert( "dataImportTypeValue -- " + dataImportTypeValue );
+    	if( dataImportTypeValue == "vccineDeliveryType" ) 
+    	{
+			document.getElementById("vccinesTypeTD").style.display = "block";
+    	}
+    	
+    	else
+    	{
+    		document.getElementById("vccinesTypeTD").style.display = "none";
+    	}
+    }	
+	
+    //-----------------------------------------------------------------------
+    //init jQuery validation for reportForm
+    //-----------------------------------------------------------------------
+	
+    jQuery(document).ready(
+            function()
+            {
+                jQuery("#reportForm").validate({
+                     meta:"validate"
+                    ,errorElement:"td"
+                    ,submitHandler: function(form)
+                    {
+                        if(formValidations())
+						{
+							submitImportDataValueForm();
+						}
+                    }
+                });
+                jQuery("#name").focus();
+            }
+    );
+    
+
+</script>
+
+<h1>Excel Import Form</h1>
+<hr /><br />
+    
+<form id="reportForm" name="reportForm" method="post" enctype="multipart/form-data" action="excelDataValueSetResult.action">
+    <input type="hidden" id="curLocaleCode" value="$locale.getLanguage()_$locale.getCountry()"/>
+    <table align="center" style=" border-collapse: collapse; margin-top: 0;" cellpadding="0" cellspacing="0" width="730" border=0>
+		
+		<tr>
+            <td class="NormalB">
+                1. Year : <br />
+                <select id="year" name="year" style="width:180px" onchange="getQuarterlyPeriods()">
+                    <option value="NA">[ Select Year ]</option>
+                    #foreach ( $year in $yearList )
+                        <option value="$year">$year</option>
+                    #end
+                </select>
+            </td>
+			
+            <td class="NormalB">
+                2. Periods : <br />
+                <select id="availablePeriods" name="availablePeriods" style="width:220px" class="{validate:{required:true}}">
+                    <option value="EMPTY_PLACEHOLDER_VALUE"></option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td class="NormalB">
+                3. OrganisationUnit : <br />
+                <input type="text" name="ouNameTB" id="ouNameTB" style="width:170px" class="{validate:{required:true}}" disabled >
+			</td>
+			
+			<td class="NormalB">
+                4. Assessment Type : <br />
+                <select id="assessmentType" name="assessmentType" style="width:220px" class="{validate:{required:true}}">
+                    <option value="NA">[ Select Assessment Type ]</option>
+					<option value="ExAnteAssessmentXML">Ex-Ante Assessment</option>
+					<option value="ExPostAssessmentXML">Ex-Post Assessment</option>
+					<option value="SelfAssessmentXML">Self Assessment</option>					
+                </select>
+            </td>
+
+        </tr> 
+
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
+
+        <tr>
+            <td class="NormalB">
+                <input type="submit" name="importReport" value='Import Data' style="width:180px">
+            </td>
+            
+
+            <td class="NormalB">
+                5. Upload/Import (XLSX) File : <br/>
+                <input type="file" id="upload" name="upload" size="31" class="{validate:{required:true}}">
+            </td>
+			
+        </tr>                   
+        
+		
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
+        
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+                <input type="hidden" name="autogen" id="autogen" value="0" >
+                <input type="hidden" name="ouIDTB" id="ouIDTB" />
+				<input type="hidden" name="reportModelTB" id="reportModelTB">
+                <input type="hidden" name="reportFileNameTB" id="reportFileNameTB">
+				<input type="hidden" name="reportListFileNameTB" id="reportListFileNameTB" value="excelImportReportsList.xml">	
+                <!--
+                <input type="hidden" name="checkerFileNameTB" id="checkerFileNameTB">
+                <input type="hidden" name="dataSetId" id="dataSetId">
+                -->
+            </td>
+        </tr>
+		
+        <tr>
+            <td colspan="2"><span id="message"></span></td>
+        </tr>
+    </table>
+</form>
+
+<script>
+/*
+    jQuery( function(){
+            datePicker( "importDate", false);
+    });     
+*/
+
+    function onloadFun()
+    {
+        #if($message)
+            document.getElementById( 'message' ).innerHTML = '$message';
+            document.getElementById( 'message' ).style.display = 'block';
+            setTimeout(
+                function()
+                {
+                    document.getElementById( 'message' ).style.display = 'none';
+                },
+                4000
+            );  
+        #end
+    }
+    
+    onloadFun();
+    
+</script>
+
+<script type="text/javascript"> 
+/*
+  $( function( ) {
+    $( "#importDate" ).datepicker();
+  } );
+*/
+</script>

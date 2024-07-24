@@ -1,0 +1,105 @@
+<br/>
+
+
+<input type="button" value="Back" onclick="window.location.href='excelImportEventDataValueForm.action'" />
+<br/><br/>
+<!--
+##if($importStatusMsgList.size() !=0 )
+##set($brandName = "The import process failed: Failed to create statement" )
+#if($importSummaryDescription != "The import process failed: Failed to create statement" )
+<table>
+	#set( $impSummary = $importSummary )
+      <tr>
+		<th align="left">Status</th>
+		<td>&nbsp;</td>
+        <td>$encoder.htmlEncode($!importSummary.getStatus())</td>
+      </tr>
+	  
+	  <tr>
+		<th align="left">Description</th>
+		<td>&nbsp;</td>
+        <td>$encoder.htmlEncode($!importSummary.getDescription())</td>
+      </tr>
+	  
+	  <tr>
+		<th align="left">Import Count</th>
+		<td>&nbsp;</td>
+        <td>$encoder.htmlEncode($!impSummary.getImportCount().getImported())</td>
+      </tr>
+
+	  <tr>
+		<th align="left">Update Count</th>
+		<td>&nbsp;</td>
+        <td>$encoder.htmlEncode($!impSummary.getImportCount().getUpdated())</td>
+      </tr>
+
+	  <tr>
+		<th align="left">Delete Count</th>
+		<td>&nbsp;</td>
+        <td>$encoder.htmlEncode($!impSummary.getImportCount().getDeleted())</td>
+      </tr>	 
+ 
+	  <tr>
+		<th align="left">Ignore Count</th>
+		<td>&nbsp;</td>
+        <td>$encoder.htmlEncode($!impSummary.getImportCount().getIgnored())</td>
+      </tr>
+
+	  <tr>
+	  #set( $importConflictList = $impSummary.getConflicts() )
+		<td>
+			<table>
+				#if($importConflictList.size() !=0 )
+                    #foreach( $importConflict in $importConflictList )
+                      <tr>
+    					<th align="left">Conflict</th>
+						<td>&nbsp;</td>
+                      </tr>
+		
+    				  <tr>
+    					<th align="left">ID $encoder.htmlEncode($!importConflict.getObject())</th>
+                        <td>&nbsp;&nbsp;$encoder.htmlEncode($!importConflict.getValue())</td>
+                      </tr>
+                    #end
+				#else
+				  <tr>
+					<th align="left">No Conflicts</th>
+                    <td>&nbsp;</td>
+					<td>&nbsp;</td>
+                  </tr>    		
+				#end
+		</table>
+		</td>
+	  </tr>
+</table>
+
+##elseif( $importSummaryDescription.length() !=0 )
+#elseif( $importSummaryDescription == "The import process failed: Failed to create statement" )
+	
+<span id="message" style="display:block" >
+	<span id="importMessage" style="display:block">$message</span>
+	<span id="totalCount" style="display:block">$totalCount</span>
+	<span id="insertCount" style="display:block">$insertCount</span>
+	<span id="updatingCount" style="display:block">$updateCount</span>
+</span>	
+#else
+<span id="message" style="display:block">$encoder.xmlEncode( $message )</span>
+#end
+-->
+
+<!--<span id="message" style="display:block">$encoder.xmlEncode( $message )</span>-->
+
+#if($importStatusMsgList.size() !=0 )
+<table>
+    #foreach( $importStatusMsg in $importStatusMsgList )
+      <tr>
+        <td>$encoder.htmlEncode($!importStatusMsg)</td>
+      </tr>
+	  <tr>
+        <td>&nbsp;</td>
+      </tr>
+    #end
+</table
+#else
+<span id="message" style="display:block">$encoder.xmlEncode( $message )</span>
+#end
