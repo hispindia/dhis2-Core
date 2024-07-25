@@ -543,10 +543,10 @@ public class ExcelImportEventDataValueAction implements Action
         // Create a DataFormatter to format and get each cell's value as String
         DataFormatter dataFormatter = new DataFormatter();
         
-        String xMLFileStrategy = "eventDataValueImportMapping_1.2 Strategy.xml";
-        String xMLFileProjectDescription = "eventDataValueImportMapping_2.1 Project description.xml";
-        
-        String xMLFileProjectBudget = "eventDataValueImportMapping_2.2 Project budget.xml";
+        String xMLFileStrategy = "eventDataValueImportMapping_1.2_Strategy.xml";
+        String xMLFileProjectDescription = "eventDataValueImportMapping_2.1_Project_description.xml";
+        String xMLFileProjectBudget = "eventDataValueImportMapping_2.2_Project_budget.xml";
+        String xMLFileOrgDetails = "eventDataValueImportMapping_1.1_Org_details.xml";
         
         List<XMLAttribute> xmlMappingListStrategy = new ArrayList<>();
         
@@ -572,6 +572,119 @@ public class ExcelImportEventDataValueAction implements Action
         if ( xmlMappingListProjectBudget.isEmpty() )
         {
             xmlMappingListProjectBudget = new ArrayList<>( getXMLAttributeYear( xMLFileProjectBudget ) );
+        }
+        
+        List<XMLAttribute> xmlMappingListOrgDetails = new ArrayList<>();
+        
+        xmlMappingListOrgDetails.clear();
+        if ( xmlMappingListOrgDetails.isEmpty() )
+        {
+            xmlMappingListOrgDetails = new ArrayList<>( getXMLAttribute( xMLFileOrgDetails ) );
+        }
+        
+        if( xmlMappingListOrgDetails != null && xmlMappingListOrgDetails.size()> 0  )
+        {
+            Iterator<XMLAttribute> xmlMappingIterator = xmlMappingListOrgDetails.iterator();
+            
+            Set<org.hisp.dhis.dxf2.events.event.DataValue> eventDataValuesOrgDetails = new HashSet<>();
+            
+            String program = "";
+            String programStage = "";
+            Event addNewEventOrgDetails = new Event();
+            
+            while ( xmlMappingIterator.hasNext() )
+            {
+                XMLAttribute xmlAttribute = (XMLAttribute) xmlMappingIterator.next();
+                
+                program = xmlAttribute.getProgram();
+                programStage = xmlAttribute.getProgramStage();
+                String dataCellValue = "";
+                int tempRowNo = xmlAttribute.getRowno();
+                int tempColNo = xmlAttribute.getColno();
+                int sheetNo = xmlAttribute.getSheetno();
+                String dataElement = xmlAttribute.getDataElement();
+                
+                Sheet tempSheet = workBook.getSheetAt( sheetNo );
+                Row dataValueRow = tempSheet.getRow( tempRowNo );
+                Cell dataValueCell = dataValueRow.getCell( tempColNo);
+                
+                if( dataValueCell.getCellType() == CellType.FORMULA )
+                {
+                    dataCellValue = getTemplateCellValue( dataValueCell, evaluator );
+                    //System.out.println( " dataCellValue formula --  " + dataCellValue1 + " dataElement --  " + dataElement  + " tempRowNo --  " + tempRowNo + " tempColNo --  " + tempColNo );
+                }
+                
+                else
+                {
+                    dataCellValue = dataFormatter.formatCellValue( dataValueCell );
+                    //System.out.println( " dataCellValue no formula --  " + dataCellValue1 + " dataElement --  " + dataElement  + " tempRowNo --  " + tempRowNo + " tempColNo --  " + tempColNo );
+                }
+                
+                //System.out.println( " dataCellValue 11 --  " + dataCellValue1 + " dataElement --  " + dataElement  + " tempRowNo --  " + tempRowNo + " tempColNo --  " + tempColNo );
+                //dataCellValue = dataFormatter.formatCellValue( dataValueCell );
+                if( dataCellValue != null && !dataCellValue.equalsIgnoreCase( "" ) )
+                {
+                    
+                    dataCellValue = dataCellValue.replaceAll("[,$]","");
+                    
+                    org.hisp.dhis.dxf2.events.event.DataValue eventDataValue = new org.hisp.dhis.dxf2.events.event.DataValue();
+                    
+                    eventDataValue.setDataElement( dataElement );
+                    eventDataValue.setValue( dataCellValue );
+                    eventDataValuesOrgDetails.add( eventDataValue );
+                    
+                    //System.out.println( " dataCellValue 12 --  " + dataCellValue1 + " dataElement --  " + dataElement  + " tempRowNo --  " + tempRowNo + " tempColNo --  " + tempColNo );
+                }
+            }
+            
+            // reporting period
+            
+            org.hisp.dhis.dxf2.events.event.DataValue eventDataValueReportingPeriod = new org.hisp.dhis.dxf2.events.event.DataValue();
+            
+            eventDataValueReportingPeriod.setDataElement( reportingPeriodDe );
+            eventDataValueReportingPeriod.setValue( reportingPeriod );
+            eventDataValuesOrgDetails.add( eventDataValueReportingPeriod );
+            
+            // for Current board term: Start year
+            
+            org.hisp.dhis.dxf2.events.event.DataValue evDvStartYear = new org.hisp.dhis.dxf2.events.event.DataValue();
+            evDvStartYear.setDataElement( "nME0H9rEBz4" );
+            evDvStartYear.setValue( year1 );
+            eventDataValuesOrgDetails.add( evDvStartYear );
+            
+            
+            // for Current board term: Current board term: End year
+            
+            org.hisp.dhis.dxf2.events.event.DataValue evDvEndYear = new org.hisp.dhis.dxf2.events.event.DataValue();
+            evDvEndYear.setDataElement( "leqtpPX6o97" );
+            evDvEndYear.setValue( year3 );
+            eventDataValuesOrgDetails.add( evDvEndYear );
+            
+            addNewEventOrgDetails.setDataValues( eventDataValuesOrgDetails );
+            addNewEventOrgDetails.setProgram( program );
+            addNewEventOrgDetails.setOrgUnit( selectedOrgUnit.getUid() );
+            addNewEventOrgDetails.setProgramStage( programStage );
+            addNewEventOrgDetails.setTrackedEntityInstance( teiListByOrgUnitAndProgramMap.get( program +":" + selectedOrgUnit.getUid() ) );
+            addNewEventOrgDetails.setEventDate( eventDate );
+
+            
+            importSummary = eventService.addEvent( addNewEventOrgDetails, null, false );
+            //System.out.println(  " importSummary -- " + importSummary.toString());
+            
+            if( importSummary.getStatus().toString().equalsIgnoreCase( "SUCCESS" ))
+            {
+                //importSummary.getImportCount().getImported()
+                importStatusMessage = "Events created successfully for sheet 1.1 Org details Event count:" + importSummary.getImportCount().getImported()+ ". imported event :" + importSummary.getReference();
+                importStatusMsgList.add( importStatusMessage );
+            }
+            
+            else
+            {
+                importStatusMessage = "Failed to create events for sheet 1.1 Org details Error Details : " + importSummary.toString();
+                importStatusMsgList.add( importStatusMessage );
+            }
+            
+            
         }
         
         if( xmlMappingListProjectBudget != null && xmlMappingListProjectBudget.size()> 0  )
@@ -791,13 +904,13 @@ public class ExcelImportEventDataValueAction implements Action
             if( importSummary.getStatus().toString().equalsIgnoreCase( "SUCCESS" ))
             {
                 //importSummary.getImportCount().getImported()
-                importStatusMessage = "Events created successfully for sheet 2.2 Project budget Event count:" + importSummary.getImportCount().getImported()+ ". imported event :" + importSummary.getReference();
+                importStatusMessage = "Events created successfully for sheet 2.2 Project budget Year1 Event count:" + importSummary.getImportCount().getImported()+ ". imported event :" + importSummary.getReference();
                 importStatusMsgList.add( importStatusMessage );
             }
             
             else
             {
-                importStatusMessage = "Failed to create events for sheet 2.2 Project budget Error Details : " + importSummary.toString();
+                importStatusMessage = "Failed to create events for sheet 2.2 Project budget Year1 Error Details : " + importSummary.toString();
                 importStatusMsgList.add( importStatusMessage );
             }
             
@@ -822,13 +935,13 @@ public class ExcelImportEventDataValueAction implements Action
             if( importSummary.getStatus().toString().equalsIgnoreCase( "SUCCESS" ))
             {
                 //importSummary.getImportCount().getImported()
-                importStatusMessage = "Events created successfully for sheet 2.2 Project budget Event count:" + importSummary.getImportCount().getImported()+ ". imported event :" + importSummary.getReference();
+                importStatusMessage = "Events created successfully for sheet 2.2 Project budget Year2 Event count:" + importSummary.getImportCount().getImported()+ ". imported event :" + importSummary.getReference();
                 importStatusMsgList.add( importStatusMessage );
             }
             
             else
             {
-                importStatusMessage = "Failed to create events for sheet 2.2 Project budget Error Details : " + importSummary.toString();
+                importStatusMessage = "Failed to create events for sheet 2.2 Project budget Year2 Error Details : " + importSummary.toString();
                 importStatusMsgList.add( importStatusMessage );
             }
             
@@ -853,13 +966,13 @@ public class ExcelImportEventDataValueAction implements Action
             if( importSummary.getStatus().toString().equalsIgnoreCase( "SUCCESS" ))
             {
                 //importSummary.getImportCount().getImported()
-                importStatusMessage = "Events created successfully for sheet 2.2 Project budget count:" + importSummary.getImportCount().getImported()+ ". imported event :" + importSummary.getReference();
+                importStatusMessage = "Events created successfully for sheet 2.2 Project budget Year3 count:" + importSummary.getImportCount().getImported()+ ". imported event :" + importSummary.getReference();
                 importStatusMsgList.add( importStatusMessage );
             }
             
             else
             {
-                importStatusMessage = "Failed to create events for sheet 2.2 Project budget Error Details : " + importSummary.toString();
+                importStatusMessage = "Failed to create events for sheet 2.2 Project budget Year3 Error Details : " + importSummary.toString();
                 importStatusMsgList.add( importStatusMessage );
             }
             
