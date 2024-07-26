@@ -1343,7 +1343,7 @@ public class ExcelImportEventDataValueAction implements Action
         
         if( formulaEvaluator.evaluateInCell(cell).getCellType() == cell.getCellType())
         {
-            templateCellValue = ""+cell.getRichStringCellValue();
+            //templateCellValue = ""+cell.getRichStringCellValue();
             
             if (cell.getCellType() == CellType.NUMERIC) 
             {
@@ -1365,6 +1365,10 @@ public class ExcelImportEventDataValueAction implements Action
                 //break;
             }
             
+            else
+            {
+                templateCellValue = ""+cell.getRichStringCellValue();
+            }
             
             //System.out.println( " inside formula String 1 --  " + formulaEvaluator.evaluateInCell(cell).getCellType() + " cell.getCellType() -- " + cell.getCellType() + " -- " + cell.getRichStringCellValue());
         }
