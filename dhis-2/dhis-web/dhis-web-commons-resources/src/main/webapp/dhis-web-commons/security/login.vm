@@ -1,160 +1,161 @@
-<!DOCTYPE HTML>
-<html class="loginPage" dir="ltr">
-<head>
-    <title>$!encoder.htmlEncode( ${applicationTitle} )</title>
-    <meta name="description" content="DHIS 2">
-    <meta name="keywords" content="DHIS 2">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link rel="shortcut icon" href="../../favicon.ico"/>
-    <script type="text/javascript" src="../javascripts/jQuery/jquery-3.6.3.min.js"></script>
-    <script nonce="$cspNonce">
-        $.ajaxSetup( {
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader(
-                        'X-Requested-With',
-                        {
-                            toString: function() {
-                                return '';
-                            }
-                        }
-                );
-            }
-        } );
-    </script>
-    <script type="text/javascript" src="../javascripts/login.js"></script>
-    <link type="text/css" rel="stylesheet" href="../css/widgets.css">
-    <link type="text/css" rel="stylesheet" href="../css/login.css">
-    <link type="text/css" rel="stylesheet" href="../../api/files/style/external"/>
-    <style nonce="$cspNonce">
-        .displayNoneClass {
-            display: none;
-        }
-        .borderNoneClass {
-            border: none;
-        }
-        .paddingTenClass {
-            padding-bottom: 10px;
-        }
-        .whiteRedClass {
-            color: white;
-            background-color: red;
-        }
-        .marginLeftClass {
-            margin-left: 30px;
-        }
+<!DOCTYPE html>
+<html lang="en">
 
-            #foreach( $provider in $oidcConfig.providers )
-            .oidc${provider.id}Class {
-                width: 269px;
-                height: 46px;
-                border: none;
-                background: url($provider.icon) no-repeat scroll $provider.iconPadding, #fff;
-            }
-            #end
-    </style>
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <title>Login</title>
+  <!-- General CSS Files -->
+  <link rel="stylesheet" href="../flags/assets/css/app.min.css">
+  <link rel="stylesheet" href="../flags/assets/bundles/bootstrap-social/bootstrap-social.css">
+  <!-- Template CSS -->
+ 
+  <!-- Custom style CSS -->
+  <link rel="stylesheet" href="../flags/assets/css/login.css">
+  <link rel='shortcut icon' type='image/x-icon' href='../flags/assets/img/favicon.ico' />
 </head>
 
-<body class="loginPage">
-<h1 class="displayNoneClass">$!encoder.htmlEncode( ${applicationTitle} )</h1>
-<div class="displayNoneClass">DHIS 2</div>
-<div>
-    #if ( $keyFlag )
-        <img id="flagArea" src="../flags/$!{keyFlagImage}">
-    #end
-    #if ( $applicationTitle )
-        <span id="titleArea">$!encoder.htmlEncode( ${applicationTitle} )</span>
-    #end
-    #if ( $keyApplicationIntro )
-        <span id="introArea">$!{keyApplicationIntro}</span>
-    #end
-</div>
-    #if ( $keyConfig.selfRegistrationAllowed() )
-    <div id="accountArea">
-        <a id="createAccountButton" class="greenButtonLink" href="account.action">$i18n.getString(
-            'create_an_account')</a>
-    </div>
-    #end
-<div id="loginField">
-    <div id="loginArea">
-        <div id="bannerArea">
-            <a href="https://www.dhis2.org"><img src="../../api/staticContent/logo_front" class="borderNoneClass"></a>
-        </div>
-
-        <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">
-            <div>
-                <div id="signInLabel">Sign in</div>
-                <div><input type="text" id="j_username" name="j_username" placeholder="Username" required></div>
-                <div><input type="password" id="j_password" name="j_password" autocomplete="off" placeholder="Password"
-                            required></div>
-                    #if( $twoFactor == true )
-                    <div>
-                    <input type="code" id="2fa_code" name="2fa_code"
-                               placeholder="$i18n.getString('two_factor_authentication_code')">
+<body>
+  <div class="loader"></div>
+  <div id="app">
+    <section class="section">
+      
+      <div class="container mt-5">
+        <div class="row">
+        <div class="col-md-6 col-6">
+            <a href="" class="logo">
+              <img src="../flags/assets/images/logo-dark.png">
+            </a>
+          </div>
+          <div class="col-md-6 col-6 text-right">
+             <div class="languag-wrap btn ml-auto">
+                        <span><i class="fa fa-globe" aria-hidden="true"></i></span>
+                        <select>
+                            <option selected="">English</option>
+                            <option>Spanish</option>
+                            <option>Arabic</option>
+                            <option>French</option>
+                        </select>
                     </div>
-                    #end
-            </div>
-            <div id="submitDiv">
-                <input id="submit" class="button" type="submit" value="$i18n.getString('sign_in')">
-            </div>
-            #if( $keyAccountRecovery )
-                <div class="paddingTenClass">
-                    <a id="forgotPasswordLink" href="recovery.action">$i18n.getString('forgot_password')</a>
-                </div>
-            #end
-            #if( $keyConfig.selfRegistrationAllowed() )
-                <div class="paddingTenClass">
-                    <a id="createAccountLink" href="account.action">$i18n.getString('create_an_account')</a>
-                </div>
-            #end
-        </form>
+          </div>
 
-        #foreach( $provider in $oidcConfig.providers )
-            <form id="oidcProvider_$provider.id" action="../../oauth2/authorization/$provider.id" method="get">
-                <div id="submitDiv">
-                    <input id="submit" class="button oidc${provider.id}Class" type="submit"
-                           value="$i18n.getString( $provider.loginText )">
-                </div>
-            </form>
-        #end
+      </div>
+        <div class="row height-wrap">
 
-        #if( $failed == true )
-            <div id="loginMessage">
-                $!{request.getSession().getAttribute("LOGIN_FAILED_MESSAGE")}
+          <div class="col-md-8 login-img">
+            <img src="../flags/assets/images/banner-img.png" width="100%">
+          </div>
+          <div class="col-md-4 login-box-wrap">
+            <div class="card card-primary">
+              <div class="card-header  text-center">
+              <h4>Business Planning & Reporting Portal</h4>
+              <p class=" text-center">Please enter details to continue</p>
+              </div>
+              <div class="card-body">
+                <form id="loginForm" action="../../dhis-web-commons-security/login.action" method="post">
+                  <div class="form-group">
+                    <input type="text" class="form-control icon-email"  id="j_username" name="j_username" placeholder="Username"  tabindex="1" required autofocus>
+                    <div class="invalid-feedback">
+                      Please fill in your email
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <input type="password" id="j_password" name="j_password" autocomplete="off" class="form-control icon-pass"
+                    placeholder="Password" required>
+                    <span toggle="#j_password" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                    <div class="invalid-feedback">
+                      please fill in your password
+                    </div>
+                  </div>
+				  <!--
+                  <div>
+                    <input type="checkbox" name="2fa" value="2fa" id="2fa" /><label
+                        id="2FaLabel">$i18n.getString('login_using_two_factor_authentication')</label>
+                    <input type="code" id="2fa_code" name="2fa_code"
+                        placeholder="$i18n.getString('two_factor_authentication_code')" hidden readonly>
+				  </div>
+				  -->
+                  <!-- <div class="form-group d-flex align-items-center justify-content-between pt-2">
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" name="remember" class="custom-control-input" tabindex="3" id="remember-me">
+                      <label class="custom-control-label text-dark" for="remember-me">Remember Me</label>
+                    </div>
+                    <a href="" class="text-small text-dark">
+                          Forgot Password?
+                        </a>
+                  </div> -->
+                  <div class="form-group">
+                    <input id="submit" class="btn btn-primary btn-lg btn-block login-btn" type="submit" value="Log In">
+                    
+                  </div>
+                  #if( $keyAccountRecovery )
+                  <div class="paddingTenClass">
+                      <a id="forgotPasswordLink" href="recovery.action">$i18n.getString('forgot_password')</a>
+                  </div>
+                  #end
+                  #if( $keyConfig.selfRegistrationAllowed() )
+                  <div class="paddingTenClass">
+                      <a id="createAccountLink" href="account.action">$i18n.getString('create_an_account')</a>
+                  </div>
+                  #end
+                </form>
+                #foreach( $provider in $oidcConfig.providers )
+                <form id="oidcProvider_$provider.id" action="../../oauth2/authorization/$provider.id" method="get">
+                    <div id="submitDiv">
+                        <input id="submit" class="button oidc${provider.id}Class" type="submit"
+                            value="$i18n.getString( $provider.loginText )">
+                    </div>
+                </form>
+                #end
+    
+                #if( $failed == true )
+                <div id="loginMessage">
+                    $!{request.getSession().getAttribute("LOGIN_FAILED_MESSAGE")}
+                </div>
+                <div id="lockedMessage" style="display: none">
+                    $!{request.getSession().getAttribute("LOGIN_FAILED_MESSAGE")}
+                </div>
+                #end
+                #if( $oidcFailure == true )
+                <div id="loginMessage">
+                    $i18n.getString('oidc_login_failed')
+                </div>
+                #end
+                #if ( $keyApplicationNotification )
+                <div id="notificationArea">
+                    $!{keyApplicationNotification}
+                </div>
+                #end
+              </div>
             </div>
-            <div id="lockedMessage" style="display: none">
-                $!{request.getSession().getAttribute("LOGIN_FAILED_MESSAGE")}
+            <!-- <div class="mt-5 text-dark text-center">
+              Don't have an account? <a href="auth-register.html" class="link">Register</a>
             </div>
-        #end
-        #if( $oidcFailure == true )
-            <div id="loginMessage">
-                $i18n.getString('oidc_login_failed')
-            </div>
-        #end
-        #if ( $keyApplicationNotification )
-            <div id="notificationArea">
-                $!{keyApplicationNotification}
-            </div>
-        #end
-        <!--[if lte IE 8]>
-            <div id="notificationArea" class="whiteRedClass">$i18n.getString(
-            "unsupported_browser" )</div>
-            <![endif]-->
-    </div>
-</div>
-<div id="footerArea">
-    <div id="leftFooterArea" class="innerFooterArea">
-        <span id="poweredByLabel">Powered by </span><a href="https://www.dhis2.org">DHIS 2</a>&nbsp; <span
-            id="applicationFooter">$!{keyApplicationFooter}</span>
-    </div>
-    <div id="rightFooterArea" class="innerFooterArea">
-        <span id="applicationRightFooter">$!{keyApplicationRightFooter}</span>
-        <select id="localeSelect" class="marginLeftClass">
-            <option value="">[ $i18n.getString( "change_language" ) ]</option>
-            #foreach( $locale in $availableLocales )
-                <option value="${locale.language}">${locale.displayName}</option>
-            #end
-        </select>
-    </div>
-</div>
+          </div> -->
+        </div>
+      </div>
+    </section>
+  </div>
+  <!-- General JS Scripts -->
+  <!-- <script src="../flags/assets/js/app.min.js"></script> -->
+  <!-- JS Libraies -->
+  <!-- Page Specific JS File -->
+  <!-- Template JS File -->
+  <!-- <script src="../flags/assets/js/scripts.js"></script> -->
+  <!-- Custom JS File -->
+  <!-- <script src="../flags/assets/js/custom.js"></script> -->
+  <script>
+    $(".toggle-password").click(function() {
+
+  $(this).toggleClass("fa-eye fa-eye-slash");
+  var input = $($(this).attr("toggle"));
+  if (input.attr("type") == "password") {
+    input.attr("type", "text");
+  } else {
+    input.attr("type", "password");
+  }
+});
+  </script>
 </body>
+
 </html>

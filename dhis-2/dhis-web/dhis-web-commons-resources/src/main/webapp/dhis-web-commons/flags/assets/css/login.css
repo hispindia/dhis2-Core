@@ -1,0 +1,39 @@
+@import url(https://fonts.googleapis.com/css2?family=Poppins:wght@400;500,600;700&display=swap);
+body{background:#E2E6FC; font-family:Poppins,sans-serif;}
+.container{max-width:1500px;}
+.logo{max-width:250px; display:inline-block;}
+.logo img{width:100%}
+.languag-wrap {
+    background: #fff;
+    border-radius:10px;
+}
+.languag-wrap select {
+    border: none;
+}
+.height-wrap{height:calc(100vh - 96px); align-items:center;}
+.login-img{height:100%; display:flex;align-items:flex-end; justify-content:flex-start;}
+.login-img img{max-width:800px}
+select:focus-visible{border:none;}
+.card, .card-header{background:none; border:none;}
+.card-header h4{font-size:36px; color:#4472C4; font-weight:600}
+.card-header p{font-size:14px; color:#000; font-weight:600; margin-top:20px; margin-bottom:0}
+.text-dark{font-weight:600;}
+.login-btn{background:#4472C4; box-shadow:0px 4px 1px #fff; margin-top:40px;} 
+.card .form-control{padding:1.6rem 3rem 1.6rem 4rem; border-radius:30px; line-height:0.3; position:relative;} 
+.card .btn{padding:1.6rem 1em; border-radius:30px; line-height:0.3;}
+.link{color:#4472C4}
+.form-group{position:relative;}
+.field-icon {
+    z-index: 2;
+    position: absolute;
+    right: 19px;
+    top: 19px;
+}
+.icon-email{background:url(../images/user-icon.png) no-repeat #fff 20px center;}
+.icon-pass{background:url(../images/lock-icon.png) no-repeat #fff 20px center;}
+@media (max-width:900px){
+    .login-box-wrap{order:1;}
+.login-img{order:2;}
+.height-wrap{height:auto;}
+.card-header{margin-top:40px;}
+}
