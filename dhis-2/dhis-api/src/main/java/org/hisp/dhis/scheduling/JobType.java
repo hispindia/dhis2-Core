@@ -136,6 +136,7 @@ public enum JobType {
   CUSTOM_SMS_TASK( true ),
   PUSH_TO_AGGREGATE_DATAELEMENT(  true ),
   CREATE_MISSING_EVENT( true ),
+  SEND_PROGRAM_NOTIFICATION_SCHEDULED_MESSAGE(true),
   //end
 
 
