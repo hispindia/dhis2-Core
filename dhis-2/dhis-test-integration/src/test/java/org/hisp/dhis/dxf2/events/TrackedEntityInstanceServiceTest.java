@@ -71,8 +71,10 @@ import org.hisp.dhis.fileresource.FileResourceService;
 import org.hisp.dhis.importexport.ImportStrategy;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.program.Program;
+import org.hisp.dhis.program.ProgramInstance;
 import org.hisp.dhis.program.ProgramInstanceService;
 import org.hisp.dhis.program.ProgramStage;
+import org.hisp.dhis.program.ProgramTrackedEntityAttribute;
 import org.hisp.dhis.program.ProgramType;
 import org.hisp.dhis.program.UserInfoSnapshot;
 import org.hisp.dhis.test.integration.TransactionalIntegrationTest;
@@ -88,6 +90,7 @@ import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValue;
 import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValueService;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserService;
+import org.hisp.dhis.user.sharing.Sharing;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,6 +141,8 @@ class TrackedEntityInstanceServiceTest extends TransactionalIntegrationTest {
 
   private ProgramStage programStageA2;
 
+  private ProgramInstance programInstance;
+
   private TrackedEntityInstance teiMaleA;
 
   private TrackedEntityInstance teiMaleB;
@@ -150,11 +155,15 @@ class TrackedEntityInstanceServiceTest extends TransactionalIntegrationTest {
 
   private TrackedEntityAttribute trackedEntityAttributeB;
 
+  private TrackedEntityAttribute programAttribute;
+
   private TrackedEntityType trackedEntityType;
 
   private FileResource fileResource;
 
-  private User user;
+  private User adminUser;
+
+  private User regularUser;
 
   @Override
   protected void setUpTest() throws Exception {
@@ -163,7 +172,8 @@ class TrackedEntityInstanceServiceTest extends TransactionalIntegrationTest {
     fileResourceService.saveFileResource(fileResource, "fileResource".getBytes());
 
     userService = _userService;
-    user = createAndAddAdminUser(AUTHORITY_ALL);
+    adminUser = createAndAddAdminUser(AUTHORITY_ALL);
+    regularUser = createUserWithAuth("regular-user");
 
     organisationUnitA = createOrganisationUnit('A');
     organisationUnitB = createOrganisationUnit('B');
@@ -241,8 +251,9 @@ class TrackedEntityInstanceServiceTest extends TransactionalIntegrationTest {
     trackedEntityAttributeValueService.addTrackedEntityAttributeValue(uniqueId);
     trackedEntityAttributeValueService.addTrackedEntityAttributeValue(
         imageTrackedEntityAttributeValue);
-    programInstanceService.enrollTrackedEntityInstance(
-        maleA, programA, null, null, organisationUnitA);
+    programInstance =
+        programInstanceService.enrollTrackedEntityInstance(
+            maleA, programA, null, null, organisationUnitA);
     programInstanceService.enrollTrackedEntityInstance(
         femaleA, programA, DateTime.now().plusMonths(1).toDate(), null, organisationUnitA);
     programInstanceService.enrollTrackedEntityInstance(
@@ -251,6 +262,22 @@ class TrackedEntityInstanceServiceTest extends TransactionalIntegrationTest {
         DateTime.now().plusMonths(1).toDate(),
         DateTime.now().plusMonths(2).toDate(),
         organisationUnitA);
+
+    programAttribute = createTrackedEntityAttribute('P');
+    manager.save(programAttribute);
+    TrackedEntityAttributeValue programAttributeValue =
+        createTrackedEntityAttributeValue('P', maleA, programAttribute);
+    programAttributeValue.setValue("attribute value");
+    trackedEntityAttributeValueService.addTrackedEntityAttributeValue(programAttributeValue);
+
+    maleA.setTrackedEntityAttributeValues(Set.of(uniqueId, programAttributeValue));
+    manager.save(maleA);
+
+    ProgramTrackedEntityAttribute programTrackedEntityAttribute =
+        new ProgramTrackedEntityAttribute(programA, programAttribute);
+    programTrackedEntityAttribute.setSearchable(true);
+    programA.getProgramAttributes().add(programTrackedEntityAttribute);
+    manager.save(programA);
   }
 
   @Test
@@ -567,14 +594,61 @@ class TrackedEntityInstanceServiceTest extends TransactionalIntegrationTest {
   }
 
   @Test
-  void testSavePerson() {
+  void shouldPassWhenRegisteringPerson() {
+    trackedEntityType.setSharing(Sharing.builder().publicAccess("rwrw----").build());
+    regularUser.setOrganisationUnits(Set.of(organisationUnitA));
+    injectSecurityContext(regularUser);
     TrackedEntityInstance trackedEntityInstance = new TrackedEntityInstance();
     trackedEntityInstance.setTrackedEntityInstance(CodeGenerator.generateUid());
     trackedEntityInstance.setOrgUnit(organisationUnitA.getUid());
     trackedEntityInstance.setTrackedEntityType(trackedEntityType.getUid());
+
     ImportSummary importSummary =
         trackedEntityInstanceService.addTrackedEntityInstance(trackedEntityInstance, null);
+
     assertEquals(ImportStatus.SUCCESS, importSummary.getStatus());
+  }
+
+  @Test
+  void shouldFailWhenRegisteringPersonOutsideCaptureScope() {
+    trackedEntityType.setSharing(Sharing.builder().publicAccess("rwrw----").build());
+    regularUser.setOrganisationUnits(Set.of(organisationUnitB));
+    injectSecurityContext(regularUser);
+    TrackedEntityInstance trackedEntityInstance = new TrackedEntityInstance();
+    trackedEntityInstance.setTrackedEntityInstance(CodeGenerator.generateUid());
+    trackedEntityInstance.setOrgUnit(organisationUnitA.getUid());
+    trackedEntityInstance.setTrackedEntityType(trackedEntityType.getUid());
+
+    ImportSummary importSummary =
+        trackedEntityInstanceService.addTrackedEntityInstance(trackedEntityInstance, null);
+
+    assertEquals(ImportStatus.ERROR, importSummary.getStatus());
+    assertEquals(1, importSummary.getImportCount().getIgnored());
+    assertEquals(
+        String.format(
+            "[User has no write access to organisation unit: %s]", organisationUnitA.getUid()),
+        importSummary.getDescription());
+  }
+
+  @Test
+  void shouldFailWhenRegisteringPersonWithoutTETypeAccess() {
+    regularUser.setOrganisationUnits(Set.of(organisationUnitB));
+    injectSecurityContext(regularUser);
+    TrackedEntityInstance trackedEntityInstance = new TrackedEntityInstance();
+    trackedEntityInstance.setTrackedEntityInstance(CodeGenerator.generateUid());
+    trackedEntityInstance.setOrgUnit(organisationUnitB.getUid());
+    trackedEntityInstance.setTrackedEntityType(trackedEntityType.getUid());
+
+    ImportSummary importSummary =
+        trackedEntityInstanceService.addTrackedEntityInstance(trackedEntityInstance, null);
+
+    assertEquals(ImportStatus.ERROR, importSummary.getStatus());
+    assertEquals(1, importSummary.getImportCount().getIgnored());
+    assertEquals(
+        String.format(
+            "[User has no data write access to tracked entity type: %s]",
+            trackedEntityType.getUid()),
+        importSummary.getDescription());
   }
 
   @Test
@@ -721,19 +795,19 @@ class TrackedEntityInstanceServiceTest extends TransactionalIntegrationTest {
 
     ImportSummaries importSummaries =
         trackedEntityInstanceService.addTrackedEntityInstances(
-            List.of(tei), new ImportOptions().setUser(user));
+            List.of(tei), new ImportOptions().setUser(adminUser));
 
     assertAll(
         () -> assertEquals(ImportStatus.SUCCESS, importSummaries.getStatus()),
         () ->
             assertEquals(
-                UserInfoSnapshot.from(user),
+                UserInfoSnapshot.from(adminUser),
                 trackedEntityInstanceService
                     .getTrackedEntityInstance(tei.getTrackedEntityInstance())
                     .getCreatedByUserInfo()),
         () ->
             assertEquals(
-                UserInfoSnapshot.from(user),
+                UserInfoSnapshot.from(adminUser),
                 trackedEntityInstanceService
                     .getTrackedEntityInstance(tei.getTrackedEntityInstance())
                     .getLastUpdatedByUserInfo()));
@@ -746,15 +820,106 @@ class TrackedEntityInstanceServiceTest extends TransactionalIntegrationTest {
 
     ImportSummary importSummaries =
         trackedEntityInstanceService.updateTrackedEntityInstance(
-            tei, null, new ImportOptions().setUser(user), true);
+            tei, null, new ImportOptions().setUser(adminUser), true);
 
     assertAll(
         () -> assertEquals(ImportStatus.SUCCESS, importSummaries.getStatus()),
         () ->
             assertEquals(
-                UserInfoSnapshot.from(user),
+                UserInfoSnapshot.from(adminUser),
                 trackedEntityInstanceService
                     .getTrackedEntityInstance(tei.getTrackedEntityInstance())
                     .getLastUpdatedByUserInfo()));
+  }
+
+  @Test
+  void shouldSetLastUpdatedInfoWhenDeleteTe() {
+
+    org.hisp.dhis.trackedentity.TrackedEntityInstance entityBefore =
+        getTrackedEntity(maleA.getUid());
+
+    dbmsManager.clearSession();
+
+    injectSecurityContext(adminUser);
+
+    ImportSummary importSummaries =
+        trackedEntityInstanceService.deleteTrackedEntityInstance(maleA.getUid());
+
+    dbmsManager.clearSession();
+
+    org.hisp.dhis.trackedentity.TrackedEntityInstance entityAfter =
+        getTrackedEntity(maleA.getUid());
+
+    assertAll(
+        () -> assertEquals(ImportStatus.SUCCESS, importSummaries.getStatus()),
+        () ->
+            assertEquals(
+                UserInfoSnapshot.from(adminUser).getUid(),
+                getTrackedEntity(maleA.getUid()).getLastUpdatedByUserInfo().getUid()),
+        () ->
+            assertTrue(
+                entityAfter.getLastUpdated().getTime() > entityBefore.getLastUpdated().getTime()));
+  }
+
+  @Test
+  void shouldReturnTEIEvenIfTrackedEntityTypeNotAccessible() {
+    injectSecurityContext(regularUser);
+
+    TrackedEntityInstance trackedEntityInstance =
+        trackedEntityInstanceService.getTrackedEntityInstanceExcludingACL(
+            maleA.getUid(), programA, TrackedEntityInstanceParams.TRUE);
+
+    assertEquals(maleA.getUid(), trackedEntityInstance.getTrackedEntityInstance());
+  }
+
+  @Test
+  void shouldReturnTrackedEntityTypeAndProgramAttributesWhenSingleTERequestedAndProgramSpecified() {
+    TrackedEntityInstance trackedEntityInstance =
+        trackedEntityInstanceService.getTrackedEntityInstanceExcludingACL(
+            maleA.getUid(), programA, TrackedEntityInstanceParams.TRUE);
+
+    assertContainsOnly(
+        List.of(programAttribute.getUid(), uniqueIdAttribute.getUid()),
+        trackedEntityInstance.getAttributes().stream()
+            .map(Attribute::getAttribute)
+            .collect(Collectors.toList()));
+  }
+
+  @Test
+  void shouldReturnTrackedEntityTypeAttributesWhenSingleTERequestedAndNoProgramSpecified() {
+    TrackedEntityInstance trackedEntityInstance =
+        trackedEntityInstanceService.getTrackedEntityInstance(maleA);
+
+    assertContainsOnly(
+        List.of(programAttribute.getUid(), uniqueIdAttribute.getUid()),
+        trackedEntityInstance.getAttributes().stream()
+            .map(Attribute::getAttribute)
+            .collect(Collectors.toList()));
+  }
+
+  @Test
+  void shouldReturnEnrollmentsFromSpecifiedProgramWhenRequestingSingleTrackedEntity() {
+    TrackedEntityInstance trackedEntityInstance =
+        trackedEntityInstanceService.getTrackedEntityInstance(maleA);
+
+    assertContainsOnly(
+        Set.of(programInstance.getUid()),
+        trackedEntityInstance.getEnrollments().stream()
+            .map(Enrollment::getEnrollment)
+            .collect(Collectors.toList()));
+  }
+
+  /** Get with the current session because some Store exclude deleted */
+  public org.hisp.dhis.trackedentity.TrackedEntityInstance getTrackedEntity(String uid) {
+
+    return (org.hisp.dhis.trackedentity.TrackedEntityInstance)
+        sessionFactory
+            .getCurrentSession()
+            .createQuery(
+                "SELECT e FROM "
+                    + org.hisp.dhis.trackedentity.TrackedEntityInstance.class.getSimpleName()
+                    + " e WHERE e.uid = :uid")
+            .setParameter("uid", uid)
+            .getSingleResult();
   }
 }

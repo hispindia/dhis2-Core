@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -72,6 +73,7 @@ import org.hisp.dhis.dxf2.common.OrderParams;
 import org.hisp.dhis.eventchart.EventChart;
 import org.hisp.dhis.eventreport.EventReport;
 import org.hisp.dhis.eventvisualization.EventVisualization;
+import org.hisp.dhis.fieldfilter.Defaults;
 import org.hisp.dhis.fieldfiltering.FieldFilterParams;
 import org.hisp.dhis.fieldfiltering.FieldFilterService;
 import org.hisp.dhis.indicator.Indicator;
@@ -84,6 +86,7 @@ import org.hisp.dhis.option.OptionGroup;
 import org.hisp.dhis.option.OptionSet;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramIndicator;
+import org.hisp.dhis.program.ProgramSection;
 import org.hisp.dhis.program.ProgramStage;
 import org.hisp.dhis.program.ProgramStageDataElement;
 import org.hisp.dhis.program.ProgramStageSection;
@@ -153,6 +156,7 @@ public class DefaultMetadataExportService implements MetadataExportService {
       schemaService.getMetadataSchemas().stream()
           .filter(schema -> schema.isIdentifiableObject() && schema.isPersisted())
           .filter(s -> !s.isSecondaryMetadata())
+          .filter(DEPRECATED_ANALYTICS_SCHEMAS)
           .forEach(
               schema ->
                   params.getClasses().add((Class<? extends IdentifiableObject>) schema.getKlass()));
@@ -199,6 +203,15 @@ public class DefaultMetadataExportService implements MetadataExportService {
 
     return metadata;
   }
+
+  /**
+   * This predicate is used to filter out deprecated Analytics schemas, {@link EventChart} & {@link
+   * EventReport}.As they are no longer used ({@link EventVisualization} has replaced them), they
+   * should be removed from the metadata export flow. This was causing issues otherwise. See <a
+   * href="https://dhis2.atlassian.net/browse/BETA-177">Jira issue</a>
+   */
+  public static final Predicate<Schema> DEPRECATED_ANALYTICS_SCHEMAS =
+      schema -> schema.getKlass() != EventChart.class && schema.getKlass() != EventReport.class;
 
   @Override
   @Transactional(readOnly = true)
@@ -279,7 +292,8 @@ public class DefaultMetadataExportService implements MetadataExportService {
 
         String plural = schemaService.getDynamicSchema(klass).getPlural();
         generator.writeArrayFieldStart(plural);
-        fieldFilterService.toObjectNodesStream(fieldFilterParams, generator);
+        fieldFilterService.toObjectNodesStream(
+            fieldFilterParams, params.getDefaults().isExclude(), generator);
         generator.writeEndArray();
       }
 
@@ -416,6 +430,11 @@ public class DefaultMetadataExportService implements MetadataExportService {
     if (parameters.containsKey("skipSharing")) {
       params.setSkipSharing(Boolean.parseBoolean(parameters.get("skipSharing").get(0)));
       parameters.remove("skipSharing");
+    }
+
+    if (parameters.containsKey("defaults")) {
+      params.setDefaults(Defaults.valueOf(parameters.get("defaults").get(0)));
+      parameters.remove("defaults");
     }
 
     for (String parameterKey : parameters.keySet()) {
@@ -769,6 +788,9 @@ public class DefaultMetadataExportService implements MetadataExportService {
     handleCategoryCombo(metadata, program.getCategoryCombo());
     handleDataEntryForm(metadata, program.getDataEntryForm());
     handleTrackedEntityType(metadata, program.getTrackedEntityType());
+    program
+        .getProgramSections()
+        .forEach(programSection -> handleProgramSection(metadata, programSection));
 
     program
         .getNotificationTemplates()
@@ -1096,6 +1118,18 @@ public class DefaultMetadataExportService implements MetadataExportService {
             av ->
                 metadata.putValue(
                     Attribute.class, attributeService.getAttribute(av.getAttribute().getUid())));
+
+    return metadata;
+  }
+
+  private SetMap<Class<? extends IdentifiableObject>, IdentifiableObject> handleProgramSection(
+      SetMap<Class<? extends IdentifiableObject>, IdentifiableObject> metadata,
+      ProgramSection programSection) {
+    if (programSection == null) return metadata;
+    metadata.putValue(ProgramSection.class, programSection);
+    programSection
+        .getTrackedEntityAttributes()
+        .forEach(tea -> handleTrackedEntityAttribute(metadata, tea));
 
     return metadata;
   }

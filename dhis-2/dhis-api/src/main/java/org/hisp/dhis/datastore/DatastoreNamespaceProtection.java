@@ -27,10 +27,13 @@
  */
 package org.hisp.dhis.datastore;
 
-import static java.util.Arrays.asList;
+import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashSet;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import lombok.Value;
 
 /**
  * The {@link DatastoreNamespaceProtection} is a configuration for a particular namespace and the
@@ -40,11 +43,11 @@ import java.util.Set;
  *
  * @author Jan Bernitt
  */
+@Value
 public class DatastoreNamespaceProtection {
 
   /**
-   * Protection rules apply to users that do not have at least one of the required {@link
-   * #authorities}.
+   * Protection rules apply to users that do not have at least one of the required authorities.
    *
    * <p>All superusers always have read and write access.
    */
@@ -65,71 +68,61 @@ public class DatastoreNamespaceProtection {
     RESTRICTED
   }
 
-  private final String namespace;
+  @JsonProperty(access = READ_ONLY)
+  @Nonnull
+  String namespace;
 
-  private final boolean sharingRespected;
+  @JsonProperty(access = READ_ONLY)
+  @Nonnull
+  ProtectionType reads;
 
-  private final ProtectionType reads;
+  @JsonProperty(access = READ_ONLY)
+  @Nonnull
+  ProtectionType writes;
 
-  private final ProtectionType writes;
+  @JsonProperty(access = READ_ONLY)
+  @Nonnull
+  Set<String> readAuthorities;
 
-  private final Set<String> authorities;
+  @JsonProperty(access = READ_ONLY)
+  @Nonnull
+  Set<String> writeAuthorities;
 
   public DatastoreNamespaceProtection(
-      String namespace, ProtectionType readWrite, boolean sharingRespected, String... authorities) {
-    this(namespace, readWrite, readWrite, sharingRespected, authorities);
+      @Nonnull String namespace,
+      @Nonnull ProtectionType readWrite,
+      @Nonnull String... authorities) {
+    this(namespace, readWrite, readWrite, authorities);
   }
 
   public DatastoreNamespaceProtection(
-      String namespace,
-      ProtectionType reads,
-      ProtectionType writes,
-      boolean sharingRespected,
-      String... authorities) {
-    this(namespace, reads, writes, sharingRespected, new HashSet<>(asList(authorities)));
+      @Nonnull String namespace,
+      @Nonnull ProtectionType reads,
+      @Nonnull ProtectionType writes,
+      @Nonnull String... authorities) {
+    this(namespace, reads, Set.of(authorities), writes, Set.of(authorities));
   }
 
   public DatastoreNamespaceProtection(
-      String namespace,
-      ProtectionType reads,
-      ProtectionType writes,
-      boolean sharingRespected,
-      Set<String> authorities) {
+      @Nonnull String namespace,
+      @Nonnull ProtectionType reads,
+      @Nonnull Set<String> readAuthorities,
+      @Nonnull ProtectionType writes,
+      @Nonnull Set<String> writeAuthorities) {
     this.namespace = namespace;
-    this.sharingRespected = sharingRespected;
-    this.reads = reads;
-    this.writes = writes;
-    this.authorities = authorities;
+    this.reads = readAuthorities.isEmpty() ? ProtectionType.NONE : reads;
+    this.writes = writeAuthorities.isEmpty() ? ProtectionType.NONE : writes;
+    this.readAuthorities = readAuthorities;
+    this.writeAuthorities = writeAuthorities;
   }
 
-  public String getNamespace() {
-    return namespace;
-  }
-
-  /**
-   * @return true when the {@link org.hisp.dhis.user.sharing.Sharing} of a {@link DatastoreEntry}
-   *     should be checked in addition to authority based checks, else false.
-   */
-  public boolean isSharingRespected() {
-    return sharingRespected;
-  }
-
-  public Set<String> getAuthorities() {
-    return authorities;
-  }
-
-  public ProtectionType getReads() {
-    return reads;
-  }
-
-  public ProtectionType getWrites() {
-    return writes;
-  }
-
-  @Override
-  public String toString() {
-    return String.format(
-        "KeyJsonNamespaceProtection{%s r:%s w:%s [%s]%s}",
-        namespace, reads, writes, authorities, (sharingRespected ? "!" : ""));
+  @Nonnull
+  public Set<String> getAllAuthorities() {
+    if (readAuthorities.isEmpty()) return writeAuthorities;
+    if (writeAuthorities.isEmpty()) return readAuthorities;
+    Set<String> all = new HashSet<>();
+    all.addAll(readAuthorities);
+    all.addAll(writeAuthorities);
+    return all;
   }
 }

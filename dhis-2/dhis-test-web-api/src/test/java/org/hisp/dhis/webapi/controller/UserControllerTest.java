@@ -28,6 +28,7 @@
 package org.hisp.dhis.webapi.controller;
 
 import static java.util.Collections.emptySet;
+import static org.hisp.dhis.external.conf.ConfigurationKey.LINKED_ACCOUNTS_ENABLED;
 import static org.hisp.dhis.web.HttpStatus.Series.SUCCESSFUL;
 import static org.hisp.dhis.web.WebClient.Accept;
 import static org.hisp.dhis.web.WebClient.Body;
@@ -50,6 +51,7 @@ import org.hisp.dhis.category.Category;
 import org.hisp.dhis.category.CategoryOption;
 import org.hisp.dhis.category.CategoryOptionGroupSet;
 import org.hisp.dhis.common.BaseIdentifiableObject;
+import org.hisp.dhis.external.conf.DhisConfigurationProvider;
 import org.hisp.dhis.feedback.ErrorCode;
 import org.hisp.dhis.jsontree.JsonArray;
 import org.hisp.dhis.jsontree.JsonBoolean;
@@ -59,11 +61,14 @@ import org.hisp.dhis.jsontree.JsonResponse;
 import org.hisp.dhis.jsontree.JsonValue;
 import org.hisp.dhis.message.FakeMessageSender;
 import org.hisp.dhis.message.MessageSender;
+import org.hisp.dhis.organisationunit.OrganisationUnit;
+import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.outboundmessage.OutboundMessage;
 import org.hisp.dhis.security.RestoreType;
 import org.hisp.dhis.security.SecurityService;
 import org.hisp.dhis.setting.SettingKey;
 import org.hisp.dhis.setting.SystemSettingManager;
+import org.hisp.dhis.user.CurrentUserDetails;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserGroup;
 import org.hisp.dhis.user.UserRole;
@@ -78,8 +83,10 @@ import org.hisp.dhis.webapi.json.domain.JsonUserGroup;
 import org.hisp.dhis.webapi.json.domain.JsonWebMessage;
 import org.jboss.aerogear.security.otp.api.Base32;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.session.SessionRegistry;
 
 /**
  * Tests the {@link org.hisp.dhis.webapi.controller.user.UserController}.
@@ -93,9 +100,15 @@ class UserControllerTest extends DhisControllerConvenienceTest {
 
   @Autowired private SystemSettingManager systemSettingManager;
 
-  private User peter;
+  @Autowired private OrganisationUnitService organisationUnitService;
+
+  @Autowired private SessionRegistry sessionRegistry;
 
   @Autowired ObjectMapper objectMapper;
+
+  @Autowired private DhisConfigurationProvider config;
+
+  private User peter;
 
   @BeforeEach
   void setUp() {
@@ -112,6 +125,56 @@ class UserControllerTest extends DhisControllerConvenienceTest {
 
     User user = userService.getUser(peter.getUid());
     assertEquals("peter@pan.net", user.getEmail());
+  }
+
+  @Test
+  void updateRolesShouldInvalidateUserSessions() {
+    CurrentUserDetails sessionPrincipal = userService.createUserDetails(superUser);
+    sessionRegistry.registerNewSession("session1", sessionPrincipal);
+    assertFalse(sessionRegistry.getAllSessions(sessionPrincipal, false).isEmpty());
+
+    UserRole roleB = createUserRole("ROLE_B", "ALL");
+    userService.addUserRole(roleB);
+
+    String roleBID = userService.getUserRoleByName("ROLE_B").getUid();
+
+    PATCH(
+            "/users/" + superUser.getUid(),
+            "[{'op':'add','path':'/userRoles','value':[{'id':'" + roleBID + "'}]}]")
+        .content(HttpStatus.OK);
+
+    assertTrue(sessionRegistry.getAllSessions(sessionPrincipal, false).isEmpty());
+  }
+
+  @Test
+  void updateRolesAuthoritiesShouldInvalidateUserSessions() {
+    CurrentUserDetails sessionPrincipal = userService.createUserDetails(superUser);
+
+    UserRole roleB = createUserRole("ROLE_B", "ALL");
+    userService.addUserRole(roleB);
+
+    PATCH(
+            "/users/" + superUser.getUid(),
+            "[{'op':'add','path':'/userRoles','value':[{'id':'" + roleB.getUid() + "'}]}]")
+        .content(HttpStatus.OK);
+
+    String roleBID = userService.getUserRoleByName("ROLE_B").getUid();
+
+    sessionRegistry.registerNewSession("session1", sessionPrincipal);
+    assertFalse(sessionRegistry.getAllSessions(sessionPrincipal, false).isEmpty());
+
+    PATCH(
+            "/userRoles/" + roleBID,
+            "["
+                + " {"
+                + "   'op': 'add',"
+                + "   'path': '/authorities',"
+                + "   'value': ['NONE']"
+                + " }"
+                + "]")
+        .content(HttpStatus.OK);
+
+    assertTrue(sessionRegistry.getAllSessions(sessionPrincipal, false).isEmpty());
   }
 
   @Test
@@ -159,6 +222,81 @@ class UserControllerTest extends DhisControllerConvenienceTest {
     User user = userService.getUser(peter.getUid());
     assertEquals("mapping value", user.getOpenId());
     assertEquals("mapping value", user.getUserCredentials().getOpenId());
+  }
+
+  @Test
+  @DisplayName("Check updates after setting an OpenID value works")
+  void testSetOpenIdThenUpdate() {
+    assertStatus(
+        HttpStatus.OK,
+        PATCH(
+            "/users/{id}",
+            peter.getUid() + "?importReportMode=ERRORS",
+            Body("[{'op': 'add', 'path': '/openId', 'value': 'mapping value'}]")));
+
+    User user = userService.getUser(peter.getUid());
+    assertEquals("mapping value", user.getOpenId());
+
+    assertStatus(
+        HttpStatus.OK,
+        PATCH(
+            "/users/{id}",
+            peter.getUid() + "?importReportMode=ERRORS",
+            Body("[{'op': 'add', 'path': '/openId', 'value': 'mapping value'}]")));
+  }
+
+  @Test
+  @DisplayName(
+      "Check you can set same OpenID value on multiple accounts when linked accounts are enabled")
+  void testSetOpenIdThenUpdateWithLinkedAccountsEnabled() {
+    config.getProperties().put(LINKED_ACCOUNTS_ENABLED.getKey(), "on");
+
+    User wendy = createUserWithAuth("wendy");
+
+    assertStatus(
+        HttpStatus.OK,
+        PATCH(
+            "/users/{id}",
+            peter.getUid() + "?importReportMode=ERRORS",
+            Body("[{'op': 'add', 'path': '/openId', 'value': 'peter@mail.org'}]")));
+
+    assertStatus(
+        HttpStatus.OK,
+        PATCH(
+            "/users/{id}",
+            wendy.getUid() + "?importReportMode=ERRORS",
+            Body("[{'op': 'add', 'path': '/openId', 'value': 'peter@mail.org'}]")));
+  }
+
+  @Test
+  @DisplayName(
+      "Check you can't set same OpenID value on multiple accounts when linked accounts are disabled")
+  void testSetOpenIdThenUpdateWithLinkedAccountsDisabled() {
+    config.getProperties().put(LINKED_ACCOUNTS_ENABLED.getKey(), "off");
+
+    User wendy = createUserWithAuth("wendy");
+
+    assertStatus(
+        HttpStatus.OK,
+        PATCH(
+            "/users/{id}",
+            peter.getUid() + "?importReportMode=ERRORS",
+            Body("[{'op': 'add', 'path': '/openId', 'value': 'peter@mail.org'}]")));
+
+    JsonImportSummary response =
+        PATCH(
+                "/users/{id}",
+                wendy.getUid() + "?importReportMode=ERRORS",
+                Body("[{'op': 'add', 'path': '/openId', 'value': 'peter@mail.org'}]"))
+            .content(HttpStatus.CONFLICT)
+            .get("response")
+            .as(JsonImportSummary.class);
+
+    assertEquals(
+        "Property `OIDC mapping value` already exists, was given `peter@mail.org`.",
+        response
+            .find(JsonErrorReport.class, error -> error.getErrorCode() == ErrorCode.E4054)
+            .getMessage());
   }
 
   /**
@@ -231,6 +369,113 @@ class UserControllerTest extends DhisControllerConvenienceTest {
             .as(JsonImportSummary.class);
 
     return response;
+  }
+
+  @Test
+  void testRemoveALLNonAllAdmin() {
+    UserRole roleAll = createUserRole("ROLE_ALL", "ALL");
+    userService.addUserRole(roleAll);
+
+    User user = createUserWithAuth("someone", "F_USERROLE_PUBLIC_ADD");
+    userService.updateUser(user);
+    switchContextToUser(user);
+
+    checkRoleChangFailsWhenNonALLAdmin("'ANYTHING'");
+  }
+
+  @Test
+  void testAddALLNonAllAdmin() {
+    UserRole roleAll = createUserRole("ROLE_ALL", "NONE");
+    userService.addUserRole(roleAll);
+
+    User user = createUserWithAuth("someone", "F_USERROLE_PUBLIC_ADD");
+    userService.updateUser(user);
+    switchContextToUser(user);
+
+    checkRoleChangFailsWhenNonALLAdmin("'ALL'");
+  }
+
+  private void checkRoleChangFailsWhenNonALLAdmin(String roleName) {
+    String roleAllId = userService.getUserRoleByName("ROLE_ALL").getUid();
+
+    JsonImportSummary response =
+        PATCH(
+                "/userRoles/" + roleAllId,
+                "["
+                    + " {"
+                    + "   'op': 'add',"
+                    + "   'path': '/authorities',"
+                    + "   'value': ["
+                    + roleName
+                    + "   ]"
+                    + " }"
+                    + "]")
+            .content(HttpStatus.CONFLICT)
+            .get("response")
+            .as(JsonImportSummary.class);
+
+    assertEquals(
+        "User `someone` does not have access to user role",
+        response
+            .find(JsonErrorReport.class, error -> error.getErrorCode() == ErrorCode.E3032)
+            .getMessage());
+  }
+
+  @Test
+  void testChangeOrgUnitLevelGivesAccessError() {
+    systemSettingManager.saveSystemSetting(SettingKey.CAN_GRANT_OWN_USER_ROLES, Boolean.TRUE);
+
+    OrganisationUnit orgA = createOrganisationUnit('A');
+    organisationUnitService.addOrganisationUnit(orgA);
+    OrganisationUnit orgB = createOrganisationUnit('B', orgA);
+    organisationUnitService.addOrganisationUnit(orgB);
+    OrganisationUnit orgC = createOrganisationUnit('C', orgB);
+    organisationUnitService.addOrganisationUnit(orgC);
+
+    User user = createUserWithAuth("someone", "F_USER_ADD");
+    user.addOrganisationUnit(orgC);
+    userService.updateUser(user);
+
+    switchContextToUser(user);
+
+    JsonImportSummary response =
+        PATCH(
+                "/users/" + user.getUid(),
+                "[{'op':'add','path':'/organisationUnits','value':[{'id':'"
+                    + orgC.getUid()
+                    + "'},{'id':'"
+                    + orgA.getUid()
+                    + "'},{'id':'"
+                    + orgB.getUid()
+                    + "'}]},"
+                    + "{'op':'add','path':'/dataViewOrganisationUnits','value':[{'id':'"
+                    + orgC.getUid()
+                    + "'},{'id':'"
+                    + orgA.getUid()
+                    + "'},{'id':'"
+                    + orgB.getUid()
+                    + "'}]},"
+                    + "{'op':'add','path':'/teiSearchOrganisationUnits','value':[{'id':'"
+                    + orgC.getUid()
+                    + "'},{'id':'"
+                    + orgA.getUid()
+                    + "'},{'id':'"
+                    + orgB.getUid()
+                    + "'}]}]")
+            .content(HttpStatus.CONFLICT)
+            .get("response")
+            .as(JsonImportSummary.class);
+
+    JsonList<JsonErrorReport> errorReports =
+        response.getList("errorReports", JsonErrorReport.class);
+
+    assertEquals(6, errorReports.size());
+
+    assertEquals(
+        "Organisation unit: `ouabcdefghA` not in hierarchy of current user: `someone`",
+        response
+            .find(JsonErrorReport.class, error -> error.getErrorCode() == ErrorCode.E7617)
+            .getMessage());
   }
 
   @Test

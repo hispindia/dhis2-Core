@@ -33,6 +33,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +54,7 @@ import org.hisp.dhis.webapi.controller.tracker.export.fieldsmapper.EnrollmentFie
 import org.hisp.dhis.webapi.controller.tracker.view.Enrollment;
 import org.hisp.dhis.webapi.mvc.annotation.ApiVersion;
 import org.mapstruct.factory.Mappers;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -81,8 +83,13 @@ public class TrackerEnrollmentsExportController {
 
   private final EnrollmentFieldsParamMapper fieldsMapper;
 
-  @GetMapping(produces = APPLICATION_JSON_VALUE)
-  PagingWrapper<ObjectNode> getInstances(
+  @GetMapping(
+      produces = APPLICATION_JSON_VALUE,
+      headers = "Accept=text/html"
+      // use the text/html Accept header to default to a Json response when a generic request comes
+      // from a browser
+      )
+  ResponseEntity<PagingWrapper<ObjectNode>> getInstances(
       TrackerEnrollmentCriteria trackerEnrollmentCriteria,
       @RequestParam(defaultValue = DEFAULT_FIELDS_PARAM) List<FieldPath> fields)
       throws BadRequestException, ForbiddenException {
@@ -113,13 +120,16 @@ public class TrackerEnrollmentsExportController {
           enrollmentIds != null
               ? enrollmentIds.stream()
                   .map(e -> enrollmentService.getEnrollment(e, enrollmentParams))
+                  .filter(Objects::nonNull)
                   .collect(Collectors.toList())
               : Collections.emptyList();
     }
 
     List<ObjectNode> objectNodes =
         fieldFilterService.toObjectNodes(ENROLLMENT_MAPPER.fromCollection(enrollmentList), fields);
-    return pagingWrapper.withInstances(objectNodes);
+    return ResponseEntity.ok()
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(pagingWrapper.withInstances(objectNodes));
   }
 
   @GetMapping(value = "{id}")

@@ -27,6 +27,7 @@
  */
 package org.hisp.dhis.dxf2.events.security;
 
+import static org.hisp.dhis.trackedentity.TrackerOwnershipManager.OWNERSHIP_ACCESS_DENIED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -49,6 +50,7 @@ import org.hisp.dhis.dxf2.events.enrollment.Enrollment;
 import org.hisp.dhis.dxf2.events.enrollment.EnrollmentService;
 import org.hisp.dhis.dxf2.events.event.Event;
 import org.hisp.dhis.event.EventStatus;
+import org.hisp.dhis.feedback.ForbiddenException;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramInstance;
@@ -124,6 +126,9 @@ class TrackerAccessManagerTest extends TransactionalIntegrationTest {
     organisationUnitB = createOrganisationUnit('B');
     manager.save(organisationUnitA);
     manager.save(organisationUnitB);
+    trackedEntityType = createTrackedEntityType('A');
+    trackedEntityType.setPublicAccess(AccessStringHelper.FULL);
+    trackedEntityTypeService.addTrackedEntityType(trackedEntityType);
     dataElementA = createDataElement('A');
     dataElementB = createDataElement('B');
     dataElementA.setValueType(ValueType.INTEGER);
@@ -140,6 +145,7 @@ class TrackerAccessManagerTest extends TransactionalIntegrationTest {
     programA.setAccessLevel(AccessLevel.PROTECTED);
     programA.setPublicAccess(AccessStringHelper.FULL);
     programA.addOrganisationUnit(organisationUnitB);
+    programA.setTrackedEntityType(trackedEntityType);
     manager.save(programA);
     ProgramStageDataElement programStageDataElement = new ProgramStageDataElement();
     programStageDataElement.setDataElement(dataElementA);
@@ -159,9 +165,6 @@ class TrackerAccessManagerTest extends TransactionalIntegrationTest {
     manager.update(programStageA);
     manager.update(programStageB);
     manager.update(programA);
-    trackedEntityType = createTrackedEntityType('A');
-    trackedEntityType.setPublicAccess(AccessStringHelper.FULL);
-    trackedEntityTypeService.addTrackedEntityType(trackedEntityType);
     maleA = createTrackedEntityInstance(organisationUnitA);
     maleB = createTrackedEntityInstance(organisationUnitB);
     femaleA = createTrackedEntityInstance(organisationUnitA);
@@ -210,6 +213,7 @@ class TrackerAccessManagerTest extends TransactionalIntegrationTest {
         createUserWithAuth("user1").setOrganisationUnits(Sets.newHashSet(organisationUnitB));
     user.setTeiSearchOrganisationUnits(Sets.newHashSet(organisationUnitA, organisationUnitB));
     trackedEntityType.setPublicAccess(AccessStringHelper.FULL);
+    programA.setAccessLevel(AccessLevel.OPEN);
     manager.update(trackedEntityType);
     TrackedEntityInstance tei =
         trackedEntityInstanceService.getTrackedEntityInstance(maleA.getUid());
@@ -222,6 +226,7 @@ class TrackerAccessManagerTest extends TransactionalIntegrationTest {
   @Test
   void checkAccessPermissionForTeiWhenTeiOuOutsideSearchScope() {
     programA.setPublicAccess(AccessStringHelper.FULL);
+    programA.setAccessLevel(AccessLevel.OPEN);
     manager.update(programA);
     User user =
         createUserWithAuth("user1").setOrganisationUnits(Sets.newHashSet(organisationUnitB));
@@ -230,15 +235,13 @@ class TrackerAccessManagerTest extends TransactionalIntegrationTest {
     TrackedEntityInstance tei =
         trackedEntityInstanceService.getTrackedEntityInstance(maleA.getUid());
     // Cannot Read
-    assertHasError(
-        trackerAccessManager.canRead(user, tei), "User has no read access to organisation unit:");
+    assertHasError(trackerAccessManager.canRead(user, tei), OWNERSHIP_ACCESS_DENIED);
     // Cannot write
-    assertHasError(
-        trackerAccessManager.canWrite(user, tei), "User has no write access to organisation unit:");
+    assertHasError(trackerAccessManager.canWrite(user, tei), OWNERSHIP_ACCESS_DENIED);
   }
 
   @Test
-  void checkAccessPermissionForEnrollmentInClosedProgram() {
+  void checkAccessPermissionForEnrollmentInClosedProgram() throws ForbiddenException {
     programA.setPublicAccess(AccessStringHelper.FULL);
     manager.update(programA);
     trackedEntityType.setPublicAccess(AccessStringHelper.FULL);
@@ -301,7 +304,7 @@ class TrackerAccessManagerTest extends TransactionalIntegrationTest {
   }
 
   @Test
-  void checkAccessPermissionForEnrollmentInOpenProgram() {
+  void checkAccessPermissionForEnrollmentInOpenProgram() throws ForbiddenException {
     programA.setPublicAccess(AccessStringHelper.FULL);
     programA.setAccessLevel(AccessLevel.OPEN);
     manager.update(programA);
@@ -350,7 +353,7 @@ class TrackerAccessManagerTest extends TransactionalIntegrationTest {
   }
 
   @Test
-  void checkAccessPermissionsForEventInClosedProgram() {
+  void checkAccessPermissionsForEventInClosedProgram() throws ForbiddenException {
     programA.setPublicAccess(AccessStringHelper.FULL);
     programStageA.setPublicAccess(AccessStringHelper.FULL);
     programStageB.setPublicAccess(AccessStringHelper.FULL);
@@ -399,7 +402,7 @@ class TrackerAccessManagerTest extends TransactionalIntegrationTest {
   }
 
   @Test
-  void checkAccessPermissionsForEventInOpenProgram() {
+  void checkAccessPermissionsForEventInOpenProgram() throws ForbiddenException {
     programA.setPublicAccess(AccessStringHelper.FULL);
     programA.setAccessLevel(AccessLevel.OPEN);
     programStageA.setPublicAccess(AccessStringHelper.FULL);

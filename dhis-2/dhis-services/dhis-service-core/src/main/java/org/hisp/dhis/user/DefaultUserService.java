@@ -32,13 +32,12 @@ import static java.time.ZoneId.systemDefault;
 import static java.time.ZonedDateTime.now;
 import static org.hisp.dhis.common.CodeGenerator.isValidUid;
 import static org.hisp.dhis.common.IdentifiableObjectUtils.getUids;
+import static org.hisp.dhis.security.DefaultSecurityService.LOGIN_MAX_FAILED_ATTEMPTS;
 import static org.hisp.dhis.system.util.ValidationUtils.usernameIsValid;
 import static org.hisp.dhis.system.util.ValidationUtils.uuidIsValid;
 
 import com.google.common.collect.Lists;
-import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -69,6 +68,8 @@ import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.feedback.ErrorCode;
 import org.hisp.dhis.feedback.ErrorReport;
 import org.hisp.dhis.hibernate.exception.UpdateAccessDeniedException;
+import org.hisp.dhis.organisationunit.OrganisationUnit;
+import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.period.PeriodType;
 import org.hisp.dhis.security.PasswordManager;
 import org.hisp.dhis.security.SecurityService;
@@ -105,13 +106,17 @@ public class DefaultUserService implements UserService {
 
   private final PasswordManager passwordManager;
 
-  private final SessionRegistry sessionRegistry;
-
   private final SecurityService securityService;
 
   private final Cache<String> userDisplayNameCache;
 
   private final AclService aclService;
+
+  private final OrganisationUnitService organisationUnitService;
+
+  private final Cache<Integer> twoFaDisableFailedAttemptCache;
+
+  private final SessionRegistry sessionRegistry;
 
   public DefaultUserService(
       UserStore userStore,
@@ -121,17 +126,19 @@ public class DefaultUserService implements UserService {
       SystemSettingManager systemSettingManager,
       CacheProvider cacheProvider,
       @Lazy PasswordManager passwordManager,
-      @Lazy SessionRegistry sessionRegistry,
       @Lazy SecurityService securityService,
-      AclService aclService) {
+      AclService aclService,
+      @Lazy OrganisationUnitService organisationUnitService,
+      SessionRegistry sessionRegistry) {
     checkNotNull(userStore);
     checkNotNull(userGroupService);
     checkNotNull(userRoleStore);
     checkNotNull(systemSettingManager);
     checkNotNull(passwordManager);
-    checkNotNull(sessionRegistry);
     checkNotNull(securityService);
     checkNotNull(aclService);
+    checkNotNull(organisationUnitService);
+    checkNotNull(sessionRegistry);
 
     this.userStore = userStore;
     this.userGroupService = userGroupService;
@@ -139,10 +146,12 @@ public class DefaultUserService implements UserService {
     this.currentUserService = currentUserService;
     this.systemSettingManager = systemSettingManager;
     this.passwordManager = passwordManager;
-    this.sessionRegistry = sessionRegistry;
     this.securityService = securityService;
     this.userDisplayNameCache = cacheProvider.createUserDisplayNameCache();
     this.aclService = aclService;
+    this.organisationUnitService = organisationUnitService;
+    this.twoFaDisableFailedAttemptCache = cacheProvider.createDisable2FAFailedAttemptCache(0);
+    this.sessionRegistry = sessionRegistry;
   }
 
   @Override
@@ -518,7 +527,8 @@ public class DefaultUserService implements UserService {
     // Encode and set password
     Matcher matcher = UserService.BCRYPT_PATTERN.matcher(rawPassword);
     if (matcher.matches()) {
-      throw new IllegalArgumentException("Raw password look like BCrypt: " + rawPassword);
+      throw new IllegalArgumentException(
+          "Raw password look like BCrypt encoded password, this is most certainly a bug");
     }
 
     String encode = passwordManager.encode(rawPassword);
@@ -617,26 +627,45 @@ public class DefaultUserService implements UserService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<ErrorReport> validateUserCreateOrUpdate(User user, User currentUser) {
+  public List<ErrorReport> validateUserCreateOrUpdateAccess(User user, User currentUser) {
 
     List<ErrorReport> errors = new ArrayList<>();
 
-    if (currentUser == null || user == null) {
+    if (currentUser == null || user == null || currentUser.isSuper()) {
       return errors;
     }
 
     User userToChange = userStore.get(user.getId());
-    if (!currentUser.isSuper() && userToChange != null && userToChange.isSuper()) {
+    if (userToChange != null && userToChange.isSuper()) {
       errors.add(new ErrorReport(User.class, ErrorCode.E3041, currentUser.getUsername()));
     }
 
-    validateUserRoles(user, currentUser, errors);
-    validateUserGroups(user, currentUser, errors);
+    checkHasAccessToUserRoles(user, currentUser, errors);
+    checkHasAccessToUserGroups(user, currentUser, errors);
+
+    checkIsInOrgUnitHierarchy(user.getOrganisationUnits(), currentUser, errors);
+    checkIsInOrgUnitHierarchy(user.getDataViewOrganisationUnits(), currentUser, errors);
+    checkIsInOrgUnitHierarchy(user.getTeiSearchOrganisationUnits(), currentUser, errors);
 
     return errors;
   }
 
-  private void validateUserGroups(User user, User currentUser, List<ErrorReport> errors) {
+  private void checkIsInOrgUnitHierarchy(
+      Set<OrganisationUnit> organisationUnits, User currentUser, List<ErrorReport> errors) {
+    for (OrganisationUnit orgUnit : organisationUnits) {
+      boolean inUserHierarchy = organisationUnitService.isInUserHierarchy(currentUser, orgUnit);
+      if (!inUserHierarchy) {
+        errors.add(
+            new ErrorReport(
+                OrganisationUnit.class,
+                ErrorCode.E7617,
+                orgUnit.getUid(),
+                currentUser.getUsername()));
+      }
+    }
+  }
+
+  private void checkHasAccessToUserGroups(User user, User currentUser, List<ErrorReport> errors) {
 
     boolean canAdd = currentUser.isAuthorized(UserGroup.AUTH_USER_ADD);
     if (canAdd) {
@@ -659,7 +688,7 @@ public class DefaultUserService implements UserService {
             });
   }
 
-  private void validateUserRoles(User user, User currentUser, List<ErrorReport> errors) {
+  private void checkHasAccessToUserRoles(User user, User currentUser, List<ErrorReport> errors) {
     Set<UserRole> userRoles = user.getUserRoles();
 
     boolean canGrantOwnUserRoles =
@@ -738,6 +767,23 @@ public class DefaultUserService implements UserService {
     approveTwoFactorSecret(user);
   }
 
+  @Override
+  public void registerFailed2FADisableAttempt(String username) {
+    Integer attempts = twoFaDisableFailedAttemptCache.get(username).orElse(0);
+    attempts++;
+    twoFaDisableFailedAttemptCache.put(username, attempts);
+  }
+
+  @Override
+  public void registerSuccess2FADisable(String username) {
+    twoFaDisableFailedAttemptCache.invalidate(username);
+  }
+
+  @Override
+  public boolean twoFaDisableIsLocked(String username) {
+    return twoFaDisableFailedAttemptCache.get(username).orElse(0) >= LOGIN_MAX_FAILED_ATTEMPTS;
+  }
+
   @Transactional
   @Override
   public void disableTwoFa(User user, String code) {
@@ -745,11 +791,18 @@ public class DefaultUserService implements UserService {
       throw new IllegalStateException("Two factor is not enabled, enable first");
     }
 
+    if (twoFaDisableIsLocked(user.getUsername())) {
+      throw new IllegalStateException("Too many failed attempts, try again later");
+    }
+
     if (!TwoFactoryAuthenticationUtils.verify(code, user.getSecret())) {
+      registerFailed2FADisableAttempt(user.getUsername());
       throw new IllegalStateException("Invalid code");
     }
 
     resetTwoFactor(user);
+
+    registerSuccess2FADisable(user.getUsername());
   }
 
   @Override
@@ -771,9 +824,7 @@ public class DefaultUserService implements UserService {
 
   @Override
   public void expireActiveSessions(User user) {
-    List<SessionInformation> sessions = sessionRegistry.getAllSessions(user, false);
-
-    sessions.forEach(SessionInformation::expireNow);
+    invalidateUserSessions(user.getUid());
   }
 
   @Override
@@ -938,24 +989,49 @@ public class DefaultUserService implements UserService {
   @Override
   @Nonnull
   @Transactional(readOnly = true)
-  public List<User> getLinkedUserAccounts(@Nonnull User actingUser) {
-    return userStore.getLinkedUserAccounts(actingUser);
+  public List<UserLookup> getLinkedUserAccounts(@Nonnull User actingUser) {
+    List<User> linkedUserAccounts = userStore.getLinkedUserAccounts(actingUser);
+
+    List<UserLookup> userLookups =
+        linkedUserAccounts.stream().map(UserLookup::fromUser).collect(Collectors.toList());
+
+    for (int i = 0; i < linkedUserAccounts.size(); i++) {
+      userLookups
+          .get(i)
+          .setRoles(
+              linkedUserAccounts.get(i).getUserRoles().stream()
+                  .map(UserRole::getUid)
+                  .collect(Collectors.toSet()));
+      userLookups
+          .get(i)
+          .setGroups(
+              linkedUserAccounts.get(i).getGroups().stream()
+                  .map(UserGroup::getUid)
+                  .collect(Collectors.toSet()));
+    }
+
+    return userLookups;
   }
 
   @Override
+  public List<User> getUsersWithOrgUnit(
+      @Nonnull UserOrgUnitProperty orgUnitProperty, @Nonnull String uid) {
+    return userStore.getUsersWithOrgUnit(orgUnitProperty, uid);
+  }
+
   @Transactional
-  public void setActiveLinkedAccounts(@Nonnull User actingUser, @Nonnull String activeUsername) {
-    Instant oneHourAgo = Instant.now().minus(1, ChronoUnit.HOURS);
-    Instant oneHourInTheFuture = Instant.now().plus(1, ChronoUnit.HOURS);
+  @Override
+  public void setActiveLinkedAccounts(@Nonnull String actingUser, @Nonnull String activeUsername) {
+    userStore.setActiveLinkedAccounts(actingUser, activeUsername);
+  }
 
-    List<User> linkedUserAccounts = getLinkedUserAccounts(actingUser);
-    for (User user : linkedUserAccounts) {
-      user.setLastLogin(
-          user.getUsername().equals(activeUsername)
-              ? Date.from(oneHourInTheFuture)
-              : Date.from(oneHourAgo));
-
-      updateUser(user);
+  @Override
+  public void invalidateUserSessions(String userUid) {
+    User user = userStore.getByUid(userUid);
+    CurrentUserDetailsImpl userDetails = createUserDetails(user, true, true);
+    if (userDetails != null) {
+      List<SessionInformation> allSessions = sessionRegistry.getAllSessions(userDetails, false);
+      allSessions.forEach(SessionInformation::expireNow);
     }
   }
 }

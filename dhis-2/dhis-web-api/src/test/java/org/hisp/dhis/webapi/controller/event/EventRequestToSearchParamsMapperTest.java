@@ -27,6 +27,8 @@
  */
 package org.hisp.dhis.webapi.controller.event;
 
+import static org.hisp.dhis.DhisConvenienceTest.createOrganisationUnit;
+import static org.hisp.dhis.DhisConvenienceTest.getDate;
 import static org.hisp.dhis.common.AccessLevel.CLOSED;
 import static org.hisp.dhis.common.AccessLevel.OPEN;
 import static org.hisp.dhis.common.AccessLevel.PROTECTED;
@@ -41,7 +43,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.hisp.dhis.common.IllegalQueryException;
 import org.hisp.dhis.common.OrganisationUnitSelectionMode;
@@ -105,6 +110,8 @@ class EventRequestToSearchParamsMapperTest {
 
   @InjectMocks private EventRequestToSearchParamsMapper mapper;
 
+  private final Map<String, User> userMap = new HashMap<>();
+
   private OrganisationUnit orgUnit;
 
   private final String orgUnitId = "orgUnitId";
@@ -135,7 +142,7 @@ class EventRequestToSearchParamsMapperTest {
 
     Program program = new Program();
     User user = new User();
-    OrganisationUnit ou = new OrganisationUnit();
+    OrganisationUnit ou = createOrganisationUnit('A');
     user.setOrganisationUnits(Set.of(ou));
     TrackedEntityInstance tei = new TrackedEntityInstance();
     DataElement de = new DataElement();
@@ -424,10 +431,25 @@ class EventRequestToSearchParamsMapperTest {
         exception.getMessage());
   }
 
+  @Test
+  void shouldNotManipulateDates() {
+    when(currentUserService.getCurrentUser()).thenReturn(userMap.get("admin"));
+    Date startDate = getDate(2019, 1, 1);
+    Date endDate = getDate(2019, 2, 1);
+
+    EventCriteria eventSearchParams = new EventCriteria();
+    eventSearchParams.setStartDate(startDate);
+    eventSearchParams.setEndDate(endDate);
+
+    assertEquals(startDate, eventSearchParams.getStartDate());
+    assertEquals(endDate, eventSearchParams.getEndDate());
+  }
+
   private OrganisationUnit createOrgUnit(String name, String uid) {
-    OrganisationUnit orgUnit = new OrganisationUnit(name);
-    orgUnit.setUid(uid);
-    return orgUnit;
+    OrganisationUnit ou = createOrganisationUnit(name);
+    ou.setUid(uid);
+    ou.updatePath();
+    return ou;
   }
 
   private User createSearchInAllOrgUnitsUser() {

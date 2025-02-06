@@ -104,6 +104,7 @@ import org.hisp.dhis.external.conf.DhisConfigurationProvider;
 import org.hisp.dhis.feedback.ForbiddenException;
 import org.hisp.dhis.fieldfilter.FieldFilterParams;
 import org.hisp.dhis.fieldfilter.FieldFilterService;
+import org.hisp.dhis.fieldfiltering.Preset;
 import org.hisp.dhis.fileresource.FileResource;
 import org.hisp.dhis.fileresource.FileResourceDomain;
 import org.hisp.dhis.fileresource.FileResourceService;
@@ -111,7 +112,6 @@ import org.hisp.dhis.fileresource.FileResourceStorageStatus;
 import org.hisp.dhis.fileresource.ImageFileDimension;
 import org.hisp.dhis.importexport.ImportStrategy;
 import org.hisp.dhis.node.NodeUtils;
-import org.hisp.dhis.node.Preset;
 import org.hisp.dhis.node.types.RootNode;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramStageInstanceService;
@@ -650,7 +650,7 @@ public class EventController {
 
     if (fields.isEmpty()) {
       fields.add(
-          "event,uid,program,programStage,programType,status,assignedUser,orgUnit,orgUnitName,eventDate,orgUnit,orgUnitName,created,lastUpdated,followup,deleted,dataValues");
+          "event,uid,program,programStage,programType,status,assignedUser,orgUnit,orgUnitName,attributeOptionCombo,eventDate,created,lastUpdated,followup,deleted,dataValues");
     }
 
     EventQueryParams params = requestToSearchParamsMapper.map(eventCriteria);
@@ -1155,7 +1155,7 @@ public class EventController {
     Event updatedEvent = renderService.fromJson(inputStream, Event.class);
     updatedEvent.setEvent(uid);
 
-    return updateEvent(updatedEvent, true, null);
+    return importSummary(eventService.updateEventDataValues(updatedEvent));
   }
 
   @PutMapping(value = "/{uid}/eventDate", consumes = APPLICATION_JSON_VALUE)

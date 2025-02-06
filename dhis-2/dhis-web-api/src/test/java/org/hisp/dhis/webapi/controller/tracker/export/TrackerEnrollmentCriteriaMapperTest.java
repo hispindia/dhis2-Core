@@ -27,6 +27,8 @@
  */
 package org.hisp.dhis.webapi.controller.tracker.export;
 
+import static org.hisp.dhis.DhisConvenienceTest.createOrganisationUnit;
+import static org.hisp.dhis.common.OrganisationUnitSelectionMode.ALL;
 import static org.hisp.dhis.utils.Assertions.assertContainsOnly;
 import static org.hisp.dhis.utils.Assertions.assertIsEmpty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -105,14 +107,16 @@ class TrackerEnrollmentCriteriaMapperTest {
     user = new User();
     when(currentUserService.getCurrentUser()).thenReturn(user);
 
-    orgUnit1 = new OrganisationUnit("orgUnit1");
+    orgUnit1 = createOrganisationUnit('A');
     orgUnit1.setUid(ORG_UNIT_1_UID);
+    orgUnit1.updatePath();
     when(organisationUnitService.getOrganisationUnit(orgUnit1.getUid())).thenReturn(orgUnit1);
     when(organisationUnitService.isInUserHierarchy(
             orgUnit1.getUid(), user.getTeiSearchOrganisationUnitsWithFallback()))
         .thenReturn(true);
-    orgUnit2 = new OrganisationUnit("orgUnit2");
+    orgUnit2 = createOrganisationUnit('B');
     orgUnit2.setUid(ORG_UNIT_2_UID);
+    orgUnit2.updatePath();
     when(organisationUnitService.getOrganisationUnit(orgUnit2.getUid())).thenReturn(orgUnit2);
     when(organisationUnitService.isInUserHierarchy(
             orgUnit2.getUid(), user.getTeiSearchOrganisationUnitsWithFallback()))
@@ -265,5 +269,17 @@ class TrackerEnrollmentCriteriaMapperTest {
     ProgramInstanceQueryParams params = mapper.map(criteria);
 
     assertIsEmpty(params.getOrder());
+  }
+
+  @Test
+  void shouldFailWhenUserNotAuthorizedToUseOrgUnitModeAll() {
+    TrackerEnrollmentCriteria criteria = new TrackerEnrollmentCriteria();
+    criteria.setOuMode(ALL);
+
+    Exception forbiddenException =
+        assertThrows(ForbiddenException.class, () -> mapper.map(criteria));
+    assertEquals(
+        "Current user is not authorized to query across all organisation units",
+        forbiddenException.getMessage());
   }
 }

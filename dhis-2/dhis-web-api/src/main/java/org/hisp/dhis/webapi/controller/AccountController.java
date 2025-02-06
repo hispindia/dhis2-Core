@@ -56,6 +56,7 @@ import org.hisp.dhis.common.OpenApi;
 import org.hisp.dhis.configuration.ConfigurationService;
 import org.hisp.dhis.dxf2.webmessage.WebMessage;
 import org.hisp.dhis.dxf2.webmessage.WebMessageException;
+import org.hisp.dhis.external.conf.DhisConfigurationProvider;
 import org.hisp.dhis.feedback.ErrorCode;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.security.PasswordManager;
@@ -72,10 +73,11 @@ import org.hisp.dhis.user.CurrentUser;
 import org.hisp.dhis.user.PasswordValidationResult;
 import org.hisp.dhis.user.PasswordValidationService;
 import org.hisp.dhis.user.User;
+import org.hisp.dhis.user.UserLookup;
 import org.hisp.dhis.user.UserRole;
 import org.hisp.dhis.user.UserService;
 import org.hisp.dhis.webapi.mvc.annotation.ApiVersion;
-import org.hisp.dhis.webapi.utils.ContextUtils;
+import org.hisp.dhis.webapi.webdomain.user.UserLookups;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -117,6 +119,8 @@ public class AccountController {
 
   private final PasswordValidationService passwordValidationService;
 
+  private final DhisConfigurationProvider configurationProvider;
+
   @PostMapping("/recovery")
   @ResponseBody
   public WebMessage recoverAccount(@RequestParam String username, HttpServletRequest request)
@@ -133,6 +137,11 @@ public class AccountController {
       return conflict("User does not exist: " + username);
     }
 
+    String baseUrl = configurationProvider.getServerBaseUrl();
+    if (StringUtils.isEmpty(baseUrl)) {
+      return conflict("Server base URL is not configured");
+    }
+
     ErrorCode errorCode = securityService.validateRestore(user);
 
     if (errorCode != null) {
@@ -140,7 +149,7 @@ public class AccountController {
     }
 
     if (!securityService.sendRestoreOrInviteMessage(
-        user, ContextUtils.getContextPath(request), RestoreOptions.RECOVER_PASSWORD_OPTION)) {
+        user, baseUrl, RestoreOptions.RECOVER_PASSWORD_OPTION)) {
       return conflict("Account could not be recovered");
     }
 
@@ -215,7 +224,6 @@ public class AccountController {
       @RequestParam String password,
       @RequestParam String email,
       @RequestParam String phoneNumber,
-      @RequestParam String employer,
       @RequestParam(required = false) String inviteUsername,
       @RequestParam(required = false) String inviteToken,
       @RequestParam(value = "g-recaptcha-response", required = false) String recapResponse,
@@ -241,7 +249,6 @@ public class AccountController {
               .password(StringUtils.trimToNull(password))
               .email(StringUtils.trimToNull(email))
               .phoneNumber(StringUtils.trimToNull(phoneNumber))
-              .employer(StringUtils.trimToNull(employer))
               .build();
 
       WebMessage validateInput = validateInput(userRegistration, usernameChoice);
@@ -278,7 +285,6 @@ public class AccountController {
               .password(StringUtils.trimToNull(password))
               .email(StringUtils.trimToNull(email))
               .phoneNumber(StringUtils.trimToNull(phoneNumber))
-              .employer(StringUtils.trimToNull(employer))
               .build();
 
       WebMessage validateInput = validateInput(userRegistration, true);
@@ -360,11 +366,6 @@ public class AccountController {
       return badRequest("Phone number is not specified or invalid");
     }
 
-    if (userRegistration.getEmployer() == null
-        || userRegistration.getEmployer().trim().length() > MAX_LENGTH) {
-      return badRequest("Employer is not specified or invalid");
-    }
-
     return null;
   }
 
@@ -382,8 +383,6 @@ public class AccountController {
     private final String email;
 
     private final String phoneNumber;
-
-    private final String employer;
   }
 
   private void createAndAddSelfRegisteredUser(
@@ -397,7 +396,6 @@ public class AccountController {
     user.setSurname(userRegistration.getSurname());
     user.setEmail(userRegistration.getEmail());
     user.setPhoneNumber(userRegistration.getPhoneNumber());
-    user.setEmployer(userRegistration.getEmployer());
     user.getOrganisationUnits().add(orgUnit);
     user.getDataViewOrganisationUnits().add(orgUnit);
 
@@ -419,10 +417,8 @@ public class AccountController {
     user.setFirstName(userRegistration.getFirstName());
     user.setSurname(userRegistration.getSurname());
     user.setPhoneNumber(userRegistration.getPhoneNumber());
-    user.setEmployer(userRegistration.getEmployer());
     user.setEmail(userRegistration.getEmail());
     user.setPhoneNumber(userRegistration.getPhoneNumber());
-    user.setEmployer(userRegistration.getEmployer());
 
     userService.updateUser(user);
 
@@ -441,22 +437,15 @@ public class AccountController {
   public ResponseEntity<Map<String, String>> updatePassword(
       @RequestParam String oldPassword,
       @RequestParam String password,
-      @CurrentUser User user,
+      @RequestParam String username,
       HttpServletRequest request) {
     Map<String, String> result = new HashMap<>();
-
-    String username = null;
-    if (user != null) {
-      username = user.getUsername();
-    }
 
     if (username == null) {
       username = (String) request.getSession().getAttribute("username");
     }
 
-    if (user == null) {
-      user = userService.getUserByUsername(username);
-    }
+    User user = userService.getUserByUsername(username);
 
     if (username == null) {
       result.put("status", "NON_EXPIRED");
@@ -511,8 +500,9 @@ public class AccountController {
   }
 
   @GetMapping("/linkedAccounts")
-  public @ResponseBody List<User> getLinkedAccounts(@CurrentUser User currentUser) {
-    return userService.getLinkedUserAccounts(currentUser);
+  public @ResponseBody UserLookups getLinkedAccounts(@CurrentUser User currentUser) {
+    List<UserLookup> linkedUserAccounts = userService.getLinkedUserAccounts(currentUser);
+    return new UserLookups(linkedUserAccounts);
   }
 
   @GetMapping("/username")

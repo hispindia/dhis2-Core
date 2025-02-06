@@ -118,12 +118,13 @@ public abstract class AbstractRelationshipService implements RelationshipService
   public List<Relationship> getRelationshipsByTrackedEntityInstance(
       TrackedEntityInstance tei,
       PagingAndSortingCriteriaAdapter pagingAndSortingCriteriaAdapter,
-      boolean skipAccessValidation) {
+      boolean skipAccessValidation,
+      boolean includeDeleted) {
     User user = currentUserService.getCurrentUser();
 
     return relationshipService
         .getRelationshipsByTrackedEntityInstance(
-            tei, pagingAndSortingCriteriaAdapter, skipAccessValidation)
+            tei, pagingAndSortingCriteriaAdapter, skipAccessValidation, includeDeleted)
         .stream()
         .filter((r) -> !skipAccessValidation && trackerAccessManager.canRead(user, r).isEmpty())
         .map(r -> getRelationship(r, user))
@@ -137,12 +138,13 @@ public abstract class AbstractRelationshipService implements RelationshipService
   public List<Relationship> getRelationshipsByProgramInstance(
       ProgramInstance pi,
       PagingAndSortingCriteriaAdapter pagingAndSortingCriteriaAdapter,
-      boolean skipAccessValidation) {
+      boolean skipAccessValidation,
+      boolean includeDeleted) {
     User user = currentUserService.getCurrentUser();
 
     return relationshipService
         .getRelationshipsByProgramInstance(
-            pi, pagingAndSortingCriteriaAdapter, skipAccessValidation)
+            pi, pagingAndSortingCriteriaAdapter, skipAccessValidation, includeDeleted)
         .stream()
         .filter((r) -> !skipAccessValidation && trackerAccessManager.canRead(user, r).isEmpty())
         .map(r -> getRelationship(r, user))
@@ -156,12 +158,13 @@ public abstract class AbstractRelationshipService implements RelationshipService
   public List<Relationship> getRelationshipsByProgramStageInstance(
       ProgramStageInstance psi,
       PagingAndSortingCriteriaAdapter pagingAndSortingCriteriaAdapter,
-      boolean skipAccessValidation) {
+      boolean skipAccessValidation,
+      boolean includeDeleted) {
     User user = currentUserService.getCurrentUser();
 
     return relationshipService
         .getRelationshipsByProgramStageInstance(
-            psi, pagingAndSortingCriteriaAdapter, skipAccessValidation)
+            psi, pagingAndSortingCriteriaAdapter, skipAccessValidation, includeDeleted)
         .stream()
         .filter((r) -> !skipAccessValidation && trackerAccessManager.canRead(user, r).isEmpty())
         .map(r -> getRelationship(r, user))
@@ -460,9 +463,12 @@ public abstract class AbstractRelationshipService implements RelationshipService
     relationship.setRelationshipType(dao.getRelationshipType().getUid());
     relationship.setRelationshipName(dao.getRelationshipType().getName());
 
-    relationship.setFrom(includeRelationshipItem(dao.getFrom(), !params.isIncludeFrom()));
-    relationship.setTo(includeRelationshipItem(dao.getTo(), !params.isIncludeTo()));
-
+    relationship.setFrom(
+        includeRelationshipItem(
+            dao.getFrom(), !params.isIncludeFrom(), dao.getRelationshipType().getFromConstraint()));
+    relationship.setTo(
+        includeRelationshipItem(
+            dao.getTo(), !params.isIncludeTo(), dao.getRelationshipType().getToConstraint()));
     relationship.setBidirectional(dao.getRelationshipType().isBidirectional());
 
     relationship.setCreated(DateUtils.getIso8601NoTz(dao.getCreated()));
@@ -477,7 +483,7 @@ public abstract class AbstractRelationshipService implements RelationshipService
   }
 
   private org.hisp.dhis.dxf2.events.trackedentity.RelationshipItem includeRelationshipItem(
-      RelationshipItem dao, boolean uidOnly) {
+      RelationshipItem dao, boolean uidOnly, RelationshipConstraint constraint) {
     org.hisp.dhis.dxf2.events.trackedentity.RelationshipItem relationshipItem =
         new org.hisp.dhis.dxf2.events.trackedentity.RelationshipItem();
 
@@ -493,6 +499,18 @@ public abstract class AbstractRelationshipService implements RelationshipService
         tei =
             trackedEntityInstanceService.getTrackedEntityInstance(
                 dao.getTrackedEntityInstance(), TrackedEntityInstanceParams.TRUE);
+
+        if (constraint.getTrackerDataView() != null) {
+          tei.setAttributes(
+              tei.getAttributes().stream()
+                  .filter(
+                      a ->
+                          constraint
+                              .getTrackerDataView()
+                              .getAttributes()
+                              .contains(a.getAttribute()))
+                  .collect(Collectors.toList()));
+        }
       }
 
       relationshipItem.setTrackedEntityInstance(tei);
@@ -507,6 +525,18 @@ public abstract class AbstractRelationshipService implements RelationshipService
       } else {
         enrollment =
             enrollmentService.getEnrollment(dao.getProgramInstance(), EnrollmentParams.TRUE);
+
+        if (constraint.getTrackerDataView() != null) {
+          enrollment.setAttributes(
+              enrollment.getAttributes().stream()
+                  .filter(
+                      a ->
+                          constraint
+                              .getTrackerDataView()
+                              .getAttributes()
+                              .contains(a.getAttribute()))
+                  .collect(Collectors.toList()));
+        }
       }
 
       relationshipItem.setEnrollment(enrollment);
@@ -519,6 +549,18 @@ public abstract class AbstractRelationshipService implements RelationshipService
         event.setEvent(uid);
       } else {
         event = eventService.getEvent(dao.getProgramStageInstance(), EventParams.FALSE);
+
+        if (constraint.getTrackerDataView() != null) {
+          event.setDataValues(
+              event.getDataValues().stream()
+                  .filter(
+                      d ->
+                          constraint
+                              .getTrackerDataView()
+                              .getDataElements()
+                              .contains(d.getDataElement()))
+                  .collect(Collectors.toSet()));
+        }
       }
 
       relationshipItem.setEvent(event);

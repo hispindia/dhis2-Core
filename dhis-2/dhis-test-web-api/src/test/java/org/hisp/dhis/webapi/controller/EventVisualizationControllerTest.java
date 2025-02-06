@@ -33,8 +33,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hisp.dhis.web.HttpStatus.BAD_REQUEST;
-import static org.hisp.dhis.web.HttpStatus.CONFLICT;
 import static org.hisp.dhis.web.HttpStatus.CREATED;
+import static org.hisp.dhis.web.HttpStatus.OK;
 import static org.hisp.dhis.web.WebClientUtils.assertStatus;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -109,6 +109,27 @@ class EventVisualizationControllerTest extends DhisControllerConvenienceTest {
     assertThat(nodeMap.get("columns").toString(), containsString(eventDateDimension));
     assertThat(nodeMap.get("rows").toString(), not(containsString(eventDateDimension)));
     assertThat(nodeMap.get("filters").toString(), not(containsString(eventDateDimension)));
+  }
+
+  @Test
+  void testDelete() {
+    // Given
+    String eventDateDimension = "eventDate";
+    String eventDate = "2021-07-21_2021-08-01";
+    String dimensionBody =
+        "{'dimension': '" + eventDateDimension + "', 'items': [{'id': '" + eventDate + "'}]}";
+    String body =
+        "{'name': 'Name Test', 'type': 'STACKED_COLUMN','eventRepetitions':null, 'program': {'id':'"
+            + mockProgram.getUid()
+            + "'}, 'columns': ["
+            + dimensionBody
+            + "]}";
+
+    // When
+    String uid = assertStatus(CREATED, POST("/eventVisualizations/", body));
+
+    // Then
+    DELETE("/eventVisualizations/" + uid).content(OK);
   }
 
   @Test
@@ -432,69 +453,6 @@ class EventVisualizationControllerTest extends DhisControllerConvenienceTest {
     assertThat(response.get("sorting").toString(), containsString("pe"));
     assertThat(response.get("sorting").toString(), containsString("ASC"));
     assertThat(response.get("sorting").toString(), not(containsString("DESC")));
-  }
-
-  @Test
-  void testPostInvalidSortingObject() {
-    // Given
-    String invalidDimension = "invalidOne";
-    String sorting = "'sorting': [{'dimension': '" + invalidDimension + "', 'direction':'ASC'}]";
-    String body =
-        "{'name': 'Name Test', 'type': 'STACKED_COLUMN', 'program': {'id':'"
-            + mockProgram.getUid()
-            + "'}, 'columns': [{'dimension': 'pe'}],"
-            + sorting
-            + "}";
-
-    // When
-    HttpResponse response = POST("/eventVisualizations/", body);
-
-    // Then
-    assertEquals(
-        "Sorting dimension ‘" + invalidDimension + "’ is not a column",
-        response.error(CONFLICT).getMessage());
-  }
-
-  @Test
-  void testPostBlankSortingObject() {
-    // Given
-    String blankDimension = " ";
-    String sorting = "'sorting': [{'dimension': '" + blankDimension + "', 'direction':'ASC'}]";
-    String body =
-        "{'name': 'Name Test', 'type': 'STACKED_COLUMN', 'program': {'id':'"
-            + mockProgram.getUid()
-            + "'}, 'columns': [{'dimension': 'pe'}],"
-            + sorting
-            + "}";
-
-    // When
-    HttpResponse response = POST("/eventVisualizations/", body);
-
-    // Then
-    assertEquals(
-        "Sorting must have a valid dimension and a direction",
-        response.error(CONFLICT).getMessage());
-  }
-
-  @Test
-  void testPostNullSortingObject() {
-    // Given
-    String blankDimension = " ";
-    String sorting = "'sorting': [{'dimension': '" + blankDimension + "', 'direction':'ASC'}]";
-    String body =
-        "{'name': 'Name Test', 'type': 'STACKED_COLUMN', 'program': {'id':'"
-            + mockProgram.getUid()
-            + "'}, 'columns': [{'dimension': 'pe'}],"
-            + sorting
-            + "}";
-
-    // When
-    HttpResponse response = POST("/eventVisualizations/", body);
-
-    // Then
-    assertEquals(
-        "Sorting must have a valid dimension and a direction",
-        response.error(CONFLICT).getMessage());
   }
 
   @Test

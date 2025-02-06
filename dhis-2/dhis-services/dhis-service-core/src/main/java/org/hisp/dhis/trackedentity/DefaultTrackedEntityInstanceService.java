@@ -70,6 +70,8 @@ import org.hisp.dhis.common.ValueType;
 import org.hisp.dhis.dxf2.events.event.EventContext;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
+import org.hisp.dhis.program.Program;
+import org.hisp.dhis.program.ProgramService;
 import org.hisp.dhis.security.Authorities;
 import org.hisp.dhis.security.acl.AclService;
 import org.hisp.dhis.system.grid.ListGrid;
@@ -108,6 +110,8 @@ public class DefaultTrackedEntityInstanceService implements TrackedEntityInstanc
 
   private final AclService aclService;
 
+  private final ProgramService programService;
+
   private final TrackerOwnershipManager trackerOwnershipAccessManager;
 
   private final TrackedEntityInstanceAuditService trackedEntityInstanceAuditService;
@@ -126,6 +130,7 @@ public class DefaultTrackedEntityInstanceService implements TrackedEntityInstanc
       OrganisationUnitService organisationUnitService,
       CurrentUserService currentUserService,
       AclService aclService,
+      ProgramService programService,
       @Lazy TrackerOwnershipManager trackerOwnershipAccessManager,
       @Lazy TrackedEntityInstanceAuditService trackedEntityInstanceAuditService,
       @Lazy TrackedEntityAttributeValueAuditService attributeValueAuditService) {
@@ -147,6 +152,7 @@ public class DefaultTrackedEntityInstanceService implements TrackedEntityInstanc
     this.organisationUnitService = organisationUnitService;
     this.currentUserService = currentUserService;
     this.aclService = aclService;
+    this.programService = programService;
     this.trackerOwnershipAccessManager = trackerOwnershipAccessManager;
     this.trackedEntityInstanceAuditService = trackedEntityInstanceAuditService;
     this.attributeValueAuditService = attributeValueAuditService;
@@ -167,6 +173,10 @@ public class DefaultTrackedEntityInstanceService implements TrackedEntityInstanc
           attributeService.getTrackedEntityAttributesDisplayInListNoProgram();
       params.addAttributes(QueryItem.getQueryItems(attributes));
       params.addFiltersIfNotExist(QueryItem.getQueryItems(attributes));
+    }
+
+    if (!params.hasProgram()) {
+      params.setPrograms(getTrackerPrograms(params.getUser()));
     }
 
     decideAccess(params);
@@ -213,6 +223,10 @@ public class DefaultTrackedEntityInstanceService implements TrackedEntityInstanc
     }
 
     handleSortAttributes(params);
+
+    if (!params.hasProgram()) {
+      params.setPrograms(getTrackerPrograms(params.getUser()));
+    }
 
     decideAccess(params);
 
@@ -263,6 +277,11 @@ public class DefaultTrackedEntityInstanceService implements TrackedEntityInstanc
       TrackedEntityInstanceQueryParams params,
       boolean skipAccessValidation,
       boolean skipSearchScopeValidation) {
+
+    if (!params.hasProgram()) {
+      params.setPrograms(getTrackerPrograms(params.getUser()));
+    }
+
     decideAccess(params);
 
     if (!skipAccessValidation) {
@@ -283,6 +302,10 @@ public class DefaultTrackedEntityInstanceService implements TrackedEntityInstanc
   @Override
   @Transactional(readOnly = true)
   public Grid getTrackedEntityInstancesGrid(TrackedEntityInstanceQueryParams params) {
+    if (!params.hasProgram()) {
+      params.setPrograms(getTrackerPrograms(params.getUser()));
+    }
+
     decideAccess(params);
     validate(params);
     validateSearchScope(params, true);
@@ -490,7 +513,7 @@ public class DefaultTrackedEntityInstanceService implements TrackedEntityInstanc
       throw new IllegalQueryException("Params cannot be null");
     }
 
-    User user = params.getUser();
+    User user = currentUserService.getCurrentUser();
 
     if (!params.hasTrackedEntityInstances()
         && !params.hasOrganisationUnits()
@@ -547,6 +570,14 @@ public class DefaultTrackedEntityInstanceService implements TrackedEntityInstanc
 
     if (params.hasEventStatus() && (!params.hasEventStartDate() || !params.hasEventEndDate())) {
       violation = "Event start and end date must be specified when event status is specified";
+    }
+
+    if (!((params.hasEventStatus() && params.hasEventStartDate() && params.hasEventEndDate())
+        || (!params.hasEventStatus()
+            && !params.hasEventStartDate()
+            && !params.hasEventEndDate()))) {
+      violation =
+          "`eventOccurredAfter`, `eventOccurredBefore` and `eventStatus` must be specified together";
     }
 
     if (params.isOrQuery() && params.hasFilters()) {
@@ -683,18 +714,17 @@ public class DefaultTrackedEntityInstanceService implements TrackedEntityInstanc
         }
       }
 
-      checkIfMaxTeiLimitIsReached(params, maxTeiLimit);
       params.setMaxTeiLimit(maxTeiLimit);
+      checkIfMaxTeiLimitIsReached(params);
     }
   }
 
-  private void checkIfMaxTeiLimitIsReached(
-      TrackedEntityInstanceQueryParams params, int maxTeiLimit) {
-    if (maxTeiLimit > 0) {
+  private void checkIfMaxTeiLimitIsReached(TrackedEntityInstanceQueryParams params) {
+    if (params.hasMaxTeiLimit()) {
       int instanceCount =
           trackedEntityInstanceStore.getTrackedEntityInstanceCountForGridWithMaxTeiLimit(params);
 
-      if (instanceCount > maxTeiLimit) {
+      if (instanceCount > params.getMaxTeiLimit()) {
         throw new IllegalQueryException("maxteicountreached");
       }
     }
@@ -796,10 +826,10 @@ public class DefaultTrackedEntityInstanceService implements TrackedEntityInstanc
 
   @Override
   @Transactional
-  public void updateTrackedEntityInstanceLastUpdated(
-      Set<String> trackedEntityInstanceUIDs, Date lastUpdated) {
+  public void updateTrackedEntityInstancesLastUpdated(
+      Set<String> trackedEntityInstanceUIDs, Date lastUpdated, String userInfoSnapshot) {
     trackedEntityInstanceStore.updateTrackedEntityInstancesLastUpdated(
-        trackedEntityInstanceUIDs, lastUpdated);
+        trackedEntityInstanceUIDs, lastUpdated, userInfoSnapshot);
   }
 
   @Override
@@ -890,5 +920,12 @@ public class DefaultTrackedEntityInstanceService implements TrackedEntityInstanc
           new TrackedEntityInstanceAudit(trackedEntityInstance.getUid(), user, auditType);
       trackedEntityInstanceAuditService.addTrackedEntityInstanceAudit(trackedEntityInstanceAudit);
     }
+  }
+
+  private List<Program> getTrackerPrograms(User user) {
+    return programService.getAllPrograms().stream()
+        .filter(Program::isRegistration)
+        .filter(p -> aclService.canDataRead(user, p))
+        .collect(Collectors.toList());
   }
 }

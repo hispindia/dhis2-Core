@@ -41,6 +41,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.hisp.dhis.dataset.DataSet;
 import org.hisp.dhis.feedback.ErrorReport;
+import org.hisp.dhis.organisationunit.OrganisationUnit;
 
 /**
  * @author Chau Thu Tran
@@ -386,7 +387,7 @@ public interface UserService {
    * @param currentUser
    * @return
    */
-  List<ErrorReport> validateUserCreateOrUpdate(User user, User currentUser);
+  List<ErrorReport> validateUserCreateOrUpdateAccess(User user, User currentUser);
 
   List<ErrorReport> validateUserRoleCreateOrUpdate(UserRole user, User currentUser);
 
@@ -541,6 +542,30 @@ public interface UserService {
   void disableTwoFa(User user, String code);
 
   /**
+   * Register a failed 2FA disable attempt for the given user account.
+   *
+   * @param username
+   */
+  void registerFailed2FADisableAttempt(String username);
+
+  /**
+   * If the user has a failed 2FA disable attempt more than 4 times in the last 15 minutes, return
+   * true.
+   *
+   * @param username
+   * @return
+   */
+  boolean twoFaDisableIsLocked(String username);
+
+  /**
+   * Register a successful 2FA disable attempt for the given user account, this will reset the
+   * attempt cache.
+   *
+   * @param username
+   */
+  void registerSuccess2FADisable(String username);
+
+  /**
    * If the user has a role with the 2FA authentication required restriction, return true.
    *
    * @param user The user object that is being checked for the role.
@@ -565,13 +590,34 @@ public interface UserService {
    * @return list of linked user accounts
    */
   @Nonnull
-  List<User> getLinkedUserAccounts(@Nonnull User actingUser);
+  List<UserLookup> getLinkedUserAccounts(@Nonnull User actingUser);
 
   /**
-   * Get active linked user accounts for the given user
+   * Method that retrieves all {@link User}s that have an entry for the {@link OrganisationUnit} in
+   * the given table
+   *
+   * @param orgUnitProperty {@link UserOrgUnitProperty} used to search
+   * @param uid {@link OrganisationUnit} uid to match on
+   * @return matching {@link User}s
+   */
+  List<User> getUsersWithOrgUnit(@Nonnull UserOrgUnitProperty orgUnitProperty, @Nonnull String uid);
+
+  /**
+   * Sets the active account for the next login session.
+   *
+   * <p>This method updates the last login timestamp of the target account 'activeUsername', to one
+   * hour in the future. This future timestamp ensures the account appears first when sorting linked
+   * accounts by last login date, and hence the top of the list will be the 'active'.
    *
    * @param actingUser the acting/current user
    * @param activeUsername the username of the user to set as active
    */
-  void setActiveLinkedAccounts(@Nonnull User actingUser, @Nonnull String activeUsername);
+  void setActiveLinkedAccounts(@Nonnull String actingUser, @Nonnull String activeUsername);
+
+  /**
+   * Invalidate all sessions for the given user.
+   *
+   * @param userUid the user uid of the user account.
+   */
+  void invalidateUserSessions(String userUid);
 }

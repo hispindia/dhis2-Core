@@ -30,7 +30,6 @@ package org.hisp.dhis.tracker.converter;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
-import com.google.common.base.Objects;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -42,7 +41,6 @@ import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramInstance;
 import org.hisp.dhis.program.ProgramStatus;
-import org.hisp.dhis.program.UserInfoSnapshot;
 import org.hisp.dhis.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.tracker.domain.Enrollment;
 import org.hisp.dhis.tracker.domain.EnrollmentStatus;
@@ -124,11 +122,11 @@ public class EnrollmentTrackerConverterService
               : enrollment.getUid());
       programInstance.setCreated(now);
       programInstance.setStoredBy(enrollment.getStoredBy());
-      programInstance.setCreatedByUserInfo(UserInfoSnapshot.from(preheat.getUser()));
+      programInstance.setCreatedByUserInfo(preheat.getUserInfo());
     }
 
     programInstance.setLastUpdated(now);
-    programInstance.setLastUpdatedByUserInfo(UserInfoSnapshot.from(preheat.getUser()));
+    programInstance.setLastUpdatedByUserInfo(preheat.getUserInfo());
     programInstance.setDeleted(false);
     programInstance.setCreatedAtClient(DateUtils.fromInstant(enrollment.getCreatedAtClient()));
     programInstance.setLastUpdatedAtClient(DateUtils.fromInstant(enrollment.getUpdatedAtClient()));
@@ -151,12 +149,20 @@ public class EnrollmentTrackerConverterService
     ProgramStatus previousStatus = programInstance.getStatus();
     programInstance.setStatus(enrollment.getStatus().getProgramStatus());
 
-    if (!Objects.equal(previousStatus, programInstance.getStatus())) {
-      if (programInstance.isCompleted()) {
-        programInstance.setEndDate(new Date());
-        programInstance.setCompletedBy(preheat.getUsername());
-      } else if (programInstance.getStatus().equals(ProgramStatus.CANCELLED)) {
-        programInstance.setEndDate(new Date());
+    if (previousStatus != programInstance.getStatus()) {
+      switch (programInstance.getStatus()) {
+        case ACTIVE:
+          programInstance.setEndDate(null);
+          programInstance.setCompletedBy(null);
+          break;
+        case COMPLETED:
+          programInstance.setEndDate(now);
+          programInstance.setCompletedBy(preheat.getUsername());
+          break;
+        case CANCELLED:
+          programInstance.setEndDate(now);
+          programInstance.setCompletedBy(null);
+          break;
       }
     }
 

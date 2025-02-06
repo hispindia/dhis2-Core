@@ -37,6 +37,7 @@ import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.getCoalesce;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.quote;
 import static org.hisp.dhis.analytics.util.AnalyticsSqlUtils.quoteAlias;
 import static org.hisp.dhis.analytics.util.AnalyticsUtils.withExceptionHandling;
+import static org.hisp.dhis.common.DataDimensionType.ATTRIBUTE;
 import static org.hisp.dhis.common.DimensionItemType.DATA_ELEMENT;
 import static org.hisp.dhis.common.DimensionalObject.ORGUNIT_DIM_ID;
 import static org.hisp.dhis.common.IdentifiableObjectUtils.getUids;
@@ -56,6 +57,8 @@ import org.hisp.dhis.analytics.analyze.ExecutionPlanStore;
 import org.hisp.dhis.analytics.common.ProgramIndicatorSubqueryBuilder;
 import org.hisp.dhis.analytics.event.EnrollmentAnalyticsManager;
 import org.hisp.dhis.analytics.event.EventQueryParams;
+import org.hisp.dhis.category.CategoryOption;
+import org.hisp.dhis.common.DimensionItemType;
 import org.hisp.dhis.common.DimensionType;
 import org.hisp.dhis.common.DimensionalItemObject;
 import org.hisp.dhis.common.DimensionalObject;
@@ -90,7 +93,9 @@ public class JdbcEnrollmentAnalyticsManager extends AbstractJdbcEventAnalyticsMa
 
   private static final String ANALYTICS_EVENT = "analytics_event_";
 
-  private static final String ORDER_BY_EXECUTION_DATE = "order by executiondate ";
+  private static final String DIRECTION_PLACEHOLDER = "#DIRECTION_PLACEHOLDER";
+  private static final String ORDER_BY_EXECUTION_DATE =
+      "order by executiondate " + DIRECTION_PLACEHOLDER + ", created " + DIRECTION_PLACEHOLDER;
 
   private static final String LIMIT_1 = "limit 1";
 
@@ -127,7 +132,10 @@ public class JdbcEnrollmentAnalyticsManager extends AbstractJdbcEventAnalyticsMa
 
   @Override
   public void getEnrollments(EventQueryParams params, Grid grid, int maxLimit) {
-    String sql = getEventsOrEnrollmentsSql(params, maxLimit);
+    String sql =
+        params.isAggregatedEnrollments()
+            ? getAggregatedEnrollmentsSql(grid.getHeaders(), params)
+            : getAggregatedEnrollmentsSql(params, maxLimit);
 
     if (params.analyzeOnly()) {
       withExceptionHandling(
@@ -207,7 +215,7 @@ public class JdbcEnrollmentAnalyticsManager extends AbstractJdbcEventAnalyticsMa
 
         ValueStatus valueStatus = ValueStatus.of(isDefined, isSet);
 
-        if (valueStatus != ValueStatus.NOT_DEFINED) {
+        if (valueStatus == ValueStatus.SET) {
           return true;
         }
 
@@ -339,17 +347,24 @@ public class JdbcEnrollmentAnalyticsManager extends AbstractJdbcEventAnalyticsMa
     }
 
     // ---------------------------------------------------------------------
-    // Organisation unit group sets
+    // Categories (enrollments don't have attribute categories)
     // ---------------------------------------------------------------------
 
     List<DimensionalObject> dynamicDimensions =
         params.getDimensionsAndFilters(Sets.newHashSet(DimensionType.CATEGORY));
 
     for (DimensionalObject dim : dynamicDimensions) {
-      String col = quoteAlias(dim.getDimensionName());
+      if (!isAttributeCategory(dim)) {
+        String col = quoteAlias(dim.getDimensionName());
 
-      sql += "and " + col + " in (" + getQuotedCommaDelimitedString(getUids(dim.getItems())) + ") ";
+        sql +=
+            "and " + col + " in (" + getQuotedCommaDelimitedString(getUids(dim.getItems())) + ") ";
+      }
     }
+
+    // ---------------------------------------------------------------------
+    // Organisation unit group sets
+    // ---------------------------------------------------------------------
 
     dynamicDimensions =
         params.getDimensionsAndFilters(Sets.newHashSet(DimensionType.ORGANISATION_UNIT_GROUP_SET));
@@ -437,7 +452,10 @@ public class JdbcEnrollmentAnalyticsManager extends AbstractJdbcEventAnalyticsMa
 
   @Override
   protected String getSelectClause(EventQueryParams params) {
-    List<String> selectCols = ListUtils.distinctUnion(COLUMNS, getSelectColumns(params, false));
+    List<String> selectCols =
+        ListUtils.distinctUnion(
+            params.isAggregatedEnrollments() ? List.of("pi") : COLUMNS,
+            getSelectColumns(params, false));
 
     return "select " + StringUtils.join(selectCols, ",") + " ";
   }
@@ -508,8 +526,9 @@ public class JdbcEnrollmentAnalyticsManager extends AbstractJdbcEventAnalyticsMa
               + colName
               + IS_NOT_NULL
               + psCondition
-              + ORDER_BY_EXECUTION_DATE
-              + createOrderTypeAndOffset(item.getProgramStageOffset())
+              + createOrderType(item.getProgramStageOffset())
+              + " "
+              + createOffset(item.getProgramStageOffset())
               + " "
               + LIMIT_1
               + " )",
@@ -560,8 +579,9 @@ public class JdbcEnrollmentAnalyticsManager extends AbstractJdbcEventAnalyticsMa
             + getExecutionDateFilter(
                 item.getRepeatableStageParams().getStartDate(),
                 item.getRepeatableStageParams().getEndDate())
-            + ORDER_BY_EXECUTION_DATE
-            + createOrderTypeAndOffset(item.getProgramStageOffset())
+            + createOrderType(item.getProgramStageOffset())
+            + " "
+            + createOffset(item.getProgramStageOffset())
             + getLimit(item.getRepeatableStageParams().getCount())
             + " ) as t1)";
       }
@@ -582,8 +602,9 @@ public class JdbcEnrollmentAnalyticsManager extends AbstractJdbcEventAnalyticsMa
             + getExecutionDateFilter(
                 item.getRepeatableStageParams().getStartDate(),
                 item.getRepeatableStageParams().getEndDate())
-            + ORDER_BY_EXECUTION_DATE
-            + createOrderTypeAndOffset(item.getProgramStageOffset())
+            + createOrderType(item.getProgramStageOffset())
+            + " "
+            + createOffset(item.getProgramStageOffset())
             + " "
             + LIMIT_1
             + " )";
@@ -609,11 +630,14 @@ public class JdbcEnrollmentAnalyticsManager extends AbstractJdbcEventAnalyticsMa
           + "and ps = '"
           + item.getProgramStage().getUid()
           + "' "
-          + ORDER_BY_EXECUTION_DATE
-          + createOrderTypeAndOffset(item.getProgramStageOffset())
+          + createOrderType(item.getProgramStageOffset())
+          + " "
+          + createOffset(item.getProgramStageOffset())
           + " "
           + LIMIT_1
           + " )";
+    } else if (isOrganizationUnitProgramAttribute(item)) {
+      return quoteAlias(colName + suffix);
     } else {
       return quoteAlias(colName);
     }
@@ -627,6 +651,30 @@ public class JdbcEnrollmentAnalyticsManager extends AbstractJdbcEventAnalyticsMa
   @Override
   protected String getColumn(QueryItem item) {
     return getColumn(item, "");
+  }
+
+  /**
+   * Returns true if the item is a program attribute and the value type is an organizational unit.
+   *
+   * @param item the {@link QueryItem}.
+   */
+  private boolean isOrganizationUnitProgramAttribute(QueryItem item) {
+    return item.getValueType() == ValueType.ORGANISATION_UNIT
+        && item.getItem().getDimensionItemType() == DimensionItemType.PROGRAM_ATTRIBUTE;
+  }
+
+  /**
+   * Is a category dimension an attribute category (rather than a disaggregation category)?
+   * Attribute categories are not included in enrollment tables, so category user dimension
+   * restrictions (which use attribute categories) do not apply.
+   */
+  private boolean isAttributeCategory(DimensionalObject categoryDim) {
+    return ((CategoryOption) categoryDim.getItems().get(0))
+            .getCategories()
+            .iterator()
+            .next()
+            .getDataDimensionType()
+        == ATTRIBUTE;
   }
 
   private static String getExecutionDateFilter(Date startDate, Date endDate) {
@@ -667,14 +715,26 @@ public class JdbcEnrollmentAnalyticsManager extends AbstractJdbcEventAnalyticsMa
     return AnalyticsType.ENROLLMENT;
   }
 
-  private String createOrderTypeAndOffset(int offset) {
+  private String createOffset(int offset) {
     if (offset == 0) {
-      return "desc";
+      return EMPTY;
+    }
+
+    if (offset < 0) {
+      return "offset " + (-1 * offset);
+    } else {
+      return "offset " + (offset - 1);
+    }
+  }
+
+  private String createOrderType(int offset) {
+    if (offset == 0) {
+      return ORDER_BY_EXECUTION_DATE.replace(DIRECTION_PLACEHOLDER, "desc");
     }
     if (offset < 0) {
-      return "desc offset " + (-1 * offset);
+      return ORDER_BY_EXECUTION_DATE.replace(DIRECTION_PLACEHOLDER, "desc");
     } else {
-      return "asc offset " + (offset - 1);
+      return ORDER_BY_EXECUTION_DATE.replace(DIRECTION_PLACEHOLDER, "asc");
     }
   }
 }

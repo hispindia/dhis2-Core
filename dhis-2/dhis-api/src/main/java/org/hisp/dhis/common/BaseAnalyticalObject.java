@@ -122,6 +122,15 @@ public abstract class BaseAnalyticalObject extends BaseNameableObject implements
 
   public static final int NONE = 0;
 
+  private static final BaseDimensionalItemObject USER_OU_ITEM_OBJ =
+      buildDimItemObj(KEY_USER_ORGUNIT, "User organisation unit");
+
+  private static final BaseDimensionalItemObject USER_OU_CHILDREN_ITEM_OBJ =
+      buildDimItemObj(KEY_USER_ORGUNIT_CHILDREN, "User organisation unit children");
+
+  private static final BaseDimensionalItemObject USER_OU_GRANDCHILDREN_ITEM_OBJ =
+      buildDimItemObj(KEY_USER_ORGUNIT_GRANDCHILDREN, "User organisation unit grand children");
+
   public static final String NOT_A_VALID_DIMENSION = "Not a valid dimension: %s";
 
   // -------------------------------------------------------------------------
@@ -139,6 +148,8 @@ public abstract class BaseAnalyticalObject extends BaseNameableObject implements
   private Date endDate;
 
   protected RelativePeriods relatives;
+
+  protected List<String> rawRelativePeriods = new ArrayList<>();
 
   protected List<DataElementGroupSetDimension> dataElementGroupSetDimensions = new ArrayList<>();
 
@@ -240,6 +251,19 @@ public abstract class BaseAnalyticalObject extends BaseNameableObject implements
       List<OrganisationUnit> organisationUnitsInGroups,
       I18nFormat format);
 
+  /**
+   * Returns the dimensional item object for the given dimension and name.
+   *
+   * @param uid the dimension uid.
+   * @param name the dimension name.
+   * @return the DimensionalObject.
+   */
+  private static BaseDimensionalItemObject buildDimItemObj(String uid, String name) {
+    BaseDimensionalItemObject itemObj = new BaseDimensionalItemObject(uid);
+    itemObj.setName(name);
+    return itemObj;
+  }
+
   @Override
   public abstract void populateAnalyticalProperties();
 
@@ -251,7 +275,7 @@ public abstract class BaseAnalyticalObject extends BaseNameableObject implements
   }
 
   public boolean hasRelativePeriods() {
-    return relatives != null && !relatives.isEmpty();
+    return rawRelativePeriods != null && !rawRelativePeriods.isEmpty();
   }
 
   public boolean hasOrganisationUnitLevels() {
@@ -625,10 +649,8 @@ public abstract class BaseAnalyticalObject extends BaseNameableObject implements
       List<Period> periodList = new ArrayList<>(periods);
 
       if (hasRelativePeriods()) {
-        List<RelativePeriodEnum> list = relatives.getRelativePeriodEnums();
-
-        for (RelativePeriodEnum periodEnum : list) {
-          periodList.add(new Period(periodEnum));
+        for (String relPeriod : rawRelativePeriods) {
+          periodList.add(new Period(RelativePeriodEnum.valueOf(relPeriod)));
         }
       }
 
@@ -639,15 +661,15 @@ public abstract class BaseAnalyticalObject extends BaseNameableObject implements
       ouList.addAll(transientOrganisationUnits);
 
       if (userOrganisationUnit) {
-        ouList.add(new BaseDimensionalItemObject(KEY_USER_ORGUNIT));
+        ouList.add(USER_OU_ITEM_OBJ);
       }
 
       if (userOrganisationUnitChildren) {
-        ouList.add(new BaseDimensionalItemObject(KEY_USER_ORGUNIT_CHILDREN));
+        ouList.add(USER_OU_CHILDREN_ITEM_OBJ);
       }
 
       if (userOrganisationUnitGrandChildren) {
-        ouList.add(new BaseDimensionalItemObject(KEY_USER_ORGUNIT_GRANDCHILDREN));
+        ouList.add(USER_OU_GRANDCHILDREN_ITEM_OBJ);
       }
 
       if (organisationUnitLevels != null && !organisationUnitLevels.isEmpty()) {
@@ -936,11 +958,37 @@ public abstract class BaseAnalyticalObject extends BaseNameableObject implements
   @JsonProperty(value = "relativePeriods")
   @JacksonXmlProperty(localName = "relativePeriods", namespace = DxfNamespaces.DXF_2_0)
   public RelativePeriods getRelatives() {
+    if (relatives == null) {
+      List<RelativePeriodEnum> enums = new ArrayList<>();
+
+      if (rawRelativePeriods != null) {
+        for (String relativePeriod : rawRelativePeriods) {
+          if (RelativePeriodEnum.contains(relativePeriod)) {
+            enums.add(RelativePeriodEnum.valueOf(relativePeriod));
+          }
+        }
+      }
+
+      return new RelativePeriods().setRelativePeriodsFromEnums(enums);
+    }
+
     return relatives;
   }
 
   public void setRelatives(RelativePeriods relatives) {
     this.relatives = relatives;
+  }
+
+  @JsonProperty
+  @JsonIgnore
+  @JacksonXmlElementWrapper(localName = "rawRelativePeriods", namespace = DxfNamespaces.DXF_2_0)
+  @JacksonXmlProperty(localName = "rawRelativePeriods", namespace = DxfNamespaces.DXF_2_0)
+  public List<String> getRawRelativePeriods() {
+    return rawRelativePeriods;
+  }
+
+  public void setRawRelativePeriods(List<String> rawRelativePeriods) {
+    this.rawRelativePeriods = rawRelativePeriods;
   }
 
   @JsonProperty

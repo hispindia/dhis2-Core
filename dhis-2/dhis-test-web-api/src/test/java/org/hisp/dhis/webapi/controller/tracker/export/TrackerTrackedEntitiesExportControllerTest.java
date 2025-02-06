@@ -27,6 +27,7 @@
  */
 package org.hisp.dhis.webapi.controller.tracker.export;
 
+import static org.hisp.dhis.trackedentity.TrackerOwnershipManager.OWNERSHIP_ACCESS_DENIED;
 import static org.hisp.dhis.utils.Assertions.assertContains;
 import static org.hisp.dhis.webapi.controller.tracker.JsonAssertions.assertFirstRelationship;
 import static org.hisp.dhis.webapi.controller.tracker.JsonAssertions.assertHasMember;
@@ -115,10 +116,13 @@ class TrackerTrackedEntitiesExportControllerTest extends DhisControllerConvenien
     user.setTeiSearchOrganisationUnits(Set.of(orgUnit));
     this.userService.updateUser(user);
 
+    trackedEntityType = trackedEntityTypeAccessible();
+
     program = createProgram('A');
     program.addOrganisationUnit(orgUnit);
     program.getSharing().setOwner(owner);
     program.getSharing().addUserAccess(userAccess());
+    program.setTrackedEntityType(trackedEntityType);
     manager.save(program, false);
 
     TrackedEntityAttribute attr = createTrackedEntityAttribute('A');
@@ -129,8 +133,6 @@ class TrackerTrackedEntitiesExportControllerTest extends DhisControllerConvenien
     programStage.getSharing().setOwner(owner);
     programStage.getSharing().addUserAccess(userAccess());
     manager.save(programStage, false);
-
-    trackedEntityType = trackedEntityTypeAccessible();
   }
 
   @Test
@@ -273,7 +275,7 @@ class TrackerTrackedEntitiesExportControllerTest extends DhisControllerConvenien
         GET("/tracker/trackedEntities/{id}?fields=relationships", from.getUid())
             .error(HttpStatus.CONFLICT)
             .getMessage()
-            .contains("User has no read access to organisation unit"));
+            .contains(OWNERSHIP_ACCESS_DENIED));
   }
 
   @Test
@@ -287,7 +289,7 @@ class TrackerTrackedEntitiesExportControllerTest extends DhisControllerConvenien
         GET("/tracker/trackedEntities/{id}?fields=relationships", from.getUid())
             .error(HttpStatus.CONFLICT)
             .getMessage()
-            .contains("User has no read access to organisation unit"));
+            .contains(OWNERSHIP_ACCESS_DENIED));
   }
 
   @Test
@@ -313,6 +315,43 @@ class TrackerTrackedEntitiesExportControllerTest extends DhisControllerConvenien
   }
 
   @Test
+  void getTrackedEntityCsvById() {
+    TrackedEntityInstance te = trackedEntityInstance();
+
+    this.switchContextToUser(user);
+
+    WebClient.HttpResponse response =
+        GET(
+            "/tracker/trackedEntities/{id}",
+            te.getUid(),
+            WebClient.Accept(ContextUtils.CONTENT_TYPE_CSV));
+
+    String csvResponse = response.content(ContextUtils.CONTENT_TYPE_CSV);
+
+    assertTrue(response.header("content-type").contains(ContextUtils.CONTENT_TYPE_CSV));
+    assertTrue(response.header("content-disposition").contains("filename=trackedEntity.csv"));
+    assertEquals(trackedEntityToCsv(te), csvResponse);
+  }
+
+  String trackedEntityToCsv(TrackedEntityInstance te) {
+    return "trackedEntity,trackedEntityType,createdAt,createdAtClient,updatedAt,updatedAtClient,orgUnit,inactive,deleted,potentialDuplicate,geometry,latitude,longitude,storedBy,createdBy,updatedBy,attrCreatedAt,attrUpdatedAt,attribute,displayName,value,valueType\n"
+        .concat(
+            String.join(
+                ",",
+                te.getUid(),
+                te.getTrackedEntityType().getUid(),
+                DateUtils.instantFromDate(te.getCreated()).toString(),
+                DateUtils.instantFromDate(te.getCreatedAtClient()).toString(),
+                DateUtils.instantFromDate(te.getLastUpdated()).toString(),
+                DateUtils.instantFromDate(te.getLastUpdatedAtClient()).toString(),
+                te.getOrganisationUnit().getUid(),
+                Boolean.toString(te.isInactive()),
+                Boolean.toString(te.isDeleted()),
+                Boolean.toString(te.isPotentialDuplicate()),
+                ",,,,,,,,,,," + "\n"));
+  }
+
+  @Test
   void getTrackedEntityReturnsCsvFormat() {
     WebClient.HttpResponse response =
         GET(
@@ -326,9 +365,7 @@ class TrackerTrackedEntitiesExportControllerTest extends DhisControllerConvenien
         () -> assertTrue(response.header("content-type").contains(ContextUtils.CONTENT_TYPE_CSV)),
         () ->
             assertTrue(
-                response
-                    .header("content-disposition")
-                    .contains("filename=\"trackedEntities.csv\"")),
+                response.header("content-disposition").contains("filename=trackedEntities.csv")),
         () ->
             assertTrue(response.content().toString().contains("trackedEntity,trackedEntityType")));
   }
@@ -350,7 +387,7 @@ class TrackerTrackedEntitiesExportControllerTest extends DhisControllerConvenien
             assertTrue(
                 response
                     .header("content-disposition")
-                    .contains("filename=\"trackedEntities.csv.zip\"")));
+                    .contains("filename=trackedEntities.csv.zip")));
   }
 
   @Test
@@ -371,7 +408,7 @@ class TrackerTrackedEntitiesExportControllerTest extends DhisControllerConvenien
             assertTrue(
                 response
                     .header("content-disposition")
-                    .contains("filename=\"trackedEntities.csv.gz\"")));
+                    .contains("filename=trackedEntities.csv.gz")));
   }
 
   @Test
@@ -489,6 +526,60 @@ class TrackerTrackedEntitiesExportControllerTest extends DhisControllerConvenien
     assertHasNoMember(event, "relationships");
   }
 
+  @Test
+  void shouldFailWhenRequestingTEIAndTrackedEntityTypeNotAccessible() {
+    User unauthorizedUser = createUserWithId("unauthorized", CodeGenerator.generateUid());
+    this.userService.updateUser(unauthorizedUser);
+    this.switchContextToUser(unauthorizedUser);
+    TrackedEntityInstance trackedEntityInstance = trackedEntityInstance();
+
+    assertContains(
+        "User has no data read access to tracked entity type",
+        GET("/tracker/trackedEntities/{trackedEntityInstance}", trackedEntityInstance.getUid())
+            .error(HttpStatus.CONFLICT)
+            .getMessage());
+  }
+
+  @Test
+  void shouldFailWhenRequestingTEIAndNoProgramAccessible() {
+    User unauthorizedUser = createUserWithId("unauthorized", CodeGenerator.generateUid());
+    this.userService.updateUser(unauthorizedUser);
+    TrackedEntityType trackedEntityType = trackedEntityType('T', unauthorizedUser);
+    TrackedEntityInstance trackedEntityInstance = trackedEntityInstance(trackedEntityType);
+
+    this.switchContextToUser(unauthorizedUser);
+
+    assertContains(
+        "User has no access to any program",
+        GET("/tracker/trackedEntities/{trackedEntityInstance}", trackedEntityInstance.getUid())
+            .error(HttpStatus.CONFLICT)
+            .getMessage());
+  }
+
+  @Test
+  void shouldReturnTrackedEntityInstanceWhenAtLeastOneProgramAccessible() {
+    User authorizedUser = createUserWithId("authorized", CodeGenerator.generateUid());
+    authorizedUser.addOrganisationUnit(orgUnit);
+    authorizedUser.setTeiSearchOrganisationUnits(Set.of(orgUnit));
+    this.userService.updateUser(authorizedUser);
+    TrackedEntityType trackedEntityType = trackedEntityType('T', authorizedUser);
+    TrackedEntityInstance trackedEntityInstance = trackedEntityInstance(trackedEntityType);
+    Program program = createProgram('P');
+    program.addOrganisationUnit(orgUnit);
+    program.getSharing().setOwner(authorizedUser);
+    program.getSharing().addUserAccess(userAccess(authorizedUser));
+    program.setTrackedEntityType(trackedEntityType);
+    manager.save(program, false);
+
+    this.switchContextToUser(authorizedUser);
+
+    JsonObject json =
+        GET("/tracker/trackedEntities/{id}", trackedEntityInstance.getUid()).content(HttpStatus.OK);
+
+    assertFalse(json.isEmpty());
+    assertEquals(trackedEntityInstance.getUid(), json.getString("trackedEntity").string());
+  }
+
   private ProgramStageInstance programStageInstanceWithDataValue(ProgramInstance programInstance) {
     ProgramStageInstance programStageInstance =
         new ProgramStageInstance(
@@ -601,6 +692,15 @@ class TrackerTrackedEntitiesExportControllerTest extends DhisControllerConvenien
     return type;
   }
 
+  private TrackedEntityType trackedEntityType(char uniqueChar, User user) {
+    TrackedEntityType type = createTrackedEntityType(uniqueChar);
+    type.getSharing().setOwner(user);
+    type.getSharing().setPublicAccess(AccessStringHelper.DEFAULT);
+    type.getSharing().addUserAccess(userAccess(user));
+    manager.save(type, false);
+    return type;
+  }
+
   private TrackedEntityInstance trackedEntityInstance() {
     TrackedEntityInstance tei = trackedEntityInstance(orgUnit);
     manager.save(tei, false);
@@ -633,6 +733,13 @@ class TrackerTrackedEntitiesExportControllerTest extends DhisControllerConvenien
   }
 
   private UserAccess userAccess() {
+    UserAccess a = new UserAccess();
+    a.setUser(user);
+    a.setAccess(AccessStringHelper.FULL);
+    return a;
+  }
+
+  private UserAccess userAccess(User user) {
     UserAccess a = new UserAccess();
     a.setUser(user);
     a.setAccess(AccessStringHelper.FULL);

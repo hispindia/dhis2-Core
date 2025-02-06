@@ -52,10 +52,7 @@ class SpringBindingTest {
 
   @BeforeEach
   public void setUp() {
-    mockMvc =
-        MockMvcBuilders.standaloneSetup(new BindingController())
-            .setControllerAdvice(new CrudControllerAdvice())
-            .build();
+    mockMvc = MockMvcBuilders.standaloneSetup(new BindingController()).build();
   }
 
   @Test
@@ -67,7 +64,7 @@ class SpringBindingTest {
             content()
                 .string(
                     containsString(
-                        "Value INVALID is not valid for parameter simpleEnum. Valid values are: [YES, NO]")));
+                        "Value 'INVALID' is not valid for parameter simpleEnum. Valid values are: [YES, NO]")));
   }
 
   @Test
@@ -80,7 +77,7 @@ class SpringBindingTest {
             content()
                 .string(
                     containsString(
-                        "Value INVALID is not valid for parameter simpleEnumInCriteria. Valid values are: [YES, NO]")));
+                        "Value 'INVALID' is not valid for parameter simpleEnumInCriteria. Valid values are: [YES, NO]")));
   }
 
   @Test
@@ -93,7 +90,7 @@ class SpringBindingTest {
             content()
                 .string(
                     containsString(
-                        "Value INVALID is not valid for parameter doubleNumber. It should be of type double")));
+                        "Value 'INVALID' is not valid for parameter doubleNumber. It should be of type double")));
   }
 
   @Test
@@ -106,7 +103,7 @@ class SpringBindingTest {
             content()
                 .string(
                     containsString(
-                        "Value 10.5 is not valid for parameter integerNumber. For input string: \"10.5\"")));
+                        "Value '10.5' is not valid for parameter integerNumber. For input string: \"10.5\"")));
   }
 
   @Test
@@ -119,7 +116,7 @@ class SpringBindingTest {
             content()
                 .string(
                     containsString(
-                        "Value INVALID is not valid for parameter date. Invalid format: \"INVALID\"")));
+                        "Value 'INVALID' is not valid for parameter date. Invalid format: \"INVALID\"")));
   }
 
   @Test
@@ -132,7 +129,7 @@ class SpringBindingTest {
             content()
                 .string(
                     containsString(
-                        "Value INVALID is not valid for parameter booleanValue. Invalid boolean value [INVALID]")));
+                        "Value 'INVALID' is not valid for parameter booleanValue. Invalid boolean value [INVALID]")));
   }
 
   @Controller

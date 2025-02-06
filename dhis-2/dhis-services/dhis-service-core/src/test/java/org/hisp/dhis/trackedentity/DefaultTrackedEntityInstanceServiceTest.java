@@ -27,17 +27,18 @@
  */
 package org.hisp.dhis.trackedentity;
 
+import static org.hisp.dhis.DhisConvenienceTest.createOrganisationUnit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
 import org.hisp.dhis.common.IllegalQueryException;
 import org.hisp.dhis.common.OrganisationUnitSelectionMode;
-import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.program.Program;
+import org.hisp.dhis.program.ProgramService;
 import org.hisp.dhis.security.acl.AclService;
 import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValueAuditService;
 import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValueService;
@@ -66,6 +67,8 @@ class DefaultTrackedEntityInstanceServiceTest {
 
   @Mock private AclService aclService;
 
+  @Mock private ProgramService programService;
+
   @Mock private TrackerOwnershipManager trackerOwnershipAccessManager;
 
   @Mock private TrackedEntityInstanceAuditService trackedEntityInstanceAuditService;
@@ -87,13 +90,14 @@ class DefaultTrackedEntityInstanceServiceTest {
             organisationUnitService,
             currentUserService,
             aclService,
+            programService,
             trackerOwnershipAccessManager,
             trackedEntityInstanceAuditService,
             attributeValueAuditService);
 
     User user = new User();
-    user.setOrganisationUnits(Set.of(new OrganisationUnit("A")));
-    user.setTeiSearchOrganisationUnits(Set.of(new OrganisationUnit("B")));
+    user.setOrganisationUnits(Set.of(createOrganisationUnit('A')));
+    user.setTeiSearchOrganisationUnits(Set.of(createOrganisationUnit('B')));
     when(currentUserService.getCurrentUser()).thenReturn(user);
 
     params = new TrackedEntityInstanceQueryParams();

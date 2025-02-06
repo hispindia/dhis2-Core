@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.core.io.Resource;
 
@@ -151,9 +152,17 @@ public interface AppManager {
    *
    * @param file the app file.
    * @param fileName the name of the app file.
-   * @throws IOException if the app manifest file could not be read.
+   * @return outcome of the installation
    */
   AppStatus installApp(File file, String fileName);
+
+  /**
+   * Installs an app from the AppHub with the given ID.
+   *
+   * @param appHubId A unqiue ID for a specific app version
+   * @return outcome of the installation
+   */
+  AppStatus installApp(UUID appHubId);
 
   /**
    * Indicates whether the app with the given name exist.
@@ -205,6 +214,8 @@ public interface AppManager {
    * @return true if the status was changed in this method.
    */
   boolean markAppToDelete(App app);
+
+  int getUriContentLength(Resource resource);
 
   // -------------------------------------------------------------------------
   // Static methods for manipulating a collection of apps
@@ -267,8 +278,9 @@ public interface AppManager {
    *
    * @return list of installed apps with given isBundled property
    */
-  public static List<App> filterAppsByPluginType(String pluginType, Collection<App> apps) {
+  static List<App> filterAppsByPluginType(String pluginType, Collection<App> apps) {
     return apps.stream()
+        .filter(app -> app.getPluginType() != null)
         .filter(app -> app.getPluginType().equals(pluginType))
         .collect(Collectors.toList());
   }

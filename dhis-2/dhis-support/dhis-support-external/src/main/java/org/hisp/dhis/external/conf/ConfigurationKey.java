@@ -192,7 +192,8 @@ public enum ConfigurationKey {
   LDAP_SEARCH_FILTER("ldap.search.filter", "(cn={0})", false),
 
   /**
-   * File store provider, currently 'filesystem' and 'aws-s3' are supported. (default: filesystem)
+   * File store provider, currently 'filesystem', 'aws-s3' and 's3' are supported. (default:
+   * filesystem)
    */
   FILESTORE_PROVIDER("filestore.provider", "filesystem", false),
 
@@ -204,6 +205,8 @@ public enum ConfigurationKey {
 
   /** Datacenter location (not required). */
   FILESTORE_LOCATION("filestore.location", "", false),
+
+  FILESTORE_ENDPOINT("filestore.endpoint", "", false),
 
   /** Public identity / username. */
   FILESTORE_IDENTITY("filestore.identity", "", false),
@@ -269,6 +272,21 @@ public enum ConfigurationKey {
 
   /** Use unlogged tables during analytics export. (default: off) */
   ANALYTICS_TABLE_UNLOGGED("analytics.table.unlogged", Constants.OFF),
+
+  /** Order analytics tables data on insert. */
+  ANALYTICS_TABLE_ORDERING("analytics.table.ordering", Constants.OFF),
+
+  /**
+   * Skip building indexes for dimensional columns on analytics tables for the comma-separated list
+   * of dimension identifiers. Experimental.
+   */
+  ANALYTICS_TABLE_SKIP_INDEX("analytics.table.skip_index", "", false),
+
+  /**
+   * Skip creating columns for analytics tables for the comma-separated list of dimensional
+   * identifiers. Experimental.
+   */
+  ANALYTICS_TABLE_SKIP_COLUMN("analytics.table.skip_column", "", false),
 
   /**
    * Artemis support mode, 2 modes supported: EMBEDDED (starts up an embedded Artemis which lives in
@@ -465,7 +483,7 @@ public enum ConfigurationKey {
   /** Database debugging feature. Enable time query logging. */
   ELAPSED_TIME_QUERY_LOGGING_ENABLED("elapsed.time.query.logging.enabled", Constants.OFF, false),
 
-  /** Database datasource pool type. Supported pool types are: c3p0 (default) or hikari */
+  /** Database datasource pool type. Supported pool types are: c3p0 (default), hikari, unpooled */
   DB_POOL_TYPE("db.pool.type", "c3p0", false),
 
   ACTIVE_READ_REPLICAS("active.read.replicas", "0", false),
@@ -542,9 +560,14 @@ public enum ConfigurationKey {
   LINKED_ACCOUNTS_ENABLED("linked_accounts.enabled", Constants.OFF, false),
 
   LINKED_ACCOUNTS_RELOGIN_URL("linked_accounts.relogin_url", "", false),
+
+  LINKED_ACCOUNTS_LOGOUT_URL("linked_accounts.logout_url", "", false),
+
   SWITCH_USER_FEATURE_ENABLED("switch_user_feature.enabled", Constants.OFF, false),
   SWITCH_USER_ALLOW_LISTED_IPS(
-      "switch_user_allow_listed_ips", "localhost,127.0.0.1,[0:0:0:0:0:0:0:1]", false);
+      "switch_user_allow_listed_ips", "localhost,127.0.0.1,[0:0:0:0:0:0:0:1]", false),
+
+  MAX_FILE_UPLOAD_SIZE_BYTES("max.file_upload_size", Integer.toString(10_000_000), false);
 
   private final String key;
 

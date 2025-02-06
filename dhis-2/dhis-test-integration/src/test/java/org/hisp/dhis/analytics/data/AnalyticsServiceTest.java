@@ -854,7 +854,7 @@ class AnalyticsServiceTest extends SingleSetupIntegrationTestBase {
         "#{" + deB.getUid() + "." + ocDef.getUid() + "}");
 
     assertDataValues(
-        Map.of("indicatorAA-2017Q1", 29.8),
+        Map.of("indicatorAA-2017Q1", 29.79),
         DataQueryParams.newBuilder()
             .withIndicators(List.of(inA))
             .withAggregationType(AnalyticsAggregationType.SUM)
@@ -877,7 +877,7 @@ class AnalyticsServiceTest extends SingleSetupIntegrationTestBase {
             + ".REPORTING_RATE} / 100)");
 
     assertDataValues(
-        Map.of("indicatorAA-ouabcdefghD-2017Q1", 199.4),
+        Map.of("indicatorAA-ouabcdefghD-2017Q1", 199.34),
         DataQueryParams.newBuilder()
             .withOrganisationUnit(ouD)
             .withIndicators(List.of(inA))
@@ -901,7 +901,7 @@ class AnalyticsServiceTest extends SingleSetupIntegrationTestBase {
             + ".REPORTING_RATE} / 100)");
 
     assertDataValues(
-        Map.of("indicatorAA-ouabcdefghD-2017Q1", 99.6),
+        Map.of("indicatorAA-ouabcdefghD-2017Q1", 99.66),
         DataQueryParams.newBuilder()
             .withOrganisationUnit(ouD)
             .withIndicators(List.of(inA))
@@ -1103,6 +1103,52 @@ class AnalyticsServiceTest extends SingleSetupIntegrationTestBase {
   }
 
   @Test
+  void testNestedIndicator() {
+    withIndicator(inA, "#{" + deA.getUid() + "}");
+    withIndicator(inB, "2 * N{" + inA.getUid() + "}");
+
+    assertDataValues(
+        Map.of(
+            "indicatorAA-201701",
+            75.0,
+            "indicatorAA-201702",
+            233.0,
+            "indicatorBB-201701",
+            150.0,
+            "indicatorBB-201702",
+            466.0),
+        DataQueryParams.newBuilder()
+            .withIndicators(List.of(inA, inB))
+            .withAggregationType(AnalyticsAggregationType.SUM)
+            .withPeriods(List.of(peJan, peFeb))
+            .withOutputFormat(OutputFormat.ANALYTICS)
+            .build());
+  }
+
+  @Test
+  void testNestedIndicatorWithPeriodOffset() {
+    withIndicator(inA, "#{" + deA.getUid() + "}");
+    withIndicator(inB, "N{" + inA.getUid() + "} + N{" + inA.getUid() + "}.periodOffset(-1)");
+
+    assertDataValues(
+        Map.of(
+            "indicatorAA-201701",
+            75.0,
+            "indicatorAA-201702",
+            233.0,
+            "indicatorBB-201701",
+            75.0,
+            "indicatorBB-201702",
+            308.0),
+        DataQueryParams.newBuilder()
+            .withIndicators(List.of(inA, inB))
+            .withAggregationType(AnalyticsAggregationType.SUM)
+            .withPeriods(List.of(peJan, peFeb))
+            .withOutputFormat(OutputFormat.ANALYTICS)
+            .build());
+  }
+
+  @Test
   void testIndicatorSubexpressionInteger() {
     withIndicator(inA, "subExpression( #{" + deE.getUid() + "} )");
 
@@ -1259,7 +1305,7 @@ class AnalyticsServiceTest extends SingleSetupIntegrationTestBase {
     assertDataValues(
         Map.of(
             "indicatorAA-ouabcdefghA-2017Q1", 2.6,
-            "indicatorAA-ouabcdefghB-2017Q1", 2.1),
+            "indicatorAA-ouabcdefghB-2017Q1", 2.08),
         DataQueryParams.newBuilder()
             .withOrganisationUnits(List.of(ouA, ouB))
             .withIndicators(List.of(inA))
@@ -1324,8 +1370,8 @@ class AnalyticsServiceTest extends SingleSetupIntegrationTestBase {
 
     assertDataValues(
         Map.of(
-            "indicatorAA-ouabcdefghA-2017Q1", 62.1,
-            "indicatorAA-ouabcdefghB-2017Q1", 101.0),
+            "indicatorAA-ouabcdefghA-2017Q1", 62.09,
+            "indicatorAA-ouabcdefghB-2017Q1", 100.97),
         DataQueryParams.newBuilder()
             .withOrganisationUnits(List.of(ouA, ouB))
             .withIndicators(List.of(inA))
@@ -1390,8 +1436,8 @@ class AnalyticsServiceTest extends SingleSetupIntegrationTestBase {
 
     assertDataValues(
         Map.of(
-            "indicatorAA-ouabcdefghA-2017Q1", 62.6,
-            "indicatorAA-ouabcdefghB-2017Q1", 101.6),
+            "indicatorAA-ouabcdefghA-2017Q1", 62.58,
+            "indicatorAA-ouabcdefghB-2017Q1", 101.61),
         DataQueryParams.newBuilder()
             .withOrganisationUnits(List.of(ouA, ouB))
             .withIndicators(List.of(inA))
@@ -1419,7 +1465,7 @@ class AnalyticsServiceTest extends SingleSetupIntegrationTestBase {
     assertDataValues(
         Map.of(
             "indicatorAA-ouabcdefghA-2017Q1", 3.6,
-            "indicatorAA-ouabcdefghB-2017Q1", 3.1),
+            "indicatorAA-ouabcdefghB-2017Q1", 3.08),
         DataQueryParams.newBuilder()
             .withOrganisationUnits(List.of(ouA, ouB))
             .withIndicators(List.of(inA))
@@ -1485,7 +1531,7 @@ class AnalyticsServiceTest extends SingleSetupIntegrationTestBase {
   @Test
   void test_reRate_2017_Q01_ouD() {
     assertDataValues(
-        Map.of("a23dataSetB.REPORTING_RATE-ouabcdefghD-2017Q1", 33.3),
+        Map.of("a23dataSetB.REPORTING_RATE-ouabcdefghD-2017Q1", 33.33),
         DataQueryParams.newBuilder()
             .withOrganisationUnit(ouD)
             .withReportingRates(List.of(reportingRateB))

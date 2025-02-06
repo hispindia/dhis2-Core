@@ -189,6 +189,7 @@ public enum ErrorCode {
   E3032("User `{0}` does not have access to user role"),
   E3040("Could not resolve JwsAlgorithm from the JWK. Can not write a valid JWKSet"),
   E3041("User `{0}` is not allowed to change a user having the ALL authority"),
+  E3042("Too many failed disable attempts. Please try again later"),
 
   /* Metadata Validation */
   E4000("Missing required property `{0}`"),
@@ -410,10 +411,12 @@ public enum ErrorCode {
   E7134("Cannot retrieve total value for data elements with skip total category combination"),
   E7135("Date time is not parsable: `{0}`"),
   E7136("Program is not specified"),
+  E7137("Expression is not parsable: `{0}`"),
   E7143("Organisation unit or organisation unit level is not valid"),
   E7144(
       "Query failed because a referenced table does not exist. Please ensure analytics job was run"),
   E7145("Query failed because of a syntax error"),
+  E7147("Query failed because of a missing column: `{0}`"),
 
   /* Event analytics */
   E7200(Constants.AT_LEAST_ONE_ORGANISATION_UNIT_MUST_BE_SPECIFIED),

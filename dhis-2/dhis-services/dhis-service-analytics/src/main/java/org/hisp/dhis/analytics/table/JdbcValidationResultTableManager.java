@@ -41,11 +41,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import org.hisp.dhis.analytics.AnalyticsExportSettings;
 import org.hisp.dhis.analytics.AnalyticsTable;
 import org.hisp.dhis.analytics.AnalyticsTableColumn;
 import org.hisp.dhis.analytics.AnalyticsTableHookService;
 import org.hisp.dhis.analytics.AnalyticsTablePartition;
+import org.hisp.dhis.analytics.AnalyticsTableSettings;
 import org.hisp.dhis.analytics.AnalyticsTableType;
 import org.hisp.dhis.analytics.AnalyticsTableUpdateParams;
 import org.hisp.dhis.analytics.partition.PartitionManager;
@@ -92,7 +92,7 @@ public class JdbcValidationResultTableManager extends AbstractJdbcTableManager {
       PartitionManager partitionManager,
       DatabaseInfo databaseInfo,
       JdbcTemplate jdbcTemplate,
-      AnalyticsExportSettings analyticsExportSettings,
+      AnalyticsTableSettings analyticsExportSettings,
       PeriodDataProvider periodDataProvider) {
     super(
         idObjectManager,
@@ -234,24 +234,24 @@ public class JdbcValidationResultTableManager extends AbstractJdbcTableManager {
     List<Category> attributeCategories = categoryService.getAttributeDataDimensionCategoriesNoAcl();
 
     for (OrganisationUnitGroupSet groupSet : orgUnitGroupSets) {
+      String name = quote(groupSet.getUid());
       columns.add(
           new AnalyticsTableColumn(
-                  quote(groupSet.getUid()), CHARACTER_11, "ougs." + quote(groupSet.getUid()))
-              .withCreated(groupSet.getCreated()));
+              name, CHARACTER_11, "ougs." + name, skipIndex(groupSet), groupSet.getCreated()));
     }
 
     for (OrganisationUnitLevel level : levels) {
       String column = quote(PREFIX_ORGUNITLEVEL + level.getLevel());
       columns.add(
-          new AnalyticsTableColumn(column, CHARACTER_11, "ous." + column)
-              .withCreated(level.getCreated()));
+          new AnalyticsTableColumn(
+              column, CHARACTER_11, "ous." + column, false, level.getCreated()));
     }
 
     for (Category category : attributeCategories) {
+      String name = quote(category.getUid());
       columns.add(
           new AnalyticsTableColumn(
-                  quote(category.getUid()), CHARACTER_11, "acs." + quote(category.getUid()))
-              .withCreated(category.getCreated()));
+              name, CHARACTER_11, "acs." + name, skipIndex(category), category.getCreated()));
     }
 
     for (PeriodType periodType : PeriodType.getAvailablePeriodTypes()) {

@@ -30,13 +30,14 @@ package org.hisp.dhis.webapi.controller.tracker.export;
 import static org.apache.commons.lang3.BooleanUtils.toBooleanDefaultIfNull;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.hisp.dhis.common.OrganisationUnitSelectionMode.ALL;
-import static org.hisp.dhis.trackedentity.TrackedEntityInstanceQueryParams.OrderColumn.findColumn;
+import static org.hisp.dhis.util.ObjectUtils.applyIfNotNull;
 import static org.hisp.dhis.webapi.controller.event.mapper.OrderParamsHelper.toOrderParams;
 import static org.hisp.dhis.webapi.controller.tracker.export.RequestParamUtils.applyIfNonEmpty;
 import static org.hisp.dhis.webapi.controller.tracker.export.RequestParamUtils.parseAndFilterUids;
 import static org.hisp.dhis.webapi.controller.tracker.export.RequestParamUtils.parseAttributeQueryItems;
 import static org.hisp.dhis.webapi.controller.tracker.export.RequestParamUtils.parseQueryFilter;
 import static org.hisp.dhis.webapi.controller.tracker.export.RequestParamUtils.parseUids;
+import static org.hisp.dhis.webapi.controller.tracker.export.RequestParamsValidator.validateOrderParams;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -62,6 +63,7 @@ import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramService;
 import org.hisp.dhis.program.ProgramStage;
 import org.hisp.dhis.security.Authorities;
+import org.hisp.dhis.security.acl.AclService;
 import org.hisp.dhis.trackedentity.TrackedEntityAttribute;
 import org.hisp.dhis.trackedentity.TrackedEntityAttributeService;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceQueryParams;
@@ -70,6 +72,9 @@ import org.hisp.dhis.trackedentity.TrackedEntityTypeService;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.webapi.controller.event.mapper.OrderParam;
+import org.hisp.dhis.webapi.controller.event.webrequest.OrderCriteria;
+import org.hisp.dhis.webapi.webdomain.EndDateTime;
+import org.hisp.dhis.webapi.webdomain.StartDateTime;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,6 +88,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Component("org.hisp.dhis.webapi.controller.tracker.export.TrackedEntityCriteriaMapper")
 @RequiredArgsConstructor
 public class TrackerTrackedEntityCriteriaMapper {
+
+  /**
+   * Tracked entities can be ordered by given fields which correspond to fields on {@link
+   * org.hisp.dhis.trackedentity.TrackedEntityInstance}. These user facing field names are
+   * translated to internal ones in {@link TrackedEntityInstanceQueryParams.OrderColumn}.
+   */
+  private static final Set<String> ORDERABLE_FIELD_NAMES =
+      Set.of(
+          "trackedEntity",
+          "createdAt",
+          "createdAtClient",
+          "updatedAt",
+          "updatedAtClient",
+          "enrolledAt",
+          "inactive");
+
   @Nonnull private final CurrentUserService currentUserService;
 
   @Nonnull private final OrganisationUnitService organisationUnitService;
@@ -93,12 +114,15 @@ public class TrackerTrackedEntityCriteriaMapper {
 
   @Nonnull private final TrackedEntityAttributeService attributeService;
 
+  @Nonnull private AclService aclService;
+
   @Transactional(readOnly = true)
   public TrackedEntityInstanceQueryParams map(TrackerTrackedEntityCriteria criteria)
       throws BadRequestException, ForbiddenException {
     Program program = applyIfNonEmpty(programService::getProgram, criteria.getProgram());
     validateProgram(criteria.getProgram(), program);
     ProgramStage programStage = validateProgramStage(criteria, program);
+    User user = currentUserService.getCurrentUser();
 
     TrackedEntityType trackedEntityType =
         applyIfNonEmpty(
@@ -107,7 +131,6 @@ public class TrackerTrackedEntityCriteriaMapper {
 
     Set<String> assignedUserIds = parseAndFilterUids(criteria.getAssignedUser());
 
-    User user = currentUserService.getCurrentUser();
     Set<String> orgUnitIds = parseUids(criteria.getOrgUnit());
 
     Set<OrganisationUnit> orgUnits = validateOrgUnits(user, orgUnitIds);
@@ -134,8 +157,8 @@ public class TrackerTrackedEntityCriteriaMapper {
 
     validateDuplicatedAttributeFilters(filters);
 
-    List<OrderParam> orderParams = toOrderParams(criteria.getOrder());
-    validateOrderParams(orderParams, attributes);
+    validateOrderBy(criteria.getRawOrder(), attributes);
+    List<OrderParam> orderParams = toOrderParams(criteria.getRawOrder());
 
     Set<String> trackedEntities = parseUids(criteria.getTrackedEntity());
 
@@ -146,19 +169,23 @@ public class TrackerTrackedEntityCriteriaMapper {
         .setProgramStage(programStage)
         .setProgramStatus(criteria.getProgramStatus())
         .setFollowUp(criteria.getFollowUp())
-        .setLastUpdatedStartDate(criteria.getUpdatedAfter())
-        .setLastUpdatedEndDate(criteria.getUpdatedBefore())
+        .setLastUpdatedStartDate(applyIfNotNull(criteria.getUpdatedAfter(), StartDateTime::toDate))
+        .setLastUpdatedEndDate(applyIfNotNull(criteria.getUpdatedBefore(), EndDateTime::toDate))
         .setLastUpdatedDuration(criteria.getUpdatedWithin())
-        .setProgramEnrollmentStartDate(criteria.getEnrollmentEnrolledAfter())
-        .setProgramEnrollmentEndDate(criteria.getEnrollmentEnrolledBefore())
-        .setProgramIncidentStartDate(criteria.getEnrollmentOccurredAfter())
-        .setProgramIncidentEndDate(criteria.getEnrollmentOccurredBefore())
+        .setProgramEnrollmentStartDate(
+            applyIfNotNull(criteria.getEnrollmentEnrolledAfter(), StartDateTime::toDate))
+        .setProgramEnrollmentEndDate(
+            applyIfNotNull(criteria.getEnrollmentEnrolledBefore(), EndDateTime::toDate))
+        .setProgramIncidentStartDate(
+            applyIfNotNull(criteria.getEnrollmentOccurredAfter(), StartDateTime::toDate))
+        .setProgramIncidentEndDate(
+            applyIfNotNull(criteria.getEnrollmentOccurredBefore(), EndDateTime::toDate))
         .setTrackedEntityType(trackedEntityType)
         .addOrganisationUnits(orgUnits)
         .setOrganisationUnitMode(criteria.getOuMode())
         .setEventStatus(criteria.getEventStatus())
-        .setEventStartDate(criteria.getEventOccurredAfter())
-        .setEventEndDate(criteria.getEventOccurredBefore())
+        .setEventStartDate(applyIfNotNull(criteria.getEventOccurredAfter(), StartDateTime::toDate))
+        .setEventEndDate(applyIfNotNull(criteria.getEventOccurredBefore(), EndDateTime::toDate))
         .setUserWithAssignedUsers(criteria.getAssignedUserMode(), user, assignedUserIds)
         .setTrackedEntityInstanceUids(trackedEntities)
         .setAttributes(attributeItems)
@@ -279,15 +306,31 @@ public class TrackerTrackedEntityCriteriaMapper {
     }
   }
 
-  private void validateOrderParams(
-      List<OrderParam> orderParams, Map<String, TrackedEntityAttribute> attributes)
+  private void validateOrderBy(
+      List<OrderCriteria> orderCriterias, Map<String, TrackedEntityAttribute> attributes)
       throws BadRequestException {
-    if (orderParams != null && !orderParams.isEmpty()) {
-      for (OrderParam orderParam : orderParams) {
-        if (findColumn(orderParam.getField()).isEmpty()
-            && !attributes.containsKey(orderParam.getField())) {
-          throw new BadRequestException("Invalid order property: " + orderParam.getField());
-        }
+    validateOrderParams(orderCriterias, ORDERABLE_FIELD_NAMES, "attribute");
+    validateOrderByAttributes(orderCriterias, attributes);
+  }
+
+  /**
+   * Validates that UID order parameters are existing attributes.
+   *
+   * <p>It assumes that anything that is not in our {@link #ORDERABLE_FIELD_NAMES} is a UID. This
+   * means {@link RequestParamsValidator#validateOrderParams(List, Set, String)} should have been
+   * called before this method.
+   */
+  private void validateOrderByAttributes(
+      List<OrderCriteria> orderCriterias, Map<String, TrackedEntityAttribute> attributes)
+      throws BadRequestException {
+    if (orderCriterias == null || orderCriterias.isEmpty()) {
+      return;
+    }
+
+    for (OrderCriteria orderCriteria : orderCriterias) {
+      if (!ORDERABLE_FIELD_NAMES.contains(orderCriteria.getField())
+          && !attributes.containsKey(orderCriteria.getField())) {
+        throw new BadRequestException("Invalid order property: " + orderCriteria.getField());
       }
     }
   }

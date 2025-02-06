@@ -27,11 +27,11 @@
  */
 package org.hisp.dhis.webapi.controller.security;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.conflict;
 import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.ok;
 import static org.hisp.dhis.dxf2.webmessage.WebMessageUtils.unauthorized;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -94,7 +94,7 @@ public class TwoFactorController {
     return Map.of("url", "url");
   }
 
-  @GetMapping(value = "/qrCode", produces = APPLICATION_OCTET_STREAM)
+  @GetMapping(value = "/qrCode", produces = APPLICATION_OCTET_STREAM_VALUE)
   @ResponseStatus(HttpStatus.ACCEPTED)
   public void generateQRCode(@CurrentUser User currentUser, HttpServletResponse response)
       throws IOException, WebMessageException {
@@ -193,7 +193,12 @@ public class TwoFactorController {
       throw new WebMessageException(conflict(ErrorCode.E3031.getMessage(), ErrorCode.E3031));
     }
 
+    if (defaultUserService.twoFaDisableIsLocked(currentUser.getUsername())) {
+      throw new WebMessageException(conflict(ErrorCode.E3042.getMessage(), ErrorCode.E3042));
+    }
+
     if (!verifyCode(code, currentUser)) {
+      defaultUserService.registerFailed2FADisableAttempt(currentUser.getUsername());
       return unauthorized(ErrorCode.E3023.getMessage());
     }
 

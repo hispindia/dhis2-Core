@@ -27,6 +27,9 @@
  */
 package org.hisp.dhis.security.ldap.authentication;
 
+import static java.lang.String.format;
+
+import lombok.extern.slf4j.Slf4j;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +46,7 @@ import org.springframework.security.ldap.authentication.BindAuthenticator;
  *
  * @author Lars Helge Overland
  */
+@Slf4j
 public class DhisBindAuthenticator extends BindAuthenticator {
   @Autowired private UserService userService;
 
@@ -53,17 +57,34 @@ public class DhisBindAuthenticator extends BindAuthenticator {
   @Override
   public DirContextOperations authenticate(Authentication authentication) {
     User user = userService.getUserByUsername(authentication.getName());
-
     if (user == null) {
       throw new BadCredentialsException("Incorrect user credentials");
     }
 
-    if (user.hasLdapId()) {
+    if (user.hasLdapId() && user.isExternalAuth()) {
+      log.debug(
+          "LDAP authentication attempt with username: '{}' and LDAP ID: '{}'",
+          user.getUsername(),
+          user.getLdapId());
       authentication =
           new UsernamePasswordAuthenticationToken(
               user.getLdapId(), authentication.getCredentials());
+    } else {
+      String msg =
+          format(
+              "Could not bind user to LDAP host due to missing LDAP ID or external auth: '%s'",
+              user.getUsername());
+      throw new BadCredentialsException(msg);
     }
 
     return super.authenticate(authentication);
+  }
+
+  @Override
+  public void handleBindException(String userDn, String username, Throwable cause) {
+    String msg =
+        format("Failed to bind to LDAP host with DN: '%s' and username: '%s'", userDn, username);
+    log.warn(msg, cause);
+    log.debug("LDAP user bind failed", cause);
   }
 }

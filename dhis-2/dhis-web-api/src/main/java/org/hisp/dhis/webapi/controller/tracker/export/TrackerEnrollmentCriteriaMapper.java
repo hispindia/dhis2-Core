@@ -29,6 +29,8 @@ package org.hisp.dhis.webapi.controller.tracker.export;
 
 import static org.apache.commons.lang3.BooleanUtils.toBooleanDefaultIfNull;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.hisp.dhis.common.OrganisationUnitSelectionMode.ALL;
+import static org.hisp.dhis.util.ObjectUtils.applyIfNotNull;
 import static org.hisp.dhis.webapi.controller.event.mapper.OrderParamsHelper.toOrderParams;
 import static org.hisp.dhis.webapi.controller.tracker.export.RequestParamUtils.applyIfNonEmpty;
 import static org.hisp.dhis.webapi.controller.tracker.export.RequestParamUtils.parseUids;
@@ -46,12 +48,15 @@ import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramInstanceQueryParams;
 import org.hisp.dhis.program.ProgramService;
+import org.hisp.dhis.security.Authorities;
 import org.hisp.dhis.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceService;
 import org.hisp.dhis.trackedentity.TrackedEntityType;
 import org.hisp.dhis.trackedentity.TrackedEntityTypeService;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
+import org.hisp.dhis.webapi.webdomain.EndDateTime;
+import org.hisp.dhis.webapi.webdomain.StartDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,15 +98,16 @@ public class TrackerEnrollmentCriteriaMapper {
     User user = currentUserService.getCurrentUser();
     Set<String> orgUnitIds = parseUids(criteria.getOrgUnit());
     Set<OrganisationUnit> orgUnits = validateOrgUnits(user, orgUnitIds);
+    validateOrgUnitMode(criteria);
 
     ProgramInstanceQueryParams params = new ProgramInstanceQueryParams();
     params.setProgram(program);
     params.setProgramStatus(criteria.getProgramStatus());
     params.setFollowUp(criteria.getFollowUp());
-    params.setLastUpdated(criteria.getUpdatedAfter());
+    params.setLastUpdated(applyIfNotNull(criteria.getUpdatedAfter(), StartDateTime::toDate));
     params.setLastUpdatedDuration(criteria.getUpdatedWithin());
-    params.setProgramStartDate(criteria.getEnrolledAfter());
-    params.setProgramEndDate(criteria.getEnrolledBefore());
+    params.setProgramStartDate(applyIfNotNull(criteria.getEnrolledAfter(), StartDateTime::toDate));
+    params.setProgramEndDate(applyIfNotNull(criteria.getEnrolledBefore(), EndDateTime::toDate));
     params.setTrackedEntityType(trackedEntityType);
     params.setTrackedEntityInstanceUid(
         Optional.ofNullable(trackedEntity).map(BaseIdentifiableObject::getUid).orElse(null));
@@ -163,5 +169,15 @@ public class TrackerEnrollmentCriteriaMapper {
     }
 
     return orgUnits;
+  }
+
+  private void validateOrgUnitMode(TrackerEnrollmentCriteria criteria) throws ForbiddenException {
+    if (criteria.getOuMode() != null
+        && criteria.getOuMode().equals(ALL)
+        && !currentUserService.currentUserIsAuthorized(
+            Authorities.F_TRACKED_ENTITY_INSTANCE_SEARCH_IN_ALL_ORGUNITS.name())) {
+      throw new ForbiddenException(
+          "Current user is not authorized to query across all organisation units");
+    }
   }
 }
