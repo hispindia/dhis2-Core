@@ -27,9 +27,12 @@
  */
 package org.hisp.dhis.program;
 
+import static org.hisp.dhis.common.OrganisationUnitSelectionMode.ACCESSIBLE;
+import static org.hisp.dhis.common.OrganisationUnitSelectionMode.CAPTURE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.collect.Sets;
@@ -38,13 +41,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.hisp.dhis.DhisSpringTest;
+import org.hisp.dhis.common.IllegalQueryException;
 import org.hisp.dhis.common.OrganisationUnitSelectionMode;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.trackedentity.TrackedEntityInstance;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceService;
+import org.hisp.dhis.user.User;
+import org.hisp.dhis.webapi.controller.event.mapper.OrderParam;
+import org.hisp.dhis.webapi.controller.event.mapper.OrderParam.SortDirection;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -87,6 +96,8 @@ class ProgramInstanceServiceTest extends DhisSpringTest {
   private ProgramInstance programInstanceC;
 
   private ProgramInstance programInstanceD;
+
+  private ProgramInstance programInstanceE;
 
   private TrackedEntityInstance entityInstanceA;
 
@@ -141,6 +152,9 @@ class ProgramInstanceServiceTest extends DhisSpringTest {
     programInstanceD = new ProgramInstance(enrollmentDate, incidentDate, entityInstanceB, programA);
     programInstanceD.setUid("UID-D");
     programInstanceD.setOrganisationUnit(organisationUnitB);
+    programInstanceE = new ProgramInstance(enrollmentDate, incidentDate, entityInstanceB, programA);
+    programInstanceE.setUid("UID-E");
+    programInstanceE.setOrganisationUnit(organisationUnitA);
   }
 
   @Test
@@ -258,6 +272,63 @@ class ProgramInstanceServiceTest extends DhisSpringTest {
   }
 
   @Test
+  void shouldFindSearchScopeEnrollmentsWhenOrgUnitModeAccessible() {
+    User user = new User();
+    user.setOrganisationUnits(Set.of(organisationUnitA));
+    programInstanceService.addProgramInstance(programInstanceA);
+    programInstanceService.addProgramInstance(programInstanceC);
+    programInstanceService.addProgramInstance(programInstanceD);
+
+    List<ProgramInstance> programInstances =
+        programInstanceService.getProgramInstances(
+            new ProgramInstanceQueryParams().setOrganisationUnitMode(ACCESSIBLE).setUser(user));
+    assertEquals(3, programInstances.size());
+    assertTrue(programInstances.contains(programInstanceA));
+  }
+
+  @Test
+  void shouldFindOnlyCaptureScopeEnrollmentsWhenOrgUnitModeCapture() {
+    programInstanceService.addProgramInstance(programInstanceA);
+    programInstanceService.addProgramInstance(programInstanceC);
+    programInstanceService.addProgramInstance(programInstanceD);
+
+    User user = new User();
+    user.setOrganisationUnits(Set.of(organisationUnitA));
+    user.setTeiSearchOrganisationUnits(Set.of(organisationUnitA, organisationUnitB));
+
+    ProgramInstanceQueryParams params =
+        new ProgramInstanceQueryParams().setOrganisationUnitMode(CAPTURE).setUser(user);
+
+    List<ProgramInstance> programInstances = programInstanceService.getProgramInstances(params);
+
+    assertNotNull(programInstances);
+    assertTrue(programInstances.contains(programInstanceA));
+    assertTrue(programInstances.contains(programInstanceC));
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = OrganisationUnitSelectionMode.class,
+      names = {"CHILDREN", "DESCENDANTS", "SELECTED"})
+  void shouldFailWhenOrgUnitModeRequiresOrgUnit(OrganisationUnitSelectionMode orgUnitMode) {
+    User user = new User();
+    user.setOrganisationUnits(Set.of(organisationUnitA));
+    programInstanceService.addProgramInstance(programInstanceA);
+    programInstanceService.addProgramInstance(programInstanceC);
+    programInstanceService.addProgramInstance(programInstanceD);
+
+    ProgramInstanceQueryParams queryParams =
+        new ProgramInstanceQueryParams().setOrganisationUnitMode(orgUnitMode).setUser(user);
+
+    IllegalQueryException exception =
+        assertThrows(
+            IllegalQueryException.class,
+            () -> programInstanceService.getProgramInstances(queryParams));
+
+    assertEquals("At least one organisation unit must be specified", exception.getMessage());
+  }
+
+  @Test
   void testEnrollTrackedEntityInstance() {
     ProgramInstance programInstance =
         programInstanceService.enrollTrackedEntityInstance(
@@ -299,5 +370,77 @@ class ProgramInstanceServiceTest extends DhisSpringTest {
         ProgramStatus.CANCELLED, programInstanceService.getProgramInstance(idA).getStatus());
     assertEquals(
         ProgramStatus.CANCELLED, programInstanceService.getProgramInstance(idD).getStatus());
+  }
+
+  @Test
+  void shouldOrderByEnrolledAtAscWhenRequestedSortDirectionNotSpecified() {
+    User user = new User();
+    user.setOrganisationUnits(Set.of(organisationUnitA));
+    programInstanceA.setEnrollmentDate(DateTime.now().toDate());
+    programInstanceService.addProgramInstance(programInstanceA);
+    programInstanceService.addProgramInstance(programInstanceB);
+    programInstanceC.setEnrollmentDate(DateTime.now().minusDays(1).toDate());
+    programInstanceService.addProgramInstance(programInstanceC);
+    programInstanceService.addProgramInstance(programInstanceD);
+    programInstanceE.setEnrollmentDate(DateTime.now().plusDays(1).toDate());
+    programInstanceService.addProgramInstance(programInstanceE);
+
+    ProgramInstanceQueryParams params = new ProgramInstanceQueryParams();
+    params.setOrganisationUnits(Set.of(organisationUnitA));
+    params.setOrder(
+        List.of(OrderParam.builder().field("enrollmentdate").direction(SortDirection.ASC).build()));
+    params.setUser(user);
+
+    List<ProgramInstance> programInstances = programInstanceService.getProgramInstances(params);
+
+    assertEquals(List.of(programInstanceC, programInstanceA, programInstanceE), programInstances);
+  }
+
+  @Test
+  void shouldOrderByCompletedAtAscWhenRequested() {
+    User user = new User();
+    user.setOrganisationUnits(Set.of(organisationUnitA));
+    programInstanceA.setEndDate(DateTime.now().toDate());
+    programInstanceService.addProgramInstance(programInstanceA);
+    programInstanceService.addProgramInstance(programInstanceB);
+    programInstanceC.setEndDate(DateTime.now().plusDays(1).toDate());
+    programInstanceService.addProgramInstance(programInstanceC);
+    programInstanceService.addProgramInstance(programInstanceD);
+    programInstanceE.setEndDate(DateTime.now().minusDays(1).toDate());
+    programInstanceService.addProgramInstance(programInstanceE);
+
+    ProgramInstanceQueryParams params = new ProgramInstanceQueryParams();
+    params.setOrganisationUnits(Set.of(organisationUnitA));
+    params.setOrder(
+        List.of(OrderParam.builder().field("enddate").direction(SortDirection.ASC).build()));
+    params.setUser(user);
+
+    List<ProgramInstance> programInstances = programInstanceService.getProgramInstances(params);
+
+    assertEquals(List.of(programInstanceE, programInstanceA, programInstanceC), programInstances);
+  }
+
+  @Test
+  void shouldOrderByCreatedAtDescWhenRequested() {
+    User user = new User();
+    user.setOrganisationUnits(Set.of(organisationUnitA));
+    programInstanceA.setCreated(DateTime.now().plusDays(1).toDate());
+    programInstanceService.addProgramInstance(programInstanceA);
+    programInstanceService.addProgramInstance(programInstanceB);
+    programInstanceC.setCreated(DateTime.now().minusDays(1).toDate());
+    programInstanceService.addProgramInstance(programInstanceC);
+    programInstanceService.addProgramInstance(programInstanceD);
+    programInstanceE.setCreated(DateTime.now().toDate());
+    programInstanceService.addProgramInstance(programInstanceE);
+
+    ProgramInstanceQueryParams params = new ProgramInstanceQueryParams();
+    params.setOrganisationUnits(Set.of(organisationUnitA));
+    params.setOrder(
+        List.of(OrderParam.builder().field("created").direction(SortDirection.DESC).build()));
+    params.setUser(user);
+
+    List<ProgramInstance> programInstances = programInstanceService.getProgramInstances(params);
+
+    assertEquals(List.of(programInstanceA, programInstanceE, programInstanceC), programInstances);
   }
 }

@@ -27,6 +27,7 @@
  */
 package org.hisp.dhis.webapi.controller.event;
 
+import static org.hisp.dhis.DhisConvenienceTest.getDate;
 import static org.hisp.dhis.common.AccessLevel.CLOSED;
 import static org.hisp.dhis.common.AccessLevel.OPEN;
 import static org.hisp.dhis.common.AccessLevel.PROTECTED;
@@ -42,7 +43,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.hisp.dhis.common.IllegalQueryException;
 import org.hisp.dhis.common.OrganisationUnitSelectionMode;
@@ -64,13 +68,18 @@ import org.hisp.dhis.trackedentity.TrackerAccessManager;
 import org.hisp.dhis.user.CurrentUserService;
 import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserRole;
+import org.hisp.dhis.webapi.controller.event.mapper.OrderParam.SortDirection;
 import org.hisp.dhis.webapi.controller.event.mapper.RequestToSearchParamsMapper;
 import org.hisp.dhis.webapi.controller.event.webrequest.EventCriteria;
+import org.hisp.dhis.webapi.controller.event.webrequest.OrderCriteria;
+import org.hisp.dhis.webapi.controller.event.webrequest.tracker.TrackerEventCriteria;
+import org.hisp.dhis.webapi.controller.event.webrequest.tracker.mapper.TrackerEventCriteriaMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -104,6 +113,8 @@ class EventRequestToParamsMapperTest {
   @Mock private TrackerAccessManager trackerAccessManager;
 
   private RequestToSearchParamsMapper requestToSearchParamsMapper;
+
+  private final Map<String, User> userMap = new HashMap<>();
 
   private OrganisationUnit orgUnit;
 
@@ -400,6 +411,20 @@ class EventRequestToParamsMapperTest {
         exception.getMessage());
   }
 
+  @Test
+  void shouldNotManipulateDates() {
+    when(currentUserService.getCurrentUser()).thenReturn(userMap.get("admin"));
+    Date startDate = getDate(2019, 1, 1);
+    Date endDate = getDate(2019, 2, 1);
+
+    EventCriteria eventSearchParams = new EventCriteria();
+    eventSearchParams.setStartDate(startDate);
+    eventSearchParams.setEndDate(endDate);
+
+    assertEquals(startDate, eventSearchParams.getStartDate());
+    assertEquals(endDate, eventSearchParams.getEndDate());
+  }
+
   private User createSearchInAllOrgUnitsUser() {
     User user = new User();
     UserRole userRole = new UserRole();
@@ -459,6 +484,24 @@ class EventRequestToParamsMapperTest {
     assertEquals(
         "Organisation unit is not part of the search scope: " + orgUnit.getUid(),
         exception.getMessage());
+  }
+
+  @Test
+  void mapOrderParam() {
+    TrackerEventCriteria criteria = new TrackerEventCriteria();
+    criteria.setOrder(
+        List.of(
+            OrderCriteria.of("occurredAt", SortDirection.ASC),
+            OrderCriteria.of("createdAt", SortDirection.DESC)));
+
+    EventCriteria eventCriteria =
+        Mappers.getMapper(TrackerEventCriteriaMapper.class).toEventCriteria(criteria);
+
+    assertEquals(
+        List.of(
+            OrderCriteria.of("eventDate", SortDirection.ASC),
+            OrderCriteria.of("created", SortDirection.DESC)),
+        eventCriteria.getOrder());
   }
 
   private OrganisationUnit createOrgUnit(String name, String uid) {

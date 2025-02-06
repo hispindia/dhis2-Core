@@ -41,6 +41,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -634,8 +636,12 @@ public class DefaultDataValueSetService
       dvBatch.flush();
       dvaBatch.flush();
       log.error(DebugUtils.getStackTrace(ex));
-      notifier.notify(id, ERROR, "Process failed: " + ex.getMessage(), true);
-      return new ImportSummary(ImportStatus.ERROR, "The import process failed: " + ex.getMessage());
+      ImportSummary summary =
+          new ImportSummary(ImportStatus.ERROR, "The import process failed: " + ex.getMessage());
+      notifier
+          .notify(id, ERROR, "Process failed: " + ex.getMessage(), true)
+          .addJobSummary(id, summary, ImportSummary.class);
+      return summary;
     }
   }
 
@@ -697,12 +703,12 @@ public class DefaultDataValueSetService
       return context.getSummary();
     }
 
-    Date completeDate = parseDate(dataValueSet.getCompleteDate());
+    LocalDate completeDate = getCompletionDate(dataValueSet.getCompleteDate());
     if (dataSetContext.getDataSet() != null && completeDate != null) {
       notifier.notify(id, notificationLevel, "Completing data set");
       handleComplete(
           dataSetContext.getDataSet(),
-          completeDate,
+          Date.from(completeDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()),
           dataSetContext.getOuterPeriod(),
           dataSetContext.getOuterOrgUnit(),
           dataSetContext.getFallbackCategoryOptionCombo(),
@@ -754,6 +760,16 @@ public class DefaultDataValueSetService
             + importCount.getDeleted());
 
     return context.getSummary();
+  }
+
+  static LocalDate getCompletionDate(String completeDate) {
+    if (completeDate == null || completeDate.isEmpty()) return null;
+    LocalDate today = LocalDate.now();
+    if ("true".equalsIgnoreCase(completeDate)) return today;
+    if ("false".equalsIgnoreCase(completeDate)) return null;
+    LocalDate date = LocalDate.parse(completeDate);
+    if (date.isAfter(today)) return today;
+    return date;
   }
 
   private void importDataValue(
@@ -929,7 +945,10 @@ public class DefaultDataValueSetService
 
       importCount.incrementDeleted();
     } else {
-      importCount.incrementUpdated();
+      if (dataValueUpdateShouldBeIgnored(internalValue, existingValue)) {
+        importCount.incrementIgnored();
+        return;
+      } else importCount.incrementUpdated();
     }
     if (!internalValue.isDeleted()
         && Objects.equals(existingValue.getValue(), internalValue.getValue())
@@ -962,6 +981,14 @@ public class DefaultDataValueSetService
         }
       }
     }
+  }
+
+  private static boolean dataValueUpdateShouldBeIgnored(
+      DataValue internalValue, DataValue existingValue) {
+    return !internalValue.isDeleted()
+        && Objects.equals(existingValue.getValue(), internalValue.getValue())
+        && Objects.equals(existingValue.getComment(), internalValue.getComment())
+        && existingValue.isFollowup() == internalValue.isFollowup();
   }
 
   private void preheatCaches(ImportContext context) {

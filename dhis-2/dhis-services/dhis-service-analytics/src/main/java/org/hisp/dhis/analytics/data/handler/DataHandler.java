@@ -62,6 +62,7 @@ import static org.hisp.dhis.analytics.util.AnalyticsUtils.getRoundedValue;
 import static org.hisp.dhis.analytics.util.AnalyticsUtils.getRoundedValueObject;
 import static org.hisp.dhis.analytics.util.AnalyticsUtils.hasPeriod;
 import static org.hisp.dhis.analytics.util.AnalyticsUtils.isPeriodInPeriods;
+import static org.hisp.dhis.analytics.util.AnalyticsUtils.withExceptionHandling;
 import static org.hisp.dhis.analytics.util.PeriodOffsetUtils.getPeriodOffsetRow;
 import static org.hisp.dhis.analytics.util.ReportRatesHelper.getCalculatedTarget;
 import static org.hisp.dhis.common.DataDimensionItemType.DATA_ELEMENT;
@@ -507,7 +508,8 @@ public class DataHandler {
 
       params = queryPlanner.withTableNameAndPartitions(params, plannerParams);
 
-      rawAnalyticsManager.getRawDataValues(params, grid);
+      final DataQueryParams immutableParams = DataQueryParams.newBuilder(params).build();
+      withExceptionHandling(() -> rawAnalyticsManager.getRawDataValues(immutableParams, grid));
     }
   }
 
@@ -662,13 +664,34 @@ public class DataHandler {
     String reportingRate = getDimensionItem(dataRow.get(DX_INDEX), metric);
     dataRow.set(DX_INDEX, reportingRate);
 
-    grid.addRow()
-        .addValues(dataRow.toArray())
-        .addValue(params.isSkipRounding() ? value : getRoundedValueObject(params, value));
+    if (satisfiesMeasureCriteria(params, value)) {
+      grid.addRow()
+          .addValues(dataRow.toArray())
+          .addValue(params.isSkipRounding() ? value : getRoundedValueObject(params, value));
 
-    if (params.isIncludeNumDen()) {
-      grid.addValue(actual).addValue(target).addValue(PERCENT).addNullValues(2);
+      if (params.isIncludeNumDen()) {
+        grid.addValue(actual).addValue(target).addValue(PERCENT).addNullValues(2);
+      }
+      if (params.isIncludeNumDen()) {
+        grid.addValue(actual).addValue(target).addValue(PERCENT).addNullValues(2);
+      }
     }
+  }
+
+  private boolean satisfiesMeasureCriteria(DataQueryParams params, Double value) {
+    if (params.hasMeasureCriteria() && value != null) {
+      Number finalValue =
+          params.isSkipRounding() ? value : (Number) getRoundedValueObject(params, value);
+
+      return params.getMeasureCriteria().entrySet().stream()
+          .anyMatch(
+              measureValue ->
+                  measureValue
+                      .getKey()
+                      .measureIsValid(finalValue.doubleValue(), measureValue.getValue()));
+    }
+
+    return true;
   }
 
   private Double getReportRate(ReportingRateMetric metric, Double target, Double actual) {

@@ -25,7 +25,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hisp.dhis.tracker.importer;
+package org.hisp.dhis.tracker.export;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -33,6 +33,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyIterable;
+import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.everyItem;
@@ -45,8 +46,12 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.hisp.dhis.helpers.matchers.MatchesJson.matchesJSON;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.google.common.net.HttpHeaders;
 import com.google.gson.JsonObject;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,6 +76,10 @@ import org.skyscreamer.jsonassert.JSONAssert;
  * @author Gintare Vilkelyte <vilkelyte.gintare@gmail.com>
  */
 public class TrackerExportTests extends TrackerNtiApiTest {
+
+  private static final String DEFAULT_JSON_CONTENT_TYPE_WITH_HTML_REQUEST =
+      "%s do not default to application/json format when the Accept header is html";
+
   private static String teiA;
 
   private static String teiB;
@@ -87,6 +96,8 @@ public class TrackerExportTests extends TrackerNtiApiTest {
 
   private static final String TEI_POTENTIAL_DUPLICATE = "Nav6inZRw1u";
 
+  private static String eventToTeiRelationship;
+
   private static JsonObject teiWithEnrollmentAndEventsTemplate;
 
   @BeforeAll
@@ -102,12 +113,15 @@ public class TrackerExportTests extends TrackerNtiApiTest {
 
     enrollment = response.extractImportedEnrollments().get(0);
 
+    event = response.extractImportedEvents().get(0);
+
     teiToTeiRelationship =
         importRelationshipBetweenTeis(teiA, teiB).extractImportedRelationships().get(0);
     enrollmentToTeiRelationship =
         importRelationshipEnrollmentToTei(enrollment, teiB).extractImportedRelationships().get(0);
 
-    event = response.extractImportedEvents().get(0);
+    eventToTeiRelationship =
+        importRelationshipEventToTei(event, teiB).extractImportedRelationships().get(0);
 
     teiWithEnrollmentAndEventsTemplate =
         new FileReaderUtils()
@@ -401,6 +415,62 @@ public class TrackerExportTests extends TrackerNtiApiTest {
   }
 
   @Test
+  public void shouldReturnRelationshipsWhenEventHasRelationshipsAndFieldsIncludeRelationships() {
+    trackerActions
+        .get("events?event=" + event + "&fields=relationships")
+        .validate()
+        .statusCode(200)
+        .body("instances", hasSize(greaterThanOrEqualTo(1)))
+        .rootPath("instances[0].relationships[0]")
+        .body("relationship", equalTo(eventToTeiRelationship))
+        .body("from.event.event", equalTo(event))
+        .body("to.trackedEntity.trackedEntity", equalTo(teiB));
+  }
+
+  @Test
+  public void shouldNotReturnRelationshipsWhenEventHasRelationshipsAndFieldsExcludeRelationships() {
+    trackerActions
+        .get("events?event=" + event)
+        .validate()
+        .statusCode(200)
+        .body("instances[0].relationships", emptyOrNullString());
+  }
+
+  @Test
+  public void shouldReturnFilteredEvent() {
+    trackerActions
+        .get(
+            "events?enrollmentOccurredAfter=2019-08-16&enrollmentOccurredBefore=2019-08-20&event=ZwwuwNp6gVd")
+        .validate()
+        .statusCode(200)
+        .rootPath("instances[0]")
+        .body("event", equalTo("ZwwuwNp6gVd"));
+  }
+
+  @Test
+  public void
+      shouldReturnProgramStageListOrderedByProgramStageAscWhenFieldsAndOrderEqualToProgramStage() {
+    TrackerApiResponse response =
+        trackerActions
+            .postAndGetJobReport(
+                teiWithEnrollmentAndEventsTemplate, new QueryParamsBuilder().add("async=false"))
+            .validateSuccessfulImport();
+
+    List<String> actualPsList =
+        trackerActions
+            .get(
+                "events?order=programStage&fields=programStage&program=f1AyMswryyQ&event=ZwwuwNp6gVd;"
+                    + response.extractImportedEvents().get(0))
+            .validateStatus(200)
+            .extractList("instances.programStage.flatten()");
+
+    assertEquals(
+        List.of("nlXNK4b7LVr", "xaOOjwLVW23"),
+        actualPsList,
+        "Program Stage are not in the correct order");
+  }
+
+  @Test
   void getTeiByPotentialDuplicateParamNull() {
     ApiResponse response = teiActions.get(teiParamsBuilder());
 
@@ -441,6 +511,77 @@ public class TrackerExportTests extends TrackerNtiApiTest {
         .body("trackedEntityInstances", iterableWithSize(1))
         .body("trackedEntityInstances[0].trackedEntityInstance", equalTo(TEI_POTENTIAL_DUPLICATE))
         .body("trackedEntityInstances[0].potentialDuplicate", equalTo(true));
+  }
+
+  @Test
+  void whenGetEventsShouldDefaultToJsonContentTypeWithHtmlAcceptHeader() {
+    ApiResponse response =
+        trackerActions.getWithHeaders(
+            "events?event=" + event,
+            null,
+            new Headers(new Header(HttpHeaders.ACCEPT, "text/html")));
+
+    List<String> events = response.extractList("instances.event.flatten()");
+    assertEquals(
+        List.of(event),
+        events,
+        String.format(DEFAULT_JSON_CONTENT_TYPE_WITH_HTML_REQUEST, "Events"));
+  }
+
+  @Test
+  void whenGetEventsCsvShouldGetCsvContentTypeWithHtmlAcceptHeader() {
+    ApiResponse response =
+        trackerActions.getWithHeaders(
+            "events.csv?event=" + event,
+            null,
+            new Headers(new Header(HttpHeaders.ACCEPT, "text/html")));
+
+    assertTrue(response.getContentType().contains("application/csv"));
+  }
+
+  @Test
+  void whenGetTrackedEntitiesShouldDefaultToJsonContentTypeWithHtmlAcceptHeader() {
+    ApiResponse response =
+        trackerActions.getWithHeaders(
+            "trackedEntities?trackedEntity=" + teiA,
+            null,
+            new Headers(new Header(HttpHeaders.ACCEPT, "text/html")));
+
+    List<String> trackedEntities = response.extractList("instances.trackedEntity.flatten()");
+    assertEquals(
+        List.of(teiA),
+        trackedEntities,
+        String.format(DEFAULT_JSON_CONTENT_TYPE_WITH_HTML_REQUEST, "Tracked Entities"));
+  }
+
+  @Test
+  void whenGetEnrollmentsShouldDefaultToJsonContentTypeWithHtmlAcceptHeader() {
+    ApiResponse response =
+        trackerActions.getWithHeaders(
+            "enrollments?enrollment=" + enrollment,
+            null,
+            new Headers(new Header(HttpHeaders.ACCEPT, "text/html")));
+
+    List<String> enrollments = response.extractList("instances.enrollment.flatten()");
+    assertEquals(
+        List.of(enrollment),
+        enrollments,
+        String.format(DEFAULT_JSON_CONTENT_TYPE_WITH_HTML_REQUEST, "Enrollments"));
+  }
+
+  @Test
+  void whenGetRelationshipsShouldDefaultToJsonContentTypeWithHtmlAcceptHeader() {
+    ApiResponse response =
+        trackerActions.getWithHeaders(
+            "relationships?trackedEntity=" + teiA,
+            null,
+            new Headers(new Header(HttpHeaders.ACCEPT, "text/html")));
+
+    List<String> relationships = response.extractList("instances.relationship.flatten()");
+    assertEquals(
+        List.of(teiToTeiRelationship),
+        relationships,
+        String.format(DEFAULT_JSON_CONTENT_TYPE_WITH_HTML_REQUEST, "Relationships"));
   }
 
   private static QueryParamsBuilder teiParamsBuilder() {

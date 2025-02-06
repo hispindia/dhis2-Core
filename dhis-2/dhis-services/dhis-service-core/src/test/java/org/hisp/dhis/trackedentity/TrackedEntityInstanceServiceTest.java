@@ -27,13 +27,19 @@
  */
 package org.hisp.dhis.trackedentity;
 
+import static org.hisp.dhis.common.AccessLevel.CLOSED;
+import static org.hisp.dhis.common.OrganisationUnitSelectionMode.ALL;
 import static org.hisp.dhis.trackedentity.TrackedEntityInstanceQueryParams.OrderColumn.ENROLLED_AT;
+import static org.hisp.dhis.utils.Assertions.assertContains;
+import static org.hisp.dhis.utils.Assertions.assertIsEmpty;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.google.common.collect.Sets;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +47,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.hisp.dhis.IntegrationTestBase;
 import org.hisp.dhis.common.Grid;
+import org.hisp.dhis.common.IllegalQueryException;
 import org.hisp.dhis.common.QueryFilter;
 import org.hisp.dhis.common.QueryItem;
 import org.hisp.dhis.common.QueryOperator;
@@ -55,6 +62,7 @@ import org.hisp.dhis.program.ProgramStage;
 import org.hisp.dhis.program.ProgramStageInstance;
 import org.hisp.dhis.program.ProgramStageInstanceService;
 import org.hisp.dhis.program.ProgramStageService;
+import org.hisp.dhis.program.ProgramType;
 import org.hisp.dhis.security.acl.AccessStringHelper;
 import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValue;
 import org.hisp.dhis.trackedentityattributevalue.TrackedEntityAttributeValueService;
@@ -122,6 +130,10 @@ class TrackedEntityInstanceServiceTest extends IntegrationTestBase {
 
   private static final String ATTRIBUTE_VALUE = "Value";
 
+  private User userWithSearchInAllAuthority;
+
+  private Program disabledAccessProgram;
+
   @Override
   public boolean emptyDatabaseAfterTest() {
     return true;
@@ -171,7 +183,18 @@ class TrackedEntityInstanceServiceTest extends IntegrationTestBase {
     attributeService.addTrackedEntityAttribute(attrE);
     attributeService.addTrackedEntityAttribute(filtF);
     attributeService.addTrackedEntityAttribute(filtG);
+
+    disabledAccessProgram = createProgram('C', new HashSet<>(), null);
+    disabledAccessProgram.setProgramType(ProgramType.WITH_REGISTRATION);
+    disabledAccessProgram.setAccessLevel(CLOSED);
+    disabledAccessProgram.getSharing().setPublicAccess(AccessStringHelper.disableDataSharing(null));
+    programService.addProgram(disabledAccessProgram);
+
     super.userService = this.userService;
+
+    userWithSearchInAllAuthority =
+        createUser("userSearchInAll", "F_TRACKED_ENTITY_INSTANCE_SEARCH_IN_ALL_ORGUNITS");
+
     User user = createUser("testUser");
     user.setTeiSearchOrganisationUnits(Sets.newHashSet(organisationUnit));
     CurrentUserService currentUserService = new MockCurrentUserService(user);
@@ -862,6 +885,98 @@ class TrackedEntityInstanceServiceTest extends IntegrationTestBase {
             entityInstanceC1.getId(),
             entityInstanceB1.getId()),
         teiIdList);
+  }
+
+  @Test
+  void shouldReturnTrackedEntityIfTEWasUpdatedAfterPassedDateAndTime() {
+    entityInstanceA1.setTrackedEntityType(trackedEntityType);
+    entityInstanceService.addTrackedEntityInstance(entityInstanceA1);
+    Date oneHourBeforeLastUpdated =
+        Date.from(
+            entityInstanceA1
+                .getLastUpdated()
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime()
+                .minusHours(1)
+                .atZone(ZoneId.systemDefault())
+                .toInstant());
+
+    TrackedEntityInstanceQueryParams params = new TrackedEntityInstanceQueryParams();
+    params.setOrganisationUnits(Set.of(organisationUnit));
+    params.setTrackedEntityType(trackedEntityType);
+    params.setLastUpdatedStartDate(oneHourBeforeLastUpdated);
+
+    List<Long> trackedEntities =
+        entityInstanceService.getTrackedEntityInstanceIds(params, true, true);
+
+    assertEquals(List.of(entityInstanceA1.getId()), trackedEntities);
+  }
+
+  @Test
+  void shouldReturnEmptyIfTEWasUpdatedBeforePassedDateAndTime() {
+    entityInstanceA1.setTrackedEntityType(trackedEntityType);
+    entityInstanceService.addTrackedEntityInstance(entityInstanceA1);
+    Date oneHourAfterLastUpdated =
+        Date.from(
+            entityInstanceA1
+                .getLastUpdated()
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime()
+                .plusHours(1)
+                .atZone(ZoneId.systemDefault())
+                .toInstant());
+
+    TrackedEntityInstanceQueryParams params = new TrackedEntityInstanceQueryParams();
+    params.setOrganisationUnits(Set.of(organisationUnit));
+    params.setLastUpdatedStartDate(oneHourAfterLastUpdated);
+
+    List<Long> trackedEntities =
+        entityInstanceService.getTrackedEntityInstanceIds(params, true, true);
+
+    assertIsEmpty(trackedEntities);
+  }
+
+  @Test
+  void shouldFailWhenModeAllUserCanSearchEverywhereButNotSuperuserAndNoAccessToProgram() {
+    injectSecurityContext(userWithSearchInAllAuthority);
+
+    TrackedEntityInstanceQueryParams params = new TrackedEntityInstanceQueryParams();
+    params.setOrganisationUnitMode(ALL);
+    params.setProgram(disabledAccessProgram);
+    params.setUser(userWithSearchInAllAuthority);
+
+    IllegalQueryException ex =
+        assertThrows(
+            IllegalQueryException.class,
+            () -> entityInstanceService.getTrackedEntityInstanceIds(params, false, false));
+
+    assertContains(
+        String.format(
+            "Current user is not authorized to read data from selected program:  %s",
+            disabledAccessProgram.getUid()),
+        ex.getMessage());
+  }
+
+  @Test
+  void shouldReturnAllEntitiesWhenSuperuserAndModeAll() {
+    injectSecurityContext(createAndInjectAdminUser(ALL.name()));
+    addEntityInstances();
+
+    TrackedEntityInstanceQueryParams params = new TrackedEntityInstanceQueryParams();
+    params.setOrganisationUnitMode(ALL);
+    params.setOrganisationUnits(Set.of(organisationUnit));
+
+    List<Long> trackedEntities =
+        entityInstanceService.getTrackedEntityInstanceIds(params, true, true);
+
+    assertEquals(4, trackedEntities.size());
+    assertAll(
+        () -> trackedEntities.contains(entityInstanceA1.getId()),
+        () -> trackedEntities.contains(entityInstanceB1.getId()),
+        () -> trackedEntities.contains(entityInstanceC1.getId()),
+        () -> trackedEntities.contains(entityInstanceD1.getId()));
   }
 
   private void initializeEntityInstance(TrackedEntityInstance entityInstance) {

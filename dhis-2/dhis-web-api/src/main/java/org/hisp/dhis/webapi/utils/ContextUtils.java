@@ -43,6 +43,7 @@ import org.hisp.dhis.common.IdentifiableObjectUtils;
 import org.hisp.dhis.common.cache.CacheStrategy;
 import org.hisp.dhis.webapi.service.WebCache;
 import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -56,7 +57,8 @@ import org.springframework.web.servlet.HandlerMapping;
 public class ContextUtils {
   public static final String CONTENT_TYPE_PDF = "application/pdf";
 
-  public static final String CONTENT_TYPE_ZIP = "application/zip";
+  public static final String CONTENT_TYPE_JSON_ZIP = "application/json+zip";
+  public static final String CONTENT_TYPE_JSON_GZIP = "application/json+gzip";
 
   public static final String CONTENT_TYPE_GZIP = "application/gzip";
 
@@ -77,6 +79,7 @@ public class ContextUtils {
   public static final String CONTENT_TYPE_TEXT_CSV = "text/csv";
 
   public static final String CONTENT_TYPE_CSV_GZIP = "application/csv+gzip";
+  public static final String CONTENT_TYPE_CSV_ZIP = "application/csv+zip";
 
   public static final String CONTENT_TYPE_PNG = "image/png";
 
@@ -182,6 +185,12 @@ public class ContextUtils {
 
       response.setHeader(HEADER_CONTENT_DISPOSITION, type + "; filename=\"" + filename + "\"");
     }
+  }
+
+  public static HttpHeaders noCacheNoStoreMustRevalidate() {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setCacheControl("no-cache, no-store, must-revalidate");
+    return headers;
   }
 
   public static HttpServletResponse setCacheControl(

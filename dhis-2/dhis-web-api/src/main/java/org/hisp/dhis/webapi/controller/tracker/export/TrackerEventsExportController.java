@@ -28,18 +28,23 @@
 package org.hisp.dhis.webapi.controller.tracker.export;
 
 import static org.hisp.dhis.webapi.controller.tracker.TrackerControllerSupport.RESOURCE_PATH;
+import static org.hisp.dhis.webapi.controller.tracker.export.CompressionUtil.writeGzip;
+import static org.hisp.dhis.webapi.controller.tracker.export.CompressionUtil.writeZip;
 import static org.hisp.dhis.webapi.utils.ContextUtils.CONTENT_TYPE_CSV;
 import static org.hisp.dhis.webapi.utils.ContextUtils.CONTENT_TYPE_CSV_GZIP;
+import static org.hisp.dhis.webapi.utils.ContextUtils.CONTENT_TYPE_CSV_ZIP;
+import static org.hisp.dhis.webapi.utils.ContextUtils.CONTENT_TYPE_JSON_GZIP;
+import static org.hisp.dhis.webapi.utils.ContextUtils.CONTENT_TYPE_JSON_ZIP;
 import static org.hisp.dhis.webapi.utils.ContextUtils.CONTENT_TYPE_TEXT_CSV;
+import static org.hisp.dhis.webapi.utils.ContextUtils.HEADER_CONTENT_TRANSFER_ENCODING;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
-import java.util.zip.GZIPOutputStream;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -64,6 +69,7 @@ import org.hisp.dhis.webapi.mvc.annotation.ApiVersion;
 import org.hisp.dhis.webapi.utils.ContextUtils;
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -82,6 +88,14 @@ public class TrackerEventsExportController {
 
   private static final EventMapper EVENTS_MAPPER = Mappers.getMapper(EventMapper.class);
 
+  private static final String EVENT_CSV_FILE = EVENTS + ".csv";
+
+  private static final String EVENT_JSON_FILE = EVENTS + ".json";
+
+  private static final String GZIP_EXT = ".gz";
+
+  private static final String ZIP_EXT = ".zip";
+
   @NonNull private final EventService eventService;
 
   @NonNull private final RequestToSearchParamsMapper requestToSearchParamsMapper;
@@ -94,15 +108,28 @@ public class TrackerEventsExportController {
 
   private final EventFieldsParamMapper eventsMapper;
 
-  @GetMapping(produces = APPLICATION_JSON_VALUE)
-  public PagingWrapper<ObjectNode> getEvents(
+  private final ObjectMapper objectMapper;
+
+  @GetMapping(
+      produces = APPLICATION_JSON_VALUE,
+      headers = "Accept=text/html"
+      // use the text/html Accept header to default to a Json response when a generic request comes
+      // from a browser
+      )
+  public ResponseEntity<PagingWrapper<ObjectNode>> getEvents(
       TrackerEventCriteria eventCriteria,
       @RequestParam(defaultValue = DEFAULT_FIELDS_PARAM) List<FieldPath> fields)
       throws WebMessageException {
     EventQueryParams eventQueryParams = requestToSearchParamsMapper.map(eventCriteria);
 
+    EventParams eventParams = eventsMapper.map(fields);
+
+    eventQueryParams.setIncludeRelationships(eventParams.isIncludeRelationships());
+
     if (areAllEnrollmentsInvalid(eventCriteria, eventQueryParams)) {
-      return new PagingWrapper<ObjectNode>().withInstances(Collections.emptyList());
+      return ResponseEntity.ok()
+          .contentType(MediaType.APPLICATION_JSON)
+          .body(new PagingWrapper<ObjectNode>().withInstances(Collections.emptyList()));
     }
 
     Events events = eventService.getEvents(eventQueryParams);
@@ -116,15 +143,80 @@ public class TrackerEventsExportController {
 
     List<ObjectNode> objectNodes =
         fieldFilterService.toObjectNodes(EVENTS_MAPPER.fromCollection(events.getEvents()), fields);
-    return pagingWrapper.withInstances(objectNodes);
+    return ResponseEntity.ok()
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(pagingWrapper.withInstances(objectNodes));
   }
 
-  @GetMapping(produces = {CONTENT_TYPE_CSV, CONTENT_TYPE_CSV_GZIP, CONTENT_TYPE_TEXT_CSV})
-  public void getCsvEvents(
+  @GetMapping(produces = CONTENT_TYPE_JSON_GZIP)
+  void getEventsAsGzip(
+      TrackerEventCriteria eventCriteria,
+      @RequestParam(defaultValue = DEFAULT_FIELDS_PARAM) List<FieldPath> fields,
+      HttpServletResponse response)
+      throws IOException {
+    EventQueryParams eventQueryParams = requestToSearchParamsMapper.map(eventCriteria);
+
+    EventParams eventParams = eventsMapper.map(fields);
+
+    eventQueryParams.setIncludeRelationships(eventParams.isIncludeRelationships());
+
+    if (areAllEnrollmentsInvalid(eventCriteria, eventQueryParams)) {
+      return;
+    }
+
+    response.addHeader(
+        ContextUtils.HEADER_CONTENT_DISPOSITION,
+        getContentDispositionHeaderValue(EVENT_JSON_FILE + GZIP_EXT));
+    response.addHeader(HEADER_CONTENT_TRANSFER_ENCODING, "binary");
+    response.setContentType(CONTENT_TYPE_JSON_GZIP);
+
+    Events events = eventService.getEvents(eventQueryParams);
+
+    List<ObjectNode> objectNodes =
+        fieldFilterService.toObjectNodes(EVENTS_MAPPER.fromCollection(events.getEvents()), fields);
+    writeGzip(
+        response.getOutputStream(), PagingWrapper.withoutPager(objectNodes), objectMapper.writer());
+  }
+
+  @GetMapping(produces = CONTENT_TYPE_JSON_ZIP)
+  void getEventsAsZip(
+      TrackerEventCriteria eventCriteria,
+      @RequestParam(defaultValue = DEFAULT_FIELDS_PARAM) List<FieldPath> fields,
+      HttpServletResponse response)
+      throws IOException {
+    EventQueryParams eventQueryParams = requestToSearchParamsMapper.map(eventCriteria);
+
+    EventParams eventParams = eventsMapper.map(fields);
+
+    eventQueryParams.setIncludeRelationships(eventParams.isIncludeRelationships());
+
+    if (areAllEnrollmentsInvalid(eventCriteria, eventQueryParams)) {
+      return;
+    }
+
+    response.addHeader(
+        ContextUtils.HEADER_CONTENT_DISPOSITION,
+        getContentDispositionHeaderValue(EVENT_JSON_FILE + ZIP_EXT));
+    response.addHeader(HEADER_CONTENT_TRANSFER_ENCODING, "binary");
+    response.setContentType(CONTENT_TYPE_JSON_ZIP);
+
+    Events events = eventService.getEvents(eventQueryParams);
+
+    List<ObjectNode> objectNodes =
+        fieldFilterService.toObjectNodes(EVENTS_MAPPER.fromCollection(events.getEvents()), fields);
+
+    writeZip(
+        response.getOutputStream(),
+        PagingWrapper.withoutPager(objectNodes),
+        objectMapper.writer(),
+        EVENT_JSON_FILE);
+  }
+
+  @GetMapping(produces = {CONTENT_TYPE_CSV, CONTENT_TYPE_TEXT_CSV})
+  void getEventsAsCsv(
       TrackerEventCriteria eventCriteria,
       HttpServletResponse response,
-      @RequestParam(required = false, defaultValue = "false") boolean skipHeader,
-      HttpServletRequest request)
+      @RequestParam(required = false, defaultValue = "false") boolean skipHeader)
       throws IOException {
     EventQueryParams eventQueryParams = requestToSearchParamsMapper.map(eventCriteria);
 
@@ -136,17 +228,66 @@ public class TrackerEventsExportController {
 
     OutputStream outputStream = response.getOutputStream();
     response.setContentType(CONTENT_TYPE_CSV);
-    response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"events.csv\"");
-
-    if (ContextUtils.isAcceptCsvGzip(request)) {
-      response.addHeader(ContextUtils.HEADER_CONTENT_TRANSFER_ENCODING, "binary");
-      outputStream = new GZIPOutputStream(outputStream);
-      response.setContentType(CONTENT_TYPE_CSV_GZIP);
-      response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"events.csv.gz\"");
-    }
+    response.setHeader(
+        HttpHeaders.CONTENT_DISPOSITION, getContentDispositionHeaderValue(EVENT_CSV_FILE));
 
     csvEventService.writeEvents(
         outputStream, EVENTS_MAPPER.fromCollection(events.getEvents()), !skipHeader);
+  }
+
+  @GetMapping(produces = {CONTENT_TYPE_CSV_GZIP})
+  void getEventsAsCsvGZip(
+      TrackerEventCriteria eventCriteria,
+      HttpServletResponse response,
+      @RequestParam(required = false, defaultValue = "false") boolean skipHeader)
+      throws IOException {
+    EventQueryParams eventQueryParams = requestToSearchParamsMapper.map(eventCriteria);
+
+    if (areAllEnrollmentsInvalid(eventCriteria, eventQueryParams)) {
+      return;
+    }
+
+    Events events = eventService.getEvents(eventQueryParams);
+
+    response.addHeader(ContextUtils.HEADER_CONTENT_TRANSFER_ENCODING, "binary");
+    response.setContentType(CONTENT_TYPE_CSV_GZIP);
+    response.addHeader(
+        ContextUtils.HEADER_CONTENT_DISPOSITION,
+        getContentDispositionHeaderValue(EVENT_CSV_FILE + GZIP_EXT));
+
+    csvEventService.writeGzip(
+        response.getOutputStream(), EVENTS_MAPPER.fromCollection(events.getEvents()), !skipHeader);
+  }
+
+  @GetMapping(produces = {CONTENT_TYPE_CSV_ZIP})
+  void getEventsAsCsvZip(
+      TrackerEventCriteria eventCriteria,
+      HttpServletResponse response,
+      @RequestParam(required = false, defaultValue = "false") boolean skipHeader)
+      throws IOException {
+    EventQueryParams eventQueryParams = requestToSearchParamsMapper.map(eventCriteria);
+
+    if (areAllEnrollmentsInvalid(eventCriteria, eventQueryParams)) {
+      return;
+    }
+
+    Events events = eventService.getEvents(eventQueryParams);
+
+    response.addHeader(ContextUtils.HEADER_CONTENT_TRANSFER_ENCODING, "binary");
+    response.setContentType(CONTENT_TYPE_CSV_ZIP);
+    response.addHeader(
+        ContextUtils.HEADER_CONTENT_DISPOSITION,
+        getContentDispositionHeaderValue(EVENT_CSV_FILE + ZIP_EXT));
+
+    csvEventService.writeZip(
+        response.getOutputStream(),
+        EVENTS_MAPPER.fromCollection(events.getEvents()),
+        !skipHeader,
+        EVENT_CSV_FILE);
+  }
+
+  public String getContentDispositionHeaderValue(String filename) {
+    return "attachment; filename=" + filename;
   }
 
   private boolean areAllEnrollmentsInvalid(

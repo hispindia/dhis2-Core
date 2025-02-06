@@ -72,9 +72,7 @@ import static org.hisp.dhis.dxf2.events.trackedentity.store.query.EventQuery.COL
 import static org.hisp.dhis.system.util.SqlUtils.castToNumber;
 import static org.hisp.dhis.system.util.SqlUtils.escapeSql;
 import static org.hisp.dhis.system.util.SqlUtils.lower;
-import static org.hisp.dhis.util.DateUtils.addDays;
 import static org.hisp.dhis.util.DateUtils.getLongGmtDateString;
-import static org.hisp.dhis.util.DateUtils.getMediumDateString;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -187,6 +185,13 @@ public class JdbcEventStore implements EventStore {
 
   private static final String DOT_NAME = ".name)";
 
+  private static final String USER_SCOPE_ORG_UNIT_PATH_LIKE_MATCH_QUERY =
+      " ou.path like CONCAT(orgunit.path, '%') ";
+
+  private static String getCustomOrgUnitPathLikeMatchQuery(String orgUnitPath) {
+    return " ou.path like CONCAT('" + orgUnitPath + "', '%' ) ";
+  }
+
   private static final Map<String, String> QUERY_PARAM_COL_MAP =
       ImmutableMap.<String, String>builder()
           .put(EVENT_ID, "psi_uid")
@@ -208,7 +213,7 @@ public class JdbcEventStore implements EventStore {
           .put(EVENT_CREATED_ID, "psi_created")
           .put(EVENT_LAST_UPDATED_ID, "psi_lastupdated")
           .put(EVENT_COMPLETED_BY_ID, "psi_completedby")
-          .put(EVENT_ATTRIBUTE_OPTION_COMBO_ID, "psi_aoc")
+          .put(EVENT_ATTRIBUTE_OPTION_COMBO_ID, "coc_uid")
           .put(EVENT_COMPLETED_DATE_ID, "psi_completeddate")
           .put(EVENT_DELETED, "psi_deleted")
           .put("assignedUser", "user_assigned_username")
@@ -321,10 +326,6 @@ public class JdbcEventStore implements EventStore {
                 .collect(Collectors.joining(","))
             + " where uid = ?;";
   }
-
-  private static final String COLUMN_USER_UID = "u_uid";
-
-  private static final String COLUMN_ORG_UNIT_PATH = "ou_path";
 
   private static final String PERCENTAGE_SIGN = ", '%' ";
 
@@ -811,9 +812,9 @@ public class JdbcEventStore implements EventStore {
     sqlBuilder.append(
         getIdSqlBasedOnIdScheme(
             idSchemes.getCategoryOptionComboIdScheme(),
-            "coc.uid as coc_identifier, ",
-            "coc.attributevalues #>> '{%s, value}' as coc_identifier, ",
-            "coc.code as coc_identifier, "));
+            "coc_agg.uid as coc_identifier, ",
+            "coc_agg.attributevalues #>> '{%s, value}' as coc_identifier, ",
+            "coc_agg.code as coc_identifier, "));
 
     return sqlBuilder.toString();
   }
@@ -950,7 +951,7 @@ public class JdbcEventStore implements EventStore {
                 "select "
                     + getEventSelectIdentifiersByIdScheme(params)
                     + " psi.uid as psi_uid, "
-                    + "ou.uid as ou_uid, p.uid as p_uid, ps.uid as ps_uid, "
+                    + "ou.uid as ou_uid, p.uid as p_uid, "
                     + "psi.programstageinstanceid as psi_id, psi.status as psi_status, psi.executiondate as psi_executiondate, "
                     + "psi.eventdatavalues as psi_eventdatavalues, psi.duedate as psi_duedate, psi.completedby as psi_completedby, psi.storedby as psi_storedby, "
                     + "psi.created as psi_created, psi.createdbyuserinfo as psi_createdbyuserinfo, psi.lastupdated as psi_lastupdated, psi.lastupdatedbyuserinfo as psi_lastupdatedbyuserinfo, "
@@ -958,7 +959,7 @@ public class JdbcEventStore implements EventStore {
                     + "ST_AsText( psi.geometry ) as psi_geometry, au.uid as user_assigned, (au.firstName || ' ' || au.surName) as user_assigned_name,"
                     + "au.firstName as user_assigned_first_name, au.surName as user_assigned_surname, "
                     + "au.username as user_assigned_username, "
-                    + "coc.uid as coc_uid, "
+                    + "coc_agg.uid as coc_uid, "
                     + "coc_agg.co_uids AS co_uids, "
                     + "coc_agg.co_count AS option_size, ");
 
@@ -1177,22 +1178,21 @@ public class JdbcEventStore implements EventStore {
       sqlBuilder
           .append(hlp.whereAnd())
           .append(" (psi.executiondate >= '")
-          .append(getMediumDateString(params.getStartDate()))
+          .append(getLongGmtDateString(params.getStartDate()))
           .append("' ")
           .append("or (psi.executiondate is null and psi.duedate >= '")
-          .append(getMediumDateString(params.getStartDate()))
+          .append(getLongGmtDateString(params.getStartDate()))
           .append("')) ");
     }
 
     if (params.getEndDate() != null) {
-      Date dateAfterEndDate = addDays(params.getEndDate(), 1);
       sqlBuilder
           .append(hlp.whereAnd())
           .append(" (psi.executiondate < '")
-          .append(getMediumDateString(dateAfterEndDate))
+          .append(getLongGmtDateString(params.getEndDate()))
           .append("' ")
           .append("or (psi.executiondate is null and psi.duedate < '")
-          .append(getMediumDateString(dateAfterEndDate))
+          .append(getLongGmtDateString(params.getEndDate()))
           .append("')) ");
     }
 
@@ -1310,73 +1310,89 @@ public class JdbcEventStore implements EventStore {
       return createCaptureSql(user);
     }
 
-    return " EXISTS(SELECT ss.organisationunitid "
-        + " FROM userteisearchorgunits ss "
-        + " JOIN organisationunit orgunit ON orgunit.organisationunitid = ss.organisationunitid "
-        + " JOIN userinfo u ON u.userinfoid = ss.userinfoid "
-        + " WHERE u.uid = '"
-        + user.getUid()
-        + "'"
-        + " AND ou.path like CONCAT(orgunit.path, '%')) ";
+    return getSearchAndCaptureScopeOrgUnitPathMatchQuery(
+        USER_SCOPE_ORG_UNIT_PATH_LIKE_MATCH_QUERY, user.getUid());
   }
 
   private String createDescendantsSql(User user, EventQueryParams params) {
 
     if (isProgramRestricted(params.getProgram())) {
       return createCaptureScopeQuery(
-          user,
-          " AND ou.path like CONCAT('"
-              + params.getOrgUnit().getPath()
-              + "'"
-              + PERCENTAGE_SIGN
-              + ")");
+          user, " AND " + getCustomOrgUnitPathLikeMatchQuery(params.getOrgUnit().getPath()));
     }
 
-    return " ou.path like CONCAT('" + params.getOrgUnit().getPath() + "'" + PERCENTAGE_SIGN + ") ";
+    return getSearchAndCaptureScopeOrgUnitPathMatchQuery(
+        getCustomOrgUnitPathLikeMatchQuery(params.getOrgUnit().getPath()), user.getUid());
   }
 
   private String createChildrenSql(User user, EventQueryParams params) {
 
-    if (isProgramRestricted(params.getProgram())) {
-      String childrenSqlClause =
-          " AND ou.path like CONCAT('"
-              + params.getOrgUnit().getPath()
-              + "'"
-              + PERCENTAGE_SIGN
-              + ") "
-              + " AND (ou.hierarchylevel = "
-              + params.getOrgUnit().getHierarchyLevel()
-              + " OR ou.hierarchylevel = "
-              + (params.getOrgUnit().getHierarchyLevel() + 1)
-              + " )";
+    String customChildrenQuery =
+        " AND (ou.hierarchylevel = "
+            + params.getOrgUnit().getHierarchyLevel()
+            + " OR ou.hierarchylevel = "
+            + (params.getOrgUnit().getHierarchyLevel() + 1)
+            + " ) ";
 
-      return createCaptureScopeQuery(user, childrenSqlClause);
+    if (isProgramRestricted(params.getProgram())) {
+      return createCaptureScopeQuery(
+          user,
+          " AND "
+              + getCustomOrgUnitPathLikeMatchQuery(params.getOrgUnit().getPath())
+              + customChildrenQuery);
     }
 
-    return " ou.path like CONCAT('"
-        + params.getOrgUnit().getPath()
-        + "'"
-        + PERCENTAGE_SIGN
-        + ") "
-        + " AND (ou.hierarchylevel = "
-        + params.getOrgUnit().getHierarchyLevel()
-        + " OR ou.hierarchylevel = "
-        + (params.getOrgUnit().getHierarchyLevel() + 1)
-        + " ) ";
+    return getSearchAndCaptureScopeOrgUnitPathMatchQuery(
+        getCustomOrgUnitPathLikeMatchQuery(params.getOrgUnit().getPath()) + customChildrenQuery,
+        user.getUid());
   }
 
   private String createSelectedSql(User user, EventQueryParams params) {
+
+    String orgUnitPathEqualsMatchQuery =
+        " ou.path = '"
+            + params.getOrgUnit().getPath()
+            + "' "
+            + " AND "
+            + USER_SCOPE_ORG_UNIT_PATH_LIKE_MATCH_QUERY;
 
     if (isProgramRestricted(params.getProgram())) {
       String customSelectedClause = " AND ou.path = '" + params.getOrgUnit().getPath() + "' ";
       return createCaptureScopeQuery(user, customSelectedClause);
     }
 
-    return " ou.path = '" + params.getOrgUnit().getPath() + "' ";
+    return getSearchAndCaptureScopeOrgUnitPathMatchQuery(
+        orgUnitPathEqualsMatchQuery, user.getUid());
   }
 
   private boolean isProgramRestricted(Program program) {
     return program != null && (program.isProtected() || program.isClosed());
+  }
+
+  private static String getSearchAndCaptureScopeOrgUnitPathMatchQuery(
+      String orgUnitMatcher, String userId) {
+    return " (EXISTS(SELECT ss.organisationunitid "
+        + " FROM userteisearchorgunits ss "
+        + " JOIN userinfo u ON u.userinfoid = ss.userinfoid "
+        + " JOIN organisationunit orgunit ON orgunit.organisationunitid = ss.organisationunitid "
+        + " WHERE u.uid = "
+        + "'"
+        + userId
+        + "'"
+        + " AND "
+        + orgUnitMatcher
+        + " AND p.accesslevel in ('OPEN', 'AUDITED')) "
+        + " OR EXISTS(SELECT cs.organisationunitid "
+        + " FROM usermembership cs "
+        + " JOIN userinfo u ON u.userinfoid = cs.userinfoid "
+        + " JOIN organisationunit orgunit ON orgunit.organisationunitid = cs.organisationunitid "
+        + " WHERE u.uid = "
+        + "'"
+        + userId
+        + "'"
+        + " AND "
+        + orgUnitMatcher
+        + " )) ";
   }
 
   private boolean isUserSearchScopeNotSet(User user) {
@@ -1527,10 +1543,10 @@ public class JdbcEventStore implements EventStore {
       sqlBuilder
           .append(hlp.whereAnd())
           .append(" (psi.executiondate >= '")
-          .append(getMediumDateString(params.getStartDate()))
+          .append(getLongGmtDateString(params.getStartDate()))
           .append("' ")
           .append("or (psi.executiondate is null and psi.duedate >= '")
-          .append(getMediumDateString(params.getStartDate()))
+          .append(getLongGmtDateString(params.getStartDate()))
           .append("')) ");
     }
 
@@ -1538,10 +1554,10 @@ public class JdbcEventStore implements EventStore {
       sqlBuilder
           .append(hlp.whereAnd())
           .append(" (psi.executiondate <= '")
-          .append(getMediumDateString(params.getEndDate()))
+          .append(getLongGmtDateString(params.getEndDate()))
           .append("' ")
           .append("or (psi.executiondate is null and psi.duedate <= '")
-          .append(getMediumDateString(params.getEndDate()))
+          .append(getLongGmtDateString(params.getEndDate()))
           .append("')) ");
     }
 
@@ -1638,11 +1654,10 @@ public class JdbcEventStore implements EventStore {
 
       if (params.hasLastUpdatedEndDate()) {
         if (useDateAfterEndDate) {
-          Date dateAfterEndDate = addDays(params.getLastUpdatedEndDate(), 1);
           sqlBuilder
               .append(hlp.whereAnd())
               .append(" psi.lastupdated < '")
-              .append(DateUtils.getLongDateString(dateAfterEndDate))
+              .append(DateUtils.getLongDateString(params.getLastUpdatedEndDate()))
               .append("' ");
         } else {
           sqlBuilder
@@ -1678,8 +1693,7 @@ public class JdbcEventStore implements EventStore {
    */
   private String getCategoryOptionComboQuery(User user) {
     String joinCondition =
-        "inner join categoryoptioncombo coc on coc.categoryoptioncomboid = psi.attributeoptioncomboid "
-            + " inner join (select coc.categoryoptioncomboid as id,"
+        " inner join (select coc.uid, coc.attributevalues, coc.code, coc.categoryoptioncomboid as id,"
             + " string_agg(co.uid, ';') as co_uids, count(co.categoryoptionid) as co_count"
             + " from categoryoptioncombo coc "
             + " inner join categoryoptioncombos_categoryoptions cocco on coc.categoryoptioncomboid = cocco.categoryoptioncomboid"

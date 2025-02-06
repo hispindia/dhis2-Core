@@ -41,6 +41,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -228,6 +229,45 @@ class UserControllerTest extends DhisControllerConvenienceTest {
   }
 
   @Test
+  void updateUserHasAccessToUpdateGroups() {
+    systemSettingManager.saveSystemSetting(SettingKey.CAN_GRANT_OWN_USER_ROLES, Boolean.TRUE);
+
+    UserRole roleB = createUserRole("ROLE_B", "F_USER_ADD", "F_USER_GROUPS_READ_ONLY_ADD_MEMBERS");
+    userService.addUserRole(roleB);
+
+    UserGroup userGroupA = createUserGroup('A', Collections.emptySet());
+    manager.save(userGroupA);
+
+    User user = createUser("someone", "NONE");
+    user.getUserRoles().add(roleB);
+    userService.updateUser(user);
+
+    switchContextToUser(user);
+
+    assertStatus(
+        HttpStatus.OK,
+        PUT(
+            "/users/" + user.getUid(),
+            " {"
+                + "'name': 'test',"
+                + "'username':'someone',"
+                + "'userRoles': ["
+                + "{"
+                + "'id':'"
+                + roleB.getUid()
+                + "'"
+                + "}"
+                + "],"
+                + "'userGroups': ["
+                + "{"
+                + "'id':'"
+                + userGroupA.getUid()
+                + "'"
+                + "}]"
+                + "}"));
+  }
+
+  @Test
   void testUpdateRoles() {
     UserRole userRole = createUserRole("ROLE_B", "ALL");
     userService.addUserRole(userRole);
@@ -279,6 +319,19 @@ class UserControllerTest extends DhisControllerConvenienceTest {
     Set<UserRole> userRoles = peterAfter.getUserRoles();
 
     assertEquals(2, userRoles.size());
+  }
+
+  @Test
+  void testPostJsonObjectInvalidUid() {
+    assertWebMessage(
+        "Conflict",
+        409,
+        "ERROR",
+        "One or more errors occurred, please see full details in import report.",
+        POST(
+                "/users/",
+                "{'id': 'yrB6vc5Ip¤¤', 'surname':'S.','firstName':'Harry', 'username':'harrys', 'userRoles': [{'id': 'yrB6vc5Ip3r'}]}")
+            .content(HttpStatus.CONFLICT));
   }
 
   @Test

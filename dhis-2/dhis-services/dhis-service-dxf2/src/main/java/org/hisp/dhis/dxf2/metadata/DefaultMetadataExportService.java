@@ -76,9 +76,11 @@ import org.hisp.dhis.node.types.ComplexNode;
 import org.hisp.dhis.node.types.RootNode;
 import org.hisp.dhis.node.types.SimpleNode;
 import org.hisp.dhis.option.Option;
+import org.hisp.dhis.option.OptionGroup;
 import org.hisp.dhis.option.OptionSet;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramIndicator;
+import org.hisp.dhis.program.ProgramSection;
 import org.hisp.dhis.program.ProgramStage;
 import org.hisp.dhis.program.ProgramStageDataElement;
 import org.hisp.dhis.program.ProgramStageSection;
@@ -621,6 +623,19 @@ public class DefaultMetadataExportService implements MetadataExportService {
     return metadata;
   }
 
+  private SetMap<Class<? extends IdentifiableObject>, IdentifiableObject> handleOptionGroup(
+      SetMap<Class<? extends IdentifiableObject>, IdentifiableObject> metadata,
+      OptionGroup optionGroup) {
+    if (optionGroup == null) return metadata;
+    metadata.putValue(OptionGroup.class, optionGroup);
+    handleAttributes(metadata, optionGroup);
+    handleOptionSet(metadata, optionGroup.getOptionSet());
+
+    optionGroup.getMembers().forEach(o -> handleOption(metadata, o));
+
+    return metadata;
+  }
+
   private SetMap<Class<? extends IdentifiableObject>, IdentifiableObject> handleOption(
       SetMap<Class<? extends IdentifiableObject>, IdentifiableObject> metadata, Option option) {
     if (option == null) return metadata;
@@ -676,6 +691,9 @@ public class DefaultMetadataExportService implements MetadataExportService {
     handleCategoryCombo(metadata, program.getCategoryCombo());
     handleDataEntryForm(metadata, program.getDataEntryForm());
     handleTrackedEntityType(metadata, program.getTrackedEntityType());
+    program
+        .getProgramSections()
+        .forEach(programSection -> handleProgramSection(metadata, programSection));
 
     program
         .getNotificationTemplates()
@@ -771,6 +789,7 @@ public class DefaultMetadataExportService implements MetadataExportService {
     handleProgramIndicator(metadata, programRuleAction.getProgramIndicator());
     handleProgramStageSection(metadata, programRuleAction.getProgramStageSection());
     handleProgramStage(metadata, programRuleAction.getProgramStage());
+    handleOptionGroup(metadata, programRuleAction.getOptionGroup());
 
     return metadata;
   }
@@ -1002,6 +1021,18 @@ public class DefaultMetadataExportService implements MetadataExportService {
             av ->
                 metadata.putValue(
                     Attribute.class, attributeService.getAttribute(av.getAttribute().getUid())));
+
+    return metadata;
+  }
+
+  private SetMap<Class<? extends IdentifiableObject>, IdentifiableObject> handleProgramSection(
+      SetMap<Class<? extends IdentifiableObject>, IdentifiableObject> metadata,
+      ProgramSection programSection) {
+    if (programSection == null) return metadata;
+    metadata.putValue(ProgramSection.class, programSection);
+    programSection
+        .getTrackedEntityAttributes()
+        .forEach(tea -> handleTrackedEntityAttribute(metadata, tea));
 
     return metadata;
   }
