@@ -28,14 +28,20 @@
 package org.hisp.dhis.fieldfiltering;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.hisp.dhis.dataelement.DataElement;
+import org.hisp.dhis.fieldfilter.Preset;
 import org.hisp.dhis.test.integration.SingleSetupIntegrationTestBase;
+import org.hisp.dhis.user.User;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -46,7 +52,7 @@ class FieldPathHelperTest extends SingleSetupIntegrationTestBase {
   @Autowired private FieldPathHelper helper;
 
   @Test
-  public void testApplySimplePreset() {
+  void testApplySimplePreset() {
     Map<String, FieldPath> fieldMapPath = new HashMap<>();
 
     FieldPath owner = new FieldPath(FieldPreset.SIMPLE, List.of(), false, true);
@@ -69,7 +75,7 @@ class FieldPathHelperTest extends SingleSetupIntegrationTestBase {
   }
 
   @Test
-  public void testApplyIdentifiablePreset() {
+  void testApplyIdentifiablePreset() {
     Map<String, FieldPath> fieldMapPath = new HashMap<>();
 
     FieldPath owner = new FieldPath(FieldPreset.IDENTIFIABLE, List.of(), false, true);
@@ -85,6 +91,78 @@ class FieldPathHelperTest extends SingleSetupIntegrationTestBase {
 
     assertNull(fieldMapPath.get("shortName"));
     assertNull(fieldMapPath.get("description"));
+  }
+
+  @Test
+  @DisplayName("Excluding skip sharing fields on the User class does not remove incorrect fields")
+  void skipSharingFieldsExcludeCorrectFieldsTest() {
+    // given skipSharing exclusions
+    FieldPath user = new FieldPath("user", List.of(), true, false);
+    FieldPath publicAccess = new FieldPath("publicAccess", List.of(), true, false);
+    FieldPath userGroupAccesses = new FieldPath("userGroupAccesses", List.of(), true, false);
+    FieldPath userAccesses = new FieldPath("userAccesses", List.of(), true, false);
+    FieldPath externalAccess = new FieldPath("externalAccess", List.of(), true, false);
+    FieldPath sharing = new FieldPath("sharing", List.of(), true, false);
+
+    // and default preset owner
+    FieldPath owner = new FieldPath("owner", List.of(), false, true);
+
+    // when applying skipSharing exclusions for the User class
+    List<FieldPath> result =
+        helper.apply(
+            List.of(
+                user,
+                owner,
+                publicAccess,
+                userGroupAccesses,
+                userAccesses,
+                externalAccess,
+                sharing),
+            User.class);
+
+    // then only matching exclusions should have been applied
+    // and fields starting with 'user' should still be present
+    assertEquals(59, result.size()); // all user properties
+    assertTrue(
+        result.stream()
+            .map(FieldPath::getName)
+            .collect(Collectors.toList())
+            .containsAll(List.of("username", "userRoles")));
+  }
+
+  @Test
+  @DisplayName("nameable field filter for DataElement returns expected fields")
+  void nameableFieldFilterTest() {
+    // given
+    FieldPath fieldPath = new FieldPath(Preset.NAMEABLE.getName(), List.of());
+    Map<String, FieldPath> fieldPathMap = new HashMap<>();
+
+    // when
+    helper.applyPresets(List.of(fieldPath), fieldPathMap, DataElement.class);
+
+    // then
+    assertEquals(7, fieldPathMap.size());
+    assertTrue(
+        Preset.NAMEABLE
+            .getFields()
+            .containsAll(
+                fieldPathMap.values().stream()
+                    .map(FieldPath::getName)
+                    .collect(Collectors.toList())));
+  }
+
+  @Test
+  @DisplayName("persisted field filter for DataElement returns fields")
+  void persistedFieldFilterTest() {
+    // given
+    FieldPath fieldPath = new FieldPath(FieldPreset.PERSISTED, List.of());
+    Map<String, FieldPath> fieldPathMap = new HashMap<>();
+
+    // when
+    helper.applyPresets(List.of(fieldPath), fieldPathMap, DataElement.class);
+
+    // then
+    assertFalse(fieldPathMap.isEmpty());
   }
 
   private void assertPropertyExists(String propertyName, Map<String, FieldPath> fieldMapPath) {

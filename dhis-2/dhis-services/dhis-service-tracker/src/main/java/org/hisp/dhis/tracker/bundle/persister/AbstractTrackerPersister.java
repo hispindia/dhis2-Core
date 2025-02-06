@@ -30,6 +30,7 @@ package org.hisp.dhis.tracker.bundle.persister;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -60,6 +61,7 @@ import org.hisp.dhis.tracker.bundle.TrackerBundle;
 import org.hisp.dhis.tracker.domain.Attribute;
 import org.hisp.dhis.tracker.domain.MetadataIdentifier;
 import org.hisp.dhis.tracker.domain.TrackerDto;
+import org.hisp.dhis.tracker.job.SideEffectTrigger;
 import org.hisp.dhis.tracker.job.TrackerSideEffectDataBundle;
 import org.hisp.dhis.tracker.preheat.TrackerPreheat;
 import org.hisp.dhis.tracker.report.TrackerObjectReport;
@@ -99,11 +101,14 @@ public abstract class AbstractTrackerPersister<
     //
     List<T> dtos = getByType(getType(), bundle);
 
-    Set<String> updatedTeiList = bundle.getUpdatedTeis();
+    Set<String> updatedTrackedEntities = new HashSet<>(bundle.getUpdatedTrackedEntities());
 
     for (T trackerDto : dtos) {
       TrackerObjectReport objectReport =
           new TrackerObjectReport(getType(), trackerDto.getUid(), dtos.indexOf(trackerDto));
+
+      List<SideEffectTrigger> triggers =
+          determineSideEffectTriggers(bundle.getPreheat(), trackerDto);
 
       try {
         //
@@ -138,10 +143,14 @@ public abstract class AbstractTrackerPersister<
             typeReport.getStats().incUpdated();
             typeReport.addObjectReport(objectReport);
             Optional.ofNullable(getUpdatedTrackedEntity(convertedDto))
-                .ifPresent(updatedTeiList::add);
+                .ifPresent(updatedTrackedEntities::add);
           } else {
             typeReport.getStats().incIgnored();
           }
+        }
+
+        if (!bundle.isSkipSideEffects()) {
+          sideEffectDataBundles.add(handleSideEffects(bundle, convertedDto, triggers));
         }
 
         //
@@ -153,11 +162,7 @@ public abstract class AbstractTrackerPersister<
           session.flush();
         }
 
-        if (!bundle.isSkipSideEffects()) {
-          sideEffectDataBundles.add(handleSideEffects(bundle, convertedDto));
-        }
-
-        bundle.setUpdatedTeis(updatedTeiList);
+        bundle.setUpdatedTrackedEntities(updatedTrackedEntities);
       } catch (Exception e) {
         final String msg =
             "A Tracker Entity of type '"
@@ -233,7 +238,18 @@ public abstract class AbstractTrackerPersister<
   protected abstract boolean isNew(TrackerPreheat preheat, String uid);
 
   /** TODO add comment */
-  protected abstract TrackerSideEffectDataBundle handleSideEffects(TrackerBundle bundle, V entity);
+  protected abstract TrackerSideEffectDataBundle handleSideEffects(
+      TrackerBundle bundle, V entity, List<SideEffectTrigger> triggers);
+
+  /**
+   * Determines the side effect triggers based on the enrollment/event status.
+   *
+   * @param preheat the enrollment/event fetched from the database
+   * @param entity the enrollment/event coming from the request payload
+   * @return a list of NotificationTriggers
+   */
+  protected abstract List<SideEffectTrigger> determineSideEffectTriggers(
+      TrackerPreheat preheat, T entity);
 
   /** Get the Tracker Type for which the current Persister is responsible for. */
   protected abstract TrackerType getType();

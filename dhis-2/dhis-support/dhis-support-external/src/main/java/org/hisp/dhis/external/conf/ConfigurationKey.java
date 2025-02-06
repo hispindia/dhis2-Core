@@ -189,7 +189,8 @@ public enum ConfigurationKey {
   LDAP_SEARCH_FILTER("ldap.search.filter", "(cn={0})", false),
 
   /**
-   * File store provider, currently 'filesystem' and 'aws-s3' are supported. (default: filesystem)
+   * File store provider, currently 'filesystem', 'aws-s3' and 's3' are supported. (default:
+   * filesystem)
    */
   FILESTORE_PROVIDER("filestore.provider", "filesystem", false),
 
@@ -201,6 +202,8 @@ public enum ConfigurationKey {
 
   /** Datacenter location (not required). */
   FILESTORE_LOCATION("filestore.location", "", false),
+
+  FILESTORE_ENDPOINT("filestore.endpoint", "", false),
 
   /** Public identity / username. */
   FILESTORE_IDENTITY("filestore.identity", "", false),
@@ -462,7 +465,7 @@ public enum ConfigurationKey {
   /** Database debugging feature. Enable time query logging. */
   ELAPSED_TIME_QUERY_LOGGING_ENABLED("elapsed.time.query.logging.enabled", Constants.OFF, false),
 
-  /** Database datasource pool type. Supported pool types are: c3p0 (default) or hikari */
+  /** Database datasource pool type. Supported pool types are: c3p0 (default), hikari, unpooled */
   DB_POOL_TYPE("db.pool.type", "c3p0", false),
 
   ACTIVE_READ_REPLICAS("active.read.replicas", "0", false),
@@ -530,7 +533,9 @@ public enum ConfigurationKey {
   CSP_UPGRADE_INSECURE_ENABLED("csp.upgrade.insecure.enabled", Constants.OFF, true),
 
   /** CSP default header value/string. Enable or disable the feature. */
-  CSP_HEADER_VALUE("csp.header.value", CspConstants.SCRIPT_SOURCE_DEFAULT, false);
+  CSP_HEADER_VALUE("csp.header.value", CspConstants.SCRIPT_SOURCE_DEFAULT, false),
+
+  MAX_FILE_UPLOAD_SIZE_BYTES("max.file_upload_size", Integer.toString(10_000_000), false);
 
   private final String key;
 

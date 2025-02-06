@@ -338,13 +338,23 @@ public class AnalyticsUtils {
       Map<String, T> valueMap, TotalType totalType) {
     Map<String, T> map = Maps.newHashMap();
 
+    final int upperBoundaryMarginOfDimensionalObjectItems = 1;
+    final int upperBoundaryOfDimensionalObjectItems =
+        totalType.getPropertyCount() + upperBoundaryMarginOfDimensionalObjectItems;
+
     for (Entry<String, T> entry : valueMap.entrySet()) {
       List<String> items =
           Lists.newArrayList(entry.getKey().split(DimensionalObject.DIMENSION_SEP));
+
+      if (items.size() < upperBoundaryOfDimensionalObjectItems) {
+        map.put(entry.getKey(), entry.getValue());
+        continue;
+      }
+
       List<String> operands =
-          Lists.newArrayList(items.subList(0, totalType.getPropertyCount() + 1));
+          Lists.newArrayList(items.subList(0, upperBoundaryOfDimensionalObjectItems));
       List<String> dimensions =
-          Lists.newArrayList(items.subList(totalType.getPropertyCount() + 1, items.size()));
+          Lists.newArrayList(items.subList(upperBoundaryOfDimensionalObjectItems, items.size()));
 
       // Add wild card in place of category option combination
 
@@ -464,7 +474,6 @@ public class AnalyticsUtils {
       dv.setAttributeOptionCombo(aoc != null ? String.valueOf(aoc) : null);
       dv.setValue(String.valueOf(row.get(vlInx)));
       dv.setComment(KEY_AGG_VALUE);
-      dv.setStoredBy(KEY_AGG_VALUE);
       dv.setCreated(created);
       dv.setLastUpdated(created);
 
@@ -518,7 +527,7 @@ public class AnalyticsUtils {
       objects.add(row.get(coInx));
       objects.add(row.get(aoInx));
       objects.add(row.get(vlInx));
-      objects.add(KEY_AGG_VALUE);
+      objects.add("");
       objects.add(created);
       objects.add(created);
       objects.add(KEY_AGG_VALUE);

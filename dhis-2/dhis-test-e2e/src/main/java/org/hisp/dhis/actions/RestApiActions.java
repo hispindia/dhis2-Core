@@ -34,6 +34,7 @@ import com.google.gson.JsonArray;
 import io.restassured.RestAssured;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.http.ContentType;
+import io.restassured.http.Headers;
 import io.restassured.mapper.ObjectMapperType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -163,6 +164,25 @@ public class RestApiActions {
     return new ApiResponse(response);
   }
 
+  /**
+   * Sends get request with provided path, headers & queryParams appended to URL.
+   *
+   * @param resourceId Id of resource
+   * @param queryParamsBuilder Query params to append to url
+   * @param headers headers to send as part of the request
+   */
+  public ApiResponse getWithHeaders(
+      String resourceId, QueryParamsBuilder queryParamsBuilder, Headers headers) {
+    String path = queryParamsBuilder == null ? "" : queryParamsBuilder.build();
+
+    addCoverage("GET", resourceId + path);
+
+    Response response =
+        this.given().contentType(ContentType.TEXT).headers(headers).when().get(resourceId + path);
+
+    return new ApiResponse(response);
+  }
+
   public ApiResponse get(QueryParamsBuilder queryParamsBuilder) {
     return this.get("", queryParamsBuilder);
   }
@@ -281,6 +301,11 @@ public class RestApiActions {
 
   public ApiResponse postFile(File file, QueryParamsBuilder queryParamsBuilder) {
     return this.postFile(file, queryParamsBuilder, null);
+  }
+
+  public ApiResponse postFileWithContentType(
+      File file, QueryParamsBuilder queryParamsBuilder, String contentType) {
+    return this.postFile(file, queryParamsBuilder, contentType);
   }
 
   public ApiResponse postFile(

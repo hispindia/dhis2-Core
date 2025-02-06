@@ -46,8 +46,8 @@ import static org.hisp.dhis.trackedentity.TrackedEntityInstanceQueryParams.POTEN
 import static org.hisp.dhis.trackedentity.TrackedEntityInstanceQueryParams.PROGRAM_INSTANCE_ALIAS;
 import static org.hisp.dhis.trackedentity.TrackedEntityInstanceQueryParams.TRACKED_ENTITY_ID;
 import static org.hisp.dhis.trackedentity.TrackedEntityInstanceQueryParams.TRACKED_ENTITY_INSTANCE_ID;
-import static org.hisp.dhis.util.DateUtils.getLongDateString;
 import static org.hisp.dhis.util.DateUtils.getLongGmtDateString;
+import static org.hisp.dhis.util.DateUtils.toLongDateWithMillis;
 
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
@@ -77,7 +77,6 @@ import org.hisp.dhis.common.QueryFilter;
 import org.hisp.dhis.common.QueryItem;
 import org.hisp.dhis.common.QueryOperator;
 import org.hisp.dhis.common.hibernate.SoftDeleteHibernateObjectStore;
-import org.hisp.dhis.commons.collection.CollectionUtils;
 import org.hisp.dhis.commons.util.SqlHelper;
 import org.hisp.dhis.dxf2.events.event.EventContext;
 import org.hisp.dhis.event.EventStatus;
@@ -482,6 +481,7 @@ public class HibernateTrackedEntityInstanceStore
             .append(" FROM trackedentityinstance TEI ")
 
             // INNER JOIN on constraints
+            .append(joinPrograms(params))
             .append(getFromSubQueryJoinAttributeConditions(params))
             .append(getFromSubQueryJoinProgramOwnerConditions(params))
             .append(getFromSubQueryJoinOrgUnitConditions(params))
@@ -545,7 +545,23 @@ public class HibernateTrackedEntityInstanceStore
       }
     }
 
-    return "SELECT " + String.join(", ", columns);
+    return "SELECT DISTINCT " + String.join(", ", columns);
+  }
+
+  private String joinPrograms(TrackedEntityInstanceQueryParams params) {
+    StringBuilder trackedEntity = new StringBuilder();
+
+    trackedEntity.append(" INNER JOIN program P ");
+    trackedEntity.append(" ON P.trackedentitytypeid = TEI.trackedentitytypeid ");
+
+    if (!params.hasProgram()) {
+      trackedEntity
+          .append("AND P.programid IN (")
+          .append(getCommaDelimitedString(getIdentifiers(params.getPrograms())))
+          .append(")");
+    }
+
+    return trackedEntity.toString();
   }
 
   /**
@@ -573,26 +589,25 @@ public class HibernateTrackedEntityInstanceStore
       SqlHelper whereAnd, TrackedEntityInstanceQueryParams params) {
     StringBuilder trackedEntity = new StringBuilder();
 
-    if (params.hasTrackedEntityType()) {
-      trackedEntity
-          .append(whereAnd.whereAnd())
-          .append("TEI.trackedentitytypeid = ")
-          .append(params.getTrackedEntityType().getId())
-          .append(SPACE);
-    } else if (!CollectionUtils.isEmpty(params.getTrackedEntityTypes())) {
-      trackedEntity
-          .append(whereAnd.whereAnd())
-          .append("TEI.trackedentitytypeid IN (")
-          .append(getCommaDelimitedString(getIdentifiers(params.getTrackedEntityTypes())))
-          .append(") ");
-    }
-
     if (params.hasTrackedEntityInstances()) {
       trackedEntity
           .append(whereAnd.whereAnd())
           .append("TEI.uid IN (")
           .append(encodeAndQuote(params.getTrackedEntityInstanceUids()))
           .append(") ");
+    }
+
+    if (params.hasTrackedEntityType()) {
+      trackedEntity
+          .append(whereAnd.whereAnd())
+          .append("TEI.trackedentitytypeid = ")
+          .append(params.getTrackedEntityType().getId());
+    } else if (!params.hasProgram()) {
+      trackedEntity
+          .append(whereAnd.whereAnd())
+          .append("TEI.trackedentitytypeid in (")
+          .append(getCommaDelimitedString(getIdentifiers(params.getTrackedEntityTypes())))
+          .append(")");
     }
 
     if (params.hasLastUpdatedDuration()) {
@@ -606,14 +621,14 @@ public class HibernateTrackedEntityInstanceStore
         trackedEntity
             .append(whereAnd.whereAnd())
             .append(" TEI.lastupdated >= '")
-            .append(getLongDateString(params.getLastUpdatedStartDate()))
+            .append(toLongDateWithMillis(params.getLastUpdatedStartDate()))
             .append(SINGLE_QUOTE);
       }
       if (params.hasLastUpdatedEndDate()) {
         trackedEntity
             .append(whereAnd.whereAnd())
             .append(" TEI.lastupdated <= '")
-            .append(getLongDateString(params.getLastUpdatedEndDate()))
+            .append(toLongDateWithMillis(params.getLastUpdatedEndDate()))
             .append(SINGLE_QUOTE);
       }
     }
@@ -622,7 +637,7 @@ public class HibernateTrackedEntityInstanceStore
       if (params.getSkipChangedBefore() != null) {
         trackedEntity
             .append(" AND TEI.lastupdated >= '")
-            .append(getLongDateString(params.getSkipChangedBefore()))
+            .append(toLongDateWithMillis(params.getSkipChangedBefore()))
             .append(SINGLE_QUOTE);
       }
     }
@@ -796,16 +811,18 @@ public class HibernateTrackedEntityInstanceStore
    */
   private String getFromSubQueryJoinProgramOwnerConditions(
       TrackedEntityInstanceQueryParams params) {
-    if (!params.hasProgram() || skipOwnershipCheck(params)) {
-      return "";
+
+    if (params.hasProgram()) {
+      return " INNER JOIN trackedentityprogramowner PO "
+          + " ON PO.programid = "
+          + params.getProgram().getId()
+          + " AND PO.trackedentityinstanceid = TEI.trackedentityinstanceid "
+          + " AND P.programid = PO.programid";
     }
 
-    return new StringBuilder()
-        .append(" INNER JOIN trackedentityprogramowner PO ")
-        .append("ON PO.programid = ")
-        .append(params.getProgram().getId())
-        .append(" AND PO.trackedentityinstanceid = TEI.trackedentityinstanceid ")
-        .toString();
+    return "LEFT JOIN trackedentityprogramowner PO ON "
+        + " PO.trackedentityinstanceid = TEI.trackedentityinstanceid"
+        + " AND P.programid = PO.programid";
   }
 
   /**
@@ -825,10 +842,7 @@ public class HibernateTrackedEntityInstanceStore
     orgUnits
         .append(" INNER JOIN organisationunit OU ")
         .append("ON OU.organisationunitid = ")
-        .append(
-            params.hasProgram() && !skipOwnershipCheck(params)
-                ? "PO.organisationunitid "
-                : "TEI.organisationunitid ");
+        .append(getOwnerOrgUnit(params));
 
     if (!params.hasOrganisationUnits()) {
       return orgUnits.toString();
@@ -857,9 +871,19 @@ public class HibernateTrackedEntityInstanceStore
     return orgUnits.toString();
   }
 
+  private String getOwnerOrgUnit(TrackedEntityInstanceQueryParams params) {
+
+    if (params.hasProgram()) {
+      return "PO.organisationunitid ";
+    }
+
+    return "COALESCE(PO.organisationunitid, TEI.organisationunitid) ";
+  }
+
   /**
    * Generates an INNER JOIN for program instances. If the param we need to order by is enrolledAt,
-   * we need to join the program instance table to be able to select and order by this value
+   * we need to join the program instance table to be able to select and order by this value. We
+   * restrict the join condition to a specific program if specified in the request.
    *
    * @param params
    * @return a SQL INNER JOIN for program instances
@@ -867,12 +891,16 @@ public class HibernateTrackedEntityInstanceStore
   private String getFromSubQueryJoinProgramInstanceConditions(
       TrackedEntityInstanceQueryParams params) {
     if (params.getOrders().stream().anyMatch(p -> ENROLLED_AT.isPropertyEqualTo(p.getField()))) {
-      return new StringBuilder(" INNER JOIN programinstance ")
-          .append(PROGRAM_INSTANCE_ALIAS)
-          .append(" ON ")
-          .append(PROGRAM_INSTANCE_ALIAS + "." + "trackedentityinstanceid")
-          .append("= TEI.trackedentityinstanceid ")
-          .toString();
+
+      String join =
+          "INNER JOIN programinstance %1$s ON %1$s.trackedentityinstanceid = TEI.trackedentityinstanceid";
+
+      return !params.hasProgram()
+          ? String.format(join, PROGRAM_INSTANCE_ALIAS)
+          : String.format(
+              join + " AND %1$s.programid = %2$s",
+              PROGRAM_INSTANCE_ALIAS,
+              params.getProgram().getId());
     }
 
     return "";
@@ -922,28 +950,28 @@ public class HibernateTrackedEntityInstanceStore
     if (params.hasProgramEnrollmentStartDate()) {
       program
           .append("AND PI.enrollmentdate >= '")
-          .append(getLongDateString(params.getProgramEnrollmentStartDate()))
+          .append(toLongDateWithMillis(params.getProgramEnrollmentStartDate()))
           .append("' ");
     }
 
     if (params.hasProgramEnrollmentEndDate()) {
       program
           .append("AND PI.enrollmentdate <= '")
-          .append(getLongDateString(params.getProgramEnrollmentEndDate()))
+          .append(toLongDateWithMillis(params.getProgramEnrollmentEndDate()))
           .append("' ");
     }
 
     if (params.hasProgramIncidentStartDate()) {
       program
           .append("AND PI.incidentdate >= '")
-          .append(getLongDateString(params.getProgramIncidentStartDate()))
+          .append(toLongDateWithMillis(params.getProgramIncidentStartDate()))
           .append("' ");
     }
 
     if (params.hasProgramIncidentEndDate()) {
       program
           .append("AND PI.incidentdate <= '")
-          .append(getLongDateString(params.getProgramIncidentEndDate()))
+          .append(toLongDateWithMillis(params.getProgramIncidentEndDate()))
           .append("' ");
     }
 
@@ -984,8 +1012,8 @@ public class HibernateTrackedEntityInstanceStore
     }
 
     if (params.hasEventStatus()) {
-      String start = getLongDateString(params.getEventStartDate());
-      String end = getLongDateString(params.getEventEndDate());
+      String start = toLongDateWithMillis(params.getEventStartDate());
+      String end = toLongDateWithMillis(params.getEventEndDate());
 
       if (params.isEventStatus(EventStatus.COMPLETED)) {
         events
@@ -1391,7 +1419,7 @@ public class HibernateTrackedEntityInstanceStore
 
   @Override
   public void updateTrackedEntityInstancesLastUpdated(
-      Set<String> trackedEntityInstanceUIDs, Date lastUpdated) {
+      Set<String> trackedEntityInstanceUIDs, Date lastUpdated, String infoSnapshot) {
     List<List<String>> uidsPartitions =
         Lists.partition(Lists.newArrayList(trackedEntityInstanceUIDs), 20000);
 
@@ -1400,9 +1428,10 @@ public class HibernateTrackedEntityInstanceStore
         .forEach(
             teis ->
                 getSession()
-                    .getNamedQuery("updateTeisLastUpdated")
+                    .getNamedQuery("updateTrackedEntitiesLastUpdated")
                     .setParameter("trackedEntityInstances", teis)
                     .setParameter("lastUpdated", lastUpdated)
+                    .setParameter("lastupdatedbyuserinfo", infoSnapshot)
                     .executeUpdate());
   }
 
@@ -1478,9 +1507,5 @@ public class HibernateTrackedEntityInstanceStore
     }
 
     return StringUtils.EMPTY;
-  }
-
-  private boolean skipOwnershipCheck(TrackedEntityInstanceQueryParams params) {
-    return params.getUser() != null && params.getUser().isSuper();
   }
 }

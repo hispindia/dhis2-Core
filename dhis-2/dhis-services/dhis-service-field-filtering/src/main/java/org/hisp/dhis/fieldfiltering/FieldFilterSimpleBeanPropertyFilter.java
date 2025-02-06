@@ -39,7 +39,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.hisp.dhis.common.SystemDefaultMetadataObject;
 import org.hisp.dhis.scheduling.JobParameters;
 import org.hisp.dhis.system.util.AnnotationUtils;
 
@@ -51,14 +53,16 @@ import org.hisp.dhis.system.util.AnnotationUtils;
  *
  * @author Morten Olav Hansen
  */
+@Slf4j
 @RequiredArgsConstructor
 public class FieldFilterSimpleBeanPropertyFilter extends SimpleBeanPropertyFilter {
   private final List<FieldPath> fieldPaths;
 
   private final boolean skipSharing;
+  private final boolean excludeDefaults;
 
   /** Cache that contains true/false for classes that should always be expanded. */
-  private final Map<Class<?>, Boolean> alwaysExpandCache = new ConcurrentHashMap<>();
+  private static final Map<Class<?>, Boolean> ALWAYS_EXPAND_CACHE = new ConcurrentHashMap<>();
 
   @Override
   protected boolean include(final BeanPropertyWriter writer) {
@@ -70,11 +74,20 @@ public class FieldFilterSimpleBeanPropertyFilter extends SimpleBeanPropertyFilte
     return true;
   }
 
-  protected boolean include(final PropertyWriter writer, final JsonGenerator jgen) {
+  protected boolean include(final PropertyWriter writer, final JsonGenerator jgen, Object object) {
     PathContext ctx = getPath(writer, jgen);
 
     if (ctx.getCurrentValue() == null) {
       return false;
+    }
+
+    if (log.isDebugEnabled()) {
+      log.debug(ctx.getCurrentValue().getClass().getSimpleName() + ": " + ctx.getFullPath());
+    }
+
+    if (excludeDefaults && (object instanceof SystemDefaultMetadataObject)) {
+      SystemDefaultMetadataObject sdmo = (SystemDefaultMetadataObject) object;
+      if (sdmo.isDefault()) return false;
     }
 
     if (skipSharing
@@ -115,15 +128,15 @@ public class FieldFilterSimpleBeanPropertyFilter extends SimpleBeanPropertyFilte
     }
 
     while (sc != null) {
+      if (sc.getCurrentName() != null && sc.getCurrentValue() != null) {
+        nestedPath.insert(0, ".");
+        nestedPath.insert(0, sc.getCurrentName());
+      }
+
       if (isAlwaysExpandType(sc.getCurrentValue())) {
         sc = sc.getParent();
         alwaysExpand = true;
         continue;
-      }
-
-      if (sc.getCurrentName() != null && sc.getCurrentValue() != null) {
-        nestedPath.insert(0, ".");
-        nestedPath.insert(0, sc.getCurrentName());
       }
 
       sc = sc.getParent();
@@ -140,29 +153,23 @@ public class FieldFilterSimpleBeanPropertyFilter extends SimpleBeanPropertyFilte
   public void serializeAsField(
       Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer)
       throws Exception {
-    if (include(writer, jgen)) {
+    if (include(writer, jgen, pojo)) {
       writer.serializeAsField(pojo, jgen, provider);
     } else if (!jgen.canOmitFields()) { // since 2.3
       writer.serializeAsOmittedField(pojo, jgen, provider);
     }
   }
 
-  private boolean isAlwaysExpandType(Object object) {
+  private static boolean isAlwaysExpandType(Object object) {
     if (object == null) {
       return false;
     }
-
-    Class<?> klass = object.getClass();
-
-    if (!alwaysExpandCache.containsKey(klass)) {
-      alwaysExpandCache.put(
-          klass,
-          Map.class.isAssignableFrom(klass)
-              || JobParameters.class.isAssignableFrom(klass)
-              || AnnotationUtils.isAnnotationPresent(klass, JsonTypeInfo.class));
-    }
-
-    return alwaysExpandCache.get(klass);
+    return ALWAYS_EXPAND_CACHE.computeIfAbsent(
+        object.getClass(),
+        type ->
+            Map.class.isAssignableFrom(type)
+                || JobParameters.class.isAssignableFrom(type)
+                || AnnotationUtils.isAnnotationPresent(type, JsonTypeInfo.class));
   }
 }
 

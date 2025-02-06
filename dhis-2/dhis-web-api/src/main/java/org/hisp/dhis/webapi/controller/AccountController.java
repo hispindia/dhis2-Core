@@ -54,6 +54,7 @@ import org.hisp.dhis.common.IllegalQueryException;
 import org.hisp.dhis.configuration.ConfigurationService;
 import org.hisp.dhis.dxf2.webmessage.WebMessage;
 import org.hisp.dhis.dxf2.webmessage.WebMessageException;
+import org.hisp.dhis.external.conf.DhisConfigurationProvider;
 import org.hisp.dhis.feedback.ErrorCode;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
 import org.hisp.dhis.security.PasswordManager;
@@ -73,7 +74,6 @@ import org.hisp.dhis.user.User;
 import org.hisp.dhis.user.UserRole;
 import org.hisp.dhis.user.UserService;
 import org.hisp.dhis.webapi.mvc.annotation.ApiVersion;
-import org.hisp.dhis.webapi.utils.ContextUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -114,6 +114,8 @@ public class AccountController {
 
   private final PasswordValidationService passwordValidationService;
 
+  private final DhisConfigurationProvider configurationProvider;
+
   @PostMapping("/recovery")
   @ResponseBody
   public WebMessage recoverAccount(@RequestParam String username, HttpServletRequest request)
@@ -130,6 +132,11 @@ public class AccountController {
       return conflict("User does not exist: " + username);
     }
 
+    String baseUrl = configurationProvider.getServerBaseUrl();
+    if (StringUtils.isEmpty(baseUrl)) {
+      return conflict("Server base URL is not configured");
+    }
+
     ErrorCode errorCode = securityService.validateRestore(user);
 
     if (errorCode != null) {
@@ -137,7 +144,7 @@ public class AccountController {
     }
 
     if (!securityService.sendRestoreOrInviteMessage(
-        user, ContextUtils.getContextPath(request), RestoreOptions.RECOVER_PASSWORD_OPTION)) {
+        user, baseUrl, RestoreOptions.RECOVER_PASSWORD_OPTION)) {
       return conflict("Account could not be recovered");
     }
 
@@ -216,7 +223,6 @@ public class AccountController {
       @RequestParam String password,
       @RequestParam String email,
       @RequestParam String phoneNumber,
-      @RequestParam String employer,
       @RequestParam(required = false) String inviteUsername,
       @RequestParam(required = false) String inviteToken,
       @RequestParam(value = "g-recaptcha-response", required = false) String recapResponse,
@@ -242,7 +248,6 @@ public class AccountController {
               .password(StringUtils.trimToNull(password))
               .email(StringUtils.trimToNull(email))
               .phoneNumber(StringUtils.trimToNull(phoneNumber))
-              .employer(StringUtils.trimToNull(employer))
               .build();
 
       WebMessage validateInput = validateInput(userRegistration, usernameChoice);
@@ -279,7 +284,6 @@ public class AccountController {
               .password(StringUtils.trimToNull(password))
               .email(StringUtils.trimToNull(email))
               .phoneNumber(StringUtils.trimToNull(phoneNumber))
-              .employer(StringUtils.trimToNull(employer))
               .build();
 
       WebMessage validateInput = validateInput(userRegistration, true);
@@ -361,11 +365,6 @@ public class AccountController {
       return badRequest("Phone number is not specified or invalid");
     }
 
-    if (userRegistration.getEmployer() == null
-        || userRegistration.getEmployer().trim().length() > MAX_LENGTH) {
-      return badRequest("Employer is not specified or invalid");
-    }
-
     return null;
   }
 
@@ -383,8 +382,6 @@ public class AccountController {
     private final String email;
 
     private final String phoneNumber;
-
-    private final String employer;
   }
 
   private void createAndAddSelfRegisteredUser(
@@ -398,7 +395,6 @@ public class AccountController {
     user.setSurname(userRegistration.getSurname());
     user.setEmail(userRegistration.getEmail());
     user.setPhoneNumber(userRegistration.getPhoneNumber());
-    user.setEmployer(userRegistration.getEmployer());
     user.getOrganisationUnits().add(orgUnit);
     user.getDataViewOrganisationUnits().add(orgUnit);
 
@@ -420,10 +416,8 @@ public class AccountController {
     user.setFirstName(userRegistration.getFirstName());
     user.setSurname(userRegistration.getSurname());
     user.setPhoneNumber(userRegistration.getPhoneNumber());
-    user.setEmployer(userRegistration.getEmployer());
     user.setEmail(userRegistration.getEmail());
     user.setPhoneNumber(userRegistration.getPhoneNumber());
-    user.setEmployer(userRegistration.getEmployer());
 
     userService.updateUser(user);
 
@@ -539,7 +533,7 @@ public class AccountController {
 
   private Map<String, String> validateUserName(String username, boolean validateIfExists) {
     boolean isNull = username == null;
-    boolean usernameExists = userService.getUserByUsername(username) != null;
+    boolean usernameExists = userService.getUserByUsernameIgnoreCase(username) != null;
     boolean isValidSyntax = ValidationUtils.usernameIsValid(username, false);
 
     // Custom code required because of our hacked jQuery validation

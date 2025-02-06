@@ -60,7 +60,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Zubair Asghar
  */
 @Component("org.hisp.dhis.programrule.engine.RuleActionSendMessageImplementer")
-@Transactional
 public class RuleActionSendMessageImplementer extends NotificationRuleActionImplementer {
   // -------------------------------------------------------------------------
   // Dependencies
@@ -88,6 +87,7 @@ public class RuleActionSendMessageImplementer extends NotificationRuleActionImpl
   }
 
   @Override
+  @Transactional
   public void implement(RuleEffect ruleEffect, ProgramInstance programInstance) {
     NotificationValidationResult result = validate(ruleEffect, programInstance);
 
@@ -113,6 +113,7 @@ public class RuleActionSendMessageImplementer extends NotificationRuleActionImpl
   }
 
   @Override
+  @Transactional
   public void implement(RuleEffect ruleEffect, ProgramStageInstance programStageInstance) {
     checkNotNull(programStageInstance, "ProgramStageInstance cannot be null");
 

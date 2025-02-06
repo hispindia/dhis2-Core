@@ -43,7 +43,7 @@
         "idScheme": "UID",
         "identifier": "h4w96yEMlzO"
       },
-      "inactive": false,
+      "inactive": true,
       "deleted": false,
       "potentialDuplicate": false,
       "relationships": [],
@@ -280,6 +280,29 @@
       "notes": []
     },
     {
+      "enrollment": "nxP8UnKhomJ",
+      "createdAtClient": "2017-01-26T13:48:13.363",
+      "trackedEntity": "QS6w44flWAf",
+      "program": {
+        "idScheme": "UID",
+        "identifier": "shPjYNifvMK"
+      },
+      "status": "ACTIVE",
+      "orgUnit": {
+        "idScheme": "UID",
+        "identifier": "uoNW0E3xXUy"
+      },
+      "enrolledAt": "2021-04-28T12:05:00.000",
+      "occurredAt": "2021-04-28T12:05:00.000",
+      "scheduledAt": "2021-04-28T12:05:00.000",
+      "followUp": false,
+      "deleted": false,
+      "events": [],
+      "relationships": [],
+      "attributes": [],
+      "notes": []
+    },
+    {
       "enrollment": "TvctPPhpD8z",
       "createdAtClient": "2017-01-26T13:48:13.363",
       "trackedEntity": "dUE514NMOlo",
@@ -287,7 +310,7 @@
         "idScheme": "UID",
         "identifier": "BFcipDERJnf"
       },
-      "status": "ACTIVE",
+      "status": "COMPLETED",
       "orgUnit": {
         "idScheme": "UID",
         "identifier": "h4w96yEMlzO"
@@ -485,6 +508,7 @@
       ],
       "completedBy": "admin",
       "completedAt": "2019-01-28T00:00:00.000",
+      "completedAt": "2020-01-28T00:00:00.000",
       "dataValues": [
         {
           "dataElement": {
@@ -1087,7 +1111,7 @@
     },
     {
       "event": "SbUJzkxKYAG",
-      "status": "COMPLETED",
+      "status": "ACTIVE",
       "program": {
         "idScheme": "UID",
         "identifier": "YlUmbgnKWkd"
@@ -1103,8 +1127,8 @@
       },
       "relationships": [],
       "occurredAt": "2019-01-28T00:00:00.000",
-      "scheduledAt": "2019-01-28T12:10:38.100",
-      "storedBy": "admin",
+      "scheduledAt": "2019-01-28T11:10:38.100",
+      "storedBy": "tracker",
       "followUp": true,
       "deleted": false,
       "attributeOptionCombo": {
@@ -1202,6 +1226,22 @@
       },
       "to": {
         "event": "pTzf9KYMk72"
+      }
+    },
+    {
+      "relationship": "fHn74P5T3r1",
+      "relationshipType": {
+        "idScheme": "UID",
+        "identifier": "TV9oB9LT3sh"
+      },
+      "createdAtClient": "2018-11-01T13:24:37.118",
+      "bidirectional": false,
+      "deleted": false,
+      "from": {
+        "trackedEntity": "dUE514NMOlo"
+      },
+      "to": {
+        "event": "D9PbzJY8bJM"
       }
     }
   ],

@@ -35,6 +35,7 @@ import org.hisp.dhis.dxf2.common.ImportOptions;
 import org.hisp.dhis.dxf2.events.TrackedEntityInstanceParams;
 import org.hisp.dhis.dxf2.importsummary.ImportSummaries;
 import org.hisp.dhis.dxf2.importsummary.ImportSummary;
+import org.hisp.dhis.program.Program;
 import org.hisp.dhis.scheduling.JobConfiguration;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceQueryParams;
 import org.hisp.dhis.user.User;
@@ -92,6 +93,9 @@ public interface TrackedEntityInstanceService {
       org.hisp.dhis.trackedentity.TrackedEntityInstance entityInstance,
       TrackedEntityInstanceParams params,
       User user);
+
+  TrackedEntityInstance getTrackedEntityInstanceExcludingACL(
+      String uid, Program program, TrackedEntityInstanceParams params);
 
   // -------------------------------------------------------------------------
   // CREATE, UPDATE or DELETE

@@ -32,7 +32,9 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hisp.dhis.common.OrganisationUnitSelectionMode.SELECTED;
 import static org.hisp.dhis.matchers.DateTimeFormatMatcher.hasDateTimeFormat;
+import static org.hisp.dhis.utils.Assertions.assertContainsOnly;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -216,13 +218,13 @@ class TrackedEntityInstanceAggregateTest extends TrackerTest {
     queryParams.setOrganisationUnits(Sets.newHashSet(organisationUnitA));
     queryParams.setTrackedEntityType(trackedEntityTypeA);
     queryParams.setLastUpdatedStartDate(Date.from(Instant.now().minus(1, ChronoUnit.DAYS)));
-    queryParams.setLastUpdatedEndDate(Date.from(Instant.now().plus(1, ChronoUnit.HOURS)));
+    queryParams.setLastUpdatedEndDate(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
     TrackedEntityInstanceParams params = TrackedEntityInstanceParams.FALSE;
     final List<TrackedEntityInstance> trackedEntityInstances =
         trackedEntityInstanceService.getTrackedEntityInstances(queryParams, params, false, true);
     assertThat(trackedEntityInstances, hasSize(4));
     assertThat(trackedEntityInstances.get(0).getEnrollments(), hasSize(0));
-    // Update last updated start date to today
+    // Update last updated start date to tomorrow
     queryParams.setLastUpdatedStartDate(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
     queryParams.setLastUpdatedEndDate(Date.from(Instant.now().plus(2, ChronoUnit.DAYS)));
     final List<TrackedEntityInstance> limitedTTrackedEntityInstances =
@@ -439,6 +441,32 @@ class TrackedEntityInstanceAggregateTest extends TrackerTest {
   }
 
   @Test
+  void shouldReturnTrackedEntityIncludingAllEnrollments() {
+    String teUid = CodeGenerator.generateUid();
+    doInTransaction(() -> this.persistTrackedEntityInstanceWithEnrollments(teUid));
+    TrackedEntityInstanceQueryParams queryParams = new TrackedEntityInstanceQueryParams();
+    queryParams.setOrganisationUnits(Set.of(organisationUnitA, organisationUnitB));
+    queryParams.setOrganisationUnitMode(SELECTED);
+    queryParams.setTrackedEntityInstanceUids(Set.of(teUid));
+
+    TrackedEntityInstanceParams params =
+        new TrackedEntityInstanceParams(
+            false, TrackedEntityInstanceEnrollmentParams.TRUE, false, false, false, false);
+
+    final List<TrackedEntityInstance> trackedEntityInstances =
+        trackedEntityInstanceService.getTrackedEntityInstances(queryParams, params, false, false);
+
+    assertThat(trackedEntityInstances, hasSize(1));
+    assertThat(trackedEntityInstances.get(0).getEnrollments(), hasSize(2));
+
+    assertContainsOnly(
+        Set.of(organisationUnitA.getUid(), organisationUnitB.getUid()),
+        trackedEntityInstances.get(0).getEnrollments().stream()
+            .map(Enrollment::getOrgUnit)
+            .collect(Collectors.toSet()));
+  }
+
+  @Test
   void testFetchTrackedEntityInstancesWithoutEvents() {
     doInTransaction(
         () -> {
@@ -600,6 +628,7 @@ class TrackedEntityInstanceAggregateTest extends TrackerTest {
     queryParams.setOrganisationUnits(Sets.newHashSet(organisationUnitA));
     queryParams.setTrackedEntityType(trackedEntityTypeA);
     queryParams.setIncludeAllAttributes(true);
+    queryParams.setPrograms(List.of(programA));
     TrackedEntityInstanceParams params =
         new TrackedEntityInstanceParams(
             false, TrackedEntityInstanceEnrollmentParams.TRUE, false, false, false, false);

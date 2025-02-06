@@ -112,6 +112,9 @@ public class TrackedEntityInstanceQueryParams {
   /** Program for which instances in the response must be enrolled in. */
   private Program program;
 
+  /** Programs to fetch. */
+  private List<Program> programs = List.of();
+
   /** Status of the tracked entity instance in the given program. */
   private ProgramStatus programStatus;
 
@@ -683,6 +686,15 @@ public class TrackedEntityInstanceQueryParams {
     return this;
   }
 
+  public List<Program> getPrograms() {
+    return programs;
+  }
+
+  public TrackedEntityInstanceQueryParams setPrograms(List<Program> programs) {
+    this.programs = programs;
+    return this;
+  }
+
   public ProgramStage getProgramStage() {
     return programStage;
   }
@@ -935,11 +947,6 @@ public class TrackedEntityInstanceQueryParams {
     return user;
   }
 
-  public TrackedEntityInstanceQueryParams setUser(User user) {
-    this.user = user;
-    return this;
-  }
-
   public List<OrderParam> getOrders() {
     return orders;
   }
@@ -977,6 +984,11 @@ public class TrackedEntityInstanceQueryParams {
     return this;
   }
 
+  public TrackedEntityInstanceQueryParams setUser(User user) {
+    this.user = user;
+    return this;
+  }
+
   public List<TrackedEntityType> getTrackedEntityTypes() {
     return trackedEntityTypes;
   }
@@ -998,11 +1010,13 @@ public class TrackedEntityInstanceQueryParams {
   @Getter
   @AllArgsConstructor
   public enum OrderColumn {
-    TRACKEDENTITY("trackedEntityInstance", "uid", MAIN_QUERY_ALIAS),
+    TRACKEDENTITY_INSTANCE("trackedEntityInstance", "uid", MAIN_QUERY_ALIAS),
+    TRACKEDENTITY("trackedEntity", "uid", MAIN_QUERY_ALIAS),
     CREATED("created", CREATED_ID, MAIN_QUERY_ALIAS),
     CREATED_AT("createdAt", CREATED_ID, MAIN_QUERY_ALIAS),
     CREATED_AT_CLIENT("createdAtClient", "createdatclient", MAIN_QUERY_ALIAS),
-    UPDATED_AT("lastUpdated", "lastupdated", MAIN_QUERY_ALIAS),
+    LAST_UPDATED_AT("lastUpdated", "lastupdated", MAIN_QUERY_ALIAS),
+    UPDATED_AT("updatedAt", "lastupdated", MAIN_QUERY_ALIAS),
     UPDATED_AT_CLIENT("updatedAtClient", "lastupdatedatclient", MAIN_QUERY_ALIAS),
     ENROLLED_AT(
         "enrolledAt",

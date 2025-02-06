@@ -28,9 +28,11 @@
 package org.hisp.dhis.webapi.controller.event.mapper;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.BooleanUtils.toBooleanDefaultIfNull;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.hisp.dhis.trackedentity.TrackedEntityInstanceQueryParams.OrderColumn.findColumn;
+import static org.hisp.dhis.util.ObjectUtils.applyIfNotNull;
 import static org.hisp.dhis.webapi.controller.event.mapper.OrderParamsHelper.toOrderParams;
 
 import java.util.Date;
@@ -51,6 +53,7 @@ import org.hisp.dhis.organisationunit.OrganisationUnitService;
 import org.hisp.dhis.program.Program;
 import org.hisp.dhis.program.ProgramService;
 import org.hisp.dhis.program.ProgramStage;
+import org.hisp.dhis.security.acl.AclService;
 import org.hisp.dhis.trackedentity.TrackedEntityAttribute;
 import org.hisp.dhis.trackedentity.TrackedEntityAttributeService;
 import org.hisp.dhis.trackedentity.TrackedEntityInstanceQueryParams;
@@ -61,6 +64,8 @@ import org.hisp.dhis.user.User;
 import org.hisp.dhis.webapi.controller.event.webrequest.TrackedEntityInstanceCriteria;
 import org.hisp.dhis.webapi.controller.event.webrequest.tracker.TrackerTrackedEntityCriteria;
 import org.hisp.dhis.webapi.controller.event.webrequest.tracker.mapper.TrackerTrackedEntityCriteriaMapper;
+import org.hisp.dhis.webapi.webdomain.EndDateTime;
+import org.hisp.dhis.webapi.webdomain.StartDateTime;
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,6 +85,8 @@ public class TrackedEntityCriteriaMapper {
 
   private final TrackedEntityAttributeService attributeService;
 
+  private final AclService aclService;
+
   private static final TrackerTrackedEntityCriteriaMapper TRACKER_TRACKED_ENTITY_CRITERIA_MAPPER =
       Mappers.getMapper(TrackerTrackedEntityCriteriaMapper.class);
 
@@ -88,7 +95,8 @@ public class TrackedEntityCriteriaMapper {
       OrganisationUnitService organisationUnitService,
       ProgramService programService,
       TrackedEntityAttributeService attributeService,
-      TrackedEntityTypeService trackedEntityTypeService) {
+      TrackedEntityTypeService trackedEntityTypeService,
+      AclService aclService) {
     checkNotNull(currentUserService);
     checkNotNull(organisationUnitService);
     checkNotNull(programService);
@@ -100,6 +108,7 @@ public class TrackedEntityCriteriaMapper {
     this.programService = programService;
     this.attributeService = attributeService;
     this.trackedEntityTypeService = trackedEntityTypeService;
+    this.aclService = aclService;
   }
 
   @Transactional(readOnly = true)
@@ -107,16 +116,21 @@ public class TrackedEntityCriteriaMapper {
     TrackedEntityInstanceQueryParams params = new TrackedEntityInstanceQueryParams();
 
     final Date programEnrollmentStartDate =
-        ObjectUtils.firstNonNull(
-            criteria.getProgramEnrollmentStartDate(), criteria.getProgramStartDate());
+        applyIfNotNull(
+            ObjectUtils.firstNonNull(
+                criteria.getProgramEnrollmentStartDate(), criteria.getProgramStartDate()),
+            StartDateTime::toDate);
 
     final Date programEnrollmentEndDate =
-        ObjectUtils.firstNonNull(
-            criteria.getProgramEnrollmentEndDate(), criteria.getProgramEndDate());
+        applyIfNotNull(
+            ObjectUtils.firstNonNull(
+                criteria.getProgramEnrollmentEndDate(), criteria.getProgramEndDate()),
+            EndDateTime::toDate);
 
     User user = currentUserService.getCurrentUser();
 
     Program program = validateProgram(criteria);
+    List<Program> programs = getTrackerPrograms(program, user);
 
     Map<String, TrackedEntityAttribute> attributes =
         attributeService.getAllTrackedEntityAttributes().stream()
@@ -169,21 +183,26 @@ public class TrackedEntityCriteriaMapper {
     params
         .setQuery(getQueryFilter(criteria.getQuery()))
         .setProgram(program)
+        .setPrograms(programs)
         .setProgramStage(validateProgramStage(criteria, program))
         .setProgramStatus(criteria.getProgramStatus())
         .setFollowUp(criteria.getFollowUp())
-        .setLastUpdatedStartDate(criteria.getLastUpdatedStartDate())
-        .setLastUpdatedEndDate(criteria.getLastUpdatedEndDate())
+        .setLastUpdatedStartDate(
+            applyIfNotNull(criteria.getLastUpdatedStartDate(), StartDateTime::toDate))
+        .setLastUpdatedEndDate(
+            applyIfNotNull(criteria.getLastUpdatedEndDate(), EndDateTime::toDate))
         .setLastUpdatedDuration(criteria.getLastUpdatedDuration())
         .setProgramEnrollmentStartDate(programEnrollmentStartDate)
         .setProgramEnrollmentEndDate(programEnrollmentEndDate)
-        .setProgramIncidentStartDate(criteria.getProgramIncidentStartDate())
-        .setProgramIncidentEndDate(criteria.getProgramIncidentEndDate())
+        .setProgramIncidentStartDate(
+            applyIfNotNull(criteria.getProgramIncidentStartDate(), StartDateTime::toDate))
+        .setProgramIncidentEndDate(
+            applyIfNotNull(criteria.getProgramIncidentEndDate(), EndDateTime::toDate))
         .setTrackedEntityType(validateTrackedEntityType(criteria))
         .setOrganisationUnitMode(criteria.getOuMode())
         .setEventStatus(criteria.getEventStatus())
-        .setEventStartDate(criteria.getEventStartDate())
-        .setEventEndDate(criteria.getEventEndDate())
+        .setEventStartDate(applyIfNotNull(criteria.getEventStartDate(), StartDateTime::toDate))
+        .setEventEndDate(applyIfNotNull(criteria.getEventEndDate(), EndDateTime::toDate))
         .setAssignedUserSelectionMode(criteria.getAssignedUserMode())
         .setAssignedUsers(criteria.getAssignedUsers())
         .setTrackedEntityInstanceUids(criteria.getTrackedEntityInstances())
@@ -280,6 +299,17 @@ public class TrackedEntityCriteriaMapper {
       throw new IllegalQueryException("Program does not exist: " + criteria.getProgram());
     }
     return program;
+  }
+
+  private List<Program> getTrackerPrograms(Program program, User user) {
+    if (program == null) {
+      return programService.getAllPrograms().stream()
+          .filter(Program::isRegistration)
+          .filter(p -> aclService.canDataRead(user, p))
+          .collect(Collectors.toList());
+    }
+
+    return emptyList();
   }
 
   private ProgramStage validateProgramStage(

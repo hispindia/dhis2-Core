@@ -67,9 +67,9 @@ import org.hisp.dhis.dxf2.common.TranslateParams;
 import org.hisp.dhis.dxf2.webmessage.WebMessageException;
 import org.hisp.dhis.fieldfilter.Defaults;
 import org.hisp.dhis.fieldfilter.FieldFilterService;
+import org.hisp.dhis.fieldfilter.Preset;
 import org.hisp.dhis.fieldfiltering.FieldFilterParams;
 import org.hisp.dhis.hibernate.exception.ReadAccessDeniedException;
-import org.hisp.dhis.node.Preset;
 import org.hisp.dhis.query.Order;
 import org.hisp.dhis.query.Pagination;
 import org.hisp.dhis.query.Query;
@@ -220,7 +220,10 @@ public abstract class AbstractFullReadOnlyController<T extends IdentifiableObjec
 
     return ResponseEntity.ok(
         new StreamingJsonRoot<>(
-            pager, getSchema().getCollectionName(), FieldFilterParams.of(entities, fields)));
+            pager,
+            getSchema().getCollectionName(),
+            FieldFilterParams.of(entities, fields),
+            Defaults.valueOf(options.get("defaults", DEFAULTS)).isExclude()));
   }
 
   @GetMapping(produces = {"text/csv", "application/text"})
@@ -422,7 +425,8 @@ public abstract class AbstractFullReadOnlyController<T extends IdentifiableObjec
         new StreamingJsonRoot<>(
             null,
             entities.size() > 1 ? getSchema().getPlural() : null,
-            FieldFilterParams.of(entities, fields)));
+            FieldFilterParams.of(entities, fields),
+            query.getDefaults().isExclude()));
   }
 
   @GetMapping("/{uid}/{property}")

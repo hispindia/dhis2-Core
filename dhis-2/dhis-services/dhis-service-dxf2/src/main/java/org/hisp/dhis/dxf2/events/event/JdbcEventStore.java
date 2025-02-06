@@ -71,7 +71,6 @@ import static org.hisp.dhis.dxf2.events.trackedentity.store.query.EventQuery.COL
 import static org.hisp.dhis.system.util.SqlUtils.castToNumber;
 import static org.hisp.dhis.system.util.SqlUtils.lower;
 import static org.hisp.dhis.system.util.SqlUtils.quote;
-import static org.hisp.dhis.util.DateUtils.addDays;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -232,7 +231,7 @@ public class JdbcEventStore implements EventStore {
           .put(EVENT_CREATED_ID, "psi_created")
           .put(EVENT_LAST_UPDATED_ID, "psi_lastupdated")
           .put(EVENT_COMPLETED_BY_ID, "psi_completedby")
-          .put(EVENT_ATTRIBUTE_OPTION_COMBO_ID, "psi_aoc")
+          .put(EVENT_ATTRIBUTE_OPTION_COMBO_ID, "coc_uid")
           .put(EVENT_COMPLETED_DATE_ID, "psi_completeddate")
           .put(EVENT_DELETED, "psi_deleted")
           .put("assignedUser", "user_assigned_username")
@@ -515,7 +514,8 @@ public class JdbcEventStore implements EventStore {
               Note note = new Note();
               note.setNote(resultSet.getString("psinote_uid"));
               note.setValue(resultSet.getString("psinote_value"));
-              note.setStoredDate(DateUtils.getIso8601NoTz(resultSet.getDate("psinote_storeddate")));
+              note.setStoredDate(
+                  DateUtils.getIso8601NoTz(resultSet.getTimestamp("psinote_storeddate")));
               note.setStoredBy(resultSet.getString("psinote_storedby"));
 
               if (resultSet.getObject("usernote_id") != null) {
@@ -530,7 +530,7 @@ public class JdbcEventStore implements EventStore {
                         resultSet.getString("userinfo_surname")));
               }
 
-              note.setLastUpdated(resultSet.getDate("psinote_lastupdated"));
+              note.setLastUpdated(resultSet.getTimestamp("psinote_lastupdated"));
 
               event.getNotes().add(note);
               notes.add(resultSet.getString("psinote_id"));
@@ -733,7 +733,8 @@ public class JdbcEventStore implements EventStore {
               Note note = new Note();
               note.setNote(resultSet.getString("psinote_uid"));
               note.setValue(resultSet.getString("psinote_value"));
-              note.setStoredDate(DateUtils.getIso8601NoTz(resultSet.getDate("psinote_storeddate")));
+              note.setStoredDate(
+                  DateUtils.getIso8601NoTz(resultSet.getTimestamp("psinote_storeddate")));
               note.setStoredBy(resultSet.getString("psinote_storedby"));
 
               eventRow.getNotes().add(note);
@@ -834,9 +835,9 @@ public class JdbcEventStore implements EventStore {
     sqlBuilder.append(
         getIdSqlBasedOnIdScheme(
             idSchemes.getCategoryOptionComboIdScheme(),
-            "coc.uid as coc_identifier, ",
-            "coc.attributevalues #>> '{%s, value}' as coc_identifier, ",
-            "coc.code as coc_identifier, "));
+            "coc_agg.uid as coc_identifier, ",
+            "coc_agg.attributevalues #>> '{%s, value}' as coc_identifier, ",
+            "coc_agg.code as coc_identifier, "));
 
     return sqlBuilder.toString();
   }
@@ -1082,7 +1083,7 @@ public class JdbcEventStore implements EventStore {
             .append(
                 "au.firstName as user_assigned_first_name, au.surName as user_assigned_surname, ")
             .append("au.username as user_assigned_username,")
-            .append("coc.uid as coc_uid, ")
+            .append("coc_agg.uid as coc_uid, ")
             .append("coc_agg.co_uids AS co_uids, ")
             .append("coc_agg.co_count AS option_size, ");
 
@@ -1285,27 +1286,15 @@ public class JdbcEventStore implements EventStore {
     }
 
     if (params.getStartDate() != null) {
-      mapSqlParameterSource.addValue("startDate", params.getStartDate(), Types.DATE);
+      mapSqlParameterSource.addValue("startDate", params.getStartDate(), Types.TIMESTAMP);
 
-      fromBuilder
-          .append(hlp.whereAnd())
-          .append(" (psi.executiondate >= ")
-          .append(":startDate")
-          .append(" or (psi.executiondate is null and psi.duedate >= ")
-          .append(":startDate")
-          .append(" )) ");
+      fromBuilder.append(hlp.whereAnd()).append(" psi.executiondate >= :startDate ");
     }
 
     if (params.getEndDate() != null) {
-      mapSqlParameterSource.addValue("endDate", addDays(params.getEndDate(), 1), Types.DATE);
+      mapSqlParameterSource.addValue("endDate", params.getEndDate(), Types.TIMESTAMP);
 
-      fromBuilder
-          .append(hlp.whereAnd())
-          .append(" (psi.executiondate < ")
-          .append(":endDate")
-          .append(" or (psi.executiondate is null and psi.duedate < ")
-          .append(":endDate")
-          .append(" )) ");
+      fromBuilder.append(hlp.whereAnd()).append(" psi.executiondate < :endDate ");
     }
 
     if (params.getProgramType() != null) {
@@ -1706,7 +1695,7 @@ public class JdbcEventStore implements EventStore {
     }
 
     if (params.getStartDate() != null) {
-      mapSqlParameterSource.addValue("startDate", params.getStartDate(), Types.DATE);
+      mapSqlParameterSource.addValue("startDate", params.getStartDate(), Types.TIMESTAMP);
 
       sqlBuilder
           .append(hlp.whereAnd())
@@ -1718,7 +1707,7 @@ public class JdbcEventStore implements EventStore {
     }
 
     if (params.getEndDate() != null) {
-      mapSqlParameterSource.addValue("endDate", addDays(params.getEndDate(), 1), Types.DATE);
+      mapSqlParameterSource.addValue("endDate", params.getEndDate(), Types.TIMESTAMP);
 
       sqlBuilder
           .append(hlp.whereAnd())
@@ -1745,7 +1734,7 @@ public class JdbcEventStore implements EventStore {
     }
 
     if (params.getDueDateStart() != null) {
-      mapSqlParameterSource.addValue("startDueDate", params.getDueDateStart(), Types.DATE);
+      mapSqlParameterSource.addValue("startDueDate", params.getDueDateStart(), Types.TIMESTAMP);
 
       sqlBuilder
           .append(hlp.whereAnd())
@@ -1755,7 +1744,7 @@ public class JdbcEventStore implements EventStore {
     }
 
     if (params.getDueDateEnd() != null) {
-      mapSqlParameterSource.addValue("endDueDate", params.getDueDateEnd(), Types.DATE);
+      mapSqlParameterSource.addValue("endDueDate", params.getDueDateEnd(), Types.TIMESTAMP);
 
       sqlBuilder
           .append(hlp.whereAnd())
@@ -1867,7 +1856,7 @@ public class JdbcEventStore implements EventStore {
       if (params.hasLastUpdatedEndDate()) {
         if (useDateAfterEndDate) {
           mapSqlParameterSource.addValue(
-              "lastUpdatedEnd", addDays(params.getLastUpdatedEndDate(), 1), Types.TIMESTAMP);
+              "lastUpdatedEnd", params.getLastUpdatedEndDate(), Types.TIMESTAMP);
 
           sqlBuilder
               .append(hlp.whereAnd())
@@ -1911,8 +1900,7 @@ public class JdbcEventStore implements EventStore {
    */
   private String getCategoryOptionComboQuery(User user) {
     String joinCondition =
-        "inner join categoryoptioncombo coc on coc.categoryoptioncomboid = psi.attributeoptioncomboid "
-            + " inner join (select coc.categoryoptioncomboid as id,"
+        " inner join (select coc.uid, coc.attributevalues, coc.code, coc.categoryoptioncomboid as id,"
             + " string_agg(co.uid, ';') as co_uids, count(co.categoryoptionid) as co_count"
             + " from categoryoptioncombo coc "
             + " inner join categoryoptioncombos_categoryoptions cocco on coc.categoryoptioncomboid = cocco.categoryoptioncomboid"
@@ -2003,7 +1991,7 @@ public class JdbcEventStore implements EventStore {
     }
 
     if (!orderFields.isEmpty()) {
-      return "order by " + StringUtils.join(orderFields, ',') + " ";
+      return "order by " + StringUtils.join(orderFields, ',') + ", psi_id desc ";
     } else {
       return "order by psi_lastupdated desc ";
     }

@@ -189,7 +189,7 @@ class AnalyticsUtilsTest extends DhisConvenienceTest {
     assertEquals(
         67L, AnalyticsUtils.getRoundedValueObject(paramsA, 67.0), "Should be a long value: 67");
     assertEquals(
-        3.1,
+        3.12,
         (Double) AnalyticsUtils.getRoundedValueObject(paramsA, 3.123),
         0.01,
         "Should be a double value: 3.1");
@@ -226,7 +226,7 @@ class AnalyticsUtilsTest extends DhisConvenienceTest {
     DataQueryParams paramsB = DataQueryParams.newBuilder().withSkipRounding(true).build();
     assertEquals(null, AnalyticsUtils.getRoundedValue(paramsA, null, null));
     assertEquals(3d, AnalyticsUtils.getRoundedValue(paramsA, null, 3d).doubleValue(), 0.01);
-    assertEquals(3.1, AnalyticsUtils.getRoundedValue(paramsA, null, 3.123).doubleValue(), 0.01);
+    assertEquals(3.12, AnalyticsUtils.getRoundedValue(paramsA, null, 3.123).doubleValue(), 0.01);
     assertEquals(3.1, AnalyticsUtils.getRoundedValue(paramsA, 1, 3.123).doubleValue(), 0.01);
     assertEquals(3.12, AnalyticsUtils.getRoundedValue(paramsA, 2, 3.123).doubleValue(), 0.01);
     assertEquals(3.123, AnalyticsUtils.getRoundedValue(paramsB, 3, 3.123).doubleValue(), 0.01);
@@ -574,7 +574,7 @@ class AnalyticsUtilsTest extends DhisConvenienceTest {
     assertEquals("coB", dvs.getRow(1).get(3));
     assertEquals("aoB", dvs.getRow(1).get(4));
     assertEquals(2d, dvs.getRow(1).get(5));
-    assertEquals("[aggregated]", dvs.getRow(1).get(6));
+    assertEquals("", dvs.getRow(1).get(6));
 
     assertEquals("dxA", dvs.getRow(3).get(0));
     assertEquals("peB", dvs.getRow(3).get(1));
@@ -582,7 +582,7 @@ class AnalyticsUtilsTest extends DhisConvenienceTest {
     assertEquals("coA", dvs.getRow(3).get(3));
     assertNull(dvs.getRow(3).get(4));
     assertEquals(4d, dvs.getRow(3).get(5));
-    assertEquals("[aggregated]", dvs.getRow(3).get(6));
+    assertEquals("", dvs.getRow(3).get(6));
 
     assertEquals("dxC", dvs.getRow(6).get(0));
     assertEquals("peA", dvs.getRow(6).get(1));
@@ -590,7 +590,7 @@ class AnalyticsUtilsTest extends DhisConvenienceTest {
     assertNull(dvs.getRow(6).get(3));
     assertEquals("aoA", dvs.getRow(6).get(4));
     assertEquals(7, dvs.getRow(6).get(5));
-    assertEquals("[aggregated]", dvs.getRow(6).get(6));
+    assertEquals("", dvs.getRow(6).get(6));
   }
 
   @Test

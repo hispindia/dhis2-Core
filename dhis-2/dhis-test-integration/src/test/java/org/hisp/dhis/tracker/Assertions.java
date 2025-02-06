@@ -27,6 +27,7 @@
  */
 package org.hisp.dhis.tracker;
 
+import static org.hisp.dhis.utils.Assertions.assertContainsOnly;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -36,7 +37,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import org.hisp.dhis.common.AuditType;
+import org.hisp.dhis.dataelement.DataElement;
+import org.hisp.dhis.trackedentitycomment.TrackedEntityComment;
+import org.hisp.dhis.trackedentitydatavalue.TrackedEntityDataValueAudit;
 import org.hisp.dhis.tracker.report.TrackerErrorCode;
 import org.hisp.dhis.tracker.report.TrackerImportReport;
 import org.hisp.dhis.tracker.report.TrackerStatus;
@@ -196,6 +205,86 @@ public class Assertions {
     assertTrue(
         hasTimeStamp(DateUtils.parseDate(date)),
         String.format("Supported format is %s but found %s", DATE_WITH_TIMESTAMP_PATTERN, date));
+  }
+
+  public static void assertNotes(
+      List<TrackedEntityComment> expected, List<TrackedEntityComment> actual) {
+    assertContainsOnly(expected, actual);
+    Map<String, TrackedEntityComment> expectedNotes =
+        expected.stream()
+            .collect(Collectors.toMap(TrackedEntityComment::getUid, Function.identity()));
+    Map<String, TrackedEntityComment> actualNotes =
+        actual.stream()
+            .collect(Collectors.toMap(TrackedEntityComment::getUid, Function.identity()));
+    List<Executable> assertions =
+        expectedNotes.entrySet().stream()
+            .map(
+                entry ->
+                    (Executable)
+                        () -> {
+                          TrackedEntityComment expectedNote = entry.getValue();
+                          TrackedEntityComment actualNote = actualNotes.get(entry.getKey());
+                          assertAll(
+                              "note assertions " + expectedNote.getUid(),
+                              () ->
+                                  assertEquals(
+                                      expectedNote.getCommentText(),
+                                      actualNote.getCommentText(),
+                                      "noteText"),
+                              () ->
+                                  assertEquals(
+                                      expectedNote.getCreator(),
+                                      actualNote.getCreator(),
+                                      "creator"),
+                              () ->
+                                  assertEquals(
+                                      expectedNote.getCreated(),
+                                      actualNote.getCreated(),
+                                      "created"));
+                        })
+            .collect(Collectors.toList());
+    assertAll("note assertions", assertions);
+  }
+
+  /**
+   * assertTrackedEntityDataValueAudit asserts a TrackedEntityDataValueAudit obtained from the db
+   * and compares it with the expected value, auditType and dataElement.
+   *
+   * @param audit The TrackedEntityDataValueAudit entity obtained from persistence
+   * @param expectedDataElement The audit object is expected to be for this dataElement
+   * @param expectedAuditType The audit object is expected to have this auditType
+   * @param expectedValue The audit object is expected to have this value
+   */
+  public static void assertTrackedEntityDataValueAudit(
+      TrackedEntityDataValueAudit audit,
+      DataElement expectedDataElement,
+      AuditType expectedAuditType,
+      String expectedValue) {
+    assertAll(
+        () -> assertNotNull(audit),
+        () ->
+            assertEquals(
+                expectedAuditType,
+                audit.getAuditType(),
+                () ->
+                    "Expected audit type is "
+                        + expectedAuditType
+                        + " but found "
+                        + audit.getAuditType()),
+        () ->
+            assertEquals(
+                audit.getDataElement().getUid(),
+                expectedDataElement.getUid(),
+                () ->
+                    "Expected dataElement is "
+                        + expectedDataElement.getUid()
+                        + " but found "
+                        + audit.getDataElement().getUid()),
+        () ->
+            assertEquals(
+                expectedValue,
+                audit.getValue(),
+                () -> "Expected value is " + expectedValue + " but found " + audit.getValue()));
   }
 
   private static boolean hasTimeStamp(Date date) {

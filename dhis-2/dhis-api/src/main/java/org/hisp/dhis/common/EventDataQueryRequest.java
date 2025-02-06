@@ -243,6 +243,7 @@ public class EventDataQueryRequest {
               .showHierarchy(criteria.isShowHierarchy())
               .skipRounding(criteria.isSkipRounding())
               .skipData(criteria.isSkipData())
+              .skipRounding(criteria.isSkipRounding())
               .skipMeta(criteria.isSkipMeta())
               .sortOrder(criteria.getSortOrder())
               .stage(criteria.getStage())
@@ -372,7 +373,7 @@ public class EventDataQueryRequest {
       }
 
       Set<String> dimensions;
-      if (criteria.isQueryEndpoint()) {
+      if (criteria.isQueryEndpoint() || criteria.isAggregatedEnrollments()) {
         /*
          * for each AnalyticsDateFilter whose enrollment extractor is
          * set, concatenates the timeField with the extracted value:

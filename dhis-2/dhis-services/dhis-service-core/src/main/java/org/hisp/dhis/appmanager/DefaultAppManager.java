@@ -32,6 +32,7 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -362,6 +363,22 @@ public class DefaultAppManager implements AppManager {
     return getAppStorageServiceByApp(app).getAppResource(app, pageName);
   }
 
+  /**
+   * @param resource resource to check content length
+   * @return the content length or -1 (unknown size) if exception caught
+   */
+  @Override
+  public int getUriContentLength(Resource resource) {
+    try {
+      URLConnection urlConnection = resource.getURL().openConnection();
+      return urlConnection.getContentLength();
+    } catch (IOException e) {
+      log.error("Error trying to retrieve content length of Resource: {}", e.getMessage());
+      e.printStackTrace();
+      return -1;
+    }
+  }
+
   // -------------------------------------------------------------------------
   // Supportive methods
   // -------------------------------------------------------------------------
@@ -389,8 +406,7 @@ public class DefaultAppManager implements AppManager {
               ? new String[] {WEB_MAINTENANCE_APPMANAGER_AUTHORITY}
               : new String[] {WEB_MAINTENANCE_APPMANAGER_AUTHORITY, app.getSeeAppAuthority()};
       datastoreService.addProtection(
-          new DatastoreNamespaceProtection(
-              namespace, ProtectionType.RESTRICTED, true, authorities));
+          new DatastoreNamespaceProtection(namespace, ProtectionType.RESTRICTED, authorities));
     }
   }
 
