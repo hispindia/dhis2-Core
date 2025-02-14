@@ -28,6 +28,7 @@ package org.hisp.dhis.resourcetable.table;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -89,9 +90,20 @@ public class DatePeriodResourceTable
 
         List<Object[]> batchArgs = new ArrayList<>();
 
+        /*
         Date startDate = new Cal( 1975, 1, 1, true ).time(); //TODO
-        Date endDate = new Cal( 2025, 1, 1, true ).time();
-
+        Date endDate = new Cal( 2030, 1, 1, true ).time();
+        */
+        
+        int OLDEST_YEAR_PERIOD_SUPPORTED = 1975;
+        int NEWEST_YEAR_PERIOD_SUPPORTED = LocalDate.now().plusYears( 25 ).getYear();
+        
+        System.out.println( "OLDEST_YEAR_PERIOD_SUPPORTED -- " + OLDEST_YEAR_PERIOD_SUPPORTED);
+        System.out.println( "NEWEST_YEAR_PERIOD_SUPPORTED -- " + NEWEST_YEAR_PERIOD_SUPPORTED);
+        
+        Date startDate = new Cal( OLDEST_YEAR_PERIOD_SUPPORTED, 1, 1, true ).time();
+        Date endDate = new Cal( NEWEST_YEAR_PERIOD_SUPPORTED + 1, 1, 1, true ).time();
+        
         List<Period> days = new UniqueArrayList<>( new DailyPeriodType().generatePeriods( startDate, endDate ) );
 
         Calendar calendar = PeriodType.getCalendar();
