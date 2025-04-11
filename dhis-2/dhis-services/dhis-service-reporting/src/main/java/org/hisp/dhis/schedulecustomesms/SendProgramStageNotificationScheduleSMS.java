@@ -228,11 +228,12 @@ public class SendProgramStageNotificationScheduleSMS implements Job
                     //teimMobileNumber.add( "778807722" );
                     //teimMobileNumber.add( "775338133" );
                     
+                    // "حان موعد تطعيم طفلكم بحسب جدول التطعيم الروتيني في تاريخ(Date).وزارة الصحة"
                     
                     //String tempCompleteMessage = "Welcome " + first_name + " " + last_name + ". Most parents of children attend immunization visits to help keep their baby safe. Your child will get immunizations to protect them and others against certain infectious diseases. As agreed, we will send you reminders about upcoming visits. You may let us know if you donot want to receive anymore.";
                     
-                    
-                    tempCompleteMessage = "حان موعد تطعيم طفلكم بحسب جدول التطعيم الروتيني.وزارة الصحة- برنامج التحصين حان موعد زيارتك في تاريخ "+ due_date + " وفي المرفق" + orgunit_name;
+                    tempCompleteMessage = "حان موعد تطعيم طفلكم بحسب جدول التطعيم الروتيني في تاريخ "+ due_date + "وزارة الصحة";
+                    //tempCompleteMessage = "حان موعد تطعيم طفلكم بحسب جدول التطعيم الروتيني.وزارة الصحة- برنامج التحصين حان موعد زيارتك في تاريخ "+ due_date + " وفي المرفق" + orgunit_name;
                     sendCustomSMS( tempCompleteMessage, mobile_number);
                     
                     //System.out.println( " tei_uid : " + tei_uid + " mobile_number : " + mobile_number + " tempCompleteMessage : " + tempCompleteMessage );
