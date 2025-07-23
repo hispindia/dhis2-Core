@@ -29,6 +29,7 @@ package org.hisp.dhis.resourcetable.table;
 
 import static org.hisp.dhis.system.util.SqlUtils.quote;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -90,12 +91,22 @@ public class DatePeriodResourceTable
 
         List<Object[]> batchArgs = new ArrayList<>();
 
-        Date startDate = new Cal( 1975, 1, 1, true ).time(); // TODO Create a
+        //Date startDate = new Cal( 1975, 1, 1, true ).time(); // TODO Create a
                                                              // dynamic solution
                                                              // instead of
                                                              // fixing the date
-        Date endDate = new Cal( 2025, 1, 1, true ).time();
+        //Date endDate = new Cal( 2025, 1, 1, true ).time();
 
+        
+        int OLDEST_YEAR_PERIOD_SUPPORTED = 1975;
+        int NEWEST_YEAR_PERIOD_SUPPORTED = LocalDate.now().plusYears( 25 ).getYear();
+        
+        System.out.println( "OLDEST_YEAR_PERIOD_SUPPORTED -- " + OLDEST_YEAR_PERIOD_SUPPORTED);
+        System.out.println( "NEWEST_YEAR_PERIOD_SUPPORTED -- " + NEWEST_YEAR_PERIOD_SUPPORTED);
+        
+        Date startDate = new Cal( OLDEST_YEAR_PERIOD_SUPPORTED, 1, 1, true ).time();
+        Date endDate = new Cal( NEWEST_YEAR_PERIOD_SUPPORTED + 1, 1, 1, true ).time();
+        
         List<Period> dailyPeriods = new DailyPeriodType().generatePeriods( startDate, endDate );
 
         List<Date> days = new UniqueArrayList<>(
